@@ -1,8 +1,8 @@
 ---
-title: Interact with hello world contract
-description: Build a command-line interface to interact with a deployed hello world contract on the Midnight Network.
+title: Hello world contract와 상호작용하기
+description: Midnight Network에 배포된 hello world contract와 상호작용하는 CLI를 구축합니다.
 sidebar_position: 30
-sidebar_label: Interact with hello world contract
+sidebar_label: Hello world contract와 상호작용하기
 tags: [smart contract, preprod, wallet]
 # slug: /getting-started/interact-with-contract
 toc_max_heading_level: 2
@@ -12,20 +12,20 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import Step, { StepsProvider } from "@site/src/components/Step/Step";
 
-In this tutorial, you'll build a command-line interface (CLI) to interact with your deployed hello world contract on Midnight's Preprod network. 
-You'll learn how to call contract circuits, read public state, and manage your wallet's DUST balance while interacting with the blockchain.
+이 튜토리얼에서는 Midnight Preprod 네트워크에 배포된 hello world contract와 상호작용하는 CLI를 구축합니다.
+contract circuit 호출, public state 읽기, DUST 잔액 관리 방법을 다룹니다.
 
 ## Prerequisites
 
-Before you begin, ensure that you have the following:
+시작하기 전에 다음을 준비하세요:
 
-- A deployed hello world contract with the contract address saved in `deployment.json`. You'll need to complete the [deploy the hello world contract](./deploy-mn-app) tutorial first.
-- Your 64-character wallet seed.
-- All project dependencies installed with `npm install`.
-- The proof server running. For setup instructions, see the [proof server](./run-proof-server) guide.
-- The `src/utils.ts` file created during deployment.
+- `deployment.json`에 contract address가 저장된 배포 완료 hello world contract. [hello world contract 배포하기](./deploy-mn-app) 튜토리얼을 먼저 완료해야 합니다.
+- 64자리 wallet seed
+- `npm install`로 모든 의존성이 설치된 상태
+- proof server 실행 중. 설정 방법은 [proof server](./run-proof-server) 가이드를 참조하세요.
+- 배포 과정에서 생성한 `src/utils.ts` 파일
 
-Your project structure should look similar to the following if you followed the [deploy the hello world contract](./deploy-mn-app) tutorial:
+[hello world contract 배포하기](./deploy-mn-app) 튜토리얼을 완료했다면 프로젝트 구조가 다음과 같아야 합니다:
 
 ```
 my-midnight-contract/
@@ -48,11 +48,11 @@ my-midnight-contract/
 <StepsProvider>
 <Step>
 
-## Add the CLI script to package.json
+## Add CLI script to package.json
 
-Add a new script that makes it easy to run your CLI application.
+CLI 애플리케이션 실행을 위한 script를 추가합니다.
 
-Update the `scripts` section in `package.json` to include the CLI command:
+`package.json`의 `scripts` 섹션을 다음과 같이 업데이트하세요:
 
 ```json
 {
@@ -65,15 +65,15 @@ Update the `scripts` section in `package.json` to include the CLI command:
 }
 ```
 
-This adds a new `cli` script for running the CLI application.
+CLI 애플리케이션을 실행하는 `cli` script가 추가됩니다.
 </Step>
 <Step>
 
 ## Create the CLI application file
 
-Create the main CLI script that provides an interactive interface for contract operations.
+컨트랙트 작업을 위한 대화형 인터페이스를 제공하는 CLI 파일을 작성합니다.
 
-Create the `src/cli.ts` file and add the following code:
+`src/cli.ts`를 생성하고 다음 코드를 추가하세요:
 
 ```typescript
 import { createInterface } from 'node:readline/promises';
@@ -81,41 +81,41 @@ import { stdin, stdout } from 'node:process';
 import * as fs from 'node:fs';
 import * as Rx from 'rxjs';
 
-// Midnight SDK imports
+// Midnight SDK import
 import { findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
 
-// Shared utilities from the utils.ts file
-import { 
-  createWallet, 
-  createProviders, 
-  compiledContract, 
-  HelloWorld 
+// utils.ts 파일의 공유 유틸리티
+import {
+  createWallet,
+  createProviders,
+  compiledContract,
+  HelloWorld
 } from './utils.js';
 ```
 
-These imports provide the following:
-- **readline**: Creates the interactive command-line interface.
-- **fs**: Reads the deployment configuration file.
-- **Rx (RxJS)**: Handles reactive state management for wallet synchronization.
-- **findDeployedContract**: Connects to an existing deployed contract.
-- **Shared utilities**: Reuses wallet and provider setup from deployment.
+각 import의 역할:
+- **readline**: 대화형 CLI 생성
+- **fs**: 배포 설정 파일 읽기
+- **Rx (RxJS)**: 지갑 동기화를 위한 반응형 상태 관리
+- **findDeployedContract**: 기존 배포된 컨트랙트에 연결
+- **공유 유틸리티**: 배포 시 사용한 지갑 및 provider 설정 재사용
 
 </Step>
 <Step>
 
 ## Implement contract connection logic
 
-Open the `cli.ts` file and add the main function that loads deployment information, creates a wallet, and connects to your deployed contract.
+`cli.ts`에 배포 정보 로드, 지갑 생성, 배포된 컨트랙트 연결을 담당하는 메인 함수를 추가하세요.
 
 ```typescript
-// ─── Main CLI Script ───────────────────────────────────────────────────────────
+// ─── 메인 CLI 스크립트 ───────────────────────────────────────────────────────────
 
 async function main() {
   console.log('\n╔══════════════════════════════════════════════════════════╗');
   console.log('║           Hello World Contract CLI (Preprod)            ║');
   console.log('╚══════════════════════════════════════════════════════════╝\n');
 
-  // Check for deployment.json
+  // deployment.json 확인
   if (!fs.existsSync('deployment.json')) {
     console.error('No deployment.json found! Run `npm run deploy` first.\n');
     process.exit(1);
@@ -127,7 +127,7 @@ async function main() {
   const rl = createInterface({ input: stdin, output: stdout });
 
   try {
-    // Get wallet seed
+    // wallet seed(지갑 시드) 입력 받기
     const seed = await rl.question('  Enter your wallet seed: ');
 
     console.log('\n  Connecting to Midnight Preprod...');
@@ -136,7 +136,7 @@ async function main() {
     console.log('  Syncing wallet...');
     await Rx.firstValueFrom(
       walletCtx.wallet.state().pipe(
-        Rx.throttleTime(5000), 
+        Rx.throttleTime(5000),
         Rx.filter((s) => s.isSynced)
       )
     );
@@ -155,29 +155,29 @@ async function main() {
     console.log('  Connected!\n');
 ```
 
-This section explains how to:
-- Validate that `deployment.json` exists with contract information.
-- Prompt for your wallet seed to restore access to your wallet.
-- Create a wallet instance using the shared utilities from the `utils.ts` file.
-- Wait for the wallet to sync with the Preprod environment. This ensures you have the latest blockchain state.
-- Set up all required providers for contract interaction.
-- Connect to the deployed contract using `findDeployedContract`, which:
-  - Verifies that the contract exists at the specified address
-  - Loads the contract's current state
-  - Sets up the local private state storage
-  - Returns a contract instance ready for calling circuits
+이 코드가 수행하는 작업:
+- `deployment.json`에 컨트랙트 정보가 있는지 확인
+- wallet seed를 입력받아 지갑 접근 복원
+- `utils.ts`의 공유 유틸리티로 지갑 인스턴스 생성
+- 지갑을 Preprod와 동기화하여 최신 블록체인 상태 확보
+- 컨트랙트 상호작용에 필요한 provider 설정
+- `findDeployedContract`로 배포된 컨트랙트에 연결. 이 함수는:
+  - 지정된 주소에 컨트랙트 존재 여부 확인
+  - 컨트랙트의 현재 상태 로드
+  - 로컬 private state 저장소 설정
+  - circuit 호출이 준비된 컨트랙트 인스턴스 반환
 
 </Step>
 <Step>
 
 ## Build the interactive menu
 
-Create the main menu loop that presents options to the user and handles their choices.
+사용자에게 옵션을 표시하고 선택을 처리하는 메인 메뉴 루프를 만듭니다.
 
-Continue adding to the main function in the `cli.ts` file:
+`cli.ts`의 메인 함수에 이어서 추가하세요:
 
 ```typescript
-    // Main menu loop
+    // 메인 메뉴 루프
     let running = true;
     while (running) {
       const dust = (
@@ -246,30 +246,29 @@ Continue adding to the main function in the `cli.ts` file:
 main().catch(console.error);
 ```
 
-This function is the main entry point for the CLI application. It loads the deployment information, creates a wallet, and connects to the deployed contract. 
-It then enters the main menu loop, which presents options to the user and handles their choices.
+CLI 애플리케이션의 메인 진입점입니다. 배포 정보를 로드하고, 지갑을 생성하고, 컨트랙트에 연결한 뒤 메인 메뉴 루프에서 사용자 입력을 처리합니다.
 
 </Step>
 <Step>
 
 ## Run the CLI application
 
-You're ready to run your CLI to interact with the deployed contract.
+이제 배포된 컨트랙트와 상호작용할 CLI를 실행할 수 있습니다.
 
-Start the CLI application by running the following command:
+다음 명령어로 CLI를 시작하세요:
 
 ```bash
 npm run cli
 ```
 
-The CLI guides you through the interaction process:
+CLI가 다음 순서로 진행됩니다:
 
-1. Enter your wallet seed from deployment.
-2. Wait for the wallet to synchronize with the Preprod environment. This usually takes a few seconds.
-3. Check your DUST balance displayed in the menu.
-4. Choose an operation from the menu options.
+1. 배포 시 사용한 wallet seed를 입력합니다.
+2. 지갑이 Preprod와 동기화될 때까지 대기합니다 (보통 수 초 소요).
+3. 메뉴에 표시되는 DUST 잔액을 확인합니다.
+4. 원하는 작업을 선택합니다.
 
-### Example session storing a message
+### Store message example session
 
 ```
 ╔══════════════════════════════════════════════════════════╗
@@ -302,7 +301,7 @@ The CLI guides you through the interaction process:
   Block: 123456
 ```
 
-### Example session reading a message
+### Read message example session
 
 ```
 ─────────────────────────────────────────────────────────────────
@@ -319,38 +318,38 @@ The CLI guides you through the interaction process:
 </Step>
 </StepsProvider>
 
-## Troubleshoot
+## Troubleshooting
 
-These are some of the common issues that you might encounter and how to fix them.
+자주 발생하는 문제와 해결 방법입니다.
 
 ### Contract not found error
 
-If you see "No deployment.json found" in the CLI output:
+"No deployment.json found" 메시지가 표시되면:
 
-- Verify that you ran `npm run deploy` successfully.
-- Check that `deployment.json` exists in your project's root directory.
-- Ensure that you're running the CLI from the correct directory.
+- `npm run deploy`가 성공적으로 완료되었는지 확인하세요.
+- 프로젝트 루트에 `deployment.json`이 있는지 확인하세요.
+- 올바른 디렉토리에서 CLI를 실행하고 있는지 확인하세요.
 
 ### Insufficient DUST
 
-If storing a message fails due to insufficient DUST in your wallet:
+DUST 부족으로 메시지 저장에 실패하면:
 
-- Check your DUST balance in the menu.
-- Wait for DUST generation if you recently funded your wallet.
-- Ensure you have tNight tokens. DUST is generated from your tNight tokens.
-- Visit the [Preprod faucet](https://faucet.preprod.midnight.network/) to get more tNight tokens.
+- 메뉴에서 DUST 잔액을 확인하세요.
+- 최근 자금을 입금했다면 DUST 생성까지 잠시 기다리세요.
+- tNight token이 있는지 확인하세요. DUST는 tNight token에서 생성됩니다.
+- [Preprod faucet](https://faucet.preprod.midnight.network/)에서 추가 tNight token을 받으세요.
 
 ### Invalid seed error
 
-If your wallet seed is rejected:
+wallet seed가 거부되면:
 
-- Verify that you're using the correct 64-character hexadecimal seed.
-- Check for typos or extra whitespace.
-- Ensure you're using the same seed used to deploy the contract.
+- 올바른 64자리 16진수 seed인지 확인하세요.
+- 오타나 불필요한 공백이 없는지 확인하세요.
+- 컨트랙트 배포 시 사용한 동일한 seed인지 확인하세요.
 
 ## Next steps
 
-Now that you can interact with your deployed contract through the CLI, you can build a web interface for your DApp.
-To create a graphical user interface for your contract, see the [React wallet connector guide](./react-wallet-connect). 
+CLI로 배포된 컨트랙트와 상호작용할 수 있게 되었습니다. 다음으로 DApp용 웹 인터페이스를 구축해 보세요.
+컨트랙트의 GUI를 만들려면 [React wallet connector 가이드](./react-wallet-connect)를 참조하세요.
 
-For complete API documentation on available wallet methods and contract interactions, refer to the [DApp Connector API reference](/api-reference/dapp-connector/).
+지갑 메서드 및 컨트랙트 상호작용의 전체 API 문서는 [DApp Connector API 레퍼런스](/api-reference/dapp-connector/)에서 확인할 수 있습니다.

@@ -1,8 +1,8 @@
 ---
-title: Create a Midnight DApp
-description: Get started creating a Midnight DApp using the create-mn-app CLI tool.
+title: Midnight DApp 만들기
+description: create-mn-app CLI 도구를 사용하여 Midnight DApp 만들기를 시작하세요.
 sidebar_position: 15
-sidebar_label: Quickstart
+sidebar_label: 퀵스타트
 ---
 
 import Tabs from "@theme/Tabs";
@@ -11,37 +11,37 @@ import Step, { StepsProvider } from "@site/src/components/Step/Step";
 
 # Create a Midnight DApp
 
-This guide explains how to scaffold a Midnight DApp using the `create-mn-app` CLI tool.
+`create-mn-app` CLI 도구를 사용하여 Midnight DApp을 스캐폴딩하는 방법을 설명합니다.
 
 ## Prerequisites
 
-The following tools are required to run a Midnight DApp:
+Midnight DApp을 실행하려면 다음이 필요합니다:
 
-- Compact compiler installed. See [install the toolchain](./installation) for instructions.
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
-- [Node.js](https://nodejs.org/) version 22+ installed. You can use [NVM](https://github.com/nvm-sh/nvm) to install Node.js.
+- Compact 컴파일러 설치 완료. [Toolchain 설치](./installation)를 참고하세요.
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) 설치 및 실행 중
+- [Node.js](https://nodejs.org/) v22 이상. [NVM](https://github.com/nvm-sh/nvm)으로 설치할 수 있습니다.
 
 ## Midnight CLI tool
 
-The [`create-mn-app`](https://www.npmjs.com/package/create-mn-app) CLI tool provides starter templates for Midnight DApps. It includes a preconfigured TypeScript setup, hot reloading, and wallet operation logic. 
+[`create-mn-app`](https://www.npmjs.com/package/create-mn-app) CLI 도구는 Midnight DApp용 스타터 템플릿을 제공합니다. TypeScript 설정, 핫 리로딩, wallet 운영 로직이 사전 구성되어 있습니다.
 
-To scaffold a new DApp, run the following command:
+새 DApp을 스캐폴딩하세요:
 
 ```bash
 npx create-mn-app [project-name]
 ```
 
 :::info
-Ensure you replace `[project-name]` with the name of your new DApp.
+`[project-name]`을 새 DApp의 이름으로 교체하세요.
 :::
 
-The CLI tool prompts you to select a template. Available options include:
+CLI가 템플릿을 선택하라는 프롬프트를 표시합니다. 사용 가능한 옵션:
 
 - Hello world
 - Counter
 - Bulletin board
 
-Select the Hello world template and follow the prompts to complete the setup. You should see the following output:
+Hello world 템플릿을 선택하고 프롬프트에 따라 설정을 완료하세요. 다음과 유사한 출력이 나타납니다:
 
 ```
 Creating a new Midnight app in /path/to/my-app.
@@ -54,33 +54,33 @@ Template: hello-world
 ✔ Docker is ready for proof server
 ✔ Contract compiled successfully
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎉 Success! Your Midnight app is ready.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-Once the installation is complete, navigate to the `my-app` directory:
+완료되면 `my-app` 디렉토리로 이동하세요:
 
 ```bash
 cd my-app
 ```
 
-Your project structure should look similar to this:
+프로젝트 구조:
 
 ```
 my-app/
 ├── contracts/
 │   └── hello-world.compact    # Compact smart contract
 ├── src/
-│   ├── cli.ts                 # Interact with deployed contract
-│   ├── deploy.ts              # Deploy contract to Preprod
-│   └── check-balance.ts       # Check wallet balance
-├── docker-compose.yml         # Proof server config
+│   ├── cli.ts                 # 배포된 contract와 상호작용
+│   ├── deploy.ts              # Preprod에 contract 배포
+│   └── check-balance.ts       # wallet 잔액 확인
+├── docker-compose.yml         # Proof server 설정
 ├── package.json
-└── deployment.json            # Deployment information (contains wallet seed and contract address)
+└── deployment.json            # 배포 정보 (wallet seed와 contract 주소 포함)
 ```
 
-The `contracts/hello-world.compact` file contains the Compact smart contract code.
+`contracts/hello-world.compact` 파일에 Compact smart contract 코드가 있습니다.
 
 ```compact
 pragma language_version 0.22;
@@ -92,29 +92,29 @@ export circuit storeMessage(newMessage: Opaque<"string">): [] {
 }
 ```
 
-[Compact](../compact/) is Midnight's smart contract language used to define contract logic. It is similar to TypeScript but is designed for use with the Midnight runtime.
+[Compact](../compact/)는 contract 로직을 정의하는 Midnight의 smart contract 언어입니다. TypeScript와 유사하지만 Midnight 런타임용으로 설계되었습니다.
 
-The `docker-compose.yml` file contains the configuration for the [proof server](../guides/run-proof-server). The proof server generates Zero Knowledge (ZK) proofs for smart contracts on the Midnight network. It must be running before you can deploy or interact with the contract.
+`docker-compose.yml` 파일에는 [proof server](../guides/run-proof-server) 설정이 포함되어 있습니다. Proof server는 Midnight 네트워크에서 smart contract용 ZK proof를 생성하며, contract를 배포하거나 상호작용하기 전에 반드시 실행 중이어야 합니다.
 
 ## Set up the project
 
-Run the script to set up the project:
+프로젝트 설정 스크립트를 실행하세요:
 
 ```bash
 npm run setup
 ```
 
-This script starts the proof server, compiles the contract, and deploys the contract to the Preprod network.
+이 스크립트는 proof server 시작, contract 컴파일, Preprod 네트워크 배포를 순서대로 수행합니다.
 
-The CLI prompts you to create a new wallet or restore an existing wallet. If you choose to create a new wallet, the CLI generates a new wallet seed and displays the wallet address. Save the wallet seed in a secure location. You'll need it to restore your wallet.
+CLI가 새 wallet 생성 또는 기존 wallet 복원을 선택하라는 프롬프트를 표시합니다. 새 wallet을 생성하면 CLI가 wallet seed를 생성하고 wallet 주소를 표시합니다. Wallet seed는 복원 시 필요하므로 안전한 곳에 저장하세요.
 
 :::note
-You'll need to fund your wallet with tNIGHT tokens from the [Preprod faucet](https://faucet.preprod.midnight.network/). tNIGHT is used to generate tDUST, which is required to pay for transaction fees on the Midnight blockchain.
+[Preprod faucet](https://faucet.preprod.midnight.network/)에서 tNIGHT token을 받아 wallet에 충전해야 합니다. tNIGHT는 Midnight blockchain에서 transaction 수수료 지불에 필요한 tDUST를 생성합니다.
 :::
 
-After funding your wallet, the CLI automatically generates tDUST and deploys the contract to the Preprod network. This process takes a few seconds to complete.
+Wallet에 자금을 충전하면 CLI가 자동으로 tDUST를 생성하고 Preprod 네트워크에 contract를 배포합니다. 몇 초 정도 소요됩니다.
 
-You should see the following output after the deployment is complete:
+배포가 완료되면 다음과 같은 출력이 표시됩니다:
 
 ```
   ✅ Contract deployed successfully!
@@ -124,17 +124,17 @@ You should see the following output after the deployment is complete:
   Saved to deployment.json
 ```
 
-The `deployment.json` file in the root directory contains the deployment information for the contract. The CLI references this file when interacting with the contract.
+루트 디렉토리의 `deployment.json` 파일에 contract 배포 정보가 저장됩니다. CLI는 contract와 상호작용할 때 이 파일을 참조합니다.
 
 ## Interact with the contract
 
-The tool provides a command-line interface to interact with the contract. Run the following command to start the CLI:
+Contract와 상호작용할 수 있는 CLI를 시작하세요:
 
 ```bash
 npm run cli
 ```
 
-This command starts the CLI and prompts you to enter your wallet seed. After syncing your wallet with the network, you can interact with the contract using the following commands:
+Wallet seed를 입력하라는 프롬프트가 나타납니다. Wallet이 네트워크와 동기화되면 다음 메뉴로 contract와 상호작용할 수 있습니다:
 
 ```
 1. Store a message
@@ -143,25 +143,25 @@ This command starts the CLI and prompts you to enter your wallet seed. After syn
 4. Exit
 ```
 
-Choose an option from the menu and follow the prompts to interact with the contract.
+원하는 옵션을 선택하고 프롬프트에 따라 진행하세요.
 
 ## Templates
 
-The Midnight CLI tool provides starter templates for the following DApps:
+Midnight CLI 도구에서 제공하는 스타터 템플릿:
 
 ### Hello world
 
-The Hello world template is a message storage DApp that allows you to post and retrieve messages on the blockchain.
+Blockchain에 메시지를 저장하고 조회하는 간단한 DApp입니다.
 
 ```bash
 npx create-mn-app my-app
 ```
 
-The Hello world template is the default and comes with dependencies installed. You don't need to use the `--template` flag when creating a new hello world DApp.
+Hello world는 기본 템플릿이므로 `--template` 플래그 없이 사용할 수 있으며, 의존성이 자동으로 설치됩니다.
 
 ### Counter
 
-The Counter template is a simple counter DApp that allows you to increment and decrement a counter.
+카운터를 증가/감소시키는 간단한 DApp입니다.
 
 ```bash
 npx create-mn-app my-app --template counter
@@ -169,11 +169,11 @@ cd my-app
 npm install
 ```
 
-To learn more about the Counter template, see the [Counter DApp](../examples/dapps/counter) example.
+자세한 내용은 [Counter DApp](../examples/dapps/counter) 예제를 참고하세요.
 
 ### Bulletin board
 
-The Bulletin board template is a privacy-preserving bulletin board DApp that allows you to post and remove messages.
+메시지를 게시하고 삭제할 수 있는 프라이버시 기반 게시판 DApp입니다.
 
 ```bash
 npx create-mn-app my-app --template bboard
@@ -181,24 +181,23 @@ cd my-app
 npm install
 ```
 
-This template uses ZK proofs to verify the identity of the poster and the owner of the message without revealing their identity on-chain. To learn more about the Bulletin board DApp, see the [Bulletin board DApp](../examples/dapps/bboard) example.
+ZK proof를 사용하여 온체인에 신원을 공개하지 않으면서 게시자와 메시지 소유자의 신원을 검증합니다. 자세한 내용은 [Bulletin board DApp](../examples/dapps/bboard) 예제를 참고하세요.
 
 ## CLI options
 
-The following options are available when creating a new DApp using the `create-mn-app` CLI tool:
+`create-mn-app`으로 DApp을 만들 때 사용 가능한 옵션:
 
-| Option | Description |
+| 옵션 | 설명 |
 |--------|-------------|
-| `-t`, `--template <name>` | Select a template: `hello-world`, `counter`, `bboard` |
-| `--use-npm/yarn/pnpm/bun` | Force the use of a specific package manager |
-| `--skip-install` | Skip the installation of dependencies |
-| `--skip-git` | Skip the initialization of a git repository |
-| `--verbose` | Show detailed output when creating the project |
-| `-h`, `--help` | Show help |
-| `-V`, `--version` | Show the version of the CLI tool |
+| `-t`, `--template <name>` | 템플릿 선택: `hello-world`, `counter`, `bboard` |
+| `--use-npm/yarn/pnpm/bun` | 특정 패키지 매니저 강제 사용 |
+| `--skip-install` | 의존성 설치 건너뛰기 |
+| `--skip-git` | git 초기화 건너뛰기 |
+| `--verbose` | 상세 출력 |
+| `-h`, `--help` | 도움말 |
+| `-V`, `--version` | 버전 정보 |
 
 
 ## Next steps
 
-Now you know how to scaffold a new DApp using the Midnight CLI tool. Check out the [hello world tutorial](./hello-world) to learn how to write your first Midnight contract using the Compact language.
-
+Midnight CLI 도구로 DApp을 스캐폴딩하는 방법을 익혔습니다. [Hello world 튜토리얼](./hello-world)에서 Compact 언어로 첫 번째 Midnight contract를 직접 작성해 보세요.

@@ -3,16 +3,16 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Transactions
 sidebar_label: Transactions
-description: A reference on transactions in Midnight nodes.
+description: Midnight 노드의 트랜잭션에 대한 참조 문서.
 keywords: [node]
 ---
 
 # Transactions
 
-While the Midnight node supports the standard transaction format provided by the Polkadot SDK, these default-style transactions are not commonly used for on-chain activity in practice. This is because Midnight relies on a proof-based verification model, tightly coupled with the design of the Midnight Ledger.
+Midnight 노드는 Polkadot SDK가 제공하는 표준 트랜잭션 형식을 지원하지만, 이 기본 형식의 트랜잭션은 실제 온체인 활동에서 일반적으로 사용되지 않습니다. Midnight가 Midnight Ledger 설계와 긴밀히 결합된 증명 기반 검증 모델에 의존하기 때문입니다.
 
-Most transactions on Midnight are unsigned and adhere to a format defined by the Midnight Ledger itself. Rather than relying on traditional signature-based authorization, these transactions embed a cryptographic proof that attests to the validity of a specific action. This action may be a contract invocation, a contract deployment, or a ZSwap transaction. The presence of this proof allows the network to validate state transitions without needing to expose sensitive data or signatures directly.
+Midnight의 대부분의 트랜잭션은 서명되지 않으며, Midnight Ledger 자체가 정의한 형식을 따릅니다. 기존의 서명 기반 인가 대신, 특정 액션의 유효성을 증명하는 암호학적 증명을 트랜잭션에 내장합니다. 이 액션은 컨트랙트 호출, 컨트랙트 배포, 또는 ZSwap 트랜잭션일 수 있습니다. 증명이 내장되어 있으므로 네트워크는 민감한 데이터나 서명을 직접 노출하지 않고도 상태 전환을 검증할 수 있습니다.
 
-When a transaction is submitted, it undergoes several processing stages. First, it is validated within the transaction pool. Validation at this stage checks the well-formedness of the transaction—ensuring it meets the structural and logical requirements defined by the runtime and the ledger specification.
+트랜잭션이 제출되면 여러 처리 단계를 거칩니다. 먼저 트랜잭션 풀에서 검증이 이루어집니다. 이 단계에서는 트랜잭션의 well-formedness, 즉 런타임과 원장 사양에 정의된 구조적, 논리적 요구 사항을 충족하는지를 확인합니다.
 
-Once included in a block, the embedded proof is fully verified. If valid, the corresponding state transition is executed according to the logic defined in the runtime. The resulting state update is then committed to the on-chain storage layer, completing the transaction lifecycle.
+블록에 포함되면 내장된 증명이 완전히 검증됩니다. 유효한 경우 런타임에 정의된 로직에 따라 해당 상태 전환이 실행됩니다. 결과 상태 업데이트가 온체인 스토리지 레이어에 커밋되면 트랜잭션 수명 주기가 완료됩니다.

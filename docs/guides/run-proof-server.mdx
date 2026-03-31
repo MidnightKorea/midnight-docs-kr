@@ -1,67 +1,59 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Run the proof server"
-description: Learn how to run the proof server for the Midnight Network.
+sidebar_label: "proof server 실행"
+description: Midnight Network용 proof server를 실행하는 방법을 알아봅니다.
 toc_max_heading_level: 2
 sidebar_position: 35
 ---
 
 # Proof server
 
-Midnight uses zero-knowledge (ZK) cryptography to enable shielded
-transactions and data protection. An essential element of this
-architecture is ZK functionality provided by a Midnight *proof
-server*, which generates proofs locally that are verified on-chain. 
+Midnight는 shielded 트랜잭션과 데이터 보호를 위해 ZK 암호학을 사용합니다.
+이 아키텍처의 핵심은 Midnight *proof server*로, 로컬에서 proof를 생성하여 온체인에서 검증합니다.
 
-The information that a DApp sends to the proof server includes
-private data, such as details of token ownership or a DApp's
-private state. To protect your data, you should access only a local
-proof server, or perhaps one on a remote machine that you control,
-over an encrypted channel.
+DApp이 proof server에 보내는 정보에는 token 소유권이나 DApp의 비공개 상태 같은 민감한 데이터가 포함됩니다.
+데이터를 보호하려면 로컬 proof server에만 접근하거나,
+암호화된 채널을 통해 직접 제어하는 원격 머신의 proof server에 접근해야 합니다.
 
-This guide shows you how to run the proof server locally in order
-to process transactions on the Midnight Network. The wallet communicates with the proof
-server to invoke ZK functionality and generate ZK proofs for your
-transactions.
+이 가이드에서는 Midnight Network 트랜잭션 처리를 위해 로컬에서 proof server를 실행하는 방법을 설명합니다.
+지갑이 proof server와 통신하여 ZK proof를 생성합니다.
 
-This guide is aimed at Midnight Network users, rather than DApp Builders.
+이 가이드는 DApp 개발자가 아닌 Midnight Network 사용자를 대상으로 합니다.
 
-## Install Docker Desktop 
+## Install Docker Desktop
 
-If you don't have Docker, then download and install Docker for your operating system (macOS, Windows, or Linux):
+Docker가 없다면 운영 체제(macOS, Windows, Linux)에 맞는 Docker를 다운로드하여 설치하세요:
 https://www.docker.com/products/docker-desktop/
 
-New users might need to set up an account.
+신규 사용자는 계정을 설정해야 할 수 있습니다.
 
 ## Install the proof server
 
-Docker hosts completed code in Images. The Midnight proof server is available as a Docker Image.
+Midnight proof server는 Docker 이미지로 제공됩니다.
 
-1. Inside Docker Desktop, use the search bar to locate `midnightntwrk/proof-server:8.0.3`.
-2. Pull the image.
+1. Docker Desktop 검색 바에서 `midnightntwrk/proof-server:8.0.3`을 검색하세요.
+2. 이미지를 Pull하세요.
 
-After pulling the image, the code for the proof server is hosted in a Container in Docker Desktop.
+이미지를 Pull하면 proof server가 Docker Desktop 컨테이너에 준비됩니다.
 
 ## Start the proof server
 
-Start the proof server by clicking **Run** button in the same search result, or by navigating to your
-Containers and clicking the **Run** button there.
+검색 결과 또는 컨테이너 목록에서 **Run** 버튼을 클릭하여 proof server를 시작하세요.
 
-To inspect the proof server, navigate to Containers and **View Details** -- there is no action required here,
-but you should see some output indicating that the server has started.
+proof server 상태를 확인하려면 컨테이너에서 **View Details**를 클릭하세요.
+서버가 시작되었음을 나타내는 출력을 확인할 수 있습니다.
 
-The proof server listens on port 6300 and *this should not be changed*.
+proof server는 포트 6300에서 수신 대기하며, *이 포트는 변경하면 안 됩니다*.
 
 ## Stop the proof server
 
-To stop the proof server, simply stop the container.
+proof server를 중지하려면 컨테이너를 중지하면 됩니다.
 
-For processing transactions on the Midnight network, the proof server must be
-running, so if you have stopped it, start it again now.
+Midnight 네트워크에서 트랜잭션을 처리하려면 proof server가 실행 중이어야 합니다.
+중지했다면 다시 시작하세요.
 
 ## Your privacy
 
-The proof server exists to protect your privacy.  It does not open any
-network connections; it simply listens on its assigned port for
-requests from your wallet.
+proof server는 개인정보 보호를 위해 존재합니다.
+외부로 네트워크 연결을 열지 않으며, 할당된 포트에서 지갑 요청만 수신 대기합니다.

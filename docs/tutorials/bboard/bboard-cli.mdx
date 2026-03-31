@@ -1,9 +1,9 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Bulletin board CLI"
-title: "Bulletin board CLI"
-description: "Learn how to build a bulletin board CLI DApp on Midnight Network."
+sidebar_label: "게시판 CLI"
+title: "게시판 CLI"
+description: "Midnight 네트워크에서 게시판 CLI DApp을 구축하는 방법을 알아봅니다."
 sidebar_position: 20
 toc_max_heading_level: 2
 ---
@@ -13,30 +13,30 @@ import TabItem from '@theme/TabItem';
 
 # Bulletin board CLI
 
-This tutorial explains how to build a command-line interface that interacts with the bulletin board smart contract created in the [bulletin board contract](./smart-contract) tutorial.
+이 튜토리얼에서는 [게시판 컨트랙트](./smart-contract) 튜토리얼에서 생성한 게시판 스마트 컨트랙트와 상호작용하는 명령줄 인터페이스를 구축하는 방법을 설명합니다.
 
 ## Prerequisites
 
-Before you begin, ensure that you have:
+시작하기 전에 다음 사항을 확인하세요:
 
-- Completed the [bulletin board contract](./smart-contract) tutorial with the contract compiled in `contract/src/managed/bboard/`
-- Docker Desktop installed and running
-- Node.js version 22+
+- [게시판 컨트랙트](./smart-contract) 튜토리얼을 완료하고 컨트랙트가 `contract/src/managed/bboard/`에 컴파일되어 있어야 합니다
+- Docker Desktop이 설치되어 실행 중이어야 합니다
+- Node.js 버전 22 이상
 
 ## Architecture overview
 
-The bulletin board CLI uses a monorepo structure with three packages:
+게시판 CLI는 세 개의 패키지로 구성된 모노레포 구조를 사용합니다:
 
-- **contract**: The Compact smart contract (from the previous tutorial)
-- **api**: A reusable abstraction layer for contract interactions
-- **bboard-cli**: The command-line application
+- **contract**: Compact 스마트 컨트랙트 (이전 튜토리얼에서 작성)
+- **api**: 컨트랙트 상호작용을 위한 재사용 가능한 추상화 계층
+- **bboard-cli**: 명령줄 애플리케이션
 
-The API package provides a high-level interface (`BBoardAPI`) that handles contract deployment, state management, and transaction submission while exposing a reactive state observable for real-time updates. 
-The CLI package implements wallet management, user interaction, and the main application logic.
+API 패키지는 컨트랙트 배포, 상태 관리, 트랜잭션 제출을 처리하면서 실시간 업데이트를 위한 반응형 상태 observable을 노출하는 고수준 인터페이스(`BBoardAPI`)를 제공합니다.
+CLI 패키지는 지갑 관리, 사용자 상호작용 및 메인 애플리케이션 로직을 구현합니다.
 
 ## Set up the root package
 
-From the `example-bboard` root directory, create or update `package.json`:
+`example-bboard` 루트 디렉터리에서 `package.json`을 생성하거나 업데이트합니다:
 
 ```json
 {
@@ -103,68 +103,68 @@ From the `example-bboard` root directory, create or update `package.json`:
 }
 ```
 
-The workspaces configuration tells npm to manage the contract, API, and bboard-cli as linked packages. Dependencies defined at the root level are shared across all workspaces, reducing duplication and ensuring version consistency.
+workspaces 설정은 npm에게 contract, API, bboard-cli를 연결된 패키지로 관리하도록 지시합니다. 루트 수준에서 정의된 의존성은 모든 workspace에서 공유되어 중복을 줄이고 버전 일관성을 보장합니다.
 
-:::tip Version compatibility
-Always refer to the [release compatibility matrix](../../../relnotes/support-matrix) to ensure you are using compatible versions.
+:::tip 버전 호환성
+호환되는 버전을 사용하고 있는지 확인하려면 항상 [릴리스 호환성 매트릭스](../../../relnotes/support-matrix)를 참조하세요.
 :::
 
-Install all dependencies from the root:
+루트에서 모든 의존성을 설치합니다:
 
 ```bash
 npm install
 ```
 
-This command installs dependencies for the root package and all workspace packages, creating symlinks between them for local development.
+이 명령은 루트 패키지와 모든 workspace 패키지의 의존성을 설치하고, 로컬 개발을 위한 심볼릭 링크를 생성합니다.
 
 ## Implementation guides
 
-To build the bulletin board CLI, follow these implementation guides in order:
+게시판 CLI를 구축하려면 다음 구현 가이드를 순서대로 따르세요:
 
-1. **[API implementation](./bboard-api-implementation)**: Set up the API package with the `BBoardAPI` class that handles contract deployment, state management, and transaction submission.
+1. **[API 구현](./bboard-api-implementation)**: 컨트랙트 배포, 상태 관리, 트랜잭션 제출을 처리하는 `BBoardAPI` 클래스로 API 패키지를 설정합니다.
 
-2. **[CLI implementation](./bboard-cli-implementation)**: Set up the CLI package with wallet management, DUST generation, and the interactive command-line interface.
+2. **[CLI 구현](./bboard-cli-implementation)**: 지갑 관리, DUST 생성, 대화형 명령줄 인터페이스로 CLI 패키지를 설정합니다.
 
 ## Project structure
 
-The complete example-bboard project uses a monorepo structure with npm workspaces:
+완성된 example-bboard 프로젝트는 npm workspaces를 사용하는 모노레포 구조를 사용합니다:
 
 ```
 example-bboard/
-├── package.json                 # Root package with workspaces
-├── contract/                    # Compact contract
+├── package.json                 # 루트 패키지 (workspaces 포함)
+├── contract/                    # Compact 컨트랙트
 │   ├── src/
 │   │   ├── bboard.compact
 │   │   ├── managed/
 │   │   ├── witnesses.ts
 │   │   └── index.ts
 │   └── package.json
-├── api/                         # Shared API layer
+├── api/                         # 공유 API 계층
 │   ├── src/
-│   │   ├── index.ts            # BBoardAPI implementation
-│   │   ├── common-types.ts     # Type definitions
+│   │   ├── index.ts            # BBoardAPI 구현
+│   │   ├── common-types.ts     # 타입 정의
 │   │   └── utils/
-│   │       └── index.ts        # Utility functions
+│   │       └── index.ts        # 유틸리티 함수
 │   └── package.json
-└── bboard-cli/                  # Bulletin board CLI
+└── bboard-cli/                  # 게시판 CLI
     ├── src/
-    │   ├── config.ts           # Network configuration
-    │   ├── index.ts            # Main CLI logic
-    │   ├── logger-utils.ts     # Logging setup
-    │   ├── wallet-utils.ts     # Wallet synchronization
-    │   ├── generate-dust.ts    # DUST generation
-    │   ├── midnight-wallet-provider.ts  # Wallet provider
+    │   ├── config.ts           # 네트워크 설정
+    │   ├── index.ts            # 메인 CLI 로직
+    │   ├── logger-utils.ts     # 로깅 설정
+    │   ├── wallet-utils.ts     # 지갑 동기화
+    │   ├── generate-dust.ts    # DUST 생성
+    │   ├── midnight-wallet-provider.ts  # 지갑 프로바이더
     │   └── launcher/
-    │       └── preprod.ts      # Preprod entry point
-    ├── proof-server.yml        # Docker compose for proof server
+    │       └── preprod.ts      # Preprod 진입점
+    ├── proof-server.yml        # proof 서버용 Docker Compose
     └── package.json
 ```
 
-The monorepo structure enables code sharing between packages through workspace references.
+모노레포 구조에서 workspace 참조를 사용하면 패키지 간 코드를 쉽게 공유할 수 있습니다.
 
-## Run the CLI
+## Run the CLI {#run-the-cli}
 
-After completing both implementation guides, run the CLI using the following commands in the `bboard-cli` directory:
+두 구현 가이드를 모두 완료한 후, `bboard-cli` 디렉터리에서 다음 명령으로 CLI를 실행합니다:
 
 <Tabs>
   <TabItem value="preprod">
@@ -179,9 +179,9 @@ npm run undeployed
 </TabItem>
 </Tabs>
 
-The `preprod` command starts the CLI and connects to the Preprod network, while the `undeployed` command starts the CLI and connects to a local Midnight network running on your machine.
+`preprod` 명령은 CLI를 시작하고 Preprod 네트워크에 연결하며, `undeployed` 명령은 CLI를 시작하고 로컬 머신에서 실행 중인 로컬 Midnight 네트워크에 연결합니다.
 
-You should see the following output:
+다음과 같은 출력이 표시됩니다:
 
 ```
 You can do one of the following:
@@ -191,12 +191,12 @@ You can do one of the following:
 Which would you like to do?
 ```
 
-From here, you can choose to build a fresh wallet or build a wallet from a seed. You can also exit the CLI by entering `3`.
-For more information on running the CLI, see the [Bulletin board DApp](../../examples/dapps/bboard) example.
+여기에서 새 지갑을 생성하거나 시드에서 지갑을 복원할 수 있습니다. `3`을 입력하여 CLI를 종료할 수도 있습니다.
+CLI 실행에 대한 자세한 정보는 [게시판 DApp](../../examples/dapps/bboard) 예제를 참조하세요.
 
 ## Next steps
 
-Now that you have built a complete bulletin board CLI with privacy-preserving message posting:
+프라이버시를 보호하는 메시지 게시 기능이 있는 완전한 게시판 CLI를 구축했습니다:
 
-- **Build the UI**: Create a browser-based interface for the bulletin board using the [DApp connector API](/api-reference/dapp-connector/).
-- **Extend functionality**: Add features like message history, multiple boards, or time-limited posts.
+- **UI 구축**: [DApp 커넥터 API](/api-reference/dapp-connector/)를 사용하여 게시판의 브라우저 기반 인터페이스를 만드세요.
+- **기능 확장**: 메시지 이력, 다중 게시판 또는 시간 제한 게시 등의 기능을 추가하세요.

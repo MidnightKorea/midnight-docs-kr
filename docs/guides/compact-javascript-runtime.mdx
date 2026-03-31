@@ -1,9 +1,9 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-description: Learn about the Compact JavaScript implementation for the Midnight Network.
+description: Midnight Network의 Compact JavaScript 구현에 대해 알아봅니다.
 # toc_max_heading_level: 2
-sidebar_label: "Compact JavaScript implementation"
+sidebar_label: "Compact JavaScript 구현"
 sidebar_position: 45
 ---
 
@@ -11,74 +11,74 @@ import Step, { StepsProvider } from "@site/src/components/Step/Step";
 
 # The Compact JavaScript implementation
 
-If you have written smart contracts before, then you are likely familiar with languages like Solidity or Rust that compile to on-chain bytecode.
+스마트 컨트랙트를 작성해 본 적이 있다면, 온체인 바이트코드로 컴파일되는 Solidity나 Rust 같은 언어에 익숙할 것입니다.
 
-The Midnight blockchain takes a different approach by using a domain-specific language called Compact, designed from the ground up for zero-knowledge (ZK) smart contracts.
+Midnight는 ZK 스마트 컨트랙트를 위해 처음부터 설계된 도메인 특화 언어 Compact를 사용합니다.
 
-This guide explores the JavaScript implementation generated for the [bulletin board smart contract](https://github.com/midnightntwrk/example-bboard) in depth.
+이 가이드에서는 [bulletin board 컨트랙트](https://github.com/midnightntwrk/example-bboard)에 대해 생성된 JavaScript 구현을 자세히 살펴봅니다.
 
 ## How the JavaScript implementation gets generated
 
-When you compile a Compact contract, the compiler produces more than just ZK circuits. It also emits a matching JavaScript implementation named `index.js`. 
+Compact 컨트랙트를 컴파일하면 ZK circuit과 함께 `index.js`라는 JavaScript 구현 파일이 생성됩니다.
 
-This implementation is essential for simulating, testing, and interacting with your contract logic in a plain JavaScript environment, such as Node.js or browser tests. This section explains how and why that implementation is generated.
+이 구현을 통해 Node.js나 브라우저 같은 일반 JavaScript 환경에서 컨트랙트 로직을 시뮬레이션하고 테스트할 수 있습니다. 이 섹션에서는 생성 과정과 그 이유를 설명합니다.
 
 ### The compilation pipeline: Compact to circuits and JavaScript implementation
 
-The compilation process follows these steps:
+컴파일 과정은 다음 단계로 진행됩니다:
 <StepsProvider>
 <Step>
- **Circuit generation**: The compiler parses your `.compact` files and emits ZK circuits for each exported circuit function.
+ **Circuit 생성**: 컴파일러가 `.compact` 파일을 파싱하고, export된 각 circuit 함수에 대한 ZK circuit을 생성합니다.
 </Step>
 <Step>
-**Implementation file generation**: Concurrently, the compiler generates a JavaScript implementation file that mirrors the contract's structure. The compiler:
-- Identifies which circuits exist with their signatures, inputs, and outputs.
-- Embeds type descriptors for all Compact types used, such as integers, booleans, enums, bytes, and composite types.
-- Wraps each circuit so you can invoke it in JavaScript, passing native JavaScript values and receiving state transitions in return.
+**구현 파일 생성**: 동시에 컨트랙트 구조를 미러링하는 JavaScript 구현 파일을 생성합니다. 컴파일러는:
+- 각 circuit의 시그니처, 입력, 출력을 식별합니다.
+- 정수, 불리언, 열거형, 바이트, 복합 타입 등 사용된 모든 Compact 타입의 디스크립터를 포함합니다.
+- 각 circuit을 래핑하여 JavaScript에서 네이티브 값을 전달하고 상태 전환 결과를 받을 수 있게 합니다.
 </Step>
 <Step>
-**Linking to the Compact runtime library**: The generated `index.js` does not reimplement arithmetic, field operations, or other foundational ZK logic. Instead, it imports a shared runtime library from `@midnight-ntwrk/compact-runtime`. That library implements:
-- Finite field arithmetic
-- Serialization and deserialization
-- Error types and type checks
-- Circuit-related helper functions
+**Compact 런타임 라이브러리 연결**: 생성된 `index.js`는 산술 연산이나 필드 연산 같은 기본 ZK 로직을 직접 구현하지 않고, `@midnight-ntwrk/compact-runtime`의 공유 런타임 라이브러리를 import합니다. 이 라이브러리가 구현하는 기능:
+- 유한체 산술
+- 직렬화 및 역직렬화
+- 에러 타입 및 타입 검사
+- Circuit 관련 헬퍼 함수
 
-Together, the generated file and the runtime library form a complete execution environment.
+생성된 파일과 런타임 라이브러리가 합쳐져 완전한 실행 환경을 구성합니다.
 </Step>
 <Step>
-**Type declarations**: A TypeScript declaration file `index.d.ts` is generated so that when you import this implementation in a TypeScript project, you get proper types, autocomplete, and compile-time safety.
+**타입 선언**: TypeScript 프로젝트에서 import할 때 타입, 자동완성, 컴파일 타임 안전성을 제공하기 위해 TypeScript 선언 파일 `index.d.ts`도 함께 생성됩니다.
 </Step>
 </StepsProvider>
-Because of these steps, `index.js` is not a hand-written artifact, but a systematically generated adapter between Compact's ZK circuits and the JavaScript world.
+`index.js`는 수동으로 작성된 파일이 아니라, Compact의 ZK circuit과 JavaScript 사이를 연결하는 자동 생성 어댑터입니다.
 
 :::tip
-If you change your Compact contract by adding or removing functions or changing types, then recompile to regenerate `index.js` accordingly. Always treat it as generated code rather than hand-written, and avoid modifying it manually.
+Compact 컨트랙트에서 함수를 추가/제거하거나 타입을 변경했다면, 재컴파일하여 `index.js`를 다시 생성하세요. 이 파일은 항상 자동 생성 코드로 취급하고, 직접 수정하지 마세요.
 :::
 
 ## Understand the JavaScript implementation structure
 
-The generated implementation for your Compact contract appears in a file named `index.js` within the `managed` directory.
+Compact 컨트랙트의 생성된 구현은 `managed` 디렉토리 내 `index.js` 파일에 위치합니다.
 
-This file is a self-contained ES module that mirrors your contract's structure, from type definitions to callable functions. 
+이 파일은 타입 정의부터 호출 가능한 함수까지 컨트랙트 구조를 미러링하는 독립적인 ES 모듈입니다.
 
 ### Runtime initialization and version checks
 
-At the very top, the implementation imports the Compact runtime and verifies version compatibility:
+파일 최상단에서 Compact 런타임을 import하고 버전 호환성을 검증합니다:
 
 ```javascript
 import * as __compactRuntime from '@midnight-ntwrk/compact-runtime';
 __compactRuntime.checkRuntimeVersion('0.15.0');
 ```
 
-This ensures that the version of `@midnight-ntwrk/compact-runtime` installed in your project matches the version expected by the compiler. Version mismatches can cause runtime errors or incorrect circuit behavior.
+프로젝트에 설치된 `@midnight-ntwrk/compact-runtime` 버전이 컴파일러가 기대하는 버전과 일치하는지 확인합니다. 버전이 맞지 않으면 런타임 에러나 잘못된 circuit 동작이 발생할 수 있습니다.
 
 :::info
-Always refer to the [compatibility matrix](../relnotes/support-matrix) to ensure that the version of the Compact runtime matches the version of the compiler.
+Compact 런타임과 컴파일러 버전이 맞는지 항상 [호환성 매트릭스](../relnotes/support-matrix)를 확인하세요.
 :::
 
 ### Type definitions and descriptors
 
-The file defines enumerations and type descriptors. These tell the implementation how to encode and decode the data types used in your contract, such as integers, strings, or custom structures.
+파일에는 열거형과 타입 디스크립터가 정의되어 있습니다. 컨트랙트에서 사용하는 정수, 문자열, 커스텀 구조체 등의 데이터 타입을 인코딩/디코딩하는 방법을 지정합니다.
 
 ```javascript
 export var State;
@@ -94,17 +94,17 @@ const _descriptor_4 = new __compactRuntime.CompactTypeEnum(1, 1);
 const _descriptor_5 = new __compactRuntime.CompactTypeUnsignedInteger(18446744073709551615n, 8);
 ```
 
-Each descriptor object defines how JavaScript values are converted to and from their on-chain representations:
+각 디스크립터 객체는 JavaScript 값과 온체인 표현 간의 변환 방식을 정의합니다:
 
-- `CompactTypeBytes(32)`: Represents 32-byte arrays (the type of the `owner` field)
-- `CompactTypeBoolean`: Represents boolean values
-- `CompactTypeOpaqueString`: Represents string data (the type of the `message` field)
-- `CompactTypeEnum`: Represents the State enum
-- `CompactTypeUnsignedInteger`: Represents Counter and other numeric types (the type of the `sequence` field)
+- `CompactTypeBytes(32)`: 32바이트 배열을 나타냅니다 (`owner` 필드의 타입)
+- `CompactTypeBoolean`: 불리언 값을 나타냅니다
+- `CompactTypeOpaqueString`: 문자열 데이터를 나타냅니다 (`message` 필드의 타입)
+- `CompactTypeEnum`: State 열거형을 나타냅니다
+- `CompactTypeUnsignedInteger`: Counter 및 기타 숫자 타입을 나타냅니다 (`sequence` 필드의 타입)
 
 ### Composite types and data structures
 
-Complex Compact types such as `Maybe` or `Either` are represented as JavaScript classes that combine primitive descriptors.
+`Maybe`나 `Either` 같은 복합 Compact 타입은 기본 디스크립터를 조합하는 JavaScript 클래스로 표현됩니다.
 
 ```javascript
 class _Maybe_0 {
@@ -125,17 +125,17 @@ class _Maybe_0 {
 const _descriptor_3 = new _Maybe_0();
 ```
 
-Each composite type class provides methods for converting between JavaScript objects and ledger-compatible encodings:
+각 복합 타입 클래스는 JavaScript 객체와 ledger 호환 인코딩 간 변환 메서드를 제공합니다:
 
-- `alignment()`: Returns the field alignment requirements for ZK circuit encoding.
-- `fromValue()`: Decodes ledger values into JavaScript objects.
-- `toValue()`: Encodes JavaScript objects into ledger values.
+- `alignment()`: ZK circuit 인코딩을 위한 필드 정렬 요구 사항을 반환합니다.
+- `fromValue()`: ledger 값을 JavaScript 객체로 디코딩합니다.
+- `toValue()`: JavaScript 객체를 ledger 값으로 인코딩합니다.
 
-The `Maybe` type corresponds to the `message` ledger field in the bulletin board contract, representing optional string values.
+`Maybe` 타입은 bulletin board 컨트랙트의 `message` ledger 필드에 해당하며, 선택적 문자열 값을 나타냅니다.
 
 ### The Contract class and circuit wrappers
 
-The generated implementation defines a `Contract` class that mirrors your Compact contract's circuits. The constructor validates the witnesses object and sets up circuit methods.
+생성된 구현은 Compact 컨트랙트의 circuit을 미러링하는 `Contract` 클래스를 정의합니다. 생성자에서 witnesses 객체를 검증하고 circuit 메서드를 설정합니다.
 
 ```javascript
 export class Contract {
@@ -201,14 +201,14 @@ export class Contract {
 }
 ```
 
-When you call `contract.circuits.post(context, newMessage)` in JavaScript, the implementation automatically validates input types and encodes data for the ZK circuit. 
-It then executes the Compact logic and returns structured `proofData` for verification.
+JavaScript에서 `contract.circuits.post(context, newMessage)`를 호출하면, 입력 타입이 자동 검증되고 ZK circuit용 데이터가 인코딩됩니다.
+이후 Compact 로직을 실행하고 검증용 `proofData`를 반환합니다.
 
-The `circuits` object contains all callable functions, including both impure circuits (post and takeDown) and pure circuits (publicKey). The `impureCircuits` object contains only the circuits that interact with witnesses and modify state.
+`circuits` 객체는 impure circuit(post, takeDown)과 pure circuit(publicKey)을 모두 포함합니다. `impureCircuits`는 witness와 상호작용하고 상태를 변경하는 circuit만 포함합니다.
 
 ### Pure circuits implementation
 
-The implementation also exports pure circuits that can be called directly without a circuit context:
+circuit 컨텍스트 없이 직접 호출할 수 있는 pure circuit도 export합니다:
 
 ```javascript
 export const pureCircuits = {
@@ -239,23 +239,23 @@ export const pureCircuits = {
 };
 ```
 
-Pure circuits like `publicKey` perform deterministic computations without accessing ledger state or witnesses. They can be called independently for operations, such as generating owner commitments or computing hashes.
+`publicKey` 같은 pure circuit은 ledger 상태나 witness에 접근하지 않고 결정론적 계산만 수행합니다. 소유자 커밋먼트 생성이나 해시 계산 등에 독립적으로 호출할 수 있습니다.
 
 ### Ledger state deserialization
 
-The implementation provides a function to deserialize raw ledger state into typed JavaScript objects:
+원시 ledger 상태를 타입이 지정된 JavaScript 객체로 역직렬화하는 함수도 제공합니다:
 
 ```javascript
 export function ledger(stateOrChargedState) {
-  const state = stateOrChargedState instanceof __compactRuntime.StateValue 
-    ? stateOrChargedState 
+  const state = stateOrChargedState instanceof __compactRuntime.StateValue
+    ? stateOrChargedState
     : stateOrChargedState.state;
-  const chargedState = stateOrChargedState instanceof __compactRuntime.StateValue 
-    ? new __compactRuntime.ChargedState(stateOrChargedState) 
+  const chargedState = stateOrChargedState instanceof __compactRuntime.StateValue
+    ? new __compactRuntime.ChargedState(stateOrChargedState)
     : stateOrChargedState;
   const context = {
     currentQueryContext: new __compactRuntime.QueryContext(
-      chargedState, 
+      chargedState,
       __compactRuntime.dummyContractAddress()
     ),
     costModel: __compactRuntime.CostModel.initialCostModel()
@@ -271,15 +271,15 @@ export function ledger(stateOrChargedState) {
       return _descriptor_4.fromValue(
         __compactRuntime.queryLedgerState(context, partialProofData, [
           { dup: { n: 0 } },
-          { 
-            idx: { 
+          {
+            idx: {
               cached: false,
               pushPath: false,
-              path: [{ 
+              path: [{
                 tag: 'value',
-                value: { 
+                value: {
                   value: _descriptor_11.toValue(0n),
-                  alignment: _descriptor_11.alignment() 
+                  alignment: _descriptor_11.alignment()
                 }
               }]
             }
@@ -288,23 +288,23 @@ export function ledger(stateOrChargedState) {
         ]).value
       );
     },
-    // Similar getter implementations for message, sequence, and owner fields
-    // Each uses queryLedgerState with the appropriate field index
+    // 각 ledger 필드에 대한 유사한 getter 구현
+    // 각각 적절한 필드 인덱스와 함께 queryLedgerState를 사용
   };
 }
 ```
 
-This function converts raw contract state from the blockchain into a structured `Ledger` object with properly typed fields:
+블록체인의 원시 컨트랙트 상태를 타입이 지정된 `Ledger` 객체로 변환합니다:
 
-- Accepts either a `StateValue` or `ChargedState` from the indexer.
-- Creates a query context for accessing ledger fields with cost tracking.
-- Returns an object with getter properties for each ledger field (state, message, sequence, owner).
-- Each getter uses `queryLedgerState` with field index paths to retrieve the specific value lazily.
-- DApps use this function to interpret contract state returned from the indexer.
+- indexer에서 `StateValue` 또는 `ChargedState`를 받습니다.
+- 비용 추적이 포함된 쿼리 컨텍스트를 생성합니다.
+- 각 ledger 필드(state, message, sequence, owner)에 대한 getter를 가진 객체를 반환합니다.
+- 각 getter는 필드 인덱스 경로와 함께 `queryLedgerState`를 사용하여 값을 지연 로드합니다.
+- DApp은 이 함수로 indexer가 반환한 컨트랙트 상태를 해석합니다.
 
 ### Exports and type bindings
 
-The implementation exports everything you need to interact with the contract:
+컨트랙트 상호작용에 필요한 모든 것을 export합니다:
 
 ```javascript
 export class Contract { ... }
@@ -313,7 +313,7 @@ export const pureCircuits = { ... };
 export function ledger(state) { ... }
 ```
 
-The corresponding `index.d.ts` file provides TypeScript type definitions:
+`index.d.ts` 파일에서 TypeScript 타입 정의를 제공합니다:
 
 ```typescript
 export enum State { VACANT = 0, OCCUPIED = 1 }
@@ -352,9 +352,8 @@ export declare function ledger(state: __compactRuntime.StateValue | __compactRun
 export declare const pureCircuits: PureCircuits;
 ```
 
-These type definitions enable type-safe contract interaction in TypeScript projects. Your IDE understands what functions and structures are available, providing autocomplete and compile-time error checking.
+이 타입 정의 덕분에 TypeScript 프로젝트에서 타입 안전하게 컨트랙트와 상호작용할 수 있습니다. IDE에서 사용 가능한 함수와 구조를 인식하여 자동완성과 컴파일 타임 에러 검사가 가능합니다.
 
 ## Next steps
 
-Now you understand how the Compact JavaScript implementation is generated. You can learn how to use it in the [Use the Compact JavaScript implementation](./use-compact-javascript-implementation) guide.
-
+Compact JavaScript 구현의 생성 과정을 살펴보았습니다. [Compact JavaScript 구현 사용하기](./use-compact-javascript-implementation) 가이드에서 실제 사용 방법을 확인하세요.

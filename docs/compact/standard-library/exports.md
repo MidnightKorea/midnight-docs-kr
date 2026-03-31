@@ -4,8 +4,7 @@
 
 ### `Maybe`
 
-Encapsulates an optionally present value. If `isSome` is `false`, `value`
-should be `default<T>` by convention.
+값이 있을 수도 없을 수도 있는 경우를 표현합니다. `isSome`이 `false`이면 `value`는 관례상 `default<T>`여야 합니다.
 
 ```compact
 struct Maybe<T> {
@@ -16,8 +15,7 @@ struct Maybe<T> {
 
 ### `Either`
 
-Disjoint union of `A` and `B`. Iff `isLeft` if `true`, `left` should be
-populated, otherwise `right`. The other should be `default< >` by convention.
+`A`와 `B`의 분리합집합입니다. `isLeft`가 `true`이면 `left`만 유효하고, 그렇지 않으면 `right`만 유효합니다. 유효하지 않은 쪽은 관례상 `default< >`여야 합니다.
 
 ```compact
 struct Either<A, B> {
@@ -29,10 +27,9 @@ struct Either<A, B> {
 
 ### `NativePoint`
 
-A point on the proof systems embedded curve, in affine coordinates.
+proof 시스템의 내장 곡선 위의 점으로, 아핀 좌표로 표현됩니다.
 
-Only outputs of elliptic curve operations are actually guaranteed to lie on the
-curve.
+타원 곡선 연산의 출력만 실제로 곡선 위에 있음이 보장됩니다.
 
 ```compact
 struct NativePoint {
@@ -43,7 +40,7 @@ struct NativePoint {
 
 ### `MerkleTreeDigest`
 
-The root hash of a Merkle tree, represented by a single `Field`.
+단일 `Field`로 표현되는 Merkle 트리의 루트 해시입니다.
 
 ```compact
 struct MerkleTreeDigest { field: Field; }
@@ -51,8 +48,7 @@ struct MerkleTreeDigest { field: Field; }
 
 ### `MerkleTreePathEntry`
 
-An entry in a Merkle tree path, indicating if the path leads left or right, and
-the root of the sibling node. Primarily used in [`MerkleTreePath`](#merkletreepath)
+Merkle 트리 경로의 항목으로, 경로가 왼쪽으로 가는지 오른쪽으로 가는지를 나타내며 형제 노드의 루트를 포함합니다. 주로 [`MerkleTreePath`](#merkletreepath)에서 사용됩니다.
 
 ```compact
 struct MerkleTreePathEntry {
@@ -63,11 +59,10 @@ struct MerkleTreePathEntry {
 
 ### `MerkleTreePath`
 
-A path in a depth `n` Merkle tree, leading to a leaf of type `T`.
-Primarily used for [`merkleTreePathRoot`](#merkletreepathroot).
+깊이 `n`인 Merkle 트리에서 타입 `T`의 리프로 이어지는 경로입니다.
+주로 [`merkleTreePathRoot`](#merkletreepathroot)에 사용됩니다.
 
-This can be constructed from `witness`es that use the compiler output's
-`findPathForLeaf` and `pathForLeaf` functions.
+컴파일러 출력의 `findPathForLeaf` 및 `pathForLeaf` 함수를 사용하는 `witness`에서 생성할 수 있습니다.
 
 ```compact
 struct MerkleTreePath<#n, T> {
@@ -78,9 +73,7 @@ struct MerkleTreePath<#n, T> {
 
 ### `ContractAddress`
 
-The address of a contract, used as a recipient in [`sendShielded`](#sendshielded),
-[`sendImmediateShielded`](#sendimmediateshielded),
-[`createZswapOutput`](#createzswapoutput), and [`mintShieldedToken`](#mintshieldedtoken).
+컨트랙트의 주소로, [`sendShielded`](#sendshielded), [`sendImmediateShielded`](#sendimmediateshielded), [`createZswapOutput`](#createzswapoutput) 및 [`mintShieldedToken`](#mintshieldedtoken)에서 수신자로 사용됩니다.
 
 ```compact
 struct ContractAddress { bytes: Bytes<32>; }
@@ -88,12 +81,11 @@ struct ContractAddress { bytes: Bytes<32>; }
 
 ### `ShieldedCoinInfo`
 
-The description of a newly created shielded coin, used in outputting shielded coins, or
-spending/receiving shielded coins that originate in the current transaction.
+새로 생성된 차폐 코인의 설명으로, 차폐 코인 출력 또는 현재 트랜잭션에서 생성된 차폐 코인의 지출/수신에 사용됩니다.
 
-`nonce` can be deterministically derived with [`evolveNonce`](#evolvenonce).
+`nonce`는 [`evolveNonce`](#evolvenonce)로 결정론적으로 유도할 수 있습니다.
 
-Used in:
+사용처:
 - [`receiveShielded`](#receiveshielded)
 - [`sendImmediateShielded`](#sendimmediateshielded)
 - [`mergeCoin`](#mergecoin)
@@ -110,11 +102,11 @@ struct ShieldedCoinInfo {
 
 ### `QualifiedShieldedCoinInfo`
 
-The description of an existing shielded coin in the ledger, ready to be spent.
+ledger에 존재하는 차폐 코인의 설명으로, 지출 준비가 된 상태입니다.
 
-Used in:
+사용처:
 - [`sendShielded`](#sendshielded)
-- [`mergeCoin`](#mergeCoin)
+- [`mergeCoin`](#mergecoin)
 - [`mergeCoinImmediate`](#mergecoinimmediate)
 - [`createZswapInput`](#createzswapinput)
 
@@ -129,9 +121,7 @@ struct QualifiedShieldedCoinInfo {
 
 ### `ZswapCoinPublicKey`
 
-The public key used to output a [`ShieldedCoinInfo`](#shieldedcoininfo) to a user, used as a
-recipient in [`sendShielded`](#sendshielded), [`sendImmediateShielded`](#sendimmediateshielded), and
-[`createZswapOutput`](#createzswapoutput).
+[`ShieldedCoinInfo`](#shieldedcoininfo)를 사용자에게 출력하는 데 사용되는 공개 키로, [`sendShielded`](#sendshielded), [`sendImmediateShielded`](#sendimmediateshielded) 및 [`createZswapOutput`](#createzswapoutput)에서 수신자로 사용됩니다.
 
 ```compact
 struct ZswapCoinPublicKey { bytes: Bytes<32>; }
@@ -139,9 +129,7 @@ struct ZswapCoinPublicKey { bytes: Bytes<32>; }
 
 ### `ShieldedSendResult`
 
-The output of [`sendShielded`](#sendshielded) and [`sendImmediateShielded`](#sendimmediateshielded),
-detailing the created shielded coin, and the change from spending the input, if
-applicable.
+[`sendShielded`](#sendshielded) 및 [`sendImmediateShielded`](#sendimmediateshielded)의 출력으로, 생성된 차폐 코인과 입력 지출에 따른 잔돈(해당하는 경우)을 상세히 설명합니다.
 
 ```compact
 struct ShieldedSendResult {
@@ -152,18 +140,17 @@ struct ShieldedSendResult {
 
 ### `UserAddress`
 
-The public key of a user, used as a recipient in [`sendUnshielded`](#sendunshielded)
-and [`mintUnshieldedToken`](#mintunshieldedtoken).
+사용자의 공개 키로, [`sendUnshielded`](#sendunshielded) 및 [`mintUnshieldedToken`](#mintunshieldedtoken)에서 수신자로 사용됩니다.
 
 ```compact
 struct UserAddress { bytes: Bytes<32>; }
 ```
 
-## Circuits
+## Circuit
 
 ### `some`
 
-Constructs a [`Maybe<T>`](#maybe) containing an element of type `T`
+타입 `T`의 요소를 포함하는 [`Maybe<T>`](#maybe)를 생성합니다.
 
 ```compact
 circuit some<T>(value: T): Maybe<T>;
@@ -171,7 +158,7 @@ circuit some<T>(value: T): Maybe<T>;
 
 ### `none`
 
-Constructs a [`Maybe<T>`](#maybe) containing nothing
+아무것도 포함하지 않는 [`Maybe<T>`](#maybe)를 생성합니다.
 
 ```compact
 circuit none<T>(): Maybe<T>;
@@ -179,8 +166,7 @@ circuit none<T>(): Maybe<T>;
 
 ### `left`
 
-Construct an [`Either<A, B>`](#either) containing the `A` item of the disjoint
-union
+분리합집합의 `A` 항목을 포함하는 [`Either<A, B>`](#either)를 생성합니다.
 
 ```compact
 circuit left<A, B>(value: A): Either<A, B>;
@@ -188,8 +174,7 @@ circuit left<A, B>(value: A): Either<A, B>;
 
 ### `right`
 
-Constructs an [`Either<A, B>`](#either) containing the `B` item of the disjoint
-union
+분리합집합의 `B` 항목을 포함하는 [`Either<A, B>`](#either)를 생성합니다.
 
 ```compact
 circuit right<A, B>(value: B): Either<A, B>;
@@ -197,18 +182,12 @@ circuit right<A, B>(value: B): Either<A, B>;
 
 ### `transientHash`
 
-Builtin transient hash compression function
+내장 임시 해시 압축 함수
 
-This function is a circuit-efficient compression function from arbitrary values
-to field elements, which is not guaranteed to persist between upgrades. It
-should not be used to derive state data, but can be used for consistency
-checks.
+임의의 값을 필드 요소로 변환하는 circuit 효율적 압축 함수입니다. 업그레이드 간 지속이 보장되지 않으므로 상태 데이터 도출에는 사용하지 말고 일관성 검사에만 사용해야 합니다.
 
-Although this function returns a hash of its inputs, it is not considered sufficient
-to protect its input from disclosure.
-If its input contains any value returned from a witness, the program must acknowledge
-disclosure (via a `disclose` wrapper) if the result can be stored in the public ledger,
-returned from an exported circuit, or passed to another contract via a cross-contract call.
+입력의 해시를 반환하지만, 입력을 공개로부터 보호하기에 충분하다고 간주되지 않습니다.
+입력에 witness 반환 값이 포함된 경우, 결과가 공개 ledger에 저장되거나 export된 circuit에서 반환되거나 크로스 컨트랙트 호출로 다른 컨트랙트에 전달될 수 있다면 `disclose` 래퍼를 통해 공개를 승인해야 합니다.
 
 ```compact
 circuit transientHash<T>(value: T): Field;
@@ -216,52 +195,36 @@ circuit transientHash<T>(value: T): Field;
 
 ### `transientCommit`
 
-Builtin transient commitment function
+내장 임시 커밋먼트 함수
 
-This function is a circuit-efficient commitment function over arbitrary
-types, and a field element commitment opening, to field elements, which is not
-guaranteed to persist between upgrades. It should not be used to derive state
-data, but can be used for consistency checks.
+임의 타입에 대한 circuit 효율적 커밋먼트 함수로, 필드 요소 개방에서 필드 요소로 변환합니다. 업그레이드 간 지속이 보장되지 않으므로 상태 데이터 도출에는 사용하지 말고 일관성 검사에만 사용해야 합니다.
 
-Unlike `transientHash`, this function is considered sufficient to protect
-its input from disclosure, under the assumption that the `rand` argument is
-sufficiently random.
-Thus, even if its input contains a value or values returned from one or more
-witnesses, the program need not acknowledge disclosure (via a `disclose` wrapper) if
-the result can be stored in the public ledger, returned from an exported circuit, or
-passed to another contract via a cross-contract call.
+`transientHash`와 달리, `rand` 인수가 충분히 무작위적이라면 입력을 공개로부터 보호하기에 충분합니다.
+따라서 입력에 witness 반환 값이 포함되어 있더라도, 결과가 공개 ledger에 저장되거나 export된 circuit에서 반환되거나 크로스 컨트랙트 호출로 전달되는 경우 `disclose` 래퍼를 통한 공개 승인이 필요 없습니다.
 
 ```compact
 circuit transientCommit<T>(value: T, rand: Field): Field;
 ```
 
-### `persistentHash`
+### `persistentHash` {#persistenthash}
 
-Builtin persistent hash compression function
+내장 영구 해시 압축 함수
 
-This function is a non-circuit-optimised compression function from arbitrary values
-to a 256-bit bytestring. It is guaranteed to persist between
-upgrades, and to consistently use the SHA-256 compression algorithm. It
-*should* be used to derive state data, and not for consistency checks where
-avoidable.
+임의의 값을 256비트 바이트 문자열로 변환하는 비 circuit 최적화 압축 함수입니다. 업그레이드 간 지속이 보장되며 SHA-256 알고리즘을 일관되게 사용합니다. 상태 데이터 도출에 사용*해야 하며*, 가능하면 일관성 검사에는 사용하지 않아야 합니다.
 
-The note about disclosing under `transientHash` also applies to this function.
+`transientHash`의 공개 관련 참고 사항이 이 함수에도 적용됩니다.
 
 ```compact
 circuit persistentHash<T>(value: T): Bytes<32>;
 ```
 
-### `persistentCommit`
+### `persistentCommit` {#persistentcommit}
 
-Builtin persistent commitment function
+내장 영구 커밋먼트 함수
 
-This function is a non-circuit-optimised commitment function from arbitrary
-values representable in Compact, and a 256-bit bytestring opening, to a 256-bit
-bytestring. It is guaranteed to persist between upgrades, and use the SHA-256
-compression algorithm. It *should* be used to derive state data, and not for
-consistency checks where avoidable.
+Compact에서 표현 가능한 임의의 값과 256비트 바이트 문자열 개방을 받아 256비트 바이트 문자열을 반환하는 비 circuit 최적화 커밋먼트 함수입니다. 업그레이드 간 지속이 보장되며 SHA-256 알고리즘을 사용합니다. 상태 데이터 도출에 사용*해야 하며*, 가능하면 일관성 검사에는 사용하지 않아야 합니다.
 
-The note about disclosing under `transientCommit` also applies to this function.
+`transientCommit`의 공개 관련 참고 사항이 이 함수에도 적용됩니다.
 
 ```compact
 circuit persistentCommit<T>(value: T, rand: Bytes<32>): Bytes<32>;
@@ -269,18 +232,14 @@ circuit persistentCommit<T>(value: T, rand: Bytes<32>): Bytes<32>;
 
 ### `degradeToTransient`
 
-This function "degrades" the output of a [`persistentHash`](#persistenthash)
-or [`persistentCommit`](#persistentcommit) to a field element, which can then
-be used in [`transientHash`](#transienthash) or
-[`transientCommit`](#transientcommit).
+이 함수는 [`persistentHash`](#persistenthash) 또는 [`persistentCommit`](#persistentcommit)의 출력을 필드 요소로 "다운그레이드"하여 [`transientHash`](#transienthash) 또는 [`transientCommit`](#transientcommit)에서 사용할 수 있게 합니다.
 
 ```compact
 circuit degradeToTransient(x: Bytes<32>) : Field;
 ```
 
 ### `upgradeFromTransient`
-This function "upgrades" a field element to the output of a
-[`persistentHash`](#persistenthash) or [`persistentCommit`](#persistentcommit).
+이 함수는 필드 요소를 [`persistentHash`](#persistenthash) 또는 [`persistentCommit`](#persistentcommit)의 출력으로 "업그레이드"합니다.
 
 ```compact
 circuit upgradeFromTransient(x: Field): Bytes<32>;
@@ -289,8 +248,7 @@ circuit upgradeFromTransient(x: Field): Bytes<32>;
 
 ### `ecAdd`
 
-This function add two elliptic [`NativePoint`](#nativepoint)s (in multiplicative
-notation)
+이 함수는 두 개의 타원 [`NativePoint`](#nativepoint)를 더합니다(곱셈 표기법).
 
 ```compact
 circuit ecAdd(a: NativePoint, b: NativePoint): NativePoint;
@@ -298,8 +256,7 @@ circuit ecAdd(a: NativePoint, b: NativePoint): NativePoint;
 
 ### `ecMul`
 
-This function multiplies an elliptic [`NativePoint`](#nativepoint) by a scalar
-(in multiplicative notation)
+이 함수는 타원 [`NativePoint`](#nativepoint)에 스칼라를 곱합니다(곱셈 표기법).
 
 ```compact
 circuit ecMul(a: NativePoint, b: Field): NativePoint;
@@ -307,8 +264,7 @@ circuit ecMul(a: NativePoint, b: Field): NativePoint;
 
 ### `ecMulGenerator`
 
-This function multiplies the primary group generator of the embedded curve
-by a scalar (in multiplicative notation)
+이 함수는 내장 곡선의 주요 그룹 생성자에 스칼라를 곱합니다(곱셈 표기법).
 
 ```compact
 circuit ecMulGenerator(b: Field): NativePoint;
@@ -316,23 +272,19 @@ circuit ecMulGenerator(b: Field): NativePoint;
 
 ### `hashToCurve`
 
-This function maps arbitrary types to [`NativePoint`](#nativepoint)s.
+이 함수는 임의의 타입을 [`NativePoint`](#nativepoint)로 매핑합니다.
 
-Outputs are guaranteed to have unknown discrete logarithm with respect to
-the group base, and any other output, but are not guaranteed to be unique (a
-given input can be proven correct for multiple outputs).
+출력은 그룹 베이스 및 다른 출력에 대해 알려지지 않은 이산 로그를 가짐이 보장되지만, 고유함이 보장되지는 않습니다(주어진 입력이 여러 출력에 대해 올바른 것으로 증명될 수 있습니다).
 
-Inputs of different types `T` may have the same output, if they have the same
-field-aligned binary representation.
+다른 타입 `T`의 입력이 동일한 필드 정렬 이진 표현을 가지는 경우 동일한 출력을 가질 수 있습니다.
 
 ```compact
 circuit hashToCurve<T>(value: T): NativePoint;
 ```
 
-### `merkleTreePathRoot`
+### `merkleTreePathRoot` {#merkletreepathroot}
 
-Derives the Merkle tree root of a [`MerkleTreePath`](#merkletreepath), which
-should match the root of the tree that this path originated from.
+[`MerkleTreePath`](#merkletreepath)의 Merkle 트리 루트를 유도하며, 이 경로가 유래한 트리의 루트와 일치해야 합니다.
 
 ```compact
 circuit merkleTreePathRoot<#n, T>(path: MerkleTreePath<n, T>): MerkleTreeDigest;
@@ -340,10 +292,7 @@ circuit merkleTreePathRoot<#n, T>(path: MerkleTreePath<n, T>): MerkleTreeDigest;
 
 ### `merkleTreePathRootNoLeafHash`
 
-Derives the Merkle tree root of a [`MerkleTreePath`](#merkletreepath), which
-should match the root of the tree that this path originated from. As opposed to
-[`merkleTreePathRoot`](#merkletreepathroot), this variant assumes that
-the tree leaves have already been hashed externally.
+[`MerkleTreePath`](#merkletreepath)의 Merkle 트리 루트를 유도하며, 이 경로가 유래한 트리의 루트와 일치해야 합니다. [`merkleTreePathRoot`](#merkletreepathroot)와 달리, 이 변형은 트리 리프가 이미 외부에서 해시되었다고 가정합니다.
 
 ```compact
 circuit merkleTreePathRootNoLeafHash<#n>(path: MerkleTreePath<n, Bytes<32>>): MerkleTreeDigest;
@@ -351,7 +300,7 @@ circuit merkleTreePathRootNoLeafHash<#n>(path: MerkleTreePath<n, Bytes<32>>): Me
 
 ### `nativeToken`
 
-Returns the token type of the native token
+네이티브 토큰의 토큰 타입을 반환합니다.
 
 ```compact
 circuit nativeToken(): Bytes<32>;
@@ -359,12 +308,7 @@ circuit nativeToken(): Bytes<32>;
 
 ### `tokenType`
 
-Transforms a domain separator for the given contract into a globally namespaced
-token type. A contract can issue tokens for its domain separators, which lets
-it create new tokens, but due to collision resistance, it cannot mint tokens
-for another contract's token type. This is used as the `color` field in 
-[`ShieldedCoinInfo`](#shieldedcoininfo) and as arguments to functions like 
-[`sendUnshielded`](#sendunshielded) and [`receiveUnshielded`](#receiveunshielded).
+컨트랙트의 도메인 구분자를 전역 네임스페이스의 토큰 타입으로 변환합니다. 컨트랙트는 자체 도메인 구분자로 토큰을 발행하여 새 토큰을 생성할 수 있지만, 해시 충돌 저항성 덕분에 다른 컨트랙트의 토큰 타입에 대한 토큰은 발행할 수 없습니다. [`ShieldedCoinInfo`](#shieldedcoininfo)의 `color` 필드와 [`sendUnshielded`](#sendunshielded), [`receiveUnshielded`](#receiveunshielded) 등 함수의 인수로 사용됩니다.
 
 ```compact
 circuit tokenType(domainSep: Bytes<32>, contract: ContractAddress): Bytes<32>;
@@ -372,11 +316,7 @@ circuit tokenType(domainSep: Bytes<32>, contract: ContractAddress): Bytes<32>;
 
 ### `mintShieldedToken`
 
-Creates a new shielded coin, minted by this contract, and sends it to the given
-recipient. Returns the corresponding [`ShieldedCoinInfo`](#shieldedcoininfo). This requires
-inputting a unique nonce to function securely, it is left to the user how to
-produce this. To mint a shielded token to the current contract, pass
-`right<ZswapCoinPublicKey, ContractAddress>(kernel.self())` as the `recipient`.
+이 컨트랙트가 발행한 새 차폐 코인을 생성하여 지정된 수신자에게 전송하고, 해당하는 [`ShieldedCoinInfo`](#shieldedcoininfo)를 반환합니다. 안전한 작동을 위해 고유한 nonce가 필요하며, nonce 생성 방법은 사용자가 결정합니다. 현재 컨트랙트에 차폐 토큰을 발행하려면 `recipient`로 `right<ZswapCoinPublicKey, ContractAddress>(kernel.self())`를 전달하세요.
 
 ```compact
 circuit mintShieldedToken(
@@ -389,8 +329,7 @@ circuit mintShieldedToken(
 
 ### `evolveNonce`
 
-Deterministically derives a [`ShieldedCoinInfo`](#shieldedcoininfo) nonce from a counter index,
-and a prior nonce.
+카운터 인덱스와 이전 nonce에서 [`ShieldedCoinInfo`](#shieldedcoininfo) nonce를 결정론적으로 유도합니다.
 
 ```compact
 circuit evolveNonce(
@@ -401,7 +340,7 @@ circuit evolveNonce(
 
 ### `shieldedBurnAddress`
 
-Returns a payment address that guarantees any shielded coins sent to it are burned.
+전송된 차폐 코인이 소각됨을 보장하는 지불 주소를 반환합니다.
 
 ```compact
 circuit shieldedBurnAddress(): Either<ZswapCoinPublicKey, ContractAddress>;
@@ -409,9 +348,7 @@ circuit shieldedBurnAddress(): Either<ZswapCoinPublicKey, ContractAddress>;
 
 ### `receiveShielded`
 
-Receives a shielded coin, adding a validation condition requiring this coin to be
-present as an output addressed to this contract, and not received by another
-call
+차폐 코인을 수신하며, 이 코인이 이 컨트랙트에 주소가 지정된 출력으로 존재해야 하고 다른 호출에 의해 수신되지 않았어야 한다는 검증 조건을 추가합니다.
 
 ```compact
 circuit receiveShielded(coin: ShieldedCoinInfo): [];
@@ -419,29 +356,25 @@ circuit receiveShielded(coin: ShieldedCoinInfo): [];
 
 ### `sendShielded`
 
-Sends given value from a shielded coin owned by the contract to a recipient. Any change
-is returned and should be managed by the contract.
+컨트랙트가 보유한 차폐 코인에서 지정된 금액을 수신자에게 전송합니다. 잔돈이 반환되며 컨트랙트에서 관리해야 합니다.
 
-Note that this does not currently create coin ciphertexts, so sending to a user
-public key except for the current user will not lead to this user being
-informed of the coin they've been sent. To send a shielded token to the current contract, pass
-`right<ZswapCoinPublicKey, ContractAddress>(kernel.self())` as the `recipient`.
+현재 이 함수는 코인 암호문을 생성하지 않으므로, 현재 사용자가 아닌 다른 사용자의 공개 키로 전송하면 수신자가 전송된 코인에 대한 알림을 받지 못합니다. 현재 컨트랙트에 차폐 토큰을 전송하려면 `recipient`로 `right<ZswapCoinPublicKey, ContractAddress>(kernel.self())`를 전달하세요.
 
 ```compact
 circuit sendShielded(input: QualifiedShieldedCoinInfo, recipient: Either<ZswapCoinPublicKey, ContractAddress>, value: Uint<128>): ShieldedSendResult;
 ```
 
-### `sendImmediateShielded`
+### `sendImmediateShielded` {#sendimmediateshielded}
 
-Like [`sendShielded`](#sendshielded), but for coins created within this transaction
+[`sendShielded`](#sendshielded)와 동일하지만, 이 트랜잭션 내에서 생성된 코인에 대해 사용합니다.
 
 ```compact
 circuit sendImmediateShielded(input: ShieldedCoinInfo, target: Either<ZswapCoinPublicKey, ContractAddress>, value: Uint<128>): ShieldedSendResult;
 ```
 
-### `mergeCoin`
+### `mergeCoin` {#mergecoin}
 
-Takes two coins stored on the ledger, and combines them into one
+ledger에 저장된 두 개의 코인을 가져와 하나로 합칩니다.
 
 ```compact
 circuit mergeCoin(a: QualifiedCoinInfo, b: QualifiedCoinInfo): CoinInfo;
@@ -449,8 +382,7 @@ circuit mergeCoin(a: QualifiedCoinInfo, b: QualifiedCoinInfo): CoinInfo;
 
 ### `mergeCoinImmediate`
 
-Takes one coin stored on the ledger, and one created within this transaction,
-and combines them into one
+ledger에 저장된 코인 하나와 이 트랜잭션 내에서 생성된 코인 하나를 가져와 하나로 합칩니다.
 
 ```compact
 circuit mergeCoinImmediate(a: QualifiedCoinInfo, b: CoinInfo): CoinInfo;
@@ -458,8 +390,7 @@ circuit mergeCoinImmediate(a: QualifiedCoinInfo, b: CoinInfo): CoinInfo;
 
 ### `ownPublicKey`
 
-Returns the [`ZswapCoinPublicKey`](#zswapcoinpublickey) of the end-user
-creating this transaction.
+이 트랜잭션을 생성하는 최종 사용자의 [`ZswapCoinPublicKey`](#zswapcoinpublickey)를 반환합니다.
 
 ```compact
 circuit ownPublicKey(): ZswapCoinPublicKey;
@@ -467,11 +398,10 @@ circuit ownPublicKey(): ZswapCoinPublicKey;
 
 ### `createZswapInput`
 
-Notifies the context to create a new Zswap input originating from this call.
-Should typically not be called manually, prefer [`sendShielded`](#sendshielded) and
-[`sendImmediateShielded`](#sendimmediateshielded) instead.
+이 호출에서 시작되는 새로운 Zswap 입력을 생성하도록 컨텍스트에 알립니다.
+일반적으로 수동으로 호출해서는 안 되며, 대신 [`sendShielded`](#sendshielded) 및 [`sendImmediateShielded`](#sendimmediateshielded)를 사용하세요.
 
-The note about disclosing under `transientHash` also applies to this function.
+`transientHash`의 공개 관련 참고 사항이 이 함수에도 적용됩니다.
 
 ```compact
 circuit createZswapInput(coin: QualifiedShieldedCoinInfo): [];
@@ -479,11 +409,10 @@ circuit createZswapInput(coin: QualifiedShieldedCoinInfo): [];
 
 ### `createZswapOutput`
 
-Notifies the context to create a new Zswap output originating from this call.
-Should typically not be called manually, prefer [`sendShielded`](#sendshielded) and
-[`sendImmediateShielded`](#sendimmediateShielded), and [`receiveShielded`](#receiveshielded) instead.
+이 호출에서 시작되는 새로운 Zswap 출력을 생성하도록 컨텍스트에 알립니다.
+일반적으로 수동으로 호출해서는 안 되며, 대신 [`sendShielded`](#sendshielded), [`sendImmediateShielded`](#sendimmediateshielded) 및 [`receiveShielded`](#receiveshielded)를 사용하세요.
 
-The note about disclosing under `transientHash` also applies to this function.
+`transientHash`의 공개 관련 참고 사항이 이 함수에도 적용됩니다.
 
 ```compact
 circuit createZswapOutput(coin: ShieldedCoinInfo, recipient: Either<ZswapCoinPublicKey, ContractAddress>): [];
@@ -491,9 +420,7 @@ circuit createZswapOutput(coin: ShieldedCoinInfo, recipient: Either<ZswapCoinPub
 
 ### `mintUnshieldedToken`
 
-Creates a new unshielded coin, minted by this contract, and sends it to the given
-recipient. Returns the corresponding coin color. To mint an unshielded token to the current contract, pass
-`left<ContractAddress, UserAddress>(kernel.self())` as the `recipient`.
+이 컨트랙트가 발행한 새로운 비차폐 코인을 생성하고 주어진 수신자에게 전송합니다. 해당하는 코인 색상을 반환합니다. 현재 컨트랙트에 비차폐 토큰을 발행하려면 `recipient`로 `left<ContractAddress, UserAddress>(kernel.self())`를 전달하세요.
 
 ```compact
 export circuit mintUnshieldedToken(
@@ -505,9 +432,7 @@ export circuit mintUnshieldedToken(
 
 ### `sendUnshielded`
 
-Sends the given amount of the given unshielded token (identified by the color) to the given recipient. No change is 
-returned from this function. To send an unshielded token to the current contract, pass
-`left<ContractAddress, UserAddress>(kernel.self())` as the `recipient`.
+주어진 비차폐 토큰(색상으로 식별)의 주어진 금액을 주어진 수신자에게 전송합니다. 이 함수에서는 잔돈이 반환되지 않습니다. 현재 컨트랙트에 비차폐 토큰을 전송하려면 `recipient`로 `left<ContractAddress, UserAddress>(kernel.self())`를 전달하세요.
 
 ```compact
 export circuit sendUnshielded(color: Bytes<32>, amount: Uint<128>, recipient: Either<ContractAddress, UserAddress>): [];
@@ -515,7 +440,7 @@ export circuit sendUnshielded(color: Bytes<32>, amount: Uint<128>, recipient: Ei
 
 ### `receiveUnshielded`
 
-Receives the given amount of the unshielded token identified by the color.
+색상으로 식별되는 비차폐 토큰의 주어진 금액을 수신합니다.
 
 ```compact
 circuit receiveUnshielded(color: Bytes<32>, amount: Uint<128>): [];
@@ -523,13 +448,7 @@ circuit receiveUnshielded(color: Bytes<32>, amount: Uint<128>): [];
 
 ### `unshieldedBalance`
 
-Returns the contract's balance of the unshielded token of the given type. Note that this balance is not updated
-during contract execution as a result of unshielded sends and receives. It is always fixed to the value provided
-at the start of execution. Also note that using this function means transaction application will fail unless the
-token balance at the time of transaction construction is exactly the same as the balance at the time of transaction
-application. Unless you want to require that, prefer to use the balance comparison functions [`unshieldedBalanceLt`](#unshieldedbalancelt), 
-[`unshieldedBalanceGte`](#unshieldedbalancegte), [`unshieldedBalanceGt`](#unshieldedbalancegt), and 
-[`unshieldedBalanceLte`](#unshieldedbalancelte).
+지정된 타입의 비차폐 토큰에 대한 컨트랙트 잔액을 반환합니다. 이 잔액은 컨트랙트 실행 중 비차폐 전송/수신에 의해 업데이트되지 않으며 항상 실행 시작 시점의 값으로 고정됩니다. 또한 이 함수를 사용하면 트랜잭션 구성 시점과 적용 시점의 토큰 잔액이 정확히 일치해야 하며, 그렇지 않으면 트랜잭션이 실패합니다. 이 제약이 필요 없다면 잔액 비교 함수 [`unshieldedBalanceLt`](#unshieldedbalancelt), [`unshieldedBalanceGte`](#unshieldedbalancegte), [`unshieldedBalanceGt`](#unshieldedbalancegt), [`unshieldedBalanceLte`](#unshieldedbalancelte)를 사용하세요.
 
 ```compact
 circuit unshieldedBalance(color: Bytes<32>): Uint<128>;
@@ -537,7 +456,7 @@ circuit unshieldedBalance(color: Bytes<32>): Uint<128>;
 
 ### `unshieldedBalanceLt`
 
-Returns true if the unshielded balance of the contract for the given token type is less than the given value.
+주어진 토큰 타입에 대한 컨트랙트의 비차폐 잔액이 주어진 값보다 작으면 true를 반환합니다.
 
 ```compact
 circuit unshieldedBalanceLt(color: Bytes<32>, amount: Uint<128>): Boolean;
@@ -545,7 +464,7 @@ circuit unshieldedBalanceLt(color: Bytes<32>, amount: Uint<128>): Boolean;
 
 ### `unshieldedBalanceGte`
 
-Returns true if the unshielded balance of the contract for the given token type is greater than or equal to the given value.
+주어진 토큰 타입에 대한 컨트랙트의 비차폐 잔액이 주어진 값보다 크거나 같으면 true를 반환합니다.
 
 ```compact
 circuit unshieldedBalanceGte(color: Bytes<32>, amount: Uint<128>): Boolean;
@@ -553,7 +472,7 @@ circuit unshieldedBalanceGte(color: Bytes<32>, amount: Uint<128>): Boolean;
 
 ### `unshieldedBalanceGt`
 
-Returns true if the unshielded balance of the contract for the given token type is greater than the given value.
+주어진 토큰 타입에 대한 컨트랙트의 비차폐 잔액이 주어진 값보다 크면 true를 반환합니다.
 
 ```compact
 circuit unshieldedBalanceGt(color: Bytes<32>, amount: Uint<128>): Boolean
@@ -561,7 +480,7 @@ circuit unshieldedBalanceGt(color: Bytes<32>, amount: Uint<128>): Boolean
 
 ### `unshieldedBalanceLte`
 
-Returns true if the unshielded balance of the contract for the given token type is less than or equal to the given value.
+주어진 토큰 타입에 대한 컨트랙트의 비차폐 잔액이 주어진 값보다 작거나 같으면 true를 반환합니다.
 
 ```compact
 circuit unshieldedBalanceLte(color: Bytes<32>, amount: Uint<128>): Boolean;
@@ -570,7 +489,7 @@ circuit unshieldedBalanceLte(color: Bytes<32>, amount: Uint<128>): Boolean;
 
 ### `blockTimeLt`
 
-Returns true if the current block time is less than the given value.
+현재 블록 시간이 주어진 값보다 작으면 true를 반환합니다.
 
 ```compact
 circuit blockTimeLt(time: Uint<64>): Boolean;
@@ -578,7 +497,7 @@ circuit blockTimeLt(time: Uint<64>): Boolean;
 
 ### `blockTimeGte`
 
-Returns true if the current block time is greater than or equal to the given value.
+현재 블록 시간이 주어진 값보다 크거나 같으면 true를 반환합니다.
 
 ```compact
 circuit blockTimeGte(time: Uint<64>): Boolean;
@@ -586,7 +505,7 @@ circuit blockTimeGte(time: Uint<64>): Boolean;
 
 ### `blockTimeGt`
 
-Returns true if the current block time is greater than the given value.
+현재 블록 시간이 주어진 값보다 크면 true를 반환합니다.
 
 ```compact
 circuit blockTimeGt(time: Uint<64>): Boolean;
@@ -594,7 +513,7 @@ circuit blockTimeGt(time: Uint<64>): Boolean;
 
 ### `blockTimeLte`
 
-Returns true if the current block time is less than or equal to the given value.
+현재 블록 시간이 주어진 값보다 작거나 같으면 true를 반환합니다.
 
 ```compact
 circuit blockTimeLte(time: Uint<64>): Boolean;

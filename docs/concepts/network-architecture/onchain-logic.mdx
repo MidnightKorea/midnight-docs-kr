@@ -3,24 +3,24 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Onchain Logic and State
 sidebar_label: Onchain Logic and State
-description: A reference on onchain logic and state in Midnight nodes.
+description: Midnight 노드의 온체인 로직과 상태에 대한 참조 문서.
 keywords: [node]
 ---
 
 # Onchain Logic and State
 
-The Midnight node follows the standard Polkadot SDK model for defining and executing on-chain logic. All core logic (except native pre-compiles) is compiled into **WebAssembly (WASM)**, which forms the node’s **runtime**—the state transition function executed consistently across all participating nodes.
+Midnight 노드는 온체인 로직의 정의와 실행에 표준 Polkadot SDK 모델을 따릅니다. 네이티브 pre-compile을 제외한 모든 핵심 로직은 **WebAssembly (WASM)**으로 컴파일되며, 이것이 노드의 **런타임**, 즉 모든 참여 노드에서 일관되게 실행되는 상태 전환 함수를 구성합니다.
 
-This runtime is composed of modular components known as **FRAME pallets**. Each pallet encapsulates a specific domain of logic and can include storage definitions (maps, multi-key maps, lists, values), events, dispatchable functions (transactions), offchain workers, hooks, host-exposed functions, and RPC methods. This modular design allows for a flexible and extensible on-chain execution environment, similar in spirit to a smart contract framework but compiled ahead of time and governed at the chain level.
+런타임은 **FRAME pallet**이라 불리는 모듈형 구성 요소로 이루어집니다. 각 pallet은 특정 로직 도메인을 캡슐화하며, 스토리지 정의(map, multi-key map, list, value), 이벤트, 디스패치 가능 함수(트랜잭션), 오프체인 워커, 훅, 호스트 노출 함수, RPC 메서드를 포함할 수 있습니다. 이러한 모듈형 설계를 통해 스마트 컨트랙트 프레임워크와 유사한 방식으로 유연하고 확장 가능한 온체인 실행 환경을 제공하면서도, 사전 컴파일되어 체인 수준에서 관리됩니다.
 
-Midnight’s runtime integrates both upstream pallets from **Polkadot SDK** and components developed by **Cardano Partner-Chains**. Examples include:
+Midnight의 런타임은 **Polkadot SDK**의 업스트림 pallet과 **Cardano Partner-Chains**에서 개발한 구성 요소를 모두 통합합니다. 주요 예시는 다음과 같습니다:
 
-- `pallet-aura`: Handles block production using the AURA protocol.
-- `pallet-grandpa`: Manages finality through the GRANDPA protocol.
-- `pallet-partnerchains-session` and `pallet_session_validator_management`: Coordinate session rotation and validator management in the partnerchain context.
+- `pallet-aura`: AURA 프로토콜을 이용한 블록 생성을 처리합니다.
+- `pallet-grandpa`: GRANDPA 프로토콜을 통한 최종성을 관리합니다.
+- `pallet-partnerchains-session` 및 `pallet_session_validator_management`: partnerchain 환경에서 세션 교체와 검증자 관리를 조율합니다.
 
-The **core pallet** powering Midnight’s privacy-preserving transaction logic is `pallet-midnight`. Maintained internally, this pallet encapsulates the state machine for the **Midnight Ledger**.
+Midnight의 프라이버시 보존 트랜잭션 로직을 구동하는 **핵심 pallet**은 `pallet-midnight`입니다. 내부적으로 관리되는 이 pallet은 **Midnight Ledger**의 상태 머신을 캡슐화합니다.
 
-The `pallet-midnight` is responsible for processing specialized transactions originating from the Midnight Ledger, including **ZSwap asset transfers** and **contract operations**. Rather than relying on traditional signature-based dispatch, this pallet processes cryptographic **proofs** embedded in each transaction. It leverages native libraries to verify these proofs and execute the corresponding state transitions.
+`pallet-midnight`는 **ZSwap 자산 이전**과 **컨트랙트 연산**을 포함하여 Midnight Ledger에서 발생하는 특수 트랜잭션을 처리합니다. 기존의 서명 기반 디스패치 대신, 각 트랜잭션에 내장된 암호학적 **증명**을 처리합니다. 네이티브 라이브러리를 활용하여 이러한 증명을 검증하고 대응하는 상태 전환을 실행합니다.
 
-Once executed, the new state is committed on-chain. Like all Polkadot SDK chains, Midnight uses a **Patricia-Merkle trie**, backed by a key-value database, to store the canonical ledger state. A **commitment to the full Midnight Ledger state** is also stored, ensuring a tamper-proof, verifiable snapshot of the system after each block.
+실행이 완료되면 새로운 상태가 온체인에 커밋됩니다. 다른 Polkadot SDK 체인과 마찬가지로, Midnight는 정규 원장 상태를 저장하기 위해 키-값 데이터베이스로 뒷받침되는 **Patricia-Merkle trie**를 사용합니다. 각 블록 이후 시스템의 변조 방지 및 검증 가능한 스냅샷을 보장하기 위해 **전체 Midnight Ledger 상태에 대한 commitment**도 함께 저장됩니다.

@@ -1,8 +1,8 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Set up the Lace wallet"
-description: Learn how to set up the Lace wallet for the Midnight Preview network.
+sidebar_label: "Lace 지갑 설정"
+description: Midnight Preview 네트워크용 Lace 지갑을 설정하는 방법을 알아봅니다.
 toc_max_heading_level: 2
 sidebar_position: 10
 ---
@@ -11,88 +11,87 @@ import Step, { StepsProvider } from '@site/src/components/Step/Step';
 
 # Lace wallet
 
-The Lace wallet is a Chrome extension. This guide is aimed at Testnet DApp users who are setting up the Lace wallet for the first time.
+Lace 지갑은 Chrome 확장 프로그램입니다. 이 가이드는 테스트넷에서 DApp을 사용하기 위해 Lace 지갑을 처음 설정하는 분들을 위한 안내서입니다.
 
-:::important Chrome browser
+:::important Chrome 브라우저
 
-You must use the Chrome web browser or its derivatives to complete
-web-based transactions on the Midnight testnet.
+Midnight 테스트넷에서 웹 기반 트랜잭션을 수행하려면
+Chrome 웹 브라우저 또는 Chrome 기반 브라우저를 사용해야 합니다.
 
-Only the Chrome browser itself is fully supported. The Lace
-wallet may not be able to connect to your local proof server from
-Chrome derivatives. If you choose to use Brave, for example, it is
-necessary to disable Brave shields when running the Hello World DApp, so that the DApp (hosted at one address) can contact
-your local proof server (hosted on your system, at a different
-address) through the Lace extension.
+공식적으로 완전히 지원되는 것은 Chrome 브라우저뿐입니다. Chrome 기반
+브라우저에서는 Lace 지갑이 로컬 proof server에
+연결하지 못할 수 있습니다. 예를 들어 Brave를 사용하는 경우,
+Hello World DApp 실행 시 Brave shields를 비활성화해야 합니다. 이는 DApp(한 주소에서 호스팅)이
+Lace 확장 프로그램을 통해 로컬 proof server(시스템의 다른 주소에서 호스팅)에
+연결할 수 있도록 하기 위함입니다.
 
 :::
 
-## Install the Lace Midnight Preview wallet
+## Install
 
-This section walks you through the process of installing the Lace Midnight Preview wallet, creating a new wallet, and getting test tokens.
+이 섹션에서는 Lace Midnight Preview 지갑 설치, 새 지갑 생성, 테스트 토큰 수령 과정을 안내합니다.
 
 ### Download and install the Lace wallet extension
 
-Lace Midnight Preview wallet is a browser extension for the Midnight Network. 
-It is currently only compatible with Google Chrome. Here's how to install it:
+Lace Midnight Preview 지갑은 Midnight Network용 브라우저 확장 프로그램으로,
+현재 Google Chrome에서만 사용할 수 있습니다. 설치 방법은 다음과 같습니다:
 
 <StepsProvider>
-    <Step>Open the Google Chrome browser.</Step>
-    <Step>Install the Midnight Lace wallet extension from the [Chrome Web Store](https://chromewebstore.google.com/detail/lace-beta/hgeekaiplokcnmakghbdfbgnlfheichg).</Step>
-    <Step>Click **Add to Chrome** and confirm by clicking **Add extension**.</Step>
-    <Step>Pin the extension to your toolbar for easy access (recommended).</Step>
+    <Step>Google Chrome 브라우저를 엽니다.</Step>
+    <Step>[Chrome 웹 스토어](https://chromewebstore.google.com/detail/lace-beta/hgeekaiplokcnmakghbdfbgnlfheichg)에서 Midnight Lace 지갑 확장 프로그램을 설치합니다.</Step>
+    <Step>**Add to Chrome**을 클릭하고 **Add extension**을 클릭하여 확인합니다.</Step>
+    <Step>빠르게 접근할 수 있도록 확장 프로그램을 도구 모음에 고정하는 것을 권장합니다.</Step>
 </StepsProvider>
 
-**Verification**: The Lace wallet icon appears in your Chrome toolbar.
+**확인**: Chrome 도구 모음에 Lace 지갑 아이콘이 나타나면 설치가 완료된 것입니다.
 
-### Create your wallet
+### Create a wallet
 
-To create a new wallet, follow these steps:
+다음 단계에 따라 새 지갑을 생성합니다:
 
 <StepsProvider>
-    <Step>Click the Lace wallet icon in your browser's toolbar.</Step>
-    <Step>Select the **Create** button to create a new wallet.</Step>
-    <Step>Copy the seed phrase to your clipboard, and then click **Next** to continue.</Step>
-    ![Seed phrase](./img/copy-to-clipboard.png)
+    <Step>브라우저 도구 모음에서 Lace 지갑 아이콘을 클릭합니다.</Step>
+    <Step>**Create** 버튼을 선택하여 새 지갑을 생성합니다.</Step>
+    <Step>시드 문구를 클립보드에 복사한 후 **Next**를 클릭하여 계속합니다.</Step>
+    ![시드 문구](./img/copy-to-clipboard.png)
 
     :::warning
-    Write down your seed phrase on paper and store it in a secure, offline location. Never store it digitally or share it.
+    시드 문구를 종이에 적어 안전한 오프라인 장소에 보관하세요. 디지털 형태로 저장하거나 타인과 공유하면 안 됩니다.
     :::
 
-    <Step>Paste the seed phrase into the confirmation field, and then click **Confirm** to complete the setup.</Step>
-    <Step>Enter your wallet name, choose a strong password, and click **Next** to continue.</Step>
+    <Step>확인 필드에 시드 문구를 붙여넣고 **Confirm**을 클릭합니다.</Step>
+    <Step>지갑 이름을 입력하고 강력한 비밀번호를 설정한 후 **Next**를 클릭합니다.</Step>
 
-    ![Wallet name](./img/wallet-name-password.png)
+    ![지갑 이름](./img/wallet-name-password.png)
 
-    <Step>Choose your network and proof server address.</Step>
+    <Step>네트워크와 proof server 주소를 선택합니다.</Step>
 
-    ![Enter wallet](./img/configure-midnight.png)
+    ![지갑 입장](./img/configure-midnight.png)
 
-    <Step>Click **Enter wallet** to complete the setup.</Step>
+    <Step>**Enter wallet**을 클릭하여 설정을 완료합니다.</Step>
 </StepsProvider>
 
-**Verification**: Your wallet dashboard opens, showing your shielded and unshielded wallet addresses.
+**확인**: 지갑 대시보드가 열리며, shielded 주소와 unshielded 지갑 주소가 표시됩니다.
 
 ### Get test tokens (tDUST)
 
-tDUST is the network resource used to process transactions and interact with DApps on the Midnight Network. 
-It has no real-world value and is used for testing transactions and interacting with DApps.
+tDUST는 Midnight Network에서 트랜잭션을 처리하고 DApp과 상호작용하는 데 사용되는 네트워크 토큰입니다.
+실제 가치는 없으며, 테스트 목적으로만 사용됩니다.
 
 <StepsProvider>
-    <Step>In your Lace wallet, click **Receive**, and then copy your Unshielded wallet address.</Step>
-    ![Unshielded wallet address](./img/copy-unshielded-address.png)
-    <Step>Go to the Preprod Faucet: https://faucet.preprod.midnight.network/.</Step>
-    <Step>Paste your address into the form and click **Request tokens**. Wait a few minutes for the tokens to arrive.</Step>
-    <Step>Once the tokens are received, you must delegate them to your wallet to generate tDUST. Click **Generate tDUST** and select your wallet address.</Step>
-    ![tDUST balance](../guides/img/delegate-dust.png)
-    <Step>Click **Review transaction** to proceed, and then select **Confirm** to submit the transaction.</Step>
-    ![Generate tDUST](../guides/img/review-transaction.png)
-    <Step>Once the transaction is confirmed, you'll see your tDUST balance in your Lace wallet.</Step>
+    <Step>Lace 지갑에서 **Receive**를 클릭한 후 Unshielded 지갑 주소를 복사합니다.</Step>
+    ![Unshielded 지갑 주소](./img/copy-unshielded-address.png)
+    <Step>Preprod Faucet(https://faucet.preprod.midnight.network/)으로 이동합니다.</Step>
+    <Step>주소를 양식에 붙여넣고 **Request tokens**를 클릭합니다. 토큰이 도착할 때까지 몇 분 정도 기다립니다.</Step>
+    <Step>토큰을 수신한 후 tDUST를 생성하기 위해 지갑에 위임해야 합니다. **Generate tDUST**를 클릭하고 지갑 주소를 선택합니다.</Step>
+    ![tDUST 잔액](../guides/img/delegate-dust.png)
+    <Step>**Review transaction**을 클릭하여 내용을 확인한 후 **Confirm**으로 트랜잭션을 제출합니다.</Step>
+    ![tDUST 생성](../guides/img/review-transaction.png)
+    <Step>트랜잭션이 확인되면 Lace 지갑에서 tDUST 잔액을 확인합니다.</Step>
 </StepsProvider>
 
-**Verification**: Your Lace wallet shows a new balance of tDUST tokens.
+**확인**: Lace 지갑에 tDUST 잔액이 표시됩니다.
 
 ## Next Steps
 
-At this point, the Lace wallet displays a balance of tokens for interacting with testnet DApps. In order to process transactions, Lace requires a proof server to be running on your machine. Follow the [proof server guide](./run-proof-server) to get it up and running.
-
+이제 Lace 지갑에 테스트넷 DApp과 상호작용하기 위한 토큰 잔액이 준비되었습니다. 트랜잭션을 처리하려면 로컬 머신에서 proof server가 실행 중이어야 합니다. 설정 방법은 [proof server 가이드](./run-proof-server)를 참조하세요.

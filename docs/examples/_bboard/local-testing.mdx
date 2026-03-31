@@ -1,122 +1,75 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Midnight test environment"
-title: "Midnight test environment"
-description: "Learn how to run a Midnight test environment for the bulletin board DApp locally using Docker."
+sidebar_label: "Midnight 테스트 환경"
+title: "Midnight 테스트 환경"
+description: "Docker를 사용하여 게시판 DApp을 위한 Midnight 테스트 환경을 로컬에서 실행하는 방법을 알아봅니다."
 sidebar_position: 30
 ---
 
 # Midnight test environment
 
-In this tutorial, you ran DApps that were
-already complete and tested. In this part, however, you have been
-writing portions of the DApp yourself, and you probably want to try
-out your work _before_ deploying the DApp to the Midnight network.
+이 튜토리얼에서는 이미 완성되고 테스트된 DApp을 실행해 보았습니다. 이번 파트에서는 DApp의 일부를 직접 작성했으므로 Midnight 네트워크에 배포하기 _전에_ 로컬에서 시험해 볼 수 있습니다.
 
-The Midnight team has already created a compose file for Docker that
-runs a proof server, Midnight node, and Midnight Indexer locally,
-configured so that they run disconnected from the Midnight network.
-In effect, the Midnight node acts as if it is its own isolated
-Midnight network. This allows you to test contracts and DApps
-entirely on your own system, before deploying them to the real
-network.
+Midnight 팀은 proof 서버, Midnight 노드, Midnight Indexer를 로컬에서 실행하는 Docker Compose 파일을 제공합니다. 이 환경은 Midnight 네트워크와 연결이 끊어진 상태로 구성되어 있어, Midnight 노드가 독립된 Midnight 네트워크처럼 작동합니다. 실제 네트워크에 배포하기 전에 로컬에서 컨트랙트와 DApp을 충분히 테스트할 수 있습니다.
 
-If you want to review the details, you can see the Docker compose
-definition in this file:
+세부 사항을 확인하려면 다음 파일에서 Docker Compose 정의를 살펴보세요:
 
 ```
 example-bboard/bboard-cli/standalone.yml
 ```
 
-The important part is the environment variable `CFG_PRESET` set to
-`dev` in `node` definition. That tells the node to run standalone
-without connecting to any other nodes.
+핵심은 `node` 정의에서 환경 변수 `CFG_PRESET`이 `dev`로 설정되어 있다는 점입니다. 이 설정으로 노드가 다른 노드에 연결하지 않고 독립적으로 작동합니다.
 
-Before running this test configuration, you must stop any existing
-proof server, indexer, and node. Then, if you want, you can start and
-stop the test configuration to verify that it works. 
+테스트 구성을 실행하기 전에 기존의 proof 서버, indexer, 노드를 먼저 중지해야 합니다. 원한다면 테스트 구성을 시작하고 중지하여 정상 작동을 확인할 수 있습니다.
 
-Do not leave the test configuration running in Docker for the next
-steps, though, because you will test the bulletin board DApp by
-launching it with a command that starts and stops the whole
-`standalone.yml` configuration automatically as part of running the
-DApp.
+다음 단계에서는 `standalone.yml` 구성을 자동으로 시작하고 중지하는 명령으로 게시판 DApp을 테스트할 것이므로, 테스트 구성을 Docker에서 실행 중인 채로 두지 마세요.
 
 ## Run the DApp in standalone mode
 
-In the `example-bboard/bboard-cli` directory, launch the DApp with:
+`example-bboard/bboard-cli` 디렉토리에서 DApp을 실행합니다:
 
 ```shell
 yarn standalone
 ```
 
-After verifying that the latest images of the proof server, indexer,
-and Midnight node are pulled from the Midnight image server, the DApp
-will launch the Docker configuration in `standalone.yml` and wait
-for it to be ready.
+proof 서버, indexer, Midnight 노드의 최신 이미지를 Midnight 이미지 서버에서 가져온 후, `standalone.yml`의 Docker 구성을 실행하고 준비될 때까지 대기합니다.
 
-Then, the DApp will start in standalone mode, not prompting to create
-or restore a wallet, but instead, creating a new wallet with tDUST
-that is valid only for such offline testing.
+DApp은 독립 실행 모드로 시작되며, wallet 생성 또는 복원을 묻지 않고 오프라인 테스트에서만 유효한 tDUST가 포함된 새 wallet을 자동 생성합니다.
 
-:::note Wallet SDK v4.0.0+ Behavior in Standalone Mode
-In standalone mode, the DApp uses `@midnight-ntwrk/wallet@4.0.0` to create a disposable wallet. This SDK version introduces important changes:
+:::note 독립 실행 모드에서의 Wallet SDK v4.0.0+ 동작
+독립 실행 모드에서 DApp은 `@midnight-ntwrk/wallet@4.0.0`을 사용하여 일회용 wallet을 생성합니다. 이 SDK 버전의 주요 변경 사항:
 
-- Wallets are **always created from a seed**.
-- Wallet addresses are shown in **Bech32m format** by default. If you need compatibility with legacy tools, convert them using [`@midnight-ntwrk/wallet-sdk-address-format`](https://www.npmjs.com/package/@midnight-ntwrk/wallet-sdk-address-format).
-- Wallet state is no longer sufficient for restoration — the **seed must be preserved** even in offline tests if you want reproducibility.
+- wallet은 **항상 시드에서 생성**됩니다.
+- wallet 주소는 기본적으로 **Bech32m 형식**으로 표시됩니다. 레거시 도구와 호환이 필요하면 [`@midnight-ntwrk/wallet-sdk-address-format`](https://www.npmjs.com/package/@midnight-ntwrk/wallet-sdk-address-format)으로 변환하세요.
+- wallet 상태만으로는 복원이 불가합니다. 재현이 필요하다면 오프라인 테스트에서도 **시드를 반드시 보관**하세요.
 :::
 
 
-When the wallet is ready, DApp asks whether it should join an existing
-contract or deploy a new one. There is no existing contract to join,
-so deploy one. Then, explore the possibilities with the DApp, posting
-a message and examining the public and private state.
+wallet이 준비되면 기존 컨트랙트에 참여할지 새로 배포할지 묻는 메시지가 나타납니다. 참여할 기존 컨트랙트가 없으므로 새로 배포합니다. 이후 메시지를 게시하고 공개 및 비공개 상태를 확인하며 DApp의 기능을 탐색해 보세요.
 
-When you exit the DApp, the Docker containers should stop be and be
-cleaned up automatically.
+DApp을 종료하면 Docker 컨테이너가 자동으로 중지되고 정리됩니다.
 
 ## Run the DApp connected to the Testnet
 
-When you are ready to try out your DApp on the Midnight Testnet, be
-sure you have not left it running and that your standalone Docker
-configuration has exited. Then,
-[start your proof server](../../guides/run-proof-server.mdx) again. When it is
-ready, start the DApp with this command:
+Midnight Testnet에서 DApp을 시험할 준비가 되었다면, DApp이 실행 중이 아닌지와 독립 실행 Docker 구성이 종료되었는지 먼저 확인하세요. 그런 다음 [proof 서버를 시작](../../guides/run-proof-server.mdx)하고, 준비가 되면 다음 명령으로 DApp을 시작합니다:
 
 ```shell
 yarn testnet-remote
 ```
 
-This time, you will need real tDUST, so either create a new wallet and
-transfer some tDUST to it from your [Lace wallet](../../guides/lace-wallet.mdx),
-or look back at the logs from your experiments with the counter DApp in part 2 to
-find the seed for your headless wallet:
+이번에는 실제 tDUST가 필요합니다. 새 wallet을 만들고 [Lace wallet](../../guides/lace-wallet.mdx)에서 tDUST를 전송하거나, 파트 2에서 counter DApp을 실험할 때 로그에 기록된 headless wallet 시드를 사용하세요:
 
 ```
 counter/counter-cli/logs/testnet
 ```
 
-Once the DApp has found some tDUST in your wallet, it will proceed and
-allow you to deploy your bulletin board to Testnet.
+wallet에서 tDUST를 찾으면 DApp이 진행되어 게시판을 Testnet에 배포할 수 있습니다.
 
 ## Summary
 
-Have fun playing with the bulletin board DApp. If you are ambitious,
-you could create a separate DApp to watch a bulletin board, showing
-the messages that are posted and saying when they are taken down. The
-code in the `displayLedgerState` function in `bboard-cli/src/index.ts`
-will help you get started. You could also share the address of your
-bulletin board contract with a friend and see each other's posted
-messages.
+게시판 DApp을 자유롭게 활용해 보세요. 더 도전적인 과제를 원한다면 게시판을 모니터링하는 별도의 DApp을 만들어 게시된 메시지를 표시하고 삭제 시 알림을 받을 수 있습니다. `bboard-cli/src/index.ts`의 `displayLedgerState` 함수 코드가 좋은 출발점이 될 것입니다. 게시판 컨트랙트 주소를 친구와 공유하여 서로의 게시 메시지를 확인하는 것도 가능합니다.
 
-Congratulations! You have created a working DApp around a non-trivial
-Midnight contract, with real rules that are enforced automatically.
-You have written parts of the DApp yourself, and you have learned to
-test it offline.
+축하합니다! 실제 규칙이 자동으로 적용되는 Midnight 컨트랙트를 중심으로 작동하는 DApp을 만들었습니다. DApp의 일부를 직접 작성하고 오프라인 테스트 방법도 익혔습니다.
 
-At this point, with the help of the reference documentation, you know
-enough to begin creating your own command-line contracts and DApps.
-Later parts of this developer tutorial will show you how to add a web
-UI for your DApps and connect them to the Lace wallet.
+이제 참조 문서를 활용하여 직접 커맨드 라인 컨트랙트와 DApp을 만들 준비가 되었습니다. 이 개발자 튜토리얼의 후속 파트에서는 DApp에 웹 UI를 추가하고 Lace wallet에 연결하는 방법을 다룹니다.

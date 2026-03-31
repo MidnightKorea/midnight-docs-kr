@@ -1,8 +1,8 @@
 ---
-title: Deploy the hello world contract
-description: Deploy a compiled hello world smart contract to Midnight's Preprod network.
+title: Hello World 컨트랙트 배포하기
+description: 컴파일된 Hello World 스마트 컨트랙트를 Midnight의 Preprod 네트워크에 배포합니다.
 sidebar_position: 25
-sidebar_label: Deploy the hello world contract
+sidebar_label: Hello World 컨트랙트 배포하기
 tags: [deployment, smart-contract, JavaScript]
 toc_max_heading_level: 2
 ---
@@ -11,32 +11,32 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import Step, { StepsProvider } from "@site/src/components/Step/Step";
 
-In this tutorial, you'll deploy your compiled hello world contract to Midnight's Preprod network. 
-You'll learn how to set up a wallet, manage deployment scripts, and submit your contract to the blockchain. 
+이 튜토리얼에서는 컴파일된 Hello World 컨트랙트를 Midnight Preprod 네트워크에 배포합니다.
+지갑 설정, 배포 스크립트 작성, 컨트랙트의 블록체인 제출 과정을 다룹니다.
 
-By the end of this tutorial, you'll have a live contract that you can interact with through the network.
+튜토리얼을 마치면 네트워크에서 직접 호출할 수 있는 라이브 컨트랙트가 준비됩니다.
 
 ## Prerequisites
 
-Before you begin, ensure you have the following:
+시작하기 전에 다음을 준비하세요:
 
-- A compiled hello world contract in `contracts/managed/hello-world/`. You'll need to complete the [build your first contract](../getting-started/hello-world) tutorial first.
-- Node.js version 20.x or higher installed. Install it using [NVM](https://github.com/nvm-sh/nvm).
-- Docker installed and running. This is required to run the [proof server](./run-proof-server) and generate Zero Knowledge (ZK) proofs.
+- `contracts/managed/hello-world/`에 컴파일된 Hello World 컨트랙트. [첫 번째 컨트랙트 빌드](../getting-started/hello-world) 튜토리얼을 먼저 완료해야 합니다.
+- Node.js 20.x 이상. [NVM](https://github.com/nvm-sh/nvm)으로 설치할 수 있습니다.
+- Docker 설치 및 실행. [proof server](./run-proof-server)를 통해 ZK proof를 생성하는 데 필요합니다.
 
-On your project's root directory, initialize an npm project with default settings. This creates a `package.json` file:
+프로젝트 루트에서 npm 프로젝트를 초기화하세요. `package.json` 파일이 생성됩니다:
 
 ```bash
 npm init -y
 ```
 
-Create the `src` directory to hold your deployment scripts:
+배포 스크립트를 저장할 `src` 디렉토리를 생성하세요:
 
 ```bash
 mkdir src
 ```
 
-Your project structure should look similar to this:
+프로젝트 구조가 다음과 같은지 확인하세요:
 
 ```
 my-midnight-contract/
@@ -57,9 +57,9 @@ my-midnight-contract/
 
 ## Install deployment dependencies
 
-Add all the dependencies needed for wallet management, contract deployment, and network connectivity.
+지갑 관리, 컨트랙트 배포, 네트워크 연결에 필요한 의존성을 추가합니다.
 
-Update the `package.json` file to include the deployment dependencies and scripts:
+`package.json`을 다음과 같이 업데이트하세요:
 
 ```json
 {
@@ -99,13 +99,13 @@ Update the `package.json` file to include the deployment dependencies and script
 }
 ```
 
-These packages provide essential functionality:
+각 패키지의 역할은 다음과 같습니다:
 
-- **Wallet SDK packages**: Create and manage Midnight wallets with support for shielded, unshielded, and DUST operations.
-- **Midnight.js packages**: Handle contract deployment, proof generation, and blockchain interactions.
-- **Development tools**: TypeScript execution (`tsx`) and type definitions for Node.js.
+- **Wallet SDK 패키지**: shielded, unshielded, DUST 작업을 지원하는 Midnight 지갑 생성 및 관리
+- **Midnight.js 패키지**: 컨트랙트 배포, proof 생성, 블록체인 상호작용 처리
+- **개발 도구**: TypeScript 실행(`tsx`)과 Node.js 타입 정의
 
-Install all dependencies:
+의존성을 설치하세요:
 
 ```bash
 npm install
@@ -116,9 +116,9 @@ npm install
 
 ## Configure TypeScript
 
-Create a TypeScript configuration file to define how your deployment scripts are compiled.
+배포 스크립트의 컴파일 방식을 정의하는 TypeScript 설정 파일을 생성합니다.
 
-Create `tsconfig.json` in your project root:
+프로젝트 루트에 `tsconfig.json`을 생성하세요:
 
 ```json
 {
@@ -143,21 +143,21 @@ Create `tsconfig.json` in your project root:
 }
 ```
 
-This configuration:
-- Targets modern JavaScript (ES2022) for better performance
-- Uses ESNext modules for compatibility with Midnight SDK packages
-- Disables strict type checking for simpler examples
-- Outputs compiled JavaScript to the `dist` directory
+주요 설정:
+- 최신 JavaScript(ES2022) 타겟으로 성능 확보
+- Midnight SDK와 호환되는 ESNext 모듈 사용
+- 예제 단순화를 위해 strict 타입 검사 비활성화
+- 컴파일 결과를 `dist` 디렉토리에 출력
 
 </Step>
 <Step>
 
 ## Create wallet utilities
 
-Create a shared utilities file to handle wallet creation, key derivation, and provider setup. 
-This code is reused across deployment and interaction scripts for your contract.
+지갑 생성, 키 파생, provider 설정을 담당하는 공유 유틸리티 파일을 만듭니다.
+이 코드는 배포 및 상호작용 스크립트 전반에서 재사용됩니다.
 
-Create the `src/utils.ts` file and add the following code:
+`src/utils.ts`를 생성하고 다음 코드를 추가하세요:
 
 ```typescript
 import * as path from 'node:path';
@@ -166,7 +166,7 @@ import { WebSocket } from 'ws';
 import * as Rx from 'rxjs';
 import { Buffer } from 'buffer';
 
-// Midnight SDK imports
+// Midnight SDK 가져오기
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
@@ -180,23 +180,23 @@ import { ShieldedWallet } from '@midnight-ntwrk/wallet-sdk-shielded';
 import { createKeystore, InMemoryTransactionHistoryStorage, PublicKey, UnshieldedWallet } from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
 import { CompiledContract } from '@midnight-ntwrk/compact-js';
 
-// Enable WebSocket for GraphQL subscriptions
-// @ts-expect-error Required for wallet sync
+// GraphQL 구독을 위한 WebSocket 활성화
+// @ts-expect-error 지갑 동기화에 필요
 globalThis.WebSocket = WebSocket;
 ```
 
-The code above imports the necessary modules for wallet management, contract deployment, and network connectivity.
-The global `WebSocket` assignment is necessary for the wallet sync to work in Node.js.
+지갑 관리, 컨트랙트 배포, 네트워크 연결에 필요한 모듈을 import합니다.
+전역 `WebSocket` 할당은 Node.js 환경에서 지갑 동기화에 필요합니다.
 
-Below the imports, configure the network endpoints.
+위 import 구문 아래에 네트워크 엔드포인트를 설정하세요.
 
 <Tabs>
 <TabItem value="preprod">
 ```typescript
-// Set network to Preprod
+// Preprod 네트워크 설정
 setNetworkId('preprod');
 
-// Network configuration for Preprod
+// Preprod 네트워크 구성
 export const CONFIG = {
   indexer: 'https://indexer.preprod.midnight.network/api/v3/graphql',
   indexerWS: 'wss://indexer.preprod.midnight.network/api/v3/graphql/ws',
@@ -207,10 +207,10 @@ export const CONFIG = {
 </TabItem>
 <TabItem value="undeployed">
 ```typescript
-// Set network to Undeployed
+// Undeployed 네트워크 설정
 setNetworkId('undeployed');
 
-// Network configuration for Undeployed
+// Undeployed 네트워크 구성
 export const CONFIG = {
   indexer: 'http://localhost:8088/api/v3/graphql',
   indexerWS: 'ws://localhost:8088/api/v3/graphql/ws',
@@ -221,14 +221,14 @@ export const CONFIG = {
 </TabItem>
 </Tabs>
 
-Below the network configuration, load the compiled contract and prepare it for deployment.
+네트워크 설정 아래에 컴파일된 컨트랙트를 로드하고 배포를 준비하는 코드를 추가하세요.
 
 ```typescript
-// Path configuration
+// 경로 구성
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'hello-world');
 
-// Load compiled contract
+// 컴파일된 컨트랙트 로드
 const contractPath = path.join(zkConfigPath, 'contract', 'index.js');
 export const HelloWorld = await import(pathToFileURL(contractPath).href);
 
@@ -238,22 +238,22 @@ export const compiledContract = CompiledContract.make('hello-world', HelloWorld.
 );
 ```
 
-Add the wallet creation functions:
+지갑 생성 함수를 추가하세요:
 
 ```typescript
-// ─── Wallet Functions ──────────────────────────────────────────────────────────
+// ─── 지갑 함수 ──────────────────────────────────────────────────────────
 
 export function deriveKeys(seed: string) {
   const hdWallet = HDWallet.fromSeed(Buffer.from(seed, 'hex'));
   if (hdWallet.type !== 'seedOk') throw new Error('Invalid seed');
-  
+
   const result = hdWallet.hdWallet
     .selectAccount(0)
     .selectRoles([Roles.Zswap, Roles.NightExternal, Roles.Dust])
     .deriveKeysAt(0);
-  
+
   if (result.type !== 'keysDerived') throw new Error('Key derivation failed');
-  
+
   hdWallet.hdWallet.clear();
   return result.keys;
 }
@@ -261,37 +261,37 @@ export function deriveKeys(seed: string) {
 export async function createWallet(seed: string) {
   const keys = deriveKeys(seed);
   const networkId = getNetworkId();
-  
-  // Derive secret keys for different wallet components
+
+  // 다양한 지갑 컴포넌트를 위한 비밀 키 파생
   const shieldedSecretKeys = ledger.ZswapSecretKeys.fromSeed(keys[Roles.Zswap]);
   const dustSecretKey = ledger.DustSecretKey.fromSeed(keys[Roles.Dust]);
   const unshieldedKeystore = createKeystore(keys[Roles.NightExternal], networkId);
 
   const walletConfig = {
     networkId,
-    indexerClientConnection: { 
-      indexerHttpUrl: CONFIG.indexer, 
-      indexerWsUrl: CONFIG.indexerWS 
+    indexerClientConnection: {
+      indexerHttpUrl: CONFIG.indexer,
+      indexerWsUrl: CONFIG.indexerWS
     },
     provingServerUrl: new URL(CONFIG.proofServer),
     relayURL: new URL(CONFIG.node.replace(/^http/, 'ws')),
   };
 
-  // Initialize wallet components
+  // 지갑 컴포넌트 초기화
   const shieldedWallet = ShieldedWallet(walletConfig)
     .startWithSecretKeys(shieldedSecretKeys);
-  
+
   const unshieldedWallet = UnshieldedWallet({
     networkId,
     indexerClientConnection: walletConfig.indexerClientConnection,
     txHistoryStorage: new InMemoryTransactionHistoryStorage(),
   }).startWithPublicKey(PublicKey.fromKeyStore(unshieldedKeystore));
-  
+
   const dustWallet = DustWallet({
     ...walletConfig,
-    costParameters: { 
-      additionalFeeOverhead: 300_000_000_000_000n, 
-      feeBlocksMargin: 5 
+    costParameters: {
+      additionalFeeOverhead: 300_000_000_000_000n,
+      feeBlocksMargin: 5
     },
   }).startWithSecretKey(dustSecretKey, ledger.LedgerParameters.initialParameters().dust);
 
@@ -302,63 +302,63 @@ export async function createWallet(seed: string) {
 }
 ```
 
-These functions handle wallet creation:
-- **deriveKeys**: Uses HD (Hierarchical Deterministic) wallet derivation to generate keys for different roles from a single seed
-- **createWallet**: Creates a complete Midnight wallet with three components:
-  - **Shielded wallet**: For private transactions using Zero Knowledge (ZK) proofs
-  - **Unshielded wallet**: For public transactions visible on-chain
-  - **DUST wallet**: Manages Midnight's gas resource required for transaction fees
+각 함수의 역할:
+- **deriveKeys**: HD 지갑 파생을 통해 하나의 시드에서 역할별 키를 생성합니다
+- **createWallet**: 세 가지 컴포넌트로 구성된 Midnight 지갑을 생성합니다:
+  - **Shielded 지갑**: ZK proof 기반 비공개 트랜잭션 처리
+  - **Unshielded 지갑**: 온체인에서 공개되는 트랜잭션 처리
+  - **DUST 지갑**: 트랜잭션 수수료에 필요한 가스 리소스 관리
 
-Add the transaction signing function:
+트랜잭션 서명 함수를 추가하세요:
 
 ```typescript
-// Sign transaction intents with the wallet's private keys
+// 지갑의 개인 키로 트랜잭션 인텐트에 서명
 export function signTransactionIntents(
-  tx: { intents?: Map<number, any> }, 
-  signFn: (payload: Uint8Array) => ledger.Signature, 
+  tx: { intents?: Map<number, any> },
+  signFn: (payload: Uint8Array) => ledger.Signature,
   proofMarker: 'proof' | 'pre-proof'
 ): void {
   if (!tx.intents || tx.intents.size === 0) return;
-  
+
   for (const segment of tx.intents.keys()) {
     const intent = tx.intents.get(segment);
     if (!intent) continue;
-    
+
     const cloned = ledger.Intent.deserialize<
-      ledger.SignatureEnabled, 
-      ledger.Proofish, 
+      ledger.SignatureEnabled,
+      ledger.Proofish,
       ledger.PreBinding
     >('signature', proofMarker, 'pre-binding', intent.serialize());
-    
+
     const sigData = cloned.signatureData(segment);
     const signature = signFn(sigData);
-    
+
     if (cloned.fallibleUnshieldedOffer) {
       const sigs = cloned.fallibleUnshieldedOffer.inputs.map(
-        (_: any, i: number) => 
+        (_: any, i: number) =>
           cloned.fallibleUnshieldedOffer!.signatures.at(i) ?? signature
       );
-      cloned.fallibleUnshieldedOffer = 
+      cloned.fallibleUnshieldedOffer =
         cloned.fallibleUnshieldedOffer.addSignatures(sigs);
     }
-    
+
     if (cloned.guaranteedUnshieldedOffer) {
       const sigs = cloned.guaranteedUnshieldedOffer.inputs.map(
-        (_: any, i: number) => 
+        (_: any, i: number) =>
           cloned.guaranteedUnshieldedOffer!.signatures.at(i) ?? signature
       );
-      cloned.guaranteedUnshieldedOffer = 
+      cloned.guaranteedUnshieldedOffer =
         cloned.guaranteedUnshieldedOffer.addSignatures(sigs);
     }
-    
+
     tx.intents.set(segment, cloned);
   }
 }
 ```
 
-This function signs transaction intents with the wallet's private keys. This is required for unshielded transactions.
+이 함수는 지갑의 개인 키로 트랜잭션 인텐트에 서명합니다. unshielded 트랜잭션에 필수입니다.
 
-Add the provider creation function below the transaction signing function:
+트랜잭션 서명 함수 아래에 provider 생성 함수를 추가하세요:
 
 ```typescript
 export async function createProviders(
@@ -374,21 +374,21 @@ export async function createProviders(
     async balanceTx(tx: any, ttl?: Date) {
       const recipe = await walletCtx.wallet.balanceUnboundTransaction(
         tx,
-        { 
-          shieldedSecretKeys: walletCtx.shieldedSecretKeys, 
-          dustSecretKey: walletCtx.dustSecretKey 
+        {
+          shieldedSecretKeys: walletCtx.shieldedSecretKeys,
+          dustSecretKey: walletCtx.dustSecretKey
         },
         { ttl: ttl ?? new Date(Date.now() + 30 * 60 * 1000) },
       );
-      
-      const signFn = (payload: Uint8Array) => 
+
+      const signFn = (payload: Uint8Array) =>
         walletCtx.unshieldedKeystore.signData(payload);
-      
+
       signTransactionIntents(recipe.baseTransaction, signFn, 'proof');
       if (recipe.balancingTransaction) {
         signTransactionIntents(recipe.balancingTransaction, signFn, 'pre-proof');
       }
-      
+
       return walletCtx.wallet.finalizeRecipe(recipe);
     },
     submitTx: (tx: any) => walletCtx.wallet.submitTransaction(tx) as any,
@@ -397,12 +397,12 @@ export async function createProviders(
   const zkConfigProvider = new NodeZkConfigProvider(zkConfigPath);
 
   return {
-    privateStateProvider: levelPrivateStateProvider({ 
-      privateStateStoreName: 'hello-world-state', 
-      walletProvider 
+    privateStateProvider: levelPrivateStateProvider({
+      privateStateStoreName: 'hello-world-state',
+      walletProvider
     }),
     publicDataProvider: indexerPublicDataProvider(
-      CONFIG.indexer, 
+      CONFIG.indexer,
       CONFIG.indexerWS
     ),
     zkConfigProvider,
@@ -413,22 +413,22 @@ export async function createProviders(
 }
 ```
 
-This function creates all the providers needed for contract deployment:
-- **privateStateProvider**: Manages local contract state storage
-- **publicDataProvider**: Fetches blockchain data from the indexer
-- **zkConfigProvider**: Loads Zero Knowledge (ZK) circuit configurations for the contract
-- **proofProvider**: Communicates with the proof server
-- **walletProvider**: Handles transaction balancing and signing
-- **midnightProvider**: Handles transaction submission to the network
+컨트랙트 배포에 필요한 provider를 생성합니다:
+- **privateStateProvider**: 로컬 컨트랙트 상태 저장소 관리
+- **publicDataProvider**: indexer에서 블록체인 데이터 조회
+- **zkConfigProvider**: 컨트랙트의 ZK circuit 설정 로드
+- **proofProvider**: proof server와 통신
+- **walletProvider**: 트랜잭션 잔액 조정 및 서명 처리
+- **midnightProvider**: 네트워크에 트랜잭션 제출
 
 </Step>
 <Step>
 
 ## Create the deployment script
 
-Create the main deployment script to handle the entire deployment process.
+배포 전 과정을 처리하는 메인 스크립트를 작성합니다.
 
-Create the `src/deploy.ts` file and add the following code:
+`src/deploy.ts`를 생성하고 다음 코드를 추가하세요:
 
 ```typescript
 import { createInterface } from 'node:readline/promises';
@@ -438,34 +438,34 @@ import * as path from 'node:path';
 import * as Rx from 'rxjs';
 import { Buffer } from 'buffer';
 
-// Midnight.js imports
+// Midnight.js 가져오기
 import { deployContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { toHex } from '@midnight-ntwrk/midnight-js-utils';
 import { unshieldedToken } from '@midnight-ntwrk/ledger-v8';
 import { generateRandomSeed } from '@midnight-ntwrk/wallet-sdk-hd';
 
-// Shared utilities from the utils.ts file
-import { 
-  createWallet, 
-  createProviders, 
-  compiledContract, 
-  zkConfigPath 
+// utils.ts 파일의 공유 유틸리티
+import {
+  createWallet,
+  createProviders,
+  compiledContract,
+  zkConfigPath
 } from './utils.js';
 ```
 
-This imports all necessary functions and checks that the contract is compiled before proceeding.
+필요한 함수를 import하고, 컨트랙트가 컴파일되어 있는지 확인합니다.
 
-Add the main deployment logic below the imports:
+위 import 구문 아래에 메인 배포 로직을 추가하세요:
 
 ```typescript
-// ─── Main Deploy Script ────────────────────────────────────────────────────────
+// ─── 메인 배포 스크립트 ────────────────────────────────────────────────────────
 
 async function main() {
   console.log('\n╔══════════════════════════════════════════════════════════════╗');
   console.log('║        Deploy Hello World to Midnight Preprod                ║');
   console.log('╚══════════════════════════════════════════════════════════════╝\n');
 
-  // Check if contract is compiled
+  // 컨트랙트 컴파일 여부 확인
   if (!fs.existsSync(path.join(zkConfigPath, 'contract', 'index.js'))) {
     console.error('Contract not compiled! Run: npm run compile');
     process.exit(1);
@@ -474,7 +474,7 @@ async function main() {
   const rl = createInterface({ input: stdin, output: stdout });
 
   try {
-    // 1. Wallet setup
+    // 1. 지갑 설정
     console.log('─── Step 1: Wallet Setup ───────────────────────────────────────\n');
     const choice = await rl.question(
       '  [1] Create new wallet\n  [2] Restore from seed\n  > '
@@ -496,11 +496,11 @@ async function main() {
     console.log('  Syncing with network...');
     const state = await Rx.firstValueFrom(
       walletCtx.wallet.state().pipe(
-        Rx.throttleTime(5000), 
+        Rx.throttleTime(5000),
         Rx.filter((s) => s.isSynced)
       )
     );
-    
+
     const address = walletCtx.unshieldedKeystore.getBech32Address();
     const balance = state.unshielded.balances[unshieldedToken().raw] ?? 0n;
 
@@ -508,16 +508,16 @@ async function main() {
     console.log(`  Balance: ${balance.toLocaleString()} tNight\n`);
 ```
 
-This section handles wallet creation:
-- Prompt the user to create a new wallet or restore from an existing seed.
-- Generate a cryptographically secure random seed for new wallets.
-- Create the wallet and sync it with the Preprod network.
-- Display the wallet address and current balance.
+지갑 생성 과정:
+- 새 지갑 생성 또는 기존 시드 복원 중 선택
+- 새 지갑의 경우 암호학적으로 안전한 랜덤 시드 생성
+- 지갑 생성 후 Preprod 네트워크와 동기화
+- 지갑 주소와 잔액 표시
 
-Continue with funding and DUST registration:
+이어서 자금 지원 및 DUST 등록 코드를 추가하세요:
 
 ```typescript
-    // 2. Fund wallet if needed
+    // 2. 필요시 지갑에 자금 지원
     if (balance === 0n) {
       console.log('─── Step 2: Fund Your Wallet ───────────────────────────────────\n');
       console.log('  Visit: https://faucet.preprod.midnight.network/');
@@ -535,7 +535,7 @@ Continue with funding and DUST registration:
       console.log('  Funds received!\n');
     }
 
-    // 3. Register for DUST
+    // 3. DUST 등록
     console.log('─── Step 3: DUST Token Setup ───────────────────────────────────\n');
     const dustState = await Rx.firstValueFrom(
       walletCtx.wallet.state().pipe(Rx.filter((s) => s.isSynced))
@@ -545,7 +545,7 @@ Continue with funding and DUST registration:
       const nightUtxos = dustState.unshielded.availableCoins.filter(
         (c: any) => !c.meta?.registeredForDustGeneration
       );
-      
+
       if (nightUtxos.length > 0) {
         console.log('  Registering for DUST generation...');
         const recipe = await walletCtx.wallet.registerNightUtxosForDustGeneration(
@@ -570,14 +570,14 @@ Continue with funding and DUST registration:
     console.log('  DUST tokens ready!\n');
 ```
 
-This handles pre-deployment requirements:
-- **Funding**: If the wallet has no balance, then it displays instructions to visit the Preprod faucet and waits for funds to arrive.
-- **DUST registration**: DUST is Midnight's gas token. The script registers unshielded UTXOs (Unspent Transaction Outputs) for DUST generation and waits for the tokens to become available.
+배포 전 필수 단계를 처리합니다:
+- **자금 지원**: 잔액이 0인 경우 Preprod faucet 안내 후 자금 도착 대기
+- **DUST 등록**: DUST는 Midnight의 가스 token입니다. unshielded UTXO를 DUST 생성에 등록하고 token 생성을 대기합니다.
 
-Add the actual deployment code:
+실제 배포 코드를 추가하세요:
 
 ```typescript
-    // 4. Deploy contract
+    // 4. 컨트랙트 배포
     console.log('─── Step 4: Deploy Contract ────────────────────────────────────\n');
     console.log('  Setting up providers...');
     const providers = await createProviders(walletCtx);
@@ -593,7 +593,7 @@ Add the actual deployment code:
     console.log('  ✅ Contract deployed successfully!\n');
     console.log(`  Contract Address: ${contractAddress}\n`);
 
-    // 5. Save deployment info
+    // 5. 배포 정보 저장
     const deploymentInfo = {
       contractAddress,
       seed,
@@ -614,44 +614,41 @@ Add the actual deployment code:
 main().catch(console.error);
 ```
 
-This final section:
-- Sets up all required providers for contract deployment.
-- Calls `deployContract` which:
-  - Generates Zero Knowledge (ZK) proofs for the deployment transaction.
-  - Submits the transaction to the Preprod network.
-  - Waits for confirmation.
-- Saves deployment information to `deployment.json` for later use.
-- Stops the wallet and displays next steps.
+마지막 섹션에서 수행하는 작업:
+- 컨트랙트 배포에 필요한 모든 provider 설정
+- `deployContract` 호출: ZK proof 생성, Preprod 네트워크에 트랜잭션 제출, 확인 대기
+- 배포 정보를 `deployment.json`에 저장
+- 지갑 정리 및 완료 메시지 출력
 
 </Step>
 <Step>
 
 ## Run the deployment
 
-You're ready to deploy your contract to Preprod.
+이제 컨트랙트를 Preprod에 배포할 수 있습니다.
 
-Make sure the proof server is running:
+먼저 proof server가 실행 중인지 확인하세요:
 
 ```bash
 npm run start-proof-server
 ```
 
-This command occupies the current terminal window and should be kept open and running.
+이 명령은 터미널을 점유하므로, 별도 터미널 창에서 실행 상태를 유지하세요.
 
-Run the deployment script:
+새 터미널에서 배포 스크립트를 실행하세요:
 
 ```bash
 npm run deploy
 ```
 
-The script guides you through the deployment process:
+스크립트가 배포 과정을 단계별로 안내합니다:
 
-1. **Wallet creation**: Choose to create a new wallet or restore from an existing seed. If creating a new wallet, then save the displayed seed. You'll need it for later interactions with the contract.
-2. **Funding**: If your wallet has no balance, then the script displays your address and waits. Visit the [Preprod faucet](https://faucet.preprod.midnight.network/) to request test tokens.
-3. **DUST registration**: The script automatically registers your wallet for DUST generation and waits for tokens to arrive.
-4. **Deployment**: The contract is deployed to the network. This process takes 30-60 seconds as it generates Zero Knowledge (ZK) proofs and waits for blockchain confirmation.
+1. **지갑 생성**: 새 지갑 생성 또는 기존 시드 복원을 선택합니다. 새 지갑의 경우 표시되는 시드를 반드시 저장하세요. 이후 컨트랙트와 상호작용할 때 필요합니다.
+2. **자금 지원**: 잔액이 없으면 스크립트가 주소를 표시하고 대기합니다. [Preprod faucet](https://faucet.preprod.midnight.network/)에서 테스트 token을 요청하세요.
+3. **DUST 등록**: 스크립트가 자동으로 DUST 생성을 등록하고 token 도착을 대기합니다.
+4. **배포**: 컨트랙트를 네트워크에 배포합니다. ZK proof 생성과 블록체인 확인 대기로 30~60초 소요됩니다.
 
-When deployment completes, you'll see output similar to the following:
+배포 완료 시 다음과 유사한 출력이 표시됩니다:
 
 ```shell
 ✅ Contract deployed successfully!
@@ -666,8 +663,8 @@ Saved to deployment.json
 
 ## Understanding the deployment artifacts
 
-After successful deployment, it creates a new `deployment.json` file in the root directory. 
-Here's an example of what it contains:
+배포가 완료되면 루트 디렉토리에 `deployment.json` 파일이 생성됩니다.
+파일 내용 예시:
 
 ```json
 {
@@ -678,14 +675,14 @@ Here's an example of what it contains:
 }
 ```
 
-This file stores important information about your deployed contract:
+각 필드의 의미:
 
-- **contractAddress**: The unique address of your deployed contract. You'll use this to interact with the contract.
-- **seed**: Your wallet seed. This is stored for convenience in development—never commit this to version control in production.
-- **network**: The network where the contract is deployed.
-- **deployedAt**: Timestamp of deployment.
+- **contractAddress**: 배포된 컨트랙트의 고유 주소. 상호작용 시 사용합니다.
+- **seed**: 지갑 시드. 개발 편의상 저장되지만, 프로덕션에서는 절대 버전 관리에 커밋하지 마세요.
+- **network**: 컨트랙트가 배포된 네트워크
+- **deployedAt**: 배포 시각
 
-Your project structure should now look similar to this:
+이제 프로젝트 구조가 다음과 같아야 합니다:
 
 ```
 my-midnight-contract/
@@ -701,7 +698,7 @@ my-midnight-contract/
 │   ├── deploy.ts
 │   └── utils.ts
 ├── node_modules/
-├── deployment.json      # Generated by the deployment script
+├── deployment.json      # 배포 스크립트에 의해 생성됨
 ├── package-lock.json
 ├── package.json
 └── tsconfig.json
@@ -709,41 +706,41 @@ my-midnight-contract/
 
 ## Troubleshoot
 
-This section covers common issues that you might encounter during deployment and their solutions.
+배포 중 자주 발생하는 문제와 해결 방법입니다.
 
-### Proof server connection errors
+### Proof server connection error
 
-If you see errors about connecting to the proof server, such as `Wallet.Proving: Failed to prove transaction`, then:
+`Wallet.Proving: Failed to prove transaction` 오류가 발생하면:
 
-- Verify Docker is running: `docker ps`.
-- Check the proof server is started: `npm run start-proof-server`.
-- Ensure port 6300 is not already in use.
+- Docker 실행 여부 확인: `docker ps`
+- proof server 시작 여부 확인: `npm run start-proof-server`
+- 포트 6300이 이미 사용 중인지 확인
 
 ### Insufficient DUST tokens
 
-If deployment fails due to lack of DUST:
+DUST 부족으로 배포가 실패하면:
 
-- Wait longer for DUST generation. It can take several minutes to generate. Run the deployment script again, this time restoring from your wallet seed.
-- Ensure you have sufficient tNight tokens. DUST is generated from tNight.
-- Check that DUST registration was successful in the script output.
+- DUST 생성에 몇 분이 걸릴 수 있으므로 잠시 기다린 뒤, 지갑 시드로 복원하여 배포 스크립트를 다시 실행하세요.
+- tNight token이 충분한지 확인하세요. DUST는 tNight에서 생성됩니다.
+- 스크립트 출력에서 DUST 등록 성공 여부를 확인하세요.
 
-### Contract compilation errors
+### Contract compilation error
 
-If the script reports missing contract files, then:
+컨트랙트 파일이 없다는 오류가 나오면:
 
-- Run `npm run compile` to recompile your contract.
-- Verify the contract compiled successfully without errors.
-- Check that `contracts/managed/hello-world/contract/index.js` exists.
+- `npm run compile`로 컨트랙트를 다시 컴파일하세요.
+- 컴파일 오류 없이 성공했는지 확인하세요.
+- `contracts/managed/hello-world/contract/index.js` 파일이 존재하는지 확인하세요.
 
 ## Security considerations
 
-When deploying contracts, keep these security practices in mind:
+컨트랙트 배포 시 다음 보안 사항을 지키세요:
 
-- **Never commit seeds**: Add `deployment.json` to `.gitignore` in production projects. Your seed controls access to your wallet and funds.
-- **Use environment variables**: For production deployments, load seeds from secure environment variables instead of files.
-- **Separate wallets**: Use different wallets for development, testing, and production.
-- **Verify deployments**: Always verify the contract address and deployment transaction on a block explorer.
+- **시드를 절대 커밋하지 마세요**: 프로덕션에서는 `deployment.json`을 `.gitignore`에 추가하세요. 시드는 지갑과 자금의 접근 권한을 제어합니다.
+- **환경 변수를 사용하세요**: 프로덕션 배포 시 파일 대신 환경 변수에서 시드를 로드하세요.
+- **지갑을 분리하세요**: 개발, 테스트, 프로덕션에 각각 다른 지갑을 사용하세요.
+- **배포를 확인하세요**: 블록 탐색기에서 컨트랙트 주소와 배포 트랜잭션을 반드시 확인하세요.
 
 ## Next steps
 
-You've deployed your contract to Preprod. See the [interact with hello world contract](./interact-with-mn-app) guide to build a CLI and call the `storeMessage` circuit.
+컨트랙트를 Preprod에 배포했습니다. [Hello World 컨트랙트와 상호작용하기](./interact-with-mn-app) 가이드에서 CLI를 빌드하고 `storeMessage` circuit을 호출해 보세요.

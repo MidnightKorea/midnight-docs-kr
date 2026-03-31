@@ -5,74 +5,47 @@ copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Found
 
 # Building blocks
 
-Midnight's transaction structure is unique and may not be immediately
-intuitive. 
+Midnight의 트랜잭션 구조는 독특하며, 처음에는 직관적으로 이해하기 어려울 수 있습니다.
 
 ## Transactions
 
-In Midnight, transactions consist of:
-- a 'guaranteed' [Zswap offer](./zswap.mdx#offers)
-- an optional 'fallible' Zswap
-  offer
-- an optional contract calls segment, consisting of:
-  - a sequence of [contract calls](#contract-calls) or [contract deploys](#contract-deployments)
-  - a cryptographic binding commitment (see: [transaction integrity](#transaction-integrity))
-- a binding randomness (see transaction integrity).
+Midnight에서 트랜잭션은 다음으로 구성됩니다:
+- 'guaranteed' [zswap offer](./zswap.mdx#offers)
+- 선택적 'fallible' zswap offer
+- 선택적 컨트랙트 호출 섹션 (다음을 포함):
+  - [컨트랙트 호출](#contract-calls) 또는 [컨트랙트 배포](#contract-deployments)의 시퀀스
+  - 암호학적 바인딩 commitment (참조: [트랜잭션 무결성](#transaction-integrity))
+- 바인딩 무작위성 (참조: 트랜잭션 무결성).
 
-## Contract deployments
+## Contract deployments {#contract-deployments}
 
-A contract deployment creates a new contract if it does not already exist and
-fails otherwise. It is executed entirely as part of the
-'fallible' execution step.
+컨트랙트 배포는 해당 컨트랙트가 아직 존재하지 않으면 새로 생성하고, 이미 존재하면 실패합니다. 'fallible' 실행 단계의 일부로 전체적으로 실행됩니다.
 
-Contract deployment transaction parts consist of a [contract
-state](./semantics#contract-state) and a nonce, creating a new contract at the
-address that is a hash of the deploy part.
+컨트랙트 배포 트랜잭션 부분은 [컨트랙트 상태](./semantics#contract-state)와 nonce로 구성되며, 배포 부분의 해시를 주소로 하여 새 컨트랙트를 생성합니다.
 
-## Contract calls
+## Contract calls {#contract-calls}
 
-A contract call invokes a specific contract address and entry point at this
-address. Entry points are keys into the contracts' [operation map](./semantics#contract-state).  Combined, the two select the verifier key that a
-contract call will be validated against.
+컨트랙트 호출은 특정 컨트랙트 주소와 해당 주소의 entry point를 호출합니다. Entry point는 컨트랙트의 [operation 맵](./semantics#contract-state)에 대한 키입니다. 이 두 가지를 조합하여 컨트랙트 호출의 검증에 사용할 verifier key가 결정됩니다.
 
-A contract call declares a guaranteed and
-fallible
-[*transcript*](./impact#transcripts), which declares the visible effects of
-this call. It further contains a *communication commitment*, which may be used
-for cross-contract interaction.
+컨트랙트 호출은 guaranteed와 fallible
+[*transcript*](./impact#transcripts)를 선언하여 이 호출의 가시적 효과를 명시합니다. 또한 교차 컨트랙트 상호작용에 사용할 수 있는 *통신 commitment*를 포함합니다.
 
 :::info
 
-Cross-contract interaction is still under development and is not available for
-use at this time. The team is keen to hear what kinds of interactions you would like
-to be able to do.
+교차 컨트랙트 상호작용은 아직 개발 중이며 현재 사용할 수 없습니다. 어떤 종류의 상호작용이 필요한지 팀에 의견을 보내주시면 감사하겠습니다.
 
 :::
 
-Finally, a contract call includes a zero-knowledge proof that the transcripts
-are valid for this contract and binding to other transaction elements.
+마지막으로, 컨트랙트 호출에는 transcript가 해당 컨트랙트에 대해 유효하며 다른 트랜잭션 요소에 바인딩되어 있음을 증명하는 영지식 증명이 포함됩니다.
 
 ## Merging
 
-Zswap permits atomic swaps by allowing transactions to be merged.
-Currently, contract call sections cannot be merged, but 
-two transactions can be merged if at least one of them has an empty contract call
-section. This outputs a new, composite transaction and has the effect of both
-input transactions combined.
+Zswap은 트랜잭션 병합을 가능하게 하여 원자적 교환을 지원합니다.
+현재 컨트랙트 호출 섹션은 병합할 수 없지만, 두 트랜잭션 중 하나 이상이 빈 컨트랙트 호출 섹션을 가지면 병합이 가능합니다. 병합 결과는 두 입력 트랜잭션의 효과를 결합한 새로운 복합 트랜잭션입니다.
 
-## Transaction integrity
+## Transaction integrity {#transaction-integrity}
 
-Midnight inherits the basic transaction integrity mechanism from Zswap,
-which, due to the ability to merge, uses Pedersen commitments for transaction
-integrity. These commitments commit to the value of each input and output of a
-transaction and are homomorphically summed before the whole transaction is
-checked for integrity by opening the composite commitment. Only people who
-created the individual components of the transaction know the opening
-randomnesses summed to decompose the transaction. This ensures a form of
-binding that guarantees that the user's funds are spent as they originally
-intended.
+Midnight는 Zswap에서 기본 트랜잭션 무결성 메커니즘을 상속받으며,
+병합 기능 때문에 트랜잭션 무결성에 Pedersen commitment를 사용합니다. 이 commitment는 트랜잭션의 각 input과 output 값에 커밋하며, 전체 트랜잭션이 복합 commitment를 열어 무결성을 확인하기 전에 동형적으로 합산됩니다. 트랜잭션의 개별 구성 요소를 생성한 당사자만이 합산에 사용되는 개방 무작위성을 알고 있어, 트랜잭션을 분해할 수 있습니다. 이로써 사용자의 자금이 원래 의도대로만 소비되도록 보장하는 바인딩이 성립합니다.
 
-This binding is extended to contract calls by the contract call section
-contributing to the overall Pedersen commitment. This contribution is further
-restricted to carry no value vector, by requiring knowledge of an exponent of
-the generator, in the form of a Fiat-Shamir transformed Schnorr proof.
+이 바인딩은 컨트랙트 호출 섹션이 전체 Pedersen commitment에 기여함으로써 컨트랙트 호출까지 확장됩니다. 이 기여는 Fiat-Shamir 변환된 Schnorr proof 형태로 생성자의 지수에 대한 지식을 요구하여, 가치 벡터가 없도록 추가 제한됩니다.

@@ -12,37 +12,19 @@ import LedgerAssignments from './_ledger_assignments.mdx';
 
 # Smart contracts on Midnight
 
-While you may have some familiarity with smart
-contracts, designing smart contracts for data protection provides unique
-challenges and perspectives. This article will therefore briefly walk through key points
-in which Midnight differs from more public smart contract solutions and how
-this should inform your construction of contracts in Midnight.
+스마트 컨트랙트에 어느 정도 익숙하더라도, 데이터 보호를 위한 스마트 컨트랙트 설계에는 고유한 도전과 관점이 존재합니다. 이 문서에서는 Midnight가 일반적인 공개형 스마트 컨트랙트 솔루션과 어떻게 다른지, 그리고 이러한 차이가 Midnight에서의 컨트랙트 구성에 어떤 영향을 미치는지를 간략히 살펴봅니다.
 
 ## Replicated state machines
 
-All blockchain systems are replicated state machines at their core: They keep a
-*ledger state*, which is modified by *transactions*. Various blockchains
-differ in which transactions are considered valid and what effect they have on
-a ledger state.
+모든 블록체인 시스템은 본질적으로 복제된 상태 머신입니다. *원장 상태*를 유지하며, *트랜잭션*에 의해 이를 변경합니다. 블록체인마다 어떤 트랜잭션을 유효하다고 보는지, 그리고 그 트랜잭션이 원장 상태에 어떤 영향을 미치는지가 다릅니다.
 
-Smart-contract-enabled blockchains allow transactions to program parts of the
-blockchain's validity criteria that subsequent transactions have to satisfy.
-The focus here is on the *account model*, where contracts are *deployed* by a
-transaction, which assigns a unique address to the contract in the blockchain.
-This contract can define the validation criteria and state transitions for the
-transactions that interact with it.
+스마트 컨트랙트를 지원하는 블록체인에서는 트랜잭션이 이후 트랜잭션이 충족해야 할 유효성 기준의 일부를 프로그래밍할 수 있습니다. 여기서는 *account 모델*을 중심으로 설명합니다. 이 모델에서 컨트랙트는 트랜잭션을 통해 *배포*되어 블록체인상에서 고유 주소를 부여받으며, 자신과 상호작용하는 트랜잭션의 유효성 기준과 상태 전환을 정의할 수 있습니다.
 
-The following example illustrates these ideas.  Imagine a contract to
-support a guessing game, in which the player guesses factors of a
-number, stored in the contract's state.  Making a correct guess allows
-the player to set the next number for the opposing player(s).  Thus,
-when making a guess, the player offers two factors for the current
-number and two factors to define the new number.  The logic of a guess
-is expressed in pseudocode as follows:
+다음 예제로 이 개념을 설명합니다. 컨트랙트 상태에 저장된 숫자의 인수를 플레이어가 추측하는 게임을 지원하는 컨트랙트를 생각해 보겠습니다. 올바르게 추측하면 상대방을 위한 다음 숫자를 설정할 수 있습니다. 추측 시 플레이어는 현재 숫자에 대한 두 개의 인수와 새 숫자를 구성할 두 개의 인수를 제공합니다. 추측 로직은 다음 의사 코드로 표현됩니다:
 
 :::note
 
-This is pseudocode, not a functional Compact program.
+이것은 의사 코드이며, 실제로 동작하는 Compact 프로그램이 아닙니다.
 
 :::
 
@@ -55,15 +37,9 @@ def guess_number(guess_a, guess_b, new_a, new_b):
   number = new_a * new_b
 ```
 
-The contract *could* just let the player provide the new number
-directly, instead of its factors, but then they
-could (whether by accident or intentionally) also spoil the fun by passing in a
-prime number.  Forcing the player to provide 'interesting' factors
-eliminates this possibility.
+컨트랙트에서 인수 대신 새 숫자를 직접 입력받을 *수도* 있지만, 그러면 실수나 고의로 소수를 전달하여 게임을 망칠 수 있습니다. '흥미로운' 인수를 반드시 제공하도록 강제하면 이런 가능성을 차단할 수 있습니다.
 
-When the contract is deployed, this program is put directly on-chain, typically
-in a compressed, bytecode form, along with an initial state of the contract.
-Conceptually, this may make the ledger's state look something like this:
+컨트랙트가 배포되면 이 프로그램은 보통 압축된 바이트코드 형태로 컨트랙트의 초기 상태와 함께 직접 온체인에 올라갑니다. 개념적으로 원장 상태는 다음과 같은 모습이 됩니다:
 
 ```yaml
 contracts:
@@ -76,8 +52,7 @@ contracts:
           // ...
 ```
 
-A transaction can then call this contract by supplying inputs to the function,
-for instance:
+이후 트랜잭션이 함수에 입력값을 전달하여 이 컨트랙트를 호출할 수 있습니다. 예를 들어:
 
 ```yaml
 transaction:
@@ -87,26 +62,18 @@ transaction:
   inputs: [5, 7, 2, 6]
 ```
 
-When processed, nodes process this by:
-- looking up the `state` at `<contract address>` as well as the program at
-  `<contract address>` and `guess_number`
-- running the program against the state, and `inputs`
-- if the program succeeds, storing the new `state`.
+처리 시 노드는 다음을 수행합니다:
+- `<contract address>`의 `state`와, `<contract address>` 및 `guess_number`에 해당하는 프로그램을 조회
+- 상태와 `inputs`를 사용하여 프로그램을 실행
+- 프로그램이 성공하면 새 `state`를 저장.
 
 ## Midnight contracts, conceptually
 
-You may have noticed that the above program is not a good
-implementation for this game, because every time a new number is set, its factors are 
-publicly visible as part of the transaction that sets it. Anyone who really
-wants to win can read off the factors and use them as their own
-'guess'. Where's the sport in that?
+위 프로그램이 이 게임에 적합하지 않다는 점을 눈치챘을 수도 있습니다. 새 숫자가 설정될 때마다 그 숫자의 인수가 트랜잭션에 공개적으로 드러나기 때문입니다. 이기고 싶은 사람은 인수를 읽어서 자신의 '추측'으로 쓰면 됩니다. 이런 방식이라면 게임이 될 수 없습니다.
 
-To move beyond this problem, imagine that you don't have to worry
-about the blockchain and how it processes transactions. Instead, consider
-a contract as an interactive program that can interact with the contract's
-on-chain state, as well as call arbitrary code on the user's local machine.
+이 문제를 우회하기 위해, 블록체인과 트랜잭션 처리 방식은 잠시 잊어 봅시다. 대신 컨트랙트를 온체인 상태와 상호작용하면서 사용자의 로컬 머신에서 임의의 코드를 호출할 수 있는 대화형 프로그램으로 생각해 보세요.
 
-In this setting, it's possible to rewrite the above pseudocode program to look something like this:
+이런 설정에서는 위의 의사 코드 프로그램을 다음과 같이 다시 작성할 수 있습니다:
 
 ```python
 def guess_number():
@@ -118,46 +85,23 @@ def guess_number():
   number = a * b
 ```
 
-While this program is longer than the one in the previous section, it is also
-doing slightly more. It tells us where the numbers come from: local calls to
-`guess_factors` or `new_challenge` respectively. Often this is what happens
-anyway, with transaction inputs needing to be carefully computed ahead of time
-to ensure that the corresponding transaction succeeds. Here, the API is clear,
-and the `guess_factors` routine is even given the number for which it should
-guess (which previously you'd have to figure out for yourself).
+이 프로그램은 이전 섹션보다 길지만, 조금 더 많은 역할을 합니다. 숫자가 어디서 오는지 명시적으로 보여주는데, 각각 `guess_factors` 또는 `new_challenge`에 대한 local 호출을 통해 얻습니다. 실제로 이런 흐름은 원래부터 발생하는 일이며, 트랜잭션이 성공하도록 입력값을 사전에 계산해야 합니다. 여기서 API가 명확해지는데, `guess_factors` 루틴은 추측할 숫자도 함께 전달받습니다(이전에는 별도로 파악해야 했습니다).
 
-On the chain, this interaction would have the following interactions:
-- retrieving `number` ledger field
-- setting `number` ledger field.
+체인 관점에서 이 프로그램의 상호작용은 다음과 같습니다:
+- `number` 원장 필드 읽기
+- `number` 원장 필드 쓰기.
 
-Neither of these reveals the details of the factors - neither the ones guessed,
-nor the ones the new challenge consists of.
+이 중 어느 것도 인수의 세부 사항을 노출하지 않습니다. 추측한 인수도, 새 도전 과제를 구성하는 인수도 마찬가지입니다.
 
-A practical challenge with this approach is how to ensure that the contract is
-correctly used. For the `local` calls, this is an accepted risk; we don't want
-to prescribe how `guess_factors` works, for instance, just that it outputs
-correct guesses (hence the input validation). For the contract program itself,
-we want other users to be convinced that we ran the right program and that the
-changes made to the contract's state are sensible.
+이 접근 방식의 실질적인 과제는 컨트랙트가 올바르게 사용되었음을 어떻게 보장하느냐입니다. `local` 호출의 경우 이는 감수하는 위험입니다. 예를 들어 `guess_factors`가 어떻게 동작하는지까지 규정할 필요는 없고, 올바른 추측을 출력하는지만 확인하면 됩니다(따라서 입력 검증이 필요합니다). 컨트랙트 프로그램 자체에 대해서는, 다른 사용자가 올바른 프로그램을 실행했으며 컨트랙트 상태에 대한 변경이 정당하다는 확신을 갖고 싶습니다.
 
 ## Transcripts and ZK Snarks
 
-The key technology that makes everything work is the [ZK Snark](/learn/glossary#zk-snarks).
-At their core, ZK Snarks (and more broadly
-zero-knowledge proofs) are a way to prove that you know how to assign values to
-a number of variables, so that they satisfy some set of clear, mathematical
-conditions. Some of these variables are *public*, while most are not.
+이 모든 것을 가능하게 하는 핵심 기술이 [ZK Snark](/glossary#zk-snarks)입니다. ZK Snark(그리고 더 넓게는 영지식 증명)는 여러 변수에 값을 할당하여 명확한 수학적 조건 집합을 만족시키는 방법을 알고 있음을 증명하는 수단입니다. 이러한 변수 중 일부는 *공개*이고, 대부분은 그렇지 않습니다.
 
-The above program can be cleanly split into three interacting parts, each
-run in a separate environment: The `local` part, the `ledger` part, and the
-glue that links the two together and encodes the core program
-logic. This 'glue' can be converted into a series of variable
-assignments and equations that can be transformed into a ZK Snark,
-while the ledger interactions can be converted into a program that
-runs on-chain.
+위 프로그램은 각각 별도의 환경에서 실행되는 세 부분으로 깔끔하게 분리됩니다: `local` 부분, `ledger` 부분, 그리고 이 둘을 연결하면서 핵심 프로그램 로직을 인코딩하는 접착 역할의 부분입니다. 이 '접착제'는 ZK Snark로 변환 가능한 일련의 변수 할당과 방정식으로 바뀔 수 있으며, 원장 상호작용은 온체인에서 실행되는 프로그램으로 변환됩니다.
 
-Here, in the example of factoring the current state of `35` into `5 *
-7` and replacing it with `2 * 6`:
+현재 상태 `35`를 `5 * 7`로 인수분해하고 `2 * 6`으로 교체하는 예제는 다음과 같습니다:
 
 <div>
 <div style={{ width: "32%", float: "left", marginRight: "2%" }} class="private">
@@ -178,32 +122,15 @@ Here, in the example of factoring the current state of `35` into `5 *
 </div>
 <br clear="all" />
 
-More complex programs, with function calls, conditionals,
-iterations, and complex primitives such as hash function calls can also be
-translated in this way. See the [writing a contract](../../compact/writing.mdx) section of this
-documentation for a description of the language we use to write these programs.
+함수 호출, 조건문, 반복문, 해시 함수 호출과 같은 복잡한 프리미티브를 포함하는 더 복잡한 프로그램도 이 방식으로 변환할 수 있습니다. 이러한 프로그램을 작성하는 데 사용하는 언어에 대해서는 [컨트랙트 작성하기](../../compact/reference/writing.mdx) 섹션을 참조하세요.
 
-In the preceding example, it is possible to prove that, for public `n1`, `n2`
-and `n3`, we know values of `a1`, `b1`, `a2`, and `b2` for which these
-equations hold. This proof does not say that anyone actually ran the above program,
-but it _does_ say that the program's rules were followed, which is what a
-skeptical user truly cares about.
+위 예제에서 공개 값 `n1`, `n2`, `n3`에 대해, 이 방정식들을 만족시키는 `a1`, `b1`, `a2`, `b2`의 값을 알고 있음을 증명할 수 있습니다. 이 증명은 누군가가 실제로 위 프로그램을 실행했다는 것을 의미하는 것이 아니라, 프로그램의 규칙이 준수되었음을 _증명_합니다. 이것이 바로 회의적인 사용자가 진정으로 확인하고 싶은 부분입니다.
 
-The sequence of assignments, `n1`, `n2`, and `n3`, and the program that
-produces or uses them is referred to as the *public transcript*, and
-conversely `a1`, `b1`, `a2`, and `b2` are the *private transcript*.
-Public transcripts are encoded as bytecode[^1], and the shape of this bytecode
-is directly enforced by the circuit.
+할당 시퀀스인 `n1`, `n2`, `n3`과 이를 생성하거나 사용하는 프로그램을 *공개 transcript*라고 하며, `a1`, `b1`, `a2`, `b2`는 *비공개 transcript*입니다. 공개 transcript는 바이트코드[^1]로 인코딩되며, 이 바이트코드의 형태는 circuit에 의해 직접 강제됩니다.
 
-Transactions in Midnight then are essentially made up of the public transcript
-and a zero-knowledge proof that this transcript is correct. Each transaction is made with
-respect to a contract and a specific *circuit*[^2] on that contract. On-chain,
-instead of storing the code for `guess_number()`, a cryptographic key used to
-verify zero-knowledge proofs *for* `guess_number()` is stored. This
-cryptographically encodes and enforces all of the equations listed in the
-circuit above.
+Midnight의 트랜잭션은 본질적으로 공개 transcript와 이 transcript의 정당성에 대한 영지식 증명으로 구성됩니다. 각 트랜잭션은 특정 컨트랙트와 해당 컨트랙트의 특정 *circuit*[^2]에 대해 생성됩니다. 온체인에는 `guess_number()`의 코드를 저장하는 대신, `guess_number()`*에 대한* 영지식 증명을 검증하는 데 사용되는 암호학적 키가 저장됩니다. 이 키는 위 circuit에 나열된 모든 방정식을 암호학적으로 인코딩하고 강제합니다.
 
-Broadly, the state looks something like this:
+대략적으로 상태는 다음과 같은 모습입니다:
 
 ```yaml
 contracts:
@@ -214,11 +141,11 @@ contracts:
       guess_number: "<verifier key>"
 ```
 
-And a transaction made against this state might look something like:
+이 상태에 대해 생성된 트랜잭션은 다음과 같은 모습입니다:
 
 :::note
 
-This is a sketch of a transaction.
+이것은 트랜잭션의 개략적인 형태입니다.
 
 :::
 
@@ -237,55 +164,21 @@ transaction:
   proof: "<zero-knowledge proof>"
 ```
 
-This transaction, when it is verified, will check that the proof is valid with
-respect to the verifier key and then *run* the transcript. Here it checks that
-things are still as expected; if the current `number` *isn't* `35`
-the transaction is no longer valid – whoever made it did not guess the factors of
-35, after all. The result of the transaction (if it succeeds) is updating the
-state to contain `12` – and importantly, *this* transaction tells no one which 
-factors were used there, or in the guess!
+이 트랜잭션을 검증할 때, 먼저 verifier key에 대해 proof가 유효한지 확인한 다음 transcript를 *실행*합니다. 여기서 현재 상태가 예상과 일치하는지 확인합니다. 현재 `number`가 `35`가 *아니라면* 트랜잭션은 더 이상 유효하지 않습니다 -- 트랜잭션을 생성한 사람이 결국 35의 인수를 추측한 것이 아니기 때문입니다. 트랜잭션이 성공하면 상태가 `12`를 포함하도록 갱신되며, 중요한 점은 *이* 트랜잭션이 추측이든 새 숫자든 어떤 인수가 사용되었는지 아무에게도 알려주지 않는다는 것입니다!
 
-A reasonable question is why the `number` check occurs twice, and in practice, this
-is a valid observation: There is no need to read the same value multiple times.
-However, this way of handling external interactions means that the operations
-performed here are arbitrary; the zero-knowledge proof had no knowledge of what
-a `read` is or that the values of `n1` and `n2` are necessarily the
-same, and this allows the use of more interesting
-operations, such as `increment` or `insert`. These are particularly useful to
-avoid making transactions invalid due to results not matching, as in the case
-of `35` above. Contrast two simultaneous invocations of `increment`
-with two simultaneous sequences of `read`ing
-a value, adding `1`, and `write`ing it again; the `increment` will (almost) always
-succeed, while the read-add-write sequence is prone to failure.
+`number` 검사가 왜 두 번 나오는지 의문이 들 수 있는데, 실제로 같은 값을 여러 번 읽을 필요는 없습니다. 하지만 외부 상호작용을 이런 식으로 처리하면 여기서 수행하는 연산이 임의적일 수 있게 됩니다. 영지식 증명은 `read`가 무엇인지, `n1`과 `n2`가 반드시 같은 값인지를 알지 못하며, 이 덕분에 `increment`나 `insert` 같은 더 유용한 연산을 사용할 수 있습니다. 이는 위의 `35` 사례처럼 상태 불일치로 트랜잭션이 무효화되는 것을 방지하는 데 특히 유용합니다. `increment`를 동시에 두 번 호출하는 것과, 값을 `read`하고 `1`을 더한 뒤 다시 `write`하는 시퀀스를 동시에 두 번 실행하는 것을 비교해 보면, `increment`는 거의 항상 성공하는 반면 read-add-write 시퀀스는 실패하기 쉽습니다.
 
 ## Putting value at stake
 
-It's not immediately obvious how the notion of *value* fits into this model. In
-public blockchains, it's easy for a smart contract to have a value as well as a
-state, which can be used to pay into and out of the contract. As this
-transfer of value is important to many applications, it is necessary
-to achieve such transfers in a setting that preserves data privacy.
+*가치*의 개념이 이 모델에 어떻게 들어맞는지는 바로 와닿지 않습니다. 공개 블록체인에서는 스마트 컨트랙트가 상태뿐 아니라 가치를 보유하기 쉬워서, 컨트랙트에 자금을 입금하고 출금할 수 있습니다. 이런 가치 이전은 많은 애플리케이션에 핵심적이므로, 데이터 프라이버시를 보존하는 환경에서도 이를 구현해야 합니다.
 
-The Midnight token currently uses an implementation of
-[Zswap](../how-midnight-works/zswap.mdx), which operates similarly to
-UTXOs, but shields the token values, types, and fund holders.
-An exception to total shielding applies to the funds held by a contract; the value and type
-of these are still shielded by default, but holding and releasing them *is*
-linked to the contract.
+Midnight의 토큰은 현재 [Zswap](../how-midnight-works/zswap.mdx) 구현을 사용하며, UTXO와 유사하게 작동하면서 토큰의 값, 유형, 보유자를 차폐합니다. 완전한 차폐의 예외는 컨트랙트가 보유한 자금입니다. 이들의 가치와 유형은 기본적으로 여전히 차폐되지만, 보유와 해제는 컨트랙트에 *연결*됩니다.
 
-These UTXOs are represented in contracts as individual coins, which are just
-data until they are explicitly *received*. Once received, they can be handled
-like any other data – whether they are stored publicly, encrypted, or stored privately is
-up to the contract itself. When a contract wishes, they can then be *sent* to 
-another contract or to a user address.
+이러한 UTXO는 컨트랙트에서 개별 코인으로 표현되며, 명시적으로 *수신*될 때까지는 단순한 데이터에 불과합니다. 수신되면 다른 데이터와 동일하게 처리할 수 있으며, 공개 저장, 암호화, 비공개 저장 여부는 컨트랙트 설계에 달려 있습니다. 컨트랙트는 필요에 따라 이 코인을 다른 컨트랙트나 사용자 주소로 *전송*할 수 있습니다.
 
-Coin *receives* and *sends* have special semantics: They are recorded as
-operations in the public transcript but have no effect on the contract's state.
-Instead, they require a corresponding input or output to be included in the
-same transaction, ensuring that a contract doesn't receive funds that don't
-exist or send funds it doesn't have.
+코인의 *수신*과 *전송*은 특별한 의미를 가집니다. 공개 transcript에 operation으로 기록되지만 컨트랙트 상태에는 영향을 미치지 않습니다. 대신 동일한 트랜잭션에 해당하는 input 또는 output이 포함되어야 하며, 이를 통해 컨트랙트가 존재하지 않는 자금을 수신하거나 보유하지 않은 자금을 전송하는 것을 방지합니다.
 
-Again in pseudocode, wagers can be attached to the example:
+의사 코드로 이 예제에 배팅을 추가하면 다음과 같습니다:
 
 ```python
 def guess_number(new_wager):
@@ -302,25 +195,12 @@ def guess_number(new_wager):
 
 ## Factoring and keys
 
-The example of factoring may seem like a toy, and it is somewhat arbitrary,
-but it is worth noting that factoring large integers is an important
-problem in cryptography. Knowing the factors of large numbers is the basis of
-the RSA cryptographic algorithms, and the simple guessing game
-corresponds to proving that
-you know the secret keys for an RSA public key. This shows the power
-of zero-knowledge proofs and that they can serve the same purposes as
-signature schemes. Not only can you prove you know a secret key, but you can then
-prove that *the same person* did something else, effectively signing what they
-did.
+인수분해 예제가 단순한 장난감 문제로 보이고 다소 임의적일 수 있지만, 큰 정수의 인수분해는 암호학에서 매우 중요한 문제입니다. 큰 수의 인수를 아는 것은 RSA 암호화 알고리즘의 근간이며, 위 추측 게임은 RSA 공개 키에 대한 비밀 키를 알고 있음을 증명하는 것과 같습니다. 이것은 영지식 증명의 강력함을 보여주는데, 서명 체계와 동일한 역할을 수행할 수 있기 때문입니다. 비밀 키를 알고 있음을 증명할 수 있을 뿐 아니라, *동일한 사람*이 특정 행위를 했음도 증명할 수 있어 사실상 그 행위에 서명하는 것과 같습니다.
 
-In practice, if you want to authenticate, this construction is not the most
-efficient; proving the knowledge of a preimage of hash functions (that is,
-knowing `sk` such that `pk = H(sk)`) is a simpler alternative in most cases.
+실제로 인증이 목적이라면 이 구성이 가장 효율적이지는 않습니다. 해시 함수의 원상에 대한 지식 증명(즉, `pk = H(sk)`에서 `sk`를 아는 것)이 대부분의 경우 더 단순한 대안입니다.
 
 ----
 
-[^1] For advanced reading of *how* the operations are encoded, see the details
-of [Midnight's on-chain VM, Impact](../how-midnight-works/impact.mdx).
+[^1] operation의 *인코딩 방식*에 대한 고급 자료는 [Midnight의 온체인 VM, Impact](../how-midnight-works/impact.mdx)의 세부 사항을 참조하세요.
 
-[^2] Circuits are named such as the compilation of zero-knowledge proofs has
-many similarities with assembling a special-purpose logic circuit
+[^2] Circuit이라는 이름은 영지식 증명의 컴파일이 특수 목적의 논리 회로를 조립하는 과정과 많이 유사하기 때문에 붙여졌습니다.

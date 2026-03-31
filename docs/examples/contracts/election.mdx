@@ -1,17 +1,17 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Election"
+sidebar_label: "선거"
 sidebar_position: 4
-title: Election Contract
-description: Example contract for private state access
+title: 선거 컨트랙트
+description: 비공개 상태 접근을 위한 예제 컨트랙트
 toc_max_heading_level: 2
 ---
 
-This Compact contract implements an election that occurs between two candidates and a set of registered voters. It offers demonstration of the following features:
-- Committing to private state information
-- Operations on `Set` and `Map`
-- Dapp specific public key function that keeps users from being tracked outside this dapp
+이 Compact 컨트랙트는 두 후보자와 등록된 유권자 사이의 선거를 구현합니다. 다음 기능을 시연합니다:
+- 비공개 상태 정보에 대한 커밋
+- `Set`과 `Map` 연산
+- 이 DApp 외부에서 사용자를 추적할 수 없도록 하는 DApp 전용 공개 키 함수
 
 ```compact
 pragma language_version 0.22;
@@ -28,7 +28,7 @@ export enum VoteChoice {
     TIE
 }
 
-// sealed ledger values cannot be changed after constructor execution
+// sealed ledger 값은 생성자 실행 후 변경할 수 없습니다
 export sealed ledger organizer: ZswapCoinPublicKey;
 export sealed ledger candidate0: Opaque<"string">;
 export sealed ledger candidate1: Opaque<"string">;
@@ -50,7 +50,7 @@ constructor(candidateA: Opaque<"string">, candidateB: Opaque<"string">) {
     votingState = VotingState.CLOSED;
 }
 
-// should be available time based
+// 시간 기반으로 이용 가능해야 합니다
 export circuit registerToVote(): [] {
     const _sk = localSk();
     const dappPublicKey = getDappPublicKey(_sk);
@@ -64,7 +64,7 @@ export circuit openVoting(): [] {
     assert(organizer == ownPublicKey(), "You are not the organizer");
     assert(votingState == VotingState.CLOSED, "Voting has already been openend");
     assert(!registeredVoters.isEmpty(), "There are no registered voters");
-    
+
     votingState = VotingState.OPEN;
 }
 
@@ -83,16 +83,16 @@ export circuit commitVote(): [] {
     totalVoteCount.increment(1);
 }
 
-// check privateState for original vote, if its changed then error
+// 원래 투표를 privateState에서 확인합니다. 변경되었다면 오류가 발생합니다
 export circuit revealVote(): [] {
     assert(votingState == VotingState.CLOSED, "Voting is still open");
 
     const _sk = localSk();
     const dappPublicKey = getDappPublicKey(_sk);
-    // we want to check that they have already voted..
+    // 이미 투표했는지 확인합니다
     assert(hashedVoteMap.member(dappPublicKey), "You have not voted yet");
     assert(registeredVoters.member(dappPublicKey), "You are not a registered voter");
-    
+
     const vote = localGetVote();
     assert(vote == VoteChoice.BAD || vote == VoteChoice.WORSE, "Please supply a valid vote");
 
@@ -106,7 +106,7 @@ export circuit revealVote(): [] {
     }
 }
 
-// should be time based
+// 시간 기반이어야 합니다
 export circuit closeVoting(): [] {
     assert(organizer == ownPublicKey(), "You are not the organizer");
     assert(!hashedVoteMap.isEmpty(), "You can't close the voting with no votes");
@@ -117,7 +117,7 @@ export circuit checkWinner(): [] {
     assert(organizer == ownPublicKey(), "You are not an organizer");
     assert(votingState == VotingState.CLOSED, "Voting is still open");
 
-    // check for a winner
+    // 승자를 확인합니다
     if(candidate0VoteCounter > candidate1VoteCounter) {
         winner = VoteChoice.BAD;
     } else if (candidate0VoteCounter < candidate1VoteCounter) {
@@ -127,12 +127,12 @@ export circuit checkWinner(): [] {
     }
 }
 
-// hashing commitment with _sk makes it impossible to brute force a simple 1 or 2
+// _sk로 해시 커밋하면 단순한 1 또는 2를 무차별 대입(brute force)하는 것이 불가능해집니다
 circuit commitWithSk(_vote: Bytes<32>, _sk: Bytes<32>) : Bytes<32> {
     return disclose(persistentHash<Vector<2, Bytes<32>>>([_vote, _sk]));
 }
 
-// hash a random "public key" that is only traceable in this dapp
+// 이 DApp에서만 추적 가능한 랜덤 "공개 키"를 해시합니다
 export circuit getDappPublicKey(_sk: Bytes<32>): Bytes<32> {
   return disclose(persistentHash<Vector<2, Bytes<32>>>([pad(32, "election:pk:"), _sk]));
 }

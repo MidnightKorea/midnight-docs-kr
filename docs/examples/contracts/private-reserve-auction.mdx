@@ -1,17 +1,17 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2026 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Private Reserve Auction"
+sidebar_label: "비공개 최저가 경매"
 sidebar_position: 5
-title: Private Reserve Auction Contract
-description: Example contract
+title: 비공개 최저가 경매 컨트랙트
+description: 예제 컨트랙트
 toc_max_heading_level: 2
 ---
 
-This Compact contract implements an auction with a private reserve that also maintains the privacy of bidders with bid amounts as public information. It offers demonstration of the following features:
-- Hiding information on the public ledger
-- Reducing user trackability with specific DApp public keys
-- Operations on a `Map`
+이 Compact 컨트랙트는 비공개 최저가 경매를 구현하며, 입찰 금액은 공개하되 입찰자의 프라이버시는 보호합니다. 다음 기능을 시연합니다:
+- 공개 ledger에서 정보 숨기기
+- DApp 전용 공개 키를 통한 사용자 추적 방지
+- `Map` 연산
 
 
 ```compact
@@ -27,8 +27,8 @@ export sealed ledger auctionOrganizer: Bytes<32>;
 export sealed ledger hiddenPrice: Bytes<32>;
 export sealed ledger maxBids: Uint<16>;
 export ledger publicPrice: Uint<16>;
-export ledger bidders: Map<Bytes<32>, Uint<16>>;// unique bidders, overwriting bids allowed
-export ledger bidCount: Counter;// number of bids
+export ledger bidders: Map<Bytes<32>, Uint<16>>;// 고유 입찰자, 입찰 덮어쓰기 허용
+export ledger bidCount: Counter;// 입찰 횟수
 export ledger highestBid: Uint<16>;
 export ledger auctionState: AuctionState;
 
@@ -47,11 +47,11 @@ constructor(_minPrice: Uint<16>, maxBidCount: Uint<16>) {
     auctionState = AuctionState.OPEN;
 }
 
-// bidders can bid more than once
+// 입찰자는 여러 번 입찰할 수 있습니다
 export circuit bid(bidAmount: Uint<16>): [] {
     assert(bidCount < maxBids, "Sorry, bids are full");
     assert(auctionState == AuctionState.OPEN, "The auction has ended");
-    
+
     const _sk = localSk();
     const key = getDappPubKey(_sk);
     const pubKey = disclose(key);
@@ -70,7 +70,7 @@ export circuit bid(bidAmount: Uint<16>): [] {
     }
 }
 
-// allow the organizer to close the auction if maxBids is not reached
+// maxBids에 도달하지 않은 경우 주최자가 경매를 종료할 수 있게 합니다
 export circuit closeAuction(minPrice: Uint<16>): Uint<16> {
     const _sk = localSk();
     const pubKey = getDappPubKey(_sk);
@@ -86,14 +86,14 @@ export circuit revealWin(minPrice: Uint<16>): Uint<16> {
     const pubKey = getDappPubKey(_sk);
     assert(auctionOrganizer == disclose(pubKey), "You are not the auction organizer");
     assert(auctionState == AuctionState.CLOSED, "The auction is still open");
-    
+
     const hashedPrice = commitWithSk(minPrice as Bytes<32>, _sk);
     assert(hashedPrice == hiddenPrice, "Attempt to change min price detected, shame on you.");
-    
-    // all votes are in, public price can be revealed
+
+    // 모든 투표가 완료되었으므로 공개 가격을 공개할 수 있습니다
     publicPrice = disclose(minPrice);
 
-    // if the publicPrice is not met, the highestBid doesn't matter
+    // 공개 가격을 충족하지 못하면 최고 입찰가는 의미가 없습니다
     if(highestBid < publicPrice){
         return 0;
     } else {
@@ -106,7 +106,7 @@ circuit commitWithSk(_minPrice: Bytes<32>, _sk: Bytes<32>): Bytes<32> {
     return disclose(hash);
 }
 
-// hash a "public key" specific to this DApp so that users cannot be tracked
+// 사용자가 추적될 수 없도록 이 DApp에 특화된 "공개 키"를 해시합니다
 export circuit getDappPubKey(_sk: Bytes<32>): Bytes<32> {
     return persistentHash<Vector<2, Bytes<32>>>([pad(32, "silent-auction:pk:"), _sk]);
 }

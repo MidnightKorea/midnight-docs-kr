@@ -1,58 +1,57 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Bulletin board DApp"
+sidebar_label: "게시판 DApp"
 sidebar_position: 20
-title: Bulletin board DApp
-description: Learn how the bulletin board DApp demonstrates privacy-preserving message posting with Zero Knowledge proofs on Midnight Network.
+title: 게시판 DApp
+description: 게시판 DApp이 Midnight Network에서 영지식 증명을 활용하여 프라이버시를 보호하면서 메시지를 게시하는 방법을 알아봅니다.
 toc_max_heading_level: 2
 ---
 
 # Bulletin board DApp
 
-The bulletin board contract demonstrates privacy-preserving smart contracts on Midnight using the Compact language. 
-This example shows how to create a contract that allows users to post and remove messages while protecting poster identity through Zero Knowledge (ZK) proofs.
+게시판 컨트랙트는 Compact 언어를 사용한 Midnight의 프라이버시 보호 스마트 컨트랙트를 시연합니다.
+영지식 증명으로 게시자의 신원을 보호하면서 메시지를 게시하고 제거할 수 있는 컨트랙트를 구현하는 방법을 다룹니다.
 
-The bulletin board example is a privacy-focused DApp that introduces key Midnight concepts:
+게시판 예제는 주요 Midnight 개념을 소개하는 프라이버시 중심 DApp입니다:
 
-- Writing smart contracts with private state in Compact
-- Using ZK proofs to verify identity without revealing it
-- Implementing access control through cryptographic commitments
+- Compact에서 비공개 상태를 가진 스마트 컨트랙트 작성
+- 영지식 증명을 사용하여 신원을 공개하지 않고 검증
+- 암호화 커밋 기반 접근 제어 구현
 
-By the end of this guide, you will understand how the bulletin board contract enforces privacy rules and how to deploy and interact with the contract through the CLI.
+이 가이드를 마치면 게시판 컨트랙트의 프라이버시 규칙 적용 방식과 CLI를 통한 컨트랙트 배포 및 상호작용 방법을 파악할 수 있습니다.
 
 ## The bulletin board scenario
 
-Imagine a traditional cork bulletin board on an office wall with room for just one piece of paper. The office rules are simple:
+사무실 벽에 종이 한 장만 꽂을 수 있는 코르크 게시판을 떠올려 보세요. 규칙은 간단합니다:
 
-- Anyone can post a message when the board is vacant.
-- Once someone posts a message, only that person can remove it.
+- 게시판이 비어 있으면 누구나 메시지를 올릴 수 있습니다.
+- 메시지를 올린 사람만 그 메시지를 내릴 수 있습니다.
 
-The challenge is implementing these rules online while protecting user identity. Traditional systems require users to transmit identity credentials to a server for verification. Midnight offers a better approach: users prove their identity locally through ZK proofs without transmitting private data across the network.
+이 규칙을 사용자의 신원을 보호하면서 온라인으로 구현하는 것이 과제입니다. 기존 시스템에서는 검증을 위해 서버에 신원 정보를 전송해야 합니다. Midnight는 더 나은 방법을 제공합니다. 사용자가 네트워크를 통해 개인 데이터를 보내지 않고도 영지식 증명을 통해 로컬에서 신원을 증명할 수 있습니다.
 
 ## DApp architecture
 
-The bulletin board example uses a modular structure with three main components:
+게시판 예제는 세 가지 주요 컴포넌트로 구성됩니다:
 
 ```
 example-bboard/
-├── contract/                  # Smart contract in Compact language
-│   ├── src/bboard.compact     # The actual smart contract
-│   └── src/test/              # Contract unit tests
-├── api/                       # Application logic shared by interfaces
-│   └── src/                   # Core DApp functionality
-├── bboard-cli/                # Command-line interface
-│   └── src/                   # CLI implementation
-└── bboard-ui/                 # Web browser interface
-    └── src/                   # React-based UI
+├── contract/                  # Compact 언어로 된 smart contract
+│   ├── src/bboard.compact     # 실제 smart contract
+│   └── src/test/              # Contract 유닛 테스트
+├── api/                       # 인터페이스 간 공유 애플리케이션 로직
+│   └── src/                   # 핵심 DApp 기능
+├── bboard-cli/                # 커맨드 라인 인터페이스
+│   └── src/                   # CLI 구현
+└── bboard-ui/                 # 웹 브라우저 인터페이스
+    └── src/                   # React 기반 UI
 ```
 
 ## The bulletin board contract
 
-The bulletin board contract is written in Compact. It demonstrates how to build a privacy-preserving 
-application where users can prove ownership of posted content without revealing their identity.
+게시판 컨트랙트는 Compact로 작성되었으며, 사용자가 신원을 공개하지 않고도 게시된 콘텐츠의 소유권을 증명하는 프라이버시 보호 애플리케이션 구축 방법을 보여 줍니다.
 
-Here is the complete contract:
+전체 컨트랙트는 다음과 같습니다:
 
 ```compact
 pragma language_version 0.21;
@@ -102,47 +101,47 @@ export circuit publicKey(sk: Bytes<32>, sequence: Bytes<32>): Bytes<32> {
 }
 ```
 
-The contract consists of three main components:
+컨트랙트는 세 가지 주요 컴포넌트로 구성됩니다:
 
 ### Ledger state
 
-Four public fields track the bulletin board state on-chain:
+네 개의 공개 필드가 온체인에서 게시판 상태를 추적합니다:
 
-- `state`: A `State` enum indicating whether the board is `VACANT` or `OCCUPIED`.
-- `message`: A `Maybe<Opaque<'string'>>` type that contains the current posted message, or `none` if the board is vacant.
-- `sequence`: A `Counter` that increments each time a post is taken down, preventing replay attacks.
-- `owner`: A 32-byte cryptographic commitment that represents the current poster's identity without revealing who they are.
+- `state`: 게시판이 `VACANT`(비어 있음)인지 `OCCUPIED`(사용 중)인지를 나타내는 `State` 열거형입니다.
+- `message`: 현재 게시된 메시지를 담는 `Maybe<Opaque<'string'>>` 타입이며, 게시판이 비어 있으면 `none`입니다.
+- `sequence`: 게시물이 내려질 때마다 증가하는 `Counter`로, 재전송 공격을 방지합니다.
+- `owner`: 게시자가 누구인지 드러내지 않으면서 신원을 나타내는 32바이트 암호화 커밋입니다.
 
-### Circuits
+### Circuit
 
-Three exported circuits define the contract's operations:
+세 개의 export circuit가 컨트랙트의 연산을 정의합니다:
 
-- `post(newMessage)`: Posts a new message to the board. Checks that the board is vacant, then stores the message and creates an ownership commitment.
-- `takeDown()`: Removes the current message and returns it. Verifies that the caller is the original poster by checking their secret key against the ownership commitment.
-- `publicKey(sk, sequence)`: A helper circuit that generates the ownership commitment from a secret key and sequence number using a persistent hash.
+- `post(newMessage)`: 게시판에 새 메시지를 게시합니다. 게시판이 비어 있는지 확인한 후 메시지를 저장하고 소유권 커밋을 생성합니다.
+- `takeDown()`: 현재 메시지를 제거하고 반환합니다. 호출자의 비밀 키를 소유권 커밋과 대조하여 원래 게시자인지 검증합니다.
+- `publicKey(sk, sequence)`: 비밀 키와 시퀀스 번호로 영구 해시를 생성하여 소유권 커밋을 만드는 헬퍼 circuit입니다.
 
 ### Witness
 
-The contract defines one witness function, `localSecretKey()`, which returns the user's secret key during circuit execution without exposing it on-chain or in the generated proof.
+컨트랙트는 하나의 witness 함수 `localSecretKey()`를 정의합니다. 이 함수는 circuit 실행 중에 사용자의 비밀 키를 온체인이나 생성된 proof에 노출하지 않고 반환합니다.
 
 ## Prerequisites
 
-Before working with the bulletin board example, ensure that you have:
+게시판 예제를 시작하기 전에 다음 사항을 확인하세요:
 
-- Node.js version 22 or higher
-- Docker Desktop installed and running
-- Compact toolchain installed
-- Command-line familiarity
+- Node.js 버전 22 이상
+- Docker Desktop 설치 및 실행 중
+- Compact 툴체인 설치 완료
+- 커맨드 라인 사용 경험
 
-For more information, refer to [install the toolchain](../getting-started/installation).
+자세한 내용은 [툴체인 설치](../../getting-started/installation)를 참조하세요.
 
 ## Set up the example
 
-This section explains the process of setting up and running the bulletin board DApp locally.
+게시판 DApp을 로컬에서 설정하고 실행하는 과정을 설명합니다.
 
 ### Clone the repository
 
-Get the bulletin board example from GitHub:
+GitHub에서 게시판 예제를 클론합니다:
 
 ```bash
 git clone https://github.com/midnightntwrk/example-bboard.git
@@ -151,62 +150,62 @@ cd example-bboard
 
 ### Install dependencies
 
-Install all required Node.js packages:
+필요한 모든 Node.js 패키지를 설치합니다:
 
 ```bash
 npm install
 ```
 
-This command installs packages for the contract, API, CLI, and UI components.
+컨트랙트, API, CLI, UI 컴포넌트의 패키지가 모두 설치됩니다.
 
 ## Start the proof server
 
-The proof server generates ZK proofs for transactions locally to protect private data. It must be running before you can deploy or interact with contracts.
+proof 서버는 개인 데이터 보호를 위해 트랜잭션의 영지식 증명을 로컬에서 생성합니다. 컨트랙트 배포나 상호작용 시 반드시 실행 중이어야 합니다.
 
-Start the proof server:
+다음 명령으로 proof 서버를 시작합니다:
 
 ```bash
 docker run -p 6300:6300 midnightntwrk/proof-server:7.0.0 -- midnight-proof-server -v
 ```
 
 :::tip
-The proof server _must_ stay active while using the DApp.
+DApp을 사용하는 동안 proof 서버가 _반드시_ 실행 중이어야 합니다.
 :::
 
 ## Compile the contract
 
-Open a new terminal window, navigate to the `contract` directory, and install the contract-specific dependencies:
+새 터미널을 열고 `contract` 디렉토리에서 컨트랙트 전용 종속성을 설치합니다:
 
 ```bash
 cd contract
 npm install
 ```
 
-Compile the contract by running the `compact` script:
+다음 스크립트로 컨트랙트를 컴파일합니다:
 
 ```bash
 npm run compact
 ```
 
-The `npm run compact` script runs the following command:
+`npm run compact`는 내부적으로 다음 명령을 실행합니다:
 
 ```bash
 compact compile src/bboard.compact src/managed/bboard
 ```
 
-This command compiles the contract and builds the TypeScript API and JavaScript implementation.
+컨트랙트를 컴파일하여 TypeScript API와 JavaScript 구현을 생성합니다.
 
-You should see the following output:
+다음과 같은 출력이 표시됩니다:
 
 ```
 > compact compile src/bboard.compact src/managed/bboard
 
 Compiling 2 circuits:
-  circuit "post" (k=13, rows=4569)  
+  circuit "post" (k=13, rows=4569)
   circuit "takeDown" (k=13, rows=4580)
 ```
 
-The compiled artifacts are placed in the `src/managed/bboard` directory.
+컴파일된 아티팩트는 `src/managed/bboard` 디렉토리에 저장됩니다.
 
 ```
 src/
@@ -221,29 +220,29 @@ src/
 
 ## CLI interface
 
-The command-line interface provides a text-based way to interact with the bulletin board contract.
+커맨드 라인 인터페이스를 통해 게시판 컨트랙트와 텍스트 기반으로 상호작용할 수 있습니다.
 
 ### Launch the bulletin board CLI
 
-Navigate to the `bboard-cli` directory and install the CLI-specific dependencies:
+`bboard-cli` 디렉토리에서 CLI 전용 종속성을 설치합니다:
 
 ```bash
 cd bboard-cli
 npm install
 ```
 
-The `package.json` file for the `bboard-cli` folder has a script called `preprod-remote` that launches the CLI on the Preprod network.
+`bboard-cli` 폴더의 `package.json`에 Preprod 네트워크용 `preprod-remote` 스크립트가 정의되어 있습니다.
 
-Launch the CLI by running the `preprod-remote` script:
+다음 명령으로 CLI를 시작합니다:
 
 ```bash
 npm run preprod-remote
 ```
 
-The script launches the CLI and connects to the Preprod network. You should see the following output:
+CLI가 시작되고 Preprod 네트워크에 연결됩니다. 다음과 같은 출력이 표시됩니다:
 
 ```
- Starting test environment... 
+ Starting test environment...
  Performing env health check
  Connected to indexer https://indexer.preprod.midnight.network/ready: ""
  Connected to proof server http://127.0.0.1:6300/health: {"status":"ok"}
@@ -258,53 +257,53 @@ Which would you like to do?
 
 ### Set up your wallet
 
-The bulletin board CLI uses a headless wallet implementation that runs locally, separate from browser wallets like Lace Midnight Preview.
+게시판 CLI는 Lace Midnight Preview 같은 브라우저 wallet과는 별도로, 로컬에서 실행되는 헤드리스 wallet을 사용합니다.
 
 #### Create a new wallet
 
-Select option `1` to build a fresh wallet from the menu.
+메뉴에서 옵션 `1`을 선택하여 새 wallet을 만듭니다.
 
-The CLI generates a new wallet and displays the wallet information:
+CLI가 새 wallet을 생성하고 정보를 표시합니다:
 
 ```
 Initializing wallet builder for preprod
-Your wallet seed is: <64-character wallet seed> and your address is: <walletaddress>
-Using unshielded address: <unshielded address> waiting for funds...
+Your wallet seed is: <64자 wallet 시드> and your address is: <wallet 주소>
+Using unshielded address: <비차폐 주소> waiting for funds...
 Your wallet initial balance is: 0 (not yet initialized)
 Waiting to receive tokens...
 Syncing wallet...
 ```
 
-:::warning Save your seed phrase
-Store the wallet seed in a secure location. You need it to recover your wallet if needed.
+:::warning 시드를 안전하게 보관하세요
+wallet 시드를 안전한 곳에 저장하세요. wallet 복구 시 시드가 필요합니다.
 :::
 
 #### Restore an existing wallet
 
-If you already have a wallet seed, then select option `2` to build wallet from a seed.
+이미 wallet 시드가 있다면 옵션 `2`를 선택하여 시드로 wallet을 복원합니다.
 
-Enter your wallet seed when prompted:
+프롬프트가 나타나면 wallet 시드를 입력합니다:
 
 ```
 Which would you like to do? 2
-Enter your wallet seed: <wallet seed>
+Enter your wallet seed: <wallet 시드>
 Initializing wallet builder for preprod
 Building wallet without starting with configuration
 ```
 
-The CLI restores your wallet and displays your addresses and balances.
+CLI가 wallet을 복원하고 주소와 잔액을 표시합니다.
 
 ### Get faucet tokens
 
-Before deploying contracts, you need tNight tokens from the faucet.
+컨트랙트를 배포하려면 먼저 faucet에서 tNight 토큰을 받아야 합니다.
 
-1. Copy your unshielded address from the CLI output.
-2. Visit the [Preprod faucet](https://faucet.preprod.midnight.network/).
-3. Paste your unshielded address.
-4. Select **Request tokens**.
-5. Wait for the transaction to confirm. It usually takes 1-2 minutes.
+1. CLI 출력에서 비차폐 주소를 복사합니다.
+2. [Preprod faucet](https://faucet.preprod.midnight.network/)를 방문합니다.
+3. 비차폐 주소를 붙여넣습니다.
+4. **Request tokens**을 선택합니다.
+5. 트랜잭션이 확인될 때까지 기다립니다. 보통 1~2분 소요됩니다.
 
-After syncing, the CLI displays your updated balances:
+동기화 후 CLI가 업데이트된 잔액을 표시합니다:
 
 ```
 Sync complete
@@ -319,46 +318,46 @@ You can do one of the following:
 Which would you like to do?
 ```
 
-The wallet automatically generates tDUST network resources from your tNight holdings, which are required for contract operations.
+wallet이 tNight 보유량에서 컨트랙트 운영에 필요한 tDUST 네트워크 리소스를 자동으로 생성합니다.
 
 ### Deploy the contract
 
-With your wallet funded, deploy the bulletin board contract to Preprod.
+wallet에 자금이 충전되면 게시판 컨트랙트를 Preprod에 배포할 수 있습니다.
 
-From the Contract Actions menu, select option `1` to deploy a new bulletin board contract:
+Contract Actions 메뉴에서 옵션 `1`을 선택하여 새 게시판 컨트랙트를 배포합니다:
 
 ```
 Which would you like to do? 1
  deployContract
- Deployed contract at address: <contract address>
+ Deployed contract at address: <contract 주소>
 ```
 
-The CLI deploys your contract and displays the contract address.
+CLI가 컨트랙트를 배포하고 컨트랙트 주소를 표시합니다.
 
-:::note Transaction time
-Contract deployment typically takes 20-30 seconds on Preprod as the network processes your transaction and ZK proofs.
+:::note 트랜잭션 소요 시간
+컨트랙트 배포는 네트워크에서 트랜잭션과 영지식 증명을 처리해야 하므로, Preprod에서 보통 20~30초 정도 걸립니다.
 :::
 
 ### Join an existing contract
 
-If you want to interact with a contract that someone else deployed, then select option `2` to join an existing bulletin board contract.
+다른 사람이 배포한 컨트랙트와 상호작용하려면 옵션 `2`를 선택하여 기존 게시판 컨트랙트에 참여합니다.
 
-Enter the contract address when prompted:
+프롬프트가 나타나면 컨트랙트 주소를 입력합니다:
 
 ```
 Which would you like to do? 2
-What is the contract address (in hex)? <contract address>
+What is the contract address (in hex)? <contract 주소>
  joinContract: {
-   "contractAddress": "<contract address>"
+   "contractAddress": "<contract 주소>"
  }
- Joined contract at address: <contract address>
+ Joined contract at address: <contract 주소>
 ```
 
 ### Interact with the bulletin board
 
-Once deployed or joined, you can interact with your bulletin board contract.
+배포 또는 참여가 완료되면 게시판 컨트랙트와 상호작용할 수 있습니다.
 
-The bulletin board actions menu appears:
+게시판 액션 메뉴가 나타납니다:
 
 ```
 You can do one of the following:
@@ -373,7 +372,7 @@ Which would you like to do?
 
 #### Check the current state
 
-Select option `3` to display the current ledger state and see what everyone can see:
+옵션 `3`을 선택하여 현재 ledger 상태를 확인합니다. 이 정보는 누구나 볼 수 있습니다:
 
 ```
 Which would you like to do? 3
@@ -383,24 +382,24 @@ Current sequence is: 1
 Current owner is: '0000000000000000000000000000000000000000000000000000000000000000'
 ```
 
-The board initializes to vacant when the contract is deployed. The owner field shows zeros because no one has posted yet.
+컨트랙트가 배포되면 게시판은 빈 상태로 초기화됩니다. 아직 아무도 게시하지 않았으므로 owner 필드에 0이 표시됩니다.
 
 #### View private state
 
-Select option `4` to display the current private state that only you can see:
+옵션 `4`를 선택하여 자신만 볼 수 있는 비공개 상태를 확인합니다:
 
 ```
 Which would you like to do? 4
-Current secret key is: <private secret key>
+Current secret key is: <비공개 비밀 키>
 ```
 
-This displays your secret key that is used to generate cryptographic commitments. This key never leaves your local machine.
+암호화 커밋 생성에 사용되는 비밀 키가 표시됩니다. 이 키는 로컬 머신을 절대 벗어나지 않습니다.
 
 #### Post a message
 
-Select option `1` to post a message from the menu.
+메뉴에서 옵션 `1`을 선택합니다.
 
-Enter your message when prompted:
+프롬프트에 게시할 메시지를 입력합니다:
 
 ```
 Which would you like to do? 1
@@ -408,33 +407,33 @@ What message do you want to post? Welcome to Midnight
  postingMessage: Welcome to Midnight
 ```
 
-The CLI:
-1. Generates a cryptographic commitment to your identity using your secret key
-2. Creates a ZK proof proving you followed the contract rules
-3. Submits the proof to Preprod
-4. Waits for transaction confirmation
+CLI가 수행하는 작업:
+1. 비밀 키로 신원에 대한 암호화 커밋을 생성합니다
+2. 컨트랙트 규칙을 준수했음을 증명하는 영지식 증명을 생성합니다
+3. 증명을 Preprod에 제출합니다
+4. 트랜잭션 확인을 기다립니다
 
-:::info Privacy protection
-Your identity is never revealed on-chain. The cryptographic commitment in the `owner` field cannot be reverse-engineered to discover your identity, but you can regenerate it to prove ownership.
+:::info 프라이버시 보호
+신원은 온체인에 공개되지 않습니다. `owner` 필드의 암호화 커밋으로는 신원을 역추적할 수 없지만, 소유권 증명을 위해 재생성할 수 있습니다.
 :::
 
 #### View the posted message
 
-Select option `3` to display the current ledger state again:
+옵션 `3`을 선택하여 현재 ledger 상태를 다시 확인합니다:
 
 ```
 Which would you like to do? 3
 Current state is: 'occupied'
 Current message is: 'Welcome to Midnight'
 Current sequence is: 1
-Current owner is: '<cryptographic commitment>'
+Current owner is: '<암호화 커밋>'
 ```
 
-The message is now visible to anyone who queries the contract. The state changed to `occupied`, and the owner field now contains your cryptographic commitment.
+이제 컨트랙트를 조회하는 누구나 메시지를 볼 수 있습니다. 상태가 `occupied`로 변경되었고, owner 필드에 암호화 커밋이 들어 있습니다.
 
 #### Attempt to post when occupied
 
-Try posting another message when the board is occupied:
+게시판이 사용 중인 상태에서 다른 메시지를 게시해 봅니다:
 
 ```
 Which would you like to do? 1
@@ -443,11 +442,11 @@ What message do you want to post? Testing Preprod BBoard
  Found error 'Unexpected error executing scoped transaction '<unnamed>': Error: failed assert: Attempted to post to an occupied board'
 ```
 
-The contract enforces rule 1: no one can post when the board is occupied. The transaction fails locally before ever reaching the network, saving network resources.
+컨트랙트가 규칙 1을 적용합니다. 게시판이 사용 중이면 아무도 게시할 수 없습니다. 트랜잭션이 네트워크에 도달하기 전에 로컬에서 실패하므로 네트워크 리소스가 절약됩니다.
 
 #### Take down your message
 
-Select option `2` to take down your message:
+옵션 `2`를 선택하여 메시지를 내립니다:
 
 ```
 Which would you like to do? 2
@@ -455,19 +454,19 @@ Which would you like to do? 2
  Message taken down successfully
 ```
 
-The CLI:
-1. Regenerates your cryptographic commitment using your secret key and the current sequence number
-2. Proves it matches the stored `owner` value
-3. Submits a ZK proof of this verification
-4. Removes the message and resets the board to vacant
+CLI가 수행하는 작업:
+1. 비밀 키와 현재 시퀀스 번호로 암호화 커밋을 재생성합니다
+2. 저장된 `owner` 값과 일치하는지 증명합니다
+3. 이 검증에 대한 영지식 증명을 제출합니다
+4. 메시지를 제거하고 게시판을 빈 상태로 되돌립니다
 
-:::caution Only poster can remove
-If you try to take down someone else's message, the transaction fails. The contract enforces this through ZK proof verification that happens before submission.
+:::caution 게시자만 제거 가능
+다른 사람의 메시지를 내리려고 하면 트랜잭션이 실패합니다. 컨트랙트는 제출 전 영지식 증명 검증을 통해 이를 강제합니다.
 :::
 
 #### Verify removal
 
-Check the board state again:
+게시판 상태를 다시 확인합니다:
 
 ```
 Which would you like to do? 3
@@ -477,11 +476,11 @@ Current sequence is: 2
 Current owner is: '0000000000000000000000000000000000000000000000000000000000000000'
 ```
 
-The board is vacant again, and the sequence counter has incremented to 2. This means the next post will use sequence number 2 in its cryptographic commitment.
+게시판이 다시 비어 있고, 시퀀스 카운터가 2로 증가했습니다. 다음 게시물은 암호화 커밋에서 시퀀스 번호 2를 사용하게 됩니다.
 
 #### Exit the CLI
 
-Select option `6` to exit when you're done:
+작업이 끝나면 옵션 `6`을 선택하여 종료합니다:
 
 ```
 Which would you like to do? 6
@@ -491,11 +490,11 @@ Which would you like to do? 6
  Shutting down test environment...
 ```
 
-The CLI safely shuts down the wallet and stops the test environment.
+CLI가 wallet을 정상 종료하고 테스트 환경을 중지합니다.
 
 ## Next steps
 
-Now that you understand the bulletin board example:
+게시판 예제를 이해했다면 다음 단계를 진행해 보세요:
 
-- **Explore the GitHub repository**: [Bulletin board repository](https://github.com/midnightntwrk/example-bboard)
-- **Build the contract yourself**: Learn how to [build the bulletin board smart contract](../../tutorials/bboard/smart-contract).
+- **GitHub 저장소 탐색**: [게시판 저장소](https://github.com/midnightntwrk/example-bboard)
+- **직접 컨트랙트 빌드하기**: [게시판 스마트 컨트랙트 빌드](../../tutorials/bboard/smart-contract) 방법을 알아보세요.

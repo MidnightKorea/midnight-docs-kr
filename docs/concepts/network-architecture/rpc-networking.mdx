@@ -3,23 +3,23 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: RPC Interface
 sidebar_label: RPC Interface
-description: A reference on RPC interface.
+description: RPC 인터페이스에 대한 참조 문서.
 keywords: [node]
 ---
 
 # RPC (Remote Procedure Calls) Interface
 
-The RPC layer allows external clients (e.g., DApps, wallets, explorers, or services) to interact with a running Midnight node over HTTP/HTTPS or WebSocket connections. In Midnight, RPCs follow the JSON-RPC standard and expose methods for:
+RPC 레이어를 통해 외부 클라이언트(DApp, 지갑, 익스플로러, 서비스 등)가 HTTP/HTTPS 또는 WebSocket 연결로 실행 중인 Midnight 노드와 상호작용할 수 있습니다. Midnight의 RPC는 JSON-RPC 표준을 따르며 다음 용도의 메서드를 노출합니다:
 
-* Submitting transactions (triggering state transitions)
-* Querying contract state (on-chain)
-* Fetching auxiliary data (off-chain or metadata)
+* 트랜잭션 제출(상태 전환 트리거)
+* 컨트랙트 상태 조회(온체인)
+* 보조 데이터 조회(오프체인 또는 메타데이터)
 
-These methods form the interface for building tools and applications on top of Midnight.
+이러한 메서드가 Midnight 기반 도구와 애플리케이션 구축을 위한 인터페이스를 구성합니다.
 
 ### Core RPC Methods
 
-Midnight nodes expose a set of custom RPC methods focused on ledger state, contract state, and system information. Key methods include:
+Midnight 노드는 원장 상태, 컨트랙트 상태, 시스템 정보를 중심으로 한 커스텀 RPC 메서드 집합을 노출합니다. 주요 메서드는 다음과 같습니다:
 
 ```rust
 #[method(name = "midnight_jsonContractState")]
@@ -30,7 +30,7 @@ fn get_json_state(
 ) -> Result<String, StateRpcError>;
 ```
 
-Returns the JSON-encoded state of a given smart contract.
+지정된 스마트 컨트랙트의 JSON 인코딩 상태를 반환합니다.
 
 ```rust
 #[method(name = "midnight_contractState")]
@@ -41,7 +41,7 @@ fn get_state(
 ) -> Result<String, StateRpcError>;
 ```
 
-Returns the raw (binary-encoded) contract state at a specific block (or latest).
+특정 블록(또는 최신 블록)의 원시(바이너리 인코딩) 컨트랙트 상태를 반환합니다.
 
 ```rust
 #[method(name = "midnight_unclaimedAmount")]
@@ -52,7 +52,7 @@ fn get_unclaimed_amount(
 ) -> Result<u128, StateRpcError>;
 ```
 
-Fetches the amount of unclaimed tokens or rewards for a beneficiary address.
+수혜자 주소의 미청구 토큰 또는 보상 금액을 조회합니다.
 
 ```rust
 #[method(name = "midnight_zswapChainState")]
@@ -63,14 +63,14 @@ fn get_zswap_chain_state(
 ) -> Result<String, StateRpcError>;
 ```
 
-Returns the current ZSwap chain state for a contract—used for zero-knowledge state rollups.
+컨트랙트의 현재 ZSwap 체인 상태를 반환합니다. 영지식 상태 롤업에 사용됩니다.
 
 ```rust
 #[method(name = "midnight_apiVersions")]
 fn get_supported_api_versions(&self) -> RpcResult<Vec<u32>>;
 ```
 
-Lists all supported RPC API versions, useful for tooling compatibility checks.
+지원되는 모든 RPC API 버전을 나열합니다. 도구 호환성 확인에 유용합니다.
 
 ```rust
 #[method(name = "midnight_ledgerVersion")]
@@ -78,11 +78,11 @@ fn get_ledger_version(&self, at: Option<BlockHash>) -> Result<String, BlockRpcEr
 ```
 
 
-Provides a snapshot of the ledger’s full state at the specified block.
+지정된 블록 시점의 원장 전체 상태 스냅샷을 제공합니다.
 
 ### Polkadot SDK RPC Support
 
-Midnight also supports the default Polkadot SDK RPC methods, such as:
+Midnight는 다음 기본 Polkadot SDK RPC 메서드도 지원합니다:
 
 * `system_health`
 
@@ -90,28 +90,28 @@ Midnight also supports the default Polkadot SDK RPC methods, such as:
 
 * `state_getStorage`
 
-* `rpc_methods` – returns a list of all supported RPC endpoints. NOTE: some RPC methods don't currently appear in the https://polkadot.js.org/ webapp but you will see them here.
+* `rpc_methods` -- 지원되는 모든 RPC 엔드포인트 목록을 반환합니다. 참고: 일부 RPC 메서드는 현재 https://polkadot.js.org/ 웹앱에 표시되지 않지만 여기서 확인할 수 있습니다.
 
-You can call `rpc_methods` at any time to dynamically retrieve the full list of methods exposed by your node.
+`rpc_methods`를 호출하면 노드가 노출하는 전체 메서드 목록을 언제든 동적으로 조회할 수 있습니다.
 
 :::note
-A mostly up-to-date reference list of general polkadot-sdk RPC methods is also available [here](https://polkadot.js.org/docs/substrate/rpc/). Midnight at any time has some overlap of implemented methods with this list.
+일반적인 polkadot-sdk RPC 메서드의 최신 참조 목록은 [여기](https://polkadot.js.org/docs/substrate/rpc/)에서도 확인할 수 있습니다. Midnight는 이 목록과 부분적으로 겹치는 메서드를 구현하고 있습니다.
 :::
 
-### Partnerchain RPCs
+### Partnerchain RPC
 
-Midnight exposes partnerchain-specific RPC methods, especially relevant for block producers and sidechain integration. These methods are designed to query consensus signals, relay finality info, or coordinate between chains.
+Midnight는 블록 생산자 및 사이드체인 통합과 관련된 partnerchain 전용 RPC 메서드도 노출합니다. 이러한 메서드는 합의 신호 조회, 최종성 정보 중계, 체인 간 조율 등을 위해 설계되었습니다.
 
 ### Security Note for Block Producers
 
 :::warning
-Not all RPC methods are safe to expose on public or production nodes.
+모든 RPC 메서드가 공개 또는 프로덕션 노드에서 노출하기에 안전한 것은 아닙니다.
 :::
 
-If you’re running a block-producing node, be cautious about which RPC endpoints are enabled. Some methods may leak sensitive data or expose performance risks.
+블록 생성 노드를 운영 중이라면 어떤 RPC 엔드포인트가 활성화되어 있는지 주의해야 합니다. 일부 메서드는 민감한 데이터를 유출하거나 성능 위험을 초래할 수 있습니다.
 
-To minimize risk:
-* Use the `--rpc-methods Safe` flag to limit exposed methods to a safer subset.
-* **Avoid** using `--rpc-external` unless absolutely necessary, as it exposes RPC interfaces to external networks.
+위험을 최소화하려면:
+* `--rpc-methods Safe` 플래그로 노출 메서드를 안전한 하위 집합으로 제한하세요.
+* 반드시 필요한 경우가 아니라면 `--rpc-external`을 사용하지 **마세요**. RPC 인터페이스가 외부 네트워크에 노출됩니다.
 
-Always review your node’s RPC configuration to ensure it aligns with your intended threat model and operational role (e.g., validator vs. observer).
+노드의 RPC 구성이 의도한 위협 모델과 운영 역할(검증자 vs. 관찰자 등)에 부합하는지 항상 검토하세요.

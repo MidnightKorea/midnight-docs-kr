@@ -1,34 +1,34 @@
 ---
-title: Midnight local network
-description: Learn how to set up a local Midnight network for development and testing.
+title: Midnight 로컬 네트워크
+description: 개발 및 테스트를 위한 로컬 Midnight 네트워크를 설정하는 방법을 알아봅니다.
 sidebar_position: 04
-sidebar_label: Midnight local network
+sidebar_label: Midnight 로컬 네트워크
 tags: [local, network, testing]
 ---
 
 # Midnight local network
 
-The local network is a standalone tool for running a local Midnight development network and funding test wallets.
+로컬 네트워크는 Midnight 개발 네트워크를 로컬에서 실행하고 테스트 지갑에 자금을 넣는 독립형 도구입니다.
 
-This guide walks you through the process of setting up a local Midnight network and funding test wallets in the undeployed network.
+이 가이드에서는 로컬 Midnight 네트워크를 설정하고 undeployed 네트워크에서 테스트 지갑에 자금을 넣는 방법을 안내합니다.
 
 ## Prerequisites
 
-Before you proceed, ensure you have::
+다음이 설치되어 있어야 합니다:
 
 - [Docker Desktop](https://docs.docker.com/get-docker/)
 - Node.js >= 22.0.0
 
 ## Installation
 
-To get started, clone the [Midnight local network repository](https://github.com/midnightntwrk/midnight-local-dev):
+[Midnight 로컬 네트워크 저장소](https://github.com/midnightntwrk/midnight-local-dev)를 클론하세요:
 
 ```bash
-git clone https://github.com/midnightntwrk/midnight-local-dev.git 
+git clone https://github.com/midnightntwrk/midnight-local-dev.git
 cd midnight-local-dev
 ```
 
-Install the dependencies:
+의존성을 설치하세요:
 
 ```bash
 npm install
@@ -36,45 +36,45 @@ npm install
 
 ## Network services
 
-The local network runs three Docker containers on the following ports:
+로컬 네트워크는 다음 포트에서 세 개의 Docker 컨테이너를 실행합니다:
 
-| Service | Container Name | Port | URL |
+| 서비스 | 컨테이너 이름 | 포트 | URL |
 |:---:|:---:|:---:|:---:|
-| **Midnight Node** | `midnight-node` | `9944` | `http://localhost:9944` |
-| **Indexer** (GraphQL) | `midnight-indexer` | `8088` | `http://localhost:8088/api/v3/graphql` |
-| **Indexer** (WebSocket) | `midnight-indexer` | `8088` | `ws://localhost:8088/api/v3/graphql/ws` |
-| **Proof Server** | `midnight-proof-server` | `6300` | `http://localhost:6300` |
+| **Midnight 노드** | `midnight-node` | `9944` | `http://localhost:9944` |
+| **indexer** (GraphQL) | `midnight-indexer` | `8088` | `http://localhost:8088/api/v3/graphql` |
+| **indexer** (WebSocket) | `midnight-indexer` | `8088` | `ws://localhost:8088/api/v3/graphql/ws` |
+| **proof server** | `midnight-proof-server` | `6300` | `http://localhost:6300` |
 
-All services use the `undeployed` network ID with the `dev` node preset.
+모든 서비스는 `dev` 노드 프리셋과 함께 `undeployed` 네트워크 ID를 사용합니다.
 
 ### Docker images
 
-The `standalone.yml` file in the root of the repository defines the Docker images and specific versions pulled when you start the local network.
+저장소 루트의 `standalone.yml` 파일에 로컬 네트워크 시작 시 Pull할 Docker 이미지와 버전이 정의되어 있습니다.
 
-| Service | Image | Version |
+| 서비스 | 이미지 | 버전 |
 |:---:|:---:|:---:|
-| Node | `midnightntwrk/midnight-node` | `0.20.0` |
-| Indexer | `midnightntwrk/indexer-standalone` | `3.0.0` |
-| Proof Server | `midnightntwrk/proof-server` | `7.0.0` |
+| 노드 | `midnightntwrk/midnight-node` | `0.20.0` |
+| indexer | `midnightntwrk/indexer-standalone` | `3.0.0` |
+| proof server | `midnightntwrk/proof-server` | `7.0.0` |
 
 ## Start the local network
 
-Once the installation is complete, start the local network by running the following command:
+설치가 완료되면 다음 명령으로 로컬 네트워크를 시작하세요:
 
 ```bash
 npm start
 ```
 
-This single command does the following:
+이 명령 하나로 다음이 수행됩니다:
 
-- **Pull** the latest Docker images for the Midnight node, indexer, and proof server.
-- **Start** all three containers with health checks.
-- **Initialize** the genesis master wallet (seed `0x00...001`) which holds all minted NIGHT tokens.
-- **Register DUST** for the master wallet (required to pay transaction fees).
-- **Display** the master wallet balance.
-- **Present an interactive menu** for funding wallets in the undeployed network.
+- Midnight 노드, indexer, proof server의 최신 Docker 이미지 **Pull**
+- 상태 확인과 함께 세 컨테이너 **시작**
+- 발행된 모든 NIGHT token을 보유하는 제네시스 마스터 지갑(시드 `0x00...001`) **초기화**
+- 마스터 지갑에 **DUST 등록** (트랜잭션 수수료에 필요)
+- 마스터 지갑 잔액 **표시**
+- undeployed 네트워크에서 지갑에 자금을 넣을 수 있는 **대화형 메뉴 제공**
 
-Once running, you'll see:
+실행되면 다음과 같은 메뉴가 표시됩니다:
 
 ```
 Choose an option:
@@ -85,20 +85,20 @@ Choose an option:
 >
 ```
 
-## Fund wallets
+## Fund wallets {#get-faucet-tokens}
 
-The local network provides two options for funding wallets:
+로컬 네트워크는 지갑에 자금을 넣는 두 가지 옵션을 제공합니다:
 
-- Fund from a config file
-- Fund by public key
+- 설정 파일에서 자금 넣기
+- 공개 키로 자금 넣기
 
-Each funding operation transfers _50,000 tNIGHT_ from the genesis master wallet. You can fund up to _10 accounts_ per operation.
+각 자금 지원 작업은 제네시스 마스터 지갑에서 _50,000 tNIGHT_를 전송합니다. 한 번에 최대 _10개 계정_까지 지원 가능합니다.
 
-### Option 1: Fund from a config file
+### Fund from a config file
 
-The config option handles wallet operations such as generating the wallet seed from mnemonic, transferring tNIGHT to the unshielded address, syncing the wallet, and registering tNIGHT for DUST generation.
+설정 옵션은 니모닉에서 지갑 시드 생성, unshielded 주소로 tNIGHT 전송, 지갑 동기화, DUST 생성을 위한 tNIGHT 등록 등의 작업을 자동 처리합니다.
 
-It pulls wallet information from a config file, which is a JSON file with the following structure:
+다음 구조의 JSON 설정 파일에서 지갑 정보를 읽습니다:
 
 ```json
 {
@@ -110,51 +110,51 @@ It pulls wallet information from a config file, which is a JSON file with the fo
   ]
 }
 ```
-Here's a breakdown of the fields:
+각 필드의 설명:
 
-| Field | Type | Description |
+| 필드 | 타입 | 설명 |
 |:---:|:---:|:---:|
-| `accounts` | `array` | List of accounts to fund (max 10) |
-| `accounts[].name` | `string` | Display name for logging |
-| `accounts[].mnemonic` | `string` | BIP39 mnemonic phrase (24 words) |
+| `accounts` | `array` | 자금을 넣을 계정 목록 (최대 10개) |
+| `accounts[].name` | `string` | 로깅용 표시 이름 |
+| `accounts[].mnemonic` | `string` | BIP39 니모닉 문구 (24단어) |
 
-An example file is provided at `accounts.example.json`. Copy the file to `accounts.json` and edit it to add your wallet mnemonics. 
+`accounts.example.json` 예제 파일이 제공됩니다. `accounts.json`으로 복사한 뒤 지갑 니모닉을 추가하세요.
 
 ```bash
 cp accounts.example.json accounts.json
 ```
 
-After editing the file, select option `[1] Fund accounts from config file (NIGHT + DUST registration)` from the interactive menu.
+파일을 편집한 후 대화형 메뉴에서 `[1] Fund accounts from config file (NIGHT + DUST registration)` 옵션을 선택하세요.
 
-You are prompted to enter the path to the config file.
+설정 파일 경로를 입력하라는 프롬프트가 표시됩니다.
 
 ```
 > 1
 Path to accounts JSON file: ./accounts.json
 ```
 
-The tool funds the wallets from the config file.
+도구가 설정 파일에 지정된 지갑에 자금을 지원합니다.
 
-### Option 2: Fund by public key
+### Fund by public key
 
-The public key option allows you to fund wallets by their Bech32 addresses. You can fund up to 10 wallets at a time.
+공개 키 옵션을 사용하면 Bech32 주소로 직접 자금을 보낼 수 있습니다. 한 번에 최대 10개 지갑까지 지원됩니다.
 
-Select option `[2] Fund accounts by public key (NIGHT transfer only)` from the interactive menu.
+대화형 메뉴에서 `[2] Fund accounts by public key (NIGHT transfer only)` 옵션을 선택하세요.
 
-You are prompted to enter the Bech32 addresses of the wallets you want to fund, separated by commas.
+자금을 보낼 Bech32 주소를 쉼표로 구분하여 입력합니다.
 
 ```
 > 2
 Enter Bech32 addresses (comma-separated): mn1q..., mn1q...
 ```
 
-Each address receives _50,000 tNIGHT_. Recipients must register for DUST generation themselves before they can pay transaction fees.
+각 주소에 _50,000 tNIGHT_가 전송됩니다. 수신자는 트랜잭션 수수료를 사용하기 전에 DUST 생성을 직접 등록해야 합니다.
 
 ## Connect a DApp
 
-Once the network is running, any Midnight DApp can connect using the standard localhost endpoints. 
+네트워크가 실행되면 Midnight DApp에서 표준 localhost 엔드포인트로 연결할 수 있습니다.
 
-Here's an example of how to connect a DApp to the local network:
+DApp을 로컬 네트워크에 연결하는 예시:
 
 ```typescript
 import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
@@ -169,41 +169,41 @@ const config = {
   networkId: 'undeployed',
 };
 
-// Use these endpoints with the Midnight wallet SDK, contract deployment, and other DApp operations
+// 이 엔드포인트를 Midnight wallet SDK, 컨트랙트 배포 등 DApp 작업에 사용합니다
 ```
 
 ## Run the network standalone
 
-If you only need the Docker containers running without the interactive menu for wallet initialization or funding, then you can use Docker Compose directly:
+지갑 초기화나 자금 지원 메뉴 없이 Docker 컨테이너만 실행하려면 Docker Compose를 직접 사용하세요:
 
 ```bash
 docker compose -f standalone.yml up -d
 ```
 
-To check the status of the containers:
+컨테이너 상태 확인:
 
 ```bash
 docker compose -f standalone.yml ps
 ```
 
-To view the logs:
+로그 확인:
 
 ```bash
 docker compose -f standalone.yml logs -f
 ```
 
-This is useful when:
-- Your DApp handles its own wallet initialization and funding.
-- You want to keep the network running across multiple test sessions.
-- You're debugging container-level issues.
+다음 경우에 유용합니다:
+- DApp이 자체적으로 지갑 초기화와 자금 지원을 처리하는 경우
+- 여러 테스트 세션에 걸쳐 네트워크를 계속 실행하려는 경우
+- 컨테이너 수준 문제를 디버깅하는 경우
 
 :::note
-In this mode, you must handle genesis wallet funding and DUST registration yourself.
+이 모드에서는 제네시스 지갑 자금 지원과 DUST 등록을 직접 처리해야 합니다.
 :::
 
 ## Troubleshoot
 
-Below are some of the common issues that you might encounter and how to fix them.
+자주 발생하는 문제와 해결 방법입니다.
 
 ### Port already in use
 
@@ -211,45 +211,45 @@ Below are some of the common issues that you might encounter and how to fix them
 Error: Bind for 0.0.0.0:9944 failed: port is already allocated
 ```
 
-Another process or a previous run is using the port. Stop it:
+다른 프로세스나 이전 실행이 포트를 점유하고 있습니다. 종료하세요:
 
 ```bash
 docker compose -f standalone.yml down
-# or find and kill the process
+# 또는 프로세스를 찾아서 종료
 lsof -i :9944
 ```
 
 ### Invalid wallet address
 
-If you receive an error similar to this:
+다음과 유사한 오류가 발생하면:
 
 ```
 Operation failed: Expected undeployed address, got Preprod address
 ```
 
-It means you're trying to fund a wallet with a Preprod address. You need to use the Undeployed network address instead.
+Preprod 주소로 자금을 보내려고 한 것입니다. Undeployed 네트워크 주소를 사용해야 합니다.
 
-If you're using the Lace wallet, thenyou need to configure the wallet to use the Undeployed network. 
+Lace 지갑을 사용하는 경우 Undeployed 네트워크를 선택하도록 설정하세요.
 
-1. In the Lace wallet extension, navigate to the **Settings** page and click **Midnight** under the Wallet section. 
-2. Select the **Undeployed** network and click **Save configuration**.
+1. Lace 지갑 확장 프로그램에서 **Settings** 페이지로 이동하고 Wallet 섹션 아래의 **Midnight**를 클릭합니다.
+2. **Undeployed** 네트워크를 선택하고 **Save configuration**을 클릭합니다.
 
-![Lace wallet network configuration](./img/set-undeployed-network.png)
+![Lace 지갑 네트워크 구성](./img/set-undeployed-network.png)
 
-After that, you'll see your wallet addresses for the local Undeployed network. Make sure to use the Unshielded wallet address for the local Undeployed network.
+이후 로컬 Undeployed 네트워크의 지갑 주소를 확인할 수 있습니다. Unshielded 지갑 주소를 사용하세요.
 
-![Lace wallet addresses](./img/unshielded-undeployed-address.png)
+![Lace 지갑 주소](./img/unshielded-undeployed-address.png)
 
 ### Containers not starting
 
-Check Docker is running and you have access to the Midnight Docker registry:
+Docker가 실행 중이고 Midnight Docker 레지스트리에 접근할 수 있는지 확인하세요:
 
 ```bash
 docker compose -f standalone.yml pull
 docker compose -f standalone.yml up
 ```
 
-Watch the logs for specific errors:
+개별 서비스 로그를 확인하세요:
 
 ```bash
 docker compose -f standalone.yml logs -f node
@@ -259,12 +259,12 @@ docker compose -f standalone.yml logs -f proof-server
 
 ### Wallet sync takes too long
 
-The indexer needs time to catch up with the node after startup. If the sync seems stuck:
+indexer는 시작 후 노드를 따라잡는 데 시간이 필요합니다. 동기화가 멈춘 것 같으면:
 
-1. Check the indexer logs: `docker compose -f standalone.yml logs -f indexer`
-2. Verify the node is producing blocks: `curl http://localhost:9944/health`
-3. Set `DEBUG_LEVEL=debug` in `.env` for more detailed wallet logs
+1. indexer 로그 확인: `docker compose -f standalone.yml logs -f indexer`
+2. 노드의 블록 생성 여부 확인: `curl http://localhost:9944/health`
+3. 자세한 지갑 로그를 위해 `.env`에 `DEBUG_LEVEL=debug` 설정
 
 ## Next steps
 
-Now that you have a local network running, you can start building your DApp. See our guide to learn how to [deploy a contract](./deploy-mn-app) to the Midnight blockchain.
+로컬 네트워크가 준비되었습니다. DApp 구축을 시작하려면 [컨트랙트 배포](./deploy-mn-app) 가이드를 참조하세요.

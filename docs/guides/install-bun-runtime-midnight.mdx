@@ -1,7 +1,7 @@
 ---
-title: Set up Bun for Midnight development
-description: Set up Bun package manager and the Compact compiler to build smart contracts and applications on the Midnight blockchain.
-sidebar_label: Set up Bun for Midnight development
+title: Midnight 개발을 위한 Bun 설정
+description: Bun 패키지 매니저와 Compact 컴파일러를 설정하여 Midnight 블록체인에서 스마트 컨트랙트와 애플리케이션을 빌드합니다.
+sidebar_label: Midnight 개발을 위한 Bun 설정
 sidebar_position: 65
 tags: [installation, bun, compact, setup]
 slug: /how-to/bun-runtime-midnight
@@ -10,22 +10,22 @@ toc_max_heading_level: 2
 
 # Set up Bun for Midnight development
 
-Bun is a modern JavaScript runtime and toolkit that can offer significantly faster performance compared to Node.js and npm. 
-This guide walks you through using Bun with Midnight Network development, covering installation, configuration, compatibility considerations, best practices, and much more.
+Bun은 Node.js와 npm보다 상당히 빠른 성능을 제공하는 최신 JavaScript 런타임입니다.
+이 가이드에서는 Midnight Network 개발에 Bun을 사용하는 방법을 다룹니다. 설치, 설정, 호환성 고려사항, 모범 사례를 포함합니다.
 
 ## Prerequisites
 
-Before starting this guide, ensure you have:
+시작하기 전에 다음을 갖추고 있어야 합니다:
 
-- Basic knowledge of JavaScript/TypeScript
-- Familiarity with command-line interfaces
-- Understanding of package managers (npm, yarn)
+- JavaScript/TypeScript 기본 지식
+- 커맨드라인 사용 경험
+- 패키지 매니저(npm, yarn) 이해
 
 :::note
-Docker is not required for this tutorial. It's only needed when running actual Midnight proof servers.
+이 튜토리얼에는 Docker가 필요 없습니다. Docker는 실제 Midnight proof server를 실행할 때만 필요합니다.
 :::
 
-Here's what your complete project will look like by the end of this guide:
+완성된 프로젝트 구조는 다음과 같습니다:
 
 <img
   width="497"
@@ -36,30 +36,27 @@ Here's what your complete project will look like by the end of this guide:
 
 ## Install Bun
 
-In this section, you'll install Bun on your development machine.
+개발 머신에 Bun을 설치합니다.
 
 ### Install Bun on Mac
 
-1.  Run the command below:
+1.  아래 명령을 실행합니다:
 
 ```bash
 curl -fsSL https://bun.sh/install | bash
 ```
 
-This script:
+이 스크립트가 시스템에 맞는 Bun 바이너리를 다운로드하여 `~/.bun/bin`에 설치합니다.
 
-- Downloads the appropriate Bun binary for your system.
-- Installs it to `~/.bun/bin`.
+2. 설치를 확인하세요.
 
-2. Verify the installation:
-
-Close and reopen your terminal, then run:
+터미널을 닫고 다시 연 후 실행합니다:
 
 ```bash
 bun --version
 ```
 
-Example of expected output:
+예상 출력 예시:
 
 <img
   width="974"
@@ -68,52 +65,52 @@ Example of expected output:
   src="https://github.com/user-attachments/assets/2d817253-4b67-4c07-8562-c02a3db0e643"
 />
 
-If bun --version returns "command not found." manually add Bun to your PATH.
+bun --version이 "command not found"를 반환하면 수동으로 Bun을 PATH에 추가하세요.
 
 ```bash
-export PATH="$HOME/.bun/bin:$PATH”
+export PATH="$HOME/.bun/bin:$PATH"
 ```
 
 ### Install Bun on linux or WSL
 
-Follow the steps below to install Bun on Linux or Windows Subsystem for Linux (WSL).
+Linux 또는 WSL(Windows Subsystem for Linux)에서의 설치 방법입니다.
 
-1. Install required dependencies
+1. 필수 의존성 설치
 
-Bun’s installer requires unzip to extract the binary.
+Bun 설치에 unzip이 필요합니다.
 
 ```bash
 sudo apt update
 sudo apt install unzip -y
 ```
 
-2. Install Bun
+2. Bun 설치
 
-Run the official Bun installation script:
+공식 Bun 설치 스크립트를 실행합니다:
 
 ```
 curl -fsSL https://bun.sh/install | bash
 ```
 
-3. Reload your shell configuration
+3. 쉘 구성 재로드
 
-Update your environment so the bun command is available:
+`bun` 명령을 사용할 수 있도록 환경을 새로고침합니다:
 
 ```bash
 source ~/.bashrc
 ```
 
-4. Verify the installation
+4. 설치 확인
 
 ```bash
 bun --version
 ```
 
-You should see the installed Bun version printed to the terminal.
+설치된 Bun 버전이 출력되면 성공입니다.
 
-5. Fix “command not found” (if needed)
+5. "command not found" 수정 (필요한 경우)
 
-If bun is not found, add Bun’s install directory to your `PATH`:
+`bun`을 찾을 수 없는 경우 설치 디렉토리를 `PATH`에 추가하세요:
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
@@ -121,50 +118,50 @@ export PATH="$HOME/.local/bin:$PATH"
 
 ## Install using the installer script
 
-Here, you will install the Compact compiler. This is a standalone tool (separate from Bun) used to turn Compact smart contracts (written in the Compact language) into code that can run on the Midnight blockchain.
+Compact 컴파일러를 설치합니다. Bun과 별개의 독립형 도구로, Compact 언어로 작성된 스마트 컨트랙트를 Midnight 블록체인에서 실행 가능한 코드로 변환합니다.
 
-1. Install using the Compact installer:
+1. Compact 설치 프로그램을 사용하여 설치합니다:
 
 ```bash
 curl --proto '=https' --tlsv1.2 -LsSf \
   https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
 ```
 
-By default, the installer places the compact binary in `$HOME/.local/bin`
+기본적으로 `$HOME/.local/bin`에 설치됩니다.
 
-2.  Update the compiler
+2.  컴파일러 업데이트
 
-After installation, update the Compact compiler to the version used in this tutorial:
+이 튜토리얼에서 사용하는 버전으로 업데이트하세요:
 
 ```bash
 compact update
 ```
 
-3. Verify the installation
+3. 설치 확인
 
-Confirm that Compact is installed and correctly configured:
+Compact가 올바르게 설치되었는지 확인하세요:
 
 ```bash
 compact check
 ```
 
-If the installation is successful, you should see output similar to the following:
+성공하면 다음과 유사한 출력이 표시됩니다:
 
 ```bash
 compact: aarch64-darwin -- Up to date -- 0.29.0
 ```
 
-4. Fix “command not found” (PATH issue)
+4. "command not found" 수정 (PATH 문제)
 
-If you see an error such as:
+다음 오류가 표시되면:
 
 ```
 compact: command not found
 ```
 
-it means the directory where Compact was installed `($HOME/.local/bin)` is not included in your PATH.
+Compact 설치 디렉토리(`$HOME/.local/bin`)가 PATH에 없는 것입니다.
 
-Add it to your current terminal session:
+현재 터미널 세션에 추가하세요:
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
@@ -172,9 +169,9 @@ export PATH="$HOME/.local/bin:$PATH"
 
 ## Install Midnight packages with Bun
 
-With both Bun and the Compact compiler installed, you can now create a Midnight application project.
+Bun과 Compact 컴파일러가 준비되었으니, Midnight 애플리케이션 프로젝트를 생성합니다.
 
-1. Initialize a new project:
+1. 새 프로젝트 초기화:
 
 ```bash
 mkdir my-midnight-app
@@ -182,36 +179,36 @@ cd my-midnight-app
 bun init -y
 ```
 
-This creates a basic `package.json`.
+기본 `package.json`이 생성됩니다.
 
-2. Create the required directories:
+2. 필수 디렉토리 생성:
 
-The project requires separate folders for smart contracts and application source code.
+스마트 컨트랙트와 애플리케이션 소스 코드를 위한 폴더가 필요합니다.
 
 ```bash
 mkdir src contracts
 ```
 
-3. Install the Midnight runtime package
+3. Midnight 런타임 패키지 설치
 
-Install a specific version to avoid compatibility issues:
+호환성을 위해 특정 버전을 설치하세요:
 
 ```bash
 bun add @midnight-ntwrk/compact-runtime@0.14.0
 ```
 
-This gives you everything you need to:
+이 패키지로 다음이 가능합니다:
 
-- Run your smart contracts
-- Manage your app's data
-- Work with zero-knowledge proofs
-- Get type definitions for TypeScript
+- 스마트 컨트랙트 실행
+- 앱 데이터 관리
+- ZK proof 작업
+- TypeScript 타입 정의 사용
 
 :::info
-Always refer to the [compatibility matrix](../relnotes/support-matrix) for the correct version of the runtime package to install.
+런타임 패키지 버전은 항상 [호환성 매트릭스](../relnotes/support-matrix)에서 확인하세요.
 :::
 
-4. Update the `tsconfig.json` file:
+4. `tsconfig.json` 파일 업데이트:
 
 ```json title="tsconfig.json"
 {
@@ -230,15 +227,15 @@ Always refer to the [compatibility matrix](../relnotes/support-matrix) for the c
 }
 ```
 
-This configuration ensures:
+이 설정으로:
 
-- Bun can resolve imports correctly.
-- TypeScript compiles cleanly.
-- Midnight’s runtime packages work without extra setup.
+- Bun이 import를 올바르게 해석합니다
+- TypeScript가 정상 컴파일됩니다
+- Midnight 런타임 패키지가 추가 설정 없이 동작합니다
 
 ## Configure the project
 
-Update your `package.json` with the Bun-specific scripts below:
+`package.json`을 Bun 전용 스크립트로 업데이트하세요:
 
 ```json title="package.json"
   "scripts": {
@@ -251,62 +248,53 @@ Update your `package.json` with the Bun-specific scripts below:
   },
 ```
 
-Script explanations:
+각 스크립트의 역할:
 
-- dev: Runs the app in development mode with hot reload on src/index.ts.
-
-- start: Runs the compiled production app from dist/index.js.
-
-- test: Runs all tests using Bun’s test runner.
-
-- install:midnight: Installs project dependencies with Bun.
-
-- compile:contract: Compiles the Compact smart contract `message.compact` into the contracts/managed output directory.
-
-- build:contract: First compiles the smart contract, then bundles the app entry file into the dist folder for production.
+- **dev**: 핫 리로드로 개발 모드 실행
+- **start**: 컴파일된 프로덕션 앱 실행
+- **test**: Bun 테스트 러너로 테스트 실행
+- **install:midnight**: Bun으로 프로젝트 의존성 설치
+- **compile:contract**: `message.compact`를 contracts/managed로 컴파일
+- **build:contract**: 컨트랙트 컴파일 후 앱 엔트리를 dist 폴더로 번들링
 
 ## Create smart contract with Compact
 
-In this section, you will create a simple Compact smart contract that allows you to store and read a message on the Midnight blockchain. Then, you will compile it so it can be used in your TypeScript/Bun application.
+Midnight 블록체인에 메시지를 저장하고 읽는 간단한 Compact 스마트 컨트랙트를 만들고, TypeScript/Bun 애플리케이션에서 사용할 수 있도록 컴파일합니다.
 
-1. Create the smart contract file.
+1. 스마트 컨트랙트 파일을 생성하세요.
 
-Create a file named `message.compact` in the contracts directory:
+contracts 디렉토리에 `message.compact` 파일을 만드세요:
 
 ```bash
 touch contracts/message.compact
 ```
 
-2. Add the code below to the file:
+2. 다음 코드를 추가하세요:
 
 ```compact title="message.compact"
 pragma language_version 0.21;
 
 import CompactStandardLibrary;
 
-// Public ledger state - visible on blockchain
+// 공개 원장 상태 - 블록체인에서 볼 수 있음
 export ledger message: Opaque<"string">;
 
-// Circuit to store a message on the blockchain
-// The message will be publicly visible
+// 블록체인에 메시지를 저장하는 회로(circuit)
+// 메시지는 공개적으로 볼 수 있음
 export circuit storeMessage(customMessage: Opaque<"string">): [] {
     message = disclose(customMessage);
 }
 
 ```
 
-Explanation:
+코드 설명:
 
-- `pragma language_version 0.21;`
-  Specifies the exact Compact compiler version required for this smart contract. Using version 0.18 ensures compatibility with the runtime version 0.9.0 you installed earlier.
-- `import CompactStandardLibrary;`
-  Loads standard functions and types provided by Midnight for contracts.
-- `export ledger message: Opaque<"string">;`
-  Declares a public state variable called `message` on the blockchain. Its value will be visible to everyone.
-- `export circuit storeMessage(customMessage: Opaque<"string">): [] { ... }`
-  Defines a function (circuit) to store a message on the blockchain. `disclose()` makes the message publicly readable.
+- `pragma language_version 0.21;` -- Compact 컴파일러 버전을 지정합니다.
+- `import CompactStandardLibrary;` -- Midnight 컨트랙트용 표준 함수와 타입을 로드합니다.
+- `export ledger message: Opaque<"string">;` -- 블록체인에 `message`라는 공개 상태 변수를 선언합니다.
+- `export circuit storeMessage(...)` -- 메시지를 저장하는 circuit입니다. `disclose()`로 메시지를 공개합니다.
 
-3. Compile with compact
+3. Compact로 컴파일
 
 ```bash
 compact compile contracts/message.compact contracts/managed
@@ -319,24 +307,21 @@ compact compile contracts/message.compact contracts/managed
   src="https://github.com/user-attachments/assets/b53eb5ae-3f37-489d-8b54-968f84748e7a"
 />
 
-What this does:
-
-- Converts the human-readable `.compact` contract into a compiled module that your application can interact with.
-- Saves the compiled contract in `contracts/managed`, making it ready for integration with your Bun/TypeScript app.
+`.compact` 컨트랙트를 애플리케이션이 사용할 수 있는 컴파일된 모듈로 변환하고, `contracts/managed`에 저장합니다.
 
 ## Integrate compiled smart contracts with Bun
 
-Now that your Compact contracts are compiled, the next step is to interact with them from a Bun-powered TypeScript application.
+Compact 컨트랙트가 컴파일되었으니, Bun 기반 TypeScript 애플리케이션에서 사용해 봅니다.
 
-Here you’ll create a client that simulates storing and reading a message from your Midnight contract.
+Midnight 컨트랙트의 메시지 저장/읽기를 시뮬레이션하는 클라이언트를 작성합니다.
 
-1. Create `src/message-client.ts`
+1. `src/message-client.ts` 생성
 
 ```bash
 touch src/message-client.ts
 ```
 
-Add the following code:
+다음 코드를 추가하세요:
 
 ```typescript title="message-client.ts"
 import { Contract, ledger } from "../contracts/managed/contract/index.js";
@@ -350,7 +335,7 @@ export class MessageClient {
 
   async storeMessage(customMessage: string) {
     console.log(`📦 (Simulated) Storing message: "${customMessage}"`);
-    // Real implementation needs proper Midnight context
+    // 실제 구현에는 적절한 Midnight 컨텍스트가 필요
     return { success: true, message: customMessage };
   }
 
@@ -361,24 +346,17 @@ export class MessageClient {
 }
 ```
 
-What this does:
+`MessageClient` 클래스에서 컴파일된 Compact 컨트랙트를 로드하고, `storeMessage()`와 `getMessage()` 메서드로 데이터 읽기/쓰기를 시뮬레이션합니다. 실제 Midnight 앱의 프로젝트 구조를 유지하면서 단순화한 예시입니다.
 
-- Creates a `MessageClient` class.
-- Loads your compiled Compact contract.
-- Provides two methods:
-  - `storeMessage()`: simulates writing data.
-  - `getMessage()`: simulates reading data.
-- Keeps things simple while preserving the project structure required by real Midnight apps.
+2. `src/index.ts` 생성
 
-2. Create `src/index.ts`
-
-This file will serve as your application entry point.
+애플리케이션 진입점입니다.
 
 ```bash
 touch src/index.ts
 ```
 
-Add the following code:
+다음 코드를 추가하세요:
 
 ```typescript title="index.ts"
 import { MessageClient } from "./message-client";
@@ -399,14 +377,9 @@ async function main() {
 main().catch(console.error);
 ```
 
-### What this file does:
+Midnight 앱을 부팅하고, `MessageClient` 인스턴스를 생성하여 메시지 저장 및 읽기를 수행합니다.
 
-- Boot your Midnight app
-- Creates an instance of `MessageClient`
-- Calls the store and retrieves functions
-- Prints the results nicely in your terminal
-
-3. Run the app with Bun:
+3. Bun으로 앱 실행:
 
 ```bash
 bun run --hot src/index.ts
@@ -421,74 +394,70 @@ bun run --hot src/index.ts
 
 ## Known limitations and workarounds
 
-While Bun offers significant performance improvements, there are some limitations you should be aware of when building Midnight applications. Here are the common issues and how to work around them.
+Bun은 큰 성능 향상을 제공하지만, Midnight 애플리케이션 개발 시 알아야 할 제한사항이 있습니다.
 
 ### Native module compatibility
 
-Issue:
-some npm packages with native Node.js addons may not work correctly with Bun.
+네이티브 Node.js 애드온을 사용하는 npm 패키지가 Bun에서 정상 동작하지 않을 수 있습니다.
 
-Workaround:
+해결 방법:
 
 ```bash
-# If a package fails, try running it with Node.js compatibility mode
+# 패키지가 실패하면 Node.js 호환 모드로 실행해 보세요
 bun --bun run your-script.ts
 
-# Or fall back to Node.js for specific scripts
+# 또는 특정 스크립트에 대해 Node.js로 대체
 node your-script.js
 ```
 
 ### Package manager lock files
 
-Issue:
-mixing Bun and npm in the same project can cause conflicts with lock files.
+같은 프로젝트에서 Bun과 npm을 혼용하면 lock 파일 충돌이 발생할 수 있습니다.
 
-Workaround:
+해결 방법:
 
 ```bash
-# Pick one and stick with it. If using Bun, remove npm files
+# 하나를 선택하고 그것만 사용하세요. Bun을 사용하는 경우 npm 파일을 제거
 rm package-lock.json
 
-# If using npm, remove Bun files
+# npm을 사용하는 경우 Bun 파일을 제거
 rm bun.lock
 ```
 
 :::tip
-Choose one package manager for your project and have your team use only that one.
+프로젝트에서 패키지 매니저는 하나만 선택하고, 팀 전체가 동일하게 사용하세요.
 :::
 
 ### Environment variables
 
-Issue:
-bun automatically handles `.env` files, which might cause unexpected behavior if you're using other environment variable tools.
+Bun은 `.env` 파일을 자동으로 로드하므로, 다른 환경 변수 도구와 충돌할 수 있습니다.
 
-Workaround:
+해결 방법:
 
 ```bash
-# Bun loads .env automatically, no library needed# If you need to disable this:
+# Bun은 .env를 자동으로 로드합니다. 라이브러리가 필요 없습니다
+# 이를 비활성화해야 하는 경우:
 bun --env-file= run your-script.ts
 
-# Or specify a different env file:
+# 또는 다른 env 파일을 지정:
 bun --env-file=.env.production run your-script.ts
 ```
 
 ## Migration guide (npm → Bun)
 
-If your Midnight project was originally set up using Node.js + npm, you can migrate to Bun with just a few steps. This guide walks you through the process safely and cleanly.
+기존 Node.js + npm 기반 Midnight 프로젝트를 몇 단계로 Bun으로 마이그레이션할 수 있습니다.
 
-1. Install Bun
+1. Bun 설치
 
-Make sure Bun is installed on your system.
-
-To check
+시스템에 Bun이 설치되어 있는지 확인하세요.
 
 ```bash
  bun --version
 ```
 
-If not found, go to this step and [install Bun](#install-bun).
+찾을 수 없으면 [Install Bun](#install-bun) 단계를 진행하세요.
 
-2. Remove npm Artifacts:
+2. npm 산출물 제거:
 
 ```bash
 cd your-midnight-project
@@ -496,18 +465,18 @@ rm -rf node_modules package-lock.json
 ```
 
 :::warning
-Back up your `package-lock.json` first if you need to revert.
+복원이 필요할 수 있으니 `package-lock.json`을 먼저 백업하세요.
 :::
 
-3. Install dependencies with Bun:
+3. Bun으로 의존성 설치:
 
 ```bash
 bun install
 ```
 
-4. Verify the Migration
+4. 마이그레이션 확인
 
-Test that your application works correctly with Bun:
+Bun에서 정상 동작하는지 테스트하세요:
 
 ```bash
 bun run dev
@@ -515,90 +484,90 @@ bun run dev
 
 ## Troubleshoot common issues
 
-1. Module Not Found Errors
+1. 모듈을 찾을 수 없는 오류(Module Not Found Errors)
 
-Problem:
+문제:
 
 ```bash
 bun run --hot src/index.ts
 ```
 
-Cannot find module `'@midnight-ntwrk/compact-runtime’`
+`'@midnight-ntwrk/compact-runtime'` 모듈을 찾을 수 없음
 
-Solution:
+해결 방법:
 
 ```bash
 bun add @midnight-ntwrk/compact-runtime@0.14.0
 ```
 
-2. Version mismatch errors
+2. 버전 불일치 오류(Version mismatch errors)
 
-Problem:
+문제:
 
 ```bash
 CompactError: Version mismatch: compiled code expects 0.14.0, runtime is 0.9.0
 ```
 
 :::note
-The Compact compiler and runtime versions must match exactly. Always check [version compatibility](../relnotes/support-matrix) before compiling.
+Compact 컴파일러와 런타임 버전은 정확히 일치해야 합니다. 컴파일 전에 항상 [버전 호환성](../relnotes/support-matrix)을 확인하세요.
 :::
 
-Solution:
+해결 방법:
 
-Install the matching runtime version:
+일치하는 런타임 버전을 설치하세요:
 
 ```bash
 bun add @midnight-ntwrk/compact-runtime@0.14.0
 ```
 
-Then recompile your smart contracts:
+그런 다음 스마트 컨트랙트를 다시 컴파일하세요:
 
 ```bash
 compact compile contracts/message.compact contracts/managed
 ```
 
-3. Compact compiler language version errors
+3. Compact 컴파일러 언어 버전 오류
 
-Problem:
+문제:
 
 ```bash
 Exception: message.compact line 1 char 1:
   language version 0.21.0 mismatch
 ```
 
-Solution:
+해결 방법:
 
-Update your smart contract to use the exact language version:
+스마트 컨트랙트의 언어 버전을 정확히 지정하세요:
 
 ```compact
 pragma language_version 0.21;
 ```
 
 :::note
-Using an exact version number (such as 0.21) instead of a range prevents compatibility issues with different compiler versions.
+범위 대신 정확한 버전 번호(예: 0.21)를 사용하면 컴파일러 버전 호환성 문제를 방지할 수 있습니다.
 :::
 
-4. Compact compiler installation issues
+4. Compact 컴파일러 설치 문제
 
-Problem:
+문제:
 
-The Compact compiler fails to install or doesn't work after installation.
+Compact 컴파일러가 설치에 실패하거나 설치 후 동작하지 않습니다.
 
-Solutions:
+해결 방법:
 
-- Verify the installer script ran successfully:
+- 설치 스크립트가 성공적으로 실행되었는지 확인하세요:
 
 ```bash
 compact --version
 ```
 
-- If the command isn't found, manually add it to your PATH:
+- 명령을 찾을 수 없으면 PATH에 수동 추가하세요:
 
 ```bash
 export PATH="$HOME/.compact/bin:$PATH"
 ```
 
-- Try reinstalling:
+- 재설치를 시도하세요:
 
 ```bash
 curl --proto '=https' --tlsv1.2 -LsSf \
@@ -607,10 +576,8 @@ curl --proto '=https' --tlsv1.2 -LsSf \
 
 ## Next steps
 
-Now that you have Bun installed and configured, you can start building DApps on Midnight. See the following guides for more information:
+Bun 설정이 완료되었으니 Midnight에서 DApp을 빌드할 수 있습니다. 다음 가이드를 참조하세요:
 
 - [DApp connector](/api-reference/dapp-connector)
-- [Deploy a contract](../guides/deploy-mn-app)
-- [Interact with a contract](../guides/interact-with-mn-app)
-
-
+- [컨트랙트 배포](../guides/deploy-mn-app)
+- [컨트랙트와 상호작용](../guides/interact-with-mn-app)

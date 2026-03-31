@@ -5,85 +5,53 @@ copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Found
 
 # Private data
 
-This document describes some strategies for keeping data private in
-Midnight contracts. This is not an exhaustive list, but it should help
-you get started.
+이 문서에서는 Midnight 컨트랙트에서 데이터를 비공개로 유지하기 위한 몇 가지 전략을 소개합니다. 완전한 목록은 아니지만 시작점으로 활용할 수 있습니다.
 
-The most crucial thing to bear in mind is that, except for
-`[Historic]MerkleTree` data types, anything that is passed as an
-argument to a `ledger` operation in Compact, as well as all reads and
-writes of the ledger itself, are publicly visible and should be
-treated as such.  What is public is the argument or ledger value
-itself, not the code that manipulates it. For instance:
+가장 중요한 점은, `[Historic]MerkleTree` 데이터 유형을 제외하면, Compact에서 `ledger` 연산에 인수로 전달되는 모든 것과 ledger의 모든 읽기/쓰기가 공개적으로 노출된다는 것입니다. 이에 따라 적절히 다루어야 합니다. 공개되는 것은 인수 또는 ledger 값 자체이며, 이를 조작하는 코드가 아닙니다. 예를 들어:
 
 ```compact
 export ledger items: Set<Field>;
 export ledger others: MerkleTree<10, Field>;
 
-// Reveals `item1`
+// `item1`을 공개함
 items.insert(item1);
-// Reveals the *value* of `f(x)`, but not `x` directly
+// `f(x)`의 *값*을 공개하지만, `x` 자체를 직접 공개하지는 않음
 items.member(f(x));
-// The exception: Does *not* reveal `item2`, though someone that
-// guesses the value of `item2` can check it!
+// 예외: `item2`를 공개하지 *않음*, 하지만 `item2`의 값을 추측하는 사람은
+// 이를 확인할 수 있음!
 others.insert(item2);
 ```
 
-However, sometimes you need to reference shielded data in the public state. In
-those cases, one of the patterns below may help.
+그러나 때로는 공개 상태에서 차폐된 데이터를 참조해야 할 때가 있습니다. 이런 경우 아래 패턴 중 하나가 도움이 됩니다.
 
 ## Hashes and commitments
 
-The most basic approach to storing data in public, while keeping it shielded, is
-to store only a hash or commitment of data, rather than the full data itself.
+데이터를 공개적으로 저장하면서도 차폐 상태를 유지하는 가장 기본적인 방법은 데이터 전체 대신 해시 또는 commitment만 저장하는 것입니다.
 
-Compact's standard library provides two primary primitives for this:
+Compact의 표준 라이브러리는 이를 위한 두 가지 주요 원시형을 제공합니다:
 
-- [`persistentHash`](../reference/compact/compact-std-library/exports#persistentHash),
-  a building block to hash binary data
-- [`persistentCommit`](../reference/compact/compact-std-library/exports#persistentCommit),
-  a primitive for creating commitments from any Compact type.
+- [`persistentHash`](../../compact/standard-library/exports#persistenthash): 이진 데이터 해싱을 위한 기본 구성 요소
+- [`persistentCommit`](../../compact/standard-library/exports#persistentcommit): 모든 Compact 유형에서 commitment를 생성하기 위한 원시형.
 
-Both of these effectively create a hash of their inputs, with `persistentHash`
-being limited to the `Bytes<32>` data type and `persistentCommit` hashing
-arbitrary data together with a `Bytes<32>` random value.  Hashes guarantee that
-the input cannot be computed from the output, nor any information about the
-input guessed, unless the whole input is guessed.  This is one reason the additional
-randomness input of `persistentCommit` is important: it prevents someone from
-guessing the value itself and checking that the hash matches.  This is
-especially useful when there are a small number of possible values, such as an
-individual vote in an election.
+둘 다 입력의 해시를 생성하는데, `persistentHash`는 `Bytes<32>` 데이터 유형에 한정되고, `persistentCommit`은 `Bytes<32>` 무작위 값과 함께 임의의 데이터를 해싱합니다. 해시는 출력으로부터 입력을 역산할 수 없고, 입력 전체를 추측하지 않는 한 입력에 대한 정보도 알아낼 수 없음을 보장합니다. `persistentCommit`에 추가 무작위성 입력이 있는 이유가 바로 이것입니다. 값 자체를 추측하여 해시 일치 여부를 확인하는 공격을 방지합니다. 이는 선거의 개별 투표처럼 가능한 값의 수가 적을 때 특히 중요합니다.
 
-The other advantage of randomness is that it prevents correlating equal values:
-even if I can't guess someone's password, for instance, I might recognize if the
-same hashed version appears twice, which might unintentionally leak information about who made
-a state change.
+무작위성의 또 다른 이점은 동일한 값 간의 상관관계를 차단한다는 것입니다. 예를 들어 누군가의 비밀번호를 추측할 수 없더라도, 동일한 해시 값이 두 번 나타나면 같은 값이라는 사실을 알 수 있으며, 이는 누가 상태를 변경했는지에 대한 정보를 의도치 않게 유출할 수 있습니다.
 
-With sufficient randomness used, the commitment of a value can be stored on the
-ledger without revealing it.
+충분한 무작위성을 사용하면 값의 commitment를 실제 값을 드러내지 않고 ledger에 저장할 수 있습니다.
 
 ### Randomness and rounds in commitments
 
-Fresh randomness for each commitment is desirable, but in some cases, it is
-possible to re-use existing randomness by guaranteeing that the
-*data* will never be the same for the same randomness.  We use this in some of
-our example applications, where we reuse a secret key as a randomness source, 
-together with a round counter to ensure unlinkability between rounds.
+각 commitment마다 새로운 무작위성을 사용하는 것이 이상적이지만, 동일한 무작위성에 대해 *데이터*가 절대 같지 않도록 보장할 수 있다면 기존 무작위성을 재사용할 수도 있습니다. 일부 예시 애플리케이션에서 이 방식을 사용하는데, 라운드 카운터와 함께 비밀 키를 무작위성 소스로 재활용하여 라운드 간 연결 불가능성을 보장합니다.
 
 :::caution
 
-Be careful working with randomness! It's easy to get wrong, and erring on
-the safe side is generally advisable.
+무작위성을 다룰 때는 주의가 필요합니다! 실수하기 쉬우므로, 가능하면 안전한 쪽을 선택하는 것이 좋습니다.
 
 :::
 
-### Authenticating with hashes
+### Authenticating with hashes {#authenticating-with-hashes}
 
-One of the most useful features of zero-knowledge proofs is that it's possible to emulate
-signatures just by using hashes in a circuit. That is, just by hashing a secret
-key and comparing that with a known 'public key', a contract can guarantee that only
-someone that knows the secret key can continue the transaction. For instance,
-here's a contract that allows only the creator to use it:
+영지식 증명의 가장 유용한 기능 중 하나는 circuit 내에서 해시만으로 서명을 흉내 낼 수 있다는 것입니다. 비밀 키를 해싱하여 알려진 '공개 키'와 비교하는 것만으로, 컨트랙트는 비밀 키를 아는 사람만 트랜잭션을 진행할 수 있도록 보장할 수 있습니다. 다음은 생성자만 사용할 수 있는 컨트랙트의 예입니다:
 
 ```compact
 import CompactStandardLibrary;
@@ -108,31 +76,15 @@ circuit publicKey(sk: Bytes<32>): Bytes<32> {
 
 ## Making use of Merkle trees
 
-Merkle trees, exposed in Compact as the `MerkleTree<n, T>` and
-`HistoricMerkleTree<n, T>` types, are a very useful tool for shielding the
-values contained in a set. Their key feature is making it possible to
-assert publicly that some value is contained within the `MerkleTree`, without
-revealing *which* value this is.
+Compact에서 `MerkleTree<n, T>` 및 `HistoricMerkleTree<n, T>` 유형으로 제공되는 Merkle 트리는 집합에 포함된 값을 차폐하는 데 매우 유용한 도구입니다. 핵심 기능은 *어떤* 값인지 밝히지 않으면서도 특정 값이 `MerkleTree`에 포함되어 있음을 공개적으로 주장할 수 있다는 것입니다.
 
-This goes above and beyond having, for instance, a `Set<Bytes<32>>` storing
-commitments and testing if a commitment is inside it, because a `MerkleTree` does
-not reveal which entry's membership is proven. This property can be used, for
-instance, to authorize a set of secret keys to do specific operations, without
-each operation revealing which key was used to authorize it.
+이는 commitment를 저장하는 `Set<Bytes<32>>`에서 포함 여부를 테스트하는 것보다 강력합니다. `MerkleTree`는 어떤 항목의 소속이 증명되는지 자체를 드러내지 않기 때문입니다. 이 속성을 활용하면, 예를 들어 각 연산에서 어떤 키가 인증에 사용되었는지 노출하지 않으면서 비밀 키 집합이 특정 연산을 수행하도록 인가할 수 있습니다.
 
-In practice, this works by a circuit proving that it has knowledge of
-a path to an inserted value in the tree and checking that the hash of
-this path matches the expected path of the tree.
+내부적으로는 circuit이 트리에 삽입된 값까지의 경로에 대한 지식을 증명하고, 이 경로의 해시가 트리의 예상 경로와 일치하는지 확인하는 방식으로 작동합니다.
 
-The Compact standard library and compact JavaScript target ADTs provide tools
-for these operations. Specifically, examine the 
-[`MerkleTreePath<n, T>`](../reference/compact/compact-std-library/exports#merkletreepath) type, the
-[`merkleTreePathRoot<n, T>()`](../reference/compact/compact-std-library/exports#merkle_tree_path_root)
-circuit, and the `pathForLeaf()` and `findPathForLeaf()` functions exposed
-on the `MerkleTree`/`HistoricMerkleTree` JavaScript state objects, as described in
-the [ledger data types](../reference/compact/ledger-adt) specification.
+Compact 표준 라이브러리와 Compact JavaScript 대상 ADT는 이러한 연산을 위한 도구를 제공합니다. 구체적으로 [`MerkleTreePath<n, T>`](../../compact/standard-library/exports#merkletreepath) 유형, [`merkleTreePathRoot<n, T>()`](../../compact/standard-library/exports#merkletreepathroot) circuit, 그리고 [ledger 데이터 유형](../../compact/data-types/ledger-adt) 명세에 설명된 `MerkleTree`/`HistoricMerkleTree` JavaScript 상태 객체의 `pathForLeaf()`와 `findPathForLeaf()` 함수를 참조하세요.
 
-Together, they can be used as follows:
+이들을 조합하여 다음과 같이 사용할 수 있습니다:
 
 ```compact
 import CompactStandardLibrary;
@@ -151,7 +103,7 @@ export circuit check(item: Field): [] {
 }
 ```
 
-With the `findItem` implementation:
+`findItem` 구현:
 
 ```typescript
 function findItem(context: WitnessContext, item: bigint): MerkleTreePath<bigint> {
@@ -159,35 +111,17 @@ function findItem(context: WitnessContext, item: bigint): MerkleTreePath<bigint>
 }
 ```
 
-Note that `pathForLeaf` is preferable when possible, as it does not require an
-*O(n)* scan of the tree, although it does require knowledge of where the item was
-originally placed.
+`pathForLeaf`는 가능하면 우선적으로 사용하는 것이 좋습니다. 트리의 *O(n)* 스캔이 필요 없지만, 항목이 원래 어디에 배치되었는지 알고 있어야 합니다.
 
-The distinction between `MerkleTree<n, T>` and `HistoricMerkleTree<n, T>` is
-that `checkRoot` for the latter accepts proofs made against prior versions of
-the Merkle tree. This is helpful if a tree has frequent insertions, as these
-otherwise invalidate old proofs, although `HistoricMerkleTree` is not suitable if
-items are frequently removed or replaced, as this could lead to proofs being
-considered valid which should not be.
+`MerkleTree<n, T>`와 `HistoricMerkleTree<n, T>`의 차이점은, 후자의 `checkRoot`가 Merkle 트리의 이전 버전에 대해 생성된 proof도 수용한다는 것입니다. 빈번한 삽입으로 오래된 proof가 무효화되는 상황에서 유용하지만, 항목이 자주 제거되거나 교체되는 경우에는 `HistoricMerkleTree`가 적합하지 않습니다. 이미 무효화되어야 할 proof가 여전히 유효한 것으로 인정될 수 있기 때문입니다.
 
 ### The commitment/nullifier pattern
 
-One powerful shielding pattern is to keep data in two different committed forms (referred
-to as "commitments" and "nullifiers"), with the former kept in a Merkle tree,
-and the latter in a `Set`. This lets us make single-use authentication tokens
-by first creating an entry in the Merkle tree and then when using it, proving
-its existence and adding the nullifier to a `Set`, asserting that it is not already
-there. This ensures that re-using the token isn't possible, while still not
-revealing which token was used. This is the underlying pattern of Zerocash and [Zswap](./zswap.mdx), which uses it to build shielded UTXOs.
+강력한 차폐 패턴 중 하나는 데이터를 두 가지 서로 다른 커밋된 형태("commitment"와 "nullifier")로 유지하는 것입니다. 전자는 Merkle 트리에, 후자는 `Set`에 보관합니다. 이 방식으로 먼저 Merkle 트리에 항목을 생성한 뒤, 사용 시 그 존재를 증명하고 nullifier를 `Set`에 추가하여 아직 사용되지 않았음을 주장함으로써 일회용 인증 토큰을 만들 수 있습니다. 이를 통해 어떤 토큰이 사용되었는지 밝히지 않으면서도 토큰의 재사용을 방지합니다. 이것이 Zerocash와 [Zswap](./zswap.mdx)의 기본 패턴이며, 차폐된 UTXO를 구축하는 데 활용됩니다.
 
-It's crucial that the commitments and nullifiers use a domain separator to
-ensure they are not equal for the same secret data and, optionally, that creating the nullifier requires
-secret knowledge (as in the [authenticating with hashes
-section](#authenticating-with-hashes)), which ensures that the initial
-authorizer can't identify the token's use either.
+동일한 비밀 데이터에 대해 commitment와 nullifier가 같은 값을 갖지 않도록 도메인 분리자를 사용하는 것이 중요합니다. 또한 nullifier 생성에 비밀 지식을 요구하도록 설계하면([해시를 사용한 인증 섹션](#authenticating-with-hashes) 참조), 초기 인가자조차 토큰 사용 여부를 식별할 수 없게 됩니다.
 
-Here's an example where public keys are authorized to increment a counter, once
-only:
+다음은 공개 키가 카운터를 한 번만 증가시킬 수 있도록 인가하는 예입니다:
 
 ```compact
 import CompactStandardLibrary;

@@ -1,9 +1,9 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "CLI implementation"
-title: "Bulletin board CLI implementation"
-description: "Implement the CLI package for the bulletin board application."
+sidebar_label: "CLI 구현"
+title: "게시판 CLI 구현"
+description: "게시판 애플리케이션을 위한 CLI 패키지를 구현합니다."
 sidebar_position: 40
 toc_max_heading_level: 2
 ---
@@ -13,15 +13,15 @@ import TabItem from '@theme/TabItem';
 
 # Bulletin board CLI implementation
 
-This tutorial shows how to implement the CLI package that provides wallet management, DUST generation, and the interactive command-line interface.
+이 튜토리얼에서는 지갑 관리, DUST 생성, 대화형 명령줄 인터페이스를 제공하는 CLI 패키지를 구현하는 방법을 설명합니다.
 
 ## Prerequisites
 
-Before you begin, ensure that you have completed the [Bulletin board API implementation](./bboard-api-implementation) tutorial.
+시작하기 전에 [게시판 API 구현](./bboard-api-implementation) 튜토리얼을 완료했는지 확인하세요.
 
 ## Create the CLI directory
 
-From the root, create the bboard-cli structure:
+루트에서 bboard-cli 구조를 생성합니다:
 
 ```bash
 cd ..
@@ -31,7 +31,7 @@ cd bboard-cli
 
 ## Configure the CLI package
 
-Create `bboard-cli/package.json`:
+`bboard-cli/package.json`을 생성합니다:
 
 ```json
 {
@@ -56,14 +56,14 @@ Create `bboard-cli/package.json`:
 }
 ```
 
-The `preprod` script runs the CLI application and connects to the Midnight Preprod testnet, while the `undeployed` script runs the CLI application and connects to a local Midnight network running on your machine. 
+`preprod` 스크립트는 CLI 애플리케이션을 실행하고 Midnight Preprod 테스트넷에 연결하며, `undeployed` 스크립트는 CLI 애플리케이션을 실행하고 로컬 머신에서 실행 중인 로컬 Midnight 네트워크에 연결합니다.
 
 :::info
-For more information on setting up a local Midnight network, see the [Midnight local network](../../../guides/midnight-local-network/) documentation.
+로컬 Midnight 네트워크 설정에 대한 자세한 정보는 [Midnight 로컬 네트워크](../../../guides/midnight-local-network/) 문서를 참조하세요.
 :::
 ## Configure TypeScript
 
-Create `bboard-cli/tsconfig.json`:
+`bboard-cli/tsconfig.json`을 생성합니다:
 
 ```json
 {
@@ -90,9 +90,9 @@ Create `bboard-cli/tsconfig.json`:
 
 ## Network configuration
 
-The configuration module defines network-specific settings for connecting to different Midnight environments. It provides a common `Config` interface that standardizes how the CLI accesses network endpoints, manages private state storage, and configures DUST generation settings.
+설정 모듈은 다양한 Midnight 환경에 연결하기 위한 네트워크별 설정을 정의합니다. CLI가 네트워크 엔드포인트에 접근하고, private 상태 저장소를 관리하며, DUST 생성 설정을 구성하는 방법을 표준화하는 공통 `Config` 인터페이스를 제공합니다.
 
-Create `bboard-cli/src/config.ts` and start with the shared configuration interface:
+`bboard-cli/src/config.ts`를 생성하고 공유 설정 인터페이스로 시작합니다:
 
 ```typescript title="bboard-cli/src/config.ts"
 import path from 'node:path';
@@ -117,10 +117,10 @@ export interface Config {
 export const currentDir = path.resolve(new URL(import.meta.url).pathname, '..');
 ```
 
-The CLI supports two network environments:
+CLI는 두 가지 네트워크 환경을 지원합니다:
 
-- **Preprod**: Connects to the Midnight hosted testnet at `preprod.midnight.network`
-- **Undeployed**: Connects to a local Midnight network running on your machine.
+- **Preprod**: `preprod.midnight.network`에서 Midnight이 호스팅하는 테스트넷에 연결합니다
+- **Undeployed**: 로컬 머신에서 실행 중인 로컬 Midnight 네트워크에 연결합니다.
 
 <Tabs>
   <TabItem value="preprod">
@@ -209,11 +209,11 @@ export class UndeployedTestEnvironment extends RemoteTestEnvironment {
 </TabItem>
 </Tabs>
 
-Both configurations use a local Docker proof server for generating zero-knowledge (ZK) proofs. The local proof server provides better performance and doesn't require external network access for proof generation.
+두 설정 모두 ZK proof 생성을 위해 로컬 Docker proof 서버를 사용합니다. 로컬 proof 서버는 더 나은 성능을 제공하며 proof 생성을 위해 외부 네트워크 접근이 필요하지 않습니다.
 
 ## Implement logging utilities
 
-Create `bboard-cli/src/logger-utils.ts`:
+`bboard-cli/src/logger-utils.ts`를 생성합니다:
 
 ```typescript title="bboard-cli/src/logger-utils.ts"
 import * as path from 'node:path';
@@ -245,13 +245,13 @@ export const createLogger = async (logPath: string): Promise<pino.Logger> => {
 };
 ```
 
-The logger creates two output streams: a pretty-printed console stream for development and a file stream for persistent logs. The log level can be controlled through the `DEBUG_LEVEL` environment variable.
+로거는 두 개의 출력 스트림을 생성합니다: 개발용 보기 좋은 콘솔 스트림과 영구 로그를 위한 파일 스트림. 로그 수준은 `DEBUG_LEVEL` 환경 변수를 통해 제어할 수 있습니다.
 
 ## Implement wallet utilities
 
-Wallet utilities manage wallet state synchronization and funding operations. These functions ensure the wallet is properly synced with the blockchain and has sufficient funds before attempting contract interactions.
+지갑 유틸리티는 지갑 상태 동기화 및 자금 지원 작업을 관리합니다. 이 함수들은 컨트랙트 상호작용을 시도하기 전에 지갑이 블록체인과 적절히 동기화되어 있고 충분한 자금이 있는지 확인합니다.
 
-Create `bboard-cli/src/wallet-utils.ts`:
+`bboard-cli/src/wallet-utils.ts`를 생성합니다:
 
 ```typescript title="bboard-cli/src/wallet-utils.ts"
 import { UnshieldedTokenType } from '@midnight-ntwrk/ledger-v8';
@@ -268,9 +268,9 @@ import { getNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 
 ### Get initial wallet state
 
-Before starting wallet synchronization, you need to access the current state to retrieve addresses and check balances. These helper functions use RxJS `firstValueFrom()` to convert the wallet's state observable into a Promise that resolves with the first emitted value.
+지갑 동기화를 시작하기 전에 주소를 가져오고 잔액을 확인하기 위해 현재 상태에 접근해야 합니다. 이 헬퍼 함수들은 RxJS `firstValueFrom()`을 사용하여 지갑의 상태 observable을 처음 발행된 값으로 확인되는 Promise로 변환합니다.
 
-Add the initial state functions:
+초기 상태 함수를 추가합니다:
 
 ```typescript title="bboard-cli/src/wallet-utils.ts"
 export const getInitialState = async (wallet: ShieldedWallet | UnshieldedWallet) => {
@@ -292,16 +292,16 @@ export const getInitialUnshieldedState = async (logger: Logger, wallet: Unshield
 };
 ```
 
-These functions provide type-safe access to wallet state:
-- `getInitialState()`: Generic function that handles both shielded and unshielded wallets using runtime type checking
-- `getInitialShieldedState()`: Retrieves shielded wallet state and logs the operation
-- `getInitialUnshieldedState()`: Retrieves unshielded wallet state and logs the operation
+이 함수들은 지갑 상태에 대한 타입 안전 접근을 제공합니다:
+- `getInitialState()`: 런타임 타입 검사를 사용하여 차폐(shielded) 및 비차폐(unshielded) 지갑을 모두 처리하는 제네릭 함수
+- `getInitialShieldedState()`: 차폐 지갑 상태를 가져오고 작업을 로깅
+- `getInitialUnshieldedState()`: 비차폐 지갑 상태를 가져오고 작업을 로깅
 
 ### Sync wallet
 
-The `syncWallet` function monitors the wallet's synchronization progress across all three components (shielded, unshielded, and DUST) and waits until they are fully synced with the blockchain. This is essential before performing any wallet operations.
+`syncWallet` 함수는 세 가지 구성 요소(차폐, 비차폐, DUST) 전체에서 지갑의 동기화 진행률을 모니터링하고 블록체인과 완전히 동기화될 때까지 대기합니다. 지갑 작업을 수행하기 전에 이것이 필수적입니다.
 
-Add the sync wallet function:
+지갑 동기화 함수를 추가합니다:
 
 ```typescript title="bboard-cli/src/wallet-utils.ts"
 const isProgressStrictlyComplete = (progress: unknown): boolean => {
@@ -366,9 +366,9 @@ export const syncWallet = (logger: Logger, wallet: WalletFacade, throttleTime = 
 
 ### Wait for unshielded funds
 
-Before deploying contracts or submitting transactions, the wallet needs unshielded tNIGHT tokens to generate DUST for paying network fees. This function ensures sufficient funds are available, optionally requesting tokens from the faucet for testing.
+컨트랙트를 배포하거나 트랜잭션을 제출하기 전에, 지갑은 네트워크 수수료를 지불하기 위한 DUST를 생성하기 위해 비차폐 tNIGHT 토큰이 필요합니다. 이 함수는 충분한 자금이 사용 가능한지 확인하며, 선택적으로 테스트를 위해 faucet에서 토큰을 요청합니다.
 
-Add the funding function:
+자금 지원 함수를 추가합니다:
 
 ```typescript title="bboard-cli/src/wallet-utils.ts"
 export const waitForUnshieldedFunds = async (
@@ -398,7 +398,7 @@ export const waitForUnshieldedFunds = async (
 
 ## Implement DUST generation
 
-Create `bboard-cli/src/generate-dust.ts`:
+`bboard-cli/src/generate-dust.ts`를 생성합니다:
 
 ```typescript title="bboard-cli/src/generate-dust.ts"
 import { type WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
@@ -477,21 +477,21 @@ export const generateDust = async (
 };
 ```
 
-DUST generation designates tNIGHT tokens to automatically produce DUST for transaction fees. 
-The `getUnshieldedSeed` function derives an unshielded wallet key from the HD wallet seed using the `NightExternal` role. 
+DUST 생성은 tNIGHT 토큰을 지정하여 트랜잭션 수수료를 위한 DUST를 자동으로 생성합니다.
+`getUnshieldedSeed` 함수는 `NightExternal` 역할을 사용하여 HD 지갑 시드에서 비차폐 지갑 키를 파생합니다.
 
-The `generateDust` function:
-1. Filters unregistered UTXOs
-2. Creates a DUST generation transaction
-3. Signs it with the unshielded keystore
-4. Submits it to the network
-5. Waits for the DUST balance to update
+`generateDust` 함수는:
+1. 미등록 UTXO를 필터링합니다
+2. DUST 생성 트랜잭션을 생성합니다
+3. 비차폐 keystore로 서명합니다
+4. 네트워크에 제출합니다
+5. DUST 잔액이 업데이트될 때까지 대기합니다
 
 ## Implement wallet provider
 
-The wallet provider bridges the Wallet SDK to the Midnight.js contracts API, implementing the interfaces required by the contract deployment and transaction system. It manages cryptographic keys, transaction balancing, and wallet lifecycle operations.
+지갑 프로바이더는 Wallet SDK를 Midnight.js contracts API에 연결하여 컨트랙트 배포 및 트랜잭션 시스템에 필요한 인터페이스를 구현합니다. 암호학적 키, 트랜잭션 밸런싱 및 지갑 생명주기 작업을 관리합니다.
 
-Create `bboard-cli/src/midnight-wallet-provider.ts` and add the following imports and class definition:
+`bboard-cli/src/midnight-wallet-provider.ts`를 생성하고 다음 임포트 및 클래스 정의를 추가합니다:
 
 ```typescript title="bboard-cli/src/midnight-wallet-provider.ts"
 import {
@@ -533,11 +533,11 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
   }
 ```
 
-The class stores the wallet facade, cryptographic keys for both shielded and DUST operations, and environment configuration.
+이 클래스는 지갑 facade, 차폐 및 DUST 작업을 위한 암호학적 키, 환경 설정을 저장합니다.
 
 ### Implement key provider methods
 
-These methods expose the public keys needed for receiving shielded funds and decrypting transaction data:
+이 메서드들은 차폐 자금 수신 및 트랜잭션 데이터 복호화에 필요한 공개 키를 노출합니다:
 
 ```typescript title="bboard-cli/src/midnight-wallet-provider.ts"
   getCoinPublicKey(): CoinPublicKey {
@@ -549,11 +549,11 @@ These methods expose the public keys needed for receiving shielded funds and dec
   }
 ```
 
-The `getCoinPublicKey()` method returns the address for receiving shielded tokens, while `getEncryptionPublicKey()` provides the key for decrypting shielded transaction data sent to this wallet.
+`getCoinPublicKey()` 메서드는 차폐 토큰을 수신하기 위한 주소를 반환하고, `getEncryptionPublicKey()`는 이 지갑으로 전송된 차폐 트랜잭션 데이터를 복호화하기 위한 키를 제공합니다.
 
 ### Implement transaction methods
 
-These methods handle the transaction lifecycle from balancing through submission:
+이 메서드들은 밸런싱에서 제출까지의 트랜잭션 생명주기를 처리합니다:
 
 ```typescript title="bboard-cli/src/midnight-wallet-provider.ts"
   async balanceTx(tx: UnboundTransaction, ttl: Date = ttlOneHour()): Promise<FinalizedTransaction> {
@@ -570,11 +570,11 @@ These methods handle the transaction lifecycle from balancing through submission
   }
 ```
 
-The `balanceTx()` method takes an unbound transaction (without inputs/outputs selected) and balances it by selecting appropriate UTXOs to cover fees and adding change outputs. It uses DUST tokens to pay shielded transaction fees. The `submitTx()` method submits the finalized transaction to the network and returns the transaction hash.
+`balanceTx()` 메서드는 바인딩되지 않은 트랜잭션(입출력이 선택되지 않은)을 받아 수수료를 충당할 적절한 UTXO를 선택하고 잔돈 출력을 추가하여 밸런싱합니다. 차폐 트랜잭션 수수료를 지불하기 위해 DUST 토큰을 사용합니다. `submitTx()` 메서드는 최종화된 트랜잭션을 네트워크에 제출하고 트랜잭션 해시를 반환합니다.
 
 ### Implement lifecycle methods
 
-These methods control wallet startup and shutdown:
+이 메서드들은 지갑의 시작과 종료를 제어합니다:
 
 ```typescript title="bboard-cli/src/midnight-wallet-provider.ts"
   async start(): Promise<void> {
@@ -587,11 +587,11 @@ These methods control wallet startup and shutdown:
   }
 ```
 
-The `start()` method initializes the wallet with cryptographic keys and begins syncing with the blockchain. The `stop()` method gracefully shuts down the wallet and cleans up resources. Always call `stop()` before the application exits.
+`start()` 메서드는 암호학적 키로 지갑을 초기화하고 블록체인과 동기화를 시작합니다. `stop()` 메서드는 지갑을 정상적으로 종료하고 리소스를 정리합니다. 애플리케이션이 종료되기 전에 항상 `stop()`을 호출하세요.
 
 ### Implement the build factory method
 
-The factory method creates and configures a wallet instance with proper DUST settings:
+팩토리 메서드는 적절한 DUST 설정으로 지갑 인스턴스를 생성하고 구성합니다:
 
 ```typescript title="bboard-cli/src/midnight-wallet-provider.ts"
   static async build(logger: Logger, env: EnvironmentConfiguration, seed?: string): Promise<MidnightWalletProvider> {
@@ -625,14 +625,14 @@ The factory method creates and configures a wallet instance with proper DUST set
 }
 ```
 
-The factory method configures DUST options with a low `additionalFeeOverhead` (1000n) suitable for test networks. If a seed is provided, then it restores an existing wallet. Otherwise, it generates a new random seed. 
-The method logs the seed and shielded address for user reference and creates the provider with all necessary cryptographic keys derived from the seeds.
+팩토리 메서드는 테스트 네트워크에 적합한 낮은 `additionalFeeOverhead`(1000n)로 DUST 옵션을 구성합니다. 시드가 제공되면 기존 지갑을 복원하고, 그렇지 않으면 새로운 랜덤 시드를 생성합니다.
+이 메서드는 사용자 참조를 위해 시드와 차폐 주소를 로깅하고, 시드에서 파생된 모든 필요한 암호학적 키로 프로바이더를 생성합니다.
 
 ## Implement the main CLI logic
 
-The main CLI module manages the entire bulletin board application, tying together wallet setup, contract interactions, and the interactive user interface. It manages the application lifecycle from environment startup through graceful shutdown.
+메인 CLI 모듈은 전체 게시판 애플리케이션을 관리하며, 지갑 설정, 컨트랙트 상호작용, 대화형 사용자 인터페이스를 하나로 묶습니다. 환경 시작부터 정상 종료까지의 애플리케이션 생명주기를 관리합니다.
 
-Create `bboard-cli/src/index.ts` and add the following imports:
+`bboard-cli/src/index.ts`를 생성하고 다음 임포트를 추가합니다:
 
 ```typescript title="bboard-cli/src/index.ts"
 import { createInterface, type Interface } from 'node:readline/promises';
@@ -667,11 +667,11 @@ import { BBoardPrivateState } from '@midnight-ntwrk/bboard-contract';
 globalThis.WebSocket = WebSocket as unknown as typeof globalThis.WebSocket;
 ```
 
-The `globalThis.WebSocket` assignment configures the Node.js WebSocket implementation for browser-compatible APIs, enabling WebSocket connections to the Indexer and Node RPC services.
+`globalThis.WebSocket` 할당은 브라우저 호환 API를 위한 Node.js WebSocket 구현을 설정합니다. 이를 통해 Indexer 및 Node RPC 서비스에 WebSocket으로 연결할 수 있습니다.
 
 ### Query ledger state
 
-This helper function retrieves the current public ledger state from a deployed contract:
+이 헬퍼 함수는 배포된 컨트랙트에서 현재 공개 ledger 상태를 가져옵니다:
 
 ```typescript title="bboard-cli/src/index.ts"
 export const getBBoardLedgerState = async (
@@ -686,7 +686,7 @@ export const getBBoardLedgerState = async (
 
 ### Deploy or join contract menu
 
-This function presents a menu allowing users to deploy a new bulletin board or connect to an existing one:
+이 함수는 사용자가 새 게시판을 배포하거나 기존 게시판에 연결할 수 있는 메뉴를 표시합니다:
 
 ```typescript title="bboard-cli/src/index.ts"
 const DEPLOY_OR_JOIN_QUESTION = `
@@ -722,7 +722,7 @@ const deployOrJoin = async (providers: BBoardProviders, rli: Interface, logger: 
 
 ### Display state helper functions
 
-These functions display different views of the bulletin board state. Add them to visualize public ledger state, private state, and derived state:
+이 함수들은 게시판 상태의 다양한 뷰를 표시합니다. 공개 ledger 상태, private 상태 및 파생 상태를 시각화하기 위해 추가합니다:
 
 ```typescript title="bboard-cli/src/index.ts"
 const displayLedgerState = async (
@@ -767,14 +767,14 @@ const displayDerivedState = (ledgerState: BBoardDerivedState | undefined, logger
 };
 ```
 
-These display functions show:
-- **Ledger state**: Public on-chain data visible to all network participants
-- **Private state**: Local secret key that never appears on-chain
-- **Derived state**: Combines public and private data to compute ownership
+이 표시 함수들은 다음을 보여줍니다:
+- **ledger 상태**: 모든 네트워크 참여자에게 보이는 공개 온체인 데이터
+- **private 상태**: 온체인에 절대 나타나지 않는 로컬 비밀 키
+- **파생 상태**: 공개 및 private 데이터를 결합하여 소유권을 계산
 
 ### Main interaction loop
 
-The main loop provides the interactive menu for bulletin board operations:
+메인 루프는 게시판 작업을 위한 대화형 메뉴를 제공합니다:
 
 ```typescript title="bboard-cli/src/index.ts"
 const MAIN_LOOP_QUESTION = `
@@ -831,12 +831,12 @@ const mainLoop = async (providers: BBoardProviders, rli: Interface, logger: Logg
 };
 ```
 
-The loop first calls `deployOrJoin()` to initialize the contract connection. It subscribes to the reactive state observable to automatically receive updates whenever transactions modify the contract. 
-The `finally` block ensures the subscription is cleaned up when the loop exits.
+루프는 먼저 `deployOrJoin()`을 호출하여 컨트랙트 연결을 초기화합니다. 트랜잭션이 컨트랙트를 수정할 때마다 자동으로 업데이트를 받기 위해 반응형 상태 observable을 구독합니다.
+`finally` 블록은 루프가 종료될 때 구독이 정리되도록 보장합니다.
 
 ### Wallet setup menu
 
-This function handles wallet seed initialization:
+이 함수는 지갑 시드 초기화를 처리합니다:
 
 ```typescript title="bboard-cli/src/index.ts"
 const WALLET_LOOP_QUESTION = `
@@ -864,14 +864,14 @@ const buildWallet = async (config: Config, rli: Interface, logger: Logger): Prom
 };
 ```
 
-The function provides three options: 
-- Generate a new wallet with a random seed
-- Restore your wallet from an existing seed
-- Exit the application
+이 함수는 세 가지 옵션을 제공합니다:
+- 랜덤 시드로 새 지갑 생성
+- 기존 시드에서 지갑 복원
+- 애플리케이션 종료
 
 ### Run function
 
-The `run()` function coordinates the entire application lifecycle:
+`run()` 함수는 전체 애플리케이션 생명주기를 조정합니다:
 
 ```typescript title="bboard-cli/src/index.ts"
 export const run = async (config: Config, testEnv: TestEnvironment, logger: Logger): Promise<void> => {
@@ -955,18 +955,18 @@ export const run = async (config: Config, testEnv: TestEnvironment, logger: Logg
 };
 ```
 
-The function executes the following workflow:
-1. **Start environment**: Retrieves endpoint configuration for the network
-2. **Build wallet**: Creates or restores a wallet from seed
-3. **Wait for funds**: Ensures the wallet has tNIGHT tokens for fees
-4. **Generate DUST**: Registers UTXOs for DUST generation (if enabled)
-5. **Configure providers**: Sets up all six required providers (private state, public data, ZK config, proof, wallet, midnight)
-6. **Enter main loop**: Starts the interactive bulletin board session
-7. **Cleanup**: Nested `finally` blocks guarantee cleanup of resources even if errors occur
+이 함수는 다음 워크플로우를 실행합니다:
+1. **환경 시작**: 네트워크에 대한 엔드포인트 설정을 가져옵니다
+2. **지갑 빌드**: 시드에서 지갑을 생성하거나 복원합니다
+3. **자금 대기**: 지갑에 수수료를 위한 tNIGHT 토큰이 있는지 확인합니다
+4. **DUST 생성**: DUST 생성을 위해 UTXO를 등록합니다 (활성화된 경우)
+5. **프로바이더 구성**: 필요한 6개의 프로바이더(private 상태, 공개 데이터, ZK 설정, proof, 지갑, midnight)를 모두 설정합니다
+6. **메인 루프 진입**: 대화형 게시판 세션을 시작합니다
+7. **정리**: 중첩된 `finally` 블록이 오류가 발생하더라도 리소스 정리를 보장합니다
 
 ### Error logging utility
 
-Add a helper function for logging errors:
+오류 로깅을 위한 헬퍼 함수를 추가합니다:
 
 ```typescript title="bboard-cli/src/index.ts"
 function logError(logger: Logger, e: unknown) {
@@ -979,13 +979,13 @@ function logError(logger: Logger, e: unknown) {
 }
 ```
 
-This function checks if the error is an `Error` instance to access the message and stack trace, ensuring errors are always logged even when they don't follow standard JavaScript error patterns.
+이 함수는 오류가 `Error` 인스턴스인지 확인하여 메시지와 스택 트레이스에 접근하며, 표준 JavaScript 오류 패턴을 따르지 않는 경우에도 항상 오류가 로깅되도록 합니다.
 
 ## Create the application entry point
 
 <Tabs>
   <TabItem value="preprod">
-Create `bboard-cli/src/launcher/preprod.ts`:
+`bboard-cli/src/launcher/preprod.ts`를 생성합니다:
 
 ```typescript title="bboard-cli/src/launcher/preprod.ts"
 import { createLogger } from '../logger-utils.js';
@@ -998,10 +998,10 @@ const testEnvironment = config.getEnvironment(logger);
 await run(config, testEnvironment, logger);
 ```
 
-This launcher creates a `PreprodRemoteConfig` instance, initializes the logger, gets the test environment, and starts the CLI application. The launcher uses top-level await for asynchronous initialization.
+이 런처는 `PreprodRemoteConfig` 인스턴스를 생성하고, 로거를 초기화하며, 테스트 환경을 가져오고, CLI 애플리케이션을 시작합니다. 런처는 비동기 초기화를 위해 top-level await를 사용합니다.
 </TabItem>
 <TabItem value="undeployed">
-Create `bboard-cli/src/launcher/undeployed.ts`:
+`bboard-cli/src/launcher/undeployed.ts`를 생성합니다:
 
 ```typescript title="bboard-cli/src/launcher/undeployed.ts"
 import { createLogger } from '../logger-utils.js';
@@ -1014,17 +1014,17 @@ const testEnvironment = config.getEnvironment(logger);
 await run(config, testEnvironment, logger);
 ```
 
-The launcher creates a `UndeployedConfig` instance, initializes the logger, gets the test environment, and starts the CLI application. The launcher uses top-level await for asynchronous initialization.
+런처는 `UndeployedConfig` 인스턴스를 생성하고, 로거를 초기화하며, 테스트 환경을 가져오고, CLI 애플리케이션을 시작합니다. 런처는 비동기 초기화를 위해 top-level await를 사용합니다.
 
 :::info
-The `undeployed` launcher connects to a local Midnight network running on your machine. For more information, see [Midnight local network](../../../guides/midnight-local-network/).
+`undeployed` 런처는 로컬 머신에서 실행 중인 로컬 Midnight 네트워크에 연결합니다. 자세한 정보는 [Midnight 로컬 네트워크](../../../guides/midnight-local-network/)를 참조하세요.
 :::
 </TabItem>
 </Tabs>
 
 ## Configure proof server
 
-Create `bboard-cli/proof-server.yml`:
+`bboard-cli/proof-server.yml`을 생성합니다:
 
 ```yaml title="bboard-cli/proof-server.yml"
 services:
@@ -1038,12 +1038,12 @@ services:
       RUST_BACKTRACE: "full"
 ```
 
-:::note Credits
-The proof server used in this tutorial is a community-maintained Docker image by Brick Towers.
+:::note
+이 튜토리얼에서 사용되는 proof 서버는 Brick Towers가 유지 관리하는 커뮤니티 Docker 이미지입니다.
 :::
 
-This Docker Compose file configures the proof server. The testkit automatically manages this container's lifecycle by checking for the `proof-server.yml` file in the current directory.
+이 Docker Compose 파일은 proof 서버를 구성합니다. testkit은 현재 디렉터리에서 `proof-server.yml` 파일을 확인하여 이 컨테이너의 생명주기를 자동으로 관리합니다.
 
 ## Next steps
 
-You have now completed both implementation guides. Return to the [main CLI guide](./bboard-cli#run-the-cli) to run the application and explore next steps.
+두 구현 가이드를 모두 완료했습니다. 애플리케이션을 실행하고 다음 단계를 탐색하려면 [메인 CLI 가이드](./bboard-cli#run-the-cli)로 돌아가세요.

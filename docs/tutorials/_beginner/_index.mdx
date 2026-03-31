@@ -1,330 +1,330 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-title: "Installation and setup"
-sidebar_label: "Installation and setup"
-description: "Learn how to install and setup the tools needed to build a DApp on Midnight Network."
+title: "설치 및 설정"
+sidebar_label: "설치 및 설정"
+description: "Midnight 네트워크에서 DApp을 구축하는 데 필요한 도구를 설치하고 설정하는 방법을 알아봅니다."
 sidebar_position: 10
 ---
 
 # Installation and setup
 
-Build and deploy decentralized applications (DApps) on the Midnight network. This guide covers toolchain installation, contract compilation, DApp deployment, and node operation. The following example implementation demonstrates a counter contract.
+Midnight 네트워크에서 DApp을 구축하고 배포하는 방법을 설명합니다. 이 가이드에서는 툴체인 설치, 컨트랙트 컴파일, DApp 배포, 노드 운영을 다루며, counter 컨트랙트를 예제로 사용합니다.
 
 
 ## Prerequisites
 
-- **Operating System:** Linux, macOS, or Windows (via WSL)
-- **Node.js:** v18 LTS or higher (NVM recommended)
+- **운영 체제:** Linux, macOS 또는 Windows (WSL을 통해)
+- **Node.js:** v18 LTS 이상 (NVM 권장)
 - **Yarn**
 - **Git**
-- **Terminal:** Bash, Zsh, or compatible shell
-- **Disk Space:** ≥ 2 GB
-- **Network:** Internet connection
+- **터미널:** Bash, Zsh 또는 호환 가능한 셸
+- **디스크 공간:** 2 GB 이상
+- **네트워크:** 인터넷 연결
 
 ## Objectives
 
-This guide enables developers to:
+이 가이드를 통해 개발자는 다음을 수행할 수 있습니다:
 
-1. Install the tools necessary to compile a Midnight contract and DApp from source code
-2. Download the example code needed for development
-3. Build a simple example from source
-4. Run the example and deploy a smart contract
-5. Install and run a Midnight network node and its associated Indexer
+1. Midnight 컨트랙트 및 DApp을 소스 코드에서 컴파일하는 데 필요한 도구 설치
+2. 개발에 필요한 예제 코드 다운로드
+3. 소스에서 간단한 예제 빌드
+4. 예제를 실행하고 스마트 컨트랙트 배포
+5. Midnight 네트워크 노드 및 관련 Indexer 설치 및 실행
 
 :::important
-Use compatible versions of example code and the Compact compiler, as shown in the [release compatibility matrix](../../../relnotes/support-matrix).
+[릴리스 호환성 매트릭스](../../../relnotes/support-matrix)에 표시된 대로 호환되는 버전의 예제 코드와 Compact 컴파일러를 사용하세요.
 :::
 
-The final sections examine the Compact code for the example contract and the TypeScript code for the example DApp in detail.
+마지막 섹션에서는 예제 컨트랙트의 Compact 코드와 예제 DApp의 TypeScript 코드를 자세히 살펴봅니다.
 
-Upon completion, developers have built a DApp from source, deployed a contract, and run a non-voting Midnight node connected to the Midnight network.
+완료하면 개발자는 소스에서 DApp을 빌드하고, 컨트랙트를 배포하며, Midnight 네트워크에 연결된 비투표 Midnight 노드를 실행하게 됩니다.
 
-The example contract creates a counter on the ledger and provides a circuit to increment it. The contract enforces only constraints implied by the `Counter` type. While this example doesn't demonstrate Midnight's full privacy capabilities, it provides the foundation for building and deploying contracts on the Midnight network.
+예제 컨트랙트는 ledger에 카운터를 생성하고 이를 증가시키는 circuit를 제공합니다. 이 컨트랙트는 `Counter` 타입에 의해 암시되는 제약 조건만 적용합니다. 이 예제가 Midnight의 전체 프라이버시 기능을 보여주지는 않지만, Midnight 네트워크에서 컨트랙트를 구축하고 배포하는 기초를 제공합니다.
 
 
 ## Node
 
-Many Midnight Testnet features are provided as TypeScript packages, including example applications and APIs. These packages require Node.js as their runtime environment and use npm (Node Package Manager) for dependency management. Node Version Manager (NVM) provides the best way to install and manage Node.js versions because it enables switching between different Node versions for different projects and ensures compatibility with Midnight's requirements.
+Midnight 테스트넷의 주요 기능은 예제 애플리케이션과 API를 포함하여 TypeScript 패키지로 제공됩니다. 이러한 패키지를 실행하려면 Node.js가 필요하고, 의존성 관리에는 npm을 사용합니다. Node Version Manager(NVM)를 사용하면 프로젝트별로 다른 Node 버전을 전환할 수 있어 Midnight 요구사항과의 호환성을 유지하기 쉽습니다.
 
-Find installation and troubleshooting instructions on [the NVM GitHub site](https://github.com/nvm-sh/nvm#installing-and-updating). For macOS users installing via Homebrew, the installation process differs slightly from the standard script installation. Homebrew places NVM in a different directory and requires specific additions to shell profile files for proper initialization.
+설치 및 문제 해결 방법은 [NVM GitHub 사이트](https://github.com/nvm-sh/nvm#installing-and-updating)를 참조하세요. macOS에서 Homebrew로 설치하는 경우, 설치 과정이 표준 스크립트 설치와 약간 다릅니다. Homebrew는 NVM을 다른 디렉터리에 배치하며, 올바른 초기화를 위해 셸 프로필 파일에 별도의 설정이 필요합니다.
 
-After following NVM installation instructions, verify installation:
+NVM 설치 지침을 따른 후, 설치를 확인합니다:
 
 ```shell
 nvm --version
 ```
 
-The command displays a version number such as `0.39.5`. If the command isn't found, the shell profile modifications weren't applied correctly. Ensure the NVM initialization script is added to the appropriate shell configuration file (`~/.bashrc` for Bash, `~/.zshrc` for Zsh).
+`0.39.5`와 같은 버전 번호가 표시되면 정상입니다. 명령을 찾을 수 없다는 오류가 나타나면, 셸 프로필 수정이 올바르게 적용되지 않은 것입니다. NVM 초기화 스크립트가 해당 셸 구성 파일(`~/.bashrc` 또는 `~/.zshrc`)에 추가되었는지 확인하세요.
 
-Install LTS version of Node 18x or greater:
+Node 18x 이상의 LTS 버전을 설치합니다:
 
 ```shell
 nvm install 18 --lts
 ```
 
-This command downloads and installs the latest Long Term Support version of Node 18. LTS versions receive critical bug fixes and security updates for an extended period, ensuring stability for production applications. The installation includes both Node.js and npm.
+이 명령은 Node 18의 최신 LTS(Long Term Support) 버전을 다운로드하고 설치합니다. LTS 버전은 장기간 주요 버그 수정 및 보안 업데이트를 지원하여 프로덕션 환경의 안정성을 보장합니다. Node.js와 npm이 함께 설치됩니다.
 
-Set Node 18 as the default version for new terminal sessions:
+새 터미널 세션의 기본 버전으로 Node 18을 설정합니다:
 
 ```shell
 nvm alias default 18
 ```
 
-Verify the Node installation:
+Node 설치를 확인합니다:
 
 ```shell
 node --version
 npm --version
 ```
 
-> **Caution**: After modifying `~/.zshrc`, `~/.bashrc`, or installing a new Node version using `nvm`, open a new terminal window. Running `source ~/.zshrc` might not fully reload the environment and could lead to issues such as `ERR_UNSUPPORTED_DIR_IMPORT`. This error occurs when Node.js attempts to import ES modules but the environment variables aren't properly configured.
+> **주의**: `~/.zshrc`, `~/.bashrc`를 수정하거나 `nvm`을 사용하여 새 Node 버전을 설치한 후에는 새 터미널 창을 여세요. `source ~/.zshrc`를 실행하면 환경이 완전히 다시 로드되지 않을 수 있으며 `ERR_UNSUPPORTED_DIR_IMPORT`와 같은 문제가 발생할 수 있습니다. 이 오류는 Node.js가 ES 모듈을 가져오려 하지만 환경 변수가 올바르게 구성되지 않은 경우 발생합니다.
 
 ## Install the Compact developer tools
 
-The Compact developer tools manage the installation and updates of the Compact toolchain, including the compiler. These tools solve the complexity of managing multiple compiler versions, platform-specific binaries, and toolchain dependencies. Before these tools existed, developers manually downloaded platform-specific ZIP files, extracted binaries, managed PATH configurations, and repeated this process for each update.
+Compact 개발자 도구는 컴파일러를 포함한 Compact 툴체인의 설치와 업데이트를 관리합니다. 여러 컴파일러 버전, 플랫폼별 바이너리, 툴체인 의존성 관리의 복잡성을 자동으로 처리합니다. 이 도구가 없던 시절에는 플랫폼별 ZIP 파일을 수동으로 다운로드하고, 바이너리를 추출하고, PATH를 설정하는 작업을 매 업데이트마다 반복해야 했습니다.
 
-Install the developer tools with a single command:
+단일 명령으로 개발자 도구를 설치합니다:
 
 ```shell
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
 ```
 
-This command performs several operations:
-- Downloads the installation script using secure HTTPS with TLS 1.2 minimum
-- Detects the system architecture (x86_64, ARM64) and operating system
-- Downloads the appropriate binary for the platform
-- Creates the `~/.compact` directory structure for toolchain management
-- Installs the `compact` command-line tool to `~/.cargo/bin` or another appropriate location
+이 명령은 여러 작업을 수행합니다:
+- TLS 1.2 최소 보안 HTTPS를 사용하여 설치 스크립트를 다운로드합니다
+- 시스템 아키텍처(x86_64, ARM64)와 운영 체제를 감지합니다
+- 플랫폼에 적합한 바이너리를 다운로드합니다
+- 툴체인 관리를 위한 `~/.compact` 디렉터리 구조를 생성합니다
+- `compact` 명령줄 도구를 `~/.cargo/bin` 또는 다른 적절한 위치에 설치합니다
 
-The installation script outputs instructions for adding the binary directory to your `PATH` environment variable. This step is crucial—without it, the shell cannot find the `compact` command. The exact instructions depend on your shell and existing PATH configuration. Typically, add a line like this to your shell configuration file:
+설치 스크립트는 바이너리 디렉터리를 `PATH` 환경 변수에 추가하는 지침을 출력합니다. 이 단계는 매우 중요합니다. 이 단계가 없으면 셸이 `compact` 명령을 찾을 수 없습니다. 정확한 지침은 셸과 기존 PATH 구성에 따라 다릅니다. 일반적으로 셸 구성 파일에 다음과 같은 줄을 추가합니다:
 
 ```shell
 export PATH="$HOME/.cargo/bin:$PATH"
 ```
 
-After adding the directory to your `PATH`, open a new terminal window or reload your shell configuration. Then update to the latest toolchain:
+디렉터리를 `PATH`에 추가한 후, 새 터미널 창을 열거나 셸 구성을 다시 로드합니다. 그런 다음 최신 툴체인으로 업데이트합니다:
 
 ```shell
 compact update
 ```
 
-This command downloads the latest stable version of the Compact compiler and associated tools. The download includes:
-- The Compact compiler binary
-- Zero-knowledge proving key generator (`zkir`)
-- Platform-specific runtime dependencies
-- Standard library definitions
+이 명령은 Compact 컴파일러 및 관련 도구의 최신 안정 버전을 다운로드합니다. 다운로드에는 다음이 포함됩니다:
+- Compact 컴파일러 바이너리
+- 영지식 증명 키 생성기 (`zkir`)
+- 플랫폼별 런타임 의존성
+- 표준 라이브러리 정의
 
-The output shows the installed version:
+출력은 설치된 버전을 표시합니다:
 
 ```
 compact: aarch64-darwin -- 0.24.0 -- installed
 compact: aarch64-darwin -- 0.24.0 -- default.
 ```
 
-The first line confirms successful installation. The second line indicates this version is now the default for all compilation operations. The tools maintain multiple versions simultaneously, enabling testing with different compiler versions without conflicts.
+첫 번째 줄은 성공적인 설치를 확인합니다. 두 번째 줄은 이 버전이 이제 모든 컴파일 작업의 기본값임을 나타냅니다. 이 도구는 여러 버전을 동시에 유지하여 충돌 없이 다른 컴파일러 버전으로 테스트할 수 있게 합니다.
 
 ### Verify the installation
 
-Test the compiler installation to ensure all components are properly configured:
+모든 구성 요소가 올바르게 구성되었는지 컴파일러 설치를 테스트합니다:
 
 ```shell
 compact compile --version
 ```
 
-This command displays the compiler version number, such as `0.24.0`. The version check confirms:
-- The `compact` binary is accessible via PATH
-- The default toolchain is properly linked
-- The compiler binary has appropriate execution permissions
-- All required dependencies are present
+이 명령은 `0.24.0`과 같은 컴파일러 버전 번호를 표시합니다. 버전 확인은 다음을 확인합니다:
+- `compact` 바이너리가 PATH를 통해 접근 가능한지
+- 기본 툴체인이 올바르게 연결되었는지
+- 컴파일러 바이너리에 적절한 실행 권한이 있는지
+- 필요한 모든 의존성이 있는지
 
-If the command fails, common issues include:
-- **PATH not updated**: The shell cannot find the `compact` command. Verify the installation directory is in your PATH and reload your shell configuration
-- **No default toolchain**: Run `compact update` to install and set a default compiler version
-- **Permission issues**: On Unix systems, the binaries might lack execution permissions. The installer should handle this automatically, but manual installation might require `chmod +x` on the binaries
+명령이 실패하는 경우, 일반적인 문제는 다음과 같습니다:
+- **PATH가 업데이트되지 않음**: 셸이 `compact` 명령을 찾을 수 없습니다. 설치 디렉터리가 PATH에 있는지 확인하고 셸 구성을 다시 로드하세요
+- **기본 툴체인 없음**: `compact update`를 실행하여 기본 컴파일러 버전을 설치하고 설정하세요
+- **권한 문제**: Unix 시스템에서 바이너리에 실행 권한이 없을 수 있습니다. 설치 프로그램이 이를 자동으로 처리해야 하지만, 수동 설치의 경우 바이너리에 `chmod +x`가 필요할 수 있습니다
 
-The version number corresponds to the Compact compiler release, not the developer tools version. These versions are independent—developer tools version 0.1.0 might manage compiler version 0.24.0. Refer to the [release compatibility matrix](../../../relnotes/support-matrix) for version compatibility between compiler versions and example code.
+버전 번호는 개발자 도구 버전이 아닌 Compact 컴파일러 릴리스에 해당합니다. 이 버전들은 독립적입니다. 개발자 도구 버전 0.1.0이 컴파일러 버전 0.24.0을 관리할 수 있습니다. 컴파일러 버전과 예제 코드 간의 버전 호환성은 [릴리스 호환성 매트릭스](../../../relnotes/support-matrix)를 참조하세요.
 
 ### Check for updates
 
-Regular update checks ensure access to the latest features, performance improvements, and bug fixes:
+정기적인 업데이트 확인은 최신 기능, 성능 개선 및 버그 수정에 대한 접근을 보장합니다:
 
 ```shell
 compact check
 ```
 
-This command performs a network request to determine available updates. The output varies based on your current state:
+이 명령은 사용 가능한 업데이트를 확인하기 위해 네트워크 요청을 수행합니다. 출력은 현재 상태에 따라 달라집니다:
 
-When updates are available:
+업데이트가 가능한 경우:
 ```
 compact: aarch64-darwin -- Update Available -- 0.24.0
 compact: Latest version available: 0.25.0.
 ```
 
-This indicates version 0.25.0 is available for download. The update might include:
-- New language features for Compact contracts
-- Performance optimizations for proof generation
-- Bug fixes for edge cases in compilation
-- Enhanced error messages for better debugging
+이는 버전 0.25.0이 다운로드 가능함을 나타냅니다. 업데이트에는 다음이 포함될 수 있습니다:
+- Compact 컨트랙트의 새로운 언어 기능
+- proof 생성을 위한 성능 최적화
+- 컴파일 시 엣지 케이스에 대한 버그 수정
+- 더 나은 디버깅을 위한 향상된 오류 메시지
 
-When current:
+최신인 경우:
 ```
 compact: aarch64-darwin -- Up to date -- 0.24.0
 ```
 
-This confirms you're using the latest stable release. Check the Midnight developer announcements for information about upcoming releases and their expected features.
+이는 최신 안정 릴리스를 사용하고 있음을 확인합니다. 예정된 릴리스 및 예상 기능에 대한 정보는 Midnight 개발자 공지를 확인하세요.
 
-The check command only queries for updates without downloading them. This design enables checking for updates in bandwidth-constrained environments or when you need to coordinate updates across a development team.
+확인 명령은 다운로드 없이 업데이트만 쿼리합니다. 이 설계를 통해 대역폭이 제한된 환경에서 또는 개발 팀 전체의 업데이트를 조정해야 할 때 업데이트를 확인할 수 있습니다.
 
 ## Use the Compact compiler
 
-The Compact developer tools provide the standard method to invoke the compiler. Understanding the compilation process helps debug issues and optimize build workflows.
+Compact 개발자 도구는 컴파일러를 호출하는 표준 방법을 제공합니다. 컴파일 과정을 이해하면 문제를 디버깅하고 빌드 워크플로우를 최적화하는 데 도움이 됩니다.
 
 ### Basic compilation
 
-The standard compilation command:
+표준 컴파일 명령:
 
 ```shell
 compact compile <contract file> <output directory>
 ```
 
-For example:
+예시:
 
 ```shell
 compact compile src/counter.compact src/managed/counter
 ```
 
-This command triggers several processes:
-1. **Parsing**: The compiler reads and validates the Compact contract syntax
-2. **Type checking**: Ensures type safety across circuits, witnesses, and ledger operations
-3. **Circuit generation**: Converts high-level Compact code into zero-knowledge circuits
-4. **Proving key generation**: Creates cryptographic keys for generating and verifying proofs
-5. **TypeScript API generation**: Produces type-safe interfaces for DApp integration
+이 명령은 여러 프로세스를 트리거합니다:
+1. **파싱**: 컴파일러가 Compact 컨트랙트 구문을 읽고 유효성을 검사합니다
+2. **타입 검사**: circuit, witness 및 ledger 연산 전체에서 타입 안전성을 보장합니다
+3. **Circuit 생성**: 고수준 Compact 코드를 영지식 증명 circuit으로 변환합니다
+4. **proving key 생성**: proof를 생성하고 검증하기 위한 암호화 키를 생성합니다
+5. **TypeScript API 생성**: DApp 통합을 위한 타입 안전 인터페이스를 생성합니다
 
-The compilation creates multiple output files in the specified directory:
-- `contract/index.d.cts` - TypeScript type definitions for the contract API
-- `contract/index.cjs` - JavaScript implementation of the contract
-- `zkir/` - Directory containing the zero-knowledge circuit representations
-- `proving-keys/` - Cryptographic keys for proof generation
-- `verifying-keys/` - Public keys for proof verification
+컴파일은 지정된 디렉터리에 여러 출력 파일을 생성합니다:
+- `contract/index.d.cts` - 컨트랙트 API에 대한 TypeScript 타입 정의
+- `contract/index.cjs` - 컨트랙트의 JavaScript 구현
+- `zkir/` - 영지식 증명 circuit 표현을 포함하는 디렉터리
+- `proving-keys/` - proof 생성을 위한 암호화 키
+- `verifying-keys/` - proof 검증을 위한 공개 키
 
-The compiler reports circuit complexity metrics:
+컴파일러는 circuit 복잡도 지표를 보고합니다:
 
 ```
 Circuit 'increment' has complexity: 1234 constraints
 ```
 
-These metrics indicate the computational cost of generating proofs. Higher constraint counts mean longer proof generation times and higher resource requirements. Optimize circuits to minimize constraints while maintaining security properties.
+이 지표는 proof 생성의 계산 비용을 나타냅니다. 제약 조건 수가 높을수록 proof 생성 시간이 길어지고 리소스 요구사항이 높아집니다. 보안 속성을 유지하면서 제약 조건을 최소화하도록 circuit를 최적화하세요.
 
 ### Version-specific compilation
 
-Override the default compiler version for testing or compatibility:
+테스트 또는 호환성을 위해 기본 컴파일러 버전을 재정의합니다:
 
 ```shell
 compact compile +0.23.0 <contract file> <output directory>
 ```
 
-This feature enables:
-- Testing contracts against different compiler versions
-- Maintaining compatibility with deployed contracts compiled with older versions
-- Gradual migration when new compiler versions introduce breaking changes
+이 기능으로 다음 작업이 가능합니다:
+- 다른 컴파일러 버전에 대한 컨트랙트 테스트
+- 이전 버전으로 컴파일된 배포된 컨트랙트와의 호환성 유지
+- 새 컴파일러 버전이 breaking change를 도입할 때 점진적 마이그레이션
 
-The version specifier (`+0.23.0`) must reference an already-installed version. Use `compact list --installed` to see available versions.
+버전 지정자(`+0.23.0`)는 이미 설치된 버전을 참조해야 합니다. 사용 가능한 버전을 보려면 `compact list --installed`를 사용하세요.
 
 ### Environment variables
 
-The Midnight example DApps historically used environment variables for configuration and toolchain location. Understanding these variables helps when working with existing code or debugging build issues.
+Midnight 예제 DApp은 역사적으로 구성 및 툴체인 위치를 위해 환경 변수를 사용했습니다. 이러한 변수를 이해하면 기존 코드를 작업하거나 빌드 문제를 디버깅할 때 도움이 됩니다.
 
-**Legacy COMPACT_HOME variable**: Previous versions of Midnight examples required setting `COMPACT_HOME` to point to the compiler directory. The new developer tools eliminate this requirement by managing compiler locations internally. The `compact` command automatically resolves the correct compiler path based on the selected version.
+**레거시 COMPACT_HOME 변수**: 이전 버전의 Midnight 예제에서는 컴파일러 디렉터리를 가리키도록 `COMPACT_HOME`을 설정해야 했습니다. 새 개발자 도구는 컴파일러 위치를 내부적으로 관리하여 이 요구사항을 제거합니다. `compact` 명령은 선택된 버전에 따라 올바른 컴파일러 경로를 자동으로 확인합니다.
 
-If working with older example code that references `COMPACT_HOME`, you have two options:
-1. **Update the build scripts**: Replace `$COMPACT_HOME/compactc` references with `compact compile` commands
-2. **Set COMPACT_HOME for compatibility**: Export the variable pointing to `~/.compact/bin` for temporary backward compatibility
+`COMPACT_HOME`을 참조하는 이전 예제 코드로 작업하는 경우 두 가지 옵션이 있습니다:
+1. **빌드 스크립트 업데이트**: `$COMPACT_HOME/compactc` 참조를 `compact compile` 명령으로 교체
+2. **호환성을 위해 COMPACT_HOME 설정**: 임시 하위 호환성을 위해 `~/.compact/bin`을 가리키는 변수 내보내기
 
-**Direct compiler access**: While not recommended, the installed toolchain binaries reside in `~/.compact/bin/`. This directory contains symbolic links to the current default version's binaries:
-- `compactc` - The main compiler executable
-- `zkir` - Zero-knowledge intermediate representation tool
-- Supporting libraries and runtime files
+**직접 컴파일러 접근**: 권장되지는 않지만, 설치된 툴체인 바이너리는 `~/.compact/bin/`에 있습니다. 이 디렉터리에는 현재 기본 버전의 바이너리에 대한 심볼릭 링크가 포함됩니다:
+- `compactc` - 메인 컴파일러 실행 파일
+- `zkir` - Zero-knowledge 중간 표현 도구
+- 지원 라이브러리 및 런타임 파일
 
-Direct invocation bypasses version management benefits. Always prefer using `compact compile` for:
-- Automatic version selection
-- Consistent behavior across platforms
-- Compatibility with future toolchain updates
-- Integrated error handling and diagnostics
+직접 호출은 버전 관리 이점을 우회합니다. 다음을 위해 항상 `compact compile` 사용을 권장합니다:
+- 자동 버전 선택
+- 플랫폼 간 일관된 동작
+- 향후 툴체인 업데이트와의 호환성
+- 통합 오류 처리 및 진단
 
-**Project-specific configuration**: Modern Midnight projects should document their compiler version requirements in configuration files rather than relying on environment variables. Consider using:
-- `package.json` scripts that invoke `compact compile` with specific versions
-- Build configuration files that specify the required compiler version
-- CI/CD pipelines that install and use specific toolchain versions via `compact update`
+**프로젝트별 구성**: 현대 Midnight 프로젝트는 환경 변수에 의존하는 대신 구성 파일에 컴파일러 버전 요구사항을 문서화해야 합니다. 다음 사용을 고려하세요:
+- 특정 버전으로 `compact compile`을 호출하는 `package.json` 스크립트
+- 필요한 컴파일러 버전을 지정하는 빌드 구성 파일
+- `compact update`를 통해 특정 툴체인 버전을 설치하고 사용하는 CI/CD 파이프라인
 
-This approach ensures reproducible builds across different development environments and team members.
+이 접근 방식은 다른 개발 환경과 팀 구성원 간에 재현 가능한 빌드를 보장합니다.
 
 ## Optional: Visual Studio Code extension for Compact
 
-Use any editor to create Midnight DApps. Midnight provides a VSCode extension specifically for creating and editing Midnight contracts written in the Compact DSL. The extension transforms VSCode into a specialized Compact development environment with language-aware features that significantly improve productivity and reduce errors.
+어떤 편집기로든 Midnight DApp을 개발할 수 있습니다. Midnight에서는 Compact DSL로 작성된 컨트랙트를 편집하기 위한 VSCode 확장을 제공합니다. 이 확장은 VSCode를 Compact 전용 개발 환경으로 전환하여 생산성을 크게 높이고 오류를 줄여 줍니다.
 
 ### Extension features
 
-**Syntax highlighting**: Color-codes different language elements (keywords, types, functions, comments) for improved readability. The highlighting rules understand Compact-specific constructs like `circuit`, `witness`, and `ledger` declarations.
+**구문 강조**: 가독성 향상을 위해 다양한 언어 요소(키워드, 타입, 함수, 주석)를 색상으로 구분합니다. 강조 규칙은 `circuit`, `witness`, `ledger` 선언과 같은 Compact 전용 구문을 이해합니다.
 
-**Live, dynamic contract checking**: Performs real-time semantic analysis as you type, identifying errors before compilation. This includes:
-- Type checking across circuit boundaries
-- Privacy flow analysis to prevent unintended data disclosure
-- Witness function signature validation
-- Ledger state access verification
+**실시간 동적 컨트랙트 검사**: 입력할 때 실시간 시맨틱 분석을 수행하여 컴파일 전에 오류를 식별합니다. 여기에는 다음이 포함됩니다:
+- circuit 경계를 넘는 타입 검사
+- 의도하지 않은 데이터 노출을 방지하는 프라이버시 흐름 분석
+- witness 함수 시그니처 유효성 검사
+- ledger 상태 접근 검증
 
-**Debugging assistance**: Provides enhanced error messages with suggested fixes. When compilation fails, the extension highlights problematic code sections and offers context-aware solutions.
+**디버깅 지원**: 수정 제안과 함께 향상된 오류 메시지를 제공합니다. 컴파일이 실패하면 확장이 문제가 있는 코드 섹션을 강조하고 컨텍스트 인식 솔루션을 제안합니다.
 
-**Code completion and IntelliSense**: Offers intelligent suggestions for:
-- Standard library functions and types
-- Ledger field access
-- Circuit and witness declarations
-- Import statements for standard modules
+**코드 완성 및 IntelliSense**: 다음에 대한 지능적인 제안을 제공합니다:
+- 표준 라이브러리 함수 및 타입
+- ledger 필드 접근
+- circuit 및 witness 선언
+- 표준 모듈에 대한 import 문
 
-**Templates and snippets**: Accelerates development with pre-built patterns for:
-- New contract scaffolding with standard structure
-- Common circuit patterns (authentication, state transitions)
-- Witness function declarations
-- Standard library imports
+**템플릿 및 스니펫**: 미리 만들어진 패턴으로 개발을 가속화합니다:
+- 표준 구조를 가진 새 컨트랙트 스캐폴딩
+- 일반적인 circuit 패턴 (인증, 상태 전환)
+- witness 함수 선언
+- 표준 라이브러리 import
 
 ### Installation process
 
-Download the VSCode extension for Compact from [the Midnight Testnet releases repository](../../../relnotes/overview). The file name follows the pattern `compact-x.y.z.vsix` for version `x.y.z`. The VSIX file is a packaged extension format that includes all necessary dependencies.
+[Midnight 테스트넷 릴리스 저장소](../../../relnotes/overview)에서 Compact용 VSCode 확장을 다운로드하세요. 파일 이름은 `compact-x.y.z.vsix` 형식입니다. VSIX 파일은 필요한 모든 의존성을 포함하는 패키지 확장 형식입니다.
 
-Install the plugin in VSCode:
-1. **Open the Extensions pane**: Click the Extensions icon in the Activity Bar or press `Ctrl+Shift+X` (Windows/Linux) or `Cmd+Shift+X` (macOS)
-2. **Access installation options**: Click the `...` symbol at the top of the Extensions pane to reveal additional actions
-3. **Select manual installation**: Choose "Install from VSIX..." from the dropdown menu
-4. **Locate the downloaded file**: Navigate to your Downloads folder or wherever you saved the VSIX file
-5. **Confirm installation**: VSCode installs the extension and may prompt for additional permissions
+VSCode에서 플러그인을 설치합니다:
+1. **확장 패널 열기**: 활동 표시줄에서 확장 아이콘을 클릭하거나 `Ctrl+Shift+X` (Windows/Linux) 또는 `Cmd+Shift+X` (macOS)를 누릅니다
+2. **설치 옵션 접근**: 확장 패널 상단의 `...` 기호를 클릭하여 추가 작업을 표시합니다
+3. **수동 설치 선택**: 드롭다운 메뉴에서 "Install from VSIX..."를 선택합니다
+4. **다운로드된 파일 찾기**: 다운로드 폴더 또는 VSIX 파일을 저장한 위치로 이동합니다
+5. **설치 확인**: VSCode가 확장을 설치하고 추가 권한을 요청할 수 있습니다
 
-VSCode typically activates newly installed extensions immediately. The extension activates automatically when opening files with the `.compact` extension. Sometimes VSCode prompts for a restart to ensure all language server components initialize properly.
+VSCode는 일반적으로 새로 설치된 확장을 즉시 활성화합니다. `.compact` 확장자를 가진 파일을 열 때 확장이 자동으로 활성화됩니다. 때때로 VSCode는 모든 언어 서버 구성 요소가 올바르게 초기화되도록 재시작을 요청합니다.
 
 ### Configuration
 
-The extension works with default settings but supports customization through VSCode's settings:
+확장은 기본 설정으로 작동하지만 VSCode의 설정을 통한 사용자 정의를 지원합니다:
 
-- **Compiler path**: If not using the standard `compact` command, specify a custom compiler location
-- **Validation level**: Adjust the strictness of real-time checking (errors only, include warnings, include suggestions)
-- **Format on save**: Enable automatic code formatting when saving files
+- **컴파일러 경로**: 표준 `compact` 명령을 사용하지 않는 경우, 사용자 지정 컴파일러 위치를 지정합니다
+- **유효성 검사 수준**: 실시간 검사의 엄격도를 조정합니다 (오류만, 경고 포함, 제안 포함)
+- **저장 시 형식 지정**: 파일 저장 시 자동 코드 포맷팅을 활성화합니다
 
-Access extension settings through `File > Preferences > Settings` and search for "Compact" to find all available options.
+`File > Preferences > Settings`를 통해 확장 설정에 접근하고 "Compact"를 검색하여 사용 가능한 모든 옵션을 찾습니다.
 
-Even if VSCode isn't your primary editor, consider using the VSCode Compact extension for editing Midnight contracts while learning the language. The immediate feedback and intelligent assistance accelerate the learning process and help avoid common mistakes.
+VSCode가 주요 편집기가 아니더라도, 언어를 배우는 동안 Midnight 컨트랙트를 편집할 때 VSCode Compact 확장을 사용하는 것을 고려하세요. 즉각적인 피드백과 지능적인 지원은 학습 과정을 가속화하고 일반적인 실수를 피하는 데 도움이 됩니다.
 
 ## Manage toolchain versions
 
-The Compact developer tools support multiple toolchain versions simultaneously. This capability is essential for maintaining existing contracts while developing new ones, testing compatibility across versions, and gradually migrating to newer compiler releases.
+Compact 개발자 도구는 여러 툴체인 버전을 동시에 지원합니다. 이 기능은 기존 컨트랙트를 유지하면서 새 컨트랙트를 개발하고, 버전 간 호환성을 테스트하며, 새 컴파일러 릴리스로 점진적으로 마이그레이션하는 데 필수적입니다.
 
 ### List available versions
 
-View all versions available for download:
+다운로드 가능한 모든 버전을 봅니다:
 
 ```shell
 compact list
 ```
 
-Output shows versions and supported platforms:
+출력은 버전과 지원되는 플랫폼을 표시합니다:
 
 ```
 compact: available versions
@@ -334,22 +334,22 @@ compact: available versions
   0.22.0 - x86_macos, x86_linux
 ```
 
-The arrow (`→`) indicates the current default version used when running `compact compile` without a version override. Platform indicators show which architectures support each version:
-- `x86_macos` - Intel-based Mac computers
-- `aarch64_macos` - Apple Silicon Macs (M1, M2, M3)
-- `x86_linux` - Standard Linux on Intel/AMD processors
+화살표(`→`)는 버전 재정의 없이 `compact compile`을 실행할 때 사용되는 현재 기본 버전을 나타냅니다. 플랫폼 표시기는 각 버전이 지원하는 아키텍처를 보여줍니다:
+- `x86_macos` - Intel 기반 Mac 컴퓨터
+- `aarch64_macos` - Apple Silicon Mac (M1, M2, M3)
+- `x86_linux` - Intel/AMD 프로세서의 표준 Linux
 
-Not all versions support all platforms. Early releases might lack Apple Silicon support, while some versions might skip certain platforms due to build issues.
+모든 버전이 모든 플랫폼을 지원하는 것은 아닙니다. 초기 릴리스에는 Apple Silicon 지원이 없을 수 있으며, 일부 버전은 빌드 문제로 인해 특정 플랫폼을 건너뛸 수 있습니다.
 
 ### Check installed versions
 
-List versions downloaded to your system:
+시스템에 다운로드된 버전을 나열합니다:
 
 ```shell
 compact list --installed
 ```
 
-Output shows only locally available versions:
+출력은 로컬에서 사용 가능한 버전만 표시합니다:
 
 ```
 compact: installed versions
@@ -358,141 +358,141 @@ compact: installed versions
   0.23.0
 ```
 
-Installed versions consume disk space (approximately 100-200MB each) but enable offline compilation and instant version switching. Remove unused versions by deleting their directories from `~/.compact/versions/`.
+설치된 버전은 각각 약 100-200MB의 디스크 공간을 차지하지만 오프라인 컴파일과 즉각적인 버전 전환이 가능합니다. 사용하지 않는 버전은 `~/.compact/versions/`에서 해당 디렉터리를 삭제하여 제거합니다.
 
 ### Switch between versions
 
-Change the default toolchain version:
+기본 툴체인 버전을 변경합니다:
 
 ```shell
 compact update 0.23.0
 ```
 
-This command:
-1. Downloads the specified version if not already installed
-2. Verifies the download integrity using checksums
-3. Updates the symbolic link at `~/.compact/bin` to point to the new version
-4. Confirms the switch with output showing the new default
+이 명령은:
+1. 아직 설치되지 않은 경우 지정된 버전을 다운로드합니다
+2. 체크섬을 사용하여 다운로드 무결성을 확인합니다
+3. `~/.compact/bin`의 심볼릭 링크를 새 버전을 가리키도록 업데이트합니다
+4. 새 기본값을 표시하는 출력으로 전환을 확인합니다
 
-The switch affects all subsequent `compact compile` commands unless overridden with the `+version` syntax. Projects can document their required compiler version in README files or build scripts to ensure consistency across team members.
+전환은 `+version` 구문으로 재정의하지 않는 한 이후의 모든 `compact compile` 명령에 영향을 미칩니다. 프로젝트는 팀 구성원 간의 일관성을 보장하기 위해 README 파일이나 빌드 스크립트에 필요한 컴파일러 버전을 문서화할 수 있습니다.
 
 ## Developer tools maintenance
 
-The developer tools update themselves independently from the toolchain. This separation ensures that improvements to the version management system don't require compiler updates, and compiler releases don't force tool updates. The architecture enables the tools to manage multiple compiler versions while maintaining a consistent interface.
+개발자 도구는 툴체인과 독립적으로 자체 업데이트합니다. 이 분리는 버전 관리 시스템의 개선이 컴파일러 업데이트를 필요로 하지 않고, 컴파일러 릴리스가 도구 업데이트를 강제하지 않도록 보장합니다. 이 아키텍처를 통해 도구는 일관된 인터페이스를 유지하면서 여러 컴파일러 버전을 관리할 수 있습니다.
 
 ### Check for tool updates
 
-Verify if newer developer tools are available:
+최신 개발자 도구가 사용 가능한지 확인합니다:
 
 ```shell
 compact self check
 ```
 
-This command queries the GitHub releases API to identify the latest stable version. The check compares your installed version against the latest release and reports:
-- Current installed version of the developer tools
-- Latest available version
-- Whether an update is recommended
+이 명령은 GitHub 릴리스 API를 쿼리하여 최신 안정 버전을 식별합니다. 확인은 설치된 버전을 최신 릴리스와 비교하고 다음을 보고합니다:
+- 현재 설치된 개발자 도구 버전
+- 최신 사용 가능한 버전
+- 업데이트가 권장되는지 여부
 
-The tools check for updates automatically once per day when running any `compact` command. This passive check doesn't interrupt workflow but notifies about available updates through a brief message after command completion.
+도구는 `compact` 명령을 실행할 때 하루에 한 번 자동으로 업데이트를 확인합니다. 이 수동적인 확인은 워크플로우를 방해하지 않지만 명령 완료 후 간단한 메시지를 통해 사용 가능한 업데이트를 알립니다.
 
 ### Update the developer tools
 
-Install the latest developer tools version:
+최신 개발자 도구 버전을 설치합니다:
 
 ```shell
 compact self update
 ```
 
-The self-update process:
-1. Downloads the latest version to a temporary location
-2. Verifies the download using cryptographic signatures
-3. Replaces the current binary with the new version
-4. Preserves all installed toolchains and configuration
+자체 업데이트 과정:
+1. 최신 버전을 임시 위치에 다운로드합니다
+2. 암호화 서명을 사용하여 다운로드를 검증합니다
+3. 현재 바이너리를 새 버전으로 교체합니다
+4. 설치된 모든 툴체인과 구성을 보존합니다
 
-Self-updates are backward compatible—new tool versions continue to work with existing installed toolchains. This design principle ensures that updating tools never breaks existing projects.
+자체 업데이트는 하위 호환됩니다. 새 도구 버전은 기존에 설치된 툴체인과 계속 작동합니다. 이 설계 원칙은 도구를 업데이트해도 기존 프로젝트가 깨지지 않도록 보장합니다.
 
 ### When to update
 
-Update the developer tools when:
-- **New features become available**: Future releases include features like `compact format` for code formatting, `compact doc` for documentation generation, and `compact test` for contract testing
-- **Bug fixes are released**: Tool updates may resolve issues with version management, platform compatibility, or command execution
-- **Security updates**: Although rare, security updates to the tools themselves should be applied promptly
+다음의 경우 개발자 도구를 업데이트합니다:
+- **새 기능이 사용 가능해진 경우**: 향후 릴리스에는 코드 포맷팅을 위한 `compact format`, 문서 생성을 위한 `compact doc`, 컨트랙트 테스트를 위한 `compact test`와 같은 기능이 포함됩니다
+- **버그 수정이 릴리스된 경우**: 도구 업데이트는 버전 관리, 플랫폼 호환성 또는 명령 실행과 관련된 문제를 해결할 수 있습니다
+- **보안 업데이트**: 드물지만, 도구 자체에 대한 보안 업데이트는 즉시 적용해야 합니다
 
-The release notes for each tool version (distinct from compiler release notes) describe new features and important changes. Monitor the Midnight developer announcements for significant tool updates that enhance the development experience.
+각 도구 버전(컴파일러 릴리스 노트와 별개)의 릴리스 노트는 새 기능과 중요한 변경 사항을 설명합니다. 개발 경험을 향상시키는 중요한 도구 업데이트에 대한 Midnight 개발자 공지를 모니터링하세요.
 
 ## Get help
 
-The `compact` tool provides comprehensive built-in documentation accessible directly from the command line. This integrated help system eliminates the need to search online documentation for basic command syntax and options.
+`compact` 도구는 명령줄에서 직접 접근할 수 있는 포괄적인 내장 문서를 제공합니다. 이 통합 도움말 시스템은 기본 명령 구문 및 옵션을 위해 온라인 문서를 검색할 필요를 없앱니다.
 
 ### General help
 
-Access the main help overview:
+기본 도움말 개요에 접근합니다:
 
 ```shell
 compact help
 compact --help
 ```
 
-Both commands display identical output—a complete list of available subcommands with brief descriptions. The help text includes:
-- **Subcommand list**: All available operations like `compile`, `update`, `list`, `check`
-- **Global options**: Flags that apply to all subcommands, such as `--directory` for specifying the toolchain location
-- **Usage examples**: Basic command patterns showing typical invocations
+두 명령은 동일한 출력을 표시합니다. 간략한 설명과 함께 사용 가능한 하위 명령의 전체 목록입니다. 도움말 텍스트에는 다음이 포함됩니다:
+- **하위 명령 목록**: `compile`, `update`, `list`, `check`와 같은 사용 가능한 모든 작업
+- **전역 옵션**: 툴체인 위치를 지정하는 `--directory`와 같이 모든 하위 명령에 적용되는 플래그
+- **사용 예제**: 일반적인 호출을 보여주는 기본 명령 패턴
 
-The help system uses a hierarchical structure. The top-level help provides an overview, while subcommand-specific help offers detailed information about individual operations.
+도움말 시스템은 계층 구조를 사용합니다. 최상위 도움말은 개요를 제공하고, 하위 명령별 도움말은 개별 작업에 대한 자세한 정보를 제공합니다.
 
 ### Subcommand help
 
-Get detailed help for specific operations:
+특정 작업에 대한 자세한 도움말을 확인합니다:
 
 ```shell
 compact help update
 compact update --help
 ```
 
-Subcommand help includes:
-- **Detailed description**: Explains what the command does and when to use it
-- **Argument specifications**: Required and optional parameters with their types
-- **Flag descriptions**: All available options with their effects
-- **Examples**: Real-world usage scenarios
-- **Related commands**: References to similar or complementary operations
+하위 명령 도움말에는 다음이 포함됩니다:
+- **상세 설명**: 명령이 수행하는 작업과 사용 시기를 설명합니다
+- **인수 사양**: 타입을 포함한 필수 및 선택적 매개변수
+- **플래그 설명**: 효과가 있는 사용 가능한 모든 옵션
+- **예제**: 실제 사용 시나리오
+- **관련 명령**: 유사하거나 보완적인 작업에 대한 참조
 
-For compiler-specific help:
+컴파일러별 도움말:
 
 ```shell
 compact compile --help
 ```
 
-This displays compiler options including:
-- **Input specifications**: Supported file formats and contract structures
-- **Output options**: Directory structure and generated file descriptions
-- **Optimization flags**: Options for controlling compilation behavior
-- **Debug options**: Flags for generating additional diagnostic information
+이는 다음을 포함한 컴파일러 옵션을 표시합니다:
+- **입력 사양**: 지원되는 파일 형식 및 컨트랙트 구조
+- **출력 옵션**: 디렉터리 구조 및 생성된 파일 설명
+- **최적화 플래그**: 컴파일 동작을 제어하는 옵션
+- **디버그 옵션**: 추가 진단 정보를 생성하는 플래그
 
 ### Version information
 
-The tools provide multiple version queries for different components:
+도구는 다른 구성 요소에 대한 여러 버전 쿼리를 제공합니다:
 
-**Developer tools version**:
+**개발자 도구 버전**:
 ```shell
 compact --version
 ```
-Returns the version of the `compact` command itself (e.g., `0.1.0`). This version indicates the capabilities of the version management system.
+`compact` 명령 자체의 버전을 반환합니다 (예: `0.1.0`). 이 버전은 버전 관리 시스템의 기능을 나타냅니다.
 
-**Compiler/toolchain version**:
+**컴파일러/툴체인 버전**:
 ```shell
 compact compile --version
 ```
-Returns the version of the currently selected Compact compiler (e.g., `0.24.0`). This version determines available language features and compilation behavior.
+현재 선택된 Compact 컴파일러의 버전을 반환합니다 (예: `0.24.0`). 이 버전은 사용 가능한 언어 기능과 컴파일 동작을 결정합니다.
 
-**Compact language version**:
+**Compact 언어 버전**:
 ```shell
 compact compile --language-version
 ```
-Returns the version of the Compact language specification supported by the current compiler. Language versions change less frequently than compiler versions, as they represent the stable language syntax and semantics.
+현재 컴파일러가 지원하는 Compact 언어 사양의 버전을 반환합니다. 언어 버전은 안정적인 언어 구문과 의미를 나타내므로 컴파일러 버전보다 덜 자주 변경됩니다.
 
-Understanding version relationships helps diagnose compatibility issues:
-- **Language version**: Defines contract syntax and available features
-- **Compiler version**: Implements a specific language version with particular optimizations
-- **Developer tools version**: Manages compiler installations and provides development utilities
+버전 관계를 이해하면 호환성 문제를 진단하는 데 도움이 됩니다:
+- **언어 버전**: 컨트랙트 구문 및 사용 가능한 기능을 정의합니다
+- **컴파일러 버전**: 특정 최적화로 특정 언어 버전을 구현합니다
+- **개발자 도구 버전**: 컴파일러 설치를 관리하고 개발 유틸리티를 제공합니다
 
-When reporting issues or seeking support, provide all three version numbers for complete context.
+문제를 보고하거나 지원을 요청할 때 완전한 컨텍스트를 위해 세 가지 버전 번호를 모두 제공하세요.

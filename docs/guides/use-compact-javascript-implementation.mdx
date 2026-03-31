@@ -1,38 +1,38 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-description: Learn how to use the Compact JavaScript implementation for the Midnight Network.
-sidebar_label: Use the Compact JavaScript implementation
-title: Use the Compact JavaScript implementation
+description: Midnight Network에서 Compact JavaScript 구현을 사용하는 방법을 알아봅니다.
+sidebar_label: Compact JavaScript 구현 사용하기
+title: Compact JavaScript 구현 사용하기
 sidebar_position: 46
 ---
 
 # Use the Compact JavaScript implementation
 
-This guide shows how to use the Compact JavaScript implementation in your development workflow. 
-Learn how to import the implementation, create a contract instance, and call its functions from a JavaScript or TypeScript environment.
+이 가이드에서는 개발 워크플로에서 Compact JavaScript 구현을 사용하는 방법을 다룹니다.
+구현 import, 컨트랙트 인스턴스 생성, JavaScript/TypeScript 환경에서의 함수 호출 방법을 설명합니다.
 
 ## Import the implementation
 
-Once you have compiled your Compact contract, the compiler outputs these key files in the `managed` directory:
+Compact 컨트랙트를 컴파일하면 `managed` 디렉토리에 다음 파일이 생성됩니다:
 
-- `index.js`: The JavaScript implementation
-- `index.d.ts`: TypeScript type definitions
-- `index.js.map`: Source map for debugging
+- `index.js`: JavaScript 구현
+- `index.d.ts`: TypeScript 타입 정의
+- `index.js.map`: 디버깅용 소스 맵
 
-You can load the implementation like any other ECMAScript (ES) module:
+일반 ES 모듈처럼 import하면 됩니다:
 
 ```typescript
 import { Contract, State, pureCircuits, ledger } from './managed/bboard/contract/index.js';
 ```
 
-If you are using TypeScript, then the accompanying declaration file `index.d.ts` automatically provides type hints for your contract and its methods.
+TypeScript를 사용하면 함께 생성된 `index.d.ts`가 컨트랙트와 메서드의 타입 힌트를 자동으로 제공합니다.
 
 ## Implement witnesses
 
-Every Compact contract with witness functions requires a witnesses object when instantiated. This object contains implementations for all witness functions declared in your Compact code.
+witness 함수가 있는 Compact 컨트랙트는 인스턴스화할 때 witnesses 객체가 필요합니다. 이 객체에 Compact 코드에서 선언한 모든 witness 함수의 구현을 담습니다.
 
-For the bulletin board contract, create a `witnesses.ts` file in the `contract/src` directory:
+bulletin board 컨트랙트의 경우 `contract/src`에 `witnesses.ts` 파일을 생성하세요:
 
 ```typescript
 import { Ledger } from "./managed/bboard/contract/index.js";
@@ -56,13 +56,13 @@ export const witnesses = {
 };
 ```
 
-The witnesses object maps witness function names to their implementations. Each witness function receives a `WitnessContext` containing the ledger state, private state, and contract address. The function returns a tuple of the updated private state and the witness value.
+witnesses 객체는 witness 함수 이름을 구현에 매핑합니다. 각 witness 함수는 ledger 상태, private state, 컨트랙트 주소가 포함된 `WitnessContext`를 받고, 업데이트된 private state와 witness 값의 튜플을 반환합니다.
 
 ## Call contract circuits
 
-Each circuit is exposed as a JavaScript function under `contract.circuits` or `contract.impureCircuits`. These wrappers prepare the inputs, run the JavaScript implementation, and return structured results containing the output, updated context, and proof data.
+각 circuit은 `contract.circuits` 또는 `contract.impureCircuits`에 JavaScript 함수로 노출됩니다. 이 래퍼가 입력 준비, JavaScript 구현 실행을 처리하고, 출력, 업데이트된 컨텍스트, proof 데이터가 포함된 결과를 반환합니다.
 
-Here's an example of calling the `post` impure circuit:
+`post` impure circuit 호출 예시:
 
 ```typescript
 const initialContext = {
@@ -81,17 +81,17 @@ const initialContext = {
 
 const message = "Hello from Compact!";
 
-const { result, context, proofData, gasCost } = 
+const { result, context, proofData, gasCost } =
   contract.circuits.post(initialContext, message);
 ```
 
-The returned object contains:
-- `result`: The circuit's return value (empty array for post)
-- `context`: The updated circuit context with new ledger state
-- `proofData`: Data structure containing input, output, and transcripts for proof generation
-- `gasCost`: Gas cost tracking information
+반환 객체 구성:
+- `result`: circuit의 반환 값 (post의 경우 빈 배열)
+- `context`: 새 ledger 상태가 포함된 업데이트된 circuit 컨텍스트
+- `proofData`: proof 생성을 위한 입력, 출력, 트랜스크립트 데이터
+- `gasCost`: 가스 비용 추적 정보
 
-Here's an example of calling the `publicKey` pure circuit:
+`publicKey` pure circuit 호출 예시:
 
 ```typescript
 const secretKey = new Uint8Array(32);
@@ -100,11 +100,11 @@ const sequenceBytes = new Uint8Array(32);
 const ownerCommitment = pureCircuits.publicKey(secretKey, sequenceBytes);
 ```
 
-Pure circuits can be called directly without a circuit context. They perform deterministic computations and return values immediately.
+Pure circuit은 circuit 컨텍스트 없이 직접 호출 가능하며, 결정론적 계산을 수행하고 즉시 결과를 반환합니다.
 
 ## Write unit tests
 
-Because the Compact implementation is a standard ES module, you can integrate it with testing frameworks such as Vitest, Jest, or Mocha.
+Compact 구현은 표준 ES 모듈이므로 Vitest, Jest, Mocha 등 테스트 프레임워크와 바로 연동할 수 있습니다.
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -155,36 +155,36 @@ describe('Bulletin board contract', () => {
 });
 ```
 
-This allows you to test your contract logic off-chain with full control over inputs and without requiring a Midnight Node or proof server.
+Midnight Node나 proof server 없이 입력을 완전히 제어하면서 오프체인에서 컨트랙트 로직을 테스트할 수 있습니다.
 
 ## Why the Compact JavaScript implementation matters
 
-This section explains why Compact generates a JavaScript implementation and why this design is critical for building privacy-preserving smart contracts.
+Compact가 JavaScript 구현을 생성하는 이유와, 이 설계가 프라이버시 보호 스마트 컨트랙트 개발에 중요한 이유를 설명합니다.
 
 ### A bridge between ZK circuits and everyday code
 
-Zero-knowledge (ZK) circuits are powerful, but they are also complex and opaque. You cannot easily debug or test them directly.
+ZK circuit은 강력하지만 복잡하고 불투명하여, 직접 디버깅하거나 테스트하기가 쉽지 않습니다.
 
-The JavaScript implementation acts as a bridge between the low-level proof system and the high-level contract logic. When you call `contract.circuits.post(context, "Hello world!")`, you are running exactly the same logic that the ZK circuit executes on-chain, but in a form that you can step through, log, and inspect in Node.js.
+JavaScript 구현은 저수준 proof 시스템과 고수준 컨트랙트 로직 사이의 다리 역할을 합니다. `contract.circuits.post(context, "Hello world!")`를 호출하면 ZK circuit이 온체인에서 실행하는 것과 동일한 로직이 실행되지만, Node.js에서 단계별로 실행하고 로그를 남기고 검사할 수 있습니다.
 
-This means you can validate the behavior of your contract locally before you need to generate proofs or submit transactions to the Midnight network.
+따라서 proof를 생성하거나 트랜잭션을 제출하기 전에 로컬에서 컨트랙트 동작을 미리 검증할 수 있습니다.
 
 ### Type safety and consistency across environments
 
-The implementation uses Compact's own type descriptors, such as `CompactTypeBoolean` and `CompactTypeBytes`, ensuring the data you pass in your JavaScript tests is encoded in exactly the same way it will be on-chain. This consistency eliminates a whole class of subtle bugs related to differences in byte order, field alignment, or encoding length.
+`CompactTypeBoolean`, `CompactTypeBytes` 같은 Compact의 타입 디스크립터를 사용하므로, JavaScript 테스트에서 전달하는 데이터가 온체인과 동일하게 인코딩됩니다. 바이트 순서, 필드 정렬, 인코딩 길이 차이로 인한 미묘한 버그를 원천적으로 방지합니다.
 
 ```typescript
 const message = "Hello Midnight!";
 const proof = contract.circuits.post(context, message);
 ```
 
-You can test and reason about your contract logic with confidence that the ZK circuit behaves identically.
+ZK circuit이 동일하게 동작한다는 확신 하에 컨트랙트 로직을 테스트하고 검증할 수 있습니다.
 
 ### Reproducibility and proof transparency
 
-Each call to a contract circuit returns a structured `proofData` object. This data is the input to the prover along with a representation of the circuit.
+contract circuit 호출 시마다 구조화된 `proofData` 객체가 반환됩니다. 이 데이터는 circuit 표현과 함께 prover의 입력으로 사용됩니다.
 
-That data is crucial for reproducible testing and transparent verification:
+재현 가능한 테스트와 투명한 검증에 핵심적인 역할을 합니다:
 
 ```javascript
 {
@@ -195,20 +195,20 @@ That data is crucial for reproducible testing and transparent verification:
 }
 ```
 
-Having this available directly in JavaScript lets you record, replay, and verify circuit executions as part of your normal testing flow. You don't need to rely on external tools.
+JavaScript에서 직접 사용할 수 있어, 일반 테스트 플로우에서 circuit 실행을 기록하고 재생하고 검증할 수 있습니다. 별도의 외부 도구가 필요 없습니다.
 
 ### Developer productivity without compromising privacy
 
-The implementation design allows Compact developers to use familiar tools, such as TypeScript, Jest, VSCode, and Node.js, while working with privacy-preserving logic.
+이 설계 덕분에 프라이버시 보호 로직을 다루면서도 TypeScript, Jest, VSCode, Node.js 같은 익숙한 도구를 그대로 사용할 수 있습니다.
 
-Instead of being locked into a specialized proving environment, you can:
+전용 proof 환경에 갇히지 않고 다음 작업이 가능합니다:
 
-- Write integration tests in the same language as your application.
-- Simulate user flows off-chain.
-- Validate logic changes before recompiling circuits.
+- 애플리케이션과 동일한 언어로 통합 테스트 작성
+- 오프체인에서 사용자 플로우 시뮬레이션
+- circuit 재컴파일 전 로직 변경 사항 검증
 
-This combination provides developer-friendly ergonomics with cryptographic guarantees under the hood.
+내부적으로 암호학적 보증을 유지하면서도 개발자 친화적인 워크플로를 제공합니다.
 
 ## Next steps
 
-Now you understand how to use the Compact JavaScript implementation. Explore the [Bulletin board DApp](../examples/dapps/bboard) for a complete example of using the JavaScript implementation.
+Compact JavaScript 구현의 사용법을 살펴보았습니다. 실제 사용 예시는 [Bulletin board DApp](../examples/dapps/bboard)에서 확인할 수 있습니다.

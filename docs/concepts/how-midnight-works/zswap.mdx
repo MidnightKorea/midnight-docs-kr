@@ -7,79 +7,54 @@ copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Found
 
 :::info
 
-The details of Midnight's native currency implementation are not yet stable and will
-undergo further revisions. The performance of basic operations has not been
-optimized at this time.
+Midnight 네이티브 통화 구현의 세부 사항은 아직 확정되지 않았으며, 앞으로 추가 변경이 있을 예정입니다. 기본 연산의 성능도 현재 최적화되지 않은 상태입니다.
 
 :::
 
-Zswap[^1] is a shielded token mechanism, based on Zerocash[^2], extended
-with *native token support* and *atomic swaps*. Zswap's basic component is
-an [offer](#offers), which conceptually is a set of [inputs](#inputs) and
-[outputs](#outputs). In this matter, it matches the UTXO model, although the
-set of unspent transactions itself is not computable due to the inability to
-link matching inputs and outputs, a property inherited from Zerocash.
+Zswap[^1]은 Zerocash[^2]를 기반으로 한 차폐 토큰 메커니즘으로, *네이티브 토큰 지원*과 *원자적 스왑* 기능이 추가되었습니다. Zswap의 기본 구성 요소는 [offer](#offers)이며, 개념적으로 [input](#inputs)과 [output](#outputs)의 집합입니다. UTXO 모델과 유사하지만, 대응하는 input과 output을 서로 연결할 수 없다는 특성(Zerocash로부터 물려받은)으로 인해, 미사용 트랜잭션 집합 자체를 산출하는 것은 불가능합니다.
 
-This section describes a slight variation of Zswap used in Midnight that
-permits contracts to hold funds.
+이 섹션에서는 컨트랙트가 자금을 보유할 수 있도록 허용하는 Midnight 고유의 Zswap 변형을 설명합니다.
 
-## Offers
+## Offer {#offers}
 
-A Zswap offer consists of four elements:
+Zswap offer는 네 가지 요소로 구성됩니다:
 
-- a set of [input](#inputs) coins (also called 'spends')
-- a set of [output](#outputs) coins
-- a set of transient coins
-- a balance vector.
+- [input](#inputs) 코인 집합('spend'라고도 함)
+- [output](#outputs) 코인 집합
+- transient coin 집합
+- balance vector.
 
-Transient coins are coins that are both created and spent in the same
-transaction. This may seem superfluous, but it extends the ability for
-contracts to manage coins. Conceptually, this is an [output](#outputs)
-immediately followed by an [input](#inputs), with the sole distinction that the
-input spends from a locally created coin commitment set, as opposed to the
-global one, to prevent index collisions.
+Transient coin은 동일한 트랜잭션 안에서 생성과 소비가 모두 이루어지는 코인입니다. 불필요해 보일 수 있지만, 컨트랙트의 코인 관리 능력을 확장하는 역할을 합니다. 개념적으로는 [output](#outputs) 바로 뒤에 [input](#inputs)이 따라오는 것이며, 유일한 차이는 인덱스 충돌을 방지하기 위해 input이 전역이 아닌 로컬에서 생성된 coin commitment 집합으로부터 소비한다는 점입니다.
 
-The balance vector is a vector of the total value of this offer. Its
-dimensions are all possible [token types](#token-types), with each dimension
-carrying its own value. An input of a given type counts positively towards this
-vector and negatively towards an output. A balance vector is considered *balanced* if,
-for all dimensions, it is non-negative. Typically, it is *adjusted* before
-checking for balance, to account for token mints and fee deductions.
+Balance vector는 해당 offer의 총 가치 벡터입니다. 차원은 가능한 모든 [토큰 유형](#token-types)이며, 각 차원은 고유한 값을 가집니다. 특정 유형의 input은 이 벡터에 양수로 기여하고, output은 음수로 기여합니다. Balance vector의 모든 차원이 음이 아닌 값일 때 *균형 잡힌* 상태로 간주됩니다. 일반적으로 균형 여부를 확인하기 전에 토큰 발행과 수수료 차감을 반영하여 *조정*됩니다.
 
-### Outputs
+### Output {#outputs}
 
-A Zswap output creates a new coin and places a corresponding *commitment* in a
-global Merkle tree. It consists of:
+Zswap output은 새로운 코인을 생성하고, 해당 *commitment*를 전역 Merkle tree에 배치합니다. 구성 요소는 다음과 같습니다:
 
-- the commitment itself
-- a multi-base Pedersen commitment to the type/value vector
-- an optional contract address, iff (if and only if) this output is targeted at a contract
-- an optional ciphertext, if the output is toward a user that must receive it
-- a zero-knowledge proof that the former are correct with respect to each other.
+- commitment 자체
+- type/value 벡터에 대한 multi-base Pedersen commitment
+- output의 수신자가 컨트랙트인 경우에 한해 포함되는 선택적 컨트랙트 주소
+- output을 수신할 사용자가 지정된 경우의 선택적 암호문
+- 위 항목들의 상호 정합성에 대한 영지식 증명.
 
-Outputs are valid if their zero-knowledge proof is verified.
+Output은 영지식 증명이 검증을 통과하면 유효합니다.
 
-### Inputs
+### Input {#inputs}
 
-A Zswap input spends an existing coin, by referencing (without revealing) its
-original commitment in the global Merkle tree and producing a corresponding
-(but unlinkable) *nullifier*. It consists of:
+Zswap input은 전역 Merkle tree에서 원래의 commitment를 공개하지 않고 참조하며, 대응하는 연결 불가능한 *nullifier*를 생성하여 기존 코인을 소비합니다. 구성 요소는 다음과 같습니다:
 
-- the nullifier itself
-- a multi-base Pedersen commitment to the type/value vector
-- an optional contract address, iff the output is targeted at a contract
-- a Merkle tree of a tree containing the commitment corresponding to the nullifier
-- a zero-knowledge proof that the former are correct with respect to each other.
+- nullifier 자체
+- type/value 벡터에 대한 multi-base Pedersen commitment
+- 수신자가 컨트랙트인 경우에 한해 포함되는 선택적 컨트랙트 주소
+- nullifier에 대응하는 commitment를 포함하는 tree의 Merkle root
+- 위 항목들의 상호 정합성에 대한 영지식 증명.
 
-Inputs are valid iff the zero-knowledge proof verifies *and* the Merkle tree
-root is in the set of past roots.
+Input은 영지식 증명이 검증을 통과하고, *동시에* Merkle tree root가 유효한 과거 root 집합에 포함된 경우에만 유효합니다.
 
-### Token types
+### Token types {#token-types}
 
-A token type in Midnight is a 256-bit collision-resistant hash output or the
-pre-defined zero value, which represents the native token. Users can issue their own tokens
-from contracts, with these token types being derived as a hash of the
-contract's address and a domain-separator given by the user.
+Midnight의 토큰 유형은 256비트 충돌 저항 해시 출력이거나, 네이티브 토큰을 나타내는 사전 정의된 0 값입니다. 사용자는 컨트랙트를 통해 자체 토큰을 발행할 수 있으며, 이때 토큰 유형은 컨트랙트 주소와 사용자가 지정한 도메인 분리자의 해시로 도출됩니다.
 
 [^1] Engelmann, F., Kerber, T., Kohlweiss, M., & Volkhov, M. 2022. Zswap: zk-SNARK based non-interactive multi-asset swaps. *Proceedings on Privacy Enhancing Technologies (PoPETs)* 4 (2022), 507-527. <tt>https://eprint.iacr.org/2022/1002.pdf</tt>
 

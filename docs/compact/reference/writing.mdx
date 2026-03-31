@@ -1,23 +1,23 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-title: Writing a contract
+title: 컨트랙트 작성하기
 sidebar_position: 01
 ---
 
 <div className="lang-ref">
 # Writing a contract
 
-This page walks
-through the construction of a simple smart contract, which manages a
-publicly accessible value and supports the operations `get`, `set`,
-and `clear`. Because the value is public, anyone can call `get`, but if
-the value is currently set, only the user that last called `set` can
-`clear` it, and it must be `clear`ed before `set`ting it again.
+이 페이지는
+공개적으로 접근 가능한 값을 관리하고 `get`, `set`,
+`clear` 연산을 지원하는 간단한 스마트 컨트랙트의 구성을
+단계별로 안내합니다. 값이 공개이므로 누구나 `get`을 호출할 수 있지만,
+값이 현재 설정되어 있으면 마지막으로 `set`을 호출한 사용자만
+`clear`할 수 있으며, 다시 `set`하기 전에 반드시 `clear`해야 합니다.
 
-To start, the contract specifies the version of the language it is using,
-imports Midnight's standard libraries,
-and declares an `enum` for the state it may currently be in:
+시작하려면, 컨트랙트는 사용 중인 언어 버전을 지정하고,
+Midnight의 표준 라이브러리를 가져오고,
+현재 상태를 나타내는 `enum`을 선언합니다:
 
 ```compact title=lock.compact
 pragma language_version 0.22;
@@ -30,22 +30,23 @@ enum State {
 }
 ```
 
-In addition to the `enum` declaration, custom data can also be defined with
-`struct`s.  Details can be found in the 
-[language reference](./compact-reference.mdx#program-defined-types).
+`enum` 선언 외에도, 사용자 정의 데이터는
+`struct`로 정의할 수 있습니다. 자세한 내용은
+[언어 레퍼런스](./compact-reference.mdx#program-defined-types)를 참고하세요.
 
 ## The `ledger` section
 
-A key part of a Compact smart contract is the `ledger` section, which describes
-the state kept on chain. This example stores a key that can be used to identify the user who is permitted to
-`clear` the value, the value itself (this example uses a 64-bit unsigned integer), and what state the contract is in.
+Compact 스마트 컨트랙트의 핵심은 `ledger` 섹션으로, 온체인에 저장되는
+상태를 정의합니다. 이 예제에서는 값을 `clear`할 수 있는 권한이 있는
+사용자를 식별하는 키, 값 자체(64비트 부호 없는 정수),
+컨트랙트의 현재 상태를 저장합니다.
 
-In addition to these, it is necessary to add a `round` counter, which is useful to retain
-anonymity, as discussed below.
+아래에서 설명하듯이 익명성을 유지하기 위한
+`round` 카운터도 추가해야 합니다.
 
-Each field in a smart contract's on-chain state is declared with a `ledger` declaration.
-A constructor can be used to initialize the ledger fields when the contract is deployed.
-In this case, the ledger declarations are as follows:
+스마트 컨트랙트의 온체인 상태 필드는 각각 `ledger` 선언으로 정의합니다.
+constructor를 사용하면 컨트랙트 배포 시 ledger 필드를 초기화할 수 있습니다.
+이 경우의 ledger 선언은 다음과 같습니다:
 
 ```compact title=lock.compact
 export ledger authority: Bytes<32>;
@@ -68,19 +69,18 @@ circuit publicKey(round: Field, sk: Bytes<32>): Bytes<32> {
 }
 ```
 
-In addition to the `ledger` section, the `constructor` also demonstrates basic
-interaction with the state contained in it, using the field names to refer to
-the items in the ledger's state. Many ledger types also support *operations* as
-demonstrated in `clear`.
+`ledger` 섹션 외에도, `constructor`에서 필드 이름으로
+ledger 상태의 항목을 참조하는 기본적인 상태 조작 방법을 볼 수 있습니다.
+`clear`에서 보여주듯이 많은 ledger 타입은 다양한 *연산*을 지원합니다.
 
-## The `circuit` definitions
+## `circuit` definitions
 
-The example above already demonstrates use of a `circuit` to calculate the
-`publicKey` of a user. A `circuit` in Compact is equivalent to a function in many
-programming languages, but it is restricted to fixed computational bounds at
-compile time.  A smart contract's `circuit`s can also be its main entry points;
-they are what users can call directly in transactions. Of the three entry points mentioned above, `get` is *unrestricted* and is simply implemented as
-follows:
+위 예제에서 이미 사용자의 `publicKey`를 계산하는 `circuit`를
+볼 수 있습니다. Compact에서 `circuit`는 다른 프로그래밍 언어의
+함수와 비슷하지만, 컴파일 시점에 계산 범위가 고정됩니다.
+스마트 컨트랙트의 `circuit`는 사용자가 트랜잭션에서 직접 호출할 수 있는
+주요 진입점이 될 수도 있습니다.
+앞서 언급한 세 가지 진입점 중 `get`은 아무 제한 없이 간단히 구현됩니다:
 
 ```compact title=lock.compact
 export circuit get(): Uint<64> {
@@ -89,21 +89,20 @@ export circuit get(): Uint<64> {
 }
 ```
 
-Here `export` marks this circuit as an entry point to the smart contract, and
-`assert` ensures that it can only be used when the contract is in the correct
-state. The [language reference](./compact-reference.mdx#circuit-definitions) details permissible contents
-of `circuit`s.
+여기서 `export`는 이 circuit를 스마트 컨트랙트의 진입점으로 표시하고,
+`assert`는 컨트랙트가 올바른 상태에 있을 때만 사용할 수 있도록 보장합니다.
+[언어 레퍼런스](./compact-reference.mdx#circuit-definitions)에서 `circuit`의
+허용 가능한 내용을 자세히 설명합니다.
 
-## Local state and computations
+## Local state and computation
 
-The third context mentioned was the local machine of the user. This is
-explicitly programmable in the form of the DApp running on the
-user's machine.  Compact can 'call out' to the local context through
-*witnesses*[^1], which are declared in a similar way to circuits. In this case, retrieving a user's
-*secret key* requires such a witness, because the secret must be kept local to a user's
-machine.
+세 번째 컨텍스트는 사용자의 로컬 머신입니다. 이는 사용자의 머신에서 실행되는
+DApp으로 직접 프로그래밍할 수 있습니다. Compact는 *witness*[^1]를
+통해 로컬 컨텍스트로 콜아웃할 수 있으며, circuit와 비슷한 방식으로 선언합니다.
+이 예제에서는 사용자의 *비밀 키*를 가져오기 위해 witness가 필요합니다.
+비밀 키는 사용자의 머신에서만 유지되어야 하기 때문입니다.
 
-The code for this follows:
+이에 대한 코드는 다음과 같습니다:
 
 ```compact title=lock.compact
 witness secretKey(): Bytes<32>;
@@ -127,15 +126,14 @@ export circuit clear(): [] {
 }
 ```
 
-Note that the `witness` is not implemented in the Compact source code.
-Instead, the implementation is the responsibility of the TypeScript
-code of the DApp. It's important to note that each user could
-reasonably use a different implementation for the `witness`, so its
-results cannot be trusted inherently by the contract.
+`witness`는 Compact 소스 코드에서 구현하지 않습니다.
+구현은 DApp의 TypeScript 코드에서 담당합니다.
+각 사용자가 `witness`를 다르게 구현할 수 있으므로,
+그 결과를 컨트랙트 내에서 무조건 신뢰해서는 안 됩니다.
 
-## The full contract
+## Full contract
 
-All put together, the full example is:
+모두 합치면, 전체 예제는 다음과 같습니다:
 
 ```compact title=lock.compact
 pragma language_version 0.22;
@@ -192,39 +190,36 @@ export circuit clear(): [] {
 }
 ```
 
-## Basic confidentiality
+## confidentiality
 
-It may not be immediately apparent what is held confidential in this example
-and what is enforced in the contract. Thankfully, both are well-defined:
-- all data that is not a ledger field and is not an argument or return value of a ledger operation is kept confidential
-- all computation that is not done in a `witness` function is enforced to be
-  correct.
+이 예제에서 무엇이 기밀로 유지되고 무엇이 강제되는지 바로
+파악하기 어려울 수 있습니다. 다행히 둘 다 명확하게 정의되어 있습니다:
+- ledger 필드가 아니고 ledger 연산의 인수나 반환 값이 아닌 모든 데이터는 기밀로 유지됩니다
+- `witness` 함수 외부에서 수행되는 모든 계산은 정확성이 강제됩니다.
 
-In particular, observe that this keeps the `secretKey` output confidential,
-while enforcing that *its hash* is the correct value in the case of `clear`.
+구체적으로, `secretKey`의 출력은 기밀로 유지되면서
+`clear`할 때 *해시*가 올바른 값인지가 강제됩니다.
 
-This is also the reason for the `round` parameter: The `pk` "public key"
-*isn't* confidential, and would allow linkability between the same user
-publishing data in multiple rounds. By adding a round parameter into the public
-key computation, this linkability is broken.
+`round` 매개변수가 필요한 이유도 여기에 있습니다. `pk` "공개 키"는
+기밀이 *아니므로*, 동일한 사용자가 여러 라운드에 걸쳐 데이터를 게시하면
+서로 연결될 수 있습니다. 공개 키 계산에 라운드 매개변수를 포함하면
+이러한 연결 가능성이 사라집니다.
 
-Despite the terms "secret key" and "public key", these two keys are *not*
-public key cryptography: they are simply a binary string and its hash. This is
-due to zero-knowledge circuits being able to have similar effects to digital
-signatures, relying only on the preimage resistance of hashes.
+"비밀 키"와 "공개 키"라는 용어를 사용하지만, 이 키들은 공개 키 암호화와는
+*관계없습니다*. 단순히 이진 문자열과 그 해시일 뿐입니다. 영지식 circuit는
+해시의 역상 저항성만으로도 디지털 서명과 유사한 효과를
+구현할 수 있기 때문입니다.
 
-This pattern of hashing an arbitrary binary string and using it as a key is
-quite powerful. A similar concept that can be very useful is the use of
-*commitment schemes*,
-where arbitrary data is hashed together with a random
-*nonce*. The result can be safely placed into the ledger's state, without
-revealing the original data. (Note that the nonce *must* not be reused. If it
-is, you can link the commitments with the same nonces and values.) At a later
-point, the commitment can be "opened" by revealing the value and nonce, or a
-contract can simply prove (`assert`) that it *has* the correct value and nonce,
-without ever revealing them.
+임의의 이진 문자열을 해시하여 키로 사용하는 이 패턴은 매우 강력합니다.
+비슷한 개념으로 *커밋먼트 스킴*이 있는데,
+임의의 데이터를 랜덤 *nonce*와 함께 해시하는 방식입니다.
+그 결과를 원본 데이터를 드러내지 않고 안전하게 ledger 상태에 저장할 수 있습니다.
+(nonce는 절대 재사용하면 *안 됩니다*. 재사용하면 동일한 nonce와 값을 가진
+커밋먼트끼리 연결될 수 있습니다.) 이후에 값과 nonce를 공개하여 커밋먼트를
+"열거나", 올바른 값과 nonce를 *보유하고 있음*을
+`assert`로 증명할 수 있으며, 이때 실제 값은 공개되지 않습니다.
 
-The `CompactStandardLibrary` module provides the following circuits for such uses:
+`CompactStandardLibrary` 모듈은 이러한 용도를 위해 다음 circuit를 제공합니다:
 ```compact title=standard-library.compact
 circuit transientHash<T>(value: T): Field;
 circuit transientCommit<T>(value: T, rand: Field): Field;
@@ -232,22 +227,21 @@ circuit persistentHash<T>(value: T): Bytes<32>;
 circuit persistentCommit<T>(value: T, rand: Bytes<32>): Bytes<32>;
 ```
 
-The `*Hash` variants are the basic hash function, with `*Commit` being a
-commitment function to arbitrary data. The `transient*` functions should only
-be used when the values are *not* kept in state, while `persistent*` outputs
-being suitable for storage in a contract's `ledger` state.
+`*Hash` 변형은 기본 해시 함수이고, `*Commit`는 임의 데이터에 대한
+커밋먼트 함수입니다. `transient*` 함수는 값이 상태에 보관되지 *않을* 때만
+사용해야 하며, `persistent*` 출력은 컨트랙트의 `ledger` 상태에
+저장하기에 적합합니다.
 
 ## Next steps
 
-[Compact reference](compact-reference) provides a compelete and detailed overview
-of the Compact language.
-Alternatively, you may wish to jump to a [more detailed example](../../examples/dapps/bboard.mdx)
-that showcases some more interesting things you can do with a DApp on Midnight.
-While this section has focused on the Compact language,
-the section about how Midnight works
-provides more detail about Midnight's ledger and how it functions.
+[Compact 레퍼런스](compact-reference)에서 Compact 언어의 완전한 상세 내용을
+확인할 수 있습니다.
+Midnight DApp으로 할 수 있는 더 흥미로운 내용이 궁금하다면
+[더 자세한 예제](../../examples/dapps/bboard.mdx)를 참고하세요.
+이 섹션은 Compact 언어에 초점을 맞추었지만,
+Midnight 작동 방식 섹션에서 ledger와 그 기능에 대해 더 자세히 다룹니다.
 
-[^1] The name *witness* comes from zero-knowledge literature; the etymology is
-roughly that it's the evidence you need to believe a statement. In this
-example, it's the evidence you need to believe that a `clear` was permissible.
+[^1] *witness*라는 이름은 영지식 문헌에서 유래합니다. 대략적으로
+어떤 진술을 믿기 위해 필요한 증거를 의미합니다. 이 예제에서는
+`clear` 호출이 허용됨을 믿기 위해 필요한 증거입니다.
 </div>

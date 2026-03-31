@@ -5,13 +5,13 @@ copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Found
 
 # Midnight's hybrid architecture
 
-Midnight combines approaches to create a hybrid architecture that doesn't force you to choose between models but integrates both to maximize benefits.
+Midnight는 여러 접근 방식을 결합하여, 하나의 모델만 선택하도록 강요하는 대신 두 모델을 통합함으로써 각각의 이점을 극대화하는 하이브리드 아키텍처를 구현합니다.
 
 <iframe
   width="100%"
   height="500"
   src="https://www.youtube.com/embed/5BGkt7d6fNw?si=NSxPch4B0EqXR_Jn"
-  title="Midnight's hybrid architecture"
+  title="Midnight의 하이브리드 아키텍처"
   frameborder="0"
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
   referrerpolicy="strict-origin-when-cross-origin"
@@ -19,57 +19,57 @@ Midnight combines approaches to create a hybrid architecture that doesn't force 
 ></iframe>
 ## The combination
 
-Midnight is a data-protecting blockchain that made a deliberate architectural choice: instead of forcing developers into one paradigm, it provides both UTXO and account-based capabilities. This isn't just about having options—it's about using the right tool for the right job.
+Midnight는 의도적인 아키텍처 선택을 내린 데이터 보호 블록체인입니다. 개발자를 하나의 패러다임에 가두는 대신, UTXO 기반과 account 기반 기능을 모두 제공합니다. 이는 단순히 선택지를 늘리는 것이 아니라, 적합한 작업에 적합한 도구를 사용하는 것입니다.
 
-At its foundation, Midnight operates on a UTXO model. This choice enables the natural parallelism and privacy features we explored in the previous lesson. NIGHT tokens, Midnight's native utility token, exist as UTXOs on the ledger. But here's where Midnight innovates beyond other UTXO chains: NIGHT tokens serve a special purpose. They generate DUST, a renewable resource that powers all transactions on the network. This NIGHT-generates-DUST mechanism is fundamental to Midnight's economic model and ensures predictable transaction costs.
+기본적으로 Midnight는 UTXO 모델로 작동합니다. 이 선택 덕분에 자연스러운 병렬성과 프라이버시 기능이 가능해집니다. Midnight의 네이티브 유틸리티 토큰인 NIGHT는 ledger에 UTXO로 존재합니다. 그러나 Midnight가 다른 UTXO 체인과 차별화되는 부분이 있습니다. NIGHT 토큰은 네트워크의 모든 트랜잭션을 구동하는 재생 가능 자원인 DUST를 생성하는 특별한 역할을 합니다. 이 NIGHT-DUST 생성 메커니즘은 Midnight 경제 모델의 핵심이며, 예측 가능한 트랜잭션 비용을 보장합니다.
 
-On top of this UTXO foundation, Midnight introduces a smart contract layer that can operate using account-based patterns. When you deploy a Compact smart contract (Midnight's smart contract language), it can maintain complex state just like contracts on Ethereum. This means developers can write intuitive smart contracts with familiar patterns while the underlying platform still benefits from UTXO advantages.
+이 UTXO 기반 위에 Midnight는 account 기반 패턴으로 작동하는 스마트 컨트랙트 레이어를 도입합니다. Midnight의 스마트 컨트랙트 언어인 Compact로 컨트랙트를 배포하면, Ethereum의 컨트랙트처럼 복잡한 상태를 유지할 수 있습니다. 이를 통해 개발자는 기반 플랫폼이 여전히 UTXO의 장점을 활용하면서도, 익숙한 패턴으로 직관적인 스마트 컨트랙트를 작성할 수 있습니다.
 
 ## Understanding Midnight's token ecosystem
 
-Before we dive deeper into token types in future chapters, let's establish a clear framework for understanding how value moves through Midnight's ecosystem. The key insight is understanding the distinction between tokens (which represent value) and resources (which enable network operations).
+토큰 유형을 더 깊이 다루기에 앞서, Midnight 생태계에서 가치가 어떻게 흐르는지 이해하기 위한 프레임워크를 먼저 정리합니다. 핵심은 토큰(가치를 나타내는 것)과 리소스(네트워크 운영에 사용되는 것) 사이의 구별을 이해하는 것입니다.
 
 ## The NIGHT token and DUST resource
 
-NIGHT is Midnight's native utility token that exists as UTXOs on the ledger. Think of NIGHT as a renewable energy source—like solar panels that generate electricity. Just as solar panels produce energy when exposed to sunlight, NIGHT tokens continuously generate DUST when designated to a DUST address.
+NIGHT는 ledger에 UTXO로 존재하는 Midnight의 네이티브 유틸리티 토큰입니다. NIGHT를 전기를 생산하는 태양광 패널 같은 재생 가능 에너지원이라고 생각하면 됩니다. 태양광 패널이 햇빛을 받으면 에너지를 생산하듯, NIGHT 토큰은 DUST 주소에 지정되면 지속적으로 DUST를 생성합니다.
 
-DUST is not a token—it's a shielded network resource used exclusively to pay for transaction fees. The amount of DUST you can store is proportional to your NIGHT balance, and DUST decays when disconnected from its generating NIGHT tokens. This unique mechanism provides operational predictability: as long as you hold NIGHT, you can execute transactions without worrying about volatile gas prices.
+DUST는 토큰이 아니라 트랜잭션 수수료 지불에만 사용되는 차폐된 네트워크 리소스입니다. 저장 가능한 DUST의 양은 NIGHT 잔액에 비례하며, DUST는 생성 원본인 NIGHT 토큰에서 분리되면 감소합니다. 이 독특한 메커니즘 덕분에 운영 예측 가능성이 확보됩니다. NIGHT를 보유하는 한, 변동하는 가스 가격을 걱정하지 않고 트랜잭션을 실행할 수 있습니다.
 
 ## Token categories
 
-Beyond the NIGHT/DUST dynamic, Midnight supports two fundamental categories of tokens:
+NIGHT/DUST 메커니즘 외에, Midnight는 두 가지 기본 카테고리의 토큰을 지원합니다:
 
-- **Ledger Tokens** live directly on Midnight's blockchain, managed by the core protocol itself. These tokens exist as UTXOs and benefit from the highest level of security and efficiency. They can be either shielded (private) or unshielded (transparent), giving users control over their privacy preferences. Because they're handled by Midnight's optimized UTXO engine, they process with maximum efficiency and don't require trusting any smart contract code.
+- **Ledger 토큰**은 핵심 프로토콜 자체가 관리하며 Midnight 블록체인에 직접 존재합니다. UTXO로 존재하며 최고 수준의 보안과 효율성을 누립니다. 차폐(비공개) 또는 비차폐(투명) 모두 가능하여, 사용자가 프라이버시 수준을 직접 제어할 수 있습니다. Midnight의 최적화된 UTXO 엔진이 처리하므로 최대 효율로 운영되며, 스마트 컨트랙트 코드를 신뢰할 필요가 없습니다.
 
-- **Contract Tokens** are created and managed by Compact smart contracts. These tokens use account-based patterns within the contracts, maintaining balances and state similar to ERC-20 tokens on Ethereum. With contract tokens, you can program custom logic, implement complex distribution mechanisms, or create tokens that interact with other contracts. These also support both shielded and unshielded variants, though the implementation differs from ledger tokens.
+- **Contract 토큰**은 Compact 스마트 컨트랙트가 생성하고 관리합니다. 컨트랙트 내에서 account 기반 패턴을 사용하며, Ethereum의 ERC-20 토큰과 유사하게 잔액과 상태를 유지합니다. Contract 토큰을 통해 사용자 정의 로직 프로그래밍, 복잡한 분배 메커니즘 구현, 다른 컨트랙트와 상호작용하는 토큰 생성이 가능합니다. 차폐 및 비차폐 변형을 모두 지원하지만, 구현 방식이 ledger 토큰과 다릅니다.
 
 ## Token types
 
-When we consider the intersection of where tokens live (ledger vs. contract) and their privacy properties (shielded vs. unshielded), we get a matrix of possibilities:
+토큰이 존재하는 위치(ledger vs. contract)와 프라이버시 속성(차폐 vs. 비차폐)의 교차점을 고려하면, 다음과 같은 매트릭스를 얻을 수 있습니다:
 
-| Token Type                 | Location          | Privacy     | Key Characteristics                                      | Example Use Cases                                  |
+| 토큰 유형                 | 위치          | 프라이버시     | 주요 특성                                      | 예시 사용 사례                                  |
 | -------------------------- | ----------------- | ----------- | -------------------------------------------------------- | -------------------------------------------------- |
-| Shielded Ledger Tokens     | Blockchain ledger | Private     | Native privacy, maximum efficiency, UTXO-based           | Private payments, confidential value transfer      |
-| Unshielded Ledger Tokens   | Blockchain ledger | Transparent | Full transparency, high performance, UTXO-based          | NIGHT tokens, public treasuries, exchange listings |
-| Shielded Contract Tokens   | Smart contracts   | Private     | Programmable privacy, custom logic, account-based        | Private securities, confidential rewards           |
-| Unshielded Contract Tokens | Smart contracts   | Transparent | Full programmability, ERC-20 style, complex interactions | Governance tokens, public DeFi protocols           |
+| 차폐 Ledger 토큰     | 블록체인 ledger | 비공개     | 네이티브 프라이버시, 최대 효율성, UTXO 기반           | 비공개 결제, 기밀 가치 이전      |
+| 비차폐 Ledger 토큰   | 블록체인 ledger | 투명 | 완전한 투명성, 높은 성능, UTXO 기반          | NIGHT 토큰, 공개 재무, 거래소 상장 |
+| 차폐 Contract 토큰   | 스마트 컨트랙트   | 비공개     | 프로그래밍 가능한 프라이버시, 사용자 정의 로직, account 기반        | 비공개 증권, 기밀 보상           |
+| 비차폐 Contract 토큰 | 스마트 컨트랙트   | 투명 | 완전한 프로그래밍 가능성, ERC-20 스타일, 복잡한 상호작용 | 거버넌스 토큰, 공개 DeFi 프로토콜           |
 
-Each token type serves specific needs. Unshielded ledger tokens like NIGHT provide transparent, high-performance value transfer—perfect for exchanges, public treasuries, or any scenario requiring auditability. Shielded ledger tokens enable private peer-to-peer transactions with the efficiency of native blockchain operations.
+각 토큰 유형은 특정 용도에 적합합니다. NIGHT와 같은 비차폐 ledger 토큰은 투명하고 고성능의 가치 이전을 제공하며, 거래소, 공개 재무 또는 감사가 필요한 시나리오에 적합합니다. 차폐 ledger 토큰은 네이티브 블록체인 운영의 효율성을 바탕으로 비공개 P2P 트랜잭션을 지원합니다.
 
-Contract tokens bring programmability to both transparent and private use cases. Unshielded contract tokens work like traditional ERC-20s but benefit from Midnight's infrastructure. Shielded contract tokens open entirely new possibilities—imagine private company equity where transfers are confidential but voting rights remain verifiable.
+Contract 토큰은 투명한 사용 사례와 비공개 사용 사례 모두에 프로그래밍 가능성을 제공합니다. 비차폐 contract 토큰은 기존 ERC-20처럼 작동하면서 Midnight 인프라의 이점을 누립니다. 차폐 contract 토큰은 완전히 새로운 가능성을 열어줍니다. 예를 들어 이전은 기밀이지만 투표권은 검증 가능한 비공개 기업 지분을 생각해 볼 수 있습니다.
 
 ## Implications
 
-Understanding Midnight's hybrid architecture fundamentally changes how you approach application design. Instead of being constrained by a single model's limitations, you can architect solutions that leverage each model's strengths.
+Midnight의 하이브리드 아키텍처를 이해하면 애플리케이션 설계에 대한 접근이 근본적으로 달라집니다. 단일 모델의 한계에 얽매이지 않고, 각 모델의 강점을 살린 솔루션을 설계할 수 있습니다.
 
-Consider a decentralized exchange. Traditional DEXs on account-based chains suffer from MEV and lack privacy options. On Midnight, you could architect a hybrid solution: the order book and market-making logic live in transparent smart contracts (leveraging the account model's strengths for complex state), while actual token swaps execute as atomic UTXO transactions (leveraging parallelism and optional privacy). This isn't just theoretical—it's the kind of innovation Midnight's architecture enables.
+탈중앙화 거래소를 예로 들어 보겠습니다. Account 기반 체인의 전통적인 DEX는 MEV에 취약하고 프라이버시 옵션이 부족합니다. Midnight에서는 하이브리드 솔루션을 설계할 수 있습니다. 주문장과 시장 조성 로직은 투명한 스마트 컨트랙트에 두고(복잡한 상태에 적합한 account 모델의 강점 활용), 실제 토큰 스왑은 원자적 UTXO 트랜잭션으로 실행합니다(병렬성과 선택적 프라이버시 활용). 이는 이론적인 이야기가 아니라, Midnight의 아키텍처가 실제로 가능하게 하는 혁신입니다.
 
 ## Decisions
 
-When building on Midnight, your first decision is often whether to use ledger tokens or contract tokens. Here's a framework for making that choice:
+Midnight에서 구축할 때, 첫 번째 결정은 보통 ledger 토큰과 contract 토큰 중 무엇을 사용할지입니다. 다음은 그 선택을 위한 프레임워크입니다:
 
-Choose ledger tokens when you need maximum performance, native privacy features, or simple value transfer without complex logic. The UTXO model's parallelism makes ledger tokens ideal for payment systems, remittance platforms, or any high-volume transaction scenario.
+최대 성능, 네이티브 프라이버시 기능, 또는 복잡한 로직 없이 단순한 가치 이전이 필요하다면 ledger 토큰을 선택하세요. UTXO 모델의 병렬성 덕분에 ledger 토큰은 결제 시스템, 송금 플랫폼, 또는 대량 트랜잭션 시나리오에 이상적입니다.
 
-Choose contract tokens when you need programmable logic, complex state management, or integration with other smart contracts. The account model within contracts makes these perfect for DeFi protocols, gaming assets, or tokens with sophisticated distribution mechanisms.
+프로그래밍 가능한 로직, 복잡한 상태 관리, 또는 다른 스마트 컨트랙트와의 통합이 필요하다면 contract 토큰을 선택하세요. 컨트랙트 내 account 모델은 DeFi 프로토콜, 게임 자산, 또는 정교한 분배 메커니즘을 가진 토큰에 적합합니다.
 
-You're not locked into one choice. A single application can use both ledger tokens for efficient value transfer and contract tokens for complex logic. This flexibility is what makes Midnight's architecture revolutionary.
+하나만 선택해야 하는 것은 아닙니다. 단일 애플리케이션에서 효율적인 가치 이전을 위한 ledger 토큰과 복잡한 로직을 위한 contract 토큰을 함께 사용할 수 있습니다. 이 유연성이야말로 Midnight 아키텍처가 혁신적인 이유입니다.

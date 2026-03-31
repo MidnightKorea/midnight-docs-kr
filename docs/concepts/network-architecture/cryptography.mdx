@@ -3,24 +3,24 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Cryptography
 sidebar_label: Cryptography
-description: A reference on cryptography in Midnight nodes.
+description: Midnight 노드의 암호학에 대한 참조 문서.
 keywords: [node]
 ---
 
 # Cryptography
 
-Outside of the Midnight Ledger, which contains its own specialized cryptographic circuits, the Midnight node relies on several foundational cryptographic algorithms for securing core functions such as consensus, state transition integrity, and network communication.
+고유한 암호학 회로를 포함하는 Midnight Ledger 외부에서, Midnight 노드는 합의, 상태 전환 무결성, 네트워크 통신 등 핵심 기능을 보호하기 위해 여러 기반 암호학 알고리즘에 의존합니다.
 
-The primary hash function used is **Blake2 256**, which provides strong cryptographic guarantees and is employed for general-purpose hashing — including block hashes and within various state transition functions. It strikes a balance between performance and security, making it suitable for runtime-critical operations.
+주요 해시 함수는 **Blake2 256**으로, 강력한 암호학적 보장을 제공하며 블록 해시 및 각종 상태 전환 함수의 범용 해싱에 사용됩니다. 성능과 보안의 균형이 우수하여 런타임의 핵심 연산에 적합합니다.
 
-For signature verification, Midnight uses three distinct schemes depending on the role:
+서명 검증에는 역할에 따라 세 가지 서로 다른 체계를 사용합니다:
 
-- **sr25519**, based on the Schnorrkel and Ristretto x25519 construction, is used for signing block authorship messages in the AURA consensus mechanism. It supports efficient key derivation, signature aggregation, and strong security properties.
-  
-- **ECDSA** is used specifically for signing consensus-related messages associated with Partnerchains. This ensures interoperability with external systems that adopt ECDSA as a standard.
-  
-- **Ed25519** is employed in two areas of the Midnight node:
-1. for signing finality-related messages in the GRANDPA protocol, offering a fast and secure mechanism for verifying validator communications during finalization.
-2. for signing messages sent as part of the underlying libp2p protocols implemented in Polkadot SDK
+- **sr25519**는 Schnorrkel과 Ristretto x25519 구성을 기반으로 하며, AURA 합의 메커니즘에서 블록 생성 메시지에 서명하는 데 사용됩니다. 효율적인 키 유도, 서명 집계, 강력한 보안 특성을 지원합니다.
 
-Additionally, the Midnight node uses **twoxhash** as a non-cryptographic hash function for generating storage keys. While not suitable for cryptographic applications, twoxhash is optimized for speed and low collision rates, making it appropriate for internal key-value storage structures. More details on its use are described in the [Storage](./storage) section.
+- **ECDSA**는 특히 Partnerchain 관련 합의 메시지에 서명하는 데 사용됩니다. ECDSA를 표준으로 채택하는 외부 시스템과의 상호 운용성을 보장합니다.
+
+- **Ed25519**는 Midnight 노드에서 두 가지 용도로 사용됩니다:
+1. GRANDPA 프로토콜에서 최종성 관련 메시지에 서명하며, 확정 과정에서 검증자 간 통신을 검증하기 위한 빠르고 안전한 메커니즘을 제공합니다.
+2. Polkadot SDK에 구현된 libp2p 프로토콜의 일부로 전송되는 메시지에 서명합니다.
+
+추가로, Midnight 노드는 스토리지 키 생성을 위한 비암호학적 해시 함수로 **twoxhash**를 사용합니다. 암호학적 용도에는 적합하지 않지만, 속도와 낮은 충돌률에 최적화되어 내부 키-값 스토리지 구조에 적합합니다. 자세한 내용은 [Storage](./storage) 섹션을 참조하세요.

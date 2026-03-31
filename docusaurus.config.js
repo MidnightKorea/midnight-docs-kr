@@ -327,16 +327,16 @@ const config = {
 
     navbar: {
       logo: {
-        alt: "Midnight Logo",
-        src: "img/midnight-header-logo-light.svg",
-        srcDark: "img/midnight-header-logo-dark.svg",
+        alt: "Midnight Korea Logo",
+        src: "img/midnight_korea_black.svg",
+        srcDark: "img/midnight_korea_white.svg",
         href: "/",
       },
       items: [
-        { to: "/api-reference",  label: "API reference",  position: "left",  activeBaseRegex: "^/api-reference(/|$)" },
-        { to: "/sdks",  label: "SDKs",  position: "left",  activeBaseRegex: "^/sdks(/|$)" },
-        { to: "/compact",  label: "Compact",  position: "left",  activeBaseRegex: "^/compact(/|$)" },
-        { to: "/blog",  label: "Dev Diaries",  position: "left",  activeBaseRegex: "^/blog(/|$)" },
+        // { to: "/api-reference",  label: "API reference",  position: "left",  activeBaseRegex: "^/api-reference(/|$)" },
+        // { to: "/sdks",  label: "SDKs",  position: "left",  activeBaseRegex: "^/sdks(/|$)" },
+        // { to: "/compact",  label: "Compact",  position: "left",  activeBaseRegex: "^/compact(/|$)" },
+        // { to: "/blog",  label: "Dev Diaries",  position: "left",  activeBaseRegex: "^/blog(/|$)" },
         // {
         //   type: 'docsVersionDropdown',
         //   position: "right",
@@ -352,61 +352,9 @@ const config = {
     },
 
     footer: {
-      logo: {
-        alt: "Midnight Logo",
-        src: "img/midnight-header-logo-dark.svg",
-        width: 235,
-        height: 50,
-      },
-      links: [
-        {
-          title: "Resources",
-          items: [
-            { label: "Midnight Foundation", href: "https://midnight.network/" },
-            { label: "Dev Diaries", href: "/blog" },
-            { label: "Glacier Drop", href: "https://www.midnight.gd/" },
-            { label: "Careers", href: "https://midnight.network/careers" },
-          ],
-        },
-        {
-          title: "Legal",
-          items: [
-            {
-              label: "Cookie Policy",
-              href:
-                "https://45047878.fs1.hubspotusercontent-na1.net/hubfs/45047878/Midnight%20Foundation%20cookie-policy.pdf",
-            },
-            {
-              label: "Privacy Policy",
-              href:
-                "https://45047878.fs1.hubspotusercontent-na1.net/hubfs/45047878/Midnight%20Foundation%20%20-%20Privacy%20Notice.pdf",
-            },
-            {
-              label: "Terms and Conditions",
-              href:
-                "https://45047878.fs1.hubspotusercontent-na1.net/hubfs/45047878/Midnight%20Foundation%20-%20Website%20Terms%20of%20Use.pdf",
-            },
-          ],
-        },
-        {
-          title: "Social",
-          items: [
-            {
-              html: `<a href="https://www.youtube.com/channel/UCy3oZ64F3FOtjZ5sZGQNgkA" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="/img/youtube.svg" alt="YouTube" /></a>`,
-            },
-            {
-              html: `<a href="https://x.com/MidnightNtwrk" target="_blank" rel="noopener noreferrer" aria-label="X/Twitter"><img src="/img/x.svg" alt="X/Twitter" /></a>`,
-            },
-            {
-              html: `<a href="https://discord.com/invite/midnightnetwork" target="_blank" rel="noopener noreferrer" aria-label="Discord"><img src="/img/discord.svg" alt="Discord" /></a>`,
-            },
-            {
-              html: `<a href="https://www.linkedin.com/showcase/midnight-ntwrk/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="/img/linkedin.svg" alt="LinkedIn" /></a>`,
-            },
-          ],
-        },
-      ],
-      copyright: `© ${new Date().getFullYear()} Input Output Global, Inc. All Rights Reserved.`,
+      // TODO: Midnight Korea 관련 링크로 교체 예정
+      links: [],
+      copyright: `© ${new Date().getFullYear()} Midnight Korea. All Rights Reserved.`,
     },
 
     colorMode: { defaultMode: "dark" },

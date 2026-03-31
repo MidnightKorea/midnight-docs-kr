@@ -5,26 +5,26 @@ copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Found
 
 # Opaque data types
 
-Data types whose representations are visible are called transparent. These expose the inner structure of the data so that operations on the data can be understood.
+내부 표현이 드러나는 데이터 타입을 투명 타입이라고 합니다. 이러한 타입은 데이터의 내부 구조를 노출하므로 해당 데이터에 대한 연산을 직접 이해할 수 있습니다.
 
-Drawbacks to having transparent data types include lesser type safety (or type soundness) - how a programming language discourages or prevents type errors, such as assigning the wrong type to a variable.
+투명 데이터 타입의 단점은 타입 시스템의 안전성이 낮아진다는 것입니다. 변수에 잘못된 타입을 할당하는 등의 타입 오류를 방지하기 어려워질 수 있습니다.
 
-Opaque data types present an interface without sharing the actual, concrete data structure. These can only be manipulated by calling subroutines that have access to knowledge about the missing structure.
+불투명 데이터 타입은 실제 데이터 구조를 숨기고 인터페이스만 제공합니다. 내부 구조에 접근할 수 있는 서브루틴을 통해서만 조작할 수 있습니다.
 
-The principle of information hiding, segregating design decisions from the underlying software implementation, results in more resilient code. Implementations can be improved or changed completely without the fragility that comes from inner details being depended upon. Defensively coding the parts most likely to change results in more robust code overall.
+정보 은닉 원칙, 즉 설계 결정과 구현을 분리하면 코드의 탄력성이 높아집니다. 내부 세부 사항에 의존하지 않으므로 구현을 자유롭게 개선하거나 변경할 수 있으며, 변경 가능성이 높은 부분을 방어적으로 코딩하면 전체적으로 더 견고한 코드가 됩니다.
 
 # Midnight opaque data types
 
-Opaque types in Compact are a compact type system feature that allow "foreign" JavaScript data to be stored, passed around, and retrieved on behalf of a DApp (but not inspected by Compact code).
+Compact의 불투명 타입은 외부 JavaScript 데이터를 DApp 대신 저장, 전달, 검색할 수 있게 해주는 타입 시스템 기능입니다. 다만 Compact 코드 내에서는 해당 데이터를 검사할 수 없습니다.
 
-Midnight’s Compact language currently supports `Opaque<'string'>` and `Opaque<'Uint8Array'>`. These can be stored in a contract's public state.
+Midnight의 Compact 언어는 현재 `Opaque<'string'>`과 `Opaque<'Uint8Array'>`를 지원하며, 컨트랙트의 공개 상태에 저장할 수 있습니다.
 
-NOTE: These are opaque only within Compact. They are transparent in a DApp's JavaScript code. Their representation on-chain is **NOT** hidden - `Uint8Array` is represented by the array of bytes and `string` is represented by its UTF-8 encoding.
+참고: 불투명성은 Compact 내에서만 적용됩니다. DApp의 JavaScript 코드에서는 투명하게 접근할 수 있습니다. 온체인 표현은 숨겨지지 **않습니다** - `Uint8Array`는 바이트 배열로, `string`은 UTF-8 인코딩으로 표현됩니다.
 
 # Examples
 
-The Bulletin Board example DApp, in the developer tutorial, has an example of opaque data type usage.
+개발자 튜토리얼의 게시판 예제 DApp에서 불투명 데이터 타입의 사용 예를 확인할 수 있습니다.
 
-* The Compact post circuit is a contract entry point that's called from a DApp and passed an `Opaque<'string'>`. Compact code can't look inside this; it does store it in the contract's public state.
+* Compact의 post circuit는 DApp에서 호출하여 `Opaque<'string'>`을 전달받는 컨트랙트 진입점입니다. Compact 코드는 이 값의 내부를 볼 수 없지만, 컨트랙트의 공개 상태에 저장합니다.
 
-* Later, the Compact take_down circuit reads this value and returns it to the JavaScript or TypeScript caller.
+* 이후 Compact의 take_down circuit가 이 값을 읽어 JavaScript 또는 TypeScript 호출자에게 반환합니다.

@@ -1,76 +1,76 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Counter contract"
-title: "Counter contract"
-description: "Learn how to build a counter contract on Midnight Network."
+sidebar_label: "Counter 컨트랙트"
+title: "Counter 컨트랙트"
+description: "Midnight 네트워크에서 counter 컨트랙트를 구축하는 방법을 알아봅니다."
 sidebar_position: 10
 toc_max_heading_level: 2
 ---
 
 # Counter contract
 
-This tutorial shows you how to build a smart contract that maintains a counter value on the Midnight blockchain. 
-This contract demonstrates the fundamentals of Compact programming, including ledger state management, circuit definitions, and Zero Knowledge (ZK) proof generation.
+이 튜토리얼에서는 Midnight 블록체인에서 카운터 값을 관리하는 스마트 컨트랙트를 구축합니다.
+이 컨트랙트는 ledger 상태 관리, circuit 정의 및 ZK proof 생성을 포함한 Compact 프로그래밍의 기본 개념을 다룹니다.
 
-By the end of this tutorial, you will:
+이 튜토리얼을 완료하면 다음을 할 수 있습니다:
 
-- Create a Compact smart contract with public ledger state
-- Define a circuit that modifies on-chain state
-- Compile the contract into Zero Knowledge (ZK) circuits
-- Understand the generated TypeScript API
-- Implement witness functions for contract interaction
+- 공개 ledger 상태가 있는 Compact 스마트 컨트랙트 생성
+- 온체인 상태를 변경하는 circuit 정의
+- 컨트랙트를 ZK circuit로 컴파일
+- 생성된 TypeScript API 이해
+- 컨트랙트 상호작용을 위한 witness 함수 구현
 
-The Counter contract is intentionally minimal to focus on core concepts. It maintains a single public counter value that can be incremented through a Zero Knowledge (ZK) proof-based transaction.
+Counter 컨트랙트는 핵심 개념에 집중하기 위해 의도적으로 최소화되었습니다. ZK proof 기반 트랜잭션을 통해 증가시킬 수 있는 단일 공개 카운터 값을 유지합니다.
 
 ## Prerequisites
 
-Before you begin, ensure that you have:
+시작하기 전에 다음 사항을 확인하세요:
 
-- **Compact toolchain installed**: For instructions, refer to the [install the toolchain](../../../getting-started/installation) guide
-- **Proof server running**: For instructions, refer to the [run the proof server](../../../getting-started/installation/#run-the-proof-server) guide
-- **Node.js version 22+**: Verify with `node --version`
+- **Compact 툴체인 설치**: 설치 방법은 [툴체인 설치](../../../getting-started/installation) 가이드를 참조하세요
+- **proof 서버 실행 중**: 설치 방법은 [proof 서버 실행](../../../getting-started/installation/#run-the-proof-server) 가이드를 참조하세요
+- **Node.js 버전 22 이상**: `node --version`으로 확인하세요
 
 ## Project structure
 
-The Counter project uses a modular structure that separates the smart contract from the application logic:
+Counter 프로젝트는 스마트 컨트랙트를 애플리케이션 로직과 분리하는 모듈식 구조를 사용합니다:
 
 ```
 example-counter/
-├── contract/                    # Smart contract sub-project
+├── contract/                    # 스마트 컨트랙트 서브 프로젝트
 │   ├── src/
-│   │   ├── counter.compact     # The Compact smart contract
-│   │   ├── witnesses.ts        # Witness implementations
-│   │   ├── index.ts            # Re-exports contract API
-│   │   └── test/               # Contract unit tests
-│   ├── managed/                # Compiler-generated code (created during build)
-│   └── package.json            # Contract dependencies
-└── counter-cli/                # CLI application (Part 2)
+│   │   ├── counter.compact     # Compact 스마트 컨트랙트
+│   │   ├── witnesses.ts        # Witness 구현
+│   │   ├── index.ts            # 컨트랙트 API 재내보내기
+│   │   └── test/               # 컨트랙트 단위 테스트
+│   ├── managed/                # 컴파일러 생성 코드 (빌드 시 생성)
+│   └── package.json            # 컨트랙트 의존성
+└── counter-cli/                # CLI 애플리케이션 (파트 2)
     ├── src/
     └── package.json
 ```
 
-This separation allows you to:
+이 구조 덕분에 다음이 가능합니다:
 
-- Test contract logic independently from the user interface.
-- Reuse the contract in multiple applications (CLI, web, mobile).
-- Update the contract without modifying application code.
-- Share contract code across development teams.
+- 사용자 인터페이스와 독립적으로 컨트랙트 로직을 테스트할 수 있습니다.
+- 여러 애플리케이션(CLI, 웹, 모바일)에서 컨트랙트를 재사용할 수 있습니다.
+- 애플리케이션 코드를 수정하지 않고도 컨트랙트를 업데이트할 수 있습니다.
+- 개발 팀 간에 컨트랙트 코드를 공유할 수 있습니다.
 
 ## Set up the project
 
-This section explains the process of setting up the project and creating the contract file.
+이 섹션에서는 프로젝트를 설정하고 컨트랙트 파일을 생성하는 과정을 설명합니다.
 
 ### Create the directory structure
 
-Create the project root and contract directories.
+프로젝트 루트와 컨트랙트 디렉터리를 생성합니다.
 
 ```bash
 mkdir -p example-counter/contract/src
 cd example-counter/contract
 ```
 
-Your directory structure should now look like this:
+디렉터리 구조는 다음과 같아야 합니다:
 
 ```
 example-counter/
@@ -80,17 +80,17 @@ example-counter/
 
 ### Initialize the npm package
 
-Create a `package.json` file in the `contract` directory:
+`contract` 디렉터리에 `package.json` 파일을 생성합니다:
 
 ```bash
 npm init -y
 ```
 
-This generates a basic `package.json` file.
+기본값이 포함된 기본 `package.json` 파일이 생성됩니다.
 
 ### Configure TypeScript
 
-Create a `tsconfig.json` file in the `contract` directory:
+`contract` 디렉터리에 `tsconfig.json` 파일을 생성합니다:
 
 ```json
 {
@@ -116,45 +116,45 @@ Create a `tsconfig.json` file in the `contract` directory:
 }
 ```
 
-The key configuration options are:
+주요 설정 옵션은 다음과 같습니다:
 
-- `target` and `module`: Set to ES2022 for modern JavaScript features
-- `declaration`: Generates `.d.ts` type definition files for TypeScript consumers
-- `outDir`: Compiled JavaScript files go to `./dist`
-- `rootDir`: Source TypeScript files are in `./src`
-- `strict`: Enables strict type checking for better code quality
+- `target`과 `module`: 최신 JavaScript 기능을 위해 ES2022로 설정
+- `declaration`: TypeScript 소비자를 위한 `.d.ts` 타입 정의 파일을 생성
+- `outDir`: 컴파일된 JavaScript 파일은 `./dist`에 저장
+- `rootDir`: 소스 TypeScript 파일은 `./src`에 위치
+- `strict`: 더 나은 코드 품질을 위한 엄격한 타입 검사 활성화
 
 ## Write the smart contract
 
-This section explains the process of writing the smart contract and understanding the key concepts.
+이 섹션에서는 스마트 컨트랙트를 작성하는 과정과 핵심 개념을 설명합니다.
 
 ### Create the contract file
 
-Create `contract/src/counter.compact`:
+`contract/src/counter.compact`를 생성합니다:
 
 ```bash
 touch src/counter.compact
 ```
 
-Open this file in your code editor.
+코드 에디터에서 이 파일을 엽니다.
 
 ### Add the language version
 
-The `pragma language_version` directive specifies which version of Compact your contract uses:
+`pragma language_version` 지시문은 컨트랙트에서 사용하는 Compact 버전을 지정합니다:
 
 ```compact
 pragma language_version >= 0.22;
 ```
 
-This directive:
+이 지시문은:
 
-- Locks your contract to a specific Compact version
-- Prevents breaking changes in future compiler versions
-- Ensures consistent compilation across development environments
+- 컨트랙트를 특정 Compact 버전에 고정합니다
+- 향후 컴파일러 버전의 호환성 문제를 방지합니다
+- 개발 환경 간 일관된 컴파일을 보장합니다
 
 ### Import the standard library
 
-Import Compact's standard library for built-in types and functions:
+내장 타입과 함수를 위해 Compact의 표준 라이브러리를 임포트합니다:
 
 ```compact
 pragma language_version >= 0.22;
@@ -162,68 +162,68 @@ pragma language_version >= 0.22;
 import CompactStandardLibrary;
 ```
 
-The `CompactStandardLibrary` provides built-in types and functions, such as the `Counter` type which is used to increment and decrement the counter value.
+`CompactStandardLibrary`는 카운터 값을 증가 및 감소시키는 데 사용되는 `Counter` 타입과 같은 내장 타입 및 함수를 제공합니다.
 
 ### Define the ledger state
 
-The ledger represents the public, on-chain state of your contract. 
+ledger는 컨트랙트의 공개 온체인 상태를 나타냅니다.
 
-Add the ledger declaration:
+ledger 선언을 추가합니다:
 
 ```compact
 pragma language_version >= 0.22;
 
 import CompactStandardLibrary;
 
-// public state
+// 공개 상태
 export ledger round: Counter;
 ```
 
-This declaration creates a public counter on the blockchain:
+이 선언은 블록체인에 공개 카운터를 생성합니다:
 
-- `export` makes the ledger state accessible from the TypeScript API and JavaScript implementation of the contract.
-- `ledger` declares this as on-chain public state variable that all network participants can read.
-- `round` is the name of the counter variable.
-- `Counter` is a type from the `CompactStandardLibrary` that initializes to zero and provides increment/decrement methods.
+- `export`는 ledger 상태를 TypeScript API 및 컨트랙트의 JavaScript 구현에서 접근 가능하게 합니다.
+- `ledger`는 모든 네트워크 참여자가 읽을 수 있는 온체인 공개 상태 변수로 선언합니다.
+- `round`는 카운터 변수의 이름입니다.
+- `Counter`는 `CompactStandardLibrary`의 타입으로, 0으로 초기화되며 increment/decrement 메서드를 제공합니다.
 
 ### Create the increment circuit
 
-Circuits are the entry points to your smart contract. They define the logic that modifies state and generates Zero Knowledge (ZK) proofs. 
+circuit는 스마트 컨트랙트의 진입점입니다. 상태를 변경하는 로직을 정의하고 ZK proof를 생성합니다.
 
-Add the `increment` circuit definition:
+`increment` circuit 정의를 추가합니다:
 
 ```compact
 pragma language_version >= 0.22;
 
 import CompactStandardLibrary;
 
-// public state
+// 공개 상태
 export ledger round: Counter;
 
-// transition function changing public state
+// 공개 상태를 변경하는 transition function
 export circuit increment(): [] {
   round.increment(1);
 }
 ```
 
-This circuit defines the contract's only operation:
+이 circuit는 컨트랙트의 유일한 연산을 정의합니다:
 
-- `export circuit` marks this as a callable entry point for the TypeScript API and JavaScript implementation.
-- `increment()` is the circuit name with an empty parameter list, as this operation requires no input.
-- `: []` specifies the return type as an empty tuple, indicating no return value.
-- `round.increment(1)` calls the `Counter` type's built-in `increment` method to increase the counter by 1.
+- `export circuit`는 TypeScript API 및 JavaScript 구현을 위한 호출 가능한 진입점으로 표시합니다.
+- `increment()`는 빈 매개변수 목록을 가진 circuit 이름으로, 이 연산은 입력이 필요하지 않습니다.
+- `: []`는 반환 타입을 빈 튜플로 지정하여 반환 값이 없음을 나타냅니다.
+- `round.increment(1)`는 `Counter` 타입의 내장 `increment` 메서드를 호출하여 카운터를 1 증가시킵니다.
 
-Your complete counter contract should now look like this:
+완성된 counter 컨트랙트는 다음과 같아야 합니다:
 
 ```compact
 pragma language_version >= 0.22;
 
 import CompactStandardLibrary;
 
-// public state
+// 공개 상태
 export ledger round: Counter;
 
-// transition function changing public state
+// 공개 상태를 변경하는 transition function
 export circuit increment(): [] {
   round.increment(1);
 }
@@ -231,23 +231,23 @@ export circuit increment(): [] {
 
 ## Compile the contract
 
-Compilation transforms your Compact code into Zero Knowledge (ZK) circuits and generates TypeScript APIs for interacting with the contract.
+컴파일은 Compact 코드를 ZK circuit로 변환하고 컨트랙트와 상호작용하기 위한 TypeScript API를 생성합니다.
 
 ### Run the compiler
 
-From the `contract` directory, compile the contract:
+`contract` 디렉터리에서 컨트랙트를 컴파일합니다:
 
 ```bash
 compact compile src/counter.compact src/managed/counter
 ```
 
-This command has three parts:
+이 명령은 세 부분으로 구성됩니다:
 
-- `compact compile` invokes the Compact compiler.
-- `src/counter.compact` specifies the source file to compile.
-- `src/managed/counter` specifies the output directory for generated files.
+- `compact compile`은 Compact 컴파일러를 호출합니다.
+- `src/counter.compact`는 컴파일할 소스 파일을 지정합니다.
+- `src/managed/counter`는 생성된 파일의 출력 디렉터리를 지정합니다.
 
-You should see output similar to:
+다음과 유사한 출력이 표시됩니다:
 
 ```
 Compiling 1 circuits:
@@ -255,47 +255,47 @@ Compiling 1 circuits:
 Overall progress [====================] 1/1
 ```
 
-The compiler performs the following steps:
+컴파일러는 다음 단계를 수행합니다:
 
-1. It parses the Compact code and validates syntax.
-2. It generates Zero Knowledge (ZK) circuits from your logic.
-3. It creates proving and verifying keys for each circuit.
-4. It produces TypeScript API and type definitions.
+1. Compact 코드를 파싱하고 구문을 검증합니다.
+2. 로직에서 ZK circuit를 생성합니다.
+3. 각 circuit에 대한 proving 키와 verifying 키를 생성합니다.
+4. TypeScript API 및 타입 정의를 생성합니다.
 
 ### Examine the generated files
 
-After compilation, the `src/managed/counter` directory contains:
+컴파일 후, `src/managed/counter` 디렉터리에는 다음이 포함됩니다:
 
 ```
 src/managed/counter/
-├── contract/                 
-│   ├── index.d.ts            # Type definitions
-│   ├── index.js              # JavaScript implementation
-│   └── index.js.map          
-├── keys/                     # Cryptographic keys
-│   ├── increment.prover     
-│   ├── increment.verifier    
-├── zkir/                     # Zero Knowledge (ZK) Intermediate Representation
-│   ├── increment.zkir        
-│   └── increment.bzkir       
-└── compiler/                 # Compiler metadata
-    └── contract-info.json    
+├── contract/
+│   ├── index.d.ts            # 타입 정의
+│   ├── index.js              # JavaScript 구현
+│   └── index.js.map
+├── keys/                     # 암호학적 키
+│   ├── increment.prover
+│   ├── increment.verifier
+├── zkir/                     # ZK 중간 표현
+│   ├── increment.zkir
+│   └── increment.bzkir
+└── compiler/                 # 컴파일러 메타데이터
+    └── contract-info.json
 ```
 
-Each directory serves the following purpose:
+각 디렉터리는 다음과 같은 용도로 사용됩니다:
 
-- `contract/`: Contains the generated TypeScript API and JavaScript implementation that your DApp uses to interact with the contract
-- `keys/`: Cryptographic keys used for generating and verifying Zero Knowledge (ZK) proofs
-- `zkir/`: Intermediate circuit representations used by the proof server
-- `compiler/`: Metadata about circuits, types, and structure in JSON format
+- `contract/`: DApp이 컨트랙트와 상호작용하는 데 사용하는 생성된 TypeScript API 및 JavaScript 구현을 포함합니다
+- `keys/`: ZK proof 생성 및 검증에 사용되는 암호학적 키
+- `zkir/`: proof 서버가 사용하는 중간 circuit 표현
+- `compiler/`: circuit, 타입 및 구조에 대한 메타데이터 (JSON 형식)
 
 ## Understand the generated API
 
-The Compact compiler generates TypeScript definitions that correspond to your contract code. Open `managed/counter/contract/index.d.ts` to examine the generated types.
+Compact 컴파일러는 컨트랙트 코드에 대응하는 TypeScript 정의를 생성합니다. `managed/counter/contract/index.d.ts`를 열어 생성된 타입을 확인하세요.
 
 ### Circuit types
 
-The `Circuits` type defines the callable functions:
+`Circuits` 타입은 호출 가능한 함수를 정의합니다:
 
 ```typescript
 export type Circuits<PS> = {
@@ -303,15 +303,15 @@ export type Circuits<PS> = {
 }
 ```
 
-This type defines the following:
+이 타입은 다음을 정의합니다:
 
-- The `increment()` method corresponds to the circuit you defined in the Compact contract.
-- Each circuit method returns a `CircuitResults` type containing the Zero Knowledge (ZK) proof and any circuit outputs.
-- The type uses the `PS` parameter to represent the private state type.
+- `increment()` 메서드는 Compact 컨트랙트에서 정의한 circuit에 대응합니다.
+- 각 circuit 메서드는 ZK proof와 circuit 출력을 포함하는 `CircuitResults` 타입을 반환합니다.
+- 이 타입은 private 상태 타입을 나타내기 위해 `PS` 매개변수를 사용합니다.
 
 ### Ledger types
 
-The `Ledger` type defines the public state structure:
+`Ledger` 타입은 공개 상태 구조를 정의합니다:
 
 ```typescript
 export type Ledger = {
@@ -319,27 +319,27 @@ export type Ledger = {
 }
 ```
 
-This type defines the following:
+이 타입은 다음을 정의합니다:
 
-- The `round` field corresponds to the ledger state you declared in the Compact contract.
-- The type uses `bigint` to represent the Counter value in JavaScript.
-- The ledger state is read-only from TypeScript, meaning all modifications must happen through circuit calls.
+- `round` 필드는 Compact 컨트랙트에서 선언한 ledger 상태에 대응합니다.
+- JavaScript에서 Counter 값을 나타내기 위해 `bigint` 타입을 사용합니다.
+- ledger 상태는 TypeScript에서 읽기 전용이며, 모든 수정은 circuit 호출을 통해서만 이루어져야 합니다.
 
 ### Witness types
 
-The `Witnesses` type defines the private state type:
+`Witnesses` 타입은 private 상태 타입을 정의합니다:
 
 ```typescript
 export type Witnesses<PS> = {
-  // Empty - this contract has no witnesses
+  // 비어 있음 - 이 컨트랙트에는 witness가 없습니다
 }
 ```
 
-Because the Counter contract defines no private state or witness functions, this type is empty. You'll see non-empty witness types in more complex contracts.
+Counter 컨트랙트는 private 상태나 witness 함수를 정의하지 않으므로 이 타입은 비어 있습니다. 더 복잡한 컨트랙트에서는 비어 있지 않은 witness 타입을 볼 수 있습니다.
 
 ### Contract type
 
-The `Contract` class ties everything together:
+`Contract` 클래스는 모든 것을 하나로 묶습니다:
 
 ```typescript
 export declare class Contract<PS = any, W extends Witnesses<PS> = Witnesses<PS>> {
@@ -351,21 +351,21 @@ export declare class Contract<PS = any, W extends Witnesses<PS> = Witnesses<PS>>
 }
 ```
 
-The `Contract` class provides the main interface for interacting with your compiled contract:
+`Contract` 클래스는 컴파일된 컨트랙트와 상호작용하기 위한 메인 인터페이스를 제공합니다:
 
-- It uses two type parameters: `PS` for the private state type and `W` for the witnesses type.
-- The `circuits` field provides access to pure circuit functions that don't modify external state.
-- The `impureCircuits` field provides access to impure circuit functions that can interact with witnesses.
-- The constructor accepts a `witnesses` parameter to initialize the contract's witness implementations.
-- The `initialState` method accepts a `context` parameter and returns a `ConstructorResult` containing the initial contract state.
+- 두 개의 타입 매개변수를 사용합니다: private 상태 타입을 위한 `PS`와 witness 타입을 위한 `W`.
+- `circuits` 필드는 외부 상태를 수정하지 않는 순수 circuit 함수에 대한 접근을 제공합니다.
+- `impureCircuits` 필드는 witness와 상호작용할 수 있는 불순 circuit 함수에 대한 접근을 제공합니다.
+- 생성자는 컨트랙트의 witness 구현을 초기화하기 위한 `witnesses` 매개변수를 받습니다.
+- `initialState` 메서드는 `context` 매개변수를 받아 초기 컨트랙트 상태를 포함하는 `ConstructorResult`를 반환합니다.
 
 ## Implement witness functions
 
-Even though the Counter contract has no private state, you must provide a witness implementation for the TypeScript API.
+Counter 컨트랙트에는 private 상태가 없지만, TypeScript API를 위한 witness 구현을 제공해야 합니다.
 
 ### Create the witnesses file
 
-Create `contract/src/witnesses.ts`:
+`contract/src/witnesses.ts`를 생성합니다:
 
 ```typescript
 export type CounterPrivateState = {
@@ -375,41 +375,41 @@ export type CounterPrivateState = {
 export const witnesses = {};
 ```
 
-This code defines the following:
+이 코드는 다음을 정의합니다:
 
-- `CounterPrivateState`: Defines the private state type with a `privateCounter` property of type `number`. 
-This represents any off-chain data your DApp needs to track locally.
-- `witnesses`: An empty object since the Counter contract declares no witness functions in the Compact code. 
-Witnesses provide access to private data during circuit execution, but this simple contract doesn't require any.
+- `CounterPrivateState`: `number` 타입의 `privateCounter` 속성을 가진 private 상태 타입을 정의합니다.
+DApp이 로컬에서 추적하는 오프체인 데이터를 나타냅니다.
+- `witnesses`: Counter 컨트랙트가 Compact 코드에서 witness 함수를 선언하지 않으므로 빈 객체입니다.
+Witness는 circuit 실행 중 private 데이터에 대한 접근을 제공하지만, 이 간단한 컨트랙트에서는 필요하지 않습니다.
 
 ### Create the index file
 
-Create `contract/src/index.ts` to re-export the contract API:
+컨트랙트 API를 재내보내기 위해 `contract/src/index.ts`를 생성합니다:
 
 ```typescript
 /**
- * Counter contract API.
- * 
- * This file re-exports the generated contract code and witness implementations,
- * providing a single entry point for consuming applications.
+ * Counter 컨트랙트 API.
+ *
+ * 이 파일은 생성된 컨트랙트 코드와 witness 구현을 재내보내기하여
+ * 소비 애플리케이션을 위한 단일 진입점을 제공합니다.
  */
 
-// Re-export all generated contract types and functions
+// 생성된 모든 컨트랙트 타입과 함수를 재내보내기
 export * as Counter from './managed/counter/contract/index.js';
 
-// Re-export witness implementations and types
+// witness 구현 및 타입 재내보내기
 export * from './witnesses';
 ```
 
-This file:
+이 파일은:
 
-- Provides a single import point for consumers
-- Re-exports the generated contract API
-- Includes the witness implementations
+- 소비자를 위한 단일 임포트 포인트를 제공합니다
+- 생성된 컨트랙트 API를 재내보내기합니다
+- witness 구현을 포함합니다
 
 ### Add build scripts
 
-Update your `contract/package.json` to include build scripts:
+`contract/package.json`을 빌드 스크립트가 포함되도록 업데이트합니다:
 
 ```json
 {
@@ -438,59 +438,59 @@ Update your `contract/package.json` to include build scripts:
 }
 ```
 
-Each script serves the following purpose:
+각 스크립트의 용도는 다음과 같습니다:
 
-- `clean`: Removes compiled output for a fresh build
-- `compile:compact`: Runs the Compact compiler
-- `compile:typescript`: Compiles TypeScript to JavaScript
-- `build`: Executes all compilation steps in order
+- `clean`: 새로운 빌드를 위해 컴파일된 출력을 제거
+- `compile:compact`: Compact 컴파일러를 실행
+- `compile:typescript`: TypeScript를 JavaScript로 컴파일
+- `build`: 모든 컴파일 단계를 순서대로 실행
 
 ### Build the contract
 
-Run the complete build process:
+전체 빌드 프로세스를 실행합니다:
 
 ```bash
 npm run build
 ```
 
-This command:
+이 명령은:
 
-1. Cleans previous build artifacts
-2. Compiles the Compact contract to circuits and TypeScript
-3. Compiles TypeScript to JavaScript
-4. Generates type definition files
+1. 이전 빌드 아티팩트를 정리합니다
+2. Compact 컨트랙트를 circuit와 TypeScript로 컴파일합니다
+3. TypeScript를 JavaScript로 컴파일합니다
+4. 타입 정의 파일을 생성합니다
 
-You should see output from both the Compact compiler and TypeScript compiler. If successful, you'll have:
+Compact 컴파일러와 TypeScript 컴파일러 모두의 출력이 표시됩니다. 성공하면 다음을 갖게 됩니다:
 
-- `managed/counter/`: Generated contract code
-- `dist/`: Compiled JavaScript and type definitions
+- `managed/counter/`: 생성된 컨트랙트 코드
+- `dist/`: 컴파일된 JavaScript 및 타입 정의
 
 ## Understand the contract flow
 
-Now that you've built the contract, let's understand how it works when deployed:
+컨트랙트를 빌드했으니, 배포 시 어떻게 작동하는지 이해해 봅시다:
 
 ```mermaid
 graph TD
-    A[User calls increment] --> B[TypeScript API invoked] 
-    B --> C[Circuit generates proof locally]
-    C --> D[Proof submitted to network]
-    D --> E[Validators verify proof]
-    E --> F{Valid?}
-    F -->|Yes| G[Ledger state updated]
-    F -->|No| H[Transaction rejected]
-    G --> I[round increments by 1]
+    A[사용자가 increment 호출] --> B[TypeScript API 호출]
+    B --> C[circuit가 로컬에서 proof 생성]
+    C --> D[proof가 네트워크에 제출됨]
+    D --> E[검증자가 proof를 검증]
+    E --> F{유효한가?}
+    F -->|예| G[ledger 상태 업데이트]
+    F -->|아니오| H[트랜잭션 거부]
+    G --> I[round가 1 증가]
 ```
 
-The key properties of this flow are:
+이 흐름의 주요 속성은 다음과 같습니다:
 
-- The increment happens atomically, either it succeeds completely or fails completely.
-- The proof doesn't reveal any private data, though this contract has none.
-- Validators don't re-execute the circuit logic, only verify the proof.
-- The ledger state is public and queryable by anyone.
+- increment는 원자적으로 발생합니다. 완전히 성공하거나 완전히 실패합니다.
+- proof는 private 데이터를 공개하지 않습니다. 다만 이 컨트랙트에는 private 데이터가 없습니다.
+- 검증자는 circuit 로직을 재실행하지 않고 proof만 검증합니다.
+- ledger 상태는 공개이며 누구나 조회할 수 있습니다.
 
 ## Next steps
 
-Now that you've built and compiled the counter contract:
+counter 컨트랙트를 빌드하고 컴파일했습니다:
 
-- **Build the CLI**: Continue to [build the counter CLI](./counter-cli) to create an interactive command-line interface
-- **Test the contract**: Add unit tests in `src/test/` to verify circuit behavior
+- **CLI 구축**: 대화형 명령줄 인터페이스를 생성하려면 [counter CLI 구축](./counter-cli)으로 계속 진행하세요
+- **컨트랙트 테스트**: `src/test/`에 단위 테스트를 추가하여 circuit 동작을 검증하세요

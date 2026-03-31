@@ -1,38 +1,38 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Bulletin board contract"
-title: "Bulletin board contract"
-description: "Learn how to build a privacy-preserving bulletin board contract on Midnight Network."
+sidebar_label: "게시판 컨트랙트"
+title: "게시판 컨트랙트"
+description: "Midnight 네트워크에서 프라이버시를 보호하는 게시판 컨트랙트를 구축하는 방법을 알아봅니다."
 sidebar_position: 10
 toc_max_heading_level: 2
 ---
 
 # Bulletin board contract
 
-This tutorial shows you how to build a privacy-preserving bulletin board smart contract on the Midnight blockchain. 
+이 튜토리얼에서는 Midnight 블록체인에서 프라이버시를 보호하는 게시판 스마트 컨트랙트를 구축하는 방법을 보여줍니다.
 
-The bulletin board contract allows users to post and remove messages while maintaining privacy. 
-Only the original poster can remove their message, and this is enforced through zero-knowledge (ZK) proofs without revealing the poster's identity on-chain.
+게시판 컨트랙트는 사용자가 프라이버시를 유지하면서 메시지를 게시하고 제거할 수 있게 합니다.
+원래 게시자만 메시지를 제거할 수 있으며, 이는 게시자의 신원을 온체인에 공개하지 않고 ZK proof를 통해 시행됩니다.
 
 ## Prerequisites
 
-Before you begin, ensure that you have:
+시작하기 전에 다음 사항을 확인하세요:
 
-- **Compact toolchain installed**: For instructions, refer to the [install the toolchain](../../../getting-started/installation) guide
-- **Proof server running**: For instructions, refer to the [run the proof server](../../../getting-started/installation#set-up-the-proof-server) guide
-- **Node.js version 22+**: Verify with `node --version`
+- **Compact 툴체인 설치**: 설치 방법은 [툴체인 설치](../../../getting-started/installation) 가이드를 참조하세요
+- **proof 서버 실행 중**: 설치 방법은 [proof 서버 실행](../../../getting-started/installation#set-up-the-proof-server) 가이드를 참조하세요
+- **Node.js 버전 22 이상**: `node --version`으로 확인하세요
 
 ## Set up the project
 
-Create the project root and contract directories:
+프로젝트 루트와 컨트랙트 디렉터리를 생성합니다:
 
 ```bash
 mkdir -p example-bboard/contract/src
 cd example-bboard/contract
 ```
 
-Your directory structure should now look like this:
+디렉터리 구조는 다음과 같아야 합니다:
 
 ```
 example-bboard/
@@ -42,34 +42,34 @@ example-bboard/
 
 ## Write the smart contract
 
-This section explains the process of writing the smart contract and understanding the key concepts.
+이 섹션에서는 스마트 컨트랙트를 작성하는 과정과 핵심 개념을 설명합니다.
 
 ### Create the contract file
 
-Create `contract/src/bboard.compact`:
+`contract/src/bboard.compact`를 생성합니다:
 
 ```bash
 touch src/bboard.compact
 ```
 
-Open this file in your code editor.
+코드 에디터에서 이 파일을 엽니다.
 
 ### Add the language version
 
-The `pragma language_version` directive specifies which version of Compact your contract uses:
+`pragma language_version` 지시문은 컨트랙트에서 사용하는 Compact 버전을 지정합니다:
 
 ```compact
 pragma language_version >= 0.22;
 ```
 
-This directive:
+이 지시문은:
 
-- Locks your contract to a minimum Compact version
-- Prevents breaking changes in future compiler versions
+- 컨트랙트를 최소 Compact 버전에 고정합니다
+- 향후 컴파일러 버전의 호환성 문제를 방지합니다
 
 ### Import the standard library
 
-Import Compact's standard library for built-in types and functions:
+내장 타입과 함수를 위해 Compact의 표준 라이브러리를 임포트합니다:
 
 ```compact
 pragma language_version >= 0.22;
@@ -77,15 +77,15 @@ pragma language_version >= 0.22;
 import CompactStandardLibrary;
 ```
 
-The `CompactStandardLibrary` provides access to built-in types and functions in Compact, such as `Maybe` for optional values, `Counter` for tracking sequences, `persistentHash` for cryptographic commitments, `some` and `none` constructors for Maybe values.
+`CompactStandardLibrary`는 Compact의 내장 타입과 함수에 대한 접근을 제공합니다. 선택적 값을 위한 `Maybe`, 시퀀스 추적을 위한 `Counter`, 암호학적 commitment를 위한 `persistentHash`, Maybe 값의 `some` 및 `none` 생성자 등이 포함됩니다.
 
 :::note
-To learn more about what's available in the standard library, see the [Compact standard library](../../../compact/standard-library/) reference.
+표준 라이브러리에서 사용 가능한 기능에 대해 자세히 알아보려면 [Compact 표준 라이브러리](../../../compact/standard-library/) 참조를 확인하세요.
 :::
 
 ### Define the board state enum
 
-The bulletin board has two possible states. Define an enumeration type to represent them:
+게시판은 두 가지 가능한 상태를 가집니다. 이를 나타내는 열거형 타입을 정의합니다:
 
 ```compact
 pragma language_version >= 0.22;
@@ -98,16 +98,16 @@ export enum State {
 }
 ```
 
-This enumeration:
+이 열거형은:
 
-- `export` makes the enum accessible from TypeScript
-- `State` is the enum type name
-- `VACANT` represents an empty board (value 0)
-- `OCCUPIED` represents a board with a message (value 1)
+- `export`는 TypeScript에서 열거형에 접근 가능하게 합니다
+- `State`는 열거형 타입 이름입니다
+- `VACANT`은 빈 게시판을 나타냅니다 (값 0)
+- `OCCUPIED`는 메시지가 있는 게시판을 나타냅니다 (값 1)
 
 ### Define the ledger state
 
-The ledger represents the public, on-chain state of your contract. For the bulletin board, you need four pieces of public information:
+ledger는 컨트랙트의 공개 온체인 상태를 나타냅니다. 게시판에는 네 가지 공개 정보가 필요합니다:
 
 ```compact
 pragma language_version >= 0.22;
@@ -128,21 +128,21 @@ export ledger sequence: Counter;
 export ledger owner: Bytes<32>;
 ```
 
-Each ledger field serves a specific purpose:
+각 ledger 필드는 특정 목적을 수행합니다:
 
-- `state`: Tracks whether the board is vacant or occupied
-- `message`: Stores the current message as an optional opaque string
-- `sequence`: A counter that increments each time a message is taken down, creating unique commitments for each posting cycle and preventing replay attacks
-- `owner`: Stores a cryptographic commitment to the poster's identity as a 32-byte hash
+- `state`: 게시판이 비어 있는지 점유되어 있는지 추적합니다
+- `message`: 현재 메시지를 선택적 Opaque 문자열로 저장합니다
+- `sequence`: 메시지가 제거될 때마다 증가하는 카운터로, 각 게시 주기에 고유한 commitment를 생성하고 재생 공격을 방지합니다
+- `owner`: 게시자 신원에 대한 암호학적 commitment를 32바이트 해시로 저장합니다
 
-The `Maybe` type indicates optional values. A message is `none` when the board is vacant and `some(value)` when occupied. The `Opaque<'string'>` type represents string data whose internal structure is irrelevant to the contract.
+`Maybe` 타입은 선택적 값을 나타냅니다. 메시지는 게시판이 비어 있을 때 `none`이고 점유되어 있을 때 `some(value)`입니다. `Opaque<'string'>` 타입은 내부 구조가 컨트랙트와 관련 없는 문자열 데이터를 나타냅니다.
 
 ### Create the constructor
 
-The constructor initializes the ledger state when the contract is deployed:
+생성자는 컨트랙트가 배포될 때 ledger 상태를 초기화합니다:
 
 ```compact
-// ... previous code ...
+// ... 이전 코드 ...
 
 constructor() {
   state = State.VACANT;
@@ -151,43 +151,43 @@ constructor() {
 }
 ```
 
-This constructor makes deliberate choices about what to explicitly initialize versus what to leave as default:
+이 생성자는 명시적으로 초기화할 항목과 기본값에 맡길 항목을 의도적으로 구분합니다:
 
-- **`state = State.VACANT`**: Explicitly set to make the contract independent of enum ordering
-- **`message = none<Opaque<'string'>>()`**: Explicitly set to decouple from the standard library's `Maybe` default implementation
-- **`sequence.increment(1)`**: Increments from 0 to 1, so posts start at sequence number 1
-- **`owner`**: Uninitialized, using the language-guaranteed default of 32 zero bytes
+- **`state = State.VACANT`**: 열거형 순서와 독립적으로 컨트랙트를 만들기 위해 명시적으로 설정
+- **`message = none<Opaque<'string'>>()`**: 표준 라이브러리의 `Maybe` 기본 구현과 분리하기 위해 명시적으로 설정
+- **`sequence.increment(1)`**: 0에서 1로 증가시켜, 게시물이 시퀀스 번호 1부터 시작하도록 합니다
+- **`owner`**: 초기화되지 않음, 언어가 보장하는 32 제로 바이트 기본값을 사용
 
-The pattern: explicitly initialize values that depend on library or enum definitions, but rely on language-defined defaults when they're guaranteed by the specification.
+패턴 요약: 라이브러리나 열거형 정의에 의존하는 값은 명시적으로 초기화하고, 언어 사양이 보장하는 기본값은 그대로 활용합니다.
 
-:::note Constructor initialization
-Fields not explicitly initialized in the constructor receive default values for their type as defined by the Compact language specification.
+:::note 생성자 초기화
+생성자에서 명시적으로 초기화되지 않은 필드는 Compact 언어 사양에 정의된 타입의 기본값을 받습니다.
 :::
 
 ### Declare the witness function
 
-Before defining the circuits, declare a witness function:
+circuit를 정의하기 전에 witness 함수를 선언합니다:
 
 ```compact
-// ... previous code ...
+// ... 이전 코드 ...
 
 witness localSecretKey(): Bytes<32>;
 ```
 
-This declaration:
+이 선언은:
 
-- `witness` marks this as a function implemented in TypeScript or JavaScript that performs arbitrary computation.
-- `localSecretKey` returns a 32-byte value of the user's secret key.
-- The return value is private by default and doesn't appear on-chain or in public ledger state.
+- `witness`는 임의의 계산을 수행하는 TypeScript 또는 JavaScript로 구현된 함수로 표시합니다.
+- `localSecretKey`는 사용자의 비밀 키의 32바이트 값을 반환합니다.
+- 반환 값은 기본적으로 private이며 온체인이나 공개 ledger 상태에 나타나지 않습니다.
 
-Witnesses enable privacy-preserving computation. They can perform any computation, such as accessing private state or generating values, and return results that circuits use for proof generation.
+Witness는 프라이버시를 보호하는 계산을 가능하게 합니다. private 상태 접근이나 값 생성 같은 모든 계산을 수행할 수 있으며, circuit가 proof 생성에 사용하는 결과를 반환합니다.
 
 ### Create the post circuit
 
-The `post` circuit allows users to post messages to the vacant board:
+`post` circuit는 사용자가 빈 게시판에 메시지를 게시할 수 있게 합니다:
 
 ```compact
-// ... previous code ...
+// ... 이전 코드 ...
 
 export circuit post(newMessage: Opaque<'string'>): [] {
   assert(state == State.VACANT, "Attempted to post to an occupied board");
@@ -197,27 +197,27 @@ export circuit post(newMessage: Opaque<'string'>): [] {
 }
 ```
 
-This circuit performs several operations:
+이 circuit는 다음 작업을 순서대로 처리합니다:
 
-- **Validate board state**: `assert(state == State.VACANT, ...)` ensures posting only happens when the board is vacant.
-- **Generate commitment**: Calls `publicKey()` helper circuit to create a cryptographic commitment from the secret key and current sequence number. This is what allows only the original poster to take down their message.
-- **Disclose**: Wraps the commitment in `disclose()` to tell the compiler this value is safe to reveal on-chain.
-- **Store message**: Sets `message` to `some(newMessage)` and wraps it in `disclose()` to explicitly reveal it.
-- **Update state**: Changes `state = State.OCCUPIED` to mark the board as occupied.
+- **게시판 상태 검증**: `assert(state == State.VACANT, ...)`는 게시판이 비어 있을 때만 게시가 발생하도록 합니다.
+- **commitment 생성**: `publicKey()` 헬퍼 circuit를 호출하여 비밀 키와 현재 시퀀스 번호로 암호학적 commitment를 생성합니다. 이것이 원래 게시자만 메시지를 제거할 수 있게 하는 것입니다.
+- **Disclose**: commitment를 `disclose()`로 래핑하여 이 값을 온체인에 공개해도 안전하다고 컴파일러에 알립니다.
+- **메시지 저장**: `message`를 `some(newMessage)`로 설정하고 명시적으로 공개하기 위해 `disclose()`로 래핑합니다.
+- **상태 업데이트**: `state = State.OCCUPIED`로 변경하여 게시판이 점유되었음을 표시합니다.
 
-The `disclose` keyword is critical for security. 
-By default, Compact prevents computed values from being assigned to public ledger fields. 
-You _must_ explicitly wrap values in `disclose()` to mark them as safe to reveal on-chain, 
-ensuring you don't accidentally leak private data.
+`disclose` 키워드는 보안에 매우 중요합니다.
+기본적으로 Compact는 계산된 값이 공개 ledger 필드에 할당되는 것을 방지합니다.
+온체인에 공개해도 안전하다고 표시하려면 값을 `disclose()`로 *반드시* 명시적으로 래핑해야 하며,
+이를 통해 실수로 private 데이터를 유출하지 않도록 보장합니다.
 
-The sequence counter is cast twice (`sequence as Field as Bytes<32>`) because you cannot directly cast from `Counter` to `Bytes<32>`. The intermediate `Field` cast provides a compatible type path.
+시퀀스 카운터는 두 번 캐스팅됩니다(`sequence as Field as Bytes<32>`). `Counter`에서 `Bytes<32>`로 직접 캐스팅할 수 없기 때문입니다. 중간 `Field` 캐스팅이 호환 가능한 타입 경로를 제공합니다.
 
 ### Create the takeDown circuit
 
-The `takeDown` circuit allows users to remove their own messages:
+`takeDown` circuit는 사용자가 자신의 메시지를 제거할 수 있게 합니다:
 
 ```compact
-// ... previous code ...
+// ... 이전 코드 ...
 
 export circuit takeDown(): Opaque<'string'> {
   assert(state == State.OCCUPIED, "Attempted to take down post from an empty board");
@@ -230,51 +230,51 @@ export circuit takeDown(): Opaque<'string'> {
 }
 ```
 
-This circuit performs several operations:
+이 circuit는 다음 작업을 순서대로 처리합니다:
 
-- **Validate board state**: Ensures the board is occupied before attempting removal
-- **Regenerate commitment**: Calls `publicKey()` with the current user's secret key and sequence number
-- **Verify ownership**: Compares the regenerated commitment to the stored `owner` value
-- **Extract message**: Uses `message.value` to access the inner value from the `Maybe` type
-- **Update state**: Changes `state` to `State.VACANT`
-- **Increment sequence**: Advances the counter so the next post uses sequence number 2, 3, and so on
-- **Clear message**: Resets `message` to `none`
-- **Return message**: Returns the taken-down message to the caller
+- **게시판 상태 검증**: 제거를 시도하기 전에 게시판이 점유되어 있는지 확인합니다
+- **commitment 재생성**: 현재 사용자의 비밀 키와 시퀀스 번호로 `publicKey()`를 호출합니다
+- **소유권 확인**: 재생성된 commitment를 저장된 `owner` 값과 비교합니다
+- **메시지 추출**: `message.value`를 사용하여 `Maybe` 타입에서 내부 값에 접근합니다
+- **상태 업데이트**: `state`를 `State.VACANT`으로 변경합니다
+- **시퀀스 증가**: 다음 게시물이 시퀀스 번호 2, 3 등을 사용하도록 카운터를 증가시킵니다
+- **메시지 초기화**: `message`를 `none`으로 재설정합니다
+- **메시지 반환**: 제거된 메시지를 호출자에게 반환합니다
 
-The second `assert` is where privacy meets access control. The user proves they can regenerate the stored commitment without revealing their secret key. The ZK proof validates this assertion without exposing the private data.
+두 번째 `assert`가 프라이버시와 접근 제어가 만나는 지점입니다. 사용자는 비밀 키를 공개하지 않고 저장된 commitment를 재생성할 수 있음을 proof합니다. ZK proof는 private 데이터를 노출하지 않고 이 assertion을 검증합니다.
 
-Note that `message` is cleared after extracting its value. This ensures the board is ready for the next post.
+값을 추출한 후 `message`가 초기화됩니다. 이를 통해 게시판이 다음 게시물을 위해 준비됩니다.
 
 ### Create the publicKey helper circuit
 
-The `publicKey` circuit generates a cryptographic commitment to the poster's identity:
+`publicKey` circuit는 게시자의 신원에 대한 암호학적 commitment를 생성합니다:
 
 ```compact
-// ... previous code ...
+// ... 이전 코드 ...
 
 export circuit publicKey(sk: Bytes<32>, sequence: Bytes<32>): Bytes<32> {
   return persistentHash<Vector<3, Bytes<32>>>([pad(32, "bboard:pk:"), sequence, sk]);
 }
 ```
 
-This helper circuit:
+이 헬퍼 circuit는:
 
-- Uses `pad(32, "bboard:pk:")` to create a domain separator
-- Creates a vector of three 32-byte values to hash together
-- Uses `persistentHash` from the standard library, which implements SHA-256 hashing
-- Takes an input value (`sk`) and sequence number as parameters
-- Returns a 32-byte cryptographic hash
+- `pad(32, "bboard:pk:")`를 사용하여 도메인 분리자를 생성합니다
+- 해시할 세 개의 32바이트 값 벡터를 생성합니다
+- 표준 라이브러리의 `persistentHash`를 사용하며, SHA-256 해싱을 구현합니다
+- 입력 값(`sk`)과 시퀀스 번호를 매개변수로 받습니다
+- 32바이트 암호학적 해시를 반환합니다
 
-The commitment has critical properties:
+commitment는 중요한 특성을 가집니다:
 
-- **Domain separation**: The `"bboard:pk:"` prefix prevents hash collisions with other uses of the secret key
-- **One-way**: SHA-256 is cryptographically non-reversible, meaning you cannot discover the input from the hash output
-- **Deterministic**: The same inputs always produce the same output
-- **Unique per post**: The sequence number ensures each post has a different commitment
+- **도메인 분리**: `"bboard:pk:"` 접두사는 비밀 키의 다른 용도와의 해시 충돌을 방지합니다
+- **단방향**: SHA-256은 암호학적으로 역전이 불가능하여, 해시 출력에서 입력을 발견할 수 없습니다
+- **결정적**: 동일한 입력은 항상 동일한 출력을 생성합니다
+- **게시물별 고유**: 시퀀스 번호는 각 게시물이 다른 commitment를 갖도록 보장합니다
 
-The domain separator is a security best practice. It ensures that hashes generated for the bulletin board cannot be confused with hashes generated for other purposes, even if they use the same secret key.
+도메인 분리자는 보안 모범 사례입니다. 동일한 비밀 키를 사용하더라도 게시판을 위해 생성된 해시가 다른 목적으로 생성된 해시와 혼동되지 않도록 보장합니다.
 
-Your complete bulletin board contract should now look like this:
+완성된 게시판 컨트랙트는 다음과 같아야 합니다:
 
 ```compact
 pragma language_version >= 0.22;
@@ -326,69 +326,69 @@ export circuit publicKey(sk: Bytes<32>, sequence: Bytes<32>): Bytes<32> {
 
 ## Compile the contract
 
-Compilation transforms your Compact code into ZK circuits and generates TypeScript APIs for interacting with the contract.
+컴파일은 Compact 코드를 ZK circuit로 변환하고 컨트랙트와 상호작용하기 위한 TypeScript API를 생성합니다.
 
 ### Run the compiler
 
-From the `contract` directory, compile the contract:
+`contract` 디렉터리에서 컨트랙트를 컴파일합니다:
 
 ```bash
 compact compile src/bboard.compact src/managed/bboard
 ```
 
-This command has three parts:
+이 명령은 세 부분으로 구성됩니다:
 
-- `compact compile` invokes the Compact compiler.
-- `src/bboard.compact` specifies the source file to compile.
-- `src/managed/bboard` specifies the output directory for generated files.
+- `compact compile`은 Compact 컴파일러를 호출합니다.
+- `src/bboard.compact`는 컴파일할 소스 파일을 지정합니다.
+- `src/managed/bboard`는 생성된 파일의 출력 디렉터리를 지정합니다.
 
-You should see output similar to:
+다음과 유사한 출력이 표시됩니다:
 
 ```
 Compiling 2 circuits:
-  circuit "post" (k=13, rows=4569)  
-  circuit "takeDown" (k=13, rows=4580)  
+  circuit "post" (k=13, rows=4569)
+  circuit "takeDown" (k=13, rows=4580)
 Overall progress [====================] 2/2
 ```
 
 ### Examine the generated files
 
-After compilation, the `src/managed/bboard` directory contains:
+컴파일 후, `src/managed/bboard` 디렉터리에는 다음이 포함됩니다:
 
 ```
 src/managed/bboard/
-├── contract/                 
-│   ├── index.d.ts            # Type definitions
-│   ├── index.js              # JavaScript implementation
-│   └── index.js.map          
-├── keys/                     # Cryptographic keys
-│   ├── post.prover          
-│   ├── post.verifier         
-│   ├── takeDown.prover      
-│   ├── takeDown.verifier     
-├── zkir/                     # ZK Intermediate Representation
-│   ├── post.zkir            
-│   ├── post.bzkir           
-│   ├── takeDown.zkir        
-│   ├── takeDown.bzkir       
-└── compiler/                 # Compiler metadata
-    └── contract-info.json    
+├── contract/
+│   ├── index.d.ts            # 타입 정의
+│   ├── index.js              # JavaScript 구현
+│   └── index.js.map
+├── keys/                     # 암호학적 키
+│   ├── post.prover
+│   ├── post.verifier
+│   ├── takeDown.prover
+│   ├── takeDown.verifier
+├── zkir/                     # ZK 중간 표현
+│   ├── post.zkir
+│   ├── post.bzkir
+│   ├── takeDown.zkir
+│   ├── takeDown.bzkir
+└── compiler/                 # 컴파일러 메타데이터
+    └── contract-info.json
 ```
 
-Each directory serves the following purpose:
+각 디렉터리의 용도는 다음과 같습니다:
 
-- `contract/`: Contains the generated TypeScript API and JavaScript implementation that your DApp uses to interact with the contract
-- `keys/`: Cryptographic keys used for generating and verifying ZK proofs for each circuit
-- `zkir/`: Intermediate circuit representations used by the proof server
-- `compiler/`: Metadata about circuits, types, and structure in JSON format
+- `contract/`: DApp이 컨트랙트와 상호작용하는 데 사용하는 생성된 TypeScript API 및 JavaScript 구현을 포함합니다
+- `keys/`: 각 circuit에 대한 ZK proof 생성 및 검증에 사용되는 암호학적 키
+- `zkir/`: proof 서버가 사용하는 중간 circuit 표현
+- `compiler/`: circuit, 타입 및 구조에 대한 메타데이터 (JSON 형식)
 
 ## Understand the generated API
 
-The Compact compiler generates TypeScript definitions that correspond to your contract code. Open `managed/bboard/contract/index.d.ts` to examine the generated types.
+Compact 컴파일러는 컨트랙트 코드에 대응하는 TypeScript 정의를 생성합니다. `managed/bboard/contract/index.d.ts`를 열어 생성된 타입을 확인하세요.
 
 ### State type
 
-The `State` enum from your Compact code becomes a TypeScript enum:
+Compact 코드의 `State` 열거형은 TypeScript 열거형이 됩니다:
 
 ```typescript
 export enum State {
@@ -397,11 +397,11 @@ export enum State {
 }
 ```
 
-This allows TypeScript code to reference board states type-safely using `State.VACANT` and `State.OCCUPIED`.
+이를 통해 TypeScript 코드에서 `State.VACANT`과 `State.OCCUPIED`를 사용하여 게시판 상태를 타입 안전하게 참조할 수 있습니다.
 
 ### Circuit types
 
-The `Circuits` type defines the callable functions:
+`Circuits` 타입은 호출 가능한 함수를 정의합니다:
 
 ```typescript
 export type Circuits<PS> = {
@@ -409,11 +409,11 @@ export type Circuits<PS> = {
     context: __compactRuntime.CircuitContext<PS>,
     newMessage: string
   ): __compactRuntime.CircuitResults<PS, []>;
-  
+
   takeDown(
     context: __compactRuntime.CircuitContext<PS>
   ): __compactRuntime.CircuitResults<PS, string>;
-  
+
   publicKey(
     context: __compactRuntime.CircuitContext<PS>,
     sk: Uint8Array,
@@ -422,17 +422,17 @@ export type Circuits<PS> = {
 }
 ```
 
-Each circuit method:
+각 circuit 메서드는:
 
-- Corresponds to an exported circuit in your Compact code
-- Takes a `CircuitContext` that provides access to ledger state and witness functions
-- Accepts parameters matching the Compact circuit parameters
-- Returns `CircuitResults` containing the `ProofData`, which is sent to the proof server to generate the ZK proof
-- Uses appropriate JavaScript types (`string`, `Uint8Array`) for Compact types
+- Compact 코드에서 내보낸 circuit에 대응합니다
+- ledger 상태와 witness 함수에 대한 접근을 제공하는 `CircuitContext`를 받습니다
+- Compact circuit 매개변수와 일치하는 매개변수를 받습니다
+- ZK proof를 생성하기 위해 proof 서버로 전송되는 `ProofData`를 포함하는 `CircuitResults`를 반환합니다
+- Compact 타입에 적합한 JavaScript 타입(`string`, `Uint8Array`)을 사용합니다
 
 ### Ledger types
 
-The `Ledger` type defines the public state structure:
+`Ledger` 타입은 공개 상태 구조를 정의합니다:
 
 ```typescript
 export type Ledger = {
@@ -443,15 +443,15 @@ export type Ledger = {
 }
 ```
 
-Each field:
+각 필드는:
 
-- Corresponds to a ledger declaration in your Compact code
-- Uses JavaScript types: `State` enum, `string`, `bigint`, `Uint8Array`
-- Represents `Maybe` types as objects with `is_some: boolean` and `value` properties
-- Is marked as `readonly`, meaning state modifications can only happen through circuit calls
+- Compact 코드의 ledger 선언에 대응합니다
+- JavaScript 타입을 사용합니다: `State` 열거형, `string`, `bigint`, `Uint8Array`
+- `Maybe` 타입을 `is_some: boolean`과 `value` 속성이 있는 객체로 표현합니다
+- `readonly`로 표시되어, 상태 수정은 circuit 호출을 통해서만 가능합니다
 
 :::tip
-To use the `Maybe` type annotation in your TypeScript code for the `message` ledger field, export it from your Compact contract:
+TypeScript 코드에서 `message` ledger 필드에 `Maybe` 타입 주석을 사용하려면 Compact 컨트랙트에서 내보내세요:
 
 ```compact
 export { Maybe };
@@ -461,7 +461,7 @@ export { Maybe };
 
 ### Witness types
 
-The `Witnesses` type defines the required witness implementations:
+`Witnesses` 타입은 필요한 witness 구현을 정의합니다:
 
 ```typescript
 export type Witnesses<PS> = {
@@ -469,16 +469,16 @@ export type Witnesses<PS> = {
 }
 ```
 
-This type:
+이 타입은:
 
-- Corresponds to the `witness localSecretKey()` declaration in your Compact code
-- Takes a `WitnessContext` providing access to ledger state, private state, and contract address
-- Returns a tuple `[PS, Uint8Array]` containing the updated private state and the 32-byte secret key
-- Must be implemented by your DApp to provide private data during circuit execution
+- Compact 코드의 `witness localSecretKey()` 선언에 대응합니다
+- ledger 상태, private 상태, 컨트랙트 주소에 대한 접근을 제공하는 `WitnessContext`를 받습니다
+- 업데이트된 private 상태와 32바이트 비밀 키를 포함하는 튜플 `[PS, Uint8Array]`를 반환합니다
+- circuit 실행 중 private 데이터를 제공하기 위해 DApp에서 구현해야 합니다
 
 ### Contract type
 
-The `Contract` class ties everything together:
+`Contract` 클래스는 모든 것을 하나로 묶습니다:
 
 ```typescript
 export declare class Contract<PS = any, W extends Witnesses<PS> = Witnesses<PS>> {
@@ -490,21 +490,21 @@ export declare class Contract<PS = any, W extends Witnesses<PS> = Witnesses<PS>>
 }
 ```
 
-The `Contract` class provides the main interface for interacting with your compiled contract:
+`Contract` 클래스는 컴파일된 컨트랙트와 상호작용하기 위한 메인 인터페이스를 제공합니다:
 
-- Uses type parameters `PS` for private state and `W` for witnesses
-- Provides `circuits` for pure circuit functions
-- Provides `impureCircuits` for circuits that interact with witnesses
-- Accepts witness implementations in the constructor
-- Initializes contract state through `initialState`, which calls your constructor
+- private 상태를 위한 `PS`와 witness를 위한 `W` 타입 매개변수를 사용합니다
+- 순수 circuit 함수를 위한 `circuits`를 제공합니다
+- witness와 상호작용하는 circuit를 위한 `impureCircuits`를 제공합니다
+- 생성자에서 witness 구현을 받습니다
+- `initialState`를 통해 컨트랙트 상태를 초기화하며, 이 메서드는 생성자를 호출합니다
 
 ## Implement witness functions
 
-The bulletin board contract requires a witness implementation to provide access to the user's secret key during circuit execution.
+게시판 컨트랙트는 circuit 실행 중 사용자의 비밀 키에 대한 접근을 제공하기 위한 witness 구현이 필요합니다.
 
 ### Create the witnesses file
 
-Create `contract/src/witnesses.ts`:
+`contract/src/witnesses.ts`를 생성합니다:
 
 ```typescript
 import { Ledger } from "./managed/bboard/contract/index.js";
@@ -529,21 +529,21 @@ export const witnesses = {
 };
 ```
 
-This code defines:
+이 코드는 다음을 정의합니다:
 
-- `BBoardPrivateState`: The private state type with a `secretKey` field of type `Uint8Array`.
-- `createBBoardPrivateState()`: Helper function to initialize private state with a secret key.
-- `witnesses.localSecretKey`: Implementation that receives a `WitnessContext<Ledger, BBoardPrivateState>` and returns a tuple of `[BBoardPrivateState, Uint8Array]`. The function extracts the `privateState` from the context and returns both the unchanged private state and the secret key.
+- `BBoardPrivateState`: `Uint8Array` 타입의 `secretKey` 필드를 가진 private 상태 타입.
+- `createBBoardPrivateState()`: 비밀 키로 private 상태를 초기화하는 헬퍼 함수.
+- `witnesses.localSecretKey`: `WitnessContext<Ledger, BBoardPrivateState>`를 받고 `[BBoardPrivateState, Uint8Array]` 튜플을 반환하는 구현. 이 함수는 컨텍스트에서 `privateState`를 추출하고 변경되지 않은 private 상태와 비밀 키를 모두 반환합니다.
 
-The witness function receives a `WitnessContext` parameter that provides access to the ledger state, private state, and contract address. The Compact runtime passes this context automatically during circuit execution.
+witness 함수는 ledger 상태, private 상태, 컨트랙트 주소에 대한 접근을 제공하는 `WitnessContext` 매개변수를 받습니다. Compact 런타임은 circuit 실행 중 이 컨텍스트를 자동으로 전달합니다.
 
-:::info Compact Runtime API
-The `WitnessContext` type is part of the Compact Runtime API. For detailed information about witness contexts and other runtime types, refer to the [Compact runtime API documentation](/api-reference/compact-runtime).
+:::info Compact 런타임 API
+`WitnessContext` 타입은 Compact 런타임 API의 일부입니다. witness 컨텍스트 및 기타 런타임 타입에 대한 자세한 정보는 [Compact 런타임 API 문서](/api-reference/compact-runtime)를 참조하세요.
 :::
 
 ### Create the index file
 
-Create `contract/src/index.ts` to re-export the contract API:
+컨트랙트 API를 재내보내기 위해 `contract/src/index.ts`를 생성합니다:
 
 ```typescript
 export * from "./managed/bboard/contract/index.js";
@@ -564,25 +564,25 @@ export const CompiledBBoardContractContract = CompiledContract.make<
 );
 ```
 
-This file serves as the main entry point for the bulletin board contract. 
-It re-exports all types and functions from the generated contract code and witness implementations, 
-providing a single import point for consuming applications.
+이 파일은 게시판 컨트랙트의 메인 진입점 역할을 합니다.
+생성된 컨트랙트 코드와 witness 구현의 모든 타입과 함수를 재내보내기하여
+소비 애플리케이션을 위한 단일 임포트 포인트를 제공합니다.
 
 ### Initialize the npm package
 
-The contract needs a `package.json` file to manage dependencies, define build scripts, and package the contract for use in DApps. This makes it easy to compile, build, and distribute the contract as a reusable module.
+컨트랙트에는 의존성 관리, 빌드 스크립트 정의, DApp에서 사용할 컨트랙트 패키징을 위한 `package.json` 파일이 필요합니다. 이를 통해 컨트랙트를 재사용 가능한 모듈로 쉽게 컴파일, 빌드, 배포할 수 있습니다.
 
-Create a `package.json` file in the `contract` directory:
+`contract` 디렉터리에 `package.json` 파일을 생성합니다:
 
 ```bash
 npm init -y
 ```
 
-This generates a basic `package.json` file with default values, which you'll customize in a later step to add compilation scripts and package metadata.
+기본값이 포함된 기본 `package.json` 파일이 생성되며, 이후 단계에서 컴파일 스크립트와 패키지 메타데이터를 추가하여 커스터마이즈합니다.
 
 ### Configure TypeScript
 
-Create a `tsconfig.json` file in the `contract` directory:
+`contract` 디렉터리에 `tsconfig.json` 파일을 생성합니다:
 
 ```json
 {
@@ -608,17 +608,17 @@ Create a `tsconfig.json` file in the `contract` directory:
 }
 ```
 
-The key configuration options are:
+주요 설정 옵션은 다음과 같습니다:
 
-- `target` and `module`: Set to ES2022 for modern JavaScript features
-- `declaration`: Generates `.d.ts` type definition files for TypeScript consumers
-- `outDir`: Compiled JavaScript files go to `./dist`
-- `rootDir`: Source TypeScript files are in `./src`
-- `strict`: Enables strict type checking for better code quality
+- `target`과 `module`: 최신 JavaScript 기능을 위해 ES2022로 설정
+- `declaration`: TypeScript 소비자를 위한 `.d.ts` 타입 정의 파일 생성
+- `outDir`: 컴파일된 JavaScript 파일은 `./dist`에 저장
+- `rootDir`: 소스 TypeScript 파일은 `./src`에 위치
+- `strict`: 더 나은 코드 품질을 위한 엄격한 타입 검사 활성화
 
 ### Add build scripts
 
-Update your `contract/package.json` to include build scripts:
+빌드 스크립트를 포함하도록 `contract/package.json`을 업데이트합니다:
 
 ```json
 {
@@ -651,40 +651,40 @@ Update your `contract/package.json` to include build scripts:
 }
 ```
 
-Each script serves the following purpose:
+각 스크립트의 용도는 다음과 같습니다:
 
-- `clean`: Removes compiled output for a fresh build
-- `compile:compact`: Runs the Compact compiler to generate circuits and TypeScript API
-- `compile:typescript`: Compiles TypeScript to JavaScript
-- `build`: Executes all compilation steps in order and copies necessary files
+- `clean`: 새로운 빌드를 위해 컴파일된 출력을 제거
+- `compile:compact`: Compact 컴파일러를 실행하여 circuit 및 TypeScript API 생성
+- `compile:typescript`: TypeScript를 JavaScript로 컴파일
+- `build`: 모든 컴파일 단계를 순서대로 실행하고 필요한 파일을 복사
 
 ### Build the contract
 
-Run the complete build process:
+전체 빌드 프로세스를 실행합니다:
 
 ```bash
 npm install
 npm run build
 ```
 
-This command:
+이 명령은:
 
-1. Installs dependencies (TypeScript compiler and Node.js types)
-2. Cleans previous build artifacts
-3. Compiles the Compact contract to circuits and TypeScript
-4. Compiles TypeScript to JavaScript
-5. Generates type definition files
-6. Copies managed code and source contract to the `dist` directory
+1. 의존성(TypeScript 컴파일러 및 Node.js 타입)을 설치합니다
+2. 이전 빌드 아티팩트를 정리합니다
+3. Compact 컨트랙트를 circuit 및 TypeScript로 컴파일합니다
+4. TypeScript를 JavaScript로 컴파일합니다
+5. 타입 정의 파일을 생성합니다
+6. 관리 코드와 소스 컨트랙트를 `dist` 디렉터리에 복사합니다
 
-You should see output from both the Compact compiler and TypeScript compiler. If successful, you'll have:
+Compact 컴파일러와 TypeScript 컴파일러 모두의 출력이 표시됩니다. 성공하면 다음을 갖게 됩니다:
 
-- `dist/managed/bboard/`: Generated contract code
-- `dist/`: Compiled JavaScript and type definitions
-- `dist/bboard.compact`: The source contract file
+- `dist/managed/bboard/`: 생성된 컨트랙트 코드
+- `dist/`: 컴파일된 JavaScript 및 타입 정의
+- `dist/bboard.compact`: 소스 컨트랙트 파일
 
 ## Next steps
 
-Now that you've built and compiled the bulletin board contract:
+게시판 컨트랙트를 빌드하고 컴파일했습니다:
 
-- **Build the CLI**: Continue to [build the bulletin board CLI](./bboard-cli) to create an interactive command-line interface
-- **Test the contract**: Add unit tests in `src/test/` to verify circuit behavior and commitment generation
+- **CLI 구축**: 대화형 명령줄 인터페이스를 생성하려면 [게시판 CLI 구축](./bboard-cli)으로 계속 진행하세요
+- **컨트랙트 테스트**: `src/test/`에 단위 테스트를 추가하여 circuit 동작 및 commitment 생성을 검증하세요

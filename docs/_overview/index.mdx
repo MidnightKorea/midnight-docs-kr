@@ -1,10 +1,11 @@
 ---
-title: Midnight Documentation
-description: Build privacy-preserving applications with selective disclosure and zero-knowledge proofs on Midnight.
-slug: /
+title: Midnight Docs
+description: Midnight에서 selective disclosure(선택적 공개)와 zero-knowledge proof(영지식 증명)를 활용하여 프라이버시 보호 애플리케이션을 구축하세요.
+slug: /overview
 hide_table_of_contents: true
 hide_title: true
 displayed_sidebar: sidebar
+draft: true
 ---
 
 <head>
@@ -22,71 +23,71 @@ import ParticipateTiles from '@site/src/components/ParticipateTiles';
 import CyclingTypewriter from '@site/src/components/CyclingTypewriter';
 
 <Hero
-  subtitle="Midnight helps you keep sensitive data private with zero-knowledge proofs and selective disclosure, without losing on-chain utility."
+  subtitle="Midnight은은 zero-knowledge proof(영지식 증명)와 selective disclosure(선택적 공개)를 통해 온체인 유틸리티를 유지하면서 민감한 데이터를 비공개로 보호합니다."
   primaryHref="../getting-started"
-  primaryLabel="Start building"
+  primaryLabel="Start Building"
   secondaryHref="https://github.com/midnightntwrk/midnight-awesome-dapps"
-  secondaryLabel="Examples"
+  secondaryLabel="예제"
   tertiaryHref="../compact"
-  tertiaryLabel="Compact language"
+  tertiaryLabel="Compact 언어"
 >
   <CyclingTypewriter />
 </Hero>
 
 ---
 
-## Welcome to Midnight Network
+## Midnight Network에 오신 것을 환영합니다
 
-Midnight is a privacy-first blockchain that blends public verifiability with confidential data handling. You can use Midnight's <GlossaryTerm term="selective disclosure" /> and <GlossaryTerm term="ZK proofs" /> to build apps that:
+Midnight은은 공개 검증 가능성과 기밀 데이터 처리를 결합한 프라이버시 우선 블록체인(privacy-first blockchain)입니다. Midnight의 <GlossaryTerm term="selective disclosure" />와 <GlossaryTerm term="ZK proofs" />를 사용하여 다음과 같은 앱을 구축할 수 있습니다:
 
-- Verify correctness without revealing sensitive data
-- Share only the information users choose to disclose
-- Prove compliance while keeping private records confidential
+- 민감한 데이터를 공개하지 않고도 검증 가능한 정확성
+- 사용자가 공개하기로 선택한 정보만 공유 가능
+- 비공개 기록의 기밀성을 유지하면서 증명하는 규제 준수성
 
-Midnight’s <GlossaryTerm term="consensus mechanism" /> ensures agreement on state while preserving privacy and performance.
+Midnight의 <GlossaryTerm term="consensus mechanism" />은 프라이버시와 성능을 확보함과 동시에에 상태에 대한 합의를 보장합니다.
 
 ---
 {/* <PersonaTiles /> */}
 <PersonaTiles tiles={[
   {
-    title: "New to blockchain",
-    body: "Learn core ideas related to selective disclosure, ZK proofs, commitments, and how Midnight is different.",
+    title: "블록체인이 처음이신 분",
+    body: "Selective disclosure(선택적 공개), ZK proof(영지식 증명), commitment(커밋먼트), 그리고 Midnight의 차별점에 대한 핵심 개념을 학습하세요.",
     to: "https://academy.midnight.network/",
-    cta: "Start learning",
+    cta: "학습 시작",
   },
   {
-    title: "Developer",
-    body: "Install tools, scaffold an app, write a contract, and send a private transaction.",
+    title: "개발자",
+    body: "도구를 설치하고, 앱을 스캐폴딩하고, 스마트 컨트랙트를 작성하고, private transaction을 전송하세요.",
     to: "/getting-started",
-    cta: "Start building",
+    cta: "빌드 시작",
   },
   {
-    title: "Node operators",
-    body: "Run nodes, monitor health, and follow node best practices.",
+    title: "노드 운영자",
+    body: "노드를 실행하고, 상태를 모니터링하고, 노드 운영 모범 사례를 따르세요.",
     to: "/nodes",
-    cta: "Operate nodes",
+    cta: "노드 운영",
   },
   {
-    title: "Research and compliance",
-    body: "Explore the runtime, proving system, transaction semantics, and audit paths.",
+    title: "연구 및 규정 준수(Research and compliance)",
+    body: "런타임, proving system(증명 시스템), transaction semantics(트랜잭션 시맨틱스), audit path(감사 경로)를 탐색하세요.",
     to: "/concepts",
-    cta: "View architecture",
+    cta: "아키텍처 보기",
   },
 ]} />
 ---
 
-## Participate
+## 참여하기(Participate)
 
 <div className="grid--participate">
   {[
-    { title: 'GitHub', body: 'Explore repositories, track issues, and contribute to development.', to: 'https://github.com/midnightntwrk', cta: 'Contribute' },
-    { title: 'Discord', body: 'Chat with the team, get support, and join community calls.', to: 'https://discord.com/invite/midnightnetwork', cta: 'Join' },
-    { title: 'YouTube', body: 'Watch walkthroughs, deep dives, and recorded talks from the team.', to: 'https://www.youtube.com/@midnight.network', cta: 'Watch' },
-    { title: 'Hackathons', body: 'Build on Midnight, learn from others, and showcase your projects.', to: 'https://midnight.network/hackathon', cta: 'Build' },
-    { title: 'Nightpaper', body: 'Read about the architecture, proof system, and design principles.', to: 'https://midnight.network/whitepaper', cta: 'Read' },
-    { title: 'Forum', body: 'Discuss development, governance, and announcements with the community.', to: 'https://forum.midnight.network', cta: 'Discuss' },
-    { title: 'Dev Diaries', body: 'Follow development updates, DevRel communication, and community stories.', to: '/blog', cta: 'Read' },
-    { title: 'Midnight Blog', body: 'Read ecosystem news and major announcements.', to: 'https://midnight.network/blog', cta: 'Read'},
+    { title: 'GitHub', body: '레포지토리를 탐색하고, 이슈를 추적하고, 개발에 기여하세요.', to: 'https://github.com/midnightntwrk', cta: '기여하기' },
+    { title: 'Discord', body: '팀과 대화하고, 지원을 받고, 커뮤니티 콜에 참여하세요.', to: 'https://discord.com/invite/midnightnetwork', cta: '참여하기' },
+    { title: 'YouTube', body: '팀의 워크스루, 딥다이브, 녹화된 발표를 시청하세요.', to: 'https://www.youtube.com/@midnight.network', cta: '시청하기' },
+    { title: 'Hackathons', body: 'Midnight 위에서 빌드하고, 다른 사람들에게 배우고, 프로젝트를 선보이세요.', to: 'https://midnight.network/hackathon', cta: '빌드하기' },
+    { title: 'Nightpaper', body: '아키텍처, proof system(증명 시스템), 설계 원칙에 대해 읽어보세요.', to: 'https://midnight.network/whitepaper', cta: '읽기' },
+    { title: 'Forum', body: '커뮤니티와 함께 개발, 거버넌스, 공지사항에 대해 토론하세요.', to: 'https://forum.midnight.network', cta: '토론하기' },
+    { title: 'Dev Diaries', body: '개발 업데이트, DevRel 커뮤니케이션, 커뮤니티 스토리를 팔로우하세요.', to: '/blog', cta: '읽기' },
+    { title: 'Midnight Blog', body: '에코시스템 뉴스와 주요 공지사항을 읽어보세요.', to: 'https://midnight.network/blog', cta: '읽기'},
   ].map(i => (
     <Link key={i.title} to={i.to} className="participate-card">
       <h3 className="participate-title">{i.title}</h3>
@@ -102,26 +103,26 @@ Midnight’s <GlossaryTerm term="consensus mechanism" /> ensures agreement on st
 <style>{`
   .grid--participate {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 columns on desktop */
+    grid-template-columns: repeat(4, minmax(0, 1fr)); /* 데스크톱에서 4열 */
     gap: 16px;
     margin-top: 20px;
   }
 
   @media (max-width: 1200px) {
     .grid--participate {
-      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 cols on medium screens */
+      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 중간 화면에서 3열 */
     }
   }
 
   @media (max-width: 900px) {
     .grid--participate {
-      grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 cols on tablet */
+      grid-template-columns: repeat(2, minmax(0, 1fr)); /* 태블릿에서 2열 */
     }
   }
 
   @media (max-width: 600px) {
     .grid--participate {
-      grid-template-columns: 1fr; /* 1 col on mobile */
+      grid-template-columns: 1fr; /* 모바일에서 1열 */
     }
   }
 

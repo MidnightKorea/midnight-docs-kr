@@ -1,45 +1,41 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Build the counter DApp"
+sidebar_label: "counter DApp 빌드"
 ---
 
 # Build the counter DApp
 
-To keep the code short enough to read easily, the counter DApp uses a text-based user interface,
-omitting the additional complexities of a web interface.  
+코드를 간결하게 유지하기 위해, counter DApp은 웹 인터페이스 대신 텍스트 기반 사용자 인터페이스를 사용합니다.
 
-At the root level of the `example-counter` repository, notice two sub-directories, each of which is a
-separately buildable project.
-- `contract` - contains the Compact source for the counter contract,
-  plus a tiny amount of associated TypeScript
-- `counter-cli` - contains the command-line interface of the DApp and
-  depends on the `contract` code.
+`example-counter` 저장소 루트에는 각각 별도로 빌드할 수 있는 두 개의 하위 디렉토리가 있습니다.
+- `contract` - counter 컨트랙트의 Compact 소스 코드와 관련 TypeScript
+- `counter-cli` - DApp의 커맨드 라인 인터페이스이며, `contract` 코드에 의존
 
 
 ## Compile the code
 
-1. In the `contract` folder, compile the Compact contract and build:
+1. `contract` 폴더에서 Compact 컨트랙트를 컴파일하고 빌드합니다:
 
 ```shell
 npm run compact && npm run build
 ```
 
-The `compact` script calls `compact compile` with the correct paths configured in `package.json`. The `build` script compiles the TypeScript wrapper code.
+`compact` 스크립트는 `package.json`에 설정된 경로로 `compact compile`을 호출합니다. `build` 스크립트는 TypeScript 래퍼 코드를 컴파일합니다.
 
-2. Switch to the `counter-cli` folder and run the application:
+2. `counter-cli` 폴더로 이동하여 애플리케이션을 실행합니다:
 
 ```shell
 npm run start-testnet-remote
 ```
 
-This starts the DApp and connects to a remote Midnight testnet node.
+DApp이 시작되고 원격 Midnight testnet 노드에 연결됩니다.
 
 :::note
-The npm scripts use the new `compact compile` command internally. The deprecated `compactc` executable should not be used directly. Always use either `compact compile` or the provided npm scripts.
+npm 스크립트는 내부적으로 `compact compile` 명령을 사용합니다. 더 이상 사용되지 않는 `compactc` 실행 파일은 사용하지 마세요. 항상 `compact compile` 또는 제공된 npm 스크립트를 사용하세요.
 :::
 
-You should see the following output from npm and the Compact compiler:
+다음과 같은 출력이 표시됩니다:
 
 ```
 Compact version: 0.25.0
@@ -48,27 +44,27 @@ Compiling 1 circuits:
 Overall progress [====================] 1/1
 ```
 
-:::note 
-The compiler completes very quickly because you've instructed it to skip ZK key generation with the option `--skip-zk`. The compiler's output files are placed in the directory `contract/src/managed/counter`.
+:::note
+`--skip-zk` 옵션으로 ZK 키 생성을 건너뛰었기 때문에 컴파일이 매우 빠르게 완료됩니다. 출력 파일은 `contract/src/managed/counter` 디렉토리에 저장됩니다.
 :::
 
 ## Build the TypeScript source files
 
-1. In the `contract` folder, run this command:
+1. `contract` 폴더에서 다음 명령을 실행합니다:
 
 ```shell
 npm run build
 ```
 
-This creates the `contract/dist` directory.
+`contract/dist` 디렉토리가 생성됩니다.
 
-2. Start unit tests by running:
+2. 다음 명령으로 유닛 테스트를 시작합니다:
 
 ```shell
 npm run test
 ```
 
-3. In the `counter-cli` folder, run this command:
+3. `counter-cli` 폴더에서 다음 명령을 실행합니다:
 
 ```shell
 npm run build

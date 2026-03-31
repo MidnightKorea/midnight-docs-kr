@@ -1,23 +1,20 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "The counter contract"
+sidebar_label: "counter 컨트랙트"
 ---
 
-# The counter contract
+# counter 컨트랙트
 
-The remainder of this part of the tutorial examines first the
-Compact contract and then the TypeScript code for the counter DApp.
+이 파트에서는 먼저 Compact 컨트랙트를, 이어서 counter DApp의 TypeScript 코드를 살펴봅니다.
 
-The contract behind the counter DApp can be found within the
-Counter Dapp examples directory at:
+counter DApp의 기반이 되는 컨트랙트는 Counter DApp 예제 디렉토리의 다음 경로에 있습니다:
 
 ```
 example-counter/contract/
 ```
 
-The counter contract itself is very simple. Here are the entire
-contents of `counter.compact`:
+counter 컨트랙트 자체는 매우 간단합니다. `counter.compact`의 전체 내용은 다음과 같습니다:
 
 import CodeFromGithub from '@site/src/components/CodeFromGithub';
 
@@ -28,32 +25,12 @@ import CodeFromGithub from '@site/src/components/CodeFromGithub';
 
 
 
-To make sense of this Compact code, start in the middle, with the `ledger` field
-declaration. It says that the public state of the contract, visible on the
-Midnight blockchain, includes a field `round`. The Midnight ledger supports
-`Counter` as one of its [state
-types](../../reference/compact/compact-reference#ledger-state-types), and the field is
-declared to be of that type.
+이 Compact 코드를 이해하려면 중간의 `ledger` 필드 선언부터 시작합니다. 이 선언은 Midnight 블록체인에서 볼 수 있는 컨트랙트의 공개 상태에 `round` 필드가 포함됨을 나타냅니다. Midnight ledger는 [상태 타입](../../reference/compact/compact-reference#ledger-state-types) 중 하나로 `Counter`를 지원하며, 이 필드가 해당 타입으로 선언되어 있습니다.
 
-In addition to declaring ledger fields, a contract can declare the functions
-that provide the interface to its private state, each marked with the `witness`
-keyword. The counter contract has no support for such hidden, off-chain state,
-so no witnesses are mentioned.
+ledger 필드 선언 외에도, 컨트랙트는 비공개 상태에 대한 인터페이스를 제공하는 함수를 선언할 수 있으며 각각 `witness` 키워드로 표시됩니다. counter 컨트랙트는 이런 숨겨진 오프체인 상태를 사용하지 않으므로 witness 선언이 없습니다.
 
-This contract provides a single public operation (_circuit_) that its users can
-call: `increment`. The `increment` operation simply increments the value of the
-`round` counter by `1`.
+이 컨트랙트는 사용자가 호출할 수 있는 하나의 공개 연산(_circuit_)인 `increment`를 제공합니다. `increment` 연산은 `round` 카운터 값을 `1`만큼 증가시킵니다.
 
-There are two other lines of code in this contract, at the top of the file.  The
-first line is a `pragma` that specifies a constraint on the Compact language
-version.  If the Compact compiler does not support the language versions
-specified, it will signal a compile-time error.  The second is the `import` that
-makes Compact's standard library (`CompactStandardLibrary`) available in this
-file.  The standard library includes the ledger type `Counter` and so it has to
-be imported to make that type available.
+파일 상단에 두 줄의 코드가 더 있습니다. 첫 번째 줄은 Compact 언어 버전 제약 조건을 지정하는 `pragma`입니다. Compact 컴파일러가 지정된 언어 버전을 지원하지 않으면 컴파일 오류가 발생합니다. 두 번째는 Compact 표준 라이브러리(`CompactStandardLibrary`)를 사용할 수 있게 하는 `import`입니다. 표준 라이브러리에 ledger 타입 `Counter`가 포함되어 있으므로 임포트가 필요합니다.
 
-More interesting contracts can declare enumerations and structured types to be
-used in the ledger, multiple circuits (including unexported ones called only by
-other circuits in the contract), and the functions that manipulate private,
-off-chain state. You will learn much more about Midnight contracts in the next
-major section of this tutorial: the bulletin board example.
+더 복잡한 컨트랙트에서는 ledger용 열거형과 구조체 타입, 여러 circuit(다른 circuit에서만 호출되는 비공개 circuit 포함), 비공개 오프체인 상태를 다루는 함수 등을 선언할 수 있습니다. 이 튜토리얼의 다음 주요 섹션인 게시판 예제에서 Midnight 컨트랙트에 대해 훨씬 더 자세히 다룹니다.

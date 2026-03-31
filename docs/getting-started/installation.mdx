@@ -1,8 +1,8 @@
 ---
-title: Install the toolchain
-description: Get your Midnight development environment running to set up tools, configure wallets, and deploy your first zero-knowledge application.
+title: Toolchain 설치
+description: Midnight 개발 환경을 설정하고, 도구를 구성하고, 첫 번째 zero-knowledge 애플리케이션을 배포하세요.
 sidebar_position: 10
-sidebar_label: Installation
+sidebar_label: 설치
 tags: [getting-started, setup, development, builder, ZK]
 slug: /getting-started/installation
 toc_max_heading_level: 2
@@ -12,28 +12,28 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import Step, { StepsProvider } from '@site/src/components/Step/Step';
 
-This guide covers the installation of core dependencies for developing decentralized applications (DApps) on Midnight.
+이 가이드에서는 Midnight DApp 개발에 필요한 핵심 의존성을 설치합니다.
 
 ## Prerequisites
 
-Before you begin developing DApps on Midnight, ensure you have:
+시작하기 전에 다음을 준비하세요:
 
-- Google Chrome browser
+- Google Chrome 브라우저
 - Visual Studio Code
 - Docker Desktop: [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
 - Lace Wallet: [https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk)
 
 :::note
-Lace Midnight Wallet is in Beta. To access the Midnight wallet, first create a Cardano wallet, then go to settings and enable Beta features. After that you can add a new wallet and choose the Midnight network.
+Lace Midnight Wallet은 현재 베타입니다. Midnight wallet을 사용하려면 먼저 Cardano wallet을 생성하고, 설정에서 베타 기능을 활성화한 뒤 새 wallet을 추가하면서 Midnight 네트워크를 선택하세요.
 :::
 
-Development is supported on Linux and Mac, Windows is not supported at this time.
+개발은 Linux와 Mac에서 지원되며, 현재 Windows는 지원되지 않습니다.
 
 ## Install Compact
 
-[Compact](https://github.com/midnightntwrk/compact) is Midnight's dedicated smart contract language for creating DApps that allows developers to control the level of data protection in their applications.
+[Compact](https://github.com/midnightntwrk/compact)는 애플리케이션의 데이터 보호 수준을 개발자가 직접 제어하도록 설계된 Midnight 전용 smart contract 언어입니다.
 
-Use the following command to install the pre-built binaries:
+사전 빌드된 바이너리를 설치하세요:
 
 ```bash
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
@@ -41,128 +41,128 @@ curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/r
 
 ### Update your shell PATH
 
-The installer script automatically adds Compact to your shell's `PATH`. However, you need to restart your terminal or reload your shell configuration for the changes to take effect.
+설치 스크립트가 Compact를 셸 `PATH`에 자동으로 추가합니다. 단, 변경 사항을 적용하려면 터미널을 재시작하거나 셸 설정을 다시 로드해야 합니다.
 
-To reload your shell configuration without restarting, run the following command:
+터미널을 재시작하지 않고 셸 설정을 다시 로드하려면 다음을 실행하세요:
 
 ```bash
-source ~/.zshrc # for zsh
-# or
-source ~/.bashrc # for bash
+source ~/.zshrc # zsh의 경우
+# 또는
+source ~/.bashrc # bash의 경우
 ```
 
-**Manual PATH configuration** (only if needed): If Compact is not found after restarting, manually add it to your PATH:
+**수동 PATH 구성** (필요한 경우에만): 재시작 후에도 Compact를 찾을 수 없으면 수동으로 PATH에 추가하세요:
 
 ```bash
 export PATH="$HOME/.compact/bin:$PATH"
 ```
 
-Then reload your shell configuration as shown above.
+그런 다음 위와 같이 셸 설정을 다시 로드하세요.
 
 ### Update the compiler version
 
-Update to the latest compiler version:
+최신 컴파일러로 업데이트하세요:
 
 ```bash
 compact update
 ```
 
-This command downloads the latest version of the Compact compiler and sets it as the default version.
+최신 버전의 Compact 컴파일러를 다운로드하고 기본 버전으로 설정합니다.
 
 ### Verify the Compact installation
 
-Run these commands to verify your installation:
+설치가 정상적으로 되었는지 확인하세요:
 
 ```bash
-compact --version # print the version of Compact
-compact compile --version # print the version of the compiler
-which compact     # print the installation path
+compact --version # Compact 버전 출력
+compact compile --version # 컴파일러 버전 출력
+which compact     # 설치 경로 출력
 ```
 
-**Verification**: These commands return the Compact version number, the compiler version number, and the installation path.
+**확인**: 각 명령어가 Compact 버전 번호, 컴파일러 버전 번호, 설치 경로를 출력하면 정상입니다.
 
-## Set up the proof server
+## Set up the proof server {#set-up-the-proof-server}
 
-The proof server is required to generate zero-knowledge proofs for transactions locally. This section walks you through the process of running the proof server.
+Proof server는 transaction에 대한 zero-knowledge proof를 로컬에서 생성합니다. 아래 절차에 따라 proof server를 실행하세요.
 
 ### Docker Desktop
 
-The proof server runs as a background service using Docker. Ensure the Docker engine is running for the following step.
+Proof server는 Docker 기반 백그라운드 서비스로 실행됩니다. 다음 단계를 진행하기 전에 Docker 엔진이 실행 중인지 확인하세요.
 
-### Run the proof server
+### Run the proof server {#run-the-proof-server}
 
-Use the following command to start the proof server in your terminal:
+터미널에서 proof server를 시작하세요:
 
 ```bash
 docker run -p 6300:6300 midnightntwrk/proof-server:latest midnight-proof-server -v
 ```
 
-This command occupies the terminal window while running.
+이 명령어는 실행 중인 동안 터미널을 점유합니다.
 
-**Verification**: The terminal displays logs indicating the server is running and listening at http://localhost:6300.
+**확인**: `http://localhost:6300`에서 수신 대기 중이라는 로그가 터미널에 표시되면 정상입니다.
 
 :::note
-To use a local proof-server with the Lace Midnight wallet, go to **Settings » Midnight** and select `Local (http://localhost:6300)`.
+로컬 proof server를 Lace Midnight wallet과 함께 사용하려면, **Settings » Midnight**으로 이동하여 `Local (http://localhost:6300)`을 선택하세요.
 :::
 
 ## Install the Compact VS Code extension
 
-The Compact VS Code extension provides helpful syntax highlighting and code snippet completion. To install it, follow these steps:
+Compact VS Code 확장 프로그램은 구문 강조와 코드 스니펫 자동 완성을 지원합니다. 다음 단계에 따라 설치하세요:
 
 <StepsProvider>
-    <Step>Download the [VSIX package](https://raw.githubusercontent.com/midnight-ntwrk/releases/gh-pages/artifacts/vscode-extension/compact-0.2.13/compact-0.2.13.vsix).</Step>
-    <Step>In VS Code, go to **Extensions**, then **Install from VSIX** and select the extension file.</Step>
+    <Step>[VSIX 패키지](https://raw.githubusercontent.com/midnight-ntwrk/releases/gh-pages/artifacts/vscode-extension/compact-0.2.13/compact-0.2.13.vsix)를 다운로드하세요.</Step>
+    <Step>VS Code에서 **Extensions**로 이동한 다음 **Install from VSIX**를 선택하고 확장 프로그램 파일을 선택하세요.</Step>
 </StepsProvider>
 
-**Verification**: You now see the Compact Language Support extension in your installed VS Code extensions.
+**확인**: VS Code의 설치된 확장 프로그램 목록에 Compact Language Support가 나타나면 정상입니다.
 
 ## Install Complete
 
-Your development environment is now configured. You are ready to start building and interacting with privacy-preserving applications on Midnight.
+개발 환경 구성이 완료되었습니다. 이제 Midnight에서 프라이버시 기반 애플리케이션을 빌드할 준비가 되었습니다.
 
-In order to deploy and interact with Midnight DApps, both a Midnight Node and Indexer are required. These are provided as RPC endpoints and can be found in the [Latest Stable Release](../../relnotes/overview#environments). Subsequent Tutorials will demonstrate their use, alternatively, the [Examples](../../category/examples) section provides complete DApp demonstrations.
+Midnight DApp을 배포하고 사용하려면 Midnight Node와 Indexer가 모두 필요합니다. 이들은 RPC endpoint로 제공되며 [최신 안정 릴리스](../../relnotes/overview#environments)에서 확인할 수 있습니다. 이후 튜토리얼에서 사용법을 다루며, [예제](../../category/examples) 섹션에서 전체 DApp 데모를 확인할 수 있습니다.
 
 ## Troubleshoot
 
-This section covers common issues that you might encounter during installation and their solutions.
+설치 중 발생할 수 있는 일반적인 문제와 해결 방법입니다.
 
 ### Compact binary not found
 
-If you see this error:
+다음 오류가 표시되는 경우:
 
 ```bash
 compact: command not found
 ```
 
-This means the Compact binary is not in your `PATH`. Follow the instructions in [Update your shell PATH](#update-your-shell-path) to add it to your `PATH`.
+Compact 바이너리가 `PATH`에 등록되지 않은 것입니다. [Update your shell PATH](#update-your-shell-path) 안내에 따라 `PATH`에 추가하세요.
 
 ### Docker Desktop not running
 
-If you encounter connection errors when starting the proof server, ensure Docker Desktop is running:
+Proof server 시작 시 연결 오류가 발생하면 Docker Desktop이 실행 중인지 확인하세요:
 
-1. Open Docker Desktop application.
-2. Wait for the Docker engine to start (the Docker icon in your system tray should be steady, not animated).
-3. Try running the proof server command again.
+1. Docker Desktop 애플리케이션을 여세요.
+2. Docker 엔진이 완전히 시작될 때까지 기다리세요 (시스템 트레이의 Docker 아이콘이 안정 상태여야 합니다).
+3. Proof server 명령어를 다시 실행하세요.
 
 ### Port already in use
 
-If you see an error that port 6300 is already in use:
+포트 6300이 이미 사용 중이라는 오류가 나타나면:
 
 ```bash
 Error: bind: address already in use
 ```
 
-Either stop the process using port 6300, or run the proof server on a different port:
+포트 6300을 사용 중인 프로세스를 중지하거나, 다른 포트에서 proof server를 실행하세요:
 
 ```bash
 docker run -p 6301:6300 midnightntwrk/proof-server:latest midnight-proof-server -v
 ```
 
-Remember to update your application configuration to use the new port.
+애플리케이션 설정에서 새 포트로 변경하는 것도 잊지 마세요.
 
 ## Next steps
 
-Now that your development environment is set up, you can:
+개발 환경 설정이 완료되었습니다. 다음 단계로 진행하세요:
 
-- [Create your first Midnight contract](./hello-world)
-- [Explore the Compact language](../compact/)
+- [첫 번째 Midnight contract 만들기](./hello-world)
+- [Compact 언어 알아보기](../compact/)

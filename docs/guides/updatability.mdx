@@ -1,149 +1,145 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "DApp updatability"
-description: Learn about the updatability of DApps on the Midnight Network.
+sidebar_label: "DApp 업데이트 가능성"
+description: Midnight Network에서 DApp의 업데이트 가능성에 대해 알아봅니다.
 sidebar_position: 40
 ---
 
-# DApp updatability
+# Updatability
 
-This guide explains updatability in the Midnight Network and shows how to update a deployed contract's maintenance authority.
+이 가이드에서는 Midnight Network의 업데이트 가능성 개념을 설명하고, 배포된 컨트랙트의 유지보수 권한을 업데이트하는 방법을 다룹니다.
 
 ## Overview
 
-Updating code in a decentralized environment is challenging because producing
-an update typically requires a centralized process, which attackers can exploit
-maliciously. However, DApp developers often need ways to change
-deployed contracts, and Midnight provides this through *Contract
-Maintenance Authorities* (CMAs).
+탈중앙화 환경에서 코드를 업데이트하는 것은 쉽지 않습니다. 업데이트 과정 자체가
+중앙화된 프로세스를 수반하는 경우가 많아, 공격자에게 악용될 소지가 있기 때문입니다.
+하지만 DApp 개발자는 배포된 컨트랙트를 수정해야 하는 상황이 빈번하며,
+Midnight는 *Contract Maintenance Authority*(CMA)를 통해 이를 지원합니다.
 
-By default, an empty maintenance authority prevents any user from updating the contract. 
-At deploy time, the deployer can nominate public keys and set a signature threshold 
-that determines how many keys must sign an update to enable contract updatability.
+기본적으로 유지보수 권한이 비어 있으면 누구도 컨트랙트를 업데이트할 수 없습니다.
+배포 시 배포자가 공개 키를 지정하고 서명 임계값을 설정하면,
+해당 수만큼의 키가 서명해야 컨트랙트를 업데이트할 수 있습니다.
 
 :::note
-Currently, only single-key authorities with a threshold of 1 are supported. Multi-key threshold authorities are a planned feature.
+현재는 임계값이 1인 단일 키 권한만 지원됩니다. 다중 키 임계값 권한은 계획된 기능입니다.
 :::
 
-This mechanism lets you decentralize update authority to a group requiring joint 
-approval, or grant control to a single owner.
+이 메커니즘을 통해 업데이트 권한을 여러 참여자에게 분산하거나,
+단일 소유자에게 부여할 수 있습니다.
 
 :::warning
 
-While Midnight does not require you to nominate a CMA for your deployed contract, we
-strongly advise DApp authors to understand the trade-offs before
-making this decision.
+Midnight는 배포된 컨트랙트에 CMA를 반드시 지정하도록 요구하지는 않지만,
+DApp 개발자가 이 결정을 내리기 전에 관련 장단점을 충분히 이해할 것을
+강력히 권장합니다.
 
 :::
 
 ## Why should you care?
 
-Even if you are familiar with updatability in other blockchain ecosystems,
-Midnight has an important difference that might affect what you choose for your DApp. 
-Most blockchains guarantee that deployed contracts run indefinitely as deployed, 
-reducing the need for updatability.
+다른 블록체인 생태계에서 업데이트 가능성에 익숙하더라도,
+Midnight에는 DApp 설계 결정에 영향을 줄 수 있는 중요한 차이점이 있습니다.
+대부분의 블록체인은 배포된 컨트랙트가 원래 상태 그대로 무기한 실행되는 것을 보장하므로
+업데이트의 필요성이 상대적으로 낮습니다.
 
-Midnight differs because contracts are in part zero-knowledge proofs. Breaking updates
-to the proof system – including security updates – may require contracts to
-update to the new proof system. This means the system might disable old contracts
-after upgrades.
+Midnight는 컨트랙트가 부분적으로 영지식 증명으로 구성되기 때문에 사정이 다릅니다.
+보안 업데이트를 포함한 proof 시스템의 주요 변경이 있으면, 컨트랙트를
+새로운 proof 시스템에 맞게 업데이트해야 할 수 있습니다. 즉, 시스템 업그레이드 후
+이전 버전의 컨트랙트가 비활성화될 수 있습니다.
 
-This is especially true before mainnet launch. During this period, there is no support for
-older proof system versions. There will be a support policy at or before mainnet launch.
+메인넷 출시 전에는 특히 그렇습니다. 이 기간에는 이전 proof 시스템 버전에 대한
+지원이 제공되지 않으며, 메인넷 출시 시점이나 그 전에 지원 정책이 수립될 예정입니다.
 
-With appropriate notice, support will be removed for old contract deployments. 
-Updatable contracts can migrate to new versions, but non-upgradable contracts cannot. 
-For the complete version overview, refer to the [release compatibility matrix](../relnotes/support-matrix).
+이전 버전 컨트랙트에 대한 지원은 충분한 사전 공지 후에 종료됩니다.
+업데이트 가능한 컨트랙트는 새 버전으로 마이그레이션할 수 있지만, 업데이트 불가능한 컨트랙트는 마이그레이션이 불가합니다.
+전체 버전 현황은 [릴리스 호환성 매트릭스](../relnotes/support-matrix)를 참조하세요.
 
 
 :::danger
-Non-upgradable contracts should provide a way for users to withdraw their funds before support for old proof system versions is removed. Check the [compatibility matrix](../relnotes/support-matrix) for current version support. Upgradable contracts should commit to upgrade timelines or provide a path to withdraw funds if the contract is not upgraded.
+업데이트 불가능한 컨트랙트는 이전 proof 시스템 버전의 지원이 종료되기 전에 사용자가 자금을 인출할 수 있는 수단을 반드시 제공해야 합니다. 현재 버전 지원 현황은 [호환성 매트릭스](../relnotes/support-matrix)를 확인하세요. 업데이트 가능한 컨트랙트는 업그레이드 일정을 명시하거나, 업그레이드가 이루어지지 않을 경우를 대비한 자금 인출 경로를 제공해야 합니다.
 :::
 
 :::note
-Currently, Midnight's APIs support only single-key authorities with a threshold of 1. Multi-key and arbitrary party configurations are planned for a future release.
+현재 Midnight의 API는 임계값이 1인 단일 키 권한만 지원합니다. 다중 키 및 임의 당사자 구성은 향후 릴리스에 계획되어 있습니다.
 :::
 
 ## Capabilities of a maintenance authority
 
-A Contract Maintenance Authority (CMA) performs various privileged actions
-to change a contract after deployment. These actions use a 'verifier key
-version', which combines the proving system version and the onchain runtime version. 
-Contracts support multiple active verifier key versions simultaneously, with
-keys registered for each version. This enables transitions
-between versions and may provide long-term support
-for some verifier key versions in the future. 
+CMA(Contract Maintenance Authority)는 배포 후 컨트랙트를 변경하기 위한
+다양한 권한 작업을 수행합니다. 이러한 작업은
+'검증자 키 버전(verifier key version)'을 기반으로 하며, 이는 증명 시스템 버전과
+온체인 런타임 버전의 조합입니다. 컨트랙트는 여러 검증자 키 버전을 동시에 지원할 수 있으며,
+각 버전별로 키가 등록됩니다. 이를 통해 버전 간
+전환이 가능하고, 향후 특정 검증자 키 버전에 대한 장기 지원이
+제공될 수 있습니다.
 
-A CMA can perform the following privileged actions:
+CMA가 수행할 수 있는 권한 작업은 다음과 같습니다:
 
-- **Change the CMA** associated with this contract. The new CMA succeeds the
-  current one, letting you relinquish control.
-- **Remove a verifier key** (of a specific version) from the contract. The contract
-  rejects future transactions that attempt to use this operation with the
-  removed verifier key version. The key with that version must exist before removal.
-- **Add a new verifier key** of a specific version. This adds new functionality to
-  a contract or re-exports existing functionality with a new verifier key
-  version. A key with that version must not already exist; if it does, remove it first.
+- **CMA 변경**: 컨트랙트에 연결된 CMA를 변경합니다. 새 CMA가 현재 CMA를 대체하므로,
+  이를 통해 제어권을 이전할 수 있습니다.
+- **검증자 키 제거**: 특정 버전의 검증자 키를 컨트랙트에서 제거합니다. 제거된
+  검증자 키 버전을 사용하는 트랜잭션은 이후 거부됩니다.
+  제거하려는 버전의 키가 먼저 존재해야 합니다.
+- **새 검증자 키 추가**: 특정 버전의 새 검증자 키를 추가합니다. 이를 통해
+  새로운 기능을 추가하거나 기존 기능을 새 검증자 키 버전으로 다시 내보낼 수 있습니다.
+  해당 버전의 키가 이미 존재하면 안 되며, 존재하는 경우 먼저 제거해야 합니다.
 
-The current verifier key version is `v3`. When the proof system or on-chain runtime upgrades to a new major version, a new verifier key version will be required — which is the primary reason CMA updatability exists.
+현재 검증자 키 버전은 `v3`입니다. proof 시스템이나 온체인 런타임의 주요 버전이 업그레이드되면 새로운 검증자 키 버전이 필요합니다. 이것이 CMA를 통한 업데이트 가능성이 존재하는 주된 이유입니다.
 
 :::info
 
-Removing and re-adding a verifier key lets you change the implementation
-of a circuit, modifying its behavior. Be aware that this is a very powerful
-capability!
+검증자 키를 제거한 뒤 다시 추가하면 회로의 구현을 변경하여
+동작을 수정할 수 있습니다. 매우 강력한 기능이므로 신중하게 사용하세요!
 
 :::
 
-Maintenance authorities make changes by signing a sequence of these
-single updates into a combined maintenance update.
+유지보수 권한은 여러 개별 업데이트를 하나의
+유지보수 업데이트로 묶어 서명함으로써 변경 사항을 적용합니다.
 
 :::note
-Currently, maintenance updates take effect immediately. Update delays (such as a minimum waiting period before changes take effect) are a planned feature for a future release.
+현재 유지보수 업데이트는 즉시 적용됩니다. 업데이트 지연(변경 사항이 적용되기 전 최소 대기 기간 등)은 향후 릴리스에 계획된 기능입니다.
 :::
 
 ## Operate a maintenance authority
 
-Operating a maintenance authority requires a DApp developer to:
+유지보수 권한을 운영하려면 DApp 개발자가 다음 작업을 수행해야 합니다:
 
-- Generate and store key pairs for the authority.
-- Modify deployment to add the authority.
-- Provide an interface for the authority to produce and sign updates.
+- 권한에 사용할 키 쌍을 생성하고 안전하게 보관합니다.
+- 배포 설정에 권한을 추가합니다.
+- 업데이트를 생성하고 서명할 수 있는 인터페이스를 제공합니다.
 
-You can specify the initial contract authority by providing a value for 
-[`signingKey`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/DeployContractOptions)
-in the
-[`DeployContractOptions`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/DeployContractOptions).
-Generate the initial signing key using
-[`sampleSigningKey`](/api-reference/compact-runtime/functions/sampleSigningKey).
-You can reuse the same CMA across multiple contracts by specifying the same
-signing key for different deployments.
+[`DeployContractOptions`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/DeployContractOptions)의
+[`signingKey`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/DeployContractOptions) 값을 설정하여
+초기 컨트랙트 권한을 지정합니다.
+[`sampleSigningKey`](/api-reference/compact-runtime/functions/sampleSigningKey)로
+초기 서명 키를 생성할 수 있습니다.
+여러 배포에 동일한 서명 키를 지정하면 여러 컨트랙트에서
+같은 CMA를 재사용할 수 있습니다.
 
 :::warning
-Store the signing key securely after deployment. If you lose the signing key, you **permanently lose the ability to update the contract** — there is no recovery mechanism. Do not hardcode signing keys in source code or commit them to version control.
+배포 후 서명 키를 안전하게 보관하세요. 서명 키를 분실하면 **컨트랙트 업데이트 권한을 영구적으로 잃게 되며**, 복구 방법이 없습니다. 서명 키를 소스 코드에 직접 넣거나 버전 관리 시스템에 커밋하지 마세요.
 :::
 
-You can update a deployed contract's circuits using the
 [`DeployedContract`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/DeployedContract)
-object's
+객체의
 [`circuitMaintenanceTx`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/FoundContract#circuitmaintenancetx)
-property, which contains one 
-[`CircuitMaintenanceTxInterface`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/CircuitMaintenanceTxInterface)
-for each circuit defined on the contract. Use
-[`insertVerifierKey`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/CircuitMaintenanceTxInterface#insertverifierkey)
-to add new verifier keys and
-[`removeVerifierKey`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/CircuitMaintenanceTxInterface#removeverifierkey)
-to remove existing ones.
+속성을 사용하여 배포된 컨트랙트의 회로를 업데이트할 수 있습니다. 이 속성은 컨트랙트에 정의된 각 회로에 대해 하나의
+[`CircuitMaintenanceTxInterface`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/CircuitMaintenanceTxInterface)를
+포함합니다.
+[`insertVerifierKey`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/CircuitMaintenanceTxInterface#insertverifierkey)를
+사용하여 새 검증자 키를 추가하고
+[`removeVerifierKey`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/CircuitMaintenanceTxInterface#removeverifierkey)를
+사용하여 기존 검증자 키를 제거합니다.
 
-Similarly, you can update a deployed contract's maintenance authority using the
-[`DeployedContract`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/DeployedContract)'s
+마찬가지로,
+[`DeployedContract`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/DeployedContract)의
 [`contractMaintenanceTx`](/api-reference/midnight-js/@midnight-ntwrk/midnight-js-contracts/type-aliases/FoundContract#contractmaintenancetx)
-property.
+속성을 사용하여 배포된 컨트랙트의 유지보수 권한을 업데이트할 수 있습니다.
 
 ## Example
 
-The following example demonstrates how to perform maintenance operations on a deployed contract. See the [deploy guide](./deploy-mn-app) for how to set up `providers` and `compiledContract`.
+다음은 배포된 컨트랙트에서 유지보수 작업을 수행하는 예제입니다. `providers`와 `compiledContract` 설정 방법은 [배포 가이드](./deploy-mn-app)를 참조하세요.
 
 ```typescript
 import { findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
@@ -156,23 +152,23 @@ const foundContract = await findDeployedContract(providers, {
   compiledContract,
 });
 
-// Insert a new verifier key for the 'foo' circuit
+// 'foo' 회로에 새 검증자 키 삽입
 await foundContract.circuitMaintenanceTx.foo.insertVerifierKey(newVerifierKey);
 
-// Remove a verifier key for the 'foo' circuit
+// 'foo' 회로의 검증자 키 제거
 await foundContract.circuitMaintenanceTx.foo.removeVerifierKey();
 
-// Replace the contract maintenance authority
+// 컨트랙트 유지보수 권한 교체
 await foundContract.contractMaintenanceTx.replaceAuthority(newSigningKey);
 ```
 
 :::tip
-You can also perform maintenance operations from the CLI using the `maintainContract` and `maintainCircuit` commands in `@midnight-ntwrk/compact-js-command`. These accept a `--signing` flag for the signing key, making them a simpler alternative to programmatic access.
+`@midnight-ntwrk/compact-js-command`의 `maintainContract` 및 `maintainCircuit` 명령으로 CLI에서도 유지보수 작업을 수행할 수 있습니다. 서명 키용 `--signing` 플래그를 지원하므로, 프로그래밍 방식보다 더 간편하게 사용할 수 있습니다.
 :::
 
 ## Next steps
 
-Now you understand how to update a deployed contract's maintenance authority. Check out the following resources to learn more about building DApps on the Midnight network:
+배포된 컨트랙트의 유지보수 권한을 업데이트하는 방법을 살펴보았습니다. Midnight 네트워크에서의 DApp 개발에 대해 더 알아보려면 다음을 참조하세요:
 
-- [Deploy a contract](./deploy-mn-app)
-- [Midnight.js API reference](/api-reference/midnight-js)
+- [컨트랙트 배포](./deploy-mn-app)
+- [Midnight.js API 레퍼런스](/api-reference/midnight-js)

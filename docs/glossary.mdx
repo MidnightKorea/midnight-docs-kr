@@ -2,283 +2,284 @@
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 sidebar_label: Glossary
-description: Glossary of terms used in Midnight Network.
+description: Midnight Network에서 사용되는 용어집입니다.
 title: Glossary
 sidebar_position: 13
 tags: [glossary]
 ---
 
-# Midnight Network Glossary
+# Glossary
 
 ### Block
- 
-A block is a collection of validated transactions grouped together and added to the blockchain in sequence. Each block contains a reference to the previous block, forming a chain. In Midnight, blocks are produced by active nodes and finalized through the network's finalization mechanism.
- 
+
+검증된 트랜잭션들을 모아 순서대로 블록체인에 추가한 것입니다. 각 블록은 이전 블록에 대한 참조를 포함하여 체인을 형성합니다. Midnight에서 블록은 활성 노드에 의해 생성되고 네트워크의 최종화 메커니즘을 통해 확정됩니다.
+
 ### Block producer
- 
-A participant in the Midnight network whose role is to propose and add new blocks to the blockchain. Block producers are selected based on the consensus mechanism and are rewarded in coins for their participation. They are responsible for ordering transactions and ensuring the integrity of each block they produce.
- 
+
+Midnight 네트워크에서 새로운 블록을 제안하고 블록체인에 추가하는 참여자입니다. 합의 메커니즘에 따라 선정되며, 참여 보상으로 코인을 받습니다. 트랜잭션 순서를 정하고 생성하는 블록의 무결성을 보장할 책임이 있습니다.
+
 ### Blinding factor
- 
-A random value used in cryptographic commitment schemes, such as Pedersen commitments, to hide the underlying data being committed to. The blinding factor ensures that two commitments to the same value produce different outputs, preventing observers from inferring the committed value by comparison. Without knowledge of the blinding factor, the committed value cannot be recovered.
+
+페데르센 커밋먼트 같은 암호학적 커밋먼트 스킴에서 기본 데이터를 숨기기 위해 사용되는 임의의 값입니다. 동일한 값에 대한 두 커밋먼트가 서로 다른 출력을 생성하도록 보장하여, 관찰자가 비교를 통해 커밋된 값을 추론하는 것을 방지합니다. Blinding factor를 알지 못하면 커밋된 값을 복원할 수 없습니다.
+
 ### Bech32m
-An address encoding format used in blockchain networks for wallet addresses. It's an improved version of the original Bech32 format that provides better error detection when typing or copying addresses.
+블록체인 네트워크에서 wallet 주소에 사용되는 주소 인코딩 형식입니다. 기존 Bech32 형식을 개선한 버전으로, 주소 입력이나 복사 시 더 나은 오류 감지 기능을 제공합니다.
 
 ### Coin
-A coin is a digital asset that exists on a blockchain. It is a unit of account used as a store of value. Block producers are rewarded in coins, and coins are used to pay transaction fees. A coin is distinct from a token, which is any digital asset that means something to a decentralized application, including representing a real-world asset. That means all coins are tokens, but not all tokens are coins.
+블록체인 위에 존재하는 디지털 자산으로, 가치 저장 수단으로 사용되는 계정 단위입니다. 블록 생산자는 코인으로 보상을 받으며, 코인은 트랜잭션 수수료 지불에 사용됩니다. 코인은 토큰과 구별됩니다. 토큰은 실물 자산 대표를 포함하여 DApp에 의미가 있는 모든 디지털 자산을 말합니다. 따라서 모든 코인은 토큰이지만, 모든 토큰이 코인은 아닙니다.
 
 ### Compact
-Compact is the domain-specific language, based on TypeScript, in which Midnight's smart contracts are expressed.  While the language does allow contracts to be expressed concisely, the primary derivation of the name is from the noun form of the word *compact*, meaning an agreement, contract, or covenant among people or institutions.
+Midnight의 스마트 컨트랙트를 작성하는 데 사용되는 TypeScript 기반 도메인 특화 언어입니다. 이 언어는 컨트랙트를 간결하게 표현할 수 있지만, 이름의 주된 유래는 *compact*라는 단어의 명사형, 즉 사람이나 기관 간의 합의, 계약, 또는 서약을 의미합니다.
 
 ### Concurrency
-Concurrency is the ability of many users to perform tasks simultaneously without blocking each other. This ensures increased throughput and makes transaction and smart contract processing more efficient.
+많은 사용자가 서로를 차단하지 않고 동시에 작업을 수행할 수 있는 능력입니다. 처리량이 증가하고 트랜잭션 및 스마트 컨트랙트 처리 효율이 높아집니다.
 
 ### Commitment
- 
-A cryptographic primitive that allows a party to commit to a chosen value while keeping it hidden. The commitment binds the value so it cannot change and hides the value from others. To verify the committed data, the user presents the original value and randomness, and the system checks that it matches the commitment. Midnight uses commitments to represent private state on the public ledger without exposing the underlying data.
- 
+
+선택한 값을 숨긴 채로 해당 값에 대해 커밋할 수 있게 하는 암호학적 기본 요소입니다. 커밋먼트는 값이 변경되지 않도록 바인딩하고 다른 사람에게 값을 숨깁니다. 커밋된 데이터를 검증할 때 사용자는 원래 값과 난수를 제시하고, 시스템은 이것이 커밋먼트와 일치하는지 확인합니다. Midnight는 기본 데이터를 노출하지 않고 공개 원장에 프라이빗 상태를 나타내기 위해 커밋먼트를 사용합니다.
+
 ### Contract address
- 
-A unique identifier assigned to a smart contract when it is deployed to the Midnight network. The contract address is used by DApps and wallets to locate and interact with a specific deployed contract. It is derived from the contract's deployment transaction and remains fixed for the lifetime of the contract on-chain.
- 
+
+스마트 컨트랙트가 Midnight 네트워크에 배포될 때 할당되는 고유 식별자입니다. DApp과 wallet이 특정 배포된 컨트랙트를 찾고 상호작용하는 데 사용됩니다. 컨트랙트의 배포 트랜잭션에서 파생되며 온체인에서 컨트랙트 수명 동안 고정됩니다.
+
 ### Contract deployment
- 
-The process of publishing a compiled Compact smart contract to the Midnight network, making it available for interaction. During deployment, the contract's initial ledger state is established and a contract address is assigned. Deployment requires a transaction to be submitted and confirmed on-chain and typically involves paying a fee in DUST.
+
+컴파일된 Compact 스마트 컨트랙트를 Midnight 네트워크에 게시하여 상호작용할 수 있게 만드는 과정입니다. 배포 시 컨트랙트의 초기 원장 상태가 설정되고 컨트랙트 주소가 할당됩니다. 트랜잭션을 제출하고 온체인에서 확인해야 하며, 일반적으로 DUST로 수수료를 지불합니다.
 
 ### Consensus mechanism
-The consensus mechanism of a blockchain is the set of rules that govern the way that the participants in the network agree to add blocks to the chain. Each block must conform to the chain’s rules, and the blocks must be chained in the correct sequence, avoiding or resolving forks in the chain.
+네트워크 참여자들이 블록체인에 블록을 추가하는 방식에 합의하는 규칙의 집합입니다. 각 블록은 체인의 규칙을 준수해야 하며, 올바른 순서로 연결되어야 하고, 체인의 분기를 방지하거나 해결해야 합니다.
 
 ### Cryptocurrency
-A digital asset stored on a blockchain ledger that is intended to be used as a medium of exchange for goods or services. Blockchain protocols use cryptography to ensure the security and verification of ownership and fund movements.
-Unlike traditional currencies, a cryptocurrency is not controlled by a government. Its value is determined by the dynamics of market supply and demand.
+블록체인 원장에 저장된 디지털 자산으로, 상품이나 서비스의 교환 매체로 사용됩니다. 블록체인 프로토콜은 소유권과 자금 이동의 보안 및 검증을 위해 암호학을 사용합니다.
+전통적인 통화와 달리 암호화폐는 정부가 통제하지 않으며, 그 가치는 시장 수요와 공급에 의해 결정됩니다.
 
 ### Custom spend logic
-A term used to indicate a potential feature of Midnight, where spending a coin involves executing attached logic so that certain invariants of token lifecycle can be enforced. An example use case may be requiring a known/ allowed source of tokens.
+Midnight의 잠재적 기능으로, 코인 지출 시 첨부된 로직을 실행하여 토큰 수명 주기의 특정 불변성을 강제합니다. 예를 들어 알려진 또는 허용된 토큰 출처를 요구하는 데 사용할 수 있습니다.
 
 ### Custom token
-Custom tokens are user-defined tokens designed to fulfill specific features and functionalities, like voting and governance. Custom tokens in Midnight are managed by the ledger alongside Midnight’s native tokens using the same mechanics.
+투표 및 거버넌스 같은 특정 기능을 수행하도록 설계된 사용자 정의 토큰입니다. Midnight의 커스텀 토큰은 네이티브 토큰과 동일한 메커니즘으로 원장에서 관리됩니다.
 
 ### DApp
-A DApp, short for decentralized application, is a computer program that operates on a network without a single central server, typically a blockchain.
+Decentralized Application의 약자로, 단일 중앙 서버 없이 네트워크(주로 블록체인)에서 작동하는 컴퓨터 프로그램입니다.
 
 ### DApp developer
-An individual or organization that creates and maintains DApps.
+DApp을 만들고 유지 관리하는 개인 또는 조직입니다.
 
 ### DApp operator
-An individual or organization responsible for the management, operation, and support of a decentralized application. DApp operators often engage DApp developers, or are themselves DApp developers.
+DApp의 관리, 운영 및 지원을 담당하는 개인 또는 조직입니다. DApp 개발자를 고용하거나 직접 개발자 역할을 겸하는 경우가 많습니다.
 
 ### DApp connector
- 
-A software interface that allows a DApp running in a browser or application to communicate with a user's Web3 wallet. The DApp connector handles permission requests, transaction signing, and proof submissions on behalf of the user, without exposing the user's private keys to the DApp. In Midnight, the DApp connector also coordinates with the proof server to generate ZK proofs before a transaction is submitted.
+
+브라우저나 애플리케이션에서 실행되는 DApp이 사용자의 Web3 wallet과 통신할 수 있게 해주는 소프트웨어 인터페이스입니다. 사용자의 개인 키를 DApp에 노출하지 않으면서 권한 요청, 트랜잭션 서명, 증명 제출을 대신 처리합니다. Midnight에서 DApp connector는 트랜잭션 제출 전에 영지식 증명을 생성하기 위해 proof 서버와도 조율합니다.
 
 ### Decentralized
-A system or organization where there is no single authority in control. Instead, the system or organization is run by numerous decision makers with equal or comparable standing.
+단일 권한이 통제하지 않는 시스템 또는 조직입니다. 동등하거나 유사한 지위를 가진 수많은 의사결정자에 의해 운영됩니다.
 
 ### Devnet
-Short for ‘development network’, a devnet is a blockchain that behaves like the Mainnet and is used for testing DApps that are in development. It uses test tokens with no value. Some governance parameters may be set differently from Mainnet for the convenience of developers. In Midnight, the process of DApp deployment proceeds from a devnet to one or more testnets, such as Preview and Preprod, before the DApp is released on the Mainnet. Midnight's `devnet` has been deprecated in favor of the current `testnet`.
+Development network의 줄임말로, Mainnet처럼 동작하면서 개발 중인 DApp을 테스트하는 데 사용되는 블록체인입니다. 실세계 가치가 없는 테스트 토큰을 사용합니다. 일부 거버넌스 매개변수는 개발자 편의를 위해 Mainnet과 다르게 설정될 수 있습니다. Midnight에서 DApp 배포 과정은 devnet에서 시작하여 Preview 및 Preprod 같은 testnet을 거쳐 Mainnet에 출시됩니다. 현재 Midnight의 `devnet`은 `testnet`으로 대체되었습니다.
 
 ### Distributed
-A blockchain is distributed because a copy of it is stored on many computers across the world.
+블록체인은 전 세계 많은 컴퓨터에 사본이 저장되어 있으므로 분산형입니다.
 
 ### Domain separator
-A field used when a DApp asks a user to sign a message. It helps ensure that a message from one DApp cannot be used in a different DApp or on a different network.
+DApp이 사용자에게 메시지 서명을 요청할 때 사용되는 필드입니다. 한 DApp의 메시지가 다른 DApp이나 다른 네트워크에서 사용되지 않도록 방지합니다.
 
 ### DUST
-A shielded, non-transferable, consumable network resource used exclusively to pay transaction fees on Midnight.
+Midnight에서 트랜잭션 수수료를 지불하는 데 독점적으로 사용되는 차폐된(shielded), 양도 불가능한(non-transferable), 소모성 네트워크 리소스입니다.
 
 ### Fungible token
-Fungible tokens are identical to one another, have the same value, and are interchangeable.
+서로 동일하고, 같은 가치를 가지며, 상호 교환이 가능한 토큰입니다.
 
 ### Federated Node Operators (FNO)
-A network of independent node operators that work together to maintain and secure the Midnight blockchain. These operators validate transactions, produce blocks, and ensure the network remains decentralized and reliable. Unlike a single centralized authority, FNOs distribute control across multiple trusted entities, enhancing security and reducing single points of failure.
+Midnight 블록체인을 유지하고 보호하기 위해 협력하는 독립 노드 운영자들의 네트워크입니다. 트랜잭션을 검증하고, 블록을 생산하며, 네트워크의 탈중앙화와 신뢰성을 유지합니다. 단일 중앙 권한과 달리, FNO는 여러 신뢰할 수 있는 엔터티에 제어를 분산하여 보안을 강화하고 단일 장애 지점을 줄입니다.
 
 ### Gadget
-A gadget is a specialized entry point, specific to zero-knowledge cryptography, designed to bring ZK Snark circuit development within reach of a wide range of developers. Midnight cryptography (Midnight's cryptographic backend library) provides several gadgets, including a signing gadget, an encryption gadget, and a hashing gadget.
+영지식 암호학에 특화된 진입점으로, 더 많은 개발자가 ZK Snark 회로 개발에 접근할 수 있도록 설계되었습니다. Midnight의 암호학 백엔드 라이브러리는 서명, 암호화, 해싱 등 여러 가젯을 제공합니다.
 
 ### Halo 2
-A high-performance ZK Snark implementation from the Electric Coin company.
+Electric Coin 회사에서 만든 고성능 ZK Snark 구현체입니다.
 
 ### Hard-fork
-An event of changing the way transactions are being processed in a backwards-incompatible way (e.g. when introducing new features). It requires all nodes in the network to upgrade software to continue participation in the network.
+이전 버전과 호환되지 않는 방식으로 트랜잭션 처리 방법을 변경하는 이벤트입니다(예: 새 기능 도입). 네트워크의 모든 노드가 참여를 계속하려면 소프트웨어를 업그레이드해야 합니다.
 
 ### Hash
-In cryptography, a hash value, or hash for short, is the output of a mathematical operation called a hash function. A hash function takes a string of any length and produces a string of fixed length such that it is infeasible to derive the input value, there is a very low probability of two strings producing the same hash function, and even a small change to the input will always result in a different output.
+해시 함수라는 수학적 연산의 출력입니다. 해시 함수는 임의 길이의 문자열을 입력받아 고정 길이의 문자열을 생성합니다. 입력 값을 역으로 도출하는 것이 불가능하고, 서로 다른 입력이 같은 해시 값을 생성할 확률이 극히 낮으며, 입력이 조금만 달라져도 전혀 다른 출력이 나옵니다.
 
 ### HD wallet
-Short for Hierarchical Deterministic wallet. A type of cryptocurrency wallet that can generate multiple addresses and private keys from a single master seed phrase, usually 12 or 24 words. This means you only need to back up one seed phrase to recover all your addresses and funds. Midnight uses HD wallets for deriving and managing the three different types of addresses used in the network: Unshielded, Shielded, and DUST.
+Hierarchical Deterministic wallet의 줄임말입니다. 단일 마스터 시드 구문(보통 12개 또는 24개 단어)으로부터 여러 주소와 개인 키를 생성할 수 있는 유형의 암호화폐 wallet입니다. 모든 주소와 자금을 복구하려면 시드 구문 하나만 백업하면 됩니다. Midnight는 네트워크에서 사용되는 세 가지 주소 유형(Unshielded, Shielded, DUST)을 파생하고 관리하기 위해 HD wallet을 사용합니다.
 
 ### Kachina
-Kachina is a unified security model for data-protecting smart contracts that bridge the gap between a private state on the user’s local machine and a public state on the blockchain.
-It is based on the universally composable (UC) model. By relying on ZK Snarks, Kachina establishes a smart contract protocol that ensures data protection while operating within the UC security framework.
+사용자 로컬 머신의 프라이빗 상태와 블록체인의 공개 상태 사이의 격차를 해소하는, 데이터 보호 스마트 컨트랙트를 위한 통합 보안 모델입니다.
+보편적 구성 가능성(UC) 모델을 기반으로 하며, ZK Snark에 의존하여 UC 보안 프레임워크 내에서 데이터 보호를 보장하는 스마트 컨트랙트 프로토콜을 수립합니다.
 
 ### Ledger
-The public record of contract state and token state on the blockchain.
-The ledger does not exist as a single document on the blockchain at any point.  Instead, the current ledger, as of some block, can be synthesized by reading the blockchain up to that block.
+블록체인 위의 컨트랙트 상태와 토큰 상태에 대한 공개 기록입니다.
+원장은 어떤 시점에서도 블록체인에 단일 문서로 존재하지 않습니다. 대신, 특정 블록 기준의 현재 원장은 해당 블록까지의 블록체인을 읽어 합성할 수 있습니다.
 
-In Compact, the `ledger` declaration specifies the contract's contributions to the global ledger.
+Compact에서 `ledger` 선언은 컨트랙트가 글로벌 원장에 기여하는 내용을 지정합니다.
 
 ### Light client
-A blockchain light client interacts with full nodes to find information about the blockchain, but only stores part of the ledger itself. By verifying headers and using Merkle proofs, light clients can ensure that the data they receive from full nodes is valid and accurate. Light clients require less processing power and storage capacity compared to full nodes, making them more suitable for devices with limited resources such as smartphones or IoT devices.
+풀 노드와 상호작용하여 블록체인 정보를 조회하되, 원장의 일부만 자체 저장하는 클라이언트입니다. 헤더를 검증하고 Merkle proof를 사용하여 풀 노드에서 수신한 데이터의 유효성과 정확성을 확인할 수 있습니다. 풀 노드보다 처리 능력과 저장 용량이 적게 필요하므로 스마트폰이나 IoT 장치 같은 리소스 제한 환경에 적합합니다.
 
 ### Mainnet
-The fully developed and deployed blockchain where transactions are verified and recorded.
+트랜잭션이 검증되고 기록되는, 완전히 개발 및 배포된 블록체인입니다.
 
 ### Merkle tree
-A data structure used in cryptography and computer science to verify the integrity and consistency of large data sets. Named after its inventor Ralph Merkle, a Merkle tree is a binary tree where each leaf node represents a hash value of a specific data block.
+대규모 데이터 세트의 무결성과 일관성을 검증하기 위해 암호학과 컴퓨터 과학에서 사용되는 데이터 구조입니다. 발명자 Ralph Merkle의 이름을 따서 명명되었으며, 각 리프 노드가 특정 데이터 블록의 해시 값을 나타내는 이진 트리입니다.
 
 ### MeshSDK
-MeshSDK is an open-source library for Cardano that provides comprehensive tools and APIs for building decentralized applications. It offers TypeScript support, React hooks, wallet integration, and development utilities for Midnight Network DApps.
+MeshSDK는 DApp 구축을 위한 포괄적인 도구와 API를 제공하는 Cardano용 오픈소스 라이브러리입니다. TypeScript 지원, React hooks, wallet 통합, Midnight Network DApp을 위한 개발 유틸리티를 제공합니다.
 
 ### Multi-asset
-Multi-asset refers to the capability of a blockchain platform or protocol to support and handle various types of digital assets or tokens simultaneously.
+블록체인 플랫폼이나 프로토콜이 다양한 유형의 디지털 자산 또는 토큰을 동시에 지원하고 처리할 수 있는 능력을 의미합니다.
 
 ### NIGHT
-Midnight’s native utility token, transferable and persistent, used for governance, incentives, and as the source of DUST generation.
+Midnight의 네이티브 유틸리티 토큰으로, 양도 가능하고 영구적이며, 거버넌스, 인센티브, DUST 생성의 원천으로 사용됩니다.
 
 ### Non-fungible token (NFT)
-Non-fungible tokens are unique and indivisible tokens recorded on a blockchain. They can represent ownership rights to tangible assets like real estate or artwork, or to intangible assets such as a rare magical sword in a Web3 game.
+블록체인에 기록된 고유하고 분할 불가능한 토큰입니다. 부동산이나 예술 작품 같은 유형 자산, 또는 Web3 게임의 희귀한 마법 검 같은 무형 자산에 대한 소유권을 나타낼 수 있습니다.
 
 ### Nonce
-A unique number that is used only once in cryptographic communications. In blockchain transactions, a nonce prevents replay attacks by ensuring each transaction is unique and can't be duplicated or reused maliciously. Think of it as a one-time serial number that protects your transactions from being copied and submitted again.
+암호학적 통신에서 한 번만 사용되는 고유한 숫자입니다. 블록체인 트랜잭션에서 nonce는 각 트랜잭션의 고유성을 보장하여 재전송 공격을 방지합니다. 트랜잭션이 복사되어 다시 제출되는 것을 막는 일회용 일련번호라고 할 수 있습니다.
 
 ### Node
-A blockchain node is a computer or device that participates in a blockchain network. It plays a crucial role in maintaining the decentralized and distributed nature of blockchain technology. There are several types of nodes, and one node can be more than one type.
+블록체인 네트워크에 참여하는 컴퓨터 또는 장치입니다. 블록체인의 탈중앙화 및 분산 특성을 유지하는 데 핵심적인 역할을 합니다. 여러 유형의 노드가 있으며, 하나의 노드가 여러 유형을 겸할 수 있습니다.
 
-- An active node is one whose purpose is to mint blocks for the blockchain.
-- A full node stores a copy of the entire blockchain, that is, all the transactions and data records ever executed within the network.
-- A passive node is one that is receiving blocks and transactions from its peers (and in the future, will share these with its peers).
+- 활성 노드는 블록 생성을 목적으로 하는 노드입니다.
+- 풀 노드는 네트워크의 모든 트랜잭션과 데이터, 즉 전체 블록체인 사본을 저장합니다.
+- 수동 노드는 피어로부터 블록과 트랜잭션을 수신하는 노드입니다(향후 피어와 공유하게 됩니다).
 
 ### Nullifier
- 
-A unique value derived from a coin or private state element that is revealed on-chain when that element is consumed. Nullifiers allow the network to detect and reject double-spend attempts without revealing which specific coin or private value was spent. Once a nullifier appears on the ledger, the corresponding element can never be used again.
+
+코인 또는 프라이빗 상태 요소에서 파생된 고유한 값으로, 해당 요소가 소비될 때 온체인에 공개됩니다. 어떤 특정 코인이나 프라이빗 값이 지출되었는지 드러내지 않으면서 네트워크가 이중 지출 시도를 감지하고 거부할 수 있게 합니다. Nullifier가 원장에 나타나면 해당 요소는 다시 사용할 수 없습니다.
 
 ### Oracle
-An oracle is a service or mechanism that provides external data to smart contracts. It means smart contracts can interact with external information sources by using data from oracles to automate actions.
+스마트 컨트랙트에 외부 데이터를 제공하는 서비스 또는 메커니즘입니다. 스마트 컨트랙트는 오라클의 데이터를 활용하여 동작을 자동화하고 외부 정보 소스와 상호작용할 수 있습니다.
 
 ### Pedersen commitments
-A cryptographic technique introduced by Torben Pedersen in a 1992 conference paper that enables the commitment to a value without revealing the value itself. It involves combining the value with a random blinding factor using mathematical operations to create a commitment. The committed value remains hidden and computationally difficult to reverse-engineer without knowing the blinding factor. Pedersen commitments are homomorphically additive, allowing one to ‘add’ commitments to two values to get a commitment to the sum of the original values. This can be further stretched to sums of arbitrary-dimension vectors by committing each dimension with a different base.
+1992년 Torben Pedersen이 소개한 암호학적 기법으로, 값 자체를 공개하지 않으면서 값에 대한 커밋먼트를 가능하게 합니다. 값을 임의의 blinding factor와 수학적 연산으로 결합하여 커밋먼트를 생성합니다. 커밋된 값은 숨겨진 채로 유지되며, blinding factor를 알지 못하면 역공학이 계산적으로 어렵습니다. Pedersen commitment는 동형 덧셈이 가능하여, 두 커밋먼트를 더해 원래 값의 합에 대한 커밋먼트를 얻을 수 있습니다. 각 차원을 다른 기저로 커밋하면 임의 차원의 벡터 합으로도 확장할 수 있습니다.
 
 ### Private oracle
-The set of witness functions and the private state over which they operate constitute the private oracle for a contract.
+witness 함수 집합과 이 함수들이 작동하는 프라이빗 상태가 컨트랙트의 private oracle을 구성합니다.
 
 ### Private state
- 
-The portion of a smart contract's state that is stored locally on a user's device and is never published to the blockchain. Private state is only accessible to the user who owns it and is used as input to witness functions when generating zero-knowledge proofs. It contrasts with ledger state, which is public and visible to all participants on the network.
- 
+
+사용자 장치에 로컬로 저장되며 블록체인에 게시되지 않는 스마트 컨트랙트 상태의 일부입니다. 소유한 사용자만 접근할 수 있으며, 영지식 증명 생성 시 witness 함수의 입력으로 사용됩니다. 네트워크의 모든 참여자에게 공개되는 ledger state와 대조됩니다.
+
 ### Proof server
- 
-A local service that generates zero-knowledge proofs on behalf of a user's DApp. When a user initiates a transaction that involves private data, the DApp sends the relevant inputs to the proof server, which computes the ZK proof and returns it for inclusion in the transaction. The proof server runs on the user's own machine and requires a set of proving keys that are downloaded during initial setup. It does not have access to the user's private keys.
- 
+
+사용자의 DApp을 대신하여 영지식 증명을 생성하는 로컬 서비스입니다. 사용자가 프라이빗 데이터를 포함하는 트랜잭션을 시작하면, DApp이 관련 입력을 proof 서버로 보내고, 서버가 영지식 증명을 계산하여 트랜잭션에 포함할 수 있도록 반환합니다. 사용자 머신에서 실행되며, 초기 설정 시 다운로드되는 proving key 세트가 필요합니다. 사용자의 개인 키에는 접근하지 않습니다.
+
 ### Proving key
- 
-A large piece of cryptographic data generated during the setup phase of a ZK Snark scheme. The proving key is used by the proof server to construct valid zero-knowledge proofs for a specific circuit. Each Compact contract function that involves private state has a corresponding proving key. Proving keys are typically distributed alongside compiled contracts and must be present on the user's machine before proofs can be generated.
- 
+
+ZK Snark 스킴의 설정 단계에서 생성되는 대용량 암호학적 데이터입니다. Proof 서버가 특정 circuit에 대해 유효한 영지식 증명을 구성하는 데 사용됩니다. 프라이빗 상태를 포함하는 각 Compact 컨트랙트 함수에 대응하는 proving key가 있습니다. 일반적으로 컴파일된 컨트랙트와 함께 배포되며, 증명 생성 전에 사용자 머신에 있어야 합니다.
+
 ### Public state
- 
-The portion of a smart contract's state that is stored on the blockchain and is visible to all participants in the network. In Compact, public state is declared using the `ledger` keyword and forms the contract's contribution to the global ledger. Public state can be updated by submitting a valid transaction and is used to coordinate interactions between users without revealing private data.
+
+블록체인에 저장되어 네트워크의 모든 참여자가 볼 수 있는 스마트 컨트랙트 상태의 일부입니다. Compact에서 `ledger` 키워드로 선언되며, 글로벌 원장에 대한 컨트랙트의 기여를 형성합니다. 유효한 트랜잭션을 제출하여 업데이트할 수 있으며, 프라이빗 데이터를 공개하지 않고 사용자 간 상호작용을 조율하는 데 사용됩니다.
 
 ### Prover
-An entity or party that aims to convince another party, known as the verifier, about the validity or truthfulness of a statement without revealing any sensitive or confidential information. The prover's role is to construct a proof that demonstrates knowledge of certain data or the ability to perform a specific computation, while maintaining confidentiality.
+검증자(verifier)에게 민감하거나 기밀 정보를 공개하지 않으면서 진술의 유효성이나 진실성을 납득시키려는 주체입니다. 특정 데이터에 대한 지식이나 특정 계산 수행 능력을 기밀성을 유지하면서 증명하는 proof를 구성하는 역할을 합니다.
 
 ### Midnight Indexer
-It is a component that follows the Midnight chain to index events and data in a queryable database. Light clients can subscribe to this service to receive any relevant data such as token transactions associated with a given set of wallet addresses, or transactions related to a given smart contract.
+Midnight 체인을 추적하여 이벤트와 데이터를 쿼리 가능한 데이터베이스에 색인하는 컴포넌트입니다. 라이트 클라이언트가 이 서비스에 구독하여 특정 wallet 주소와 관련된 토큰 트랜잭션이나 특정 스마트 컨트랙트와 관련된 트랜잭션 등 필요한 데이터를 수신할 수 있습니다.
 
 ### Qualified coin
-A coin registered in the ledger's commitment Merkle tree with a known index and so qualified to be spent in a transaction.
+원장의 commitment Merkle tree에 알려진 인덱스로 등록되어 트랜잭션에서 지출할 자격이 있는 코인입니다.
 
 ### Runtime upgrade
-An approach to evolve Substrate-based networks through storing code to process transactions on-chain (which is called runtime) and allowing to update that code with dedicated types of transactions. In some cases this approach allows to avoid executing hard-forks in a network.
+Substrate 기반 네트워크에서 트랜잭션 처리 코드(런타임)를 온체인에 저장하고, 전용 트랜잭션 유형으로 해당 코드를 업데이트하여 네트워크를 발전시키는 접근 방식입니다. 이를 통해 하드포크 없이 네트워크를 업그레이드할 수 있는 경우도 있습니다.
 
 ### Self-sovereign identity (SSI)
-Self-sovereign identity is a lifetime portable identity for a person, organization or thing. It does not depend on any centralized authority and cannot be taken away. Individuals have the right to decide what personal information they share and with whom. They can selectively disclose only the necessary information for a specific transaction or interaction.
+개인, 조직 또는 사물에 대한 평생 휴대 가능한 신원으로, 어떤 중앙 권한에도 의존하지 않으며 빼앗을 수 없습니다. 개인은 어떤 정보를 누구와 공유할지 결정할 권리를 가지며, 특정 트랜잭션이나 상호작용에 필요한 정보만 선택적으로 공개할 수 있습니다.
 
 ### Selective disclosure
- 
-A privacy mechanism that allows a user to reveal only a specific subset of their personal data or attributes to a verifier, without exposing any unrelated information. In Midnight, selective disclosure is implemented using zero-knowledge proofs, enabling users to prove the validity of a claim, such as being above a certain age, without revealing the underlying data, such as their exact date of birth. Selective disclosure is a core building block of self-sovereign identity on Midnight.
+
+사용자가 관련 없는 정보를 노출하지 않으면서 개인 데이터의 특정 하위 집합만 검증자에게 공개할 수 있게 하는 프라이버시 메커니즘입니다. Midnight에서는 영지식 증명을 사용하여 구현되며, 예를 들어 정확한 생년월일을 공개하지 않고 특정 나이 이상임을 증명할 수 있습니다. Selective disclosure는 Midnight 자기주권 신원의 핵심 구성 요소입니다.
 
 ### Shielded
-Shielded tokens allow for interactions to occur without metadata leakage. Wallet addresses and transaction details are not disclosed to counterparties or made available on a public ledger.
+차폐 토큰은 메타데이터 유출 없이 상호작용할 수 있게 합니다. wallet 주소와 트랜잭션 세부 정보가 거래 상대방에게 공개되지 않으며 공개 원장에서도 확인할 수 없습니다.
 
 ### Smart contract
-A program encoded on a blockchain that executes predefined actions when specific conditions are met. Smart contracts eliminate the need for intermediaries by enforcing the terms of the contract through computer code. Smart contracts enable transparent, secure, and tamper-resistant transactions because they are executed on a decentralized network with no single point of failure.
+특정 조건이 충족되면 사전 정의된 작업을 실행하는, 블록체인에 인코딩된 프로그램입니다. 컴퓨터 코드로 계약 조건을 강제하여 중개자가 필요 없습니다. 단일 장애 지점이 없는 탈중앙화 네트워크에서 실행되므로 투명하고, 안전하며, 변조 방지된 트랜잭션이 가능합니다.
 
 ### Snark
-See ZK-Snark.
+ZK-Snark를 참조하세요.
 
 ### Soft-fork
-An event of changing the way transactions are being processed in a backwards-compatible way (e.g. when adjusting some parameters). It requires active nodes in the network to upgrade software to continue participation in the network, but full and passive nodes do not require to be updated.
+이전 버전과 호환되는 방식으로 트랜잭션 처리 방법을 변경하는 이벤트입니다(예: 매개변수 조정). 활성 노드는 소프트웨어를 업그레이드해야 하지만, 풀 노드와 수동 노드는 업데이트할 필요가 없습니다.
 
 ### SPECK
-The atomic unit of DUST: 1 DUST = 10<sup>15</sup> SPECK.
+DUST의 최소 단위: 1 DUST = 10<sup>15</sup> SPECK.
 
 ### STAR
-The atomic unit of NIGHT: 1 NIGHT = 10<sup>6</sup> STAR.
+NIGHT의 최소 단위: 1 NIGHT = 10<sup>6</sup> STAR.
 
-### State
-State refers to the current data or information stored within a smart contract. It represents the values of variables, storage locations, and any other relevant information that is necessary for the contract’s execution and functioning.
+### State {#state}
+스마트 컨트랙트 내에 저장된 현재 데이터 또는 정보입니다. 변수 값, 저장 위치, 컨트랙트 실행에 필요한 관련 정보를 나타냅니다.
 
 ### Swap
-The exchange or trading of one cryptocurrency or token for another directly on the blockchain, without the need for an intermediary. These swaps are often facilitated through specialized smart contracts or decentralized exchanges (DEXs).
+중개자 없이 블록체인에서 하나의 암호화폐 또는 토큰을 다른 것으로 직접 교환하는 것입니다. 주로 전용 스마트 컨트랙트나 탈중앙화 거래소(DEX)를 통해 이루어집니다.
 
 ### Testnet
-A testnet is an intermediate step between a devnet and the mainnet. Like a devnet, it is a blockchain with all the characteristics of the mainnet except that it uses test tokens with no real-world value. Some governance parameters may be set differently from the main chain for the convenience of developers.
-The process of DApp deployment normally proceeds from a devnet to one or more testnets, such as Preview and Preprod, before the DApp is released on the mainnet. Testnet parameters may be set closer to their production values than on a devnet.
+devnet과 mainnet 사이의 중간 단계입니다. devnet과 마찬가지로 실세계 가치 없는 테스트 토큰을 사용하면서 mainnet의 모든 특성을 갖춘 블록체인입니다. 일부 거버넌스 매개변수는 개발자 편의를 위해 메인 체인과 다르게 설정될 수 있습니다.
+DApp 배포 과정은 일반적으로 devnet에서 시작하여 Preview, Preprod 같은 testnet을 거쳐 mainnet에 출시됩니다. Testnet 매개변수는 devnet보다 프로덕션 값에 더 가깝게 설정될 수 있습니다.
 
 ### tDUST
-Test DUST tokens used on Midnight testnets like Preprod. The 't' prefix stands for 'test', indicating these tokens have no real-world value and are only for development and testing purposes. Like regular DUST, tDUST is used to pay transaction fees and is generated from tNIGHT holdings.
+Preprod와 같은 Midnight testnet에서 사용되는 테스트 DUST 토큰입니다. 't' 접두사는 'test'를 의미하며, 이 토큰들은 실세계 가치가 없고 개발 및 테스트 목적으로만 사용됩니다. 일반 DUST와 마찬가지로 tDUST는 트랜잭션 수수료를 지불하는 데 사용되며 tNIGHT 보유량에서 생성됩니다.
 
 ### tNIGHT
-Test NIGHT tokens used on Midnight testnets like Preprod. The 't' prefix stands for 'test', indicating these tokens have no real-world value and are only for development and testing purposes. tNIGHT can be freely obtained from a faucet and used to test DApp functionality that involves NIGHT tokens, including generating tDUST for transaction fees.
+Preprod와 같은 Midnight testnet에서 사용되는 테스트 NIGHT 토큰입니다. 't' 접두사는 'test'를 의미하며, 이 토큰들은 실세계 가치가 없고 개발 및 테스트 목적으로만 사용됩니다. tNIGHT는 faucet에서 무료로 받을 수 있으며, 트랜잭션 수수료를 위한 tDUST 생성을 포함하여 NIGHT 토큰이 관련된 DApp 기능을 테스트하는 데 사용됩니다.
 
 ### Token
-A token is any digital asset that means something to a decentralized application, including acting as a store of value or representing a real-world asset.
+가치 저장 수단이나 실물 자산 대표 등 DApp에 의미가 있는 모든 디지털 자산입니다.
 
 ### Transaction
-The transfer or exchange of digital assets or information on a blockchain network. A transaction involves records such as the sender, recipient, and the amount or type of assets being transferred, into a block within the blockchain. Transactions are verified, validated, and added to the blockchain through a consensus mechanism, ensuring their integrity and immutability.
+블록체인 네트워크에서 디지털 자산 또는 정보의 전송이나 교환입니다. 송신자, 수신자, 자산의 양이나 유형 등의 기록이 블록체인 내 블록에 포함됩니다. 합의 메커니즘을 통해 검증 및 유효성이 확인된 후 블록체인에 추가되어 무결성과 불변성이 보장됩니다.
 
 ### Transaction balancing
-If a wallet receives a transaction that is not balanced (that is - for a token type transaction the value of inputs does not equal the value of outputs), the wallet **balances** the transaction by providing necessary inputs and outputs so that it can be accepted by the ledger.
+wallet이 밸런싱되지 않은 트랜잭션(토큰 유형별 입력 값과 출력 값이 같지 않은 경우)을 수신하면, 원장이 수락할 수 있도록 필요한 입력과 출력을 제공하여 트랜잭션을 **밸런싱**합니다.
 
 ### TypeScript
-A programming language developed by Microsoft that adds features to JavaScript. It allows developers to catch errors during development and improves code quality. TypeScript code is turned into JavaScript for execution and is commonly used for web development, providing better tooling support and productivity, particularly for larger code bases and teams.
+Microsoft가 개발한 프로그래밍 언어로 JavaScript를 확장합니다. 개발 중에 오류를 조기에 발견할 수 있어 코드 품질이 높아집니다. TypeScript 코드는 실행 시 JavaScript로 변환되며, 특히 대규모 코드베이스와 팀 환경에서 더 나은 도구 지원과 생산성을 제공합니다.
 
 ### Unshielded
- 
-Referring to tokens or transactions where metadata such as wallet addresses and transfer amounts are visible on the public ledger. Unshielded interactions do not benefit from the privacy protections provided by ZK proofs and are equivalent to standard transparent blockchain transactions. In Midnight, unshielded and shielded assets can coexist and interact within the same application.
+
+wallet 주소와 전송 금액 같은 메타데이터가 공개 원장에서 보이는 토큰 또는 트랜잭션입니다. 비차폐 상호작용은 영지식 증명이 제공하는 프라이버시 보호를 받지 못하며, 표준적인 투명 블록체인 트랜잭션과 동일합니다. Midnight에서 비차폐 자산과 차폐 자산은 동일한 애플리케이션 내에서 공존하고 상호작용할 수 있습니다.
 
 ### Universally Composable (UC) security framework
-A theoretical framework described by Ran Canetti in a 2020 paper. It is used to analyze and prove the security of cryptographic protocols in a composable manner. In the UC framework, protocols are treated as building blocks that can be composed together to form more complex protocols. The framework allows for the analysis of the security properties of a protocol when it is used as a component in a larger system.
+Ran Canetti가 2020년 논문에서 설명한 이론적 프레임워크입니다. 구성 가능한 방식으로 암호학적 프로토콜의 보안을 분석하고 증명하는 데 사용됩니다. UC 프레임워크에서 프로토콜은 더 복잡한 프로토콜을 형성하기 위한 빌딩 블록으로 취급되며, 더 큰 시스템의 컴포넌트로 사용될 때의 보안 속성을 분석할 수 있습니다.
 
 ### Verifier
-An entity or party that aims to verify the validity or truthfulness of a statement presented by another party, known as the prover, without requiring full knowledge of the underlying data or computation. The verifier's role is to examine the proof provided by the prover and determine its correctness based on the agreed-upon rules and cryptographic protocols.
+증명자가 제시한 진술의 유효성이나 진실성을, 기본 데이터나 계산에 대한 완전한 지식 없이 검증하는 주체입니다. 검증자의 역할은 증명자가 제공한 증명을 검토하고, 합의된 규칙과 암호학적 프로토콜에 따라 정확성을 판단하는 것입니다.
 
 ### Verification key
- 
-A compact cryptographic artifact derived from the same setup process as the proving key. The verification key is used by the network or a verifier to confirm that a submitted ZK proof is valid for a given circuit, without re-executing the computation or learning anything about the private inputs. Verification keys are small and fast to evaluate, making on-chain verification efficient.
+
+Proving key와 동일한 설정 과정에서 파생된 소형 암호학적 아티팩트입니다. 네트워크 또는 검증자가 제출된 영지식 증명이 주어진 circuit에 대해 유효한지, 계산을 재실행하거나 프라이빗 입력을 알지 않고도 확인하는 데 사용됩니다. 크기가 작고 평가가 빠르므로 온체인 검증을 효율적으로 만듭니다.
 
 ### Wallet
-A digital tool or software that allows users to view, send, and receive digital assets securely. These wallets store private keys and public addresses, enabling users to manage their digital assets on a blockchain network.
+사용자가 디지털 자산을 안전하게 조회, 전송, 수신할 수 있는 디지털 도구 또는 소프트웨어입니다. 개인 키와 공개 주소를 저장하여 사용자가 블록체인 네트워크에서 디지털 자산을 관리할 수 있게 합니다.
 
 ### Web3
-Web3 is a decentralized version of the WorldWide Web built on blockchain technology and cryptographic principles. It provides a trustless, and more user-centric online experience. It aims to transform the way information, value, and digital assets are shared, accessed, and interacted with.
+Web3는 블록체인 기술과 암호학적 원칙을 기반으로 구축된 월드와이드 웹의 탈중앙화 버전입니다. trustless하고 사용자 중심적인 온라인 경험을 목표로 하며, 정보, 가치, 디지털 자산이 공유되고 접근되며 상호작용하는 방식을 변화시키고자 합니다.
 
 ### Web3 wallet
-A Web3 wallet extends a digital asset wallet by enabling connection to DApps, and allowing the management of assets other than cryptocurrency, such as NFTs.
+DApp 연결 및 NFT 같은 암호화폐 이외의 자산 관리 기능을 추가하여 디지털 자산 wallet을 확장합니다.
 
 ### Witness
-In mathematical logic, a witness is a value that satisfies an assertion. For example, a witness for 'there exists an integer greater than 0' is the number 5. For the zero-knowledge proofs in Midnight, a witness is a function that satisfies a different kind of assertion: there exists a **function** with a specified type signature. The circuits defined in Compact can call such witness functions, but the definitions of the witnesses are outside Compact, and their effects on private state are not recorded in the public ledger.
+수학적 논리에서 주장을 만족하는 값입니다. 예를 들어, '0보다 큰 정수가 존재한다'의 witness는 숫자 5입니다. Midnight의 영지식 증명에서 witness는 지정된 타입 시그니처를 가진 **함수**가 존재한다는 주장을 만족하는 함수입니다. Compact에서 정의된 circuit는 이러한 witness 함수를 호출할 수 있지만, witness 정의는 Compact 외부에 있으며 프라이빗 상태에 대한 영향은 공개 원장에 기록되지 않습니다.
 
 ### Zero-knowledge proof (ZKP)
-A zero-knowledge proof allows someone to prove they know a secret without revealing the secret. For example, a ZKP can prove that an attribute has a value within a range without revealing its exact value. A potential client of a DApp or service can use ZKP to selectively disclose information from their self-sovereign identity without disclosing other information.
+비밀을 공개하지 않으면서 비밀을 알고 있음을 증명할 수 있게 하는 기법입니다. 예를 들어, 정확한 값을 공개하지 않고 속성이 특정 범위 내에 있음을 증명할 수 있습니다. DApp이나 서비스의 잠재적 고객은 ZKP를 사용하여 다른 정보를 노출하지 않고 자기주권 신원에서 필요한 정보만 선택적으로 공개할 수 있습니다.
 
 ### Zero-knowledge (ZK) circuit
-Arithmetic circuits are short programs, consisting of a fixed number of multiplications and additions in a modular prime field. A zero-knowledge circuit is a special case that demonstrates the existence of a solution to an arithmetic circuit without revealing the input values or intermediate steps.
+산술 회로는 모듈러 소수 체에서 고정된 수의 곱셈과 덧셈으로 구성된 짧은 프로그램입니다. 영지식 circuit는 입력 값이나 중간 단계를 공개하지 않으면서 산술 회로에 대한 해의 존재를 증명하는 특수한 경우입니다.
 
 ### ZKIR
-Zero-Knowledge Intermediate Representation. A low-level format that Compact smart contracts are compiled into before being converted to zero-knowledge circuits. ZKIR makes it possible to translate readable contract logic into the mathematical format needed for zero-knowledge cryptography.
+Zero-Knowledge Intermediate Representation의 약자입니다. Compact 스마트 컨트랙트가 영지식 circuit로 변환되기 전에 컴파일되는 저수준 형식입니다. 읽기 쉬운 컨트랙트 로직을 영지식 암호학에 필요한 수학적 형식으로 변환하는 다리 역할을 합니다.
 
 ### ZK Snarks
-A zero-knowledge succinct non-interactive argument of knowledge (ZK Snark) is a specific type of zero-knowledge proof. They are particularly efficient and powerful for two reasons. First, ZK Snarks are succinct, meaning that the proof size remains constant, regardless of the complexity or size of the statement being proved. This property is highly desirable because it provides efficient verification and reduces the amount of data that needs to be transmitted. Second, ZK Snarks are non-interactive, meaning that the prover can generate a proof without requiring any additional interaction with the verifier. This makes them more efficient than other types of ZK proofs, which typically involve multiple rounds of communication.
+Zero-knowledge succinct non-interactive argument of knowledge의 약자로, 특정 유형의 영지식 증명입니다. 두 가지 이유로 특히 효율적이고 강력합니다. 첫째, 간결하여 증명되는 진술의 복잡성이나 크기에 관계없이 증명 크기가 일정합니다. 이 속성 덕분에 검증이 효율적이고 전송 데이터 양이 줄어듭니다. 둘째, 비대화형이어서 증명자가 검증자와 추가 상호작용 없이 증명을 생성할 수 있습니다. 여러 라운드의 통신이 필요한 다른 유형의 영지식 증명보다 더 효율적입니다.
 
 ### Zswap
-Midnight uses Zswap – a transaction scheme that combines the strengths of Zcash and SwapCT – to create a straightforward transaction protocol based on ZK Snarks. Zswap enables the merging of transactions while preserving the confidentiality of data. It addresses the limitations of privacy-oriented cryptocurrencies by providing a mechanism for supporting multiple asset types and facilitating atomic swaps, thereby offering a scalable and secure solution for DeFi applications.
+Midnight는 Zcash와 SwapCT의 장점을 결합한 트랜잭션 스킴인 Zswap을 사용하여 ZK Snark 기반의 간결한 트랜잭션 프로토콜을 만듭니다. Zswap은 데이터 기밀성을 유지하면서 트랜잭션 병합을 지원합니다. 여러 자산 유형 지원과 atomic swap 촉진 메커니즘을 통해 프라이버시 지향 암호화폐의 한계를 해결하고, DeFi 애플리케이션을 위한 확장 가능하고 안전한 솔루션을 제공합니다.

@@ -5,35 +5,35 @@ copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Found
 
 # Kachina
 
-Kachina is a data-protecting smart contract solution that enables its users to achieve confidential and general-purpose smart contract functionality without sacrificing decentralization characteristics. Kachina offers a practical protocol for realizing data-protecting smart contracts, utilizing only non-interactive zero knowledge. By design, contracts are structured in a way that gives developers a clear separation between the personal data that stays on the user’s machine, and the data that is processed publicly on-chain. 
+Kachina는 탈중앙화 특성을 유지하면서도 기밀성을 갖춘 범용 스마트 컨트랙트를 구현하는 데이터 보호 솔루션입니다. 비대화형 zero-knowledge proof만으로 데이터 보호 스마트 컨트랙트를 실현하는 실용적인 프로토콜이며, 컨트랙트는 설계상 사용자 기기에 남는 개인 데이터와 온체인에서 공개 처리되는 데이터를 명확히 분리하는 구조를 갖습니다.
 
-At the core of the Kachina model is the concept of bridging the gap between the blockchain and users' local machines. This is achieved by representing the system through two distinct [states](/learn/glossary#state):
+Kachina 모델의 핵심은 블록체인과 사용자 로컬 기기 사이의 격차를 해소하는 것입니다. 시스템을 두 가지 별도의 [상태](/glossary#state)로 나누어 이를 구현합니다:
 
-- a public state, which resides on the blockchain and is accessible to all participants
-- a private state, which exists locally on each user's machine. 
+- 블록체인에 존재하며 모든 참여자가 접근할 수 있는 공개 상태
+- 각 사용자의 기기에 로컬로 존재하는 비공개 상태.
 
-Kachina’s contribution is to provide a model that connects the private and public states using zero-knowledge proofs. The contract itself can update both the public state and the private state simultaneously. 
+Kachina의 핵심 기여는 zero-knowledge proof로 비공개 상태와 공개 상태를 연결하는 모델을 제공한다는 점입니다. 컨트랙트 자체가 공개 상태와 비공개 상태를 동시에 업데이트할 수 있습니다.
 
-By definition, a ZKP allows one party the prover to make an assertion that a second party the verifier can be satisfied is true, without the need to disclose additional information. In the case of Kachina, the assertion is that there has been a change to the private state that justifies a corresponding change to the public state.
+ZKP란 한 당사자(증명자)가 추가 정보를 공개하지 않고도 특정 사실을 다른 당사자(검증자)에게 확신시킬 수 있는 방법입니다. Kachina에서 증명하는 내용은 "비공개 상태에 대한 변경이 있었으며, 그것이 공개 상태의 해당 변경을 정당화한다"는 것입니다.
 
-To make a valid assertion, parties engaging in the contract must prove in zero-knowledge that their updates to the public state are valid by providing evidence of the existence of a corresponding private state and the associated inputs that justify the update. Kachina facilitates this proof using ZK Snarks. It offers a low-level and versatile framework for building data-protecting systems that is based on the Universally Composable (UC) security framework.
+유효한 주장을 하려면, 컨트랙트 참여자들이 공개 상태 업데이트의 유효성을 zero-knowledge로 증명해야 합니다. 즉, 해당 업데이트를 정당화하는 비공개 상태와 관련 입력이 존재한다는 증거를 제시해야 합니다. Kachina는 ZK Snark를 사용하여 이 proof를 생성하며, Universally Composable(UC) 보안 프레임워크에 기반한 데이터 보호 시스템 구축용 저수준 범용 프레임워크를 제공합니다.
 
 ![kachina](https://ucarecdn.com/e298a234-a027-4cb6-9564-86f0d5488e43/)
 
-As outlined in the figure above, clients can maintain private states for the contracts in which they participate. For each user, the public state operates as a deterministic state machine, which is coupled with the private state. Private data is never shared on the chain. Authorization to perform contract actions is based on ZKPs that verify the transaction's compliance with the rules. Validation begins by checking the proof against the ZK circuit. On-chain validation then executes the public portion of the contract to generate a new public state.
+위 그림처럼 클라이언트는 참여 중인 컨트랙트에 대한 비공개 상태를 유지할 수 있습니다. 각 사용자에게 공개 상태는 비공개 상태와 결합된 결정론적 상태 머신으로 작동합니다. 비공개 데이터는 체인에 절대 공유되지 않습니다. 컨트랙트 작업 수행의 인증은 트랜잭션이 규칙을 준수하는지 검증하는 ZKP에 기반합니다. 검증은 먼저 ZK circuit에 대한 proof를 확인한 뒤, 온체인에서 컨트랙트의 공개 부분을 실행하여 새로운 공개 상태를 생성하는 순서로 진행됩니다.
 
-Kachina enables concurrency to enhance the efficiency of smart contracts. Concurrency refers to the ability of multiple actors to perform tasks simultaneously without blocking each other. This ensures increased throughput and efficient transaction and smart contract processing. To enable concurrency, Kachina utilizes transcripts that record the operations performed on the contract's state and interact with queries. By optimizing conflicting transactions and allowing for reorderings, Kachina minimizes information leakage while maximizing concurrency.
+Kachina는 동시성을 지원하여 스마트 컨트랙트의 효율성을 높입니다. 동시성이란 여러 행위자가 서로를 차단하지 않고 동시에 작업을 수행할 수 있는 능력을 말합니다. 이를 통해 처리량이 증가하고 트랜잭션 및 스마트 컨트랙트 처리의 효율성이 보장됩니다. 동시성을 위해 Kachina는 컨트랙트 상태에서 수행된 작업을 기록하고 쿼리와 상호작용하는 트랜스크립트를 활용합니다. 충돌하는 트랜잭션을 최적화하고 재정렬을 허용하여, 정보 유출은 최소화하면서 동시성은 극대화합니다.
 
 ## The model
 
-Kachina presents smart contracts as reactive state machines. Users interact with these contracts by submitting transactions to Midnight. When a user initiates a transaction, they intend to issue a high-level command to the smart contract, such as casting a vote or withdrawing funds. After the transaction is confirmed by the ledger, the user receives information about the outcome of their command and any computed results based on the contract's current state.
+Kachina는 스마트 컨트랙트를 반응형 상태 머신으로 모델링합니다. 사용자는 Midnight에 트랜잭션을 제출하여 컨트랙트와 상호작용합니다. 트랜잭션을 시작한다는 것은 투표, 자금 인출 등 스마트 컨트랙트에 대한 고수준 명령을 발행하는 것입니다. ledger에서 트랜잭션이 확인되면, 사용자는 명령의 결과와 컨트랙트 현재 상태를 기반으로 계산된 결과 정보를 받게 됩니다.
 
 ## The core protocol idea
 
-To ensure the secure handling of data in smart contracts, Kachina introduces a unique approach, which enables smart contracts to interact with specialized entities, facilitating data access and updates. These entities allow contracts to make inquiries and obtain relevant information. Rather than directly modifying the contract's data, this interaction ensures the integrity and consistency of the contract's state. Users maintain a transcript of these interactions, capturing the queries and expected responses. By providing evidence of their familiarity with inputs that yield the expected responses, users can validate the transcript and verify the reliability of the contract's data management.
+스마트 컨트랙트에서 데이터를 안전하게 처리하기 위해, Kachina는 컨트랙트가 특수 엔티티와 상호작용하여 데이터를 조회하고 업데이트하는 독자적인 접근 방식을 도입합니다. 이 엔티티를 통해 컨트랙트는 필요한 정보를 질의하고 얻을 수 있습니다. 컨트랙트 데이터를 직접 수정하는 대신 이 방식으로 상호작용함으로써, 컨트랙트 상태의 무결성과 일관성이 보장됩니다. 사용자는 쿼리와 예상 응답을 기록한 트랜스크립트를 유지하며, 예상 응답을 산출하는 입력에 대한 지식의 증거를 제시하여 트랜스크립트를 검증하고 컨트랙트 데이터 관리의 신뢰성을 확인합니다.
 
-In conclusion, Kachina provides a powerful tool for constructing data-protecting smart contract systems. It allows users to interact with contracts securely, protecting their personal data while ensuring the desired functionality of the contracts. Kachina allows for the realization of various contract types, enabling developers to achieve their desired data protection goals while taking advantage of the protocol's strong security foundations.
+Kachina는 데이터 보호 스마트 컨트랙트 시스템 구축을 위한 강력한 도구입니다. 사용자는 개인 데이터를 보호하면서 컨트랙트와 안전하게 상호작용하고, 컨트랙트는 의도한 기능을 정확히 수행합니다. 개발자는 Kachina 프로토콜의 보안 기반 위에서 다양한 유형의 컨트랙트를 구현하여 원하는 데이터 보호 목표를 달성할 수 있습니다.
 
-This model can be applied to a wide range of use cases including TradFi and DeFi applications, supply chain management systems, healthcare applications, and more.
+이 모델은 TradFi 및 DeFi 애플리케이션, 공급망 관리 시스템, 의료 애플리케이션 등 광범위한 사용 사례에 적용 가능합니다.
 
-For more details, examples, and contract samples, read [Kachina – Foundations of Private Smart Contracts](https://eprint.iacr.org/2020/543.pdf). 
+더 자세한 내용, 예시 및 컨트랙트 샘플은 [Kachina – Foundations of Private Smart Contracts](https://eprint.iacr.org/2020/543.pdf)를 참조하세요.

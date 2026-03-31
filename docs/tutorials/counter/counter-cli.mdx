@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 sidebar_label: "Counter CLI"
 title: "Counter CLI"
-description: "Learn how to build a counter CLI DApp on Midnight Network."
+description: "Midnight 네트워크에서 counter CLI DApp을 구축하는 방법을 알아봅니다."
 sidebar_position: 20
 toc_max_heading_level: 2
 ---
@@ -13,25 +13,25 @@ import TabItem from '@theme/TabItem';
 
 # Counter CLI
 
-This tutorial explains how to build a command-line interface that interacts with the counter smart contract created in the [build the counter contract](./smart-contract) tutorial. 
-This CLI demonstrates wallet management, contract deployment, and transaction submission on the Midnight network.
+이 튜토리얼에서는 [counter 컨트랙트 구축](./smart-contract) 튜토리얼에서 생성한 counter 스마트 컨트랙트와 상호작용하는 명령줄 인터페이스를 구축하는 방법을 설명합니다.
+이 CLI는 Midnight 네트워크에서의 지갑 관리, 컨트랙트 배포 및 트랜잭션 제출을 보여줍니다.
 
 ## Prerequisites
 
-Before you begin, ensure that you have:
+시작하기 전에 다음 사항을 확인하세요:
 
-- Completed the [build the counter contract](./smart-contract) tutorial with the contract compiled in `contract/src/managed/counter/`
-- Docker Desktop installed to run the proof server
-- Node.js version 22+
+- [counter 컨트랙트 구축](./smart-contract) 튜토리얼을 완료하고 컨트랙트가 `contract/src/managed/counter/`에 컴파일되어 있어야 합니다
+- proof 서버를 실행하기 위해 Docker Desktop이 설치되어 있어야 합니다
+- Node.js 버전 22 이상
 
 ## Project structure
 
-The complete example-counter project uses a monorepo structure with npm workspaces:
+완성된 example-counter 프로젝트는 npm workspaces를 사용하는 모노레포 구조를 사용합니다:
 
 ```
 example-counter/
-├── package.json                 # Root package with workspaces
-├── contract/                    # Compact contract
+├── package.json                 # 루트 패키지 (workspaces 포함)
+├── contract/                    # Compact 컨트랙트
 │   ├── src/
 │   │   ├── counter.compact
 │   │   ├── managed/
@@ -39,27 +39,27 @@ example-counter/
 │   └── package.json
 └── counter-cli/                 # Counter CLI
     ├── src/
-    │   ├── config.ts           # Network configuration
-    │   ├── common-types.ts     # Type definitions
-    │   ├── api.ts              # Contract interaction
-    │   ├── cli.ts              # User interface
-    │   ├── logger-utils.ts     # Logging setup
-    │   ├── preprod.ts          # Entry point
-    │   └── index.ts            # Re-exports
+    │   ├── config.ts           # 네트워크 설정
+    │   ├── common-types.ts     # 타입 정의
+    │   ├── api.ts              # 컨트랙트 상호작용
+    │   ├── cli.ts              # 사용자 인터페이스
+    │   ├── logger-utils.ts     # 로깅 설정
+    │   ├── preprod.ts          # 진입점
+    │   └── index.ts            # 재내보내기
     └── package.json
 ```
 
-The monorepo structure enables code sharing between packages through workspace references. The counter-cli depends on the contract package without requiring separate publication to npm.
+모노레포 구조에서 workspace 참조를 사용하면 패키지 간 코드를 쉽게 공유할 수 있습니다. counter-cli는 npm에 별도로 게시하지 않고도 contract 패키지에 의존합니다.
 
 ## Set up the root package
 
-This section explains the process of setting up the root package.
+이 섹션에서는 루트 패키지를 설정하는 과정을 설명합니다.
 
 ### Create the root configuration
 
-From the `example-counter` root directory, create or update `package.json`:
+`example-counter` 루트 디렉터리에서 `package.json`을 생성하거나 업데이트합니다:
 
-```json 
+```json
 {
   "name": "example-counter",
   "version": "2.0.2",
@@ -106,25 +106,25 @@ From the `example-counter` root directory, create or update `package.json`:
 }
 ```
 
-The workspaces configuration tells npm to manage both the contract and counter-cli as linked packages. Dependencies defined at the root level are shared across all workspaces, reducing duplication and ensuring version consistency.
+workspaces 설정은 npm에게 contract과 counter-cli를 연결된 패키지로 관리하도록 지시합니다. 루트 수준에서 정의된 의존성은 모든 workspace에서 공유되어 중복을 줄이고 버전 일관성을 보장합니다.
 
 ### Install root dependencies
 
-Install all dependencies from the root:
+루트에서 모든 의존성을 설치합니다:
 
 ```bash
 npm install
 ```
 
-This command installs dependencies for the root package and all workspace packages, creating symlinks between them for local development.
+이 명령은 루트 패키지와 모든 workspace 패키지의 의존성을 설치하고, 로컬 개발을 위한 심볼릭 링크를 생성합니다.
 
 ## Set up the CLI package
 
-This section explains the process of setting up the CLI DApp.
+이 섹션에서는 CLI DApp을 설정하는 과정을 설명합니다.
 
 ### Create the CLI directory
 
-From the root, create the counter-cli structure:
+루트에서 counter-cli 구조를 생성합니다:
 
 ```bash
 mkdir -p counter-cli/src
@@ -133,7 +133,7 @@ cd counter-cli
 
 ### Configure the CLI package
 
-Create `counter-cli/package.json`:
+`counter-cli/package.json`을 생성합니다:
 
 ```json package.json
 {
@@ -155,11 +155,11 @@ Create `counter-cli/package.json`:
 }
 ```
 
-The package depends on `@midnight-ntwrk/counter-contract` using the wildcard version `*`, which resolves to the local workspace package. This enables importing the compiled contract code without publishing to npm.
+이 패키지는 와일드카드 버전 `*`을 사용하여 `@midnight-ntwrk/counter-contract`에 의존하며, 이는 로컬 workspace 패키지로 확인됩니다. 이를 통해 npm에 게시하지 않고도 컴파일된 컨트랙트 코드를 임포트할 수 있습니다.
 
 ### Configure TypeScript
 
-Create `counter-cli/tsconfig.json`:
+`counter-cli/tsconfig.json`을 생성합니다:
 
 ```json
 {
@@ -184,13 +184,13 @@ Create `counter-cli/tsconfig.json`:
 }
 ```
 
-The TypeScript configuration enables ES modules and strict type checking. The `ts-node` section allows direct execution of TypeScript files during development without a separate build step.
+TypeScript 설정은 ES 모듈과 엄격한 타입 검사를 활성화합니다. `ts-node` 섹션은 개발 중 별도의 빌드 단계 없이 TypeScript 파일을 직접 실행할 수 있게 합니다.
 
 ## Implement configuration
 
-The configuration file defines network endpoints and contract settings. 
+설정 파일은 네트워크 엔드포인트와 컨트랙트 설정을 정의합니다.
 
-Create `counter-cli/src/config.ts`:
+`counter-cli/src/config.ts`를 생성합니다:
 
 ```typescript title="counter-cli/src/config.ts"
 import path from 'node:path';
@@ -217,7 +217,7 @@ export class PreprodConfig implements Config {
   indexerWS = 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws';
   node = 'https://rpc.preprod.midnight.network';
   proofServer = 'http://127.0.0.1:6300';
-  
+
   constructor() {
     setNetworkId('preprod');
   }
@@ -229,25 +229,25 @@ export class UndeployedConfig implements Config {
   indexerWS = 'ws://localhost:8088/api/v4/graphql/ws';
   node = 'ws://localhost:9944';
   proofServer = 'http://localhost:6300';
-  
+
   constructor() {
     setNetworkId('undeployed');
   }
 }
 ```
 
-The configuration separates network-specific settings from application logic. 
-The `PreprodConfig` class provides endpoints for Midnight-hosted infrastructure. 
-The `contractConfig` object specifies where the compiled contract artifacts are located and where to store private state locally.
+설정은 네트워크별 설정을 애플리케이션 로직과 분리합니다.
+`PreprodConfig` 클래스는 Midnight이 호스팅하는 인프라에 대한 엔드포인트를 제공합니다.
+`contractConfig` 객체는 컴파일된 컨트랙트 아티팩트의 위치와 private 상태를 로컬에 저장할 위치를 지정합니다.
 
-The `setNetworkId` call in the constructor establishes a global network context that Midnight.js libraries use automatically. 
-This ensures all SDK components operate on the correct network without requiring the network ID in every API call.
+생성자의 `setNetworkId` 호출은 Midnight.js 라이브러리가 자동으로 사용하는 글로벌 네트워크 컨텍스트를 설정합니다.
+이를 통해 모든 SDK 구성 요소가 매 API 호출마다 네트워크 ID를 요구하지 않고도 올바른 네트워크에서 동작합니다.
 
 ## Define common types
 
-Type definitions provide type safety and improve code readability. 
+타입 정의는 타입 안전성을 제공하고 코드 가독성을 향상시킵니다.
 
-Create `counter-cli/src/common-types.ts`:
+`counter-cli/src/common-types.ts`를 생성합니다:
 
 ```typescript title="counter-cli/src/common-types.ts"
 import { Counter, type CounterPrivateState } from '@midnight-ntwrk/counter-contract';
@@ -266,13 +266,13 @@ export type CounterContract = Counter.Contract<CounterPrivateState>;
 export type DeployedCounterContract = DeployedContract<CounterContract> | FoundContract<CounterContract>;
 ```
 
-These type definitions create aliases for complex generic types. The `CounterCircuits` type extracts the circuit identifiers from the contract. The `CounterProviders` type specifies the provider interface with appropriate type parameters. The `DeployedCounterContract` type union handles both newly deployed contracts and contracts found through joining.
+이러한 타입 정의는 복잡한 제네릭 타입에 대한 별칭을 생성합니다. `CounterCircuits` 타입은 컨트랙트에서 circuit 식별자를 추출합니다. `CounterProviders` 타입은 적절한 타입 매개변수로 프로바이더 인터페이스를 지정합니다. `DeployedCounterContract` 타입 유니온은 새로 배포된 컨트랙트와 참여를 통해 찾은 컨트랙트를 모두 처리합니다.
 
 ## Implement logging utilities
 
-Logging utilities provide structured logging to both console and file. 
+로깅 유틸리티는 콘솔과 파일 모두에 대한 구조화된 로깅을 제공합니다.
 
-Create `counter-cli/src/logger-utils.ts`:
+`counter-cli/src/logger-utils.ts`를 생성합니다:
 
 ```typescript title="counter-cli/src/logger-utils.ts"
 import * as path from 'node:path';
@@ -283,17 +283,17 @@ import { createWriteStream } from 'node:fs';
 
 export const createLogger = async (logPath: string): Promise<pino.Logger> => {
   await fs.mkdir(path.dirname(logPath), { recursive: true });
-  
+
   const pretty: pinoPretty.PrettyStream = pinoPretty({
     colorize: true,
     sync: true,
   });
-  
+
   const level =
     process.env.DEBUG_LEVEL !== undefined && process.env.DEBUG_LEVEL !== null && process.env.DEBUG_LEVEL !== ''
       ? process.env.DEBUG_LEVEL
       : 'info';
-  
+
   return pino(
     {
       level,
@@ -307,18 +307,17 @@ export const createLogger = async (logPath: string): Promise<pino.Logger> => {
 };
 ```
 
-The logger configuration creates two output streams: a pretty-printed console stream for development and a file stream for persistent logs. 
-The log level can be controlled through the `DEBUG_LEVEL` environment variable, defaulting to 'info'. 
-The multistream approach ensures logs are both visible during execution and preserved for debugging.
+로거 설정은 두 개의 출력 스트림을 생성합니다: 개발용 보기 좋은 콘솔 스트림과 영구 로그를 위한 파일 스트림.
+로그 수준은 `DEBUG_LEVEL` 환경 변수를 통해 제어할 수 있으며, 기본값은 'info'입니다.
+멀티스트림 접근 방식은 로그가 실행 중에 보이면서도 디버깅을 위해 보존되도록 합니다.
 
 ## Implement the API layer
 
-The API layer handles all interactions with the Midnight network. This file includes wallet creation, 
-provider configuration, contract deployment, and transaction submission functionality. 
+API 계층은 Midnight 네트워크와의 모든 상호작용을 처리합니다. 이 파일에는 지갑 생성, 프로바이더 설정, 컨트랙트 배포 및 트랜잭션 제출 기능이 포함됩니다.
 
 ### Create the API file
 
-From the `counter-cli` directory, create the `src/api.ts` file and add the following code:
+`counter-cli` 디렉터리에서 `src/api.ts` 파일을 생성하고 다음 코드를 추가합니다:
 
 ```typescript title="counter-cli/src/api.ts"
 import { type ContractAddress } from '@midnight-ntwrk/compact-runtime';
@@ -366,10 +365,10 @@ import {
 
 let logger: Logger;
 
-// Required for GraphQL subscriptions (wallet sync) to work in Node.js
+// Node.js에서 GraphQL 구독(지갑 동기화)이 작동하는 데 필요
 globalThis.WebSocket = WebSocket as unknown as typeof globalThis.WebSocket;
 
-// Pre-compile the counter contract with ZK circuit assets
+// counter 컨트랙트를 ZK circuit 에셋과 함께 사전 컴파일
 const counterCompiledContract = CompiledContract.make('counter', Counter.Contract).pipe(
   CompiledContract.withVacantWitnesses,
   CompiledContract.withCompiledFileAssets(contractConfig.zkConfigPath),
@@ -383,23 +382,21 @@ export interface WalletContext {
 }
 ```
 
-This code sets up the necessary imports and configuration for the Counter DApp:
+이 코드는 Counter DApp에 필요한 임포트와 설정을 구성합니다:
 
-- **Imports**: The file imports functionality from multiple Midnight packages, including wallet management (`@midnight-ntwrk/wallet-sdk-*`), 
-network providers (`@midnight-ntwrk/midnight-js-*`), and the compiled Counter contract.
-- **WebSocket configuration**: The `globalThis.WebSocket = WebSocket;` assignment makes the WebSocket constructor available globally. 
-This is required for GraphQL subscriptions to work in Node.js, as the Apollo client (used by the wallet for synchronization) expects to find `WebSocket` in the global scope.
-- **Contract pre-compilation**: The `counterCompiledContract` constant pre-compiles the contract definition with its Zero Knowledge (ZK) circuit assets. 
-This optimization improves performance by loading the circuit files once at startup instead of recompiling them on every contract interaction.
+- **임포트**: 파일은 지갑 관리(`@midnight-ntwrk/wallet-sdk-*`), 네트워크 프로바이더(`@midnight-ntwrk/midnight-js-*`), 컴파일된 Counter 컨트랙트를 포함한 여러 Midnight 패키지에서 기능을 임포트합니다.
+- **WebSocket 설정**: `globalThis.WebSocket = WebSocket;` 할당은 WebSocket 생성자를 전역으로 사용 가능하게 합니다. Apollo 클라이언트(지갑 동기화에 사용)가 전역 범위에서 `WebSocket`을 찾을 것으로 예상하므로, Node.js에서 GraphQL 구독이 작동하는 데 필요합니다.
+- **컨트랙트 사전 컴파일**: `counterCompiledContract` 상수는 ZK circuit 에셋과 함께 컨트랙트 정의를 사전 컴파일합니다. 이 최적화는 모든 컨트랙트 상호작용마다 재컴파일하는 대신 시작 시 circuit 파일을 한 번만 로드하여 성능을 향상시킵니다.
 
 ### Derive wallet key pairs
 
-Below the `counterCompiledContract` constant, create the `deriveKeysFromSeed` function to derive the wallet key pairs:
+`counterCompiledContract` 상수 아래에 지갑 키 쌍을 파생하기 위한 `deriveKeysFromSeed` 함수를 생성합니다:
 
 ```typescript title="counter-cli/src/api.ts"
 /**
- * Derive HD wallet keys for all three roles (Zswap, NightExternal, Dust)
- * from a hex-encoded seed using BIP-44 style derivation at account 0, index 0.
+ * BIP-44 스타일 파생을 사용하여 16진수 인코딩된 시드에서
+ * 세 가지 역할(Zswap, NightExternal, Dust)에 대한
+ * HD 지갑 키를 계정 0, 인덱스 0에서 파생합니다.
  */
 const deriveKeysFromSeed = (seed: string) => {
   const hdWallet = HDWallet.fromSeed(Buffer.from(seed, 'hex'));
@@ -421,23 +418,23 @@ const deriveKeysFromSeed = (seed: string) => {
 };
 ```
 
-The hierarchical deterministic wallet derives multiple key pairs from a single seed using BIP-44 style derivation paths. 
-The three roles correspond to different wallet functionalities: Zswap for shielded transactions, NightExternal for unshielded transactions, and Dust for fee management. 
-The `clear` method securely erases sensitive key material from memory after derivation.
+계층적 결정론적(HD) 지갑은 BIP-44 스타일 파생 경로를 사용하여 단일 시드에서 여러 키 쌍을 파생합니다.
+세 가지 역할은 서로 다른 지갑 기능에 대응합니다: 차폐 트랜잭션을 위한 Zswap, 비차폐 트랜잭션을 위한 NightExternal, 수수료 관리를 위한 Dust.
+`clear` 메서드는 파생 후 메모리에서 민감한 키 자료를 안전하게 삭제합니다.
 
 ### Utility functions for formatting and status display
 
-Below the `deriveKeysFromSeed` function, create the `formatBalance` function to format the token balance for display:
+`deriveKeysFromSeed` 함수 아래에 표시용 토큰 잔액 포맷팅을 위한 `formatBalance` 함수를 생성합니다:
 
 ```typescript title="counter-cli/src/api.ts"
 /**
- * Formats a token balance for display (for example, 1000000000 -> "1,000,000,000").
+ * 토큰 잔액을 표시용으로 포맷합니다 (예: 1000000000 -> "1,000,000,000").
  */
 const formatBalance = (balance: bigint): string => balance.toLocaleString();
 
 /**
- * Runs an async operation with an animated spinner on the console.
- * Shows ⠋⠙⠹... while running, then ✓ on success or ✗ on failure.
+ * 콘솔에 애니메이션 스피너와 함께 비동기 작업을 실행합니다.
+ * 실행 중에는 회전 애니메이션을 표시하고, 성공 시 체크 마크, 실패 시 X를 표시합니다.
  */
 export const withStatus = async <T>(message: string, fn: () => Promise<T>): Promise<T> => {
   const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
@@ -445,7 +442,7 @@ export const withStatus = async <T>(message: string, fn: () => Promise<T>): Prom
   const interval = setInterval(() => {
     process.stdout.write(`\r  ${frames[i++ % frames.length]} ${message}`);
   }, 80);
-  
+
   try {
     const result = await fn();
     clearInterval(interval);
@@ -459,13 +456,13 @@ export const withStatus = async <T>(message: string, fn: () => Promise<T>): Prom
 };
 ```
 
-The `withStatus` function provides visual feedback for long-running operations. 
-The spinner animation uses Unicode braille patterns that create a smooth rotation effect. 
-The function clears the interval and displays a checkmark on success or an X on failure, maintaining a clean console output.
+`withStatus` 함수는 장시간 실행되는 작업에 대한 시각적 피드백을 제공합니다.
+스피너 애니메이션은 부드러운 회전 효과를 만드는 유니코드 점자 패턴을 사용합니다.
+함수는 성공 시 체크 마크를, 실패 시 X를 표시하여 깔끔한 콘솔 출력을 유지합니다.
 
 ### Wallet configuration builders
 
-Add wallet configuration builders:
+지갑 설정 빌더를 추가합니다:
 
 ```typescript title="counter-cli/src/api.ts"
 const buildShieldedConfig = ({ indexer, indexerWS, node, proofServer }: Config) => ({
@@ -502,17 +499,17 @@ const buildDustConfig = ({ indexer, indexerWS, node, proofServer }: Config) => (
 });
 ```
 
-Each wallet type requires its own configuration object. 
-The shielded wallet needs proof server access for generating ZK proofs. 
-The unshielded wallet uses in-memory transaction history storage since it doesn't require proofs. 
-The dust wallet includes cost parameters that configure fee estimation with an additional overhead buffer and block margin for safety.
+각 지갑 타입에는 자체 설정 객체가 필요합니다.
+차폐 지갑은 ZK proof 생성을 위해 proof 서버 접근이 필요합니다.
+비차폐 지갑은 proof가 필요하지 않으므로 인메모리 트랜잭션 이력 저장소를 사용합니다.
+dust 지갑은 추가 오버헤드 버퍼와 안전을 위한 블록 마진으로 수수료 추정을 구성하는 비용 매개변수를 포함합니다.
 
 ### Wallet synchronization and funding functions
 
-Add wallet synchronization and funding functions:
+지갑 동기화 및 자금 지원 함수를 추가합니다:
 
 ```typescript title="counter-cli/src/api.ts"
-/** Wait until the wallet has fully synced with the network. Returns the synced state. */
+/** 지갑이 네트워크와 완전히 동기화될 때까지 대기합니다. 동기화된 상태를 반환합니다. */
 export const waitForSync = (wallet: WalletFacade) =>
   Rx.firstValueFrom(
     wallet.state().pipe(
@@ -521,7 +518,7 @@ export const waitForSync = (wallet: WalletFacade) =>
     ),
   );
 
-/** Wait until the wallet has a non-zero unshielded balance. Returns the balance. */
+/** 지갑에 0이 아닌 비차폐 잔액이 생길 때까지 대기합니다. 잔액을 반환합니다. */
 export const waitForFunds = (wallet: WalletFacade): Promise<bigint> =>
   Rx.firstValueFrom(
     wallet.state().pipe(
@@ -533,21 +530,22 @@ export const waitForFunds = (wallet: WalletFacade): Promise<bigint> =>
   );
 ```
 
-These functions use RxJS operators to observe wallet state changes reactively. 
-The `throttleTime` operator prevents excessive processing by limiting updates to once per interval. 
-The `filter` operator selects only states meeting specific conditions. The `firstValueFrom` function converts the observable to a promise that resolves with the first matching value.
+이 함수들은 RxJS 연산자를 사용하여 지갑 상태 변경을 반응적으로 관찰합니다.
+`throttleTime` 연산자는 업데이트를 인터벌당 한 번으로 제한하여 과도한 처리를 방지합니다.
+`filter` 연산자는 특정 조건을 충족하는 상태만 선택합니다. `firstValueFrom` 함수는 observable을 첫 번째 일치하는 값으로 확인되는 promise로 변환합니다.
 
 ### DUST generation registration
 
-Below the `waitForFunds` function, create the `registerForDustGeneration` function to register the unshielded NIGHT UTXOs for DUST generation:
+`waitForFunds` 함수 아래에 비차폐 NIGHT UTXO를 DUST 생성에 등록하기 위한 `registerForDustGeneration` 함수를 생성합니다:
 
 ```typescript title="counter-cli/src/api.ts"
 /**
- * Register unshielded NIGHT UTXOs for dust generation.
+ * 비차폐 NIGHT UTXO를 dust 생성에 등록합니다.
  *
- * On Preprod/Undeployed, NIGHT tokens generate DUST over time, but only after
- * the UTXOs have been explicitly designated for dust generation via an on-chain
- * transaction. DUST is the non-transferable network resource used by the Midnight network to process transactions.
+ * Preprod/Undeployed에서 NIGHT 토큰은 시간이 지남에 따라 DUST를 생성하지만,
+ * UTXO가 온체인 트랜잭션을 통해 dust 생성 용도로 명시적으로
+ * 지정된 후에만 가능합니다. DUST는 Midnight 네트워크에서 트랜잭션을
+ * 처리하는 데 사용되는 양도 불가능한 네트워크 리소스입니다.
  */
 const registerForDustGeneration = async (
   wallet: WalletFacade,
@@ -555,20 +553,20 @@ const registerForDustGeneration = async (
 ): Promise<void> => {
   const state = await Rx.firstValueFrom(wallet.state().pipe(Rx.filter((s) => s.isSynced)));
 
-  // Check if dust is already available (for example, from a previous designation)
+  // dust가 이미 사용 가능한지 확인 (예: 이전 지정에서)
   if (state.dust.availableCoins.length > 0) {
     const dustBal = state.dust.walletBalance(new Date());
     console.log(`  ✓ Dust tokens already available (${formatBalance(dustBal)} DUST)`);
     return;
   }
 
-  // Only register coins that haven't been designated yet
+  // 아직 지정되지 않은 코인만 등록
   const nightUtxos = state.unshielded.availableCoins.filter(
     (coin: any) => coin.meta?.registeredForDustGeneration !== true,
   );
-  
+
   if (nightUtxos.length === 0) {
-    // All coins already registered — just wait for dust to generate
+    // 모든 코인이 이미 등록됨 — dust가 생성될 때까지 대기
     await withStatus('Waiting for dust tokens to generate', () =>
       Rx.firstValueFrom(
         wallet.state().pipe(
@@ -591,7 +589,7 @@ const registerForDustGeneration = async (
     await wallet.submitTransaction(finalized);
   });
 
-  // Wait for dust to actually generate (balance > 0), not just for coins to appear
+  // dust가 실제로 생성될 때까지 대기 (잔액 > 0), 코인만 나타나는 것이 아님
   await withStatus('Waiting for dust tokens to generate', () =>
     Rx.firstValueFrom(
       wallet.state().pipe(
@@ -604,25 +602,25 @@ const registerForDustGeneration = async (
 };
 ```
 
-DUST generation designates tNIGHT tokens to automatically generate DUST tokens over time after registration. 
-The registration process creates an on-chain transaction that designates specific UTXOs for DUST generation. 
+DUST 생성은 등록 후 시간이 지남에 따라 자동으로 DUST 토큰을 생성하도록 tNIGHT 토큰을 지정합니다.
+등록 프로세스는 특정 UTXO를 DUST 생성 용도로 지정하는 온체인 트랜잭션을 생성합니다.
 
-This two-step process (registration + generation) ensures users have DUST for transaction fees without requiring a separate faucet for DUST.
+이 두 단계 프로세스(등록 + 생성)는 DUST를 위한 별도의 faucet 없이도 사용자가 트랜잭션 수수료를 위한 DUST를 보유할 수 있도록 합니다.
 
 ### Wallet summary display
 
-Below the `registerForDustGeneration` function, create the `printWalletSummary` function to display the wallet summary:
+`registerForDustGeneration` 함수 아래에 지갑 요약을 표시하기 위한 `printWalletSummary` 함수를 생성합니다:
 
 ```typescript title="counter-cli/src/api.ts"
 /**
- * Prints a formatted wallet summary to the console, showing all three
- * wallet types (Shielded, Unshielded, Dust) with their addresses and balances.
+ * 세 가지 지갑 타입(차폐, 비차폐, Dust)의 주소와 잔액을
+ * 보여주는 포맷된 지갑 요약을 콘솔에 출력합니다.
  */
 const printWalletSummary = (seed: string, state: any, unshieldedKeystore: UnshieldedKeystore) => {
   const networkId = getNetworkId();
   const unshieldedBalance = state.unshielded.balances[unshieldedToken().raw] ?? 0n;
 
-  // Build the bech32m shielded address from coin + encryption public keys
+  // coin + encryption 공개 키에서 bech32m 차폐 주소를 구성
   const coinPubKey = ShieldedCoinPublicKey.fromHexString(state.shielded.coinPublicKey.toHexString());
   const encPubKey = ShieldedEncryptionPublicKey.fromHexString(state.shielded.encryptionPublicKey.toHexString());
   const shieldedAddress = MidnightBech32m.encode(networkId, new ShieldedAddress(coinPubKey, encPubKey)).toString();
@@ -650,25 +648,25 @@ ${DIV}`);
 };
 ```
 
-The wallet summary displays all three address types with their current balances:
+지갑 요약은 세 가지 주소 타입과 현재 잔액을 모두 표시합니다:
 
-- **Shielded address**: Constructed from two public keys (coin and encryption) and encoded in Bech32m format. This address enables private transactions on the Midnight network.
-- **Unshielded address**: Derived from the keystore and represents a transparent Midnight address. This address is used for public transactions and receiving funds from faucets.
-- **Dust address**: Automatically generated and used for fee management. This address holds DUST tokens required for transaction fees.
+- **차폐 주소**: 두 개의 공개 키(coin 및 encryption)로 구성되어 Bech32m 형식으로 인코딩됩니다. Midnight 네트워크에서 private 트랜잭션에 사용됩니다.
+- **비차폐 주소**: keystore에서 파생되며 투명한 Midnight 주소를 나타냅니다. 공개 트랜잭션 및 faucet에서 자금 수령에 사용됩니다.
+- **Dust 주소**: 자동으로 생성되며 수수료 관리에 사용됩니다. 트랜잭션 수수료에 필요한 DUST 토큰을 보유합니다.
 
 ### Main wallet building function
 
-Add the main wallet building function:
+메인 지갑 빌드 함수를 추가합니다:
 
 ```typescript title="counter-cli/src/api.ts"
 /**
- * Build (or restore) a wallet from a hex seed, then wait for the wallet
- * to sync and receive funds before returning.
+ * 16진수 시드에서 지갑을 빌드(또는 복원)한 후,
+ * 지갑이 동기화되고 자금을 수령할 때까지 대기하고 반환합니다.
  */
 export const buildWalletAndWaitForFunds = async (config: Config, seed: string): Promise<WalletContext> => {
   console.log('');
 
-  // Derive HD keys and initialize the three sub-wallets
+  // HD 키를 파생하고 세 개의 서브 지갑을 초기화
   const { wallet, shieldedSecretKeys, dustSecretKey, unshieldedKeystore } = await withStatus(
     'Building wallet',
     async () => {
@@ -693,7 +691,7 @@ export const buildWalletAndWaitForFunds = async (config: Config, seed: string): 
     },
   );
 
-  // Show seed and unshielded address immediately so user can fund via faucet while syncing
+  // 동기화 중 사용자가 faucet을 통해 자금을 조달할 수 있도록 시드와 비차폐 주소를 즉시 표시
   const networkId = getNetworkId();
   const DIV = '──────────────────────────────────────────────────────────────';
   console.log(`
@@ -710,20 +708,20 @@ ${DIV}
 ${DIV}
 `);
 
-  // Wait for the wallet to sync with the network
+  // 지갑이 네트워크와 동기화될 때까지 대기
   const syncedState = await withStatus('Syncing with network', () => waitForSync(wallet));
 
-  // Display the full wallet summary with all addresses and balances
+  // 모든 주소와 잔액이 포함된 전체 지갑 요약 표시
   printWalletSummary(seed, syncedState, unshieldedKeystore);
 
-  // Check if wallet has funds; if not, wait for incoming tokens
+  // 지갑에 자금이 있는지 확인; 없으면 입금될 토큰 대기
   const balance = syncedState.unshielded.balances[unshieldedToken().raw] ?? 0n;
   if (balance === 0n) {
     const fundedBalance = await withStatus('Waiting for incoming tokens', () => waitForFunds(wallet));
     console.log(`    Balance: ${formatBalance(fundedBalance)} tNight\n`);
   }
 
-  // Register NIGHT UTXOs for dust generation (required for tx fees on Preprod/Undeployed)
+  // Preprod/Undeployed에서 tx 수수료를 위해 NIGHT UTXO를 dust 생성에 등록 (필수)
   await registerForDustGeneration(wallet, unshieldedKeystore);
 
   return { wallet, shieldedSecretKeys, dustSecretKey, unshieldedKeystore };
@@ -733,26 +731,27 @@ export const buildFreshWallet = async (config: Config): Promise<WalletContext> =
   await buildWalletAndWaitForFunds(config, toHex(Buffer.from(generateRandomSeed())));
 ```
 
-The wallet building process follows these key steps:
+지갑 빌드 프로세스는 다음 주요 단계를 따릅니다:
 
-1. **Display unshielded address**: The function immediately prints the unshielded address so users can request faucet tokens while the wallet syncs in the background.
-2. **Sync with network**: The `waitForSync` function monitors the wallet's synchronization progress until it catches up with the blockchain. This ensures the wallet has accurate balance information.
-3. **Display wallet summary**: After syncing, `printWalletSummary` shows all three address types (shielded, unshielded, and dust) along with their current balances.
-4. **Check and wait for funds**: The function checks if the unshielded balance is non-zero. If the balance is zero, it calls `waitForFunds` to monitor the wallet state until tokens arrive from the faucet.
-5. **Register for dust generation**: This step registers the wallet's NIGHT UTXOs with the dust generation service, which is required for transaction fees on Preprod and Undeployed networks.
+1. **비차폐 주소 표시**: 지갑이 백그라운드에서 동기화되는 동안 사용자가 faucet 토큰을 요청할 수 있도록 비차폐 주소를 즉시 출력합니다.
+2. **네트워크 동기화**: `waitForSync` 함수는 지갑이 블록체인을 따라잡을 때까지 동기화 진행률을 모니터링합니다. 이를 통해 지갑이 정확한 잔액 정보를 갖도록 합니다.
+3. **지갑 요약 표시**: 동기화 후 `printWalletSummary`가 세 가지 주소 타입(차폐, 비차폐, dust)과 현재 잔액을 모두 표시합니다.
+4. **자금 확인 및 대기**: 비차폐 잔액이 0이 아닌지 확인합니다. 잔액이 0이면 `waitForFunds`를 호출하여 faucet에서 토큰이 도착할 때까지 지갑 상태를 모니터링합니다.
+5. **dust 생성 등록**: 지갑의 NIGHT UTXO를 dust 생성 서비스에 등록하는 단계로, Preprod 및 Undeployed 네트워크에서 트랜잭션 수수료에 필요합니다.
 
-The function waits for both synchronization and funding before proceeding, ensuring the wallet is ready for transactions.
+이 함수는 동기화와 자금 지원이 모두 완료될 때까지 대기하여 지갑이 트랜잭션에 준비되도록 합니다.
 
 ### Transaction signing helper
 
-Below the `buildWalletAndWaitForFunds` function, create the `signTransactionIntents` function to sign the transaction intents:
+`buildWalletAndWaitForFunds` 함수 아래에 트랜잭션 인텐트에 서명하기 위한 `signTransactionIntents` 함수를 생성합니다:
 
 ```typescript title="counter-cli/src/api.ts"
 /**
- * Sign all unshielded offers in a transaction's intents, using the correct
- * proof marker for Intent.deserialize. This works around a bug in the wallet
- * SDK where signRecipe hardcodes 'pre-proof', which fails for proven
- * (UnboundTransaction) intents that contain 'proof' data.
+ * Intent.deserialize에 올바른 proof 마커를 사용하여
+ * 트랜잭션의 인텐트에 있는 모든 비차폐 오퍼에 서명합니다.
+ * 지갑 SDK의 signRecipe가 'pre-proof'를 하드코딩하는 버그를 해결합니다.
+ * 해당 버그로 인해 'proof' 데이터가 포함된 증명된(UnboundTransaction)
+ * 인텐트 처리에 실패하는 문제가 있습니다.
  */
 const signTransactionIntents = (
   tx: { intents?: Map<number, any> },
@@ -765,7 +764,7 @@ const signTransactionIntents = (
     const intent = tx.intents.get(segment);
     if (!intent) continue;
 
-    // Clone the intent with the correct proof marker
+    // 올바른 proof 마커로 인텐트를 복제
     const cloned = ledger.Intent.deserialize<ledger.SignatureEnabled, ledger.Proofish, ledger.PreBinding>(
       'signature',
       proofMarker,
@@ -795,34 +794,34 @@ const signTransactionIntents = (
 };
 ```
 
-This function addresses a wallet SDK limitation in the `signRecipe` method, which hardcodes the proof marker to `'pre-proof'`. 
+이 함수는 `signRecipe` 메서드의 지갑 SDK 제한 사항을 해결합니다. 이 메서드는 proof 마커를 `'pre-proof'`로 하드코딩합니다.
 
-**The problem**: When signing a transaction that has already been proven (an `UnboundTransaction`), the intents contain `'proof'` data, but `signRecipe` attempts to deserialize them with `'pre-proof'`, causing deserialization failures.
+**문제**: 이미 증명된 트랜잭션(`UnboundTransaction`)에 서명할 때 인텐트에는 `'proof'` 데이터가 포함되어 있지만, `signRecipe`는 `'pre-proof'`로 역직렬화를 시도하여 역직렬화 실패를 유발합니다.
 
-**The workaround**: The function performs the following steps:
+**해결책**: 이 함수는 다음 단계를 수행합니다:
 
-1. Deserializes the intent with the correct proof marker. Using `'proof'` for proven transactions and `'pre-proof'` for unproven transactions.
-2. Generates signatures for the intent's signature data.
-3. Adds signatures to both fallible and guaranteed unshielded offers within the intent.
-4. Updates the transaction's intent map with the correctly signed intent.
+1. 올바른 proof 마커로 인텐트를 역직렬화합니다. 증명된 트랜잭션에는 `'proof'`를, 미증명 트랜잭션에는 `'pre-proof'`를 사용합니다.
+2. 인텐트의 서명 데이터에 대한 서명을 생성합니다.
+3. 인텐트 내의 fallible 및 guaranteed 비차폐 오퍼 모두에 서명을 추가합니다.
+4. 올바르게 서명된 인텐트로 트랜잭션의 인텐트 맵을 업데이트합니다.
 
-This ensures that signatures are valid regardless of whether the transaction is in a pre-proof or post-proof state.
+이를 통해 트랜잭션이 pre-proof 또는 post-proof 상태에 관계없이 서명이 유효하도록 보장합니다.
 
 ### Provider creation
 
-Add provider creation:
+프로바이더 생성을 추가합니다:
 
 ```typescript title="counter-cli/src/api.ts"
 /**
- * Create the unified WalletProvider & MidnightProvider for midnight-js.
- * This bridges the wallet-sdk-facade to the midnight-js contract API by
- * implementing balance, sign, finalize, and submit operations.
+ * midnight-js를 위한 통합 WalletProvider 및 MidnightProvider를 생성합니다.
+ * 밸런스, 서명, 최종화, 제출 작업을 구현하여
+ * wallet-sdk-facade를 midnight-js contract API에 연결합니다.
  */
 export const createWalletAndMidnightProvider = async (
   ctx: WalletContext,
 ): Promise<WalletProvider & MidnightProvider> => {
   const state = await Rx.firstValueFrom(ctx.wallet.state().pipe(Rx.filter((s) => s.isSynced)));
-  
+
   return {
     getCoinPublicKey() {
       return state.shielded.coinPublicKey.toHexString();
@@ -837,10 +836,11 @@ export const createWalletAndMidnightProvider = async (
         { ttl: ttl ?? new Date(Date.now() + 30 * 60 * 1000) },
       );
 
-      // Work around wallet SDK bug: signRecipe uses hardcoded 'pre-proof'
-      // marker when cloning intents, but proven (UnboundTransaction) intents
-      // have 'proof' data, causing "Failed to clone intent". We sign manually
-      // with the correct proof markers.
+      // 지갑 SDK 버그 해결: signRecipe가 인텐트를 복제할 때
+      // 하드코딩된 'pre-proof' 마커를 사용하지만, 증명된
+      // (UnboundTransaction) 인텐트에는 'proof' 데이터가 있어
+      // "Failed to clone intent"가 발생합니다. 올바른 proof 마커로
+      // 수동으로 서명합니다.
       const signFn = (payload: Uint8Array) => ctx.unshieldedKeystore.signData(payload);
       signTransactionIntents(recipe.baseTransaction, signFn, 'proof');
       if (recipe.balancingTransaction) {
@@ -856,32 +856,32 @@ export const createWalletAndMidnightProvider = async (
 };
 ```
 
-This function creates a unified provider that bridges the Wallet SDK to the Midnight.js contracts API. It implements two key interfaces:
+이 함수는 Wallet SDK를 Midnight.js contracts API에 연결하는 통합 프로바이더를 생성합니다. 두 가지 주요 인터페이스를 구현합니다:
 
 #### WalletProvider interface
-- `getCoinPublicKey()`: Returns the wallet's shielded coin public key as a hex string, used for receiving shielded funds.
-- `getEncryptionPublicKey()`: Returns the wallet's encryption public key as a hex string, used for decrypting transaction data.
-- `balanceTx()`: Balances an unbound transaction by adding inputs and outputs to cover transaction fees and create change. 
-The TTL (time-to-live) parameter defaults to 30 minutes, after which unsubmitted transactions expire. 
-This method also applies the transaction signing workaround for proven transactions.
+- `getCoinPublicKey()`: 지갑의 차폐 coin 공개 키를 16진수 문자열로 반환하며, 차폐 자금 수령에 사용됩니다.
+- `getEncryptionPublicKey()`: 지갑의 암호화 공개 키를 16진수 문자열로 반환하며, 트랜잭션 데이터 복호화에 사용됩니다.
+- `balanceTx()`: 바인딩되지 않은 트랜잭션에 입출력을 추가하여 트랜잭션 수수료를 충당하고 잔돈을 생성합니다.
+TTL(time-to-live) 매개변수는 기본 30분이며, 이후 미제출 트랜잭션은 만료됩니다.
+이 메서드는 증명된 트랜잭션에 대한 트랜잭션 서명 해결책도 적용합니다.
 
 #### MidnightProvider interface `submitTx()`
-- Submits a finalized transaction to the Midnight network and waits for confirmation. 
-- Returns a promise that resolves when validators have verified the proof and updated the ledger state.
+- 최종화된 트랜잭션을 Midnight 네트워크에 제출하고 확인을 기다립니다.
+- 검증자가 proof를 검증하고 ledger 상태를 업데이트하면 확인되는 promise를 반환합니다.
 
 ### Provider configuration
 
-Below the provider creation function, create a `configureProviders` function to configure the providers:
+프로바이더 생성 함수 아래에 프로바이더를 설정하기 위한 `configureProviders` 함수를 생성합니다:
 
 ```typescript title="counter-cli/src/api.ts"
 /**
- * Configure all midnight-js providers needed for contract deployment and interaction.
- * This wires together the wallet, proof server, indexer, and private state storage.
+ * 컨트랙트 배포 및 상호작용에 필요한 모든 midnight-js 프로바이더를 설정합니다.
+ * 지갑, proof 서버, indexer 및 private 상태 저장소를 연결합니다.
  */
 export const configureProviders = async (ctx: WalletContext, config: Config) => {
   const walletAndMidnightProvider = await createWalletAndMidnightProvider(ctx);
   const zkConfigProvider = new NodeZkConfigProvider<CounterCircuits>(contractConfig.zkConfigPath);
-  
+
   return {
     privateStateProvider: levelPrivateStateProvider<typeof CounterPrivateStateId>({
       privateStateStoreName: contractConfig.privateStateStoreName,
@@ -896,17 +896,17 @@ export const configureProviders = async (ctx: WalletContext, config: Config) => 
 };
 ```
 
-This function assembles all the providers needed for contract deployment and interaction. Each provider serves a specific purpose:
+이 함수는 컨트랙트 배포 및 상호작용에 필요한 모든 프로바이더를 조합합니다. 각 프로바이더는 특정 목적을 수행합니다:
 
-- **privateStateProvider**: Uses LevelDB to store private contract state persistently on the local filesystem. This allows the DApp to maintain off-chain data across sessions without exposing it to the blockchain.
-- **publicDataProvider**: Connects to the Midnight Indexer to query on-chain data. This provider retrieves contract state, transaction history, and other blockchain information through GraphQL queries.
-- **zkConfigProvider**: Loads Zero Knowledge (ZK) circuit parameters from the compiled contract directory. These parameters include circuit configurations, proving keys, and verifying keys needed for ZK proof generation.
-- **proofProvider**: Connects to the proof server (local or remote) to generate Zero Knowledge proofs for circuit executions. This provider sends circuit inputs to the proof server and receives cryptographic proofs in return.
-- **walletProvider** and **midnightProvider**: Both reference the same unified provider created by `createWalletAndMidnightProvider`, which handles transaction balancing, signing, and submission.
+- **privateStateProvider**: LevelDB를 사용하여 로컬 파일 시스템에 private 컨트랙트 상태를 영구적으로 저장합니다. 이를 통해 DApp이 블록체인에 노출하지 않고 세션 간 오프체인 데이터를 유지할 수 있습니다.
+- **publicDataProvider**: Midnight Indexer에 연결하여 온체인 데이터를 쿼리합니다. 이 프로바이더는 GraphQL 쿼리를 통해 컨트랙트 상태, 트랜잭션 이력 및 기타 블록체인 정보를 가져옵니다.
+- **zkConfigProvider**: 컴파일된 컨트랙트 디렉터리에서 ZK circuit 매개변수를 로드합니다. 이 매개변수에는 ZK proof 생성에 필요한 circuit 설정, proving 키, verifying 키가 포함됩니다.
+- **proofProvider**: proof 서버(로컬 또는 원격)에 연결하여 circuit 실행에 대한 영지식 proof를 생성합니다. 이 프로바이더는 circuit 입력을 proof 서버에 보내고 암호학적 proof를 받습니다.
+- **walletProvider**와 **midnightProvider**: 둘 다 `createWalletAndMidnightProvider`로 생성된 동일한 통합 프로바이더를 참조하며, 트랜잭션 밸런싱, 서명 및 제출을 처리합니다.
 
 ### Contract interaction functions
 
-Below the provider configuration function, create the contract interaction functions:
+프로바이더 설정 함수 아래에 컨트랙트 상호작용 함수를 생성합니다:
 
 ```typescript title="counter-cli/src/api.ts"
 export const counterContractInstance: CounterContract = new Counter.Contract(witnesses);
@@ -917,11 +917,11 @@ export const getCounterLedgerState = async (
 ): Promise<bigint | null> => {
   assertIsContractAddress(contractAddress);
   logger.info('Checking contract ledger state...');
-  
+
   const state = await providers.publicDataProvider
     .queryContractState(contractAddress)
     .then((contractState) => (contractState != null ? Counter.ledger(contractState.data).round : null));
-  
+
   logger.info(`Ledger state: ${state}`);
   return state;
 };
@@ -936,7 +936,7 @@ export const joinContract = async (
     privateStateId: 'counterPrivateState',
     initialPrivateState: { privateCounter: 0 },
   });
-  
+
   logger.info(`Joined contract at address: ${counterContract.deployTxData.public.contractAddress}`);
   return counterContract;
 };
@@ -946,13 +946,13 @@ export const deploy = async (
   privateState: CounterPrivateState,
 ): Promise<DeployedCounterContract> => {
   logger.info('Deploying counter contract...');
-  
+
   const counterContract = await deployContract(providers, {
     compiledContract: counterCompiledContract,
     privateStateId: 'counterPrivateState',
     initialPrivateState: privateState,
   });
-  
+
   logger.info(`Deployed contract at address: ${counterContract.deployTxData.public.contractAddress}`);
   return counterContract;
 };
@@ -970,33 +970,33 @@ export const displayCounterValue = async (
 ): Promise<{ counterValue: bigint | null; contractAddress: string }> => {
   const contractAddress = counterContract.deployTxData.public.contractAddress;
   const counterValue = await getCounterLedgerState(providers, contractAddress);
-  
+
   if (counterValue === null) {
     logger.info(`There is no counter contract deployed at ${contractAddress}.`);
   } else {
     logger.info(`Current counter value: ${Number(counterValue)}`);
   }
-  
+
   return { contractAddress, counterValue };
 };
 ```
 
-These functions provide high-level operations for contract interaction:
+이 함수들은 컨트랙트 상호작용을 위한 고수준 작업을 제공합니다:
 
-- **counterContractInstance**: Creates a contract instance using the generated `Counter.Contract` class and the witness implementation. This instance serves as the template for all deployed counter contracts.
-- **getCounterLedgerState**: Queries the current state of a deployed contract from the blockchain. It uses the `publicDataProvider` to retrieve the contract state, then applies the generated `Counter.ledger()` function to deserialize the state data and extract the `round` value (the counter's current value). Returns `null` if the contract doesn't exist.
-- **joinContract**: Connects to an existing deployed contract using its contract address. This function calls `findDeployedContract()` from Midnight.js, which verifies the contract exists, initializes local private state, and returns a `DeployedCounterContract` object that can be used to interact with the contract.
-- **deploy**: Deploys a new instance of the counter contract to the blockchain. It calls `deployContract()` from Midnight.js with the compiled contract, private state configuration, and initial private state. Returns a `DeployedCounterContract` object with the deployment transaction data, including the new contract's address.
-- **increment**: Submits a transaction that calls the `increment` circuit on a deployed contract. Uses the `callTx.increment()` method on the deployed contract instance, which generates a Zero Knowledge proof, submits the transaction, and waits for finalization. Returns the finalized transaction data including the transaction ID and block height.
-- **displayCounterValue**: Retrieves and displays the current counter value for a deployed contract. Internally calls `getCounterLedgerState()` to fetch the value and logs it to the console. Returns both the counter value and contract address for further processing.
+- **counterContractInstance**: 생성된 `Counter.Contract` 클래스와 witness 구현을 사용하여 컨트랙트 인스턴스를 생성합니다. 이 인스턴스는 배포된 모든 counter 컨트랙트의 템플릿 역할을 합니다.
+- **getCounterLedgerState**: 블록체인에서 배포된 컨트랙트의 현재 상태를 쿼리합니다. `publicDataProvider`를 사용하여 컨트랙트 상태를 가져온 다음, 생성된 `Counter.ledger()` 함수를 적용하여 상태 데이터를 역직렬화하고 `round` 값(카운터의 현재 값)을 추출합니다. 컨트랙트가 존재하지 않으면 `null`을 반환합니다.
+- **joinContract**: 컨트랙트 주소를 사용하여 기존 배포된 컨트랙트에 연결합니다. Midnight.js의 `findDeployedContract()`를 호출하여 컨트랙트가 존재하는지 확인하고, 로컬 private 상태를 초기화하며, 컨트랙트와 상호작용하는 데 사용할 수 있는 `DeployedCounterContract` 객체를 반환합니다.
+- **deploy**: 블록체인에 counter 컨트랙트의 새 인스턴스를 배포합니다. 컴파일된 컨트랙트, private 상태 설정 및 초기 private 상태와 함께 Midnight.js의 `deployContract()`를 호출합니다. 새 컨트랙트의 주소를 포함한 배포 트랜잭션 데이터가 있는 `DeployedCounterContract` 객체를 반환합니다.
+- **increment**: 배포된 컨트랙트에서 `increment` circuit를 호출하는 트랜잭션을 제출합니다. 배포된 컨트랙트 인스턴스의 `callTx.increment()` 메서드를 사용하여 영지식 proof를 생성하고, 트랜잭션을 제출하며, 최종화를 기다립니다. 트랜잭션 ID와 블록 높이를 포함한 최종화된 트랜잭션 데이터를 반환합니다.
+- **displayCounterValue**: 배포된 컨트랙트의 현재 카운터 값을 가져와 표시합니다. 내부적으로 `getCounterLedgerState()`를 호출하여 값을 가져오고 콘솔에 로깅합니다. 추가 처리를 위해 카운터 값과 컨트랙트 주소를 모두 반환합니다.
 
 ### DUST monitoring
 
-Below the contract interaction functions, create the DUST monitoring functions:
+컨트랙트 상호작용 함수 아래에 DUST 모니터링 함수를 생성합니다:
 
 ```typescript title="counter-cli/src/api.ts"
 /**
- * Get the current DUST balance from the wallet state.
+ * 지갑 상태에서 현재 DUST 잔액을 가져옵니다.
  */
 export const getDustBalance = async (
   wallet: WalletFacade,
@@ -1010,9 +1010,9 @@ export const getDustBalance = async (
 };
 
 /**
- * Monitor DUST balance with a live-updating display.
- * Prints a status line every 5 seconds showing balance, coins, and status.
- * Resolves when the user presses Enter (via the provided signal).
+ * 실시간으로 업데이트되는 DUST 잔액을 모니터링합니다.
+ * 5초마다 잔액, 코인 수, 상태를 보여주는 상태 줄을 출력합니다.
+ * 사용자가 Enter를 누르면 (제공된 signal을 통해) 완료됩니다.
  */
 export const monitorDustBalance = async (wallet: WalletFacade, stopSignal: Promise<void>): Promise<void> => {
   let stopped = false;
@@ -1067,15 +1067,15 @@ export function setLogger(_logger: Logger) {
 }
 ```
 
-The DUST monitoring function provides real-time feedback on fee token availability. 
-It displays available balance, number of coins, pending transactions, and registration status. 
-The monitor updates every five seconds and runs until the user presses the return key, providing visibility into DUST generation progress.
+DUST 모니터링 함수는 수수료 토큰 가용성에 대한 실시간 피드백을 제공합니다.
+사용 가능한 잔액, 코인 수, 대기 중인 트랜잭션 및 등록 상태를 표시합니다.
+모니터는 5초마다 업데이트되며 사용자가 Enter 키를 누를 때까지 실행되어 DUST 생성 진행 상황에 대한 가시성을 제공합니다.
 
 ## Implement the CLI interface
 
-The CLI provides an interactive menu system for users to interact with the counter contract. 
+CLI는 사용자가 counter 컨트랙트와 상호작용할 수 있는 대화형 메뉴 시스템을 제공합니다.
 
-Create `counter-cli/src/cli.ts` and add the following code:
+`counter-cli/src/cli.ts`를 생성하고 다음 코드를 추가합니다:
 
 ```typescript title="counter-cli/src/cli.ts"
 import { type WalletContext } from './api';
@@ -1135,12 +1135,12 @@ ${'─'.repeat(62)}
 > `;
 ```
 
-The menu constants define the visual structure for user interaction. 
-The DUST balance is displayed dynamically in menu headers, providing constant feedback on fee token availability.
+메뉴 상수는 사용자 상호작용을 위한 시각적 구조를 정의합니다.
+DUST 잔액은 메뉴 헤더에 동적으로 표시되어 수수료 토큰 가용성에 대한 지속적인 피드백을 제공합니다.
 
 ### Set up the wallet
 
-Below the menu constants, create the function for setting up the wallet:
+메뉴 상수 아래에 지갑 설정 함수를 생성합니다:
 
 ```typescript title="counter-cli/src/cli.ts"
 const buildWalletFromSeed = async (config: Config, rli: Interface): Promise<WalletContext> => {
@@ -1166,14 +1166,14 @@ const buildWallet = async (config: Config, rli: Interface): Promise<WalletContex
 };
 ```
 
-The function displays an interactive menu with three options:
-- Create a new wallet with a randomly generated seed using the `api.buildFreshWallet` method.
-- Restore an existing wallet from a seed phrase using the `buildWalletFromSeed` function.
-- Exit the application by returning `null`.
+이 함수는 세 가지 옵션이 있는 대화형 메뉴를 표시합니다:
+- `api.buildFreshWallet` 메서드를 사용하여 임의로 생성된 시드로 새 지갑을 생성합니다.
+- `buildWalletFromSeed` 함수를 사용하여 시드 구문에서 기존 지갑을 복원합니다.
+- `null`을 반환하여 애플리케이션을 종료합니다.
 
 ### Contract interaction helpers
 
-Below the function for setting up the wallet, create the helper functions for displaying the DUST balance, joining a contract, and starting the DUST monitoring:
+지갑 설정 함수 아래에 DUST 잔액 표시, 컨트랙트 참여, DUST 모니터링 시작을 위한 헬퍼 함수를 생성합니다:
 
 ```typescript title="counter-cli/src/cli.ts"
 const getDustLabel = async (wallet: api.WalletContext['wallet']): Promise<string> => {
@@ -1198,15 +1198,15 @@ const startDustMonitor = async (wallet: api.WalletContext['wallet'], rli: Interf
 };
 ```
 
-These helper functions simplify contract interaction:
+이 헬퍼 함수들은 컨트랙트 상호작용을 단순화합니다:
 
-- `getDustLabel()` retrieves and formats the DUST balance for display in menu headers.
-- `joinContract()` prompts the user to enter a contract address and connects to the existing contract.
-- `startDustMonitor()` launches the DUST balance monitor, which displays live updates until the user presses Enter to return to the menu.
+- `getDustLabel()`은 메뉴 헤더에 표시하기 위해 DUST 잔액을 가져와 포맷합니다.
+- `joinContract()`는 사용자에게 컨트랙트 주소를 입력하라고 요청하고 기존 컨트랙트에 연결합니다.
+- `startDustMonitor()`는 DUST 잔액 모니터를 시작하며, 사용자가 Enter를 누르면 메뉴로 돌아갈 때까지 실시간 업데이트를 표시합니다.
 
 ### Contract deployment flow
 
-Below the contract interaction helpers, create the function for deploying or joining a contract:
+컨트랙트 상호작용 헬퍼 아래에 컨트랙트 배포 또는 참여를 위한 함수를 생성합니다:
 
 ```typescript title="counter-cli/src/cli.ts"
 const deployOrJoin = async (
@@ -1217,7 +1217,7 @@ const deployOrJoin = async (
   while (true) {
     const dustLabel = await getDustLabel(walletCtx.wallet);
     const choice = await rli.question(contractMenu(dustLabel));
-    
+
     switch (choice.trim()) {
       case '1':
         try {
@@ -1229,7 +1229,7 @@ const deployOrJoin = async (
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           console.log(`\n  ✗ Deploy failed: ${msg}`);
-          
+
           if (e instanceof Error && e.cause) {
             let cause: unknown = e.cause;
             let depth = 0;
@@ -1243,7 +1243,7 @@ const deployOrJoin = async (
               depth++;
             }
           }
-          
+
           if (msg.toLowerCase().includes('dust') || msg.toLowerCase().includes('no dust')) {
             console.log('    Insufficient DUST for transaction fees. Use option [3] to monitor your balance.');
           }
@@ -1270,12 +1270,12 @@ const deployOrJoin = async (
 };
 ```
 
-The deployment flow handles errors gracefully by displaying messages and cause chains. 
-DUST-related errors receive special treatment with a helpful message directing users to the monitoring option.
+배포 흐름은 메시지와 원인 체인을 표시하여 오류를 정상적으로 처리합니다.
+DUST 관련 오류는 사용자에게 모니터링 옵션으로 안내하는 유용한 메시지와 함께 특별한 처리를 받습니다.
 
 ### Main interaction loop
 
-Below the deployment flow, create the main interaction loop:
+배포 흐름 아래에 메인 상호작용 루프를 생성합니다:
 
 ```typescript title="counter-cli/src/cli.ts"
 const mainLoop = async (providers: CounterProviders, walletCtx: api.WalletContext, rli: Interface): Promise<void> => {
@@ -1287,7 +1287,7 @@ const mainLoop = async (providers: CounterProviders, walletCtx: api.WalletContex
   while (true) {
     const dustLabel = await getDustLabel(walletCtx.wallet);
     const choice = await rli.question(counterMenu(dustLabel));
-    
+
     switch (choice.trim()) {
       case '1':
         try {
@@ -1309,12 +1309,12 @@ const mainLoop = async (providers: CounterProviders, walletCtx: api.WalletContex
 };
 ```
 
-The main loop handles counter operations after successful contract setup. 
-Errors during increment operations are caught and displayed without terminating the loop, allowing users to retry or check their DUST balance.
+메인 루프는 성공적인 컨트랙트 설정 후 counter 작업을 처리합니다.
+increment 작업 중 오류는 루프를 종료하지 않고 캐치되어 표시되므로 사용자가 재시도하거나 DUST 잔액을 확인할 수 있습니다.
 
 ### Main entry point
 
-Below the contract deployment flow, create the `run` function as the main entry point:
+컨트랙트 배포 흐름 아래에 메인 진입점으로 `run` 함수를 생성합니다:
 
 ```typescript title="counter-cli/src/cli.ts"
 export const run = async (config: Config, _logger: Logger): Promise<void> => {
@@ -1359,17 +1359,17 @@ export const run = async (config: Config, _logger: Logger): Promise<void> => {
 };
 ```
 
-The `run` function handles the complete CLI workflow with proper resource cleanup:
+`run` 함수는 적절한 리소스 정리와 함께 전체 CLI 워크플로우를 처리합니다:
 
-- **Outer try-finally block**: Ensures the readline interface closes and listeners are removed, even if errors occur. This prevents memory leaks and ensures clean process termination.
-- **Inner try-finally block**: Guarantees the wallet stops properly, closing all network connections and persisting state. The wallet cleanup happens before readline cleanup to ensure all transactions complete.
-- **Error handling**: Catches and logs errors during provider configuration or main loop execution, allowing graceful shutdown instead of abrupt crashes.
+- **외부 try-finally 블록**: 오류가 발생하더라도 readline 인터페이스가 닫히고 리스너가 제거되도록 합니다. 이를 통해 메모리 누수를 방지하고 깔끔한 프로세스 종료를 보장합니다.
+- **내부 try-finally 블록**: 지갑이 적절히 중지되어 모든 네트워크 연결을 닫고 상태를 영구화하도록 보장합니다. 지갑 정리는 readline 정리 전에 발생하여 모든 트랜잭션이 완료되도록 합니다.
+- **오류 처리**: 프로바이더 설정 또는 메인 루프 실행 중 오류를 캐치하고 로깅합니다. 갑작스러운 충돌 없이 정상적으로 종료됩니다.
 
 ## Create entry point and exports
 
 <Tabs>
 <TabItem value="preprod">
-Create `counter-cli/src/preprod.ts`:
+`counter-cli/src/preprod.ts`를 생성합니다:
 
 ```typescript title="counter-cli/src/preprod.ts"
 import { createLogger } from './logger-utils.js';
@@ -1383,7 +1383,7 @@ await run(config, logger);
 
 </TabItem>
 <TabItem value="undeployed">
-Create `counter-cli/src/undeployed.ts`:
+`counter-cli/src/undeployed.ts`를 생성합니다:
 
 ```typescript title="counter-cli/src/undeployed.ts"
 import { createLogger } from './logger-utils.js';
@@ -1398,39 +1398,39 @@ await run(config, logger);
 </TabItem>
 </Tabs>
 
-Create `counter-cli/src/index.ts`:
+`counter-cli/src/index.ts`를 생성합니다:
 
 ```typescript title="counter-cli/src/index.ts"
 export * from './api';
 export * from './cli';
 ```
 
-The entry point initializes the logger and configuration, then launches the CLI. The index file provides a clean export interface for the package.
+진입점은 로거와 설정을 초기화한 다음 CLI를 시작합니다. index 파일은 패키지를 위한 깔끔한 내보내기 인터페이스를 제공합니다.
 
 ## Run the complete application
 
-This section explains the process of running the complete Counter DApp.
+이 섹션에서는 전체 Counter DApp을 실행하는 과정을 설명합니다.
 
 ### Start the proof server
 
-Open a terminal and start the proof server if it is not already running:
+터미널을 열고 아직 실행 중이 아니라면 proof 서버를 시작합니다:
 
 ```bash
 docker run -p 6300:6300 midnightntwrk/proof-server:latest midnight-proof-server -v
 ```
 
-Keep this terminal open throughout your session.
+세션 내내 이 터미널을 열어 두세요.
 
 ### Launch the CLI
 
-Open a new terminal, navigate to the `counter-cli` directory, and start the application:
+새 터미널을 열고, `counter-cli` 디렉터리로 이동하여 애플리케이션을 시작합니다:
 
 ```bash
 cd counter-cli
 npm run preprod
 ```
 
-The CLI displays a banner and presents the wallet setup menu:
+CLI는 배너를 표시하고 지갑 설정 메뉴를 제공합니다:
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
@@ -1451,8 +1451,8 @@ The CLI displays a banner and presents the wallet setup menu:
 >
 ```
 
-To learn more about interacting with the CLI, see the [counter DApp](../../examples/dapps/counter) example.
+CLI와의 상호작용에 대해 자세히 알아보려면 [counter DApp](../../examples/dapps/counter) 예제를 참조하세요.
 
 ## Next steps
 
-Now that you have built a complete Counter CLI. Explore the [bulletin board DApp](../../../examples/dapps/bboard) example for a more complex contract with multi-user interactions and private state.
+완전한 Counter CLI를 구축했습니다. 다중 사용자 상호작용과 private 상태가 있는 더 복잡한 컨트랙트는 [게시판 DApp](../../../examples/dapps/bboard) 예제를 살펴보세요.

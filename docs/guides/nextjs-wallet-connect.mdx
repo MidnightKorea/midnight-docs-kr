@@ -1,8 +1,8 @@
 ---
-title: Create a Next.js wallet connector
-description: Learn how to create a Next.js application that connects to a wallet using the Midnight DApp Connector API.
+title: Next.js 지갑 커넥터 만들기
+description: Midnight DApp Connector API를 사용하여 지갑에 연결하는 Next.js 애플리케이션을 만드는 방법을 알아보세요.
 sidebar_position: 55
-sidebar_label: Create a Next.js wallet connector
+sidebar_label: Next.js 지갑 커넥터 만들기
 tags: [wallet, nextjs, tutorial]
 # slug: /how-to/nextjs-wallet-connect
 redirects:
@@ -12,36 +12,36 @@ toc_max_heading_level: 2
 
 import Step, { StepsProvider } from "@site/src/components/Step/Step";
 
-This guide explains how to create a Next.js application that connects to the Midnight Lace wallet using the DApp Connector API. 
-You'll build a wallet connection button that displays connection status, providing a foundation for building more complex DApps.
+이 가이드에서는 DApp Connector API를 활용하여 Midnight Lace 지갑에 연결하는 Next.js 애플리케이션을 만들어 봅니다.
+연결 상태를 보여주는 지갑 연결 버튼을 구현하며, 이를 바탕으로 더 복잡한 DApp을 개발할 수 있습니다.
 
-The code examples focus on core functionality and intentionally omit CSS styling. You can add your preferred styling solution such as Tailwind, styled-components, or CSS modules to match your application's design.
+코드 예시는 핵심 기능에 집중하기 위해 CSS 스타일링을 포함하지 않습니다. Tailwind, styled-components, CSS 모듈 등 원하는 스타일링 도구를 자유롭게 적용하시면 됩니다.
 
 ## Prerequisites
 
-Before you begin, make sure you have:
+시작하기 전에 다음 사항을 준비하세요:
 
-- Basic knowledge of TypeScript and JavaScript
-- Familiarity with React and Next.js fundamentals
-- Node.js and npm installed on your system
-- [Midnight Lace wallet extension](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) installed in your browser
+- TypeScript 및 JavaScript 기본 지식
+- React 및 Next.js 기초에 대한 이해
+- Node.js와 npm 설치
+- 브라우저에 [Midnight Lace 지갑 확장 프로그램](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) 설치
 
 ### Set up a Next.js project
 
-If you don't have a Next.js project yet, create one using the following command:
+Next.js 프로젝트가 없다면 다음 명령으로 새 프로젝트를 생성합니다:
 
 ```bash
 npm create-next-app@latest <project-name>
 ```
 
-When prompted, select the following options:
+설정 프롬프트에서 다음과 같이 선택합니다:
 - **TypeScript**: Yes
 - **ESLint**: Yes
-- **Tailwind CSS**: Yes (optional, but recommended)
+- **Tailwind CSS**: Yes (선택 사항이나 권장)
 - **App Router**: Yes
-- **Other options**: Choose based on your preference
+- **기타 옵션**: 원하는 대로 선택
 
-Then navigate to the project directory and install the DApp Connector API package:
+이어서 프로젝트 디렉토리로 이동한 뒤 DApp Connector API 패키지를 설치합니다:
 
 ```bash
 cd <project-name>
@@ -49,27 +49,27 @@ npm install @midnight-ntwrk/dapp-connector-api
 ```
 
 :::note
-This guide uses the DApp Connector API v4.0.0. For more information, see the [DApp Connector API documentation](/api-reference/dapp-connector).
+이 가이드는 DApp Connector API v4.0.0을 사용합니다. 자세한 내용은 [DApp Connector API 문서](/api-reference/dapp-connector)를 참조하세요.
 :::
 
-After completing this tutorial, you'll understand:
+이 튜토리얼을 마치면 다음 내용을 이해할 수 있습니다:
 
-- How to integrate wallet connections in Next.js applications
-- The differences between client and server components when working with wallets
-- How to manage wallet state in Next.js
-- Best practices for using the DApp Connector API in Next.js
+- Next.js 애플리케이션에 지갑 연결을 통합하는 방법
+- 지갑 작업 시 클라이언트 컴포넌트와 서버 컴포넌트의 차이
+- Next.js에서의 지갑 상태 관리
+- Next.js에서 DApp Connector API를 사용하는 모범 사례
 
 <StepsProvider>
 <Step>
 
 ## Create the wallet connection component
 
-You'll build a client-side component that handles wallet connection. Since wallet interactions require browser APIs, this component must run on the client side using Next.js's `"use client"` directive.
+지갑 연결을 처리하는 클라이언트 사이드 컴포넌트를 만듭니다. 지갑 API는 브라우저 환경에서만 사용할 수 있으므로, Next.js의 `"use client"` 디렉티브로 클라이언트 사이드 실행을 지정해야 합니다.
 
-Create `app/components/ConnectWalletButton.tsx`:
+`app/components/ConnectWalletButton.tsx`를 생성합니다:
 
 ```typescript
-"use client"; // Next.js directive for client-side rendering
+"use client"; // 클라이언트 사이드 렌더링을 위한 Next.js 디렉티브
 
 import { useState } from "react";
 import "@midnight-ntwrk/dapp-connector-api";
@@ -81,19 +81,19 @@ export default function ConnectWalletButton() {
 
   const handleConnect = async () => {
     try {
-      // Access the Midnight Lace wallet through the window object
+      // window 객체를 통해 Midnight Lace 지갑에 접근
       const wallet: InitialAPI = await window.midnight!.mnLace;
-      
-      // Connect to the specified network (use 'undeployed' for local development)
+
+      // 지정된 네트워크에 연결 (로컬 개발의 경우 'undeployed' 사용)
       const connectedApi = await wallet.connect('preprod');
-      
-      // Retrieve the shielded addresses from the wallet
+
+      // 지갑에서 shielded 주소 가져오기
       const addresses = await connectedApi.getShieldedAddresses();
       const address = addresses.shieldedAddress;
 
-      // Check if the connection is established
+      // 연결이 설정되었는지 확인
       const connectionStatus = await connectedApi.getConnectionStatus();
-      
+
       if (connectionStatus) {
         setConnected(true);
         setWalletAddress(address);
@@ -130,21 +130,21 @@ export default function ConnectWalletButton() {
 }
 ```
 
-This component manages the wallet connection flow:
+이 컴포넌트의 지갑 연결 흐름은 다음과 같습니다:
 
-1. **Client-side rendering**: The `"use client"` directive ensures this component runs in the browser where wallet APIs are available.
-2. **State management**: Uses React's `useState` hook to track connection status and wallet address.
-3. **Connection logic**: The `handleConnect` function accesses the wallet through `window.midnight.mnLace`, connects to the specified network, and retrieves the wallet's shielded address.
-4. **User feedback**: Displays the wallet address (truncated) and provides connect/disconnect actions.
+1. **클라이언트 사이드 렌더링**: `"use client"` 디렉티브를 통해 브라우저에서 실행되므로 지갑 API에 접근할 수 있습니다.
+2. **상태 관리**: React의 `useState` 훅으로 연결 상태와 지갑 주소를 관리합니다.
+3. **연결 로직**: `handleConnect` 함수가 `window.midnight.mnLace`로 지갑에 접근하고, 네트워크에 연결한 뒤, shielded 주소를 가져옵니다.
+4. **사용자 피드백**: 지갑 주소를 축약하여 표시하고, 연결/연결 해제 동작을 제공합니다.
 
 </Step>
 <Step>
 
 ## Add the component to your layout
 
-Now integrate the wallet button into your application's layout so it appears on every page.
+지갑 버튼을 애플리케이션 레이아웃에 추가하여 모든 페이지에서 표시되도록 합니다.
 
-Update `app/layout.tsx`:
+`app/layout.tsx`를 다음과 같이 수정합니다:
 
 ```typescript
 import type { Metadata } from "next";
@@ -174,16 +174,16 @@ export default function RootLayout({
 }
 ```
 
-The `ConnectWalletButton` component now appears at the top of every page in your application. Next.js's layout system makes it easy to create persistent UI elements across routes.
+`ConnectWalletButton` 컴포넌트가 모든 페이지 상단에 표시됩니다. Next.js의 레이아웃 시스템을 활용하면 모든 라우트에 공통 UI 요소를 간편하게 배치할 수 있습니다.
 
 </Step>
 <Step>
 
 ## Create a welcome page
 
-Create a simple landing page that encourages users to connect their wallet.
+지갑 연결을 안내하는 간단한 랜딩 페이지를 만듭니다.
 
-For this, replace the content of `app/page.tsx` with the following:
+`app/page.tsx`의 내용을 다음으로 교체합니다:
 
 ```typescript
 export default function Home() {
@@ -212,26 +212,26 @@ export default function Home() {
 
 ## Run your application
 
-Start the Next.js development server:
+Next.js 개발 서버를 시작합니다:
 
 ```bash
 npm run dev
 ```
 
-Open your browser and navigate to `http://localhost:3000`.
+브라우저를 열고 `http://localhost:3000`으로 이동합니다.
 
-When you click **Connect Wallet**, the Midnight Lace wallet extension prompts you to authorize the connection. 
+**Connect Wallet**을 클릭하면 Midnight Lace 지갑 확장 프로그램에서 연결 승인을 요청합니다.
 
 ![Connect Wallet](./img/connect-wallet-next.png)
 
-The wallet asks you to choose your preferred authorization level:
+지갑에서 인증 방식을 선택하라는 메시지가 나타납니다:
 
-- **Always**: Grants persistent authorization. The application remains authorized even after closing your browser, and you won't need to reconnect on future visits.
-- **Only once**: Grants temporary authorization. You must reauthorize the connection each time you visit the application.
+- **Always**: 영구 인증입니다. 브라우저를 닫아도 인증 상태가 유지되므로, 이후 방문 시 다시 연결할 필요가 없습니다.
+- **Only once**: 일회성 인증입니다. 애플리케이션을 방문할 때마다 다시 연결을 승인해야 합니다.
 
 ![Authorize Connection](./img/dapp-connection-option.png)
 
-After approval, the button changes to "Disconnect" and displays your truncated wallet address.
+승인하면 버튼이 "Disconnect"로 바뀌고 축약된 지갑 주소가 표시됩니다.
 
 ![Connected Wallet](./img/connected-wallet-next.png)
 
@@ -240,65 +240,65 @@ After approval, the button changes to "Disconnect" and displays your truncated w
 
 ## Verify the connection
 
-You can verify that your wallet is connected to the application:
+지갑이 애플리케이션에 올바르게 연결되었는지 확인하는 방법입니다:
 
-1. Open the Midnight Lace wallet extension in your browser.
-2. Click on your wallet name in the top right corner, then select **Settings**.
-3. Navigate to **Authorized DApps**.
+1. 브라우저에서 Midnight Lace 지갑 확장 프로그램을 엽니다.
+2. 오른쪽 상단의 지갑 이름을 클릭하고 **Settings**를 선택합니다.
+3. **Authorized DApps**로 이동합니다.
 
-You should see `http://localhost:3000` listed as an authorized application.
+`http://localhost:3000`이 인증된 애플리케이션 목록에 표시되어야 합니다.
 
 ![Authorized DApps](./img/authorized-dapps.png)
 
-You can revoke access at any time from this panel by clicking the **trash** icon next to the application.
+애플리케이션 옆의 **trash** 아이콘을 클릭하면 언제든지 접근 권한을 해제할 수 있습니다.
 
 </Step>
 </StepsProvider>
 
 ## Troubleshooting
 
-These are some of the common issues you might encounter and how to resolve them.
+자주 발생하는 문제와 해결 방법을 안내합니다.
 
 ### "window is not defined" error
 
-This error occurs because Next.js tries to render components on the server by default, but wallet APIs only exist in the browser environment.
+Next.js는 기본적으로 서버에서 컴포넌트를 렌더링하는데, 지갑 API는 브라우저 환경에서만 사용할 수 있어서 발생하는 에러입니다.
 
-**How to fix it**: Make sure your wallet component includes the `"use client"` directive at the top of the file.
+**해결 방법**: 지갑 컴포넌트 파일 상단에 `"use client"` 디렉티브가 있는지 확인하세요.
 
 ### Wallet not detected
 
-This error means the browser cannot access `window.midnight`, which indicates the Midnight Lace wallet extension is not available.
+브라우저가 `window.midnight`에 접근할 수 없는 경우로, Midnight Lace 지갑 확장 프로그램이 사용 불가능한 상태입니다.
 
-**How to fix it**:
+**해결 방법**:
 
-- Verify the Midnight Lace wallet extension is installed and enabled.
-- Refresh the page after installing the extension.
-- Check the browser console for extension-related errors.
-- Ensure you're testing in a browser, not during server-side rendering.
+- Midnight Lace 지갑 확장 프로그램이 설치되어 있고 활성화 상태인지 확인합니다.
+- 확장 프로그램 설치 후 페이지를 새로고침합니다.
+- 브라우저 콘솔에서 확장 프로그램 관련 에러를 확인합니다.
+- 서버 사이드 렌더링이 아닌 브라우저 환경에서 테스트 중인지 확인합니다.
 
 ### Connection fails
 
-This error occurs when the wallet connection attempt is unsuccessful, which can happen for several reasons related to configuration or wallet state.
+지갑 연결 시도가 실패하는 경우로, 네트워크 설정이나 지갑 상태 등 여러 원인이 있을 수 있습니다.
 
-**How to fix it**:
+**해결 방법**:
 
-- Confirm that you're using the correct network ID. 
-For local development, use `'undeployed'`. For Preprod environment, use `'preprod'`.
-- Make sure the Lace wallet is unlocked.
-- Check the browser console for specific error messages.
-- Verify the DApp Connector API package is correctly installed.
+- 올바른 네트워크 ID를 사용하고 있는지 확인합니다.
+로컬 개발에는 `'undeployed'`, Preprod 환경에는 `'preprod'`를 사용합니다.
+- Lace 지갑의 잠금이 해제되어 있는지 확인합니다.
+- 브라우저 콘솔에서 구체적인 에러 메시지를 확인합니다.
+- DApp Connector API 패키지가 올바르게 설치되었는지 확인합니다.
 
 ## Next steps
 
-Now that you have a working wallet connector in Next.js, you can extend your application:
+Next.js 지갑 커넥터가 완성되었으므로, 다음과 같은 기능을 추가하여 애플리케이션을 확장해 보세요:
 
-- **Create protected routes**: Use Next.js middleware to restrict access to pages that require wallet connection.
-- **Transfer coins**: Build a form that allows users to send tokens to other addresses.
-- **Display balances**: Show the user's token balances on a dashboard page.
-- **Transaction history**: Create a page that queries and displays transaction history.
+- **보호된 라우트 만들기**: Next.js 미들웨어로 지갑 연결이 필요한 페이지에 대한 접근을 제한합니다.
+- **코인 전송**: 다른 주소로 토큰을 전송하는 폼을 구현합니다.
+- **잔액 표시**: 대시보드 페이지에 토큰 잔액을 표시합니다.
+- **트랜잭션 기록**: 트랜잭션 내역을 조회하고 표시하는 페이지를 만듭니다.
 
 ## Reference
 
-- [DApp Connector API documentation](/api-reference/dapp-connector)
-- [Next.js documentation](https://nextjs.org/docs)
-- [Midnight Lace wallet](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk)
+- [DApp Connector API 문서](/api-reference/dapp-connector)
+- [Next.js 문서](https://nextjs.org/docs)
+- [Midnight Lace 지갑](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk)

@@ -1,144 +1,144 @@
 ---
-title: Windows Compact setup
-description: Learn how to set up the Midnight development environment on Windows using Windows Subsystem for Linux (WSL).
+title: Windows Compact 설정
+description: Windows Subsystem for Linux(WSL)를 사용하여 Windows에서 Midnight 개발 환경을 설정하는 방법을 알아보세요.
 sidebar_position: 60
-sidebar_label: "Windows Compact setup"
+sidebar_label: "Windows Compact 설정"
 ---
 
-This guide covers setting up the Midnight development environment on Windows using Windows Subsystem for Linux (WSL). We'll walk you through the essential setup steps, including installing and configuring WSL, Docker Desktop, and the Midnight Lace wallet.
+이 가이드에서는 WSL(Windows Subsystem for Linux)을 사용하여 Windows에서 Midnight 개발 환경을 설정하는 방법을 다룹니다. WSL 설치 및 구성, Docker Desktop, Midnight Lace 지갑 등 필수 설정 단계를 안내합니다.
 
-By the end of this tutorial, you'll have a development-ready environment for building DApps on the Midnight Network, running the proof server, and interacting with the network.
+이 가이드를 마치면 Midnight Network에서 DApp을 빌드하고, proof server를 실행하고, 네트워크와 상호작용할 수 있는 개발 환경이 갖춰집니다.
 
 ### Install Ubuntu
 
-Developing DApps for the Midnight network often requires compiling and running various components (like the proof server or complex scripts) that are traditionally Linux-based. The Windows Subsystem for Linux (WSL) is a critical component that allows you to run a native Linux environment directly within Windows without the overhead of a traditional virtual machine.
+Midnight 네트워크용 DApp을 개발하려면 proof server나 빌드 스크립트 등 Linux 기반 도구를 실행해야 하는 경우가 많습니다. WSL(Windows Subsystem for Linux)을 사용하면 기존 가상 머신의 오버헤드 없이 Windows에서 네이티브 Linux 환경을 바로 사용할 수 있습니다.
 
-Step-by-step installation:
+설치 절차:
 
-Open the Start Menu on your Windows desktop.
+Windows 바탕화면에서 시작 메뉴를 엽니다.
 
-Search for Windows PowerShell (or Command Prompt) and right-click on the result. Select **Run as administrator.** This elevation is necessary to install system-level features like WSL.
+Windows PowerShell(또는 명령 프롬프트)을 검색하고 결과를 마우스 오른쪽 버튼으로 클릭한 뒤 **관리자 권한으로 실행**을 선택합니다. WSL 같은 시스템 수준 기능을 설치하려면 관리자 권한이 필요합니다.
 
-![Windows Start menu with PowerShell right-click menu showing Run as administrator](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/azunze475qiad8qvnmea.png)
+![Windows 시작 메뉴에서 PowerShell 마우스 오른쪽 클릭 메뉴의 관리자 권한으로 실행 표시](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/azunze475qiad8qvnmea.png)
 
-In the command terminal, enter the following streamlined installation command:
+명령 터미널에 다음 간소화된 설치 명령을 입력합니다:
 
 ```bash
 wsl --install -d ubuntu
 ```
 
-![PowerShell terminal executing the wsl installation command](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/udzzpfa7fmvnkerruifw.png)
+![PowerShell 터미널에서 wsl 설치 명령 실행](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/udzzpfa7fmvnkerruifw.png)
 
-This command performs three primary functions automatically:
-It enables the required Windows features for WSL (Virtual Machine Platform and Windows Subsystem for Linux).
-It downloads and installs the recommended Ubuntu distribution (the default and most widely supported Linux environment).
+이 명령은 자동으로 다음 작업을 수행합니다:
+WSL에 필요한 Windows 기능(Virtual Machine Platform 및 Windows Subsystem for Linux)을 활성화하고,
+Ubuntu 배포판(가장 널리 지원되는 Linux 환경)을 다운로드하여 설치합니다.
 
-![Ubuntu distribution download and installation progress in the terminal](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/15y290h3vgsdliqmbc69.png)
+![터미널에서 Ubuntu 배포판 다운로드 및 설치 진행 상황](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/15y290h3vgsdliqmbc69.png)
 
-It restarts the necessary services.
+필요한 서비스를 재시작합니다.
 
 :::info
-The initial download and installation of the required components and the Ubuntu image can take anywhere from 5 to 15 minutes, depending on your internet connection and system speed. Do not close the window until the process is complete.
+필요한 구성 요소와 Ubuntu 이미지를 다운로드하고 설치하는 데 인터넷 속도와 시스템 성능에 따라 5~15분 정도 걸릴 수 있습니다. 설치가 완료될 때까지 창을 닫지 마세요.
 :::
 
-After the installation process completes, a new Ubuntu terminal window will open automatically. You will be prompted to create a UNIX username and a password.
+설치가 완료되면 Ubuntu 터미널 창이 자동으로 열리며, UNIX 사용자 이름과 비밀번호를 설정하라는 메시지가 나타납니다.
 
-![Ubuntu terminal prompt for creating a new UNIX username and password](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ea6re5ha4k6d8z56cerz.png)
+![Ubuntu 터미널에서 새 UNIX 사용자 이름 및 비밀번호 생성 프롬프트](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ea6re5ha4k6d8z56cerz.png)
 
 :::note
-When entering your password, the characters will not be displayed on the screen for security reasons (this is standard Linux terminal behavior). Type your desired password carefully and press Enter.
+비밀번호 입력 시 보안상 화면에 문자가 표시되지 않습니다(Linux 터미널의 기본 동작). 비밀번호를 정확히 입력한 후 Enter를 누르세요.
 :::
 
-Once successfully configured, your new username will be displayed as part of your terminal prompt (for example, `yourusername@DESKTOP-XXXXXX:~$`). 
+성공적으로 구성되면 터미널 프롬프트의 일부로 새 사용자 이름이 표시됩니다(예: `yourusername@DESKTOP-XXXXXX:~$`).
 
-![Ubuntu terminal showing the successful configuration and user prompt](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/mj4xgis8a9jpgjth6gc5.png)
+![Ubuntu 터미널에서 성공적인 구성 및 사용자 프롬프트 표시](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/mj4xgis8a9jpgjth6gc5.png)
 
-This confirms that WSL is correctly installed and the Ubuntu distribution is ready for use.
+이 화면이 나타나면 WSL이 올바르게 설치되었고 Ubuntu를 사용할 준비가 된 것입니다.
 
 ### Verification and best practices
 
-To ensure WSL is running the correct version, you can execute this command in the Windows PowerShell:
+WSL이 올바른 버전으로 실행 중인지 확인하려면 Windows PowerShell에서 다음 명령을 실행합니다:
 
 ```bash
 wsl -l -v
 ```
 
-You should see a list showing Ubuntu and confirming its STATE is Running (or Stopped) and its VERSION is 2 (WSL 2 is required for optimal performance and Docker integration).
+목록에서 Ubuntu의 STATE가 Running(또는 Stopped), VERSION이 2인지 확인합니다. 최적의 성능과 Docker 연동을 위해 WSL 2가 필요합니다.
 
-## Install and configure Docker desktop
+## Install and configure Docker Desktop
 
-Open your preferred web browser and navigate to the official **Docker** website at [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop).
+선호하는 웹 브라우저를 열고 공식 **Docker** 웹사이트 [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)으로 이동합니다.
 
-![Official Docker Desktop download page for Windows](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/tbyf3h7vt6seaff0yuma.png)
+![공식 Docker Desktop Windows 다운로드 페이지](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/tbyf3h7vt6seaff0yuma.png)
 
-Look for the **Docker Desktop for Windows** download link. Ensure you download the installer that matches your CPU architecture (for example, **Windows - AMD64** for modern systems).
+**Docker Desktop for Windows** 다운로드 링크를 찾아 CPU 아키텍처에 맞는 설치 프로그램을 다운로드합니다(대부분의 시스템에서 **Windows - AMD64** 선택).
 
-Run the downloaded installer (for example, `Docker Desktop Installer.exe`). During the installation, make sure the box for **Use WSL 2 instead of Hyper-V** is checked. This is vital for Docker to integrate seamlessly with the Linux environment you just set up.
+다운로드한 설치 프로그램(`Docker Desktop Installer.exe`)을 실행합니다. 설치 과정에서 **Use WSL 2 instead of Hyper-V** 체크박스가 선택되어 있는지 반드시 확인하세요. Docker가 앞서 설정한 Linux 환경과 원활하게 연동되려면 이 옵션이 필요합니다.
 
-Follow the prompts to complete the installation. A system restart may be required.
+안내에 따라 설치를 완료합니다. 시스템 재시작이 필요할 수 있습니다.
 
-After the reboot, launch **Docker Desktop** from your **Start Menu**. It will take a few moments to start up, showing the whale icon in your system tray.
+재부팅 후 **시작 메뉴**에서 **Docker Desktop**을 실행합니다. 시작까지 잠시 시간이 걸리며, 시스템 트레이에 고래 아이콘이 나타납니다.
 
 ### Verification and integration
 
-Once Docker Desktop is running, open the **Settings** menu (the gear icon).
+Docker Desktop이 실행되면 **Settings** 메뉴(톱니바퀴 아이콘)를 엽니다.
 
-Click **Resources**, then navigate to the **WSL integration** tab.
+**Resources**를 클릭한 다음 **WSL integration** 탭으로 이동합니다.
 
-Ensure that the **Enable integration with my default WSL distro** option is toggled **ON**, and specifically verify that your **Ubuntu** distribution is enabled. This connection allows Docker to manage containers directly from your Linux terminal.
+**Enable integration with my default WSL distro** 옵션이 **ON**으로 설정되어 있는지 확인하고, 특히 **Ubuntu** 배포판이 활성화되어 있는지 확인합니다. 이 설정을 통해 Linux 터미널에서 Docker 컨테이너를 직접 관리할 수 있습니다.
 
-## Set up and run the midnight proof server
+## Set up and run the Midnight proof server
 
-The **Midnight Proof Server** is the core component that your DApps will communicate with to execute zero-knowledge proofs and transactions. It is run via **Docker** for consistency. 
+**Midnight Proof Server**는 DApp이 영지식 증명 생성과 트랜잭션 실행을 위해 통신하는 핵심 구성 요소입니다. 환경 일관성을 위해 **Docker**를 통해 실행합니다.
 
 ### Download the Docker image
 
-Open your **Docker Desktop** application and navigate to the **Explore** section (or use the search field at the top). Search for `midnightntwrk/proof-server` and download the latest image.
+**Docker Desktop** 애플리케이션을 열고 **Explore** 섹션(또는 상단의 검색 필드)으로 이동합니다. `midnightntwrk/proof-server`를 검색하고 최신 이미지를 다운로드합니다.
 
-![Docker Desktop Images tab showing the downloaded proof-server image](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/pmmocxc6tumxqr7k4801.png)
+![Docker Desktop Images 탭에서 다운로드된 proof-server 이미지 표시](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/pmmocxc6tumxqr7k4801.png)
 
 ### Run the proof server
 
-To start the proof server, open your **Ubuntu** terminal and run the following command:
+proof server를 시작하려면 **Ubuntu** 터미널을 열고 다음 명령을 실행합니다:
 
 ```bash
 docker run -p 6300:6300 midnightntwrk/proof-server:7.0.0 -- midnight-proof-server -v
 ```
 
-You should see output similar to:
+다음과 유사한 출력이 표시되어야 합니다:
 
 ```
 actix_server::server: starting service: "actix-web-service-0.0.0.0:6300", workers: 14, listening on: 0.0.0.0:6300
 ```
 
 :::tip
-Keep this terminal window open. The proof server _must_ stay active to compile and deploy contracts.
+이 터미널 창을 닫지 마세요. 컨트랙트를 컴파일하고 배포하려면 proof server가 계속 실행 중이어야 합니다.
 :::
 
 ## Install the Compact compiler
 
-Compact is Midnight's smart contract language. Since you are using a Windows machine, you must install the compiler inside your **WSL Ubuntu terminal** to ensure it works with the rest of the Midnight toolchain.
+Compact는 Midnight의 스마트 컨트랙트 언어입니다. Windows 환경에서는 나머지 Midnight 도구 체인과의 호환을 위해 **WSL Ubuntu 터미널** 내에서 컴파일러를 설치해야 합니다.
 
-1. Open your Ubuntu terminal (WSL).
-2. Run the following command to install the Compact binaries:
+1. Ubuntu 터미널(WSL)을 엽니다.
+2. 다음 명령을 실행하여 Compact 바이너리를 설치합니다:
 
 ```bash
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
 ```
 
-3. The installer script automatically updates your path. To apply these changes to your current session, reload your shell configuration:
+3. 설치 스크립트가 경로를 자동으로 업데이트합니다. 현재 세션에 변경 사항을 적용하려면 셸 설정을 다시 불러옵니다:
 
 ```bash
 source ~/.bashrc
 ```
 
-4. Verify the installation by checking the version:
+4. 버전을 확인하여 설치를 검증합니다:
 
 ```bash
 compact --version
 ```
 
-5. Update to the latest version to ensure you have the most recent features:
+5. 최신 버전으로 업데이트합니다:
 
 ```bash
 compact update
@@ -146,14 +146,14 @@ compact update
 
 ## Install the Compact VS Code extension
 
-The Compact VS Code extension provides syntax highlighting and real-time error checking, which is essential for writing smart contracts.
+Compact VS Code 확장 프로그램은 스마트 컨트랙트 작성 시 유용한 구문 강조 및 실시간 에러 검사 기능을 제공합니다.
 
-1. Download the Compact VS Code extension VSIX package from the [releases page](https://raw.githubusercontent.com/midnight-ntwrk/releases/gh-pages/artifacts/vscode-extension/compact-0.2.13/compact-0.2.13.vsix).
-2. Open VS Code.
-3. Go to the **Extensions** view (press `Ctrl+Shift+X`), click the **...** (More Actions) menu at the top-right of the extensions pane, and select **Install from VSIX...**.
-4. Select the `.vsix` file you just downloaded to complete the installation.
+1. [릴리스 페이지](https://raw.githubusercontent.com/midnight-ntwrk/releases/gh-pages/artifacts/vscode-extension/compact-0.2.13/compact-0.2.13.vsix)에서 Compact VS Code 확장 프로그램 VSIX 패키지를 다운로드합니다.
+2. VS Code를 엽니다.
+3. **Extensions** 뷰(`Ctrl+Shift+X` 누르기)로 이동하여 확장 프로그램 패널 오른쪽 상단의 **...** (추가 작업) 메뉴를 클릭하고 **Install from VSIX...**를 선택합니다.
+4. 방금 다운로드한 `.vsix` 파일을 선택하여 설치를 완료합니다.
 
 
 ## Next steps
 
-Now that your environment is ready, you can begin building. To get started and write your first smart contract, refer to the [hello world](../getting-started/hello-world) tutorial.
+개발 환경이 준비되었습니다. 첫 번째 스마트 컨트랙트를 작성하려면 [hello world](../getting-started/hello-world) 튜토리얼을 참조하세요.

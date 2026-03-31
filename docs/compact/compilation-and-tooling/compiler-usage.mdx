@@ -1,4 +1,4 @@
-Compact Compiler Manual Page
+Compact 컴파일러 매뉴얼 페이지
 ============================
 
 NAME
@@ -9,11 +9,9 @@ compactc
 OVERVIEW
 ========
 
-The Compact compiler, **compactc**, takes as input a Compact source
-program in a specified source file and translates it into several
-target files in a specified directory.
+Compact 컴파일러 **compactc**는 지정된 소스 파일에서 Compact 프로그램을 읽어 들여 지정된 디렉토리에 여러 출력 파일을 생성합니다.
 
-SYNOPSYS
+SYNOPSIS
 ========
 
 **compactc** _flag_ **...** _sourcepath_ _targetpath_
@@ -21,135 +19,114 @@ SYNOPSYS
 DESCRIPTION
 ===========
 
-The flags _flag_ **...** are optional.  They are described under FLAGS later in this document.
+플래그 _flag_ **...**는 선택 사항이며, 아래 FLAGS 섹션에서 설명합니다.
 
-_sourcepath_ should identify a file containing a Compact source program, and
-_targetpath_ should identify a target directory into which the target files are to be placed.
-The target directory is created if it does not already exist.
+_sourcepath_는 Compact 소스 프로그램이 담긴 파일 경로이고, _targetpath_는 출력 파일이 생성될 디렉토리 경로입니다. 대상 디렉토리가 없으면 자동으로 생성됩니다.
 
-**compactc** compiles the source file and produces from it the following target files,
-where _sourceroot_ is the name of the file identified by _sourcepath_ without any
-extension.
+**compactc**는 소스 파일을 컴파일하여 다음 출력 파일을 생성합니다. 여기서 _sourceroot_는 _sourcepath_ 파일의 확장자를 제외한 이름입니다.
 
-- a Typescript type-definition file _targetdir_**/contract/index.d.ts**
+- TypeScript 타입 정의 파일 _targetdir_**/contract/index.d.ts**
 
-- a Javascript source file _targetdir_**/contract/index.js**
+- Javascript 소스 파일 _targetdir_**/contract/index.js**
 
-- a Javascript source-map file _targetdir_**/contract/index.js.map**
+- Javascript 소스맵 파일 _targetdir_**/contract/index.js.map**
 
-- one Zk/ir circuit file for each exported circuit _circuitname_
-  in _targetdir_**/zkir/**_circuitname_**.zkir**,
-  and
+- 각 내보낸 circuit _circuitname_에 대한 Zk/ir circuit 파일
+  _targetdir_**/zkir/**_circuitname_**.zkir**,
+  그리고
 
-- a pair of proving keys for each exported circuit _circuitname_
-  in _targetdir_**/keys/**_circuitname_**.prover** and
+- 각 내보낸 circuit _circuitname_에 대한 증명 키 쌍
+  _targetdir_**/keys/**_circuitname_**.prover** 및
   _targetdir_**/keys/**_circuitname_**.verifier**.
 
-Compact source files can include other Compact source files via an **include** form:
+Compact 소스 파일은 **include** 형식을 통해 다른 Compact 소스 파일을 포함할 수 있습니다:
 
 **include** '_name_';
 
-They can also import externally defined modules via an **import** form:
+또한 **import** 형식을 통해 외부에서 정의된 모듈을 가져올 수 있습니다:
 
 **import** _name_;
 **import** '_name_';
 
-By default, the compiler looks for include files and externally defined modules
-with non-absolute pathnames relative to the directory of the including or importing
-file under the full filename _name_**.compact**.
-If this fails, it looks for the file in the *Compact search list*.
-The Compact search list is
-- the value of the **--compact-path** command-line option, if provided,
-- otherwise the value of the **COMPACT_PATH** environment variable, if set,
-- otherwise empty.
-The search list is a colon-separated (semicolon-separated on Windows) list of
-directory pathnames _dirpath_**:...:**_dirpath_ (_dirpath_**;...;**_dirpath_
-under Windows), and the compiler looks under the full pathname
-_dirpath_**/**_name_**.compact** for each _dirpath_ in order until the file is
-found or the set of _dirpath_ entries is exhausted.
+절대 경로가 아닌 경로를 가진 포함 파일이나 외부 모듈은 기본적으로 해당 파일이 위치한 디렉토리를 기준으로 _name_**.compact**라는 이름으로 검색합니다.
+검색에 실패하면 *Compact 검색 목록*에서 파일을 찾습니다.
+Compact 검색 목록은 다음과 같이 결정됩니다:
+- 제공된 경우 **--compact-path** 명령줄 옵션의 값,
+- 그렇지 않으면 설정된 경우 **COMPACT_PATH** 환경 변수의 값,
+- 그렇지 않으면 비어 있음.
+검색 목록은 콜론으로 구분된(Windows에서는 세미콜론) 디렉토리 경로 목록 _dirpath_**:...:**_dirpath_ (Windows: _dirpath_**;...;**_dirpath_)이며, 컴파일러는 각 _dirpath_에 대해 _dirpath_**/**_name_**.compact** 경로로 순서대로 검색하여 파일을 찾거나 항목이 모두 소진될 때까지 반복합니다.
 
-Most Compact source programs should import the standard library **CompactStandardLibrary**.
-This is typically done by placing the following line near the top of the program:
+대부분의 Compact 프로그램은 표준 라이브러리 **CompactStandardLibrary**를 import해야 합니다.
+보통 프로그램 상단에 다음 줄을 추가합니다:
 
-**import CompactStandardLibrary;** 
+**import CompactStandardLibrary;**
 
-**CompactStandardLibrary** is built into the compiler, not found in the filesystem.
+**CompactStandardLibrary**는 파일 시스템에서 찾는 것이 아니라 컴파일러에 내장되어 있습니다.
 
 FLAGS
 =====
 
-The following flags, if present, affect the compiler's behavior as follows:
+다음 플래그를 사용하여 컴파일러의 동작을 제어할 수 있습니다:
 
 **--help**
 
-prints help text and exits.
+도움말 텍스트를 출력하고 종료합니다.
 
 **--version**
 
-prints the compiler version and exits.
+컴파일러 버전을 출력하고 종료합니다.
 
 **--language-version**
 
-prints the language version supported by the compiler and exits.
+컴파일러가 지원하는 언어 버전을 출력하고 종료합니다.
 
 **--runtime-version**
 
-prints the runtime version required by the compiler and exits.
+컴파일러가 요구하는 런타임 버전을 출력하고 종료합니다.
 
 **--ledger-version**
 
-prints the ledger version required by the compiler and exits.
+컴파일러가 요구하는 ledger 버전을 출력하고 종료합니다.
 
 **--vscode**
 
-causes the compiler to omit newlines from error messages, so that they are rendered
-properly within the VS Code extension for Compact.
+컴파일러가 오류 메시지에서 줄 바꿈을 생략하여 Compact용 VS Code 확장 프로그램 내에서 올바르게 렌더링되도록 합니다.
 
 **--skip-zk**
 
-causes the compiler to skip the generation of proving keys.
-Generating proving keys can be time-consuming, so this option is useful
-when debugging only the Typescript output.  The compiler also skips,
-after printing a warning message, the generation of proving keys when
-it cannot find zkir.
+컴파일러가 증명 키 생성을 건너뛰도록 합니다.
+증명 키 생성에는 시간이 오래 걸릴 수 있으므로, TypeScript 출력만 디버깅할 때 유용합니다. zkir을 찾을 수 없는 경우에도 컴파일러는 경고를 출력한 후 증명 키 생성을 건너뜁니다.
 
 **--no-communications-commitment**
 
-omits the contract communications commitment that enables data integrity for contract-to-contract calls.
+컨트랙트 간 호출의 데이터 무결성을 보장하는 통신 커밋먼트 생성을 생략합니다.
 
 **--sourceRoot _sourceRoot-value_**
 
-overrides the compiler's setting of the
-sourceRoot field in the generated source-map (.js.map) file.  By default,
-the compiler tries to determine a useful value based on the source and
-target-directory pathnames, but this value might not be appropriate for
-the deployed structure of the application.
+생성된 소스맵(.js.map) 파일의 sourceRoot 필드 값을 재정의합니다. 기본적으로 컴파일러가 소스 및 대상 디렉토리 경로를 기반으로 적절한 값을 결정하지만, 애플리케이션의 배포 구조에 맞지 않을 수 있습니다.
 
 **--compact-path _search list_**
 
-sets the Compact search list to **_search list_**.
+Compact 검색 목록을 **_search list_**로 설정합니다.
 
 **--trace-import**
 
-causes the compiler to print a sequence of messages saying where it is looking
-for each included file and imported module source file.
+각 포함 파일과 가져온 모듈 소스 파일의 검색 경로를 보여주는 추적 메시지를 출력합니다.
 
 **--trace-passes**
 
-causes the compiler to print tracing information that is
-generally useful only to compiler developers.
+주로 컴파일러 개발자에게 유용한 내부 추적 정보를 출력합니다.
 
 EXAMPLES
 ========
 
-Assuming **src/test.compact** contains a well-formed Compact program exporting circuits *foo*
-and *bar*:
+**src/test.compact**에 circuit *foo*와 *bar*를 export하는 유효한 Compact 프로그램이 있다고 가정합니다:
 
 ```
 compactc src/test.compact obj/test
 ```
 
-produces:
+위 명령은 다음 파일을 생성합니다:
 
 ```
 obj/test/contract/index.d.ts
@@ -167,4 +144,4 @@ obj/test/keys/bar.verifier
 
 **compactc --skip-zk src/test.compact obj/test**
 
-produces the same, except without the keys.
+키 파일을 제외하고 동일한 결과를 생성합니다.

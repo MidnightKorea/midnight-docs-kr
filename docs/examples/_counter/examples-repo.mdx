@@ -1,41 +1,38 @@
 ---
-sidebar_label: "Midnight examples repository"
+sidebar_label: "Midnight 예제 저장소"
 ---
 
 # Midnight examples repository
 
-1. Clone the [Counter Dapp repository](https://github.com/midnightntwrk/example-counter).
-2. Go to the root level of the repository.
+1. [Counter DApp 저장소](https://github.com/midnightntwrk/example-counter)를 클론합니다.
+2. 저장소의 루트 레벨로 이동합니다.
 
 ```shell
 cd example-counter
 ```
 
-3. Run `npm install` in the root folder to install all the necessary packages.
+3. 루트 폴더에서 `npm install`을 실행하여 필요한 모든 패키지를 설치합니다.
 
 ## Configure Yarn to download Midnight libraries
 
-You will be using Yarn to build Midnight example DApps.  An easy way
-to install Yarn, now that you have dependencies configured, is with the
-`corepack` command:
+Midnight 예제 DApp을 빌드할 때 Yarn을 사용합니다. 종속성이 설정된 상태에서 Yarn을 설치하는 가장 간단한 방법은 `corepack` 명령입니다:
 
 ```shell
 corepack enable
 ```
 
-This succeeds silently, but you should see version information now if
-you type:
+별다른 출력 없이 성공합니다. 다음 명령으로 버전을 확인할 수 있습니다:
 
 ```shell
 yarn --version
 ```
 
-You should see a version number printed, such as `4.1.0`.
+`4.1.0`과 같은 버전 번호가 출력되어야 합니다.
 
-The best way to verify this step is to use Yarn to pull the Midnight examples dependencies.  In the top level of your `example-counter` repository, simply invoke Yarn with no parameters:
+설정이 올바른지 확인하려면 `example-counter` 저장소 최상위 레벨에서 Yarn을 매개변수 없이 실행합니다:
 
 ```shell
 yarn
 ```
 
-You should see a lot of output, but no errors, although there may be some warnings.  For example, the last line of output may say `Done with warnings`.
+많은 출력이 표시되지만 오류는 없어야 합니다. 일부 경고가 나타날 수 있으며, 예를 들어 마지막 줄에 `Done with warnings`라고 표시될 수 있습니다.

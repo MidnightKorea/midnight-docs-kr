@@ -1,101 +1,61 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Run the counter DApp"
+sidebar_label: "counter DApp 실행"
 ---
 
 # Run the counter DApp
 
-Now you are ready to run the counter DApp, deploying a new instance of
-its contract to the Midnight Testnet and submitting transactions
-to the network.
+이제 counter DApp을 실행하여 Midnight Testnet에 컨트랙트를 배포하고 트랜잭션을 제출할 준비가 되었습니다.
 
-## A command-line wallet
+## 커맨드 라인 wallet
 
-Because this DApp has no web-based user interface and runs outside of
-your web browser, it cannot access the Lace wallet. Instead, the DApp initializes
-a Midnight wallet that shares its core libraries with Lace wallet, but
-which can be invoked through library calls in command-line
-applications. (Many programmers refer to the software without a graphical
-user interface as 'headless', so you may find text elsewhere that
-refers to this wallet as the 'headless wallet'.)
+이 DApp은 웹 기반 UI가 없고 브라우저 외부에서 실행되므로 Lace wallet에 접근할 수 없습니다. 대신 Lace wallet과 핵심 라이브러리를 공유하되, 커맨드 라인에서 라이브러리 호출로 사용할 수 있는 Midnight wallet을 초기화합니다. GUI가 없는 소프트웨어를 'headless'라고 부르므로, 이 wallet을 'headless wallet'이라고 지칭합니다.
 
-When you run the DApp, the first thing it does is instantiate its
-wallet, either by creating a completely fresh one or by rebuilding the
-wallet from a previously generated seed.  On the first run, you must
-create a fresh one and transfer some tDUST to it from your Midnight
-Lace wallet.
+DApp을 실행하면 먼저 새 wallet을 생성하거나 기존 시드에서 wallet을 복원합니다. 처음 실행할 때는 새 wallet을 만들고 Midnight Lace wallet에서 tDUST를 전송해야 합니다.
 
 ## Run the counter CLI
 
-1. Be sure the proof server that you installed in part 1 of the
-   tutorial is started.
+1. 튜토리얼 파트 1에서 설치한 proof 서버가 실행 중인지 확인하세요.
 
-2. In the `counter-cli` directory, launch the DApp with:
+2. `counter-cli` 디렉토리에서 다음 명령으로 DApp을 시작합니다:
    ```shell
    yarn testnet-remote
    ```
-   This starts the DApp in a configuration that uses your local proof
-   server, but connects to cloud-deployed instances of a Midnight node
-   and a Midnight Indexer.
+   로컬 proof 서버를 사용하되, 클라우드에 배포된 Midnight 노드 및 Midnight Indexer에 연결하는 구성으로 DApp이 시작됩니다.
 
-3. Choose to build a fresh wallet.  The DApp displays the wallet's
-   address and a balance of `0` tokens.
+3. 새 wallet 생성을 선택합니다. DApp이 wallet 주소와 `0` 토큰 잔액을 표시합니다.
 
-   The seed for the freshly created wallet is printed.  Save
-   this information so that you can reuse this wallet on a later run
-   of the counter DApp.
+   새로 생성된 wallet 시드가 출력됩니다. 나중에 counter DApp에서 이 wallet을 재사용할 수 있도록 시드를 저장하세요.
 
 
-   Additionally, your interactions with the DApp, including the wallet
-   address and seed, are stored in a `log` subdirectory of
-   `counter-cli`.
+   wallet 주소와 시드를 포함한 DApp 상호작용 기록은 `counter-cli`의 `log` 하위 디렉토리에 저장됩니다.
 
-4. Transfer tokens from your Lace wallet to your CLI wallet:
-   - Copy your new wallet's address and open the Lace wallet
-     in your web browser by clicking its icon on the Chrome toolbar.
-   - Select **Send** and paste the CLI wallet address into the 'recipient's address' field.
-   - Enter an amount to transfer. The value of 10 tDUST will be more than enough.
-   - Review and click **Send**.
-   - Enter your wallet password and click **Confirm**.
+4. Lace wallet에서 CLI wallet으로 토큰을 전송합니다:
+   - 새 wallet 주소를 복사하고 Chrome 도구 모음의 아이콘을 클릭하여 Lace wallet을 엽니다.
+   - **Send**를 선택하고 CLI wallet 주소를 수신자 주소 필드에 붙여넣습니다.
+   - 전송 금액을 입력합니다. 10 tDUST면 충분합니다.
+   - 내용을 확인하고 **Send**를 클릭합니다.
+   - wallet 비밀번호를 입력하고 **Confirm**을 클릭합니다.
 
-5. Return to the counter DApp's window and wait for the tokens to be
-   received.  The DApp detects the funds that were transferred to
-   your CLI wallet and reports your new wallet balance, followed
-   by a new prompt.
+5. counter DApp 창으로 돌아가서 토큰 수신을 기다립니다. DApp이 CLI wallet으로 전송된 자금을 감지하고 새 잔액을 표시한 후 다음 프롬프트가 나타납니다.
 
-6. The next prompt asks whether you want to deploy a new counter
-   contract on Testnet or join an existing one.  Choose to deploy
-   your newly-compiled contract.
+6. Testnet에 새 counter 컨트랙트를 배포할지 기존 컨트랙트에 참여할지 선택합니다. 새로 컴파일한 컨트랙트를 배포하세요.
 
-   The DApp prints the deployed contract's address.  Save this
-   information, so that you can run the DApp again later and rejoin
-   the contract.
+   DApp이 배포된 컨트랙트 주소를 출력합니다. 나중에 컨트랙트에 재참여할 수 있도록 이 주소를 저장하세요.
 
-7. Interact with the contract.  You are prompted with three options: increment, display, or exit.
-   - First, display the current value by selecting option 2.  This
-     retrieves the current state of the contract from the blockchain
-     ledger.  It should report a value of `0`.
-   - Next, increment the counter by selecting option 1.  This submits a
-     new transaction and awaits confirmation.
+7. 컨트랙트와 상호작용합니다. increment, display, exit 세 가지 옵션이 제시됩니다.
+   - 먼저 옵션 2를 선택하여 현재 값을 확인합니다. 블록체인 ledger에서 컨트랙트의 현재 상태를 가져옵니다. `0`이 표시되어야 합니다.
+   - 다음으로 옵션 1을 선택하여 카운터를 증가시킵니다. 새 트랜잭션이 제출되고 확인을 기다립니다.
 
-     If you watch your proof server's output in another window at the
-     same time, you will see that it generates a proof for the
-     transaction, which is submitted to Testnet.
+     다른 창에서 proof 서버 출력을 확인하면, 트랜잭션에 대한 증명이 생성되어 Testnet에 제출되는 과정을 볼 수 있습니다.
 
-     Generating the proof, submitting it to Testnet, and waiting
-     for the transaction to be processed by the network takes some
-     time.  Eventually, the DApp should report the successful
-     completion of the transaction, with output like:
+     증명 생성, Testnet 제출 및 트랜잭션 처리에 시간이 걸립니다. 완료되면 DApp이 다음과 같은 출력으로 성공을 보고합니다:
      ```
      Transaction <transaction hash> added in block <block number>
      ```
-   - Now verify that the counter's value has been incremented by
-     selecting option 2.  It should report a new value of `1`.
+   - 옵션 2를 선택하여 카운터 값이 증가했는지 확인합니다. 새 값 `1`이 표시되어야 합니다.
 
-   - Repeat as you like, and then select (3) to exit.  There is a problem in one of the underlying libraries
-     that can cause error messages upon exit.  You may safely ignore
-     these.
+   - 원하는 만큼 반복한 후 (3)을 선택하여 종료합니다. 기본 라이브러리의 문제로 종료 시 오류 메시지가 나타날 수 있지만, 안전하게 무시해도 됩니다.
 
-8. Try running the DApp again, rebuilding the wallet from the saved
-   seed, and rejoining the existing contract.
+8. DApp을 다시 실행하여 저장된 시드로 wallet을 복원하고 기존 컨트랙트에 재참여해 보세요.

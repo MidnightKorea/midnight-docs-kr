@@ -1,11 +1,11 @@
 # Compact standard library
 
-**CompactStandardLibrary** ∙ [Detailed API reference](exports.md)
+**CompactStandardLibrary** ∙ [상세 API 레퍼런스](exports.md)
 
-This API provides standard types and circuits for use in Compact programs.
-Key parts of the API are:
+이 API는 Compact 프로그램에서 사용할 수 있는 표준 타입과 circuit를 제공합니다.
+API의 주요 부분은 다음과 같습니다:
 
-- Common data types:
+- 공통 데이터 타입:
   - [`Maybe`](exports.md#maybe)
   - [`Either`](exports.md#either)
   - [`NativePoint`](exports.md#nativepoint)
@@ -15,31 +15,31 @@ Key parts of the API are:
   - [`ContractAddress`](exports.md#contractaddress)
   - [`ZswapCoinPublicKey`](exports.md#zswapcoinpublickey)
   - [`UserAddress`](exports.md#useraddress)
-- Coin management data types:
+- 코인 관리 데이터 타입:
   - [`ShieldedCoinInfo`](exports.md#shieldedcoininfo)
   - [`QualifiedShieldedCoinInfo`](exports.md#qualifiedshieldedcoininfo)
   - [`ShieldedSendResult`](exports.md#shieldedsendresult)
-- Common functions:
+- 공통 함수:
   - [`some`](exports.md#some)
   - [`none`](exports.md#none)
   - [`left`](exports.md#left)
   - [`right`](exports.md#right)
-- Hashing functions:
+- 해싱 함수:
   - [`transientHash`](exports.md#transienthash)
   - [`transientCommit`](exports.md#transientcommit)
   - [`persistentHash`](exports.md#persistenthash)
   - [`persistentCommit`](exports.md#persistentcommit)
   - [`degradeToTransient`](exports.md#degradetotransient)
-- Elliptic curve functions:
+- 타원 곡선 함수:
   - [`ecAdd`](exports.md#ecadd)
   - [`ecMul`](exports.md#ecmul)
   - [`ecMulGenerator`](exports.md#ecmulgenerator)
   - [`hashToCurve`](exports.md#hashtocurve)
   - [`upgradeFromTransient`](exports.md#upgradefromtransient)
-- Merkle tree functions:
+- Merkle 트리 함수:
   - [`merkleTreePathRoot`](exports.md#merkletreepathroot)
   - [`merkleTreePathRootNoLeafHash`](exports.md#merkletreepathrootnoleafhash)
-- Coin management functions
+- 코인 관리 함수:
     - [`tokenType`](exports.md#tokentype)
     - [`nativeToken`](exports.md#nativetoken)
     - [`ownPublicKey`](exports.md#ownpublickey)
@@ -62,7 +62,7 @@ Key parts of the API are:
     - [`unshieldedBalanceGt`](exports.md#unshieldedbalancegt)
     - [`unshieldedBalanceLte`](exports.md#unshieldedbalancelte)
     - [`shieldedburnaddress`](exports.md#shieldedburnaddress)
-- Block time functions:
+- 블록 시간 함수:
   - [`blockTimeLt`](exports.md#blocktimelt)
   - [`blockTimeGte`](exports.md#blocktimegte)
   - [`blockTimeGt`](exports.md#blocktimegt)

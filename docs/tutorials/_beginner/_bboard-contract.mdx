@@ -1,80 +1,47 @@
 ---
-sidebar_label: "Bulletin board contract"
-title: "Bulletin board contract"
-description: "Learn how to build a bulletin board contract on Midnight Network."
+sidebar_label: "게시판 컨트랙트"
+title: "게시판 컨트랙트"
+description: "Midnight 네트워크에서 게시판 컨트랙트를 구축하는 방법을 알아봅니다."
 sidebar_position: 30
 ---
 
 # Bulletin board contract
 
-Just as with the counter DApp, there are separate subdirectories in
-the [`example-bboard`](https://github.com/midnightntwrk/example-bboard) repository for the contract and the user
-interaction code.
-Unlike the simple counter DApp, however, the bulletin board DApp
-demonstrates an additional useful separation: between user interface
-code and the underlying application logic that is independent of the
-user interface.  Keeping the user interface separate from the
-application logic allows you to create a command-line version of the
-bulletin board in this part of the tutorial and a web-based version in
-a later part.
-- `contract` - contains the Compact source for the bulletin board
-  contract, plus associated TypeScript
-- `api` - contains TypeScript source that implements the core behavior
-  of the DApp, such as posting messages and taking them down, and
-  depends on the `contract` code
-- `bboard-cli` - contains the command-line interface for the text-based
-  DApp and depends on both the `contract` and `api` code.
+counter DApp과 마찬가지로, [`example-bboard`](https://github.com/midnightntwrk/example-bboard) 저장소에도 컨트랙트와 사용자 상호작용 코드가 별도의 하위 디렉터리로 분리되어 있습니다.
+다만 단순한 counter DApp과 달리, 게시판 DApp은 사용자 인터페이스 코드와 UI에 독립적인 핵심 애플리케이션 로직을 추가로 분리합니다. 이러한 구조 덕분에 이번 튜토리얼에서는 명령줄 버전의 게시판을, 이후 파트에서는 웹 기반 버전을 만들 수 있습니다.
+- `contract` - 게시판 컨트랙트의 Compact 소스 코드와 관련 TypeScript를 포함합니다
+- `api` - 메시지 게시 및 삭제와 같은 DApp의 핵심 동작을 구현하는 TypeScript 소스를 포함하며, `contract` 코드에 의존합니다
+- `bboard-cli` - 텍스트 기반 DApp의 명령줄 인터페이스를 포함하며, `contract`와 `api` 코드 모두에 의존합니다.
 
 
 :::tip
 
-This page walks step by step through the design of the bulletin board
-contract.  The finished contract appears at the end of the page.  Midnight
-recommends viewing and editing the contract using the
-[Visual Studio Code extension for Compact](../../compact/compilation-and-tooling/vscode-plugin.mdx),
-where you get nice colors and auto-completion of names.
+이 페이지는 게시판 컨트랙트의 설계를 단계별로 안내합니다. 완성된 컨트랙트는 페이지 끝에 나타납니다. Midnight에서는
+[Compact용 Visual Studio Code 확장](../../compact/compilation-and-tooling/vscode-plugin.mdx)을 사용하여 컨트랙트를 보고 편집하는 것을 권장하며,
+이를 통해 구문 강조와 이름 자동 완성 기능을 사용할 수 있습니다.
 
 :::
 
-To create a Midnight contract for the bulletin board scenario, we need
-to identify:
-- The components of the contract's public state
-- The visible operations that can be performed on the contract
-- The private data and operations, used by the visible operations in
-  ways that are provably valid, but not shared publicly.
+게시판 시나리오를 위한 Midnight 컨트랙트를 작성하려면 다음 세 가지를 파악해야 합니다:
+- 컨트랙트의 공개 상태를 구성하는 요소
+- 컨트랙트에서 수행 가능한 공개 작업
+- 공개 작업에서 증명 가능한 방식으로 사용되지만 외부에 공유되지 않는 비공개 데이터 및 작업
 
-The public state of the contract and the transaction history of the
-public operations appear on the ledger of the Midnight blockchain.
-Anyone can verify them.  The private data never has to leave the
-DApp user's computer.
+컨트랙트의 공개 상태와 공개 작업의 트랜잭션 이력은 Midnight 블록체인 ledger에 기록되며, 누구나 이를 검증할 수 있습니다. 비공개 데이터는 DApp 사용자의 로컬 환경 밖으로 전송되지 않습니다.
 
 ## Public ledger state on the blockchain
 
-The public ledger state of the bulletin board consists of four
-values:
-1. A state: vacant or occupied
-2. A message
-3. A counter to identify *which* specific post is current
-4. A public token produced by the user who made the current post, but
-   from which their private identity cannot be derived.
+게시판의 공개 ledger 상태는 네 개의 값으로 구성됩니다:
+1. 상태: 비어있음(vacant) 또는 사용중(occupied)
+2. 메시지
+3. 현재 어떤 특정 게시물이 현재인지 식별하는 카운터
+4. 현재 게시물을 작성한 사용자가 생성한 공개 토큰으로, 사용자의 비공개 신원을 유추할 수 없습니다.
 
-The third value is perhaps less obvious than the others; it
-corresponds to the 'that message' constraint mentioned on the
-previous page.  When its value is 15, it says, 'The current message
-is the 15th post.'  If you have ever implemented any sort of software
-lock, it will not surprise you that the correct behavior is to
-increment this counter whenever the board becomes vacant (not when it
-becomes occupied), because that is the point at which the bulletin board
-no longer holds the (previous) numbered post.
+세 번째 값은 다른 값들보다 직관적이지 않을 수 있습니다. 이전 페이지에서 언급한 '해당 메시지' 제약에 해당하는 값으로, 예를 들어 값이 15이면 '현재 메시지는 15번째 게시물'이라는 의미입니다. 소프트웨어 잠금을 구현해 본 경험이 있다면, 게시판이 사용중이 되는 시점이 아니라 비어있게 되는 시점에 이 카운터를 증가시키는 것이 올바르다는 점을 쉽게 이해할 수 있을 것입니다. 게시판이 비워지는 시점이 이전 번호의 게시물이 더 이상 존재하지 않게 되는 시점이기 때문입니다.
 
-The fourth value should be a non-reversible hash of the owner's
-identity and the posting sequence number (the counter).  No one can
-figure out who posted the message from the token, but the user who
-created the post can reliably derive that token again to satisfy the
-identity-verification obligation.
+네 번째 값은 소유자의 신원과 게시 순서 번호(카운터)의 비가역적 해시여야 합니다. 누구도 토큰으로부터 메시지를 게시한 사람을 알아낼 수 없지만, 게시물을 작성한 사용자는 신원 검증 의무를 충족하기 위해 해당 토큰을 안정적으로 다시 도출할 수 있습니다.
 
-Here is the type of that ledger state, specified in Midnight's Compact
-contract language:
+다음은 Midnight의 Compact 컨트랙트 언어로 지정된 ledger 상태의 타입입니다:
 
 import CodeFromGithub from '@site/src/components/CodeFromGithub';
 
@@ -85,56 +52,27 @@ import CodeFromGithub from '@site/src/components/CodeFromGithub';
 
 
 
-Some notes about the types used in this ledger declaration:
-- Notice that Compact includes support for declaring new types, such as the
-  enumeration type that encodes the vacant or occupied state of the bulletin
-  board.  With the `export` modifier added to the declaration, the Compact
-  compiler will generate TypeScript representations for the enumeration type and
-  its values.
-- Ledger fields with Compact types (such as `STATE`, `Maybe`, and `Bytes`)
-  represent a mutable cell in the ledger, whose value can be updated by
-  circuits.
-- The ledger's `Counter` type (automatically initialized to zero), can be
-  incremented by circuits.
-- The builtin Compact `Opaque` type describes values whose internal structure is
-  irrelevant to the contract.
-- The standard library's `Maybe` type describes values that may be absent.  Its
-  values are created using the `some` or `none` constructors.
-- The owner's identity tokens are 256-bit hashes, which occupy 32 bytes.
-- The standard library `CompactStandardLibrary` contains `Maybe`, `some`,
-  `none`, and `Counter`.  (`Opaque` and `Bytes` are builtin Compact types.)
+이 ledger 선언에서 사용된 타입에 대해 몇 가지 참고할 점이 있습니다:
+- Compact에서는 게시판의 비어있음/사용중 상태를 표현하는 열거형 타입처럼 새로운 타입을 선언할 수 있습니다. 선언에 `export` 수정자를 추가하면 Compact 컴파일러가 열거형 타입과 그 값에 대한 TypeScript 표현을 자동으로 생성합니다.
+- `STATE`, `Maybe`, `Bytes` 같은 Compact 타입을 가진 ledger 필드는 circuit를 통해 값을 업데이트할 수 있는 가변 셀입니다.
+- `Counter` 타입은 0으로 자동 초기화되며, circuit를 통해 증가시킬 수 있습니다.
+- Compact의 내장 타입인 `Opaque`는 컨트랙트에서 내부 구조가 중요하지 않은 값을 나타냅니다.
+- 표준 라이브러리의 `Maybe` 타입은 값이 있을 수도 없을 수도 있는 선택적 값을 표현합니다. `some` 또는 `none` 생성자로 값을 만듭니다.
+- 소유자의 신원 토큰은 256비트(32바이트) 해시입니다.
+- 표준 라이브러리 `CompactStandardLibrary`에는 `Maybe`, `some`, `none`, `Counter`가 포함되어 있습니다. (`Opaque`와 `Bytes`는 Compact 내장 타입입니다.)
 
-The contract need not explicitly initialize the `owner` field when
-the ledger is constructed, because its value is not meaningful yet.
-Every ledger field that is not explicitly initialized in the constructor
-is initialized to the default value of its type if the type has a default
-value.
+ledger가 생성될 때 컨트랙트가 `owner` 필드를 명시적으로 초기화할 필요는 없습니다. 그 값이 아직 의미가 없기 때문입니다.
+생성자에서 명시적으로 초기화되지 않은 모든 ledger 필드는 해당 타입에 기본값이 있는 경우 기본값으로 초기화됩니다.
 
 ## Enforcing the contract: circuits
 
-Remember, anyone who uses this bulletin board will be required to
-abide by its rules, but *they* must do the work of proving they
-satisfied the contract.  When they make changes to the bulletin board,
-they submit proofs that they followed the rules, and observers
-can quickly verify their proofs.  Such proofs, which observers
-can verify without access to the data that enabled the proof
-construction, are called *zero-knowledge* proofs, and they are
-implemented using *mathematical circuits*.
+게시판을 사용하는 모든 사람은 규칙을 준수해야 하며, 스스로 컨트랙트의 조건을 충족했음을 증명해야 합니다. 게시판을 변경할 때는 규칙을 따랐다는 proof를 제출하고, 관찰자는 이 proof를 빠르게 검증할 수 있습니다. proof를 생성하는 데 사용된 원본 데이터에 접근하지 않고도 검증할 수 있는 이러한 proof를 *영지식 증명(zero-knowledge proof)*이라 하며, *수학적 circuit*를 사용하여 구현합니다.
 
-These ideas are not at all new; some of the important papers about
-zero-knowledge proofs were published in the 1980s.  The more recent
-developments are advances in the way such proofs can be generated and
-verified automatically, without human intervention, and the way they
-can be combined with public blockchains.
+이 개념 자체는 새로운 것이 아닙니다. 영지식 증명에 관한 주요 논문 중 일부는 이미 1980년대에 발표되었습니다. 최근의 발전은 이러한 proof를 사람의 개입 없이 자동으로 생성하고 검증하는 방법, 그리고 공개 블록체인과 결합하는 방법에 관한 것입니다.
 
-One of *Midnight's unique contributions* to this space is to make the
-definition of zero-knowledge-based smart contracts and their
-supporting circuits *accessible to general programmers*.
+이 분야에서 *Midnight가 특별히 기여한 점*은 영지식 기반 스마트 컨트랙트와 이를 뒷받침하는 circuit 정의를 *일반 프로그래머도 접근할 수 있도록* 만든 것입니다.
 
-Begin by writing the `post` operation as a Compact `circuit`
-definition.  The main obligation to be satisfied in this part of the
-contract is the bulletin board's first rule: posting can occur only
-when the board is vacant.
+`post` 작업을 Compact `circuit` 정의로 작성하는 것부터 시작합니다. 컨트랙트의 이 부분에서 충족해야 할 주요 의무는 게시판의 첫 번째 규칙입니다: 게시판이 비어 있을 때만 게시할 수 있습니다.
 
 <CodeFromGithub
   url="https://github.com/midnightntwrk/example-bboard/blob/main/contract/src/bboard.compact#L41-L46"
@@ -142,25 +80,11 @@ when the board is vacant.
 />
 
 
-A `circuit` definition is much like a function definition.  It can specify input
-parameters and a return value.  The current state of the ledger is also
-implicitly available in the circuit definition.  As with the `enum STATE` type,
-an `export` modifier has been added to this definition, so that the `post`
-circuit can be called from TypeScript.
+`circuit` 정의는 함수 정의와 매우 유사하며, 입력 매개변수와 반환 값을 지정할 수 있습니다. ledger의 현재 상태는 circuit 정의 내에서 암시적으로 접근할 수 있습니다. `enum STATE` 타입과 마찬가지로 이 정의에도 `export` 수정자가 추가되어 TypeScript에서 `post` circuit를 호출할 수 있습니다.
 
-To establish enforced contractual obligations, the definition uses the `assert`
-statement, which checks that some Boolean expression is true.  If the expression
-is false, the transaction is aborted, reporting the failure using the message
-specified in the `assert` statement.  The `assert` above checks that the board
-is vacant when someone tries to post a message (rule 1).
+컨트랙트 의무 사항을 시행하기 위해 `assert` 문을 사용합니다. `assert`는 불리언 표현식이 참인지 확인하며, 거짓이면 트랜잭션이 중단되고 지정된 메시지와 함께 실패를 보고합니다. 위의 `assert`는 메시지 게시 시 게시판이 비어 있는지 확인합니다(규칙 1).
 
-What is this generated 'public key' that the `post` circuit writes
-into the ledger's `owner` field to identify the user posting the
-message?  It is derived by hashing a string with the sequence number
-of the post and the user's secret key, which is not sent over the
-network.  The code above has used a call to a 'helper' circuit
-`publicKey`, which is defined in the same contract.  Here is its
-definition:
+`post` circuit가 ledger의 `owner` 필드에 기록하는 이 생성된 '공개 키'는 무엇입니까? 이는 게시물의 순서 번호와 네트워크를 통해 전송되지 않는 사용자의 비밀 키를 포함하는 문자열을 해싱하여 도출됩니다. 위의 코드는 동일한 컨트랙트에 정의된 '헬퍼' circuit `publicKey`에 대한 호출을 사용했습니다. 다음은 그 정의입니다:
 
 <CodeFromGithub
   url="https://github.com/midnightntwrk/example-bboard/blob/main/contract/src/bboard.compact#L58-L60"
@@ -168,34 +92,16 @@ definition:
 />
 
 
-Three notes about this  definition:
-1. The `persistentHash` function is defined in Compact's standard
-   library.
-2. Typically, you would not export helper circuits like this one,
-   because there would be no reason to call them from TypeScript.  In
-   this case, `publicKey` is exported so that its value can be logged
-   by the DApp, for debugging purposes.
-3. While this circuit is named `publicKey`, its return value is *not*
-   truly one side of a key pair from public key cryptography.
-   Instead, zero-knowledge circuits can be understood as a kind of
-   generalization of public key cryptography.  The result of this
-   circuit serves the same role as a public key, though, so its
-   naming is intended to evoke that sense.
+이 정의에 대해 세 가지 참고할 점이 있습니다:
+1. `persistentHash` 함수는 Compact 표준 라이브러리에 정의되어 있습니다.
+2. 일반적으로 이런 헬퍼 circuit는 TypeScript에서 호출할 필요가 없으므로 내보내지 않습니다. 이 경우 `publicKey`는 DApp에서 디버깅 시 값을 로깅할 수 있도록 내보냅니다.
+3. 이 circuit의 이름이 `publicKey`이지만, 반환 값이 공개 키 암호화에서 말하는 키 쌍의 한쪽은 *아닙니다*. 다만 영지식 circuit를 공개 키 암호화의 일반화된 형태로 이해할 수 있으며, 이 circuit의 결과가 공개 키와 동일한 역할을 수행하므로 그러한 의미를 떠올릴 수 있도록 이름을 붙인 것입니다.
 
 ## Accessing private state
 
-So, how to retrieve secret key needed by the `post` circuit and passed
-to `publicKey`?  The function `localSecretKey` cannot be another
-circuit, because the values returned by circuits are publicly
-verifiable, and the value returned by this function should never
-appear in the ledger.
+그렇다면 `post` circuit에서 필요한 비밀 키를 어떻게 가져올까요? `localSecretKey` 함수는 circuit가 될 수 없습니다. circuit의 반환 값은 공개적으로 검증 가능하기 때문에, 절대 ledger에 노출되어서는 안 되는 이 값을 circuit로 반환할 수 없기 때문입니다.
 
-This kind of function is called a *witness*.  Witness functions
-provide the API to the private state of a contract, as maintained by
-individual DApps that use the contract.  The contract does not
-describe the definition of the witness; it merely declares the
-witness's existence.  The DApp must implement it.  Here is the
-declaration in the contract:
+이런 종류의 함수를 *witness*라고 합니다. Witness 함수는 각 DApp이 로컬에서 관리하는 비공개 상태에 대한 접근을 제공합니다. 컨트랙트에서는 witness의 구현을 정의하지 않고 존재만 선언하며, 실제 구현은 DApp이 담당합니다. 컨트랙트에서의 선언은 다음과 같습니다:
 
 <CodeFromGithub
   url="https://github.com/midnightntwrk/example-bboard/blob/main/contract/src/bboard.compact#L39"
@@ -204,21 +110,9 @@ declaration in the contract:
 
 
 
-The return values of witnesses are presumed to be private data.  The Compact
-compiler tracks them through the program and prevents them from leaking by being
-revealed in the public ledger state.  Specifically, in the `post` circuit, the
-result of `localSecretKey()` is presumed to be private.  Because this value is
-passed to `publicKey`, the result of `publicKey` is also presumed to be
-private (or at least, based on private data).  The compiler would signal an
-error if it were written into the public ledger state.  In this case however,
-the hash of the owner's identity combined with the sequence counter will not
-leak the owner's identity.  Wrapping the public key value in `disclose` tells
-the Compact compiler that this disclosure is intended.
+witness의 반환 값은 비공개 데이터로 취급됩니다. Compact 컴파일러는 프로그램 전체에서 이를 추적하여 공개 ledger 상태에 유출되지 않도록 방지합니다. 구체적으로, `post` circuit에서 `localSecretKey()`의 결과는 비공개로 간주됩니다. 이 값이 `publicKey`에 전달되므로 `publicKey`의 결과도 비공개로 간주됩니다(최소한 비공개 데이터에 기반한 것으로 취급됩니다). 이 값을 공개 ledger 상태에 기록하려고 하면 컴파일러가 오류를 발생시킵니다. 하지만 이 경우, 소유자 신원과 순서 카운터의 해시는 소유자의 신원을 유출하지 않습니다. 공개 키 값을 `disclose`로 감싸면 Compact 컴파일러에게 이 공개가 의도적이라는 것을 알리게 됩니다.
 
-With all these tools at hand, you can write the `takeDown` circuit,
-which enforces the rule that only the owner of the current post can
-take it down.  Of course, it also makes no sense to take down a post
-from a vacant board, so the circuit checks that first:
+이제 필요한 모든 도구가 갖춰졌으니, 현재 게시물의 소유자만 삭제할 수 있다는 규칙을 시행하는 `takeDown` circuit를 작성할 수 있습니다. 빈 게시판에서 게시물을 삭제하는 것은 의미가 없으므로, circuit는 먼저 게시판이 비어 있지 않은지 확인합니다:
 
 <CodeFromGithub
   url="https://github.com/midnightntwrk/example-bboard/blob/main/contract/src/bboard.compact#L48-L56"
@@ -226,21 +120,13 @@ from a vacant board, so the circuit checks that first:
 />
 
 
-This circuit returns the message that was taken down, to demonstrate
-that public circuits can return values, too.
+이 circuit는 삭제된 메시지를 반환하여, 공개 circuit도 값을 반환할 수 있음을 보여줍니다.
 
-When a DApp submits a `takeDown` transaction to the Midnight network, it does
-not include the private data that would allow other contract participants to
-check the second `assert`.  Notice that the Compact compiler does not require
-`publicKey` to be explicitly `disclose`d in this circuit.  The `takeDown`
-transaction includes a verifiable proof that each `assert` has been checked.
-The compiler generates all the material to make this possible 'behind the
-scenes,' without the DApp programmer ever having to write code that appears to
-generate and transmit proofs.
+DApp이 `takeDown` 트랜잭션을 Midnight 네트워크에 제출할 때, 다른 참여자가 두 번째 `assert`를 확인하는 데 필요한 비공개 데이터는 포함되지 않습니다. 이 circuit에서는 `publicKey`를 명시적으로 `disclose`할 필요가 없다는 점에 주목하세요. `takeDown` 트랜잭션에는 각 `assert`가 통과되었다는 검증 가능한 proof가 포함됩니다. 컴파일러가 이를 가능하게 하는 모든 자료를 내부적으로 생성하므로, DApp 개발자가 proof 생성 및 전송 코드를 직접 작성할 필요가 없습니다.
 
 ## Compiling the contract
 
-That's everything.  Here is the complete contract.
+이것이 전부입니다. 다음은 완전한 컨트랙트입니다.
 
 <CodeFromGithub
   url="https://github.com/midnightntwrk/example-bboard/blob/main/contract/src/bboard.compact"
@@ -248,27 +134,14 @@ That's everything.  Here is the complete contract.
 />
 
 
-In the `contract` subdirectory of `bboard-tutorial`, there is a build
-script to run the Compact compiler as part of the build, but it is
-instructive to run the compiler manually this time.
+`bboard-tutorial`의 `contract` 하위 디렉터리에는 빌드 과정에서 Compact 컴파일러를 자동으로 실행하는 빌드 스크립트가 있지만, 이번에는 학습 목적으로 컴파일러를 직접 실행해 보겠습니다.
 
-Compile the `bboard.compact` with the Compact compiler
-like this (assuming that you have added the Compact compiler's
-directory to your `PATH` following the instructions provided in
-[Running Midnight Compact compiler](../../compact/compilation-and-tooling/compiler-usage.mdx)
-and that your current directory is the
-`contract` directory when you run the command):
+[Midnight Compact 컴파일러 실행](../../compact/compilation-and-tooling/compiler-usage.mdx) 가이드에 따라 Compact 컴파일러 디렉터리를 `PATH`에 추가했고, 현재 디렉터리가 `contract` 디렉터리라고 가정하면, 다음 명령으로 `bboard.compact`를 컴파일합니다:
 
 ```shell
 compact compile src/bboard.compact src/managed/bboard
 ```
 
-You should see a message about the circuit complexity for each of the
-public circuits (`post`, `takeDown`, and `publicKey`) when you run
-the compiler.  If you see an error message, check your code for
-mistakes.  If you need help, contact the Midnight Developer Relations
-team or your fellow developers on Discord.
+컴파일러를 실행하면 각 공개 circuit(`post`, `takeDown`, `publicKey`)에 대한 circuit 복잡도 메시지가 표시됩니다. 오류 메시지가 나타나면 코드에 실수가 없는지 확인하세요. 도움이 필요하면 Midnight 개발자 관계 팀이나 Discord에서 다른 개발자에게 문의하세요.
 
-You can see the TypeScript API that the Compact compiler generated for
-the contract in `src/managed/bboard/contract/index.d.cts`.  The DApp
-will rely on this API to deploy the contract and call the circuits.
+`src/managed/bboard/contract/index.d.cts`에서 Compact 컴파일러가 컨트랙트에 대해 생성한 TypeScript API를 볼 수 있습니다. DApp은 이 API를 사용하여 컨트랙트를 배포하고 circuit를 호출합니다.

@@ -1,24 +1,24 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-title: Explicit disclosure
+title: 명시적 공개
 sidebar_position: 10
 ---
 
 <div className="lang-ref">
-# Explicit disclosure in Compact: The Midnight "Witness Protection Program"
+# Explicit Disclosure: Midnight "Witness Protection Program"
 
 ## Introduction
 
-Midnight supports the development of applications that preserve privacy whenever possible while allowing selective disclosure of private information as necessary. Selective disclosure differs from traditional blockchains, in which everything is public, or strict privacy-preserving blockchains, in which everything is private. Midnight's selective disclosure allows banks, for example, to disclose data required for regulatory purposes while keeping other account information private.
+Midnight는 프라이버시를 최대한 보호하면서도 필요에 따라 비공개 정보를 선택적으로 공개할 수 있는 애플리케이션 개발을 지원합니다. 선택적 공개는 모든 것이 공개되는 기존 블록체인이나 모든 것이 비공개인 엄격한 프라이버시 블록체인과 다릅니다. 예를 들어 은행은 Midnight의 선택적 공개를 활용하여 규제에 필요한 데이터만 공개하고 나머지 계좌 정보는 비공개로 유지할 수 있습니다.
 
-The decision to disclose private information, including information derived from private information, must rest with each Midnight DApp because disclosure requirements are inherently situation-specific. However, because private information should be disclosed only as necessary, Midnight's Compact language requires disclosure to be explicitly declared. That is, a Compact program must explicitly declare its intention to disclose data that might be private before storing it in the public ledger, returning it from an exported circuit, or passing it to another contract. This makes privacy the default and disclosure an explicit exception, reducing the risk of accidental disclosure.
+비공개 정보(파생 정보 포함)의 공개 여부는 각 DApp이 결정해야 합니다. 공개 요구 사항은 상황마다 다르기 때문입니다. 다만 비공개 정보는 꼭 필요한 경우에만 공개되어야 하므로, Compact 언어는 공개를 명시적으로 선언하도록 요구합니다. 즉, 비공개일 수 있는 데이터를 공개 ledger에 저장하거나 export된 circuit에서 반환하거나 다른 컨트랙트에 전달하려면, 먼저 해당 데이터의 공개 의도를 명시적으로 선언해야 합니다. 이로써 프라이버시가 기본값이 되고 공개는 명시적 예외가 되어 실수로 인한 정보 노출 위험을 줄입니다.
 
-The contract produced from a Compact program is a zero-knowledge (zk) proof coupled with updates to be made to the public ledger. A zk-proof proves some property about one or more pieces of data, referred to as _witnesses_ or _witness data_, without disclosing anything about the witness data except that the property holds for them. In Compact, witness data comes primarily from external callback functions declared as witnesses in a Compact contract and provided to the contract by a DApp.  Witness data can also come into a contract via exported circuit arguments and via the arguments to the contract constructor, if any.  Also, any value derived from witness data is also considered to be witness data. Because witness data may contain private information, it should ordinarily be used only for constructing the zk-proof and not disclosed in any way, but exceptions sometimes need to be made.  When exceptions are made, the disclosure must be explicitly declared.
+Compact 프로그램에서 생성된 컨트랙트는 공개 ledger 업데이트와 영지식 증명의 결합입니다. 영지식 증명은 _witness_ 또는 _witness 데이터_라 불리는 데이터에 대해 특정 속성이 성립함을 증명하되, 그 속성이 성립한다는 사실 외에는 아무것도 공개하지 않습니다. Compact에서 witness 데이터는 주로 컨트랙트 내에 witness로 선언되어 DApp이 제공하는 외부 콜백 함수를 통해 전달됩니다. export된 circuit 인수나 생성자 인수로도 컨트랙트에 들어올 수 있으며, witness 데이터에서 파생된 모든 값도 witness 데이터로 간주됩니다. witness 데이터는 비공개 정보를 포함할 수 있으므로 일반적으로 영지식 증명 구성에만 사용하고 공개해서는 안 되지만, 때로는 예외가 필요합니다. 이때 공개를 명시적으로 선언해야 합니다.
 
-## Explicitly declaring disclosure
+## Declaring disclosure explicitly
 
-Explicitly declaring intent to disclose witness data in Compact is straightforward, requiring only the addition of a `disclose()` wrapper around any expression whose value may contain witness data to be disclosed, as illustrated by the following trivial program:
+Compact에서 witness 데이터를 공개하겠다는 의도를 명시적으로 선언하는 것은 간단합니다. 공개할 witness 데이터를 포함할 수 있는 값을 가진 표현식 주위에 `disclose()` 래퍼를 추가하기만 하면 됩니다. 다음의 간단한 프로그램이 이를 보여줍니다:
 
 ```compact
 import CompactStandardLibrary;
@@ -30,7 +30,7 @@ export circuit recordRalance(): [] {
 }
 ```
 
-Without the `disclose()` wrapper, the compiler rejects the program with an informative error message. For example, attempting to compile this Compact program:
+`disclose()` 래퍼가 없으면, 컴파일러는 유용한 오류 메시지와 함께 프로그램을 거부합니다. 예를 들어, 다음 Compact 프로그램을 컴파일하려고 하면:
 
 ```compact
 import CompactStandardLibrary;
@@ -38,11 +38,11 @@ witness getBalance(): Bytes<32>;
 export ledger balance: Bytes<32>;
 
 export circuit recordBalance(): [] {
-  balance = getBalance();    	// missing disclose() wrapper
+  balance = getBalance();    	// disclose() 래퍼 누락
 }
 ```
 
-causes the compiler to abort with the following error message:
+컴파일러가 다음 오류 메시지와 함께 중단됩니다:
 
 ```
 Exception: /tmp/q3.compact line 6 char 11:
@@ -55,13 +55,13 @@ Exception: /tmp/q3.compact line 6 char 11:
       the right-hand side of = at line 6 char 11
 ```
 
-The error message lists the sources of all witness data disclosed at this point, so the programmer knows that adding a `disclose()` wrapper will declare all of them disclosed.
+오류 메시지는 이 시점에서 공개되는 모든 witness 데이터의 출처를 나열하므로, 프로그래머는 `disclose()` 래퍼를 추가하면 모든 출처가 공개 선언된다는 것을 알 수 있습니다.
 
-Placing a `disclose()` wrapper does not cause disclosure in itself; in fact, it has no effect other than telling the compiler that it is okay to disclose the value of the wrapped expression. Equivalently, it tells the compiler to pretend that the value of the wrapped expression does not contain witness data whether it actually does or not.
+`disclose()` 래퍼 자체가 공개를 유발하지는 않습니다. 래핑된 표현식의 값을 공개해도 괜찮다고 컴파일러에 알려줄 뿐입니다. 달리 말하면, 래핑된 표현식의 값이 실제로 witness 데이터를 포함하든 아니든 포함하지 않는 것으로 취급하라고 컴파일러에 지시하는 것입니다.
 
-## Following indirect witness data assignments
+## Tracking indirect witness data assignments
 
-In many cases, disclosure is not so direct, yet the requirement to explicitly declare disclosure always holds. For example, obfuscating the disclosure as follows:
+실제로 공개가 이렇게 직접적인 경우만 있는 것은 아니지만, 공개를 명시적으로 선언해야 하는 요구 사항은 항상 적용됩니다. 예를 들어 다음과 같이 공개를 난독화하더라도:
 
 ```compact
 import CompactStandardLibrary;
@@ -69,7 +69,7 @@ struct S { x: Field; }
 witness getBalance(): Bytes<32>;
 export ledger balance: Bytes<32>;
 
-circuit obfuscate(x: Field): Field { // seriously bad obfuscation
+circuit obfuscate(x: Field): Field { // 심각하게 나쁜 난독화
   return x + 73;
 }
 
@@ -80,7 +80,7 @@ export circuit recordBalance(): [] {
 }
 ```
 
-still causes the compiler to abort, with a similar error message:
+여전히 유사한 오류 메시지와 함께 컴파일러가 중단됩니다:
 
 ```
 Exception: /tmp/q3.compact line 13 char 11:
@@ -97,7 +97,7 @@ Exception: /tmp/q3.compact line 13 char 11:
       the right-hand side of = at line 13 char 11
 ```
 
-In this case, the disclosure, if intentional, can be declared by placing a `disclose()` wrapper around the call to `getBalance()`, around the right-hand-side of the `balance` assignment, or anywhere else along the path from the point of call to the point of disclosure. For example, it could be added to the body of the `obfuscate` circuit around the reference to its argument.
+이 경우, 의도적인 공개라면 `getBalance()` 호출 주위에, `balance` 할당의 우변 주위에, 또는 호출 지점에서 공개 지점까지의 경로상 어디든 `disclose()` 래퍼를 배치하여 선언할 수 있습니다. 예를 들어, `obfuscate` circuit의 본문에서 인수 참조 주위에 추가할 수 있습니다.
 
 ```compact
 import CompactStandardLibrary;
@@ -105,7 +105,7 @@ struct S { x: Field; }
 witness getBalance(): Bytes<32>;
 export ledger balance: Bytes<32>;
 
-circuit obfuscate(x: Field): Field { // seriously bad obfuscation
+circuit obfuscate(x: Field): Field { // 심각하게 나쁜 난독화
   return disclose(x) + 73;
 }
 
@@ -116,11 +116,11 @@ export circuit recordBalance(): [] {
 }
 ```
 
-The best practice is most often to put the `disclose()` wrapper as close to the disclosure point as possible to avoid accidental disclosure if the data travels along multiple paths. For a structured value (such as a tuple, vector, or struct), however, the `disclose()` wrapper should be placed only around the portions of the value that are expected to contain witness data to avoid accidental disclosure in the other portions of the value. Also, in the case of a witness that always returns non-private data or private data that has been sufficiently obfuscated via some cryptographically sound mechanism, it makes sense to place the `disclose()` wrapper directly on the call to the witness.
+대부분의 경우 `disclose()` 래퍼는 공개 지점에 최대한 가깝게 배치하는 것이 좋습니다. 데이터가 여러 경로를 거치는 경우 의도하지 않은 공개를 방지할 수 있기 때문입니다. 단, 구조화된 값(튜플, 벡터, 구조체 등)에서는 witness 데이터가 포함된 부분에만 `disclose()` 래퍼를 적용하여 다른 부분이 실수로 공개되지 않도록 해야 합니다. 한편, 항상 비공개가 아닌 데이터를 반환하거나 암호학적으로 충분히 난독화된 데이터를 반환하는 witness의 경우에는 witness 호출 자체에 `disclose()` 래퍼를 배치하는 것이 합리적입니다.
 
-## Indirect disclosure via conditional expression
+## Indirect disclosure via conditionals
 
-The preceding example illustrates that subjecting witness data to arithmetic, converting it from one representation to another, and passing it into and out of other circuits does not hide potential disclosure from the compiler. The compiler also detects indirect disclosure via conditional expressions. For example:
+위 예제에서 볼 수 있듯이, witness 데이터에 산술 연산을 적용하거나 타입을 변환하거나 다른 circuit에 전달해도 컴파일러의 공개 감지를 피할 수 없습니다. 컴파일러는 조건식을 통한 간접 공개도 감지합니다. 예를 들어:
 
 ```compact
 import CompactStandardLibrary;
@@ -131,7 +131,7 @@ export circuit balanceExceeds(n: Uint<64>): Boolean {
 }
 ```
 
-causes the compiler to abort with the following message:
+다음 메시지와 함께 컴파일러가 중단됩니다:
 
 ```
 Exception: /tmp/q3.compact line 5 char 3:
@@ -145,19 +145,19 @@ Exception: /tmp/q3.compact line 5 char 3:
       the comparison at line 5 char 10
 ```
 
-The message aids the programmer by noting the indirect nature of the disclosure. This example also illustrates that disclosure does not occur just when witness data is stored in the ledger but also when returned from an exported circuit.
+이 메시지는 공개가 간접적이라는 점을 명시하여 프로그래머에게 도움을 줍니다. 이 예제는 공개가 ledger에 저장될 때뿐 아니라 export된 circuit에서 반환될 때에도 발생한다는 것을 보여줍니다.
 
 ## Safe Compact standard library routines
 
-The compiler recognizes that certain Compact standard library routines sufficiently disguise witness data so that explicit declaration of disclosure is not required. For an expression `e` whose value contains witness data, the compiler will treat `transientCommit(e)` as if it does not contain witness data, while it will treat `transientHash(e)` as if it does.
+컴파일러는 특정 Compact 표준 라이브러리 루틴이 witness 데이터를 충분히 위장하여 명시적 공개 선언이 필요하지 않음을 인식합니다. 값에 witness 데이터가 포함된 표현식 `e`에 대해, 컴파일러는 `transientCommit(e)`를 witness 데이터를 포함하지 않는 것으로 처리하지만, `transientHash(e)`는 포함하는 것으로 처리합니다.
 
 ## How explicit disclosure is implemented
 
-We refer to the portion of the compiler that detects and reports undeclared disclosure of witness data as the "witness protection program". The witness-protection program is implemented as an _abstract interpreter_, where the abstract values are not actual run-time values but information about witness data that will be contained within the actual run-time values.
+선언되지 않은 witness 데이터 공개를 감지하고 보고하는 컴파일러 모듈을 "증인 보호 프로그램"이라고 부릅니다. 이 모듈은 _추상 인터프리터_로 구현되며, 추상 값은 실제 런타임 값이 아닌 해당 값에 포함될 수 있는 witness 데이터 정보를 나타냅니다.
 
-The abstract interpreter evaluates the program as if the abstract values were actual values. The operations performed by the interpreter are modified, however, to propagate (or not) information about witness data from the operation inputs to the operation outputs. If at some point the interpreter encounters an undeclared disclosure, e.g., a ledger store, of an abstract value containing witness data, the compiler halts and produces an appropriate error message.
+추상 인터프리터는 추상 값을 실제 값처럼 취급하며 프로그램을 평가합니다. 다만 각 연산은 입력에서 출력으로 witness 데이터 정보를 전파하거나 차단하도록 수정되어 있습니다. 평가 중에 witness 데이터를 포함하는 추상 값이 선언 없이 공개되는 지점(예: ledger 저장)을 만나면, 컴파일러가 중단되고 적절한 오류 메시지가 생성됩니다.
 
 ## Conclusion
 
-The `disclose()` wrapper in Compact enforces deliberate programming decisions when dealing with potentially sensitive private witness data and data derived from private information. Explicit disclosure requires Compact program assignments to declare an intention to use data that might be private before storing it in the public ledger, returning it from an exported circuit, or passing it to another contract. This makes privacy the default and disclosure an explicit exception, reducing the risk of accidental disclosure.
+Compact의 `disclose()` 래퍼는 민감한 비공개 witness 데이터 및 파생 데이터를 다룰 때 의도적인 프로그래밍 결정을 강제합니다. 명시적 공개 메커니즘은 비공개일 수 있는 데이터를 공개 ledger에 저장하거나, export된 circuit에서 반환하거나, 다른 컨트랙트에 전달하기 전에 반드시 공개 의도를 선언하도록 요구합니다. 이로써 프라이버시가 기본값이 되고 공개는 명시적 예외가 되어 실수로 인한 정보 노출 위험을 줄입니다.
 </div>

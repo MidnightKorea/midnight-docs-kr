@@ -1,54 +1,26 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Bulletin board scenario"
-title: "Bulletin board scenario"
-description: "Learn how to implement an online version of a bulletin board using the Midnight API and Compact compiler."
+sidebar_label: "게시판 시나리오"
+title: "게시판 시나리오"
+description: "Midnight API와 Compact 컴파일러를 사용하여 온라인 게시판을 구현하는 방법을 알아봅니다."
 sidebar_position: 10
 ---
 
 # Bulletin board scenario
 
-Imagine an old-fashioned cork bulletin board on the wall in an office
-hallway.  This is a small bulletin board, with room for just a single
-piece of paper to be tacked up on it.  Here are the office rules for
-this bulletin board:
-1. Anyone can post a message on the board when it is vacant.
-2. Once someone has posted a message, no one else can take it down.
-   Only the person who posted that message may remove it.
+사무실 복도 벽에 걸린 작은 코르크 게시판을 떠올려 보세요. 종이 한 장만 핀으로 고정할 수 있는 크기입니다. 사무실 규칙은 다음과 같습니다:
+1. 게시판이 비어 있을 때 누구나 메시지를 올릴 수 있습니다.
+2. 메시지를 올린 사람만 그 메시지를 내릴 수 있습니다. 다른 사람은 내릴 수 없습니다.
 
-Be sure you understand these rules.  The following pages will refer
-back to them as 'rule 1' and 'rule 2'.  You can probably imagine
-extending them to include content restrictions or time limits on
-posts, but they are kept intentionally simple for this tutorial.
+이 규칙을 잘 기억해 두세요. 이후 페이지에서 '규칙 1'과 '규칙 2'로 참조합니다. 콘텐츠 제한이나 게시 시간 제한 같은 확장도 생각할 수 있지만, 이 튜토리얼에서는 의도적으로 간단하게 유지합니다.
 
-What does it look like to implement an online version of this bulletin
-board?  A globally shared space where anyone can update a message is
-easy to create, but how to enforce the rules?
+이 게시판의 온라인 버전은 어떤 모습일까요? 누구나 메시지를 업데이트할 수 있는 전역 공유 공간은 쉽게 만들 수 있지만, 규칙은 어떻게 강제할 수 있을까요?
 
-Rule 1 can be enforced using only the public state of the bulletin
-board: if it's empty, allow a new message to be posted, but if it's
-occupied, reject attempts to post a message.
+규칙 1은 게시판의 공개 상태만으로 강제할 수 있습니다. 비어 있으면 새 메시지 게시를 허용하고, 차 있으면 거부하면 됩니다.
 
-Rule 2 is more complicated, because it requires that the identity of
-the user attempting to remove a message be verified.  (In fact,
-there's another constraint hidden in the English statement of the rule
-when it refers to the person who 'posted *that* message.'  This implies
-that the user wanting to take down a post is able to prove not only
-their identity, but also that they tacked up that specific post.)
+규칙 2는 더 까다롭습니다. 메시지를 내리려는 사용자의 신원을 검증해야 하기 때문입니다. 사실 여기에는 숨겨진 제약이 하나 더 있습니다. 게시물을 내리려는 사용자가 자신의 신원뿐 아니라 해당 게시물을 자신이 올렸다는 것까지 증명할 수 있어야 합니다.
 
-One obvious way to enforce rule 2 is to make users 'log in' to the
-bulletin board system, so that the system can authenticate their
-identities.  This approach requires users to transmit evidence of
-their identities across the Internet to the bulletin board server,
-usually involving some sort of secret shared between each user and the
-server, which the server can verify.
+규칙 2를 강제하는 일반적인 방법은 사용자가 게시판 시스템에 '로그인'하여 신원을 인증하는 것입니다. 이 방식은 사용자가 인터넷을 통해 게시판 서버로 신원 증거를 전송해야 하며, 보통 사용자와 서버 사이에 공유 비밀이 필요합니다.
 
-Is there a better way?  With Midnight, yes there is.  You can
-contractually obligate anyone who wants to remove a message from the
-bulletin board to validate *for themselves, on their own computer*
-that they posted it.  Midnight can safely and reliably enforce the
-terms of the contract by requiring a machine-checkable proof that the
-validation has occurred, without requiring the private evidence of the
-user's identity to be transmitted across the Internet.
-
+더 나은 방법이 있을까요? Midnight를 사용하면 있습니다. 메시지를 제거하려는 사람에게 *자신의 컴퓨터에서 직접* 해당 메시지를 자신이 게시했음을 검증하도록 컨트랙트로 강제할 수 있습니다. Midnight는 사용자의 신원 정보를 인터넷으로 전송하지 않고도, 검증이 이루어졌다는 기계 검증 가능한 증명을 요구하여 컨트랙트 조건을 안전하게 적용합니다.

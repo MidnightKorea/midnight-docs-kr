@@ -6,86 +6,86 @@ id: account
 
 # Account model
 
-If you've built on Ethereum, Polygon, BSC, or any EVM-compatible chain, you're already intimately familiar with the Account model. But have you ever stopped to think about why things work the way they do? Why do you need to worry about nonces? Why does MEV exist? Why is achieving privacy so challenging?
+Ethereum, Polygon, BSC 등 EVM 호환 체인에서 개발해 본 경험이 있다면, account 모델은 이미 익숙할 것입니다. 하지만 왜 모든 것이 그렇게 작동하는지 깊이 생각해 본 적 있으신가요? 왜 nonce를 신경 써야 할까요? 왜 MEV가 존재할까요? 왜 프라이버시를 달성하기가 그토록 어려울까요?
 
-These aren't random quirks—they're direct consequences of the Account model's fundamental design. Understanding these connections will help you appreciate why Midnight's UTXO approach enables entirely different capabilities, particularly around privacy and parallelism. More importantly, it will help you understand when to use Midnight's account-style contract tokens versus UTXO-based ledger tokens.
+이런 문제들은 우연한 결함이 아니라, account 모델의 근본적인 설계에서 필연적으로 발생하는 결과입니다. 이러한 관계를 이해하면 Midnight의 UTXO 기반 접근 방식이, 특히 프라이버시와 병렬 처리 측면에서, 왜 근본적으로 다른 가능성을 열어주는지 이해할 수 있습니다. 더 중요한 것은, Midnight에서 account 스타일 contract token과 UTXO 기반 ledger token을 언제 사용해야 하는지 판단하는 데 도움이 된다는 점입니다.
 
 ## How accounts work
 
-In the Account model, the blockchain maintains a global state database where every address has an entry. Think of it as a massive, distributed spreadsheet that every node must keep in perfect sync:
+Account 모델에서 blockchain은 모든 주소에 대한 항목이 담긴 전역 상태 데이터베이스를 유지합니다. 모든 노드가 완벽하게 동기화해야 하는 거대한 분산 스프레드시트라고 생각하면 됩니다.
 
 ```solidity
 Account {
-    balance: uint256,        // How much ETH/native token
-    nonce: uint256,         // Transaction counter (prevents replay attacks)
-    codeHash: bytes32,      // Contract code reference (empty for EOAs)
-    storageRoot: bytes32    // Merkle root of contract storage tree
+    balance: uint256,        // ETH/네이티브 토큰 보유량
+    nonce: uint256,         // 트랜잭션 카운터 (재생 공격 방지)
+    codeHash: bytes32,      // 컨트랙트 코드 참조 (EOA의 경우 비어 있음)
+    storageRoot: bytes32    // 컨트랙트 스토리지 트리의 Merkle 루트
 }
 ```
 
-When you check your wallet balance, you're querying this global state. When you send a transaction, you're requesting an atomic update to this massive shared database. Every node must process these updates identically to maintain consensus.
+지갑 잔액을 확인할 때는 이 전역 상태를 조회하는 것이고, transaction을 전송할 때는 이 거대한 공유 데이터베이스의 원자적 업데이트를 요청하는 것입니다. 모든 노드가 consensus를 유지하려면 이러한 업데이트를 동일하게 처리해야 합니다.
 
-For smart contracts, each storageRoot points to another tree structure containing all the contract's variables:
+smart contract의 경우, 각 storageRoot는 contract의 모든 변수를 포함하는 또 다른 트리 구조를 가리킵니다.
 
 ```solidity
-// What you write in Solidity:
+// Solidity에서 작성하는 것:
 mapping(address => uint256) balances;
 uint256 totalSupply;
 
-// What's actually stored:
+// 실제로 저장되는 것:
 storageSlot[0x0] = totalSupply
 storageSlot[keccak256(address, 0x1)] = balances[address]
-// ... potentially millions more slots
+// ... 잠재적으로 수백만 개 이상의 슬롯
 ```
 
-Every token contract, every DEX, every NFT collection adds to this ever-growing state tree that nodes must maintain forever. This is why Ethereum node requirements keep increasing—the state never shrinks.
+모든 token contract, 모든 DEX, 모든 NFT 컬렉션이 노드가 영구적으로 유지해야 하는 이 끊임없이 커지는 상태 트리에 추가됩니다. Ethereum 노드 요구 사항이 계속 증가하는 이유가 바로 이것입니다 - 상태는 절대 줄어들지 않습니다.
 
 ## Transaction Lifecycle: The Atomic Dance
 
-When you submit a transaction in Ethereum, here's the precise sequence that unfolds:
+Ethereum에서 transaction을 제출하면 다음과 같은 순서로 진행됩니다.
 
-| Step | Action              | What Really Happens                                  | Failure Mode           |
+| 단계 | 동작              | 실제로 일어나는 일                                  | 실패 모드           |
 |------|---------------------|-------------------------------------------------------|------------------------|
-| 1    | Load State          | Node loads sender's account from global state        | Account doesn't exist  |
-| 2    | Validate Nonce      | Check tx nonce matches account nonce exactly         | Wrong nonce = rejected |
-| 3    | Check Balance       | Verify balance ≥ value + (gasPrice × gasLimit)       | Insufficient funds     |
-| 4    | Deduct Gas          | Reduce balance by maximum possible gas cost          | Always happens         |
-| 5    | Execute             | Run EVM code, updating multiple accounts             | Revert (lose gas)      |
-| 6    | Apply Changes       | Write all state changes to global tree               | State conflict         |
-| 7    | Refund Gas          | Return unused gas × gasPrice to sender               | N/A                    |
-| 8    | Update Nonce        | Increment sender's nonce by exactly 1                | N/A                    |
+| 1    | 상태 로드          | 노드가 전역 상태에서 발신자의 account를 로드        | Account가 존재하지 않음  |
+| 2    | Nonce 검증      | tx nonce가 account nonce와 정확히 일치하는지 확인         | 잘못된 nonce = 거부됨 |
+| 3    | 잔액 확인       | 잔액 ≥ 값 + (gasPrice × gasLimit) 확인       | 잔액 부족     |
+| 4    | 가스 차감          | 최대 가스 비용만큼 잔액 감소          | 항상 발생         |
+| 5    | 실행             | EVM 코드 실행, 여러 account 업데이트             | 리버트 (가스 손실)      |
+| 6    | 변경 적용       | 모든 상태 변경을 전역 트리에 기록               | 상태 충돌         |
+| 7    | 가스 환불          | 미사용 가스 × gasPrice를 발신자에게 반환               | N/A                    |
+| 8    | Nonce 업데이트        | 발신자의 nonce를 정확히 1 증가                | N/A                    |
 
-The critical insight: all affected accounts must be updated atomically. If your transaction touches 10 different token contracts, all 10 state updates must succeed together or all must fail together.
+핵심: 영향을 받는 모든 account가 원자적으로 업데이트되어야 합니다. transaction이 10개의 서로 다른 token contract에 영향을 미치면, 10개의 상태 업데이트가 모두 함께 성공하거나 모두 함께 실패해야 합니다.
 
 ## Nonces: Order from Chaos
 
-Nonces prevent replay attacks and enforce transaction ordering, but they create their own challenges:
+Nonce는 재생 공격을 방지하고 transaction 순서를 강제하지만, 그 자체로 새로운 문제를 만듭니다.
 
 ```solidity
-// Alice's account state
+// Alice의 account 상태
 {
     address: "0xAlice...",
     balance: 100 ETH,
-    nonce: 5  // Next transaction MUST use nonce 5
+    nonce: 5  // 다음 트랜잭션은 반드시 nonce 5를 사용해야 함
 }
 
-// What happens with transaction ordering:
-tx1: { nonce: 5, ... }  // ✅ Processes immediately
-tx2: { nonce: 7, ... }  // ❌ Must wait for nonce 6
-tx3: { nonce: 6, ... }  // ⏳ Unblocks tx2 when it arrives
-tx4: { nonce: 5, ... }  // ❌ Rejected - nonce already used
+// 트랜잭션 순서에서 일어나는 일:
+tx1: { nonce: 5, ... }  // ✅ 즉시 처리
+tx2: { nonce: 7, ... }  // ❌ nonce 6을 기다려야 함
+tx3: { nonce: 6, ... }  // ⏳ 도착하면 tx2를 차단 해제
+tx4: { nonce: 5, ... }  // ❌ 거부됨 - nonce가 이미 사용됨
 ```
 
-This sequential requirement is why sophisticated users run "nonce managers" and why dApps sometimes fail with "nonce too low" errors. In Midnight's UTXO model, each coin is independent—no sequence requirements, no stuck transactions.
+이 순차적 요구 사항 때문에 숙련된 사용자들은 "nonce 관리자"를 운영하고, DApp이 "nonce too low" 오류로 실패하기도 합니다. Midnight의 UTXO 모델에서는 각 코인이 독립적이므로 순서 요구 사항이 없고, transaction이 막히는 일도 없습니다.
 
-## Smart Contracts: The Global Computer
+## The Global Computer
 
-When you deploy a smart contract, you're adding executable code to the global state:
+Smart contract를 배포하면, 전역 상태에 실행 가능한 코드를 추가하는 것입니다.
 
 ```solidity
 contract SimpleToken {
     mapping(address => uint256) public balances;
-    
+
     function transfer(address to, uint256 amount) external {
         require(balances[msg.sender] >= amount, "Insufficient balance");
         balances[msg.sender] -= amount;
@@ -94,117 +94,117 @@ contract SimpleToken {
 }
 ```
 
-During execution:
+실행 과정:
 
-1. Every node loads the contract's code and storage
-2. Every node executes the exact same computation
-3. Every node applies the exact same state changes
-4. Every node must reach consensus on the result
+1. 모든 노드가 contract의 코드와 스토리지를 로드합니다
+2. 모든 노드가 정확히 동일한 연산을 실행합니다
+3. 모든 노드가 정확히 동일한 상태 변경을 적용합니다
+4. 모든 노드가 결과에 대해 consensus에 도달해야 합니다
 
-This redundancy ensures security but limits efficiency. If 10,000 nodes run the network, that transfer calculation happens 10,000 times. Midnight's approach with off-chain execution and zero-knowledge proofs eliminates this redundancy while maintaining security.
+이러한 중복성은 보안을 보장하지만 효율성을 제한합니다. 10,000개의 노드가 네트워크를 운영하면, 위의 transfer 계산이 10,000번 반복됩니다. Midnight는 오프체인 실행과 zero-knowledge proof 방식으로 보안을 유지하면서 이 중복성을 제거합니다.
 
-## MEV: The Dark Side of Transparency
+## The Dark Side of Transparency
 
-Maximum Extractable Value (MEV) isn't a bug—it's an inevitable consequence of transparent, sequential execution:
+MEV(Maximum Extractable Value)는 버그가 아니라, 투명하고 순차적인 실행에서 필연적으로 발생하는 현상입니다.
 
 ```solidity
-// 1. User submits DEX trade (visible in mempool)
+// 1. 사용자가 DEX 거래를 제출 (mempool에서 보임)
 userTrade = {
     to: "DEX",
-    data: "swap(USDC, ETH, 1000000)",  // Large trade will move price
+    data: "swap(USDC, ETH, 1000000)",  // 대량 거래가 가격을 변동시킴
     gasPrice: 100 gwei
 }
 
-// 2. MEV bot sees opportunity and front-runs
+// 2. MEV 봇이 기회를 포착하고 선행매매
 botTrade = {
-    to: "DEX", 
-    data: "swap(USDC, ETH, 50000)",   // Buy before price moves
-    gasPrice: 500 gwei                // Higher gas to go first
+    to: "DEX",
+    data: "swap(USDC, ETH, 50000)",   // 가격 변동 전에 매수
+    gasPrice: 500 gwei                // 먼저 처리되기 위해 가스를 높게 설정
 }
 
-// 3. Block includes: [botTrade, userTrade]
-// Bot profits from price movement they didn't create
+// 3. 블록에 포함: [botTrade, userTrade]
+// 봇이 자신이 만들지 않은 가격 변동으로 이익을 얻음
 ```
 
-MEV exists because:
+MEV가 존재하는 이유:
 
-* All pending transactions are visible
-* Execution order matters for profit
-* Higher gas prices buy priority
-* Global state makes outcomes predictable
+* 모든 대기 중인 transaction이 공개됨
+* 실행 순서가 이익에 영향을 미침
+* 더 높은 가스 가격으로 우선순위를 살 수 있음
+* 전역 상태가 결과를 예측 가능하게 만듦
 
-Midnight's private state and parallel execution naturally resist many MEV strategies—attackers can't exploit what they can't see.
+Midnight의 비공개 상태와 병렬 실행은 다수의 MEV 전략에 자연스럽게 대응합니다 - 공격자는 볼 수 없는 것을 악용할 수 없기 때문입니다.
 
 ## Privacy: The Impossible Dream?
 
-The Account model makes privacy exceptionally difficult:
+Account 모델은 프라이버시 확보를 매우 어렵게 만듭니다.
 
 ```solidity
-// Everything about your address is permanently public:
+// 주소에 대한 모든 것이 영구적으로 공개됩니다:
 YourAddress: 0x742d35Cc...
-├── Current Balance: 50.23 ETH
-├── Every Transaction Ever:
-│   ├── Received from Coinbase (links real identity)
-│   ├── Sent to DEX (reveals trading)
-│   ├── Interacted with lending protocol
-│   └── ... complete financial history
-└── All Token Balances:
+├── 현재 잔액: 50.23 ETH
+├── 지금까지의 모든 트랜잭션:
+│   ├── Coinbase에서 수신 (실제 신원 연결)
+│   ├── DEX로 전송 (거래 활동 노출)
+│   ├── 대출 프로토콜과 상호작용
+│   └── ... 완전한 금융 이력
+└── 모든 토큰 잔액:
     ├── 50,000 USDC
     ├── 10,000 DAI
-    └── ... every token ever held
+    └── ... 보유했던 모든 토큰
 ```
 
-Even privacy mixers only break links at specific points—everything before and after remains transparent. Midnight's UTXO model with selective shielding enables true transaction privacy without sacrificing the ability to prove compliance when needed.
+프라이버시 믹서조차도 특정 지점에서만 연결 고리를 끊을 뿐, 그 전후의 모든 것은 그대로 투명하게 남습니다. Midnight는 selective disclosure가 가능한 차폐 UTXO 모델을 채택하여, 규정 준수 증명 능력을 유지하면서도 진정한 transaction 프라이버시를 실현합니다.
 
 ## Why It Works (When It Works)
 
-Despite these challenges, the Account model excels in certain areas.
+이러한 한계에도 불구하고, account 모델은 특정 영역에서 강점을 발휘합니다.
 
 ### Developer Experience
 
 ```solidity
-// Intuitive mental model - just like programming class
+// 직관적인 멘탈 모델 - 프로그래밍 수업처럼
 contract Token {
     mapping(address => uint) balances;
-    
+
     function transfer(address to, uint amount) public {
         require(balances[msg.sender] >= amount);
-        balances[msg.sender] -= amount;  // Simple!
-        balances[to] += amount;          // Obvious!
+        balances[msg.sender] -= amount;  // 간단!
+        balances[to] += amount;          // 명확!
     }
 }
 ```
 
 ### Composability Power
 
-The shared global state enables complex interactions:
+공유 전역 상태 덕분에 복잡한 상호작용이 가능합니다.
 
-* Flash loans (borrow → use → repay atomically)
-* Multi-protocol strategies in one transaction
-* Rich contract-to-contract communication
-* Complex DeFi "money legos"
+* Flash loan (원자적으로 대출 → 사용 → 상환)
+* 하나의 transaction으로 다중 프로토콜 전략 실행
+* 풍부한 contract 간 통신
+* 복잡한 DeFi "머니 레고"
 
-This is why Midnight supports account-style tokens through Compact contracts—sometimes this model is exactly what you need.
+Midnight가 Compact contract를 통해 account 스타일 token을 지원하는 이유도 여기에 있습니다 - 때로는 이 모델이 정확히 필요한 것이기 때문입니다.
 
 ## Key Takeaways for Midnight Development
 
-Understanding the Account model deeply helps you make better architectural decisions:
+Account 모델을 깊이 이해하면 더 나은 아키텍처 결정에 도움이 됩니다.
 
-| Account Model Characteristic | Resulting Limitation       | Midnight's Solution                   |
+| Account 모델 특성 | 결과적 제한       | Midnight의 해법                   |
 |-----------------------------|-----------------------------|----------------------------------------|
-| Global shared state         | No privacy possible         | Shielded Tokens                        |
-| Sequential nonces           | Transaction bottlenecks     | Independent UTXO processing            |
-| Everything on-chain         | High gas costs              | Off-chain execution with proofs        |
-| Transparent mempool         | MEV exploitation            | Private transaction submission         |
+| 전역 공유 상태         | 프라이버시 불가능         | shielded token                        |
+| 순차적 nonce           | transaction 병목     | 독립적 UTXO 처리            |
+| 모든 것이 온체인         | 높은 가스 비용              | proof를 활용한 오프체인 실행        |
+| 투명한 mempool         | MEV 악용            | 비공개 transaction 제출         |
 
 
 ## When to Use Account-Style Tokens on Midnight
 
-Even with UTXO advantages, account-style patterns (through Compact contracts) make sense for:
+UTXO의 장점에도 불구하고, account 스타일 패턴(Compact contract 활용)이 적합한 경우가 있습니다.
 
-* Complex DeFi protocols requiring intricate state machines
-* Gaming systems with complex rules and interactions
-* Governance tokens with delegation mechanisms
-* Social tokens tracking relationships
+* 복잡한 상태 머신이 필요한 DeFi 프로토콜
+* 복잡한 규칙과 상호작용이 있는 게임 시스템
+* 위임 메커니즘이 있는 거버넌스 token
+* 관계를 추적하는 소셜 token
 
-The key insight: Midnight lets you choose the right model for each use case rather than forcing everything into one paradigm.
+핵심: Midnight는 모든 것을 하나의 패러다임에 강제하지 않고, 각 사용 사례에 맞는 모델을 선택할 수 있게 합니다.

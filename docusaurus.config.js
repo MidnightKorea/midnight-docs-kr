@@ -10,7 +10,7 @@ const darkCodeTheme = prismThemes.dracula;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Midnight Docs",
+  title: "Midnight Korea Docs",
   tagline: "Midnight DUST is cool",
   favicon: "img/favicon.ico",
 
@@ -19,12 +19,12 @@ const config = {
     "@docusaurus/theme-mermaid",
   ],
 
-  url: "https://docs.midnight.network",
-  baseUrl: "/",
+  url: "https://MidnightKorea.github.io",
+  baseUrl: "/midnight-docs-kr/",
   trailingSlash: false,
 
-  organizationName: "midnightntwrk",
-  projectName: "midnight-docs",
+  organizationName: "MidnightKorea",
+  projectName: "midnight-docs-kr",
 
   onBrokenLinks: "warn",
   onBrokenMarkdownLinks: "warn",

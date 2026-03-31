@@ -101,7 +101,7 @@ contract SimpleToken {
 3. 모든 노드가 정확히 동일한 상태 변경을 적용합니다
 4. 모든 노드가 결과에 대해 consensus에 도달해야 합니다
 
-이러한 중복성은 보안을 보장하지만 효율성을 제한합니다. 10,000개의 노드가 네트워크를 운영하면, 위의 transfer 계산이 10,000번 반복됩니다. Midnight는 오프체인 실행과 zero-knowledge proof 방식으로 보안을 유지하면서 이 중복성을 제거합니다.
+이러한 중복성은 보안을 보장하지만 효율성을 제한합니다. 10,000개의 노드가 네트워크를 운영하면, 위의 transfer 계산이 10,000번 반복됩니다. Midnight은 오프체인 실행과 zero-knowledge proof 방식으로 보안을 유지하면서 이 중복성을 제거합니다.
 
 ## The Dark Side of Transparency
 
@@ -154,7 +154,7 @@ YourAddress: 0x742d35Cc...
     └── ... 보유했던 모든 토큰
 ```
 
-프라이버시 믹서조차도 특정 지점에서만 연결 고리를 끊을 뿐, 그 전후의 모든 것은 그대로 투명하게 남습니다. Midnight는 selective disclosure가 가능한 차폐 UTXO 모델을 채택하여, 규정 준수 증명 능력을 유지하면서도 진정한 transaction 프라이버시를 실현합니다.
+프라이버시 믹서조차도 특정 지점에서만 연결 고리를 끊을 뿐, 그 전후의 모든 것은 그대로 투명하게 남습니다. Midnight은 selective disclosure가 가능한 차폐 UTXO 모델을 채택하여, 규정 준수 증명 능력을 유지하면서도 진정한 transaction 프라이버시를 실현합니다.
 
 ## Why It Works (When It Works)
 
@@ -207,4 +207,4 @@ UTXO의 장점에도 불구하고, account 스타일 패턴(Compact contract 활
 * 위임 메커니즘이 있는 거버넌스 token
 * 관계를 추적하는 소셜 token
 
-핵심: Midnight는 모든 것을 하나의 패러다임에 강제하지 않고, 각 사용 사례에 맞는 모델을 선택할 수 있게 합니다.
+핵심: Midnight은 모든 것을 하나의 패러다임에 강제하지 않고, 각 사용 사례에 맞는 모델을 선택할 수 있게 합니다.

@@ -11,16 +11,16 @@ import FlipCardGrid from '@site/src/components/FlipCard/FlipCardGrid';
 
 # Midnight이란?
 
-Midnight는 데이터 보호에 특화된 blockchain 플랫폼입니다. 민감한 데이터의 프라이버시를 지키면서 분산 원장의 장점을 활용할 수 있도록 설계되었습니다.
+Midnight은 데이터 보호에 특화된 blockchain 플랫폼입니다. 민감한 데이터의 프라이버시를 지키면서 분산 원장의 장점을 활용할 수 있도록 설계되었습니다.
 
-기존 blockchain에서는 모든 transaction이 참여자 전체에게 영구적으로 공개됩니다. 반면 Midnight는 selective disclosure를 지원합니다. 데이터 자체를 드러내지 않고도 해당 데이터가 특정 조건을 만족한다는 것을 증명할 수 있습니다. 덕분에 헬스케어, 금융, 공공 서비스처럼 데이터 보호가 법적으로 요구되는 규제 산업에서도 blockchain을 도입할 수 있습니다.
+기존 blockchain에서는 모든 transaction이 참여자 전체에게 영구적으로 공개됩니다. 반면 Midnight은 selective disclosure를 지원합니다. 데이터 자체를 드러내지 않고도 해당 데이터가 특정 조건을 만족한다는 것을 증명할 수 있습니다. 덕분에 헬스케어, 금융, 공공 서비스처럼 데이터 보호가 법적으로 요구되는 규제 산업에서도 blockchain을 도입할 수 있습니다.
 
 
 ## Core concepts
 
 ### Data protection blockchain
 
-Midnight는 두 가지 상태를 병렬로 관리합니다:
+Midnight은 두 가지 상태를 병렬로 관리합니다:
 
 - **Public state**: 온체인에 저장되어 모든 네트워크 참여자가 볼 수 있는 데이터입니다. Transaction proof, 컨트랙트 코드, 의도적으로 공개한 정보 등이 여기에 해당합니다.
 
@@ -29,7 +29,7 @@ Midnight는 두 가지 상태를 병렬로 관리합니다:
 
 ### Zero-knowledge proof
 
-Public state와 private state를 잇는 핵심 기술은 zero-knowledge cryptography입니다. Midnight는 zk-SNARK를 활용하여 다음과 같은 작업을 수행합니다:
+Public state와 private state를 잇는 핵심 기술은 zero-knowledge cryptography입니다. Midnight은 zk-SNARK를 활용하여 다음과 같은 작업을 수행합니다:
 - 입력 데이터를 보지 않고 연산 결과를 검증
 - 이유를 밝히지 않고 명제가 참임을 증명
 - 연산 복잡도와 무관하게 128바이트의 compact한 proof 생성
@@ -40,7 +40,7 @@ Public state와 private state를 잇는 핵심 기술은 zero-knowledge cryptogr
 
 ### Compact programming language
 
-Midnight는 TypeScript 기반의 도메인 특화 언어인 Compact를 제공합니다. 암호학 전문 지식 없이도 프라이버시를 보장하는 smart contract를 작성할 수 있으며, 코드는 자동으로 zero-knowledge circuit으로 컴파일됩니다.
+Midnight은 TypeScript 기반의 도메인 특화 언어인 Compact를 제공합니다. 암호학 전문 지식 없이도 프라이버시를 보장하는 smart contract를 작성할 수 있으며, 코드는 자동으로 zero-knowledge circuit으로 컴파일됩니다.
 
 ## Why Midnight
 
@@ -49,14 +49,14 @@ Midnight는 TypeScript 기반의 도메인 특화 언어인 Compact를 제공합
   <FlipCard
     title="규제는 데이터 통제를 요구합니다"
     frontContent="프라이버시 법률은 강력한 데이터 보호를 요구하지만, public blockchain은 모든 온체인 활동이 공개됩니다."
-    backContent="GDPR, CCPA, HIPAA 등의 규제 프레임워크는 개인 데이터에 대한 엄격한 통제를 요구합니다. Midnight는 필요한 정보만 통제된 방식으로 증명하여 공유할 수 있도록 지원합니다."
+    backContent="GDPR, CCPA, HIPAA 등의 규제 프레임워크는 개인 데이터에 대한 엄격한 통제를 요구합니다. Midnight은 필요한 정보만 통제된 방식으로 증명하여 공유할 수 있도록 지원합니다."
     height="240px"
   />
 
   <FlipCard
     title="Public chain은 너무 많은 것을 노출합니다"
     frontContent="조직에는 탈중앙화가 필요하지만, 완전히 공개된 ledger에 민감한 정보를 올릴 수는 없습니다."
-    backContent="Public chain은 잔액, 활동, 메타데이터가 모두 공개됩니다. Private chain은 기밀성은 높지만 탈중앙화가 약해집니다. Midnight는 public state와 private state를 결합하여 기밀성과 탈중앙화를 동시에 달성합니다."
+    backContent="Public chain은 잔액, 활동, 메타데이터가 모두 공개됩니다. Private chain은 기밀성은 높지만 탈중앙화가 약해집니다. Midnight은 public state와 private state를 결합하여 기밀성과 탈중앙화를 동시에 달성합니다."
     height="240px"
   />
 
@@ -88,13 +88,13 @@ Midnight에서 transaction이 처리되는 과정은 다음과 같습니다. 먼
 
 ### Network architecture
 
-Midnight는 proof-of-stake blockchain입니다. Validator는 stake delegation을 통해 누구나 참여할 수 있으며, 네트워크 보안에 기여한 대가로 보상을 받습니다. Cardano와의 네이티브 브릿지를 통해 두 체인 간 자산 전송도 지원합니다.
+Midnight은 proof-of-stake blockchain입니다. Validator는 stake delegation을 통해 누구나 참여할 수 있으며, 네트워크 보안에 기여한 대가로 보상을 받습니다. Cardano와의 네이티브 브릿지를 통해 두 체인 간 자산 전송도 지원합니다.
 
 네트워크는 두 가지 유형의 transaction을 처리합니다. 하나는 기존 blockchain과 동일한 표준 public transaction이고, 다른 하나는 프라이버시 보호를 위해 zero-knowledge proof를 사용하는 shielded transaction입니다. 두 유형 모두 동일한 validator 집합이 검증하므로 네트워크 전반에 걸쳐 일관된 보안이 유지됩니다.
 
 ### Privacy guarantees
 
-Midnight는 여러 계층에 걸친 프라이버시 보호를 제공합니다. Data minimization 원칙에 따라 필수 데이터만 온체인에 기록하고, 민감한 정보는 로컬에 보관합니다. Forward secrecy를 통해 과거 데이터도 보호합니다. 향후 암호화 키가 유출되더라도 과거 transaction은 비공개로 유지됩니다.
+Midnight은 여러 계층에 걸친 프라이버시 보호를 제공합니다. Data minimization 원칙에 따라 필수 데이터만 온체인에 기록하고, 민감한 정보는 로컬에 보관합니다. Forward secrecy를 통해 과거 데이터도 보호합니다. 향후 암호화 키가 유출되더라도 과거 transaction은 비공개로 유지됩니다.
 
 사용자는 selective disclosure로 어떤 정보를 누구에게 공개할지 세밀하게 제어할 수 있습니다. 규제 대상 기관을 위해서는 선택적 컴플라이언스 메커니즘도 제공합니다. 사용자 프라이버시를 침해하거나 비인가자에게 데이터를 노출하지 않으면서도 관계 당국에 필요한 정보를 보고할 수 있습니다.
 
@@ -106,7 +106,7 @@ Midnight는 여러 계층에 걸친 프라이버시 보호를 제공합니다. D
   <FlipCard
     title="AI와 데이터 분석"
     frontContent="입력값이나 모델 세부사항을 노출하지 않고 민감한 데이터에 대한 분석과 추론을 실행합니다."
-    backContent="Midnight는 분석 및 AI 워크플로우에서 비공개 연산을 지원합니다. 애플리케이션은 암호화된 입력값을 로컬에서 처리하고, 정확성에 대한 proof를 생성한 뒤, 검증된 출력값만 공유합니다. 데이터셋이나 파라미터를 공개하지 않고도 공정성, 컴플라이언스, 모델 동작을 증명할 수 있습니다."
+    backContent="Midnight은 분석 및 AI 워크플로우에서 비공개 연산을 지원합니다. 애플리케이션은 암호화된 입력값을 로컬에서 처리하고, 정확성에 대한 proof를 생성한 뒤, 검증된 출력값만 공유합니다. 데이터셋이나 파라미터를 공개하지 않고도 공정성, 컴플라이언스, 모델 동작을 증명할 수 있습니다."
     height="220px"
   />
 
@@ -120,7 +120,7 @@ Midnight는 여러 계층에 걸친 프라이버시 보호를 제공합니다. D
   <FlipCard
     title="거버넌스와 신원 확인"
     frontContent="사용자 신원을 노출하지 않고 투표, 멤버십, 자격 증명을 수행합니다."
-    backContent="Midnight는 selective disclosure credential과 비공개 투표를 지원합니다. 전체 신원이나 활동 이력을 공개하지 않고도 멤버십, 자격, 참여를 증명할 수 있습니다. 최종 결과는 공개적으로 검증 가능하지만, 개별 행동은 비공개로 유지됩니다."
+    backContent="Midnight은 selective disclosure credential과 비공개 투표를 지원합니다. 전체 신원이나 활동 이력을 공개하지 않고도 멤버십, 자격, 참여를 증명할 수 있습니다. 최종 결과는 공개적으로 검증 가능하지만, 개별 행동은 비공개로 유지됩니다."
     height="220px"
   />
 

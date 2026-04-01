@@ -19,8 +19,8 @@ const config = {
     "@docusaurus/theme-mermaid",
   ],
 
-  url: "https://MidnightKorea.github.io",
-  baseUrl: "/midnight-docs-kr/",
+  url: "https://docs.midnightkorea.org",
+  baseUrl: "/",
   trailingSlash: false,
 
   organizationName: "MidnightKorea",

@@ -7,25 +7,26 @@ authors: kevin
 tags: [compact]
 image: /img/blog/zkp.jpg
 date: 2025-08-20
+description: "Compact 컨트랙트의 온체인 런타임과 공개 원장 상태 업데이트 동작 원리를 심층 분석합니다"
 ---
 # Compact Deep Dive - Part 3: The On-chain Runtime
 
-This blog post is the third part of the Compact Deep Dive series, which explores how Compact contracts work on the Midnight network.
-Each article focuses on a different technical topic and can be read on its own, but together they provide a fuller picture of how Compact functions in practice.
-The first two parts can be found here:
+이 블로그 글은 Compact Deep Dive 시리즈의 세 번째 파트로, Compact 컨트랙트가 Midnight 네트워크에서 어떻게 동작하는지를 다룹니다.
+각 글은 서로 다른 기술 주제에 초점을 맞추며 독립적으로 읽을 수 있지만, 함께 읽으면 Compact이 실제로 어떻게 작동하는지 더 완전한 그림을 제공합니다.
+처음 두 파트는 아래에서 확인할 수 있습니다:
 
 - [Part 1: Top-level Contract Structure](https://docs.midnight.network/blog/compact)
 - [Part 2: Circuits and Witnesses](https://docs.midnight.network/blog/compact-2)
 
-This article looks at the on-chain runtime and how public ledger state updates happen in your DApp.
+이 글에서는 온체인 런타임과 DApp에서 공개 원장 상태 업데이트가 어떻게 이루어지는지 살펴봅니다.
 
 # The Bulletin Board's `post` Circuit
 
-In the previous parts we used the Bulletin Board example DApp to take a look at contract structure and the implementation of circuits and witnesses.
-We saw that a contract's exported circuits, such as `post` from the Bulletin Board example, had an outer "wrapper" that called the actual implementation.
-We will now take a look at that actual implementation.
+이전 파트에서는 Bulletin Board 예제 DApp을 통해 컨트랙트 구조와 서킷 및 위트니스 구현을 살펴보았습니다.
+컨트랙트의 내보내기된 서킷(예: Bulletin Board 예제의 `post`)에는 실제 구현을 호출하는 외부 "래퍼"가 있다는 것을 확인했습니다.
+이제 그 실제 구현을 살펴보겠습니다.
 
-Recall the Compact implementation of `post`:
+`post`의 Compact 구현을 다시 떠올려 보겠습니다:
 
 ```compact
 export circuit post(newMessage: Opaque<"string">): [] {
@@ -36,16 +37,16 @@ export circuit post(newMessage: Opaque<"string">): [] {
 }
 ```
 
-It reads the `state` field from the contract's public ledger state and asserts that the bulletin board is vacant.
-Then it calls the witness `localSecretKey` and uses the return value to derive `poster`, a commitment to the post's author.
-Finally, it updates three ledger fields (`poster`, `message`, and `state`).
+이 서킷은 컨트랙트의 공개 원장 상태에서 `state` 필드를 읽고 게시판이 비어 있는지 확인합니다.
+그런 다음 위트니스 `localSecretKey`를 호출하고 반환 값을 사용하여 게시물 작성자에 대한 커밋먼트인 `poster`를 생성합니다.
+마지막으로 세 개의 원장 필드(`poster`, `message`, `state`)를 업데이트합니다.
 
-We compiled the contract with version 0.25.0 of the Compact compiler.
-Note that this is a different version than the one used in parts one and two of this series.
-If you use a different version, the implementation details might be different.
-The implementation of `post` is in a JavaScript function called `_post_0`.
-Every line of this function has something new to learn about the way that Compact works, so we will go line by line through it.
-The first line of this function corresponds to the first line of the Compact circuit:
+컨트랙트는 Compact 컴파일러 버전 0.25.0으로 컴파일했습니다.
+이 시리즈의 파트 1, 2에서 사용한 것과는 다른 버전입니다.
+다른 버전을 사용하면 구현 세부 사항이 달라질 수 있습니다.
+`post`의 구현은 `_post_0`이라는 JavaScript 함수에 있습니다.
+이 함수의 모든 줄에서 Compact의 동작 방식에 대해 새로운 것을 배울 수 있으므로, 한 줄씩 살펴보겠습니다.
+이 함수의 첫 줄은 Compact 서킷의 첫 줄에 해당합니다:
 
 ```javascript
 _post_0(context, partialProofData, newMessage_0) {
@@ -69,69 +70,67 @@ _post_0(context, partialProofData, newMessage_0) {
     'Attempted to post to an occupied board');
 ```
 
-(Here and below we have reformatted the JavaScript code to fit better on screen.  The only change is the indentation.)
-We will read this line of JavaScript from the inside out.
-The very first subexpression evaluated in the Compact `post` circuit is simply `state`, which is a read of the ledger's `state` field.
-This also must be the first thing evaluated in the JavaScript implementation.
-It is implemented by a call to a compiler-generated static method `_query` on the `Contract` class.
-(We will take a closer look at `Contract._query` in the next article in this series.)
+(여기서와 이후에서 JavaScript 코드를 화면에 더 잘 맞도록 재포맷했습니다. 변경된 것은 들여쓰기뿐입니다.)
+이 JavaScript 줄을 안쪽부터 바깥쪽으로 읽어보겠습니다.
+Compact `post` 서킷에서 가장 먼저 평가되는 부분식은 단순히 `state`로, 원장의 `state` 필드를 읽는 것입니다.
+이것이 JavaScript 구현에서도 가장 먼저 평가되어야 합니다.
+이는 `Contract` 클래스의 컴파일러 생성 정적 메서드 `_query` 호출로 구현됩니다.
+(`Contract._query`는 이 시리즈의 다음 글에서 자세히 살펴보겠습니다.)
 
-Recall what is happening when `_post_0` is executed in your DApp.
-The JavaScript code is running locally on a user's machine, with full access to private data from the witnesses it uses.
-After running the code, the proof server will be used to construct a zero-knowledge (ZK) proof that it did run that code.
-Then, a transaction will be submitted to the Midnight chain.
-If the chain verifies the proof, the public ledger state updates specified by the circuit implementation will be performed.
+`_post_0`이 DApp에서 실행될 때 무슨 일이 일어나는지 떠올려 보세요.
+JavaScript 코드는 사용자의 머신에서 로컬로 실행되며, 사용하는 위트니스의 개인 데이터에 완전히 접근할 수 있습니다.
+코드 실행 후, 프루프 서버를 사용하여 해당 코드가 실제로 실행되었다는 영지식(ZK) 증명이 구성됩니다.
+그런 다음 트랜잭션이 Midnight 체인에 제출됩니다.
+체인이 증명을 검증하면, 서킷 구현에서 지정한 공개 원장 상태 업데이트가 수행됩니다.
 
-The Midnight node uses the [Impact VM](https://docs.midnight.network/develop/how-midnight-works/impact),
-a stack-based virtual machine, to perform public ledger state updates.
-This machine executes a program in a bytecode language called **Impact**.
-We use the same Impact VM to perform updates to a local copy of the public state when we are running your DApp's code locally before submitting a transaction.
+Midnight 노드는 공개 원장 상태 업데이트를 수행하기 위해 스택 기반 가상 머신인 [Impact VM](https://docs.midnight.network/develop/how-midnight-works/impact)을 사용합니다.
+이 머신은 **Impact**라는 바이트코드 언어로 작성된 프로그램을 실행합니다.
+트랜잭션을 제출하기 전에 DApp에서 공개 상태의 로컬 복사본을 업데이트할 때도 동일한 Impact VM을 사용합니다.
 
 # The On-Chain Runtime and the Impact VM
 
-The Compact runtime package includes an embedded version of the on-chain runtime.
-This is the exact same Rust code that is used to implement the Midnight ledger on the Midnight network nodes.
-For the Compact runtime, it is compiled to WebAssembly and imported as the [on-chain runtime](https://docs.midnight.network/develop/reference/midnight-api/onchain-runtime/) package.
-You can actually use this package directly in your DApp, though much of it is re-exported by the higher-level Compact runtime.
-Sometimes the Compact runtime provides wrapped versions that have a higher-level API
-(specifically, using JavaScript representations instead of the ledger's native binary representation).
+Compact 런타임 패키지에는 온체인 런타임의 내장 버전이 포함되어 있습니다.
+이것은 Midnight 네트워크 노드에서 Midnight 원장을 구현하는 데 사용되는 것과 정확히 동일한 Rust 코드입니다.
+Compact 런타임용으로는 WebAssembly로 컴파일되어 [온체인 런타임](https://docs.midnight.network/develop/reference/midnight-api/onchain-runtime/) 패키지로 가져옵니다.
+이 패키지를 DApp에서 직접 사용할 수 있으며, 상당 부분은 상위 수준의 Compact 런타임에서 재내보내기됩니다.
+경우에 따라 Compact 런타임은 상위 수준 API를 가진 래핑된 버전을 제공합니다
+(구체적으로, 원장의 네이티브 바이너리 표현 대신 JavaScript 표현을 사용합니다).
 
 :::note
-If you use the on-chain runtime package directly in your DApp, it is very important to remember that you are working with a snapshot of the public state.
-This snapshot was obtained from a Midnight indexer, but while your DApp is running, the chain itself is progressing with other transactions for the same contract.
-That's part of what it means for a DApp to be "decentralized".
+DApp에서 온체인 런타임 패키지를 직접 사용하는 경우, 공개 상태의 스냅샷으로 작업하고 있다는 점을 반드시 기억하세요.
+이 스냅샷은 Midnight 인덱서에서 가져온 것이지만, DApp이 실행되는 동안 체인 자체는 동일한 컨트랙트에 대한 다른 트랜잭션으로 진행되고 있습니다.
+이것이 DApp이 "탈중앙화"되어 있다는 것의 일부입니다.
 :::
 
-The Impact VM performs public ledger state updates, immediately in your DApp's copy and later (when the transaction is run) on chain.
-There are a host of reasons to use the exact same VM:
+Impact VM은 공개 원장 상태 업데이트를 수행합니다. DApp의 복사본에서는 즉시 수행되고, 이후 트랜잭션이 실행될 때 온체인에서 수행됩니다.
+정확히 동일한 VM을 사용하는 데에는 여러 가지 이유가 있습니다:
 
-- Transaction semantics will be identical.
-- It saves engineering work to implement it (and update it and maintain it) once.
-- We will need the Impact program to compute fees for the transaction.
-- The ZK proof will be about this **specific** Impact program.
+- 트랜잭션 의미론이 동일합니다.
+- 한 번만 구현(및 업데이트, 유지보수)하면 되므로 엔지니어링 작업을 절약합니다.
+- 트랜잭션의 수수료를 계산하려면 Impact 프로그램이 필요합니다.
+- ZK 증명은 이 **특정** Impact 프로그램에 대한 것입니다.
 
-The Impact VM is a stack-based machine.
-Transactions operate on a stack of values, which are encoded in the ledger's binary representation.
-The transaction always starts with three values on the stack:
+Impact VM은 스택 기반 머신입니다.
+트랜잭션은 원장의 바이너리 표현으로 인코딩된 값의 스택에서 동작합니다.
+트랜잭션은 항상 스택에 세 개의 값으로 시작합니다:
 
-1. First (at the base of the stack), a **context** object for the transaction.
-1. Second, an **effects** object collecting actions performed by the transaction.
-1. Third, the contract's public state.
+1. 첫 번째(스택 맨 아래), 트랜잭션의 **컨텍스트** 객체.
+1. 두 번째, 트랜잭션이 수행한 작업을 수집하는 **이펙트** 객체.
+1. 세 번째, 컨트랙트의 공개 상태.
 
-When a transaction completes, these three values are left on the stack in the same order.
-Values on the VM's stack are immutable.
-For instance, a state update is accomplished by **replacing** the state third on the stack with a new one
-(rather than **mutating** the existing state value).
+트랜잭션이 완료되면 이 세 값이 같은 순서로 스택에 남습니다.
+VM 스택의 값은 불변입니다.
+예를 들어, 상태 업데이트는 스택에서 세 번째에 있는 기존 상태 값을 **변경**하는 것이 아니라 새 값으로 **교체**하여 수행됩니다.
 
-The third argument to `Contract._query` is an array of `Op`s which are JavaScript representations of Impact VM instructions.
-`Op` is a type [defined](https://docs.midnight.network/develop/reference/midnight-api/onchain-runtime/type-aliases/Op) in the on-chain runtime.
-Transactions will use a [binary encoding](https://docs.midnight.network/develop/how-midnight-works/impact#programs) of these instructions.
-The array of instructions is a partial Impact program.
-A whole program will be built up for the transaction, usually with multiple calls to `Contract._query`.
+`Contract._query`의 세 번째 인수는 Impact VM 명령어의 JavaScript 표현인 `Op` 배열입니다.
+`Op`은 온체인 런타임에 [정의된](https://docs.midnight.network/develop/reference/midnight-api/onchain-runtime/type-aliases/Op) 타입입니다.
+트랜잭션은 이 명령어의 [바이너리 인코딩](https://docs.midnight.network/develop/how-midnight-works/impact#programs)을 사용합니다.
+명령어 배열은 부분적인 Impact 프로그램입니다.
+전체 프로그램은 일반적으로 여러 번의 `Contract._query` 호출을 통해 구성됩니다.
 
 # Ledger Read Operations
 
-The Impact code for the ledger read of the field `state` from above was:
+위에서 본 `state` 필드의 원장 읽기에 대한 Impact 코드는 다음과 같았습니다:
 
 ```javascript
 [
@@ -146,64 +145,63 @@ The Impact code for the ledger read of the field `state` from above was:
              result: undefined } }]
 ```
 
-The first instruction is `dup 0`.
-Instructions will find their inputs on the Impact VM's stack.
-They can also have operands which are encoded as part of the instruction, such as the zero in `dup 0`.
+첫 번째 명령어는 `dup 0`입니다.
+명령어는 Impact VM 스택에서 입력을 찾습니다.
+`dup 0`의 0처럼 명령어의 일부로 인코딩된 피연산자를 가질 수도 있습니다.
 
-The `dup N` instruction **duplicates** a value on the stack.
-The value is found *N* elements below the top of the stack, so *N*=0 is the top of the stack.
-Since this is the first Impact instruction in a `post` transaction, that will be the public ledger state value.
+`dup N` 명령어는 스택의 값을 **복제**합니다.
+값은 스택 맨 위에서 *N* 요소 아래에 있으므로, *N*=0은 스택 맨 위입니다.
+이것이 `post` 트랜잭션의 첫 번째 Impact 명령어이므로, 스택 맨 위는 공개 원장 상태 값이 됩니다.
 
-Before `dup 0`, the Impact VM's stack had `<context effects ledger0>` in order from the base to the top of the stack.
-`ledger0` is the initial ledger state of this transaction.
-After `dup 0`, it will have `<context effects ledger0 ledger0>` with two copies of the ledger state on top of the stack.
-This allows subsequent instructions which consume values to execute without losing the public ledger state.
+`dup 0` 전에 Impact VM의 스택은 스택 바닥부터 위쪽 순서로 `<context effects ledger0>`이었습니다.
+`ledger0`은 이 트랜잭션의 초기 원장 상태입니다.
+`dup 0` 후에는 원장 상태의 복사본 두 개가 스택 위에 있는 `<context effects ledger0 ledger0>`이 됩니다.
+이를 통해 값을 소비하는 후속 명령어가 공개 원장 상태를 잃지 않고 실행할 수 있습니다.
 
-The second instruction is `idx [0]`.
-This instruction **indexes** into the top value on the stack, extracting a subpart of it.
-It removes the top value on the stack and replaces it with the extracted subpart.
-The instruction's operand is a path, a sequence of ledger-encoded values (or a special tag `stack`).
-The two different encodings of values, and the descriptors that convert between them, were described in [Part 2](https://docs.midnight.network/blog/compact-2#descriptors).
-Here the instruction uses `_descriptor_9`:
+두 번째 명령어는 `idx [0]`입니다.
+이 명령어는 스택 맨 위의 값에 **인덱싱**하여 그 일부를 추출합니다.
+스택 맨 위의 값을 제거하고 추출된 부분으로 교체합니다.
+명령어의 피연산자는 경로로, 원장으로 인코딩된 값(또는 특수 태그 `stack`)의 시퀀스입니다.
+두 가지 서로 다른 값 인코딩과 이들 간의 변환을 수행하는 디스크립터는 [Part 2](https://docs.midnight.network/blog/compact-2#descriptors)에서 설명했습니다.
+여기서 명령어는 `_descriptor_9`를 사용합니다:
 
 ```javascript
 const _descriptor_9 = new __compactRuntime.CompactTypeUnsignedInteger(255n, 1);
 ```
 
-This is an instance of [`CompactTypeUnsignedInteger`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/classes/CompactTypeUnsignedInteger)
-from the Compact runtime.
-It takes a maximum value and a size in bytes.
-So this is the descriptor for a one byte unsigned integer with a maximum value of 255 (that is, just an unsigned byte).
-The value `0n` is the public ledger state index that the Compact compiler has assigned to the `state` field.
+이것은 Compact 런타임의 [`CompactTypeUnsignedInteger`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/classes/CompactTypeUnsignedInteger) 인스턴스입니다.
+최대값과 바이트 크기를 인수로 받습니다.
+따라서 이것은 최대값 255인 1바이트 부호 없는 정수(즉, 단순한 부호 없는 바이트)의 디스크립터입니다.
+값 `0n`은 Compact 컴파일러가 `state` 필드에 할당한 공개 원장 상태 인덱스입니다.
 
-Impact has four different indexing instructions: `idx`, `idxc` (cached), `idxp` (push path), and `idxpc` (push path, cached).
-In the JavaScript representation of instructions, we simply use a pair of boolean properties giving the same four variants.
-`cached` is true when the value being accessed has already been accessed (that is, read or written) in the same transaction.
-It can potentially be used for assigning different fees for cached and uncached accesses.
-In this case, we have not accessed the `state` ledger field yet in the transaction.
-`pushPath` is a variant that leaves a path in place on the stack for a subsequent write operation.
+Impact에는 네 가지 서로 다른 인덱싱 명령어가 있습니다: `idx`, `idxc`(캐시됨), `idxp`(경로 푸시), `idxpc`(경로 푸시, 캐시됨).
+JavaScript 명령어 표현에서는 동일한 네 가지 변형을 제공하는 불리언 속성 쌍으로 구분합니다.
+`cached`는 접근 중인 값이 동일한 트랜잭션에서 이미 접근(즉, 읽기 또는 쓰기)된 경우 true입니다.
+이는 캐시된 접근과 캐시되지 않은 접근에 서로 다른 수수료를 부과하는 데 잠재적으로 사용될 수 있습니다.
+여기서는 트랜잭션에서 아직 `state` 원장 필드에 접근하지 않았습니다.
+`pushPath`는 후속 쓰기 작업을 위해 경로를 스택에 남겨두는 변형입니다.
 
-Before `idx [0]`, the VM's stack had `<context effects ledger0 ledger0>`.
-After `idx [0]`, it will have `<context effects ledger0 state>` (where `ledger0` is the entire public ledger state and `state` is the value of the field with that name).
+`idx [0]` 전에 VM의 스택은 `<context effects ledger0 ledger0>`이었습니다.
+`idx [0]` 후에는 `<context effects ledger0 state>`가 됩니다(`ledger0`은 전체 공개 원장 상태이고 `state`는 해당 이름의 필드 값입니다).
 
-The third instruction is `popeq`.
-This instruction **pops** the top value from the VM's stack.
-The Impact VM can run in two different modes.
-It runs in **gathering** mode when it runs locally in a DApp.
-It runs in **verifying** mode when it executes a contract's public ledger state updates on chain.
-In gathering mode the popped value is collected (it's used by `Contract._query` as the result of this ledger read).
-In verifying mode the VM will ensure that the popped value is equal to the instruction's operand.
-Here we are running in gathering mode, so the instruction's `result` operand is the JavaScript `undefined` value.
+세 번째 명령어는 `popeq`입니다.
+이 명령어는 VM 스택 맨 위의 값을 **팝**합니다.
+Impact VM은 두 가지 모드로 실행될 수 있습니다.
+DApp에서 로컬로 실행될 때는 **수집(gathering)** 모드로 실행됩니다.
+체인에서 컨트랙트의 공개 원장 상태 업데이트를 실행할 때는 **검증(verifying)** 모드로 실행됩니다.
+수집 모드에서는 팝된 값이 수집됩니다(`Contract._query`에서 이 원장 읽기의 결과로 사용됩니다).
+검증 모드에서는 VM이 팝된 값이 명령어의 피연산자와 같은지 확인합니다.
+여기서는 수집 모드로 실행 중이므로 명령어의 `result` 피연산자는 JavaScript의 `undefined` 값입니다.
 
-Before `popeq`, the VM's stack had `<context effects ledger0 state>`.
-After `popeq`, it will have `<context effects ledger0>`.
+`popeq` 전에 Impact VM의 스택은 `<context effects ledger0 state>`이었습니다.
+`popeq` 후에는 `<context effects ledger0>`이 됩니다.
 
-These three simple VM instructions implement a top-level ledger read.
+이 세 가지 간단한 VM 명령어가 최상위 원장 읽기를 구현합니다.
 
 # Assert in Circuits
 
-The `post` circuit asserts that the bulletin board's state is vacant.
-This is implemented by the JavaScript code from above (with the Impact instructions elided):
+`post` 서킷은 게시판의 상태가 비어 있는지를 확인합니다.
+이는 위의 JavaScript 코드로 구현됩니다(Impact 명령어는 생략):
 
 ```javascript
 __compactRuntime.assert(
@@ -217,33 +215,33 @@ __compactRuntime.assert(
   'Attempted to post to an occupied board');
 ```
 
-`Contract._query` returns an object with a ledger-encoded result.
-`_descriptor_0` is the descriptor for the the `State` enumeration type, so `_descriptor_0.fromValue` is used to convert it to one of the enumeration values `VACANT=0` or `OCCUPIED=1`.
-This value is compared via JavaScript's strict equality operator to the vacant value (zero).
-The assertion itself is implemented by a call to the Compact runtime's `assert` function.
-If the condition is not true, this will cause the DApp's `post` transaction to fail without ever reaching the Midnight chain.
+`Contract._query`는 원장으로 인코딩된 결과를 가진 객체를 반환합니다.
+`_descriptor_0`은 `State` 열거형 타입의 디스크립터이므로, `_descriptor_0.fromValue`를 사용하여 `VACANT=0` 또는 `OCCUPIED=1` 열거형 값 중 하나로 변환합니다.
+이 값은 JavaScript의 엄격한 동등 연산자를 통해 비어 있는 값(0)과 비교됩니다.
+어서션 자체는 Compact 런타임의 `assert` 함수 호출로 구현됩니다.
+조건이 true가 아니면 DApp의 `post` 트랜잭션은 Midnight 체인에 도달하지 않고 실패합니다.
 
-Provided that the assertion succeeds when running the DApp locally, the ZK proof will prove that it suceeded.
-When the proof is verified on chain, the Midnight network will then know that this assertion was true.
+DApp을 로컬에서 실행할 때 어서션이 성공하면, ZK 증명은 그것이 성공했음을 증명합니다.
+온체인에서 증명이 검증되면, Midnight 네트워크는 이 어서션이 참이었음을 알게 됩니다.
 
-The on-chain Impact program will not directly assert this property (that `state` was `State.VACANT`).
-However, when the `popeq` instruction is run in verifying mode, it will have an operand that indicates the actual value that was popped locally in the DApp.
-So specifically, if the DApp successfully built a `post` transaction, that instruction will be `popeq 0`.
+온체인 Impact 프로그램은 이 속성(`state`가 `State.VACANT`이었음)을 직접 확인하지 않습니다.
+그러나 `popeq` 명령어가 검증 모드에서 실행될 때, DApp에서 로컬로 팝된 실제 값을 나타내는 피연산자를 갖게 됩니다.
+따라서 구체적으로, DApp이 성공적으로 `post` 트랜잭션을 구성했다면, 해당 명령어는 `popeq 0`이 됩니다.
 
-This is subtly different from asserting that the `state` field was 0.
-If the `assert` were removed from the Compact program and the ledger field read remained,
-then the Impact program run on chain could have either `popeq 0` or `popeq 1` depending on the actual value that was read by the DApp.
+이것은 `state` 필드가 0이었다고 확인하는 것과 미묘하게 다릅니다.
+Compact 프로그램에서 `assert`를 제거하고 원장 필드 읽기만 남겨두면,
+온체인에서 실행되는 Impact 프로그램은 DApp이 읽은 실제 값에 따라 `popeq 0` 또는 `popeq 1`이 될 수 있습니다.
 
 # Circuit and Witness Calls
 
-The second line of the Compact `post` circuit is:
+Compact `post` 서킷의 두 번째 줄은 다음과 같습니다:
 
 ```compact
 poster = disclose(publicKey(localSecretKey(), instance as Field as Bytes<32>));
 ```
 
-This is a write to the ledger's `poster` field.
-The right-hand side of the write operation is implemented by the JavaScript code:
+이것은 원장의 `poster` 필드에 대한 쓰기입니다.
+쓰기 연산의 우변은 다음 JavaScript 코드로 구현됩니다:
 
 ```javascript
 const tmp_0 = this._publicKey_0(
@@ -266,60 +264,59 @@ const tmp_0 = this._publicKey_0(
                      result: undefined } }]).value)));
 ```
 
-The compiler has named this value `tmp_0` so it can refer to it later.
+컴파일러는 나중에 참조할 수 있도록 이 값을 `tmp_0`이라고 명명했습니다.
 
-The call to the witness `localSecretKey` has been compiled into a call to the `_localSecretKey_0` method of the contract.
-Recall from [Part 2](https://docs.midnight.network/blog/compact-2#witnesses) that this method is a wrapper around the DApp-provided witness implementation.
-The wrapper performs some type checks on the witness return value, and it records that return value as one of the transaction's private inputs.
+위트니스 `localSecretKey` 호출은 컨트랙트의 `_localSecretKey_0` 메서드 호출로 컴파일되었습니다.
+[Part 2](https://docs.midnight.network/blog/compact-2#witnesses)에서 설명한 것처럼, 이 메서드는 DApp이 제공하는 위트니스 구현의 래퍼입니다.
+래퍼는 위트니스 반환 값에 대한 타입 검사를 수행하고, 해당 반환 값을 트랜잭션의 비공개 입력 중 하나로 기록합니다.
 
-The Impact code above implements the read of the ledger's `instance` field.
-It is nearly the same as the code for the read of `state`.
-The difference is that the Compact compiler has assigned `instance` to index 2.
+위의 Impact 코드는 원장의 `instance` 필드 읽기를 구현합니다.
+`state` 읽기 코드와 거의 동일합니다.
+차이점은 Compact 컴파일러가 `instance`에 인덱스 2를 할당했다는 것입니다.
 
-The field `instance` has a `Counter` ledger type.
-Reading it in Compact [gives a `Uint<64>`](https://docs.midnight.network/develop/reference/compact/ledger-adt#read-1).
-The ledger representation of this value is converted to the JavaScript representation (`bigint`) using `_descriptor_1`:
+`instance` 필드는 `Counter` 원장 타입을 가집니다.
+Compact에서 읽으면 [`Uint<64>`를 반환합니다](https://docs.midnight.network/develop/reference/compact/ledger-adt#read-1).
+이 값의 원장 표현은 `_descriptor_1`을 사용하여 JavaScript 표현(`bigint`)으로 변환됩니다:
 
 ```javascript
 const _descriptor_1 = new __compactRuntime.CompactTypeUnsignedInteger(18446744073709551615n, 8);
 ```
 
-The maximum value here is the maximum unsigned 64-bit integer and the size in bytes is 8.
+여기서 최대값은 부호 없는 64비트 정수의 최대값이고 바이트 크기는 8입니다.
 
 # Type Casts in Compact
 
-The Compact code has a sequence of type casts `instance as Field as Bytes<32>`.
-`instance` is a `Counter`, reading it from the ledger gives a Compact value with type `Uint<64>`.
-This cannot be directly cast to `Bytes<32>` so the contract uses an intermediate cast to `Field`.
+Compact 코드에는 `instance as Field as Bytes<32>`라는 타입 캐스트 시퀀스가 있습니다.
+`instance`는 `Counter`이고, 원장에서 읽으면 `Uint<64>` 타입의 Compact 값을 제공합니다.
+이것은 `Bytes<32>`로 직접 캐스트할 수 없으므로 `Field`를 거치는 중간 캐스트를 사용합니다.
 
-There are three distinct kinds of type casts in Compact: upcasts, downcasts, and so-called "cross casts".
-An upcast is from a type to one of its supertypes.
-Such a cast will change the static type as seen by the compiler, but it will have no effect at runtime.
-For example, casting from `Uint<64>` to `Field` is an upcast.
-That cast was performed statically (that is, by the compiler) but there is no JavaScript code here to implement it.
-A downcast is from a type to one of its subtypes.
-Such a cast will not normally change a value's representation, but it will require a runtime check in the compiler-generated JavaScript code.
-A cross cast is from a type to an unrelated type (with respect to subtyping).
-For example, casting a `Field` to `Bytes<32>` is a cross cast.
-These type casts will normally require a representation change.
-The Compact runtime function [`convert_bigint_to_Uint8Array`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/functions/convert_bigint_to_Uint8Array)
-performs the representation change in this case.
+Compact에는 세 가지 종류의 타입 캐스트가 있습니다: 업캐스트, 다운캐스트, 그리고 "크로스 캐스트"라고 하는 것입니다.
+업캐스트는 타입에서 상위 타입 중 하나로의 캐스트입니다.
+이러한 캐스트는 컴파일러가 보는 정적 타입을 변경하지만, 런타임에는 아무런 효과가 없습니다.
+예를 들어, `Uint<64>`에서 `Field`로의 캐스트는 업캐스트입니다.
+이 캐스트는 정적으로(즉, 컴파일러에 의해) 수행되었지만, 이를 구현하는 JavaScript 코드는 없습니다.
+다운캐스트는 타입에서 하위 타입 중 하나로의 캐스트입니다.
+이러한 캐스트는 보통 값의 표현을 변경하지 않지만, 컴파일러가 생성한 JavaScript 코드에서 런타임 검사가 필요합니다.
+크로스 캐스트는 (서브타이핑 관계에서) 관련 없는 타입으로의 캐스트입니다.
+예를 들어, `Field`를 `Bytes<32>`로 캐스트하는 것은 크로스 캐스트입니다.
+이러한 타입 캐스트는 보통 표현 변경이 필요합니다.
+Compact 런타임 함수 [`convert_bigint_to_Uint8Array`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/functions/convert_bigint_to_Uint8Array)가 이 경우 표현 변경을 수행합니다.
 
-Then there was a call in Compact to the circuit `publicKey`.
-Here we see that the call goes directly to the JavaScript implementation method `_publicKey_0`, and not to the exported circuit's `publicKey` wrapper.
-Recall from [Part 2](https://docs.midnight.network/blog/compact-2#what-are-wrappers-for) that the circuit wrapper performed some runtime type checks that we do not need when we call from Compact to Compact
-(the Compact type system guarantees that these checks aren't needed).
-More importantly, a circuit's wrapper established a fresh proof data object for a transaction.
-Since the call to `publicKey` is part of the `post` transaction that the DApp is building, it should reuse the existing proof data.
+그런 다음 Compact에서 `publicKey` 서킷에 대한 호출이 있었습니다.
+여기서 호출은 내보내기된 서킷의 `publicKey` 래퍼가 아니라 JavaScript 구현 메서드 `_publicKey_0`으로 직접 갑니다.
+[Part 2](https://docs.midnight.network/blog/compact-2#what-are-wrappers-for)에서 설명한 것처럼, 서킷 래퍼는 Compact에서 Compact으로 호출할 때 필요하지 않은 일부 런타임 타입 검사를 수행했습니다
+(Compact 타입 시스템이 이러한 검사가 필요 없음을 보장합니다).
+더 중요한 것은, 서킷의 래퍼가 트랜잭션을 위한 새로운 증명 데이터 객체를 생성했다는 것입니다.
+`publicKey` 호출은 DApp이 구성 중인 `post` 트랜잭션의 일부이므로, 기존 증명 데이터를 재사용해야 합니다.
 
-Notice that the `disclose` operator in Compact doesn't do anything at all at runtime.
-`disclose` was necessary because a value computed from the witness `localSecretKey` was exposed on chain.
-This is an instruction to the Compact compiler to allow this value to be exposed, but it has no runtime effect.
+Compact의 `disclose` 연산자는 런타임에서 아무것도 하지 않습니다.
+위트니스 `localSecretKey`로부터 계산된 값이 온체인에 노출되었기 때문에 `disclose`가 필요했습니다.
+이것은 Compact 컴파일러에게 이 값의 노출을 허용하라는 지시이지만, 런타임 효과는 없습니다.
 
 # Ledger Writes
 
-The right-hand side value named `tmp_0` in JavaScript should be written to the ledger field `poster`.
-The code to do that is in the next line of JavaScript code:
+JavaScript에서 `tmp_0`이라고 명명된 우변 값은 원장 필드 `poster`에 기록되어야 합니다.
+이를 수행하는 코드는 JavaScript 코드의 다음 줄에 있습니다:
 
 ```javascript
 Contract._query(
@@ -337,41 +334,41 @@ Contract._query(
     { ins: { cached: false, n: 1 } }]);
 ```
 
-This is again implemented by a partial Impact program.
-The Impact code above implements a ledger cell write (in contrast to the read we saw above).
+이것도 부분적인 Impact 프로그램으로 구현됩니다.
+위의 Impact 코드는 원장 셀 쓰기를 구현합니다(위에서 본 읽기와 대조적입니다).
 
-The first instruction is `push 3`.
-Impact's `push` instruction is the dual to the `pop` instruction.
-Impact has two different variants: `push` and `pushs`.
-In the JavaScript representation of Impact instructions, they are distinguished by a boolean `storage` property.
-`storage` is false to indicate that the value is kept solely in the Impact VM's memory and will not be written to the ledger.
+첫 번째 명령어는 `push 3`입니다.
+Impact의 `push` 명령어는 `pop` 명령어의 역입니다.
+Impact에는 두 가지 변형이 있습니다: `push`와 `pushs`.
+JavaScript 명령어 표현에서는 불리언 `storage` 속성으로 구분됩니다.
+`storage`가 false이면 값은 Impact VM의 메모리에만 유지되며 원장에 기록되지 않습니다.
 
-The second instruction is `pushs tmp_0`.
-The instruction is `pushs` because `storage` is true (this value will be written to the ledger).
-The instruction's operand will be the actual `Bytes<32>` value of `tmp_0`.
-As you would expect, `_descriptor_2` is the descriptor for `Bytes<32>`, used to convert the JavaScript value to a ledger value:
+두 번째 명령어는 `pushs tmp_0`입니다.
+`storage`가 true이므로 `pushs` 명령어입니다(이 값이 원장에 기록됩니다).
+명령어의 피연산자는 `tmp_0`의 실제 `Bytes<32>` 값입니다.
+예상할 수 있듯이, `_descriptor_2`는 `Bytes<32>`의 디스크립터로, JavaScript 값을 원장 값으로 변환하는 데 사용됩니다:
 
 ```javascript
 const _descriptor_2 = new __compactRuntime.CompactTypeBytes(32);
 ```
 
-Before executing these two instructions, the Impact VM's stack had `<context effects ledger0>`.
-After executing these two instructions, it will have `<context effects ledger0 3 tmp_0>`.
+이 두 명령어를 실행하기 전에 Impact VM의 스택은 `<context effects ledger0>`이었습니다.
+이 두 명령어를 실행한 후에는 `<context effects ledger0 3 tmp_0>`이 됩니다.
 
-The next instruction is `ins 1` which **inserts** into a value on the VM's stack.
-Impact's `ins` instruction is the dual to the `idx` instruction we saw used for ledger reads.
-The value to insert is on top of the stack (that is, the `Bytes<32>` value of `tmp_0`).
-Underneath that is a path consisting of *N* elements, where *N* is the operand of the `ins` instruction.
-In this case, the path has length 1, so it is the singleton sequence `[3]`.
-This is the index the Compact compiler has assigned to the top-level ledger field `poster`.
+다음 명령어는 VM 스택의 값에 **삽입**하는 `ins 1`입니다.
+Impact의 `ins` 명령어는 원장 읽기에서 본 `idx` 명령어의 역입니다.
+삽입할 값은 스택 맨 위에 있습니다(즉, `tmp_0`의 `Bytes<32>` 값).
+그 아래에는 *N* 요소로 구성된 경로가 있으며, *N*은 `ins` 명령어의 피연산자입니다.
+이 경우 경로의 길이는 1이므로 `[3]`이라는 단일 시퀀스입니다.
+이것은 Compact 컴파일러가 최상위 원장 필드 `poster`에 할당한 인덱스입니다.
 
-The insert instruction removes the value under the path (namely, the public ledger state)
-and replaces it with a new copy of that value with the location denoted by the path updated to have the new value.
+삽입 명령어는 경로 아래의 값(즉, 공개 원장 상태)을 제거하고,
+경로가 가리키는 위치가 새 값으로 업데이트된 새 복사본으로 교체합니다.
 
-Before `ins 1`, the Impact VM's stack had `<context effects ledger0 3 tmp_0>`.
-After `ins 1`, it will have `<context effects ledger1>` where `ledger1` is a new public ledger state representing the write to `poster`.
+`ins 1` 전에 Impact VM의 스택은 `<context effects ledger0 3 tmp_0>`이었습니다.
+`ins 1` 후에는 `<context effects ledger1>`이 됩니다. 여기서 `ledger1`은 `poster`에 대한 쓰기를 나타내는 새로운 공개 원장 상태입니다.
 
-The remainder of `_post_0` has two more ledger writes and a return of the Compact empty tuple represented by the JavaScript empty array:
+`_post_0`의 나머지에는 두 개의 원장 쓰기와 JavaScript 빈 배열로 표현되는 Compact 빈 튜플의 반환이 있습니다:
 
 ```javascript
 const tmp_1 = this._some_0(newMessage_0);
@@ -404,12 +401,12 @@ Contract._query(
 return [];
 ```
 
-Take a look and see if you can see how the code above works.
+위 코드가 어떻게 동작하는지 직접 확인해 보세요.
 
 # `publicKey`
 
-There is one more way that the on-chain runtime is used by Compact.
-If we take a look at the implementation of the `publicKey` circuit (the actual implementation, not the wrapper for the exported circuit):
+온체인 런타임이 Compact에서 사용되는 또 하나의 방식이 있습니다.
+`publicKey` 서킷의 구현(내보내기된 서킷의 래퍼가 아닌 실제 구현)을 살펴보면:
 
 ```javascript
 _publicKey_0(sk_0, instance_0) {
@@ -419,10 +416,10 @@ _publicKey_0(sk_0, instance_0) {
 }
 ```
 
-We see that the padded string literal has been compiled to an explicit `Uint8Array`.
-We also see a call to a `_persistentHash_0` method, which is the Compact standard library's [`persistentHash` circuit](https://docs.midnight.network/develop/reference/compact/compact-std-library/exports#persistenthash).
+패딩된 문자열 리터럴이 명시적인 `Uint8Array`로 컴파일된 것을 볼 수 있습니다.
+또한 Compact 표준 라이브러리의 [`persistentHash` 서킷](https://docs.midnight.network/develop/reference/compact/compact-std-library/exports#persistenthash)인 `_persistentHash_0` 메서드 호출도 볼 수 있습니다.
 
-The compiler has included a JavaScript implementation of this circuit:
+컴파일러는 이 서킷의 JavaScript 구현을 포함하고 있습니다:
 
 ```javascript
 _persistentHash_0(value_0) {
@@ -431,13 +428,13 @@ _persistentHash_0(value_0) {
 }
 ```
 
-This is a call to the Compact runtime's [`persistentHash` function](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/functions/persistentHash).
-This function in the Compact runtime is a thin wrapper around the on-chain runtime's own [`persistentHash`](https://docs.midnight.network/develop/reference/midnight-api/onchain-runtime/functions/persistentHash).
-The difference is that the on-chain runtime's version operates on the ledger encoding of values,
-and the Compact runtime's version uses the descriptor it is passed to do the relevant conversion.
+이것은 Compact 런타임의 [`persistentHash` 함수](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/functions/persistentHash) 호출입니다.
+Compact 런타임의 이 함수는 온체인 런타임 자체의 [`persistentHash`](https://docs.midnight.network/develop/reference/midnight-api/onchain-runtime/functions/persistentHash)에 대한 얇은 래퍼입니다.
+차이점은 온체인 런타임 버전은 값의 원장 인코딩에서 작동하고,
+Compact 런타임 버전은 전달된 디스크립터를 사용하여 관련 변환을 수행한다는 것입니다.
 
-So this is the final capability of the on-chain runtime that we will look at here:
-it contains implementations of functions like `persistentHash` that are shared between the DApp and the Midnight node.
+따라서 이것이 여기서 살펴볼 온체인 런타임의 마지막 기능입니다:
+DApp과 Midnight 노드 간에 공유되는 `persistentHash`와 같은 함수의 구현을 포함하고 있습니다.
 
-In the next article in this series, we will look at how partial Impact programs get collected together
-and how the compiler-generated JavaScript code produces so-called public inputs and public outputs for the ZK proof that will be generated.
+이 시리즈의 다음 글에서는 부분적인 Impact 프로그램이 어떻게 함께 수집되는지,
+그리고 컴파일러가 생성한 JavaScript 코드가 생성될 ZK 증명을 위한 공개 입력과 공개 출력을 어떻게 만들어내는지 살펴보겠습니다.

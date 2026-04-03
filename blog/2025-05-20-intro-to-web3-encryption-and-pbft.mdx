@@ -7,111 +7,112 @@ authors: samantha
 tags: [intro, blockchain, beginner, web3]
 image: /img/blog/web3.jpg
 date: 2025-05-20
+description: 공개 키 암호화와 Practical Byzantine Fault Tolerance(PBFT)가 Midnight 같은 안전한 탈중앙화 블록체인 네트워크의 암호학적, 합의적 기반을 어떻게 형성하는지 알아봅니다.
 ---
 
-Explore how public key encryption and Practical Byzantine Fault Tolerance form the cryptographic and consensus backbone of secure, decentralized blockchain networks like Midnight.
+공개 키 암호화와 Practical Byzantine Fault Tolerance이 Midnight 같은 안전한 탈중앙화 블록체인 네트워크의 암호학적, 합의적 기반을 어떻게 형성하는지 알아봅니다.
 
 <!--truncate-->
 
 # Learning Web3 from the Ground Up: Encryption & Practical Byzantine Fault Tolerance
 
-I'm still in the early stages of learning about Web3 (see my last two blog posts [here](https://docs.midnight.network/blog/web3-intro) and [here](https://docs.midnight.network/blog/web3-intro-hashing-and-digital-signatures)!), and the deeper I go, the more I realize that the real magic of blockchain isn't just in the code—it's in the cryptography that secures data and the consensus algorithms that coordinate it. As I continue learning, two concepts stood out this week: public key encryption and Practical Byzantine Fault Tolerance (PBFT).
+아직 Web3 학습의 초기 단계에 있으며(이전 두 블로그 포스트를 [여기](https://docs.midnight.network/blog/web3-intro)와 [여기](https://docs.midnight.network/blog/web3-intro-hashing-and-digital-signatures)에서 확인하세요!), 깊이 파고들수록 블록체인의 진정한 핵심은 단순히 코드에 있는 것이 아니라 데이터를 보호하는 암호학과 이를 조율하는 합의 알고리즘에 있다는 것을 깨닫게 됩니다. 학습을 계속하면서 이번 주에 두 가지 개념이 두드러졌습니다: 공개 키 암호화와 Practical Byzantine Fault Tolerance(PBFT)입니다.
 
-These may sound intimidating, but they’re the backbone of how blockchains protect data and reach agreement without a central authority. I explored them through [Cardano Academy's](https://academy.cardanofoundation.org/) Intro to Blockchain series, which continues to be a great entry point for breaking down these core concepts.  
-Here's what I learned—and how these two building blocks shape the infrastructure behind modern blockchain networks.
+어렵게 들릴 수 있지만, 이 두 가지는 블록체인이 데이터를 보호하고 중앙 기관 없이 합의에 도달하는 방식의 근간입니다. [Cardano Academy](https://academy.cardanofoundation.org/)의 Intro to Blockchain 시리즈를 통해 탐구했으며, 핵심 개념을 분석하는 데 계속 훌륭한 출발점이 되고 있습니다.  
+여기에 제가 배운 내용과 이 두 가지 구성 요소가 현대 블록체인 네트워크의 인프라를 어떻게 형성하는지 정리했습니다.
 
 ## Public Key Encryption – Sending Secrets Without Sharing Keys
 
-Encryption is the backbone of blockchain security. It allows us to send private messages, verify identities, and keep data safe—even across open, decentralized networks like the internet or blockchain itself. This is especially important in Web3, where blockchains are public by default—anyone can view the data, participate in the network, or run a node. At Midnight, encryption plays a key role in protecting sensitive data while still allowing it to live on a public chain. From shielded transactions to selective disclosure, Midnight builds on the principles of public key cryptography to enable privacy without sacrificing decentralization.
+암호화는 블록체인 보안의 근간입니다. 인터넷이나 블록체인 자체와 같은 개방된 탈중앙화 네트워크에서도 비공개 메시지를 보내고, 신원을 확인하며, 데이터를 안전하게 유지할 수 있게 합니다. Web3에서는 블록체인이 기본적으로 공개되어 있어, 누구나 데이터를 볼 수 있고, 네트워크에 참여하거나, 노드를 운영할 수 있기 때문에 특히 중요합니다. Midnight에서 암호화는 민감한 데이터를 보호하면서도 퍼블릭 체인에 존재할 수 있게 하는 핵심 역할을 합니다. 차폐 트랜잭션부터 선택적 공개까지, Midnight은 공개 키 암호학의 원리를 기반으로 탈중앙화를 희생하지 않으면서 프라이버시를 실현합니다.
 
-At a high level, encryption is just the process of turning readable data (called cleartext) into gibberish (ciphertext) so that only the right person can turn it back. But how do we do that without first sharing a secret key?
+높은 수준에서 암호화는 읽을 수 있는 데이터(평문, cleartext)를 해독할 수 없는 형태(암호문, ciphertext)로 변환하여 올바른 사람만 다시 원래대로 복원할 수 있게 하는 과정입니다. 하지만 비밀 키를 먼저 공유하지 않고 어떻게 이것을 할 수 있을까요?
 
 ### The Two Types of Encryption
 
-There are two main types of encryption:
+암호화에는 두 가지 주요 유형이 있습니다:
 
-- **Symmetric encryption**: The same key is used to encrypt and decrypt the message. It's fast, but you need to share that key first, which can be tricky to do securely.  
-- **Asymmetric encryption (also known as public key encryption)**: Uses a key pair—one public and one private. What one key encrypts, the other can decrypt. If you encrypt something with a public key, only the matching private key can unlock it and vice versa. They’re mathematically linked, but guessing one from the other is nearly impossible.
+- **대칭 암호화(Symmetric encryption)**: 같은 키로 메시지를 암호화하고 복호화합니다. 빠르지만, 그 키를 먼저 공유해야 하는데 이를 안전하게 하기가 까다롭습니다.  
+- **비대칭 암호화(Asymmetric encryption, 공개 키 암호화라고도 함)**: 키 쌍을 사용합니다. 하나는 공개 키, 하나는 개인 키입니다. 한 키로 암호화한 것은 다른 키로만 복호화할 수 있습니다. 공개 키로 암호화하면 일치하는 개인 키만 해독할 수 있고, 그 반대도 마찬가지입니다. 수학적으로 연결되어 있지만, 하나에서 다른 하나를 추측하는 것은 거의 불가능합니다.
 
-The key difference? In symmetric encryption, both people share one secret key. In asymmetric encryption, no shared secret is needed, just a matching key pair.
+핵심 차이점은? 대칭 암호화에서는 두 사람이 하나의 비밀 키를 공유합니다. 비대칭 암호화에서는 공유 비밀이 필요 없으며, 일치하는 키 쌍만 있으면 됩니다.
 
 ### A Simple Analogy
 
-Think of symmetric encryption like a shared locker: you and your friend have the same key. Anyone with that key can open the locker. The hard part? Making sure only the two of you have a copy. On the other hand, asymmetric encryption is more like giving everyone a padlock with your name on it (your public key). Anyone can lock a box and send it to you, but only you, holding the matching private key, can open it.
+대칭 암호화를 공유 사물함으로 생각하세요: 여러분과 친구가 같은 열쇠를 가지고 있습니다. 그 열쇠를 가진 사람은 누구나 사물함을 열 수 있습니다. 어려운 점은? 둘만 열쇠를 가지고 있도록 하는 것입니다. 반면 비대칭 암호화는 여러분의 이름이 적힌 자물쇠(공개 키)를 모두에게 나눠주는 것과 비슷합니다. 누구나 상자를 잠그고 보낼 수 있지만, 일치하는 개인 키를 가진 여러분만 열 수 있습니다.
 
 ### How It's Used in Blockchain
 
-When Alice wants to send Bob a secure message:
+Alice가 Bob에게 안전한 메시지를 보내고 싶을 때:
 
-1. Bob shares his public key.  
-2. Alice encrypts her message using Bob's public key.  
-3. Bob receives and decrypts the encrypted message using his private key.
+1. Bob이 공개 키를 공유합니다.  
+2. Alice가 Bob의 공개 키를 사용하여 메시지를 암호화합니다.  
+3. Bob이 암호화된 메시지를 받고 개인 키를 사용하여 복호화합니다.
 
-Even if someone intercepts the message, it’s unreadable without Bob’s private key. Thanks to the math behind elliptic curves and RSA, it would take more time than the universe has existed to reverse-engineer a private key from a public one with today’s computers.
+누군가 메시지를 가로채더라도, Bob의 개인 키 없이는 읽을 수 없습니다. 타원 곡선과 RSA 뒤의 수학 덕분에, 현재의 컴퓨터로 공개 키에서 개인 키를 역공학하려면 우주가 존재한 것보다 더 긴 시간이 걸립니다.
 
 ### Why Not Just Use Public Key Encryption for Everything?
 
-Public key encryption is powerful but computationally heavy. That's why, in practice, most secure systems (like HTTPS) use a hybrid model:
+공개 키 암호화는 강력하지만 연산 비용이 높습니다. 그래서 실제로 대부분의 보안 시스템(예: HTTPS)은 하이브리드 모델을 사용합니다:
 
-1. The client and server use public key encryption to securely exchange a temporary session key.  
-2. From then on, they use symmetric encryption with that shared key to communicate quickly and securely.
+1. 클라이언트와 서버가 공개 키 암호화를 사용하여 임시 세션 키를 안전하게 교환합니다.  
+2. 이후부터는 공유 키를 사용한 대칭 암호화로 빠르고 안전하게 통신합니다.
 
-This is the same approach blockchains often use for performance and scalability—combining the strengths of both methods.
+블록체인도 성능과 확장성을 위해 종종 같은 접근 방식을 사용하며, 두 방법의 장점을 결합합니다.
 
 ---
 
 ## Practical Byzantine Fault Tolerance – How Blockchains Reach Consensus
 
-Now that we've covered encryption, let's move to something that puzzled me at first: How do blockchains reach consensus without a central decision-maker? That's where consensus algorithms come in. This week, I learned about one of the earliest and most influential: Practical Byzantine Fault Tolerance, or PBFT.
+암호화를 다루었으니, 처음에 저를 당혹하게 했던 것으로 넘어가 보겠습니다: 블록체인은 어떻게 중앙 의사결정자 없이 합의에 도달할까요? 바로 합의 알고리즘이 그 역할을 합니다. 이번 주에는 가장 초기이면서 가장 영향력 있는 합의 알고리즘 중 하나인 Practical Byzantine Fault Tolerance, 즉 PBFT에 대해 배웠습니다.
 
 ### First, a Quick Refresher on Consensus
 
-Consensus is how distributed systems agree on a single truth, even if some participants are slow, offline, or actively trying to cause problems. It's what lets a decentralized ledger agree on who owns what, and it's essential for any blockchain to function.
+합의는 일부 참여자가 느리거나, 오프라인이거나, 적극적으로 문제를 일으키려 해도 분산 시스템이 하나의 진실에 동의하는 방법입니다. 탈중앙화 원장이 누가 무엇을 소유하는지 합의할 수 있게 하며, 모든 블록체인이 작동하는 데 필수적입니다.
 
-The "Byzantine" part comes from a famous thought experiment called the Byzantine Generals Problem, in which generals need to coordinate an attack but can't trust their messengers. In blockchain terms, nodes must agree on a block, even if some are lying or malfunctioning.
+"비잔틴" 부분은 비잔틴 장군 문제라는 유명한 사고 실험에서 유래합니다. 장군들이 공격을 조율해야 하지만 메신저를 신뢰할 수 없는 상황입니다. 블록체인 용어로, 일부가 거짓말하거나 오작동하더라도 노드들이 블록에 대해 합의해야 합니다.
 
 ### What Makes PBFT "Practical"?
 
-PBFT is designed to work in weakly synchronous systems—systems where messages might be delayed, but not indefinitely. It assumes that at most one-third of nodes can be faulty and uses cryptographic signatures to authenticate all messages. That means messages might be delayed, but will eventually arrive, unlike in totally unreliable (asynchronous) systems.
+PBFT은 약한 동기 시스템, 즉 메시지가 지연될 수 있지만 무기한 지연되지는 않는 시스템에서 작동하도록 설계되었습니다. 최대 1/3의 노드가 결함이 있을 수 있다고 가정하며, 모든 메시지를 인증하기 위해 암호학적 서명을 사용합니다. 이는 메시지가 지연될 수 있지만 결국 도착한다는 의미이며, 완전히 신뢰할 수 없는(비동기) 시스템과는 다릅니다.
 
 
-PBFT has a built-in process called view change, which automatically replaces a faulty primary when enough nodes detect issues. Here's how it works in broad strokes:
+PBFT에는 view change라는 내장 프로세스가 있어, 충분한 노드가 문제를 감지하면 결함 있는 primary를 자동으로 교체합니다. 대략적인 작동 방식은 다음과 같습니다:
 
-1. A client (like a user submitting a transaction) sends a request to a primary node.  
-2. That primary broadcasts the request to other replica nodes.  
-3. Each replica processes the request and responds.  
-4. The client waits for enough matching replies (2/3 + 1) to confirm the result.
+1. 클라이언트(트랜잭션을 제출하는 사용자 등)가 primary 노드에 요청을 보냅니다.  
+2. primary가 다른 replica 노드에 요청을 브로드캐스트합니다.  
+3. 각 replica가 요청을 처리하고 응답합니다.  
+4. 클라이언트는 결과를 확인하기 위해 충분한 일치 응답(2/3 + 1)을 기다립니다.
 
-Suppose the primary node is unresponsive or sends conflicting messages. In that case, replicas can vote to replace it and elect a new primary. This makes PBFT fault-tolerant and adaptive, critical for blockchains operating in the real world.
+primary 노드가 응답하지 않거나 상충하는 메시지를 보내면, replica들이 투표하여 교체하고 새로운 primary를 선출할 수 있습니다. 이를 통해 PBFT은 장애 허용적이고 적응적이 되며, 현실 세계에서 운영되는 블록체인에 필수적입니다.
 
 ### Real-World Analogy
 
-Imagine you're on a group project. One person (the "primary") shares the final version of the project. Everyone else ("replicas") reviews it. If enough people agree it's correct, you submit it. But if someone thinks the leader messed up, they can flag it—and if enough people agree, the group picks a new leader.
+그룹 프로젝트를 하고 있다고 상상해 보세요. 한 사람("primary")이 프로젝트의 최종 버전을 공유합니다. 나머지("replica")가 이를 검토합니다. 충분한 사람이 맞다고 동의하면 제출합니다. 하지만 누군가 리더가 잘못했다고 생각하면 이를 지적할 수 있으며, 충분한 사람이 동의하면 그룹이 새 리더를 선택합니다.
 
-PBFT formalizes this process with message signatures, vote thresholds, and fault limits.
+PBFT은 이 과정을 메시지 서명, 투표 임계값, 장애 한도로 공식화합니다.
 
 ### Where PBFT Shines—and Where It Doesn't
 
-PBFT excels in small, permissioned networks where all participants are known and vetted, such as enterprise or consortium blockchains. It offers fast and deterministic finality with fewer probabilistic assumptions than models like proof-of-work or proof-of-stake.
+PBFT은 기업용 또는 컨소시엄 블록체인과 같이 모든 참여자가 알려져 있고 검증된 소규모 허가형 네트워크에서 뛰어납니다. 작업 증명이나 지분 증명 같은 모델보다 확률적 가정이 적은 빠르고 결정론적인 최종성을 제공합니다.
 
-But there are trade-offs:
+하지만 트레이드오프가 있습니다:
 
-- It doesn't scale well to hundreds or thousands of nodes—it's communication-heavy.  
-- Nodes must know about each other ahead of time.  
-- It's less decentralized and potentially vulnerable to Sybil attacks if new nodes aren't vetted carefully.
+- 수백 또는 수천 개의 노드로 확장되기 어렵습니다. 통신 부하가 높습니다.  
+- 노드가 미리 서로를 알고 있어야 합니다.  
+- 덜 탈중앙화되어 있으며, 새 노드가 신중하게 검증되지 않으면 시빌 공격에 취약할 수 있습니다.
 
-That's why PBFT-inspired models are often combined with other mechanisms, like rotating leadership or staking systems, to improve scalability and resilience.
+이것이 PBFT에서 영감을 받은 모델이 확장성과 탄력성을 개선하기 위해 교대 리더십이나 스테이킹 시스템 같은 다른 메커니즘과 종종 결합되는 이유입니다.
 
 ## Conclusion
 
-Encryption and consensus might sound like deep technical topics (and they are), but at their core, they solve very human problems: How can we keep secrets? And how can we agree on what's true when no one is in charge? Here's a quick overview of both concepts, what they solve, and what they're used for:
+암호화와 합의는 깊은 기술적 주제처럼 들릴 수 있지만(실제로 그렇습니다), 그 핵심에서는 매우 인간적인 문제를 해결합니다: 어떻게 비밀을 유지할 수 있을까? 그리고 아무도 책임자가 아닐 때 어떻게 진실에 합의할 수 있을까? 두 개념에 대한 간략한 개요, 해결하는 문제, 사용처는 다음과 같습니다:
 | Concept| What it solves | Used in |
 | --------- | --------- | ----------- |
 | Public Key Encryption | Secure communication over open networks | Wallets, HTTPS, block signing |
 | PBFT | Reaching agreement in the face of faulty/lying nodes | Permissioned blockchains, early crypto projects |
 
-Learning about these two areas gave me a clearer view of the building blocks behind secure, decentralized systems like Cardano—and why consensus and cryptography are so tightly intertwined in Web3.
+이 두 영역에 대해 배우면서 Cardano 같은 안전한 탈중앙화 시스템의 구성 요소와 Web3에서 합의와 암호학이 왜 그렇게 긴밀하게 연결되어 있는지 더 명확하게 볼 수 있게 되었습니다.
 
-All of the material in this post comes from [Cardano Academy](https://academy.cardanofoundation.org/), which continues to be a fantastic first stop in my Web3 learning journey. I'll be adding more resources over time and sharing what I learn along the way. If you're also getting started, check out the Academy, do some digging on your own, and browse through the [Midnight docs](https://docs.midnight.network/) and [Dev Diaries](https://docs.midnight.network/blog) if you want a glimpse of how these ideas show up in practice.
+이 포스트의 모든 자료는 [Cardano Academy](https://academy.cardanofoundation.org/)에서 나왔으며, Web3 학습 여정의 훌륭한 첫 번째 정거장으로 계속 자리하고 있습니다. 시간이 지나면서 더 많은 리소스를 추가하고 배운 것을 공유할 예정입니다. 시작하시는 분이라면, Academy를 확인하고, 직접 탐구하며, 이 아이디어가 실제로 어떻게 나타나는지 보고 싶다면 [Midnight 문서](https://docs.midnight.network/)와 [Dev Diaries](https://docs.midnight.network/blog)를 살펴보세요.
 
-If you're learning along with me, which concepts have been most challenging to wrap your head around? Drop a comment. I’d love to swap resources! More foundational concepts are coming soon!  
+함께 배우고 계신다면, 어떤 개념이 가장 이해하기 어려웠나요? 댓글을 남겨 주세요. 리소스를 교환하고 싶습니다! 곧 더 많은 기초 개념을 다루겠습니다!  

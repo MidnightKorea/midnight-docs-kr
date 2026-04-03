@@ -3,112 +3,113 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 slug: web3-intro-history-and-tokens
 title: Learning Web3 from the Ground Up - A Quick History of Blockchain and Why Tokens Matter
+description: Bitcoin에서 Midnight까지 blockchain 플랫폼의 진화 과정과 토큰이 탈중앙화 생태계에 필수적인 이유를 살펴봅니다.
 authors: samantha
 tags: [intro, blockchain, beginner, web3]
 image: /img/blog/web3.jpg
 date: 2025-05-30
 ---
 
-Explore how blockchain platforms have evolved from Bitcoin to Midnight and why tokens are essential to powering decentralized ecosystems.
+Bitcoin에서 Midnight까지 blockchain 플랫폼이 어떻게 진화해 왔는지, 그리고 토큰이 탈중앙화 생태계를 움직이는 데 왜 필수적인지 알아봅니다.
 
 <!--truncate-->
 
 # Learning Web3 from the Ground Up: A Quick History of Blockchain and Why Tokens Matter
 
-I’m still in the early stages of my Web3 learning journey (see my previous posts on the [Midnight Dev Diaries](https://docs.midnight.network/blog)!), and each week unveils new insights and "aha" moments for me. This week, I delved deeper into the Intro to Blockchain section of [Cardano Academy](https://academy.cardanofoundation.org/), along with [Module 1 of the Midnight Developer Academy](https://docs.midnight.network/academy/module-1). Rather than just focusing on the technical aspects and step-by-step guides, I shifted my attention to understanding the evolution of blockchain platforms over time, particularly the journey from Bitcoin to more advanced systems like Midnight. This exploration also led me to reflect on the crucial role that tokens play in the functionality and sustainability of decentralized systems. Tokens aren't just mere digital assets; they serve as the economic backbone that incentivizes participation and secures the network. In this post, I want to share two significant topics that helped clarify my understanding this week:
+저는 아직 Web3 학습 여정의 초기 단계에 있으며(이전 글은 [Midnight Dev Diaries](https://docs.midnight.network/blog)에서 확인하세요!), 매주 새로운 통찰과 깨달음을 얻고 있습니다. 이번 주에는 [Cardano Academy](https://academy.cardanofoundation.org/)의 Intro to Blockchain 섹션과 [Midnight Developer Academy의 Module 1](https://docs.midnight.network/academy/module-1)을 더 깊이 파고들었습니다. 기술적 측면과 단계별 가이드에만 집중하기보다, blockchain 플랫폼이 시간이 지남에 따라 어떻게 진화해 왔는지, 특히 Bitcoin에서 Midnight 같은 고급 시스템으로 이어지는 여정을 이해하는 데 주력했습니다. 이 탐구를 통해 토큰이 탈중앙화 시스템의 기능성과 지속가능성에 얼마나 중요한 역할을 하는지도 깨닫게 되었습니다. 토큰은 단순한 디지털 자산이 아니라, 참여를 유도하고 네트워크를 보호하는 경제적 근간입니다. 이번 글에서는 이해를 넓히는 데 도움이 된 두 가지 주요 주제를 공유하겠습니다:
 
-1. How blockchain platforms have progressed from Bitcoin to Midnight  
-2. How tokens keep decentralized systems running through economic incentives
+1. Blockchain 플랫폼이 Bitcoin에서 Midnight까지 어떻게 발전해 왔는가
+2. 토큰이 경제적 인센티브를 통해 탈중앙화 시스템을 어떻게 유지하는가
 
-Let's jump in!
+바로 시작하겠습니다!
 
 ## The Evolution of Blockchain Platforms
 
-When I first heard about blockchain, I mostly associated it with Bitcoin. However, after diving into more educational content, it became clear that this space has undergone multiple waves of innovation, each building on the last. Here's how we got from the first Bitcoin transaction to the emergence of privacy-focused blockchains like Midnight.
+처음 blockchain을 접했을 때는 대부분 Bitcoin과 연관 지어 생각했습니다. 하지만 더 많은 교육 콘텐츠를 접하면서, 이 분야가 여러 차례의 혁신 물결을 거쳐왔고 각 단계가 이전 단계 위에 구축되었다는 것을 알게 되었습니다. 최초의 Bitcoin transaction에서 Midnight 같은 프라이버시 중심 blockchain의 등장까지의 과정을 살펴보겠습니다.
 
 ### Bitcoin (2009): A New Way to Move Money
 
-Blockchain began with Bitcoin, launched in 2009 by the pseudonymous Satoshi Nakamoto. It introduced the idea of a decentralized, peer-to-peer payment network where anyone could send money without relying on banks or intermediaries. Transactions were validated through **proof-of-work** and recorded on a public ledger that anyone could inspect—but no one could alter.
+Blockchain은 2009년 Satoshi Nakamoto라는 익명의 인물이 출시한 Bitcoin에서 시작되었습니다. 은행이나 중개자 없이 누구나 돈을 보낼 수 있는 탈중앙화 P2P 결제 네트워크라는 개념을 도입했습니다. Transaction은 **proof-of-work**를 통해 검증되었고, 누구나 확인할 수 있지만 아무도 변경할 수 없는 공개 원장에 기록되었습니다.
 
-This was revolutionary. Bitcoin proved that decentralized digital money was possible—and, in 2010, someone even traded 10,000 BTC for two pizzas. That transaction is now famous for being the first real-world use of Bitcoin and the most expensive pizza ever bought.
+이것은 혁명적이었습니다. Bitcoin은 탈중앙화된 디지털 화폐가 가능하다는 것을 증명했고, 2010년에는 누군가가 피자 두 판에 10,000 BTC를 지불하기도 했습니다. 이 transaction은 Bitcoin의 첫 번째 실물 거래이자 역사상 가장 비싼 피자로 유명합니다.
 
-Still, Bitcoin was narrowly focused: it could securely transfer value but not much else.
+그러나 Bitcoin은 범위가 좁았습니다. 가치를 안전하게 전송할 수는 있었지만 그 이상은 어려웠습니다.
 
 ### Ethereum (2015): The Rise of Programmable Blockchains
 
-Ethereum took the core idea of blockchain and expanded it into something far more flexible. It introduced **smart contracts**—self-executing programs that live on the blockchain and run when certain conditions are met. This turned Ethereum into what its creators called a "world computer": a decentralized platform for building applications that couldn't be shut down or censored.
+Ethereum은 blockchain의 핵심 아이디어를 훨씬 더 유연한 것으로 확장했습니다. **Smart contract**를 도입했는데, 이는 blockchain 위에 존재하며 특정 조건이 충족되면 실행되는 자체 실행 프로그램입니다. 이를 통해 Ethereum은 개발자들이 "세계 컴퓨터"라고 부르는 것이 되었습니다. 즉, 중단되거나 검열될 수 없는 애플리케이션을 구축하기 위한 탈중앙화 플랫폼입니다.
 
-Ethereum is guided by six key principles:
+Ethereum은 여섯 가지 핵심 원칙을 따릅니다:
 
-- **Atomicity**: All or nothing execution 
-- **Synchrony**: Consistent state across nodes
-- **Provenance**: Trackable origins
-- **Permanence**: Durable data storage
-- **Immortality**: Apps that can't be turned off  
-- **Immutability**: Data that can't be changed once written
+- **Atomicity**: 전부 실행되거나 전혀 실행되지 않음
+- **Synchrony**: 노드 간 일관된 상태
+- **Provenance**: 추적 가능한 출처
+- **Permanence**: 내구성 있는 데이터 저장
+- **Immortality**: 종료될 수 없는 앱
+- **Immutability**: 한번 기록되면 변경 불가능한 데이터
 
-These principles laid the groundwork for DeFi, NFTs, and DAOs, giving rise to an entire ecosystem of decentralized applications. However, this flexibility came with trade-offs, especially around scalability and high transaction fees.
+이 원칙들은 DeFi, NFT, DAO의 토대를 마련하여 탈중앙화 애플리케이션의 전체 생태계를 탄생시켰습니다. 그러나 이러한 유연성에는 특히 확장성과 높은 transaction 수수료라는 트레이드오프가 따랐습니다.
 
 ### Third-Generation Platforms: Cardano and Beyond
 
-Enter the third generation of blockchains. These platforms aim to solve the Blockchain Trilemma: how to balance scalability, security, and decentralization—without sacrificing any of them.
+3세대 blockchain이 등장합니다. 이 플랫폼들은 Blockchain Trilemma, 즉 확장성, 보안, 탈중앙화 사이의 균형을 어떤 것도 희생하지 않으면서 달성하는 것을 목표로 합니다.
 
-Cardano, launched in 2017, is one of the most notable examples. It uses **proof-of-stake** to reduce energy consumption and improve efficiency. But what stood out most to me is that it was built from the ground up with formal research and peer-reviewed design—a very different approach from its predecessors.
+2017년에 출시된 Cardano는 가장 주목할 만한 사례 중 하나입니다. **Proof-of-stake**를 사용하여 에너지 소비를 줄이고 효율성을 높입니다. 하지만 가장 인상적이었던 점은 공식적인 연구와 동료 심사를 거친 설계를 기반으로 처음부터 구축되었다는 것입니다. 이는 이전 세대와 매우 다른 접근 방식입니다.
 
-Cardano also addresses security at the protocol level. Unlike Ethereum, where new tokens are created via smart contracts (which can introduce vulnerabilities), tokens on Cardano are treated as **native assets**. This means they inherit the same security guarantees as the platform's native currency, ADA, and don't require a custom contract to be created or maintained.
+Cardano는 프로토콜 수준에서도 보안을 다룹니다. Smart contract를 통해 새 토큰을 생성하는 Ethereum과 달리(이는 취약점을 유발할 수 있습니다), Cardano의 토큰은 **native asset**으로 취급됩니다. 따라서 플랫폼의 네이티브 화폐인 ADA와 동일한 보안 보장을 상속하며, 별도의 contract를 생성하거나 유지할 필요가 없습니다.
 
-Other improvements include:
+기타 개선 사항은 다음과 같습니다:
 
-- Layer 2 scaling solutions like Hydra  
-- Support for sidechains to improve interoperability  
-- A focus on sustainability by reducing resource consumption through staking is also needed
+- Hydra 같은 레이어 2 확장 솔루션
+- 상호운용성을 높이기 위한 사이드체인 지원
+- 스테이킹을 통해 자원 소비를 줄이는 지속 가능성에 대한 집중
 
 ### Midnight: The Privacy Layer of the Future
 
-Midnight represents a new phase in blockchain evolution focused on privacy and regulatory compliance.
+Midnight은 프라이버시와 규제 준수에 초점을 맞춘 blockchain 진화의 새로운 단계입니다.
 
-It uses tools like [zero-knowledge proofs](https://docs.midnight.network/learn/understanding-midnights-technology/zero-knowledge-proofs) to allow data to remain private on a public blockchain. At the same time, it supports selective disclosure, meaning users can prove compliance (for example, with regulations or audits) without revealing everything. In other words, Midnight blends the decentralization and transparency of blockchain with the privacy needed for real-world use cases—whether it's secure communication, confidential data sharing, or regulated financial applications.
+[Zero-knowledge proof](https://docs.midnight.network/learn/understanding-midnights-technology/zero-knowledge-proofs) 같은 도구를 사용하여 공개 blockchain에서 데이터를 비공개로 유지할 수 있습니다. 동시에 selective disclosure를 지원하므로 사용자는 모든 것을 공개하지 않고도 규정이나 감사 등에 대한 준수를 증명할 수 있습니다. 즉, Midnight은 blockchain의 탈중앙화 및 투명성과 실제 사용 사례에 필요한 프라이버시를 결합합니다. 안전한 통신, 기밀 데이터 공유, 규제 금융 애플리케이션 등이 이에 해당합니다.
 
 ## Tokenomics 101: Why Tokens Are More Than Just Coins
 
-Once I understood how blockchains evolved, the next big question was: How do they keep running without a central company in charge? The answer lies in tokenomics, the economic design behind each network.
+Blockchain이 어떻게 진화했는지 이해한 후 다음 큰 질문은: 중앙 기업 없이 어떻게 계속 운영되는가?였습니다. 답은 각 네트워크의 경제 설계인 토큰이코노믹스에 있습니다.
 
 ### Tokens as Utility
 
-Every blockchain has a native token—Bitcoin has BTC, Ethereum has ETH, Cardano has ADA. But tokens aren't just money. Tokens are **used** to pay transaction fees, deploy contracts, access network features, and more.
+모든 blockchain에는 네이티브 토큰이 있습니다. Bitcoin에는 BTC, Ethereum에는 ETH, Cardano에는 ADA가 있습니다. 하지만 토큰은 단순히 돈이 아닙니다. 토큰은 transaction 수수료를 지불하고, contract를 배포하고, 네트워크 기능에 접근하는 데 **사용**됩니다.
 
-This creates a built-in incentive system. If using the network requires tokens, and the network is valuable, then tokens have value too.
+이를 통해 내장된 인센티브 시스템이 만들어집니다. 네트워크 사용에 토큰이 필요하고 네트워크에 가치가 있다면, 토큰도 가치를 갖게 됩니다.
 
 ### Tokens as Incentives
 
-Blockchain networks need participants to validate transactions, secure the network, and maintain consensus. In return, they reward those participants with tokens.
+Blockchain 네트워크는 transaction을 검증하고, 네트워크를 보호하며, 합의를 유지하기 위한 참여자가 필요합니다. 그 대가로 참여자에게 토큰을 보상으로 지급합니다.
 
-For example:
+예를 들면:
 
-- Miners earn BTC for adding blocks to the Bitcoin chain.  
-- Validators earn ADA in Cardano's proof-of-stake system to secure the network.
+- 채굴자는 Bitcoin 체인에 블록을 추가한 대가로 BTC를 받습니다.
+- Validator는 Cardano의 proof-of-stake 시스템에서 네트워크를 보호한 대가로 ADA를 받습니다.
 
-These rewards are often inflationary, meaning new tokens are regularly minted and distributed. However, that inflation funds the network's infrastructure.
+이러한 보상은 보통 인플레이션적이며, 새로운 토큰이 정기적으로 발행되어 분배됩니다. 그러나 이 인플레이션이 네트워크 인프라의 재원이 됩니다.
 
 ### **Tokens as Governance Tools**
 
-Some tokens also allow holders to vote on decisions. In DAO-style systems, governance tokens let users decide protocol upgrades, fee structures, or treasury spending. This turns token holders into active stakeholders, not just passive investors.
+일부 토큰은 보유자가 의사결정에 투표할 수 있게 합니다. DAO 방식의 시스템에서 거버넌스 토큰을 통해 사용자는 프로토콜 업그레이드, 수수료 구조, 국고 지출 등을 결정할 수 있습니다. 이를 통해 토큰 보유자는 단순한 수동적 투자자가 아닌 능동적 이해관계자가 됩니다.
 
 ### Inflationary vs. Deflationary Models
 
-The way a token's supply is designed can shape behavior:
+토큰의 공급 설계 방식은 행동 양식에 영향을 미칠 수 있습니다:
 
-- Inflationary models (e.g., Polkadot) continually mint new tokens to incentivize active participation.  
-- Deflationary models (e.g., Bitcoin) cap the total supply or burn tokens to reduce circulation.
+- 인플레이션 모델(예: Polkadot)은 적극적인 참여를 유도하기 위해 지속적으로 새 토큰을 발행합니다.
+- 디플레이션 모델(예: Bitcoin)은 총 공급량에 상한을 두거나 토큰을 소각하여 유통량을 줄입니다.
 
-Each model has trade-offs: Inflation can reward contributors but reduce long-term value, while deflation can increase scarcity but discourage spending.
+각 모델에는 트레이드오프가 있습니다. 인플레이션은 기여자에게 보상을 줄 수 있지만 장기적 가치를 낮출 수 있고, 디플레이션은 희소성을 높일 수 있지만 지출을 억제할 수 있습니다.
 
-Many modern projects use hybrid models. For example, Ethereum burns a portion of transaction fees to offset inflation while still issuing new tokens to validators.
+많은 최신 프로젝트는 하이브리드 모델을 사용합니다. 예를 들어, Ethereum은 transaction 수수료의 일부를 소각하여 인플레이션을 상쇄하면서도 validator에게 새 토큰을 발행합니다.
 
 ## Conclusion
 
-Understanding where blockchain originated and how tokens drive these systems provided me with a much clearer view of the ecosystem I'm entering. It's not just about code or decentralization for its sake. It's about designing systems where people are economically motivated to do the right thing. And just like the technology itself, the economics behind blockchains are still evolving.
+Blockchain의 기원과 토큰이 이러한 시스템을 구동하는 방식을 이해하면서 제가 들어가는 생태계에 대한 시야가 훨씬 명확해졌습니다. 이것은 단순히 코드나 탈중앙화 그 자체에 관한 것이 아닙니다. 사람들이 경제적으로 올바른 행동을 하도록 동기를 부여하는 시스템을 설계하는 것입니다. 기술 자체와 마찬가지로, blockchain 뒤의 경제학도 여전히 진화하고 있습니다.
 
-If you're learning Web3 too or just curious how all the pieces fit together, be sure to take a look at the [Midnight docs](https://docs.midnight.network/), [Dev Diaries](https://docs.midnight.network/blog), and the newly published modules in the [Midnight Developer Academy](https://docs.midnight.network/academy/module-1). 
+여러분도 Web3를 배우고 있거나 모든 퍼즐 조각이 어떻게 맞춰지는지 궁금하다면, [Midnight docs](https://docs.midnight.network/), [Dev Diaries](https://docs.midnight.network/blog), 그리고 새로 발행된 [Midnight Developer Academy](https://docs.midnight.network/academy/module-1) 모듈을 꼭 확인해 보세요.
 
-More foundational concepts are coming next week—stay tuned!  
+다음 주에도 기초 개념을 더 다룰 예정이니 기대해 주세요!

@@ -7,44 +7,45 @@ authors: stev
 tags: [partner-chains, testnet, spo]
 image: /img/blog/ecosystem.jpg
 date: 2025-05-20
+description: Midnight 테스트넷 주요 업그레이드로 버전 1.5가 도입되며, 밸리데이터 재등록, 개선된 노드 설정, partner-chain 참여자를 위한 향상된 도구가 필요합니다.
 ---
 
-A major Midnight Testnet upgrade introduces version 1.5, bringing key changes that require validator re-registration, improved node setup, and enhanced tooling for partner-chain participants.
+Midnight 테스트넷 주요 업그레이드로 버전 1.5가 도입되며, 밸리데이터 재등록, 개선된 노드 설정, partner-chain 참여자를 위한 향상된 도구가 필요합니다.
 
 <!--truncate-->
 
 # Learning Web3 from the Ground Up: Hash Functions & Digital Signatures
 
-One of the major changes of the [Midnight Testnet upgrade](https://midnight.network/blog/upcoming-testnet-02-upgrade-all-you-need-to-know) is the leap from Partner-Chains version 1.2 to 1.5. This particular change requires Midnight validators to re-register.
+[Midnight 테스트넷 업그레이드](https://midnight.network/blog/upcoming-testnet-02-upgrade-all-you-need-to-know)의 주요 변경 사항 중 하나는 Partner-Chains 버전 1.2에서 1.5로의 도약입니다. 이 특정 변경으로 인해 Midnight 밸리데이터는 재등록해야 합니다.
 
 ## Why is Midnight taking a leap from 1.2 to 1.5?
 
-The testnet was operating on v1.2. The upgrade path through v1.4 (specifically the v1.3 -> v1.4 transition) introduced breaking changes in the partner-chain contracts, necessitating a chain reset. To bypass this incompatible intermediate state and minimize disruption, we opted for a direct deployment of the latest stable release, v1.5. 
+테스트넷은 v1.2에서 운영되고 있었습니다. v1.4를 거치는 업그레이드 경로(구체적으로 v1.3 -> v1.4 전환)에서 partner-chain 컨트랙트에 호환성을 깨뜨리는 변경이 도입되어 체인 리셋이 필요했습니다. 이 호환되지 않는 중간 상태를 우회하고 혼란을 최소화하기 위해, 최신 안정 릴리스인 v1.5을 직접 배포하기로 했습니다.
 
 ## How to become a Midnight block producer?
 
-1. Follow the docs to register your SPO and run a Midnight validator node. The validate section of the Midnight documentation has been updated to reflect the latest changes: https://docs.midnight.network/validate/run-a-validator/
-2. Join the Midnight Discord and discuss any questions, issues, or suggestions for improvement in the 📊｜block-producers channel: https://discord.com/invite/midnightnetwork
-3. See [Compatibility Matrix](https://docs.midnight.network/relnotes/support-matrix) for supported component verrsions.
+1. 문서를 따라 SPO를 등록하고 Midnight 밸리데이터 노드를 실행하세요. Midnight 문서의 validate 섹션이 최신 변경 사항을 반영하여 업데이트되었습니다: https://docs.midnight.network/validate/run-a-validator/
+2. Midnight Discord에 참여하여 📊｜block-producers 채널에서 질문, 문제, 개선 제안을 논의하세요: https://discord.com/invite/midnightnetwork
+3. 지원되는 컴포넌트 버전은 [호환성 매트릭스](https://docs.midnight.network/relnotes/support-matrix)를 참조하세요.
 
-Key changes:
+주요 변경 사항:
 
 | Feature/Aspect | v1.2 | v1.5 |
 |----------------|------|------|
-| **CLI Tools** | Users required `partner-chains-cli` and `pc-contracts-cli` binaries, invoked with `./partner-chains-cli <commands>`. | Wizards integrated into `midnight-node` commands, e.g., `./midnight-node wizards --help`. No need for separate binaries. |
-| **Docker Repository** | Hosted at `midnight-ntwrk/midnight-node-docker` (now archived). | Moved to `midnightntwrk/midnight-node-docker` under the official Midnight Foundation org. |
-| **Service Ports** | Required both Ogmios and Kupo service ports for contract interactions (e.g., registering). | Only Ogmios service port required. |
-| **Keystore Directory** | Located at `data/chains/testnet-02/…`. | Uses `data/chains/partner_chains_template/…`. New keys generated in `data/chains/undeployed/…` (workaround: rename `undeployed` to `partner_chains_template`). |
-| **Key Support** | No extended key support; users (e.g., CNTools) had to create new key sets. | Supports BIP32-Ed25519 extended keys. |
-| **Memory Recommendation** | ~32GB for `midnight-node`. | Reduced to ~16GB due to ledger optimizations. |
+| **CLI Tools** | `partner-chains-cli`와 `pc-contracts-cli` 바이너리가 필요했으며, `./partner-chains-cli <commands>`로 실행했습니다. | 위자드가 `midnight-node` 명령에 통합되었습니다 (예: `./midnight-node wizards --help`). 별도 바이너리가 필요하지 않습니다. |
+| **Docker Repository** | `midnight-ntwrk/midnight-node-docker`에 호스팅 (현재 아카이브됨). | 공식 Midnight Foundation 조직 하의 `midnightntwrk/midnight-node-docker`로 이전. |
+| **Service Ports** | 컨트랙트 상호작용(예: 등록)을 위해 Ogmios와 Kupo 서비스 포트가 모두 필요했습니다. | Ogmios 서비스 포트만 필요합니다. |
+| **Keystore Directory** | `data/chains/testnet-02/...`에 위치. | `data/chains/partner_chains_template/...`을 사용합니다. 새 키는 `data/chains/undeployed/...`에 생성됩니다 (해결 방법: `undeployed`를 `partner_chains_template`으로 이름 변경). |
+| **Key Support** | 확장 키를 지원하지 않았으며, 사용자(예: CNTools)가 새 키 세트를 만들어야 했습니다. | BIP32-Ed25519 확장 키를 지원합니다. |
+| **Memory Recommendation** | `midnight-node`에 ~32GB. | 원장 최적화로 ~16GB로 감소. |
 
-Common questions:
+자주 묻는 질문:
 
 | Question | Answer |
 |----------|--------|
-| I was already registered to testnet-02 before this upgrade. Do I have to register again? | Yes. The committee candidate list is completely reset. Therefore, you need to register again. |
-| I was already registered to testnet-02 before the upgrade. Do I need to deregister? | No. Simply register again to Testnet-02 with the latest Midnight-node version. |
-| Can I use my existing keys? | Yes. Use them for the registration sequence. |
-| I was already registered to testnet-02 before the upgrade. In what order should I go about re-registering? | 1. Optional: Backup your Partner-chain keys if you intend to reuse the same keys.<br />2. Stop the Midnight-validator node and delete the Midnight-node db.<br />3. Register using the latest documentation.<br />4. Run the latest Midnight-node in validator mode and produce blocks. |
-| I’m not an existing Midnight validator, but interested in registering my SPO as one. Do I have to re-register? | 1. Register using the latest documentation.<br />2. Run the latest Midnight-node in validator mode and produce blocks. |
-| Is Cardano-db-sync still required? | Yes. The Midnight-node needs a persistent connection to Cardano-db-sync. v1.5 only eliminates the Kupo service from the Partner-chains stack. |
+| 이번 업그레이드 전에 이미 testnet-02에 등록되어 있었습니다. 다시 등록해야 하나요? | 네. 위원회 후보 목록이 완전히 리셋됩니다. 따라서 다시 등록해야 합니다. |
+| 업그레이드 전에 이미 testnet-02에 등록되어 있었습니다. 등록 해제해야 하나요? | 아닙니다. 최신 Midnight-node 버전으로 Testnet-02에 다시 등록하면 됩니다. |
+| 기존 키를 사용할 수 있나요? | 네. 등록 과정에 사용하세요. |
+| 업그레이드 전에 이미 testnet-02에 등록되어 있었습니다. 어떤 순서로 재등록해야 하나요? | 1. 선택 사항: 같은 키를 재사용하려면 Partner-chain 키를 백업하세요.<br />2. Midnight-validator 노드를 중지하고 Midnight-node db를 삭제하세요.<br />3. 최신 문서를 사용하여 등록하세요.<br />4. 최신 Midnight-node를 밸리데이터 모드로 실행하고 블록을 생산하세요. |
+| 기존 Midnight 밸리데이터가 아니지만, SPO를 밸리데이터로 등록하는 데 관심이 있습니다. 재등록해야 하나요? | 1. 최신 문서를 사용하여 등록하세요.<br />2. 최신 Midnight-node를 밸리데이터 모드로 실행하고 블록을 생산하세요. |
+| Cardano-db-sync이 여전히 필요한가요? | 네. Midnight-node는 Cardano-db-sync에 대한 영구 연결이 필요합니다. v1.5는 Partner-chains 스택에서 Kupo 서비스만 제거합니다. |

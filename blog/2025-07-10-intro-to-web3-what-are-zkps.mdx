@@ -3,120 +3,121 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 slug: web3-intro-what-are-zkps
 title: Learning Web3 from the Ground Up - What Are Zero-Knowledge Proofs (ZKPs)?
+description: Zero-knowledge proof의 개념, 작동 원리, 유형, 그리고 Midnight이 프라이버시 보존 DApp 개발에 ZKP를 어떻게 활용하는지 알아봅니다.
 authors: samantha
 tags: [intro, blockchain, beginner, web3]
 image: /img/blog/web3.jpg
 date: 2025-07-10
 ---
 
-Zero-knowledge proofs let you prove you know something without revealing what you know. Here's how this cryptographic breakthrough is revolutionizing privacy in Web3 applications.
+Zero-knowledge proof를 사용하면 알고 있는 내용을 공개하지 않고도 그것을 알고 있음을 증명할 수 있습니다. 이 암호학적 혁신이 Web3 애플리케이션의 프라이버시를 어떻게 변화시키고 있는지 알아봅니다.
 
 <!--truncate-->
 
-As I continue exploring the foundations of Web3, last week I focused on [Smart Contracts and Compact](https://docs.midnight.network/blog/web3-intro-smart-contracts-and-compact)—Midnight’s purpose-built smart contract language. Together, these two elements form the foundation for defining and enforcing logic in privacy-preserving applications.
+Web3의 기초를 계속 탐구하면서, 지난주에는 [Smart Contracts and Compact](https://docs.midnight.network/blog/web3-intro-smart-contracts-and-compact)에 집중했습니다. Midnight의 전용 smart contract 언어입니다. 이 두 요소가 함께 프라이버시 보존 애플리케이션에서 로직을 정의하고 집행하는 기반을 형성합니다.
 
-But logic alone isn’t enough in a decentralized system, especially when privacy is a priority. That’s where zero-knowledge proofs (ZKPs) come in.
+하지만 탈중앙화 시스템에서, 특히 프라이버시가 우선시될 때, 로직만으로는 충분하지 않습니다. 바로 여기서 zero-knowledge proof(ZKP)가 등장합니다.
 
-ZKPs enable the verification of a statement's truth without revealing the underlying justification. They let applications enforce smart contract rules while keeping sensitive data private—an essential capability for building systems that balance trust, utility, and confidentiality.
+ZKP는 기본이 되는 근거를 공개하지 않으면서 진술의 참을 검증할 수 있게 합니다. 민감한 데이터를 비공개로 유지하면서 smart contract 규칙을 집행할 수 있도록 하는 핵심 기능으로, 신뢰, 유용성, 기밀성의 균형을 맞추는 시스템을 구축하는 데 필수적입니다.
 
-In this post, I’ll break down what zero-knowledge proofs are, how they work, and how Midnight uses them to support privacy, compliance, and secure dApp development.
+이번 글에서는 zero-knowledge proof가 무엇인지, 어떻게 작동하는지, 그리고 Midnight이 프라이버시, 컴플라이언스, 안전한 DApp 개발을 지원하기 위해 이를 어떻게 사용하는지 설명하겠습니다.
 
 ## What Are Zero-Knowledge Proofs?
 
-A zero-knowledge proof allows someone (the prover) to prove to another party (the verifier) that a specific statement is true, without revealing any additional information beyond the fact itself.
+Zero-knowledge proof는 한 쪽(증명자)이 다른 쪽(검증자)에게 특정 진술이 참이라는 것을 그 사실 자체 이상의 추가 정보를 공개하지 않으면서 증명할 수 있게 합니다.
 
-Think of it like this: instead of handing over your complete ID to prove you're over 18, you could use a ZKP to prove you're above the age threshold, without disclosing your exact birthday, name, or ID number.
+이렇게 생각해 보세요: 18세 이상임을 증명하기 위해 전체 신분증을 넘기는 대신, ZKP를 사용하여 정확한 생년월일, 이름, 신분증 번호를 공개하지 않고도 연령 기준을 충족한다는 것을 증명할 수 있습니다.
 
-This cryptographic technique is built on three foundational properties:
+이 암호학적 기술은 세 가지 기본 속성을 기반으로 합니다:
 
-- Completeness: If the statement is true, the prover can convince the verifier that it is true.  
-- Soundness: If the statement is false, no dishonest prover can convince the verifier that it is true.  
-- Zero-knowledge: The verifier learns nothing beyond the truth of the statement.
+- Completeness: 진술이 참이면, 증명자는 검증자에게 참이라고 확신시킬 수 있습니다.
+- Soundness: 진술이 거짓이면, 어떤 부정직한 증명자도 검증자에게 참이라고 확신시킬 수 없습니다.
+- Zero-knowledge: 검증자는 진술의 참 여부 외에는 아무것도 알 수 없습니다.
 
 ## Interactive vs. Non-Interactive Proofs
 
-Early ZKPs required a back-and-forth exchange between prover and verifier—these are called interactive proofs. But in decentralized systems, interaction isn’t always feasible. That’s where non-interactive proofs come in.
+초기 ZKP는 증명자와 검증자 간의 왕복 교환이 필요했으며, 이를 대화형 proof라 합니다. 하지만 탈중앙화 시스템에서는 상호작용이 항상 가능하지 않습니다. 여기서 비대화형 proof가 등장합니다.
 
-Non-interactive ZKPs let a prover generate a single proof that anyone can verify at any time, with no additional input. Protocols like zk-SNARKs and zk-STARKs make this possible, often using techniques like the [Fiat–Shamir heuristic](https://www.zkdocs.com/docs/zkdocs/protocol-primitives/fiat-shamir/) to simulate interaction using cryptographic hashes.
+비대화형 ZKP는 증명자가 추가 입력 없이 누구나 언제든 검증할 수 있는 단일 proof를 생성할 수 있게 합니다. zk-SNARK과 zk-STARK 같은 프로토콜이 이를 가능하게 하며, 종종 [Fiat-Shamir 휴리스틱](https://www.zkdocs.com/docs/zkdocs/protocol-primitives/fiat-shamir/) 같은 기법을 사용하여 암호학적 해시로 상호작용을 시뮬레이션합니다.
 
-This makes non-interactive ZKPs ideal for blockchains, where proofs need to be public, reusable, and verifiable by anyone.
+이 때문에 비대화형 ZKP는 proof가 공개적이고, 재사용 가능하며, 누구나 검증할 수 있어야 하는 blockchain에 이상적입니다.
 
 ## Types of Zero-Knowledge Proof Systems
 
-Different ZKP systems come with different tradeoffs in terms of size, speed, and trust requirements:
+ZKP 시스템마다 크기, 속도, 신뢰 요구사항 면에서 다른 트레이드오프가 있습니다:
 
-- Groth16 (zk-SNARK): Very small proofs, fast verification, but requires a trusted setup per circuit.  
-- Plonk (zk-SNARK): Slightly larger proofs, slower verification, but only needs a one-time universal setup.  
-- Bulletproofs: No trusted setup, but proof size grows with complexity.  
-- zk-STARKs: Transparent (no trusted setup), post-quantum secure, but with large proof sizes.
+- Groth16 (zk-SNARK): 매우 작은 proof, 빠른 검증, 하지만 circuit당 trusted setup 필요
+- Plonk (zk-SNARK): 약간 더 큰 proof, 느린 검증, 하지만 일회성 universal setup만 필요
+- Bulletproofs: Trusted setup 불필요, 하지만 복잡도에 따라 proof 크기가 증가
+- zk-STARK: 투명(trusted setup 불필요), 양자 내성 보안, 하지만 큰 proof 크기
 
-Midnight utilizes a Plonk-derived system called [Halo 2](https://electriccoin.co/blog/explaining-halo-2/), which supports recursive proofs and eliminates trusted setup in specific configurations, making it an ideal choice for privacy-preserving dApps that require both flexibility and scalability.
+Midnight은 [Halo 2](https://electriccoin.co/blog/explaining-halo-2/)라는 Plonk 파생 시스템을 활용합니다. 재귀적 proof를 지원하고 특정 구성에서 trusted setup을 제거하므로, 유연성과 확장성을 모두 요구하는 프라이버시 보존 DApp에 이상적인 선택입니다.
 
 ## How Do ZKPs Work?
 
-The idea behind zero-knowledge proofs might seem almost magical: one party (the prover) can prove to another (the verifier) that a statement is true, without revealing the *why*. But this is no sleight of hand—it’s grounded in rigorous cryptography and clever use of mathematical structures.
+Zero-knowledge proof의 개념은 거의 마법처럼 보일 수 있습니다: 한 쪽(증명자)이 다른 쪽(검증자)에게 진술이 참이라는 것을 *왜* 그런지는 공개하지 않으면서 증명할 수 있습니다. 하지만 이것은 눈속임이 아니라, 엄밀한 암호학과 수학적 구조의 영리한 활용에 기반합니다.
 
-At the heart of a ZKP is a “statement” that the prover wants to validate without revealing the underlying secret. That statement gets encoded into a circuit, which represents the logical rules or constraints that need to be satisfied. The prover then uses a special cryptographic key, known as the proving key, along with the secret input (called the witness), to generate a succinct proof. The verifier can then check this proof using a verifying key, confirming the rules were followed, without ever seeing the private input.
+ZKP의 핵심에는 증명자가 기본 비밀을 공개하지 않으면서 검증하려는 "진술"이 있습니다. 그 진술은 충족해야 할 논리적 규칙이나 제약 조건을 나타내는 circuit으로 인코딩됩니다. 증명자는 proving key라는 특수한 암호학적 키와 함께 witness라 불리는 비밀 입력을 사용하여 간결한 proof를 생성합니다. 검증자는 verifying key를 사용하여 이 proof를 확인함으로써, private 입력을 전혀 보지 않고도 규칙이 준수되었음을 확인할 수 있습니다.
 
-This process makes ZKPs ideal for privacy-preserving smart contracts. In traditional systems, all data must be made public to verify that an action is legitimate. But with ZKPs, we can shift the trust model: rather than inspecting the data itself, the verifier checks a cryptographic proof that the data complies with the rules.
+이 과정은 ZKP를 프라이버시 보존 smart contract에 이상적으로 만듭니다. 기존 시스템에서는 행위의 정당성을 검증하기 위해 모든 데이터를 공개해야 합니다. 하지만 ZKP를 사용하면 신뢰 모델을 전환할 수 있습니다: 데이터 자체를 검사하는 대신, 데이터가 규칙을 준수한다는 암호학적 proof를 검증합니다.
 
-Midnight takes this further by embedding ZKPs directly into the structure and execution of smart contracts. In Midnight, the verification key of a compiled Compact smart contract becomes the identity of that contract on-chain. When users interact with it, they’re not just calling a function—they’re submitting proof that they've complied with the logic defined by that contract, without revealing their inputs.
+Midnight은 ZKP를 smart contract의 구조와 실행에 직접 내장하여 한 걸음 더 나아갑니다. Midnight에서 컴파일된 Compact smart contract의 verification key는 해당 contract의 온체인 신원이 됩니다. 사용자가 contract와 상호작용할 때, 단순히 함수를 호출하는 것이 아니라, 입력을 공개하지 않으면서 해당 contract가 정의한 로직을 준수했다는 proof를 제출하는 것입니다.
 
-Here's a high-level flow of how this works:
+이 과정의 상위 수준 흐름은 다음과 같습니다:
 
-1. Setup: A circuit is created. A proving key and a verifying key are generated.  
-2. Proof Generation: The prover uses their secret (a witness) and the proving key to generate a cryptographic proof.  
-3. Verification: The verifier uses the verifying key and the proof to confirm the statement is true, without learning anything else.
+1. Setup: Circuit이 생성됩니다. Proving key와 verifying key가 생성됩니다.
+2. Proof Generation: 증명자가 비밀(witness)과 proving key를 사용하여 암호학적 proof를 생성합니다.
+3. Verification: 검증자가 verifying key와 proof를 사용하여 다른 것은 전혀 알지 못하면서 진술이 참인지 확인합니다.
 
-This process ensures that the smart contract logic is executed exactly as intended, without exposing the underlying data.
+이 과정을 통해 smart contract 로직이 기본 데이터를 노출하지 않으면서 의도한 대로 정확히 실행되었음을 보장합니다.
 
-## Midnight’s Approach to ZKPs
+## Midnight's Approach to ZKPs
 
-Midnight utilizes zero-knowledge proofs not only for theoretical privacy but also to enable real-world compliance and usability. Let’s walk through a few key elements of how ZKPs show up on the Midnight network:
+Midnight은 zero-knowledge proof를 이론적 프라이버시뿐 아니라, 실제 컴플라이언스와 사용성을 위해서도 활용합니다. Midnight 네트워크에서 ZKP가 어떻게 나타나는지 몇 가지 핵심 요소를 살펴보겠습니다:
 
 ### Confidential Transactions
 
-Users can transfer assets on Midnight without revealing the sender, receiver, or amount. ZKPs are used to prove that a transaction is valid (i.e., no double spending, balances add up) without revealing specific details. This ensures both privacy and integrity.
+사용자는 발신자, 수신자, 금액을 공개하지 않으면서 Midnight에서 자산을 전송할 수 있습니다. ZKP를 사용하여 transaction이 유효한지(이중 지출 없음, 잔액이 맞음) 특정 세부 사항을 드러내지 않고 증명합니다. 이를 통해 프라이버시와 무결성을 모두 보장합니다.
 
 ### Selective Disclosure and Compliance
 
-Midnight supports “shielded” and “unshielded” data modes. You can keep your transaction data private by default, but also selectively disclose specific information (via a ZKP or viewing key) to a regulator, auditor, or another authorized party.
+Midnight은 "차폐" 및 "비차폐" 데이터 모드를 지원합니다. Transaction 데이터를 기본적으로 비공개로 유지하되, ZKP나 viewing key를 통해 규제 기관, 감사인, 또는 기타 권한이 있는 당사자에게 특정 정보를 선택적으로 공개할 수 있습니다.
 
-This enables use cases like “prove I’m a citizen of Country X” or “prove I’m not sanctioned” without revealing your complete identity or wallet history.
+이를 통해 "국가 X의 시민임을 증명" 또는 "제재 대상이 아님을 증명" 같은 사용 사례가 가능해지며, 완전한 신원이나 지갑 이력을 공개할 필요가 없습니다.
 
-For more information about selective disclosure, read my overview [here](https://docs.midnight.network/blog/web3-intro-selective-disclosure)\!
+Selective disclosure에 대한 더 자세한 내용은 제 개요 글을 [여기](https://docs.midnight.network/blog/web3-intro-selective-disclosure)에서 확인하세요!
 
 ### Decentralized Identity
 
-ZKPs are key to proving facts about identity without revealing full credentials. Midnight supports workflows like proving KYC status (“A trusted provider has verified me”) using a proof, not a document.
+ZKP는 전체 자격 증명을 공개하지 않으면서 신원에 대한 사실을 증명하는 핵심 기술입니다. Midnight은 문서가 아닌 proof를 사용하여 KYC 상태("신뢰할 수 있는 제공자가 나를 검증했음")를 증명하는 워크플로를 지원합니다.
 
-This allows users to interact with services that require identity checks—such as exchanges or marketplaces—without exposing sensitive personal data.
+이를 통해 사용자는 거래소나 마켓플레이스처럼 신원 확인이 필요한 서비스와 민감한 개인 데이터를 노출하지 않으면서 상호작용할 수 있습니다.
 
 ### Scalability via Recursive Proofs
 
-ZKPs also compress large computations into tiny proofs. That makes them ideal for batching transactions or reducing blockchain bloat. Midnight’s use of recursive proofs allows smart contracts and transactions to scale more efficiently than traditional blockchains.
+ZKP는 또한 대규모 연산을 작은 proof로 압축합니다. 이는 transaction 배치 처리나 blockchain 부하를 줄이는 데 이상적입니다. Midnight의 재귀적 proof 활용으로 smart contract와 transaction이 기존 blockchain보다 더 효율적으로 확장될 수 있습니다.
 
 ## Real-World Use Cases on Midnight
 
-Some examples of ZKP-powered applications on Midnight are:
+Midnight에서 ZKP로 구동되는 애플리케이션의 사례는 다음과 같습니다:
 
-- Voting: Prove you’re eligible to vote and that your vote was counted, without revealing your identity or your vote.  
-- Whistleblowing: Submit a report anonymously, proving only that you’re authorized (e.g., an employee).  
-- Private Asset Swaps: Use Midnight’s Zswap to exchange tokens confidentially without revealing terms or participants.  
-- KYC Onboarding: Prove compliance status to a platform or dApp without exposing documents.  
-- Tokenized Real-World Assets: Keep ownership private while maintaining auditable transfer records. These use cases show how ZKPs on Midnight turn privacy into a practical feature, not just a theoretical promise. They lay the groundwork for a future where developers can build secure, compliant, and data-protecting applications by default.
+- 투표: 투표 자격이 있고 투표가 집계되었음을 신원이나 투표 내용을 공개하지 않으면서 증명합니다.
+- 내부 고발: 보고서를 익명으로 제출하되, 권한이 있다는 것(예: 직원)만 증명합니다.
+- Private Asset Swap: Midnight의 Zswap을 사용하여 조건이나 참여자를 공개하지 않으면서 기밀로 토큰을 교환합니다.
+- KYC 온보딩: 문서를 노출하지 않으면서 플랫폼이나 DApp에 컴플라이언스 상태를 증명합니다.
+- 토큰화된 실물 자산: 감사 가능한 전송 기록을 유지하면서 소유권을 비공개로 유지합니다. 이러한 사용 사례는 Midnight의 ZKP가 프라이버시를 이론적 약속이 아닌 실용적 기능으로 전환하는 방법을 보여줍니다. 개발자가 기본적으로 안전하고, 컴플라이언스를 준수하며, 데이터를 보호하는 애플리케이션을 구축할 수 있는 미래의 기반을 마련합니다.
 
 ## Conclusion
 
-Zero-knowledge proofs bring trust to trustless systems. They make it possible to prove something is true—like compliance with laws, asset ownership, or user eligibility—without revealing any sensitive details.
+Zero-knowledge proof는 trustless 시스템에 신뢰를 가져옵니다. 법률 준수, 자산 소유권, 사용자 자격 등 민감한 세부 사항을 공개하지 않으면서 참임을 증명할 수 있게 합니다.
 
-Midnight makes ZKPs more than theoretical. They’re deeply integrated into its smart contract architecture, transaction model, and developer tooling. Paired with the Compact language (covered in last week’s post), they create a robust foundation for building privacy-first decentralized applications.
+Midnight은 ZKP를 이론을 넘어 실현합니다. Smart contract 아키텍처, transaction 모델, 개발자 도구에 깊이 통합되어 있습니다. 지난주 글에서 다룬 Compact 언어와 결합하면, 프라이버시 우선 탈중앙화 애플리케이션을 구축하기 위한 견고한 기반이 만들어집니다.
 
-If you’re interested in learning more, check out:
+더 자세히 알고 싶다면 다음을 확인하세요:
 
-- [Midnight Developer Academy Module 3](https://docs.midnight.network/academy/module-3)  
-- [Zero-Knowledge Proofs](https://docs.midnight.network/learn/understanding-midnights-technology/zero-knowledge-proofs) in the [Midnight Docs](https://docs.midnight.network/)
+- [Midnight Developer Academy Module 3](https://docs.midnight.network/academy/module-3)
+- [Midnight Docs](https://docs.midnight.network/)의 [Zero-Knowledge Proofs](https://docs.midnight.network/learn/understanding-midnights-technology/zero-knowledge-proofs)
 
-And if you’ve come across excellent ZKP explanations or tutorials, I’d love to hear about them—please share your favorites\!
+ZKP에 대한 훌륭한 설명이나 튜토리얼을 발견하셨다면 공유해 주세요!
 
-See you next week as I continue to unpack the core ideas that power privacy in Web3\!  
+다음 주에도 Web3에서 프라이버시를 구동하는 핵심 아이디어를 계속 풀어나가겠습니다!

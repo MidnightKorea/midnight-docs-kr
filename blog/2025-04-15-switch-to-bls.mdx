@@ -8,21 +8,22 @@ tags: [zkp]
 keywords: ["Midnight", "BLS", "Kachina"]
 image: /img/blog/zkp.jpg
 date: 2025-04-15
+description: Kachina은 비대화형 영지식 증명을 사용하여 사용자가 개인 데이터를 공개하지 않고도 유효한 상태 전환을 증명할 수 있게 합니다.
 ---
 
-Kachina employs non-interactive zero-knowledge proofs to allow users to prove valid state transitions without revealing private data.
+Kachina은 비대화형 영지식 증명을 사용하여 사용자가 개인 데이터를 공개하지 않고도 유효한 상태 전환을 증명할 수 있게 합니다.
 
 <!--truncate-->
 
 :::info Update - April 28, 2025
-This transition has been completed. Midnight now uses BLS12-381 as its proving system.
+이 전환은 완료되었습니다. Midnight은 현재 BLS12-381을 증명 시스템으로 사용합니다.
 :::
 
 # Midnight's proving system switched from Pluto Eris to BLS
 
-Midnight leverages the [Kachina](https://iohk.io/en/research/library/papers/kachina-foundations-of-private-smart-contracts/) protocol for privacy-preserving smart contracts using Universal Composition (UC) model to enable secure, decentralized computations with zero-knowledge proofs, splitting contracts state into public (on-chain) and private (off-chain) components for scalable privacy.
+Midnight은 프라이버시 보존 스마트 컨트랙트를 위해 [Kachina](https://iohk.io/en/research/library/papers/kachina-foundations-of-private-smart-contracts/) 프로토콜을 활용합니다. Universal Composition(UC) 모델을 사용하여 영지식 증명으로 안전한 탈중앙화 연산을 가능하게 하며, 컨트랙트 상태를 공개(온체인)와 비공개(오프체인) 구성 요소로 분리하여 확장 가능한 프라이버시를 실현합니다.
 
-Midnight currently uses ZK-SNARKs based on the Kachina framework with the [BLS12-381](https://github.com/zkcrypto/bls12_381) curve for its proving system, ensuring privacy-preserving smart contracts. As part of the [Testnet upgrade on April 28, 2025](https://midnight.network/blog/upcoming-testnet-02-upgrade-all-you-need-to-know), Midnight switched from [Pluto-Eris](https://github.com/daira/pluto-eris) to BLS12-381 to improve efficiency and security, leveraging BLS12-381's pairing-based properties to enhance performance in transactions.
+Midnight은 현재 [BLS12-381](https://github.com/zkcrypto/bls12_381) 곡선을 사용한 Kachina 프레임워크 기반의 ZK-SNARK을 증명 시스템으로 사용하여 프라이버시 보존 스마트 컨트랙트를 보장합니다. [2025년 4월 28일 테스트넷 업그레이드](https://midnight.network/blog/upcoming-testnet-02-upgrade-all-you-need-to-know)의 일환으로, Midnight은 효율성과 보안을 향상시키기 위해 [Pluto-Eris](https://github.com/daira/pluto-eris)에서 BLS12-381로 전환했으며, BLS12-381의 페어링 기반 특성을 활용하여 트랜잭션 성능을 개선했습니다.
 
 ## Why Midnight switched to BLS
 
@@ -39,38 +40,38 @@ Midnight currently uses ZK-SNARKs based on the Kachina framework with the [BLS12
 
 ### Moving away from trusted setup ceremony
 
-One of the most compelling reasons to adopt BLS12-381 is its use of an existing, standardized trusted setup. Pluto-Eris, by contrast, requires a bespoke ceremony. With BLS12-381, we leverage a pre-established setup that has already been widely vetted and accepted in the cryptographic community.
+BLS12-381을 채택해야 하는 가장 설득력 있는 이유 중 하나는 기존의 표준화된 신뢰 설정을 사용한다는 점입니다. 반면 Pluto-Eris은 별도의 의식(ceremony)이 필요합니다. BLS12-381을 사용하면 암호학 커뮤니티에서 이미 폭넓게 검증되고 인정된 사전 구축 설정을 활용할 수 있습니다.
 
 ### Embracing standardized cryptography
 
-Pluto-Eris relies on non-standard cryptography, which, while innovative, poses risks in terms of interoperability and long-term support. BLS12-381, however, is built on standard cryptographic primitives that are well-understood, extensively tested, and broadly adopted. Standardization reduces the likelihood of vulnerabilities and ensures compatibility with other systems, making BLS12-381 a more future-proof choice.
+Pluto-Eris은 비표준 암호학에 의존하며, 혁신적이긴 하지만 상호운용성과 장기 지원 측면에서 위험을 수반합니다. 반면 BLS12-381은 잘 이해되고, 광범위하게 테스트되며, 널리 채택된 표준 암호학 기본 요소를 기반으로 구축되었습니다. 표준화는 취약점 가능성을 줄이고 다른 시스템과의 호환성을 보장하여, BLS12-381을 더 미래 지향적인 선택으로 만듭니다.
 
 ### Boosting transaction performance
 
-Performance is a critical factor in any cryptographic system, and BLS12-381 outshines Pluto Eris across several key metrics. Transactions on BLS12-381 are faster, with verification times slashed from 12 milliseconds per proof in Pluto Eris to just 6 milliseconds. Additionally, transaction sizes are more compact, dropping from 6 kilobytes per proof to 5 kilobytes, allowing for more efficient use of bandwidth and storage. These improvements translate to a smoother, more scalable user experience across the Midnight platform.
+성능은 모든 암호학 시스템에서 핵심적인 요소이며, BLS12-381은 여러 주요 지표에서 Pluto Eris을 능가합니다. BLS12-381에서의 트랜잭션은 더 빠르며, 검증 시간이 Pluto Eris의 증명당 12밀리초에서 6밀리초로 단축됩니다. 또한 트랜잭션 크기도 더 작아져, 증명당 6킬로바이트에서 5킬로바이트로 줄어들어 대역폭과 스토리지를 더 효율적으로 사용할 수 있습니다. 이러한 개선은 Midnight 플랫폼 전반에 걸쳐 더 원활하고 확장 가능한 사용자 경험으로 이어집니다.
 
 ### Simplifying architecture and maintenance
 
-Architectural complexity is another area where BLS12-381 has a clear edge. Pluto Eris is burdened by a high level of complexity, making it harder to maintain.
+아키텍처 복잡성은 BLS12-381이 확실한 우위를 가진 또 다른 영역입니다. Pluto Eris은 높은 수준의 복잡성을 가지고 있어 유지보수가 더 어렵습니다.
 
 ### Balancing cost and efficiency in recursion
 
-Recursive proofs are a cornerstone of advanced cryptographic applications, and the two systems handle them differently. Pluto Eris delivers smaller circuits but at a higher CPU cost, which can strain computational resources as usage scales. BLS12-381 flips this tradeoff, opting for larger circuits with a lower CPU cost.
+재귀 증명은 고급 암호학 애플리케이션의 핵심이며, 두 시스템은 이를 다르게 처리합니다. Pluto Eris은 더 작은 회로를 제공하지만 CPU 비용이 높아, 사용량이 증가할수록 연산 자원에 부담을 줄 수 있습니다. BLS12-381은 이 트레이드오프를 뒤집어, 더 큰 회로를 사용하면서 CPU 비용을 낮춥니다.
 
-In short, BLS12-381 offers a compelling blend of performance, simplicity, and reliability than Pluto Eris.
+요약하면, BLS12-381은 Pluto Eris보다 성능, 단순성, 신뢰성의 설득력 있는 조합을 제공합니다.
 
 ## 💥 Impact on developers
 
-The transition to BLS12-381 occurred on April 28, 2025, as part of the Testnet upgrade. This change was not backward compatible, requiring developers to adopt BLS-compatible components. These components include:
+BLS12-381로의 전환은 2025년 4월 28일 테스트넷 업그레이드의 일환으로 이루어졌습니다. 이 변경은 하위 호환되지 않으므로, 개발자는 BLS 호환 컴포넌트를 채택해야 합니다. 해당 컴포넌트에는 다음이 포함됩니다:
 
 - midnight.js
 - wallet
 - examples
 - proof-server
 
-Existing Compact code remained functional but required recompilation and redeployment to align with the BLS12-381 standard. The transition to BLS12-381 paved the way for a significantly more performant developer experience with faster transactions.
+기존 Compact 코드는 계속 작동하지만, BLS12-381 표준에 맞추기 위해 재컴파일과 재배포가 필요합니다. BLS12-381로의 전환은 더 빠른 트랜잭션으로 상당히 향상된 개발자 경험을 위한 토대를 마련했습니다.
 
-👉 **For support, join the Midnight [Discord](https://discord.com/invite/midnightnetwork)!**
+👉 **지원이 필요하시면, Midnight [Discord](https://discord.com/invite/midnightnetwork)에 참여하세요!**
 
 ## Sources
 

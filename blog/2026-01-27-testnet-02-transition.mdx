@@ -5,54 +5,55 @@ authors: stev
 tags: [testnet, spos,]
 date: 2026-01-27
 image: /img/blog/updates.jpg
+description: "Testnet-02 전환 안내 및 Mohalu를 향한 로드맵: SPO 가이드"
 ---
 
 # Testnet-02 transition & the roadmap to Mōhalu
 
-As we progress through the **Hilo** phase and prepare for the upcoming milestones of the Midnight Network, we are adjusting testing environments to ensure a seamless transition to a decentralized mainnet.
+**Hilo** 단계를 진행하며 Midnight Network의 다가오는 마일스톤을 준비하는 과정에서, 분산화된 메인넷으로의 원활한 전환을 위해 테스트 환경을 조정하고 있습니다.
 
-Midnight `Testnet-02` has been a monumental success, serving as the crucible for Midnight’s zero-knowledge capabilities. We want to extend our deepest gratitude to the over **180+** Cardano Stake Pool Operators (SPOs) who actively participated in the `Testnet-02` environment and their ongoing support for the Midnight project. 
+Midnight `Testnet-02`는 Midnight의 영지식 기능을 검증하는 시험장으로서 큰 성공을 거두었습니다. `Testnet-02` 환경에 적극적으로 참여해 주시고 Midnight 프로젝트를 지속적으로 지원해 주신 **180명 이상**의 Cardano 스테이크 풀 오퍼레이터(SPO) 여러분께 깊은 감사를 드립니다.
 
-In previous communications, we signaled that SPOs would migrate directly to the Midnight `Preview` environment at this stage. However, as we refine the roadmap toward the **Kūkolu** (Federated Mainnet) phase, we have made a strategic pivot.
+이전 커뮤니케이션에서 SPO가 이 단계에서 Midnight `Preview` 환경으로 직접 마이그레이션할 것이라고 안내했습니다. 그러나 **Kukolu**(Federated Mainnet) 단계를 향한 로드맵을 정비하면서 전략적 방향 전환을 하게 되었습니다.
 
-While `Testnet-02` validators may continue to run their nodes until **February 28, 2026**, the Midnight `Preview` environment will be temporarily maintained by core engineering. This shift allows us to:
+`Testnet-02` 검증자는 **2026년 2월 28일**까지 노드를 계속 운영할 수 있지만, Midnight `Preview` 환경은 일시적으로 핵심 엔지니어링 팀이 관리합니다. 이 전환을 통해 다음이 가능해집니다:
 
-* Perform high velocity testing and rapid iterations.  
-* Finalize the integration of novel features such as the DUST Capacity Exchange.  
-* Ensure a stable, rapid-test environment for core development that would otherwise cause unnecessary disruption and downtime for independent SPOs.
+* 높은 속도의 테스트와 빠른 반복 수행.
+* DUST Capacity Exchange 등 신규 기능의 통합 완료.
+* 독립 SPO에게 불필요한 중단과 다운타임을 유발하지 않는 안정적이고 신속한 핵심 개발 테스트 환경 확보.
 
 | Phase    | Milestone              | SPO & Validator Role                                      |
 |----------|------------------------|-------------------------------------------------------------------|
-| Hilo     | Token Genesis          | Initial liquidity and NIGHT "Glacier Drop" on Cardano.            |
-| Kūkolu   | Federated Mainnet      | Ecosystem partners maintain stability during rapid development.   |
-| Mōhalu   | Incentivized Mainnet   | SPO Onboarding begins including other testing.                    |
-| Hua      | Full Decentralization  | Block production transitions to community.                        |
+| Hilo     | Token Genesis          | 초기 유동성 및 Cardano에서의 NIGHT "Glacier Drop".            |
+| Kukolu   | Federated Mainnet      | 빠른 개발 기간 동안 생태계 파트너가 안정성을 유지합니다.   |
+| Mohalu   | Incentivized Mainnet   | SPO 온보딩이 시작되며 기타 테스트를 포함합니다.                    |
+| Hua      | Full Decentralization  | 블록 생산이 커뮤니티로 전환됩니다.                        |
 
-This keeps the structure clean and focused on phases, milestones, and roles.
+이 구조는 단계, 마일스톤, 역할에 초점을 맞추어 깔끔하게 정리되어 있습니다.
 
-*Please note: All dates are estimates.*
+*참고: 모든 날짜는 추정치입니다.*
 
-We acknowledge that this change differs from previous expectations, but we believe this path ensures the highest quality environment for SPOs to return for **Mōhalu**.
+이 변경이 이전 기대와 다르다는 점을 알고 있지만, 이 경로가 **Mohalu** 단계에서 SPO가 복귀할 때 최고 품질의 환경을 보장한다고 믿습니다.
 
 :::important
 
 ## Validator documentation status
 
-To avoid confusion during this transition, **current validator documentation will be temporarily unpublished** or hidden from the main site. This ensures that **when you return to the docs for the Mōhalu phase, they will be 100% accurate**, refreshed, and aligned with the new architecture.
+이 전환 기간 동안 혼란을 방지하기 위해, **현재 검증자 문서는 임시로 비공개 처리**되거나 메인 사이트에서 숨겨집니다. 이를 통해 **Mohalu 단계에서 문서를 다시 확인할 때 100% 정확하고** 새롭게 정비되어 새로운 아키텍처와 일치하도록 보장합니다.
 
 :::
 
 ## Direct action on your feedback
 
-We recently conducted a feedback survey to understand your operational experience. We heard your feedback regarding documentation, setup friction, and infrastructure control. In preparation for the **Mōhalu** phase, we are implementing the following changes:
+최근 운영 경험을 파악하기 위한 피드백 설문조사를 실시했습니다. 문서, 설정 과정의 마찰, 인프라 제어에 대한 여러분의 피드백을 청취했습니다. **Mohalu** 단계를 준비하면서 다음과 같은 변경을 시행하고 있습니다:
 
-- We are moving away from a Docker-only distribution. We are now delivering pre-compiled binaries for `midnight-node` and restructuring our documentation to be binary and source-first. While containerization is useful, we recognize that barebones instructions are fundamental for professional SPO infrastructure.
-- The next node version will completely remove the registration wizard, allowing for a more direct and scriptable registration process.
-- We are prioritizing new architecture recommendation for secrets management and air-gapped signing guidance. We recognize that for a privacy-focused chain, the security of our validators' keys is paramount.
-- In the lead up to Mōhalu, we promise more structued communication cadence and dedicated SPO/ validator calls.
+- Docker 전용 배포에서 벗어나고 있습니다. 이제 `midnight-node`용 사전 컴파일된 바이너리를 제공하고, 문서를 바이너리 및 소스 우선으로 재구성합니다. 컨테이너화는 유용하지만, 전문 SPO 인프라에는 기본 설치 지침이 필수적이라는 점을 인식하고 있습니다.
+- 다음 노드 버전에서는 등록 마법사가 완전히 제거되어, 보다 직접적이고 스크립트화 가능한 등록 프로세스가 가능해집니다.
+- 비밀 관리를 위한 새로운 아키텍처 권장 사항과 에어갭 서명 가이드를 우선적으로 제공합니다. 프라이버시 중심 체인에서 검증자 키의 보안이 가장 중요하다는 것을 인식하고 있습니다.
+- Mohalu를 앞두고 더 체계적인 커뮤니케이션 주기와 전용 SPO/검증자 콜을 약속합니다.
 
 ## Staying informed: Subscribe to Midnight Validator Updates
 
-👉 To ensure you receive the latest technical specifications, onboarding guides, and timeline adjustments for the **Mōhalu** phase, we encourage all SPOs to subscribe via the Midnight Validator Digest: https://mpc.midnight.network/midnight-validator-digest
+최신 기술 사양, 온보딩 가이드, **Mohalu** 단계의 일정 조정 사항을 받아보려면 Midnight Validator Digest를 구독하세요: https://mpc.midnight.network/midnight-validator-digest
 
-👉 Join other validators and builders in the Midnight Discord server: https://discord.com/invite/midnightnetwork
+다른 검증자 및 빌더와 함께 Midnight Discord 서버에 참여하세요: https://discord.com/invite/midnightnetwork

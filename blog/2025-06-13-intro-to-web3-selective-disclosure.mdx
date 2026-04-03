@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 slug: web3-intro-selective-disclosure
 title: Learning Web3 from the Ground Up - Understanding Selective Disclosure
+description: Selective disclosure의 개념, 장점, 그리고 Midnight이 프라이버시 우선 smart contract를 통해 이를 어떻게 구현하는지 살펴봅니다.
 authors: samantha
 tags: [intro, blockchain, beginner, web3]
 image: /img/blog/web3.jpg
@@ -10,80 +11,80 @@ date: 2025-06-13
 ---
 # Learning Web3 From the Ground Up: Understanding Selective Disclosure
 
-As I delve deeper into the world of Web3, I've been working my way through foundational concepts to have a better understanding of the industry (check out my last five posts on the [Midnight Dev Diaries](https://docs.midnight.network/blog)!). This week, I dove into one of the most practical and privacy-focused ideas I’ve encountered so far: **selective disclosure**.
+Web3 세계를 더 깊이 탐구하면서 업계에 대한 이해를 넓히기 위해 기초 개념을 하나씩 짚어가고 있습니다(지난 다섯 편의 글은 [Midnight Dev Diaries](https://docs.midnight.network/blog)에서 확인하세요!). 이번 주에는 지금까지 만난 개념 중 가장 실용적이고 프라이버시에 초점을 맞춘 아이디어인 **selective disclosure**를 깊이 다루었습니다.
 
-Selective disclosure is more than just a technical feature—it’s the working expression of a broader idea known as **rational privacy**. It allows individuals to prove or reveal only what’s necessary in a given interaction, keeping everything else private. In an ecosystem where trust must be earned without a central authority, this ability to protect personal data while still meeting legal or operational requirements is critical.
+Selective disclosure는 단순한 기술적 기능 이상입니다. **Rational privacy**라는 더 넓은 개념의 실제 구현입니다. 주어진 상호작용에서 필요한 것만 증명하거나 공개하고, 나머지는 모두 비공개로 유지할 수 있게 합니다. 중앙 권위 없이 신뢰를 쌓아야 하는 생태계에서, 법적 또는 운영상의 요구사항을 충족하면서도 개인 데이터를 보호하는 이 능력은 매우 중요합니다.
 
-This post examines how selective disclosure operates, its benefits, and how platforms like Midnight are implementing it through privacy-first smart contracts.
+이 글에서는 selective disclosure의 작동 방식, 장점, 그리고 Midnight이 프라이버시 우선 smart contract를 통해 이를 어떻게 구현하고 있는지 살펴봅니다.
 
 ## What Is Selective Disclosure?
 
-In the Web3 world, privacy doesn’t mean keeping everything secret—it means sharing only what’s necessary. [**Selective disclosure**](https://www.identity.com/what-is-selective-disclosure/) is a privacy-preserving technique that enables individuals to disclose specific information for a given interaction while keeping all other personal data confidential.
+Web3 세계에서 프라이버시는 모든 것을 비밀로 유지하는 것이 아닙니다. 필요한 것만 공유하는 것입니다. [**Selective disclosure**](https://www.identity.com/what-is-selective-disclosure/)는 특정 상호작용에서 필요한 정보만 공개하고 다른 모든 개인 데이터는 기밀로 유지하는 프라이버시 보존 기법입니다.
 
-This approach is a practical expression of a broader concept known as [**rational privacy**](https://midnight.network/blog/midnight-at-consensus-2025-building-the-future-of-rational-privacy). Rational privacy is the idea that privacy shouldn’t be absolute or all-or-nothing—it should be contextual. It recognizes that in many real-world scenarios, users want to share *some* data to gain access to services or meet legal obligations, but they shouldn't be forced to give up all privacy and security in the process. It’s about striking a balance between personal control, usability, and regulatory compliance.
+이 접근 방식은 [**rational privacy**](https://midnight.network/blog/midnight-at-consensus-2025-building-the-future-of-rational-privacy)라는 더 넓은 개념의 실질적 표현입니다. Rational privacy는 프라이버시가 절대적이거나 전부 아니면 전무여서는 안 된다는 생각입니다. 맥락에 따라 달라져야 합니다. 실제 많은 시나리오에서 사용자는 서비스에 접근하거나 법적 의무를 이행하기 위해 *일부* 데이터를 공유하고 싶지만, 그 과정에서 모든 프라이버시와 보안을 포기해야 하는 것은 아닙니다. 개인의 통제, 사용성, 규제 준수 사이의 균형을 맞추는 것입니다.
 
-Selective disclosure is the technical implementation of rational privacy. It gives users and developers the cryptographic tools to protect sensitive information by default, while still enabling the right level of transparency when it’s required. This makes it especially relevant for public blockchain networks, where data is immutable and visible by design.
+Selective disclosure는 rational privacy의 기술적 구현입니다. 사용자와 개발자에게 민감한 정보를 기본적으로 보호하면서도 필요할 때 적절한 수준의 투명성을 제공할 수 있는 암호학적 도구를 제공합니다. 이 때문에 데이터가 불변적이고 기본적으로 공개되는 공개 blockchain 네트워크에서 특히 관련성이 높습니다.
 
-A typical example of selective disclosure in action is the use of Verifiable Credentials (VCs). VCs allow users to prove attributes—like age, residency, or educational background—without revealing the entire credential. This aligns with the principles of data minimization and privacy by design, ensuring individuals remain in control of their information.
+Selective disclosure의 대표적인 사례는 Verifiable Credential(VC)의 사용입니다. VC를 통해 사용자는 전체 자격 증명을 공개하지 않고도 나이, 거주지, 학력 같은 속성을 증명할 수 있습니다. 이는 데이터 최소화와 privacy by design의 원칙에 부합하며, 개인이 자신의 정보를 통제할 수 있게 합니다.
 
-This balance between usability and privacy is what makes selective disclosure so powerful—and so relevant for real-world blockchain applications. But beyond the technical implementation, it's worth asking: what are the practical benefits of using selective disclosure in the first place?
+사용성과 프라이버시 사이의 이러한 균형이 selective disclosure를 강력하게 만들고, 실제 blockchain 애플리케이션에 매우 적합하게 합니다. 그렇다면 기술적 구현을 넘어 selective disclosure를 사용하는 실질적인 이점은 무엇일까요?
 
 ## Benefits of Selective Disclosure
 
-When integrated thoughtfully, selective disclosure brings both technical and human-centric advantages to decentralized systems. It enables individuals and organizations to meet privacy expectations and compliance standards without sacrificing functionality. Implementing selective disclosure offers several advantages:
+신중하게 통합되면, selective disclosure는 탈중앙화 시스템에 기술적이면서도 사용자 중심적인 장점을 제공합니다. 기능을 희생하지 않으면서 프라이버시 기대치와 컴플라이언스 표준을 충족할 수 있게 합니다. Selective disclosure를 구현하면 다음과 같은 장점이 있습니다:
 
-- **Enhanced Privacy**: Selective disclosure enables users to share only the data necessary for a specific interaction, rather than disclosing full credentials or identity documents. This dramatically reduces the surface area for privacy breaches and surveillance. Whether you’re accessing a service, submitting a form, or interacting with a smart contract, your unnecessary personal data stays out of view.  
-- **Data Minimization and Compliance**: This principle, core to privacy laws such as GDPR and HIPAA, requires that only the minimum amount of personal data necessary for a task is collected or processed. Selective disclosure naturally enforces this, making it easier for developers and organizations to design privacy-respecting systems by default.  
-- **User Empowerment and Control**: In traditional systems, users often hand over their entire dataset for one small verification (e.g., uploading an entire ID just to prove their age). Selective disclosure flips that dynamic, giving users the power to control what they share, when, and with whom. This supports a more user-centric data model, where individuals become the custodians of their credentials.  
-- **Reduced Risk of Data Misuse**: The less information that’s exposed, the lower the risk of that data being lost, stolen, or misused. Selective disclosure reduces the need for centralized data storage (e.g., big ID databases), limiting attack vectors for fraud and identity theft. Even if a transaction or credential presentation is intercepted, only the minimum disclosed attribute is visible, keeping the rest safe.  
-- **Lower Liability and Operational Overhead for Businesses:** Many organizations would prefer not to collect or store sensitive user data due to the associated risks, regulatory requirements, and administrative burdens. Selective disclosure offers a path forward, enabling users to demonstrate eligibility or compliance without requiring businesses to retain or manage that data. This can reduce costs, simplify operations, and improve overall data security posture.
+- **Enhanced Privacy**: Selective disclosure를 통해 사용자는 전체 자격 증명이나 신원 문서를 공개하는 대신, 특정 상호작용에 필요한 데이터만 공유할 수 있습니다. 이는 프라이버시 침해와 감시의 위험을 크게 줄입니다. 서비스에 접근하든, 양식을 제출하든, smart contract와 상호작용하든, 불필요한 개인 데이터는 노출되지 않습니다.
+- **Data Minimization and Compliance**: 이 원칙은 GDPR, HIPAA 같은 프라이버시 법규의 핵심으로, 작업에 필요한 최소한의 개인 데이터만 수집하거나 처리하도록 요구합니다. Selective disclosure는 이를 자연스럽게 시행하므로, 개발자와 조직이 기본적으로 프라이버시를 존중하는 시스템을 설계하기 쉬워집니다.
+- **User Empowerment and Control**: 기존 시스템에서 사용자는 하나의 작은 검증을 위해 전체 데이터 세트를 넘기는 경우가 많습니다(예: 나이만 증명하기 위해 신분증 전체를 업로드). Selective disclosure는 이 역학을 뒤집어, 사용자가 무엇을 언제 누구와 공유할지 통제할 수 있게 합니다. 이는 개인이 자신의 자격 증명을 관리하는 사용자 중심 데이터 모델을 지원합니다.
+- **Reduced Risk of Data Misuse**: 노출되는 정보가 적을수록 데이터가 유실, 도난, 오용될 위험도 줄어듭니다. Selective disclosure는 중앙집중식 데이터 저장소(예: 대규모 ID 데이터베이스)의 필요성을 줄여, 사기와 신원 도용에 대한 공격 벡터를 제한합니다. Transaction이나 자격 증명 제시가 중간에 가로채지더라도, 최소한으로 공개된 속성만 보이며 나머지는 안전합니다.
+- **Lower Liability and Operational Overhead for Businesses:** 많은 조직은 관련 위험, 규제 요구사항, 관리 부담 때문에 민감한 사용자 데이터를 수집하거나 저장하지 않으려 합니다. Selective disclosure는 사용자가 조직에 데이터를 맡기지 않고도 자격이나 컴플라이언스를 입증할 수 있는 방법을 제시합니다. 이를 통해 비용을 줄이고, 운영을 간소화하며, 전반적인 데이터 보안 수준을 향상할 수 있습니다.
 
-While selective disclosure introduces a powerful model for user-centric privacy, it also comes with its own set of technical and usability challenges. Understanding these limitations is essential for builders and organizations aiming to adopt it responsibly.
+Selective disclosure가 사용자 중심 프라이버시의 강력한 모델을 제시하지만, 기술적 및 사용성 측면에서 고유한 과제도 함께 따릅니다. 이러한 한계를 이해하는 것은 책임감 있게 도입하려는 개발자와 조직에게 필수적입니다.
 
 ## Potential Drawbacks
 
-While selective disclosure strengthens privacy and control, implementing it in real-world systems isn’t always straightforward. Here are some of the common challenges:
+Selective disclosure가 프라이버시와 통제를 강화하지만, 실제 시스템에서의 구현이 항상 간단하지는 않습니다. 주요 과제는 다음과 같습니다:
 
-- **Complexity in Implementation**: Selective disclosure relies on advanced cryptographic techniques, often zero-knowledge proofs or similar privacy-preserving protocols. These require careful design, precise execution, and deep security expertise. For developers new to Web3 or cryptography, like myself, the learning curve can be steep, and mistakes in implementation could compromise the intended privacy protections.  
-- **Verification Difficulties**: When only a fragment of a credential or statement is revealed, verifying its authenticity can become more complicated. Systems must be designed to ensure that partial disclosures can be trusted without needing access to the complete original data. This often requires additional metadata or proofs to be included, which can increase the overall complexity of the system and potentially slow down the verification process.  
-- **Interoperability Challenges**: Not all decentralized identity systems follow the same formats or standards. As a result, credentials issued by one platform may not be easily verifiable on another, especially when using advanced features like selective disclosure. Without widely adopted protocols and infrastructure, cross-platform compatibility can be limited, reducing the broader utility of selectively disclosed data.
+- **Complexity in Implementation**: Selective disclosure는 고급 암호학 기술, 주로 zero-knowledge proof나 유사한 프라이버시 보존 프로토콜에 의존합니다. 신중한 설계, 정밀한 실행, 깊은 보안 전문 지식이 필요합니다. 저처럼 Web3나 암호학에 새로 입문한 개발자에게는 학습 곡선이 가파르고, 구현상의 실수가 의도한 프라이버시 보호를 약화시킬 수 있습니다.
+- **Verification Difficulties**: 자격 증명이나 진술의 일부만 공개될 때, 그 진위를 확인하기가 더 복잡해질 수 있습니다. 완전한 원본 데이터에 접근하지 않고도 부분 공개를 신뢰할 수 있도록 시스템을 설계해야 합니다. 이를 위해 추가적인 메타데이터나 proof가 필요한 경우가 많으며, 이는 시스템의 전반적인 복잡성을 높이고 검증 과정을 느리게 할 수 있습니다.
+- **Interoperability Challenges**: 모든 탈중앙화 신원 시스템이 동일한 형식이나 표준을 따르지는 않습니다. 따라서 한 플랫폼에서 발행된 자격 증명이 다른 플랫폼에서 쉽게 검증되지 않을 수 있으며, 특히 selective disclosure 같은 고급 기능을 사용할 때 더욱 그렇습니다. 널리 채택된 프로토콜과 인프라가 없으면 크로스 플랫폼 호환성이 제한되어 selective disclosure 데이터의 광범위한 활용이 어려워질 수 있습니다.
 
-While these challenges are real, they’re not insurmountable. Much of the current work in privacy-preserving blockchain development, including projects like Midnight, focuses on making selective disclosure more practical, developer-friendly, and interoperable across various ecosystems.
+이러한 과제는 실재하지만 극복 불가능한 것은 아닙니다. Midnight을 포함한 프라이버시 보존 blockchain 개발 프로젝트의 현재 작업 대부분은 selective disclosure를 더 실용적이고, 개발자 친화적이며, 다양한 생태계 간에 상호운용 가능하게 만드는 데 집중하고 있습니다.
 
 ## Use Cases of Selective Disclosure
 
-Selective disclosure has powerful, real-world applications wherever individuals or organizations need to prove something without oversharing. It’s beneficial in systems that handle sensitive data but also require compliance, trust, and transparency. Here are a few domains where it shines:
+Selective disclosure는 개인이나 조직이 과도하게 공유하지 않으면서 무언가를 증명해야 하는 곳이라면 어디서든 강력한 실제 적용 사례를 가집니다. 민감한 데이터를 다루면서도 컴플라이언스, 신뢰, 투명성이 요구되는 시스템에 특히 유용합니다. 몇 가지 분야를 살펴보겠습니다:
 
-- **Digital Identity Verification**: Imagine proving you're over 18 to access a service—without uploading your driver's license or disclosing your full birthdate and address. Selective disclosure lets you present only the relevant fact (e.g., “over 18”) as a verifiable statement, not the whole credential.  
-- **Financial Transactions**: Financial platforms often need to confirm identity or transaction legitimacy (for KYC/AML compliance), but users shouldn’t have to share their entire financial history or wallet activity. Selective disclosure enables sharing only what’s legally necessary—no more, no less.  
-- **Healthcare**: Patients may need to prove their vaccination status or medical eligibility without disclosing their entire health record. Selective disclosure lets them share only the required attribute (e.g., “vaccinated for X”) while keeping the rest private.  
-- **Access Control**: Whether entering a venue or accessing online services, users may be granted or denied access based on attributes like membership, role, or credentials. Selective disclosure can enforce this access logic without revealing unnecessary identifying information.
+- **Digital Identity Verification**: 서비스에 접근하기 위해 18세 이상임을 증명하되, 운전면허증을 업로드하거나 생년월일과 주소를 전부 공개하지 않아도 됩니다. Selective disclosure를 통해 전체 자격 증명이 아닌, 관련 사실(예: "18세 이상")만 검증 가능한 진술로 제시할 수 있습니다.
+- **Financial Transactions**: 금융 플랫폼은 종종 신원이나 transaction 정당성(KYC/AML 컴플라이언스)을 확인해야 하지만, 사용자가 전체 금융 이력이나 지갑 활동을 공유할 필요는 없습니다. Selective disclosure를 통해 법적으로 필요한 것만 공유할 수 있습니다. 그 이상도 이하도 아닙니다.
+- **Healthcare**: 환자가 전체 의료 기록을 공개하지 않고 예방접종 상태나 의료 자격을 증명해야 할 수 있습니다. Selective disclosure를 통해 필요한 속성(예: "X에 대해 예방접종 완료")만 공유하고 나머지는 비공개로 유지할 수 있습니다.
+- **Access Control**: 장소 입장이든 온라인 서비스 접근이든, 사용자는 멤버십, 역할, 자격 증명 같은 속성에 따라 접근이 허용되거나 거부될 수 있습니다. Selective disclosure는 불필요한 식별 정보를 노출하지 않으면서 이러한 접근 로직을 실행할 수 있습니다.
 
 ### Selective Disclosure in the Midnight Network
 
-At Midnight, selective disclosure isn’t just a privacy feature—it’s a core design principle grounded in rational privacy. Rational privacy recognizes that while sensitive data must be protected, real-world applications also require controlled visibility for regulatory, legal, or operational reasons.
+Midnight에서 selective disclosure는 단순한 프라이버시 기능이 아니라, rational privacy에 기반한 핵심 설계 원칙입니다. Rational privacy는 민감한 데이터를 보호해야 하지만, 실제 애플리케이션은 규제, 법률, 운영상의 이유로 통제된 가시성도 필요하다는 것을 인식합니다.
 
-Take financial transactions, for example. A decentralized financial platform built on Midnight may want to keep user balances, transfers, and transaction histories private. However, under anti-money laundering (AML) or know-your-customer (KYC) regulations, certain information may need to be revealed—but only to authorized parties, and only under specific legal conditions.
+금융 transaction을 예로 들어 보겠습니다. Midnight 위에 구축된 탈중앙화 금융 플랫폼은 사용자 잔액, 이체, transaction 이력을 비공개로 유지하고 싶을 수 있습니다. 그러나 자금세탁방지(AML)나 고객확인(KYC) 규정에 따라 특정 정보를 공개해야 할 수도 있습니다. 다만, 권한이 있는 당사자에게만, 특정 법적 조건하에서만 공개됩니다.
 
-This is where selective disclosure and zero-knowledge proofs come together. Using Midnight's Compact smart contract language, developers can build logic that proves a transaction is valid (e.g., below a certain threshold, or compliant with regulatory filters) without revealing the full transaction details. Meanwhile, if a regulatory audit is triggered, users or auditors could selectively disclose the required pieces of information—nothing more.
+여기서 selective disclosure와 zero-knowledge proof가 결합됩니다. Midnight의 Compact smart contract 언어를 사용하여 개발자는 전체 transaction 세부 사항을 공개하지 않으면서도 transaction이 유효하다는 것(예: 특정 한도 이하이거나 규제 필터를 준수함)을 증명하는 로직을 구축할 수 있습니다. 한편, 규제 감사가 발생하면, 사용자나 감사인은 필요한 정보만 선택적으로 공개할 수 있습니다. 그 이상은 공개하지 않습니다.
 
-In this way, Midnight enables builders to create applications that respect individual privacy *and* comply with regulatory requirements. It’s a practical application of selective disclosure that mirrors how real-world trust operates: share only what’s needed, only when it’s needed, and only with the right people.
+이렇게 Midnight은 개인의 프라이버시를 존중하면서도 규제 요구사항을 준수하는 애플리케이션을 개발자가 구축할 수 있게 합니다. 이것은 실제 세계에서 신뢰가 작동하는 방식을 반영한 selective disclosure의 실질적 적용입니다: 필요한 것만, 필요할 때만, 적절한 상대에게만 공유합니다.
 
 ## Conclusion
 
-Selective disclosure offers a flexible and powerful approach to privacy—one that meets people where they are, allowing them to control their information. It enables individuals to share just enough information to satisfy requirements, without exposing more than necessary. Whether you're verifying an identity, proving a credential, or complying with financial regulations, selective disclosure makes privacy practical and effective.
+Selective disclosure는 사람들이 있는 곳에서 만나는 유연하고 강력한 프라이버시 접근 방식을 제공합니다. 개인이 자신의 정보를 통제하면서 요구사항을 충족하기에 충분한 정보만 공유할 수 있게 합니다. 신원 확인, 자격 증명, 금융 규정 준수 등 어떤 경우든, selective disclosure는 프라이버시를 실용적이고 효과적으로 만듭니다.
 
-At Midnight, this concept becomes more than theoretical. It’s embedded into the platform’s architecture through Compact smart contracts and zero-knowledge proofs, allowing builders to create systems that balance user protection with real-world needs. It’s rational privacy in action.
+Midnight에서 이 개념은 이론을 넘어섭니다. Compact smart contract와 zero-knowledge proof를 통해 플랫폼 아키텍처에 내장되어, 사용자 보호와 실제 요구 사이의 균형을 맞추는 시스템을 개발자가 구축할 수 있게 합니다. 이것이 바로 rational privacy의 실현입니다.
 
-If you're exploring how to build for privacy in Web3—or just learning how these systems work—I encourage you to check out the [Midnight docs](https://docs.midnight.network/) and [Academy](https://docs.midnight.network/academy) for more examples and technical insight, as well as a detailed list of further reading about selective disclosure below:
+Web3에서 프라이버시를 위한 개발 방법을 탐구하고 있거나 이러한 시스템의 작동 원리를 배우고 있다면, 더 많은 예시와 기술적 통찰을 위해 [Midnight docs](https://docs.midnight.network/)와 [Academy](https://docs.midnight.network/academy)를 확인해 보시기 바랍니다. 아래에 selective disclosure에 대한 추가 읽을거리도 함께 정리했습니다:
 
-- [What Is Selective Disclosure? – Identity.com](https://www.identity.com/what-is-selective-disclosure/)  
-- [Selective Disclosure Guide – Dock.io](https://www.dock.io/post/selective-disclosure)  
-- [A Refresher on Selective Disclosure and Anti-Fraud Rules – Frost Brown Todd](https://frostbrowntodd.com/a-refresher-on-selective-disclosure-and-anti-fraud-rules/)  
-- [Midnight Academy Module 3 – Midnight Docs](https://docs.midnight.network/academy/module-3)  
+- [What Is Selective Disclosure? – Identity.com](https://www.identity.com/what-is-selective-disclosure/)
+- [Selective Disclosure Guide – Dock.io](https://www.dock.io/post/selective-disclosure)
+- [A Refresher on Selective Disclosure and Anti-Fraud Rules – Frost Brown Todd](https://frostbrowntodd.com/a-refresher-on-selective-disclosure-and-anti-fraud-rules/)
+- [Midnight Academy Module 3 – Midnight Docs](https://docs.midnight.network/academy/module-3)
 - [Explicit Disclosure Reference – Midnight Docs](https://docs.midnight.network/develop/reference/compact/explicit-disclosure)
 - [Digital Assets Use Cases – Midnight Docs](https://docs.midnight.network/learn/introduction/use-cases/digital-assets)
 
-And, as always, if you’ve come across any great learning resources on privacy or identity in Web3, I’d love to see them—drop a comment or reply with your favorites!
+항상 그렇듯, Web3에서 프라이버시나 신원에 관한 좋은 학습 자료를 발견하셨다면 공유해 주세요!
 
-I'll be back next week with more insights as I continue unpacking the key building blocks that make decentralized systems work.  
+다음 주에도 탈중앙화 시스템을 구성하는 핵심 요소들을 계속 풀어나가겠습니다.

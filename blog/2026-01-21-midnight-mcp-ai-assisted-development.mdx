@@ -5,36 +5,37 @@ authors: [Idris]
 tags: [compact, mcp, ai, developer-tools]
 date: 2026-01-21
 image: /img/blog/zkp.jpg
+description: "Midnight MCP를 활용한 AI 기반 Compact 스마트 컨트랙트 개발 방법을 소개합니다"
 ---
 
 # Midnight MCP: AI-assisted development for Compact smart contracts
 
-AI coding assistants like Claude, GitHub Copilot, and Cursor have transformed how developers write code. But they have a fundamental limitation: they only know what was in their training data.
+Claude, GitHub Copilot, Cursor 같은 AI 코딩 어시스턴트는 개발자의 코드 작성 방식을 변화시켰습니다. 하지만 근본적인 한계가 있습니다. 훈련 데이터에 포함된 내용만 알고 있다는 것입니다.
 
-Compact, Midnight's smart contract language, isn't in that training data. When you ask an AI assistant to write a Compact contract, it hallucinates. It invents syntax that doesn't exist, references functions that were never defined, and produces code that fails at compile time.
+Midnight의 스마트 컨트랙트 언어인 Compact은 그 훈련 데이터에 포함되어 있지 않습니다. AI 어시스턴트에게 Compact 컨트랙트를 작성해 달라고 하면 환각을 일으킵니다. 존재하지 않는 문법을 만들어내고, 정의된 적 없는 함수를 참조하며, 컴파일 시 실패하는 코드를 생성합니다.
 
-Midnight MCP solves this problem.
+Midnight MCP은 이 문제를 해결합니다.
 
 ## What is MCP?
 
-The _Model Context Protocol_ (MCP) is an open standard that allows AI assistants to access external tools and data sources. Instead of relying solely on training data, an AI assistant with MCP can query live documentation, search codebases, and call APIs.
+_Model Context Protocol_(MCP)은 AI 어시스턴트가 외부 도구와 데이터 소스에 접근할 수 있게 하는 개방형 표준입니다. 훈련 데이터에만 의존하는 대신, MCP를 갖춘 AI 어시스턴트는 실시간 문서를 쿼리하고, 코드베이스를 검색하고, API를 호출할 수 있습니다.
 
-Midnight MCP is an MCP server purpose-built for Midnight development. It gives AI assistants:
+Midnight MCP은 Midnight 개발을 위해 특별히 제작된 MCP 서버입니다. AI 어시스턴트에게 다음을 제공합니다:
 
-- **Indexed knowledge** of 102 Midnight repositories
-- **Real compiler validation** before showing you code
-- **Semantic search** across documentation and examples
-- **Version-aware syntax references** for Compact
+- 102개 Midnight 저장소의 **인덱싱된 지식**
+- 코드를 보여주기 전 **실제 컴파일러 검증**
+- 문서와 예제 전반에 걸친 **시맨틱 검색**
+- Compact의 **버전 인식 문법 참조**
 
-When you ask Claude to write a Compact contract, it queries Midnight MCP for the correct syntax, generates the code, validates it against the real compiler, and only shows you working code.
+Claude에게 Compact 컨트랙트를 작성해 달라고 하면, Midnight MCP에 올바른 문법을 쿼리하고, 코드를 생성하고, 실제 컴파일러로 검증한 뒤, 작동하는 코드만 보여줍니다.
 
 ## The problem with AI-generated Compact code
 
-Consider this prompt:
+다음 프롬프트를 생각해 보세요:
 
 "Write a simple counter contract in Compact"
 
-Without Midnight MCP, an AI assistant might generate:
+Midnight MCP 없이 AI 어시스턴트는 다음과 같이 생성할 수 있습니다:
 
 ```
 contract Counter {
@@ -46,22 +47,22 @@ contract Counter {
 }
 ```
 
-This looks plausible. It's also completely wrong:
+그럴듯해 보이지만, 완전히 잘못된 코드입니다:
 
-- Compact uses `ledger` for state, not `state`.
-- There is no `Int` type in Compact. It uses `Uint<32>`, `Field`, and other specific types.
-- `Void` doesn't exist. Compact uses `[]` for the unit type.
-- State mutations require witness functions, not direct assignment.
+- Compact은 상태에 `state`가 아닌 `ledger`를 사용합니다.
+- Compact에 `Int` 타입은 없습니다. `Uint<32>`, `Field` 등 특정 타입을 사용합니다.
+- `Void`는 존재하지 않습니다. Compact은 유닛 타입으로 `[]`를 사용합니다.
+- 상태 변경에는 위트니스 함수가 필요하며, 직접 할당이 아닙니다.
 
-The AI hallucinated a language that resembles Solidity but isn't Compact. A developer unfamiliar with Compact might spend hours debugging code that was never valid.
+AI는 Solidity와 비슷하지만 Compact이 아닌 언어를 환각한 것입니다. Compact에 익숙하지 않은 개발자라면 애초에 유효하지 않았던 코드를 디버깅하느라 수시간을 허비할 수 있습니다.
 
 ## Install Midnight MCP
 
-Midnight MCP requires no API keys and installs in under 60 seconds. Add the appropriate configuration to your AI assistant based on the tool you use.
+Midnight MCP은 API 키가 필요 없으며 60초 이내에 설치됩니다. 사용하는 도구에 맞게 AI 어시스턴트에 적절한 설정을 추가하세요.
 
 ### Claude Desktop
 
-On macOS, edit `~/Library/Application Support/Claude/claude_desktop_config.json`. Add the following configuration to enable Midnight MCP:
+macOS에서 `~/Library/Application Support/Claude/claude_desktop_config.json`을 편집하세요. Midnight MCP을 활성화하기 위해 다음 설정을 추가하세요:
 
 ```json
 {
@@ -76,7 +77,7 @@ On macOS, edit `~/Library/Application Support/Claude/claude_desktop_config.json`
 
 ### Cursor
 
-Create or edit `.cursor/mcp.json` in your project root. You can also configure it globally at `~/.cursor/mcp.json` on macOS/Linux or `%USERPROFILE%\.cursor\mcp.json` on Windows. Add the following configuration:
+프로젝트 루트에 `.cursor/mcp.json`을 생성하거나 편집하세요. macOS/Linux에서 `~/.cursor/mcp.json`으로, Windows에서 `%USERPROFILE%\.cursor\mcp.json`으로 전역 설정도 가능합니다. 다음 설정을 추가하세요:
 
 ```json
 {
@@ -91,7 +92,7 @@ Create or edit `.cursor/mcp.json` in your project root. You can also configure i
 
 ### VS Code with GitHub Copilot
 
-Create or edit `.vscode/mcp.json` in your project. Add the following configuration to connect Copilot to Midnight MCP:
+프로젝트에 `.vscode/mcp.json`을 생성하거나 편집하세요. Copilot을 Midnight MCP에 연결하기 위해 다음 설정을 추가하세요:
 
 ```json
 {
@@ -104,36 +105,36 @@ Create or edit `.vscode/mcp.json` in your project. Add the following configurati
 }
 ```
 
-After adding the configuration, restart your AI assistant. You now have access to [29 Midnight-specific tools](#29-tools-for-midnight-development).
+설정을 추가한 후 AI 어시스턴트를 재시작하세요. 이제 [29개의 Midnight 전용 도구](#29-tools-for-midnight-development)에 접근할 수 있습니다.
 
 ## How Midnight MCP works
 
-Midnight MCP operates as a local server that connects your AI assistant to Midnight's ecosystem.
+Midnight MCP은 AI 어시스턴트를 Midnight 생태계에 연결하는 로컬 서버로 동작합니다.
 
 ![Midnight MCP Architecture](/img/blog/mcp-flow.png)
 
-When you ask for a Compact contract:
+Compact 컨트랙트를 요청하면:
 
-1. The AI assistant calls `midnight-get-latest-syntax` to retrieve current Compact syntax.
-2. It generates code using the correct patterns.
-3. It calls `midnight-compile-contract` to validate against the real compiler.
-4. If compilation fails, it reads the error, fixes the code, and retries.
-5. You receive verified, working code.
+1. AI 어시스턴트가 `midnight-get-latest-syntax`를 호출하여 현재 Compact 문법을 가져옵니다.
+2. 올바른 패턴을 사용하여 코드를 생성합니다.
+3. `midnight-compile-contract`를 호출하여 실제 컴파일러로 검증합니다.
+4. 컴파일이 실패하면 오류를 읽고, 코드를 수정하고, 재시도합니다.
+5. 검증된 작동 코드를 받게 됩니다.
 
-This compile-validate-fix loop happens automatically. You never see the broken intermediate versions.
+이 컴파일-검증-수정 루프는 자동으로 이루어집니다. 깨진 중간 버전은 보이지 않습니다.
 
 ## Real compiler integration
 
-Most code-generation tools rely on pattern matching and hope. Midnight MCP validates code against the actual Compact compiler hosted.
+대부분의 코드 생성 도구는 패턴 매칭에 의존하며 결과를 바랍니다. Midnight MCP은 호스팅된 실제 Compact 컴파일러로 코드를 검증합니다.
 
-The compiler catches errors that static analysis cannot, including:
+컴파일러는 정적 분석으로는 잡을 수 없는 오류를 포착합니다:
 
-- **Type mismatches**: Using `Field` where `Uint<64>` is expected
-- **Sealed field violations**: Attempting to access sealed state incorrectly
-- **Disclose rule errors**: Missing or malformed privacy annotations
-- **Unbound identifiers**: References to undefined variables or types
+- **타입 불일치**: `Uint<64>`가 필요한 곳에 `Field`를 사용하는 경우
+- **봉인 필드 위반**: 봉인된 상태에 잘못 접근하는 경우
+- **공개 규칙 오류**: 프라이버시 어노테이션이 누락되거나 잘못된 경우
+- **미정의 식별자**: 정의되지 않은 변수나 타입을 참조하는 경우
 
-When the compiler returns an error, the response includes the exact line number and column:
+컴파일러가 오류를 반환하면 정확한 줄 번호와 열이 포함됩니다:
 
 ```
 success: false
@@ -144,145 +145,145 @@ errorDetails:
   errorType: error
 ```
 
-The AI assistant uses this information to fix the code and try again.
+AI 어시스턴트는 이 정보를 사용하여 코드를 수정하고 재시도합니다.
 
 ### Graceful fallback
 
-If the hosted compiler is unavailable, Midnight MCP falls back to static analysis. The response indicates which validation method was used:
+호스팅된 컴파일러를 사용할 수 없는 경우, Midnight MCP은 정적 분석으로 대체합니다. 응답에 어떤 검증 방식이 사용되었는지 표시됩니다:
 
 ```
-validationType: "compiler"           # Real compiler validation
-validationType: "static-analysis-fallback"  # Compiler unavailable
+validationType: "compiler"           # 실제 컴파일러 검증
+validationType: "static-analysis-fallback"  # 컴파일러 사용 불가
 ```
 
-You always receive validation. The tool never fails silently.
+항상 검증을 받을 수 있습니다. 도구는 조용히 실패하는 일이 없습니다.
 
 ## Semantic search across 102 repositories
 
-Today, Midnight MCP indexes every non-archived repository in the Midnight ecosystem:
+현재 Midnight MCP은 Midnight 생태계의 비아카이브 저장소를 모두 인덱싱합니다:
 
-- All 88 repositories from `midnightntwrk`.
-- 14 community and partner repositories, including OpenZeppelin contracts and hackathon winners.
+- `midnightntwrk`의 88개 저장소 전체.
+- OpenZeppelin 컨트랙트와 해커톤 수상작을 포함한 14개의 커뮤니티 및 파트너 저장소.
 
-The search is semantic, not keyword-based. For example, a prompt like "find code that handles shielded transactions" returns relevant results even if those exact words don't appear in the code.
+검색은 키워드 기반이 아닌 시맨틱 방식입니다. 예를 들어 "find code that handles shielded transactions" 같은 프롬프트는 해당 단어가 코드에 정확히 나타나지 않더라도 관련 결과를 반환합니다.
 
 ```
 Prompt: "How do I implement a token with transfer limits?"
 
 midnight-search-compact returns:
-- Token contract examples from midnight-examples
-- Rate limiting patterns from community repos
-- Relevant documentation sections
+- midnight-examples의 토큰 컨트랙트 예제
+- 커뮤니티 저장소의 속도 제한 패턴
+- 관련 문서 섹션
 ```
 
 ## 29 tools for Midnight development
 
-Midnight MCP provides 29 tools organized by function.
+Midnight MCP은 기능별로 정리된 29개의 도구를 제공합니다.
 
 ### Search tools
 
-Use these tools to find code, documentation, and examples across the Midnight ecosystem.
+Midnight 생태계 전반에서 코드, 문서, 예제를 찾는 데 사용하세요.
 
 | Tool                         | Purpose                                             |
 | :--------------------------- | :-------------------------------------------------- |
-| `midnight-search-compact`    | Search Compact language code across indexed repos   |
-| `midnight-search-docs`       | Search official Midnight documentation              |
-| `midnight-search-typescript` | Search TypeScript SDK implementations               |
-| `midnight-fetch-docs`        | Fetch live documentation from docs.midnight.network |
+| `midnight-search-compact`    | 인덱싱된 저장소 전반에서 Compact 언어 코드 검색   |
+| `midnight-search-docs`       | 공식 Midnight 문서 검색              |
+| `midnight-search-typescript` | TypeScript SDK 구현 검색               |
+| `midnight-fetch-docs`        | docs.midnight.network에서 실시간 문서 가져오기 |
 
 ### Analysis tools
 
-Use these tools to validate, analyze, and review Compact contracts.
+Compact 컨트랙트를 검증, 분석, 리뷰하는 데 사용하세요.
 
 | Tool                                  | Purpose                                         |
 | :------------------------------------ | :---------------------------------------------- |
-| `midnight-compile-contract`           | Validate code against the real Compact compiler |
-| `midnight-analyze-contract`           | Run 15 static security checks                   |
-| `midnight-review-contract`            | AI-powered security review                      |
-| `midnight-extract-contract-structure` | Parse contract structure and exports            |
+| `midnight-compile-contract`           | 실제 Compact 컴파일러로 코드 검증 |
+| `midnight-analyze-contract`           | 15가지 정적 보안 검사 실행                   |
+| `midnight-review-contract`            | AI 기반 보안 리뷰                      |
+| `midnight-extract-contract-structure` | 컨트랙트 구조 및 내보내기 파싱            |
 
 ### Generation tools
 
-Use these tools to create new contracts and documentation.
+새 컨트랙트와 문서를 생성하는 데 사용하세요.
 
 | Tool                         | Purpose                                               |
 | :--------------------------- | :---------------------------------------------------- |
-| `midnight-generate-contract` | Generate contracts from natural language descriptions |
-| `midnight-document-contract` | Generate documentation in Markdown or JSDoc format    |
+| `midnight-generate-contract` | 자연어 설명에서 컨트랙트 생성 |
+| `midnight-document-contract` | Markdown 또는 JSDoc 형식으로 문서 생성    |
 
 ### Repository tools
 
-Use these tools to access files and syntax references from Midnight repositories.
+Midnight 저장소의 파일과 문법 참조에 접근하는 데 사용하세요.
 
 | Tool                           | Purpose                                             |
 | :----------------------------- | :-------------------------------------------------- |
-| `midnight-get-file`            | Retrieve files from any indexed Midnight repository |
-| `midnight-get-file-at-version` | Get file content at a specific version              |
-| `midnight-compare-syntax`      | Compare syntax between Compact versions             |
-| `midnight-get-latest-syntax`   | Current Compact syntax reference                    |
-| `midnight-get-repo-context`    | Everything needed to start coding (compound tool)   |
-| `midnight-list-examples`       | List available example contracts                    |
+| `midnight-get-file`            | 인덱싱된 Midnight 저장소에서 파일 가져오기 |
+| `midnight-get-file-at-version` | 특정 버전의 파일 내용 가져오기              |
+| `midnight-compare-syntax`      | Compact 버전 간 문법 비교             |
+| `midnight-get-latest-syntax`   | 현재 Compact 문법 참조                    |
+| `midnight-get-repo-context`    | 코딩 시작에 필요한 모든 것 (복합 도구)   |
+| `midnight-list-examples`       | 사용 가능한 예제 컨트랙트 목록                    |
 
 ### Version management tools
 
-Use these tools to manage upgrades and track changes between Compact versions.
+업그레이드를 관리하고 Compact 버전 간 변경 사항을 추적하는 데 사용하세요.
 
 | Tool                              | Purpose                                    |
 | :-------------------------------- | :----------------------------------------- |
-| `midnight-upgrade-check`          | Full upgrade analysis (compound tool)      |
-| `midnight-check-breaking-changes` | Identify breaking changes between versions |
-| `midnight-get-migration-guide`    | Step-by-step migration instructions        |
+| `midnight-upgrade-check`          | 전체 업그레이드 분석 (복합 도구)      |
+| `midnight-check-breaking-changes` | 버전 간 호환성 깨짐 변경 식별 |
+| `midnight-get-migration-guide`    | 단계별 마이그레이션 안내        |
 
 ## Resources and prompts
 
-Beyond tools, Midnight MCP provides nine built-in resources and five interactive prompts.
+도구 외에도 Midnight MCP은 9개의 내장 리소스와 5개의 대화형 프롬프트를 제공합니다.
 
-_Resources_ are always-available references that provide quick access to syntax and examples:
-
-```
-midnight://syntax/latest      Current Compact syntax
-midnight://examples/counter   Counter contract example
-midnight://examples/token     Token contract example
-midnight://docs/compact       Compact language reference
-```
-
-_Prompts_ are templates for common tasks that guide you through specific workflows:
+_리소스_는 문법과 예제에 빠르게 접근할 수 있는 항상 사용 가능한 참조입니다:
 
 ```
-create-compact-contract      Start a new contract
-debug-compact-error          Fix compilation errors
-security-review              Full security audit
-compare-compact-versions     Migration assistance
+midnight://syntax/latest      현재 Compact 문법
+midnight://examples/counter   카운터 컨트랙트 예제
+midnight://examples/token     토큰 컨트랙트 예제
+midnight://docs/compact       Compact 언어 참조
+```
+
+_프롬프트_는 특정 워크플로우를 안내하는 일반 작업용 템플릿입니다:
+
+```
+create-compact-contract      새 컨트랙트 시작
+debug-compact-error          컴파일 오류 수정
+security-review              전체 보안 감사
+compare-compact-versions     마이그레이션 지원
 ```
 
 ## Architecture
 
-Midnight MCP is built for reliability:
+Midnight MCP은 신뢰성을 위해 설계되었습니다:
 
-- **Token efficiency**: Outputs YAML by default (20-30% fewer tokens than JSON)
-- **Compound tools**: Single calls that combine multiple operations
-- **Graceful degradation**: Falls back to cached data when services are unavailable
-- **Progress notifications**: Real-time updates during long operations
+- **토큰 효율성**: 기본적으로 YAML 출력 (JSON 대비 20-30% 적은 토큰)
+- **복합 도구**: 여러 작업을 결합하는 단일 호출
+- **우아한 성능 저하**: 서비스를 사용할 수 없을 때 캐시 데이터로 대체
+- **진행 알림**: 장시간 작업 중 실시간 업데이트
 
-The codebase is fully tested with 206 tests across 10 test suites.
+코드베이스는 10개 테스트 스위트에 걸친 206개 테스트로 완전히 테스트되어 있습니다.
 
 ## What's next
 
-Midnight MCP is open source and actively developed. The roadmap includes:
+Midnight MCP은 오픈소스이며 활발히 개발 중입니다. 로드맵은 다음과 같습니다:
 
-- **Full ZK circuit output parsing** from compiler results.
-- **Contract deployment** directly from AI chat.
-- **TypeScript SDK integration** for automatic prover code generation.
-- **Local devnet interaction** for querying balances and submitting transactions.
+- 컴파일러 결과에서 **전체 ZK 서킷 출력 파싱**.
+- AI 채팅에서 직접 **컨트랙트 배포**.
+- 자동 프루버 코드 생성을 위한 **TypeScript SDK 통합**.
+- 잔액 조회 및 트랜잭션 제출을 위한 **로컬 devnet 상호작용**.
 
 ## Learn more
 
-Explore the source code and contribute:
+소스 코드를 탐색하고 기여하세요:
 
-→ [GitHub repository](https://github.com/Olanetsoft/midnight-mcp)
+-> [GitHub repository](https://github.com/Olanetsoft/midnight-mcp)
 
-→ [npm package](https://npmjs.com/package/midnight-mcp)
+-> [npm package](https://npmjs.com/package/midnight-mcp)
 
-→ [API documentation](https://github.com/Olanetsoft/midnight-mcp/blob/main/docs/API.md)
+-> [API documentation](https://github.com/Olanetsoft/midnight-mcp/blob/main/docs/API.md)
 
-_Midnight MCP is a community project. Contributions, issues, and feature requests are welcome._
+_Midnight MCP은 커뮤니티 프로젝트입니다. 기여, 이슈 등록, 기능 요청을 환영합니다._

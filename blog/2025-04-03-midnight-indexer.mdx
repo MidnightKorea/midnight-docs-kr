@@ -8,28 +8,29 @@ tags: [indexer]
 keywords: ["Midnight", "Indexer", "Rust"]
 image: /img/blog/indexer.jpg
 date: 2025-04-03
+description: Midnight 노드에서 최종 사용자 앱까지 블록체인 데이터 흐름을 간소화하는 모듈형 고성능 인덱서, Midnight Indexer을 소개합니다.
 ---
 
-We’re excited to announce the release of the new [Midnight Indexer](https://docs.midnight.network/relnotes/midnight-indexer) — a modular, high-performance indexer that streamlines blockchain data flow from Midnight nodes to end-user apps
+새로운 [Midnight Indexer](https://docs.midnight.network/relnotes/midnight-indexer)을 출시하게 되어 기쁩니다. Midnight 노드에서 최종 사용자 앱까지 블록체인 데이터 흐름을 간소화하는 모듈형 고성능 인덱서입니다.
 
 <!--truncate-->
 
-This new Indexer retrieves block history, processes data, and makes it available through a flexible GraphQL API supporting queries, mutations, and real-time subscriptions.
+이 새로운 Indexer은 블록 히스토리를 조회하고 데이터를 처리하며, 쿼리·뮤테이션·실시간 구독을 지원하는 유연한 GraphQL API를 통해 데이터를 제공합니다.
 
-It is written in Rust and is intended to replace the legacy Scala-based Indexer in the future. It offers significantly improved performance, easier deployments across local and cloud environments, and deep wallet integration. Midnight Indexer supports both PostgreSQL and SQLite.
+Rust로 작성되었으며, 향후 기존 Scala 기반 Indexer을 대체할 예정입니다. 성능이 크게 향상되었고, 로컬 및 클라우드 환경 모두에서 배포가 더 쉬워졌으며, 지갑과의 긴밀한 통합을 제공합니다. Midnight Indexer은 PostgreSQL과 SQLite을 모두 지원합니다.
 
 ## Key Improvements Over the Legacy Indexer
 
-🦀 Rewritten in Rust for improved speed, reliability, and maintainability
+🦀 속도, 안정성, 유지보수성 향상을 위해 Rust로 재작성
 
-🧱 Modular architecture, replacing the monolithic Scala pub-sub design
+🧱 모놀리식 Scala pub-sub 설계를 대체하는 모듈형 아키텍처
 
-🤝 Deep integration with latest wallet tooling (SDK v4+ and Lace Wallet v2.0.0+)
+🤝 최신 지갑 도구와의 긴밀한 통합 (SDK v4+ 및 Lace Wallet v2.0.0+)
 
-🌐 Flexible GraphQL API with subscription support for real-time updates
+🌐 실시간 업데이트를 위한 구독 기능을 갖춘 유연한 GraphQL API
 
-If you're building on Midnight, now’s the time to begin testing integrations and preparing for migration. The Scala-based Pub-Sub Indexer remains functional for now but is officially deprecated and will be phased out in future releases.
+Midnight에서 개발 중이라면, 지금이 통합 테스트를 시작하고 마이그레이션을 준비할 때입니다. Scala 기반 Pub-Sub Indexer은 현재까지 계속 작동하지만, 공식적으로 지원 중단(deprecated)되었으며 향후 릴리스에서 단계적으로 제거될 예정입니다.
 
-📢 Deprecation Notice
+📢 지원 중단 공지
 
-While the Scala-based Pub-Sub Indexer remains available for now, it is officially deprecated and will be phased out in future releases. If you’re building on Midnight, now is the time to begin testing the new Indexer and preparing for migration.
+Scala 기반 Pub-Sub Indexer은 현재까지 계속 사용할 수 있지만, 공식적으로 지원 중단되었으며 향후 릴리스에서 단계적으로 제거될 예정입니다. Midnight에서 개발 중이라면, 지금 바로 새 Indexer을 테스트하고 마이그레이션을 준비하세요.

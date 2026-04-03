@@ -7,22 +7,23 @@ authors: claude
 tags: [compact]
 image: /img/blog/ecosystem.jpg
 date: 2025-04-16
+description: Compact은 온체인 로직을 효율적이고 안전하게 만듭니다. 나눗셈은 아직 지원되지 않지만, 벡터 뺄셈이나 오프체인 연산과 witness 검증을 사용할 수 있습니다.
 ---
 
-Compact makes on-chain logic efficient and secure—while division isn't yet supported, you can use vector subtraction or off-chain computation with witness verification.
+Compact은 온체인 로직을 효율적이고 안전하게 만듭니다. 나눗셈은 아직 지원되지 않지만, 벡터 뺄셈이나 오프체인 연산과 witness 검증을 사용할 수 있습니다.
 
 <!--truncate-->
 
-As of version 0.22.0 of the [Compact](https://docs.midnight.network/develop/reference/compact/) compiler, division is not yet a part of the arithmetic operations available to the developers.
+[Compact](https://docs.midnight.network/develop/reference/compact/) 컴파일러 버전 0.22.0 기준으로, 나눗셈은 아직 개발자가 사용할 수 있는 산술 연산에 포함되지 않습니다.
 
-However, two solutions can be considered to either implement a division or verify the result of a division.
+하지만, 나눗셈을 구현하거나 나눗셈 결과를 검증하기 위한 두 가지 방법을 고려할 수 있습니다.
 
 ## The vector solution
 
-> ⚠️ Warning: this solution is presented for demonstration purposes. It is recommended to use the witness solution in your smart contracts.
+> ⚠️ 경고: 이 방법은 시연 목적으로 제시됩니다. 스마트 컨트랙트에서는 witness 방법을 사용하는 것을 권장합니다.
 
-The first solution is to use a vector, subtraction, and the `fold` expression.  
-Here is an example of a module that simulates a division:
+첫 번째 방법은 벡터, 뺄셈, 그리고 `fold` 표현식을 사용하는 것입니다.  
+나눗셈을 시뮬레이션하는 모듈 예시입니다:
 
 ```compact
 module DivOne {
@@ -55,21 +56,21 @@ module DivOne {
 }
 ```
 
-The `DivOne` module implements division entirely within the circuit using a method based on repeated subtraction. 
+`DivOne` 모듈은 반복 뺄셈 기반의 방법을 사용하여 회로 내에서 나눗셈을 완전히 구현합니다.
 
-It defines a `div` circuit that takes a dividend, divisor, and a fixed-length vector called `divLoop` as inputs. This vector acts as a loop control structure, allowing the fold function to iterate up to 1000 times without unbounded execution.  
+`div` 회로는 피제수, 제수, 그리고 `divLoop`이라는 고정 길이 벡터를 입력으로 받습니다. 이 벡터는 루프 제어 구조 역할을 하며, fold 함수가 무제한 실행 없이 최대 1000번 반복할 수 있게 합니다.
 
-> Note: the `divLoop` doesn't prevent unbounded iteration as unbounded iteration is impossible in Compact.
+> 참고: `divLoop`은 무제한 반복을 방지하는 것이 아닙니다. Compact에서는 무제한 반복 자체가 불가능합니다.
 
-In each iteration, the circuit subtracts the divisor from the remaining dividend and increments the quotient by one, stopping once the remainder is less than the divisor (although the iteration keeps going on). To prevent division by zero, an assertion is included before the loop. 
+각 반복에서 회로는 나머지 피제수에서 제수를 빼고 몫을 하나씩 증가시키며, 나머지가 제수보다 작아지면 중단합니다(반복 자체는 계속 진행됩니다). 0으로 나누기를 방지하기 위해 루프 전에 assertion이 포함되어 있습니다.
 
-The result is returned as a struct of type `DivResult` containing both quotient and remainder. 
+결과는 몫과 나머지를 모두 포함하는 `DivResult` 타입의 struct로 반환됩니다.
 
-This approach is deterministic and self-contained but limited by the loop length, making it suitable only for small enough quotients.
+이 접근 방식은 결정론적이고 자체 완결적이지만 루프 길이에 제한되어, 충분히 작은 몫에만 적합합니다.
 
 ## The witness solution
 
-The second solution is to receive the result of a division made off-chain and verify on-chain that the result is correct, as illustrated in the following module:
+두 번째 방법은 오프체인에서 수행된 나눗셈 결과를 받아 온체인에서 결과의 정확성을 검증하는 것입니다. 다음 모듈에서 이를 보여줍니다:
 
 ```compact
 module DivTwo {
@@ -84,10 +85,10 @@ module DivTwo {
 }
 ```
 
-The `DivTwo` module takes a different approach by offloading the actual division computation to an external witness function called `divMod`. 
+`DivTwo` 모듈은 실제 나눗셈 연산을 `divMod`이라는 외부 witness 함수에 위임하는 다른 접근 방식을 취합니다.
 
-The witness is expected to return the quotient and remainder for given inputs, but the circuit does not compute them itself. Instead, the `checkDiv` circuit validates the correctness of the witness-provided values using two key assertions: that the remainder is less than the divisor, and that the product of the quotient and divisor plus the remainder equals the original dividend.
+witness는 주어진 입력에 대한 몫과 나머지를 반환할 것으로 예상되지만, 회로 자체가 이를 계산하지는 않습니다. 대신 `checkDiv` 회로는 두 가지 핵심 assertion을 사용하여 witness가 제공한 값의 정확성을 검증합니다: 나머지가 제수보다 작은지, 그리고 몫과 제수의 곱에 나머지를 더한 값이 원래 피제수와 같은지 확인합니다.
 
-This method is preferable and more efficient than `DivOne` because it avoids iteration, but it relies on external computation and correct witness values. It is particularly useful when division can be precomputed off-chain.
+이 방법은 반복을 피하기 때문에 `DivOne`보다 더 효율적이고 바람직하지만, 외부 연산과 올바른 witness 값에 의존합니다. 나눗셈을 오프체인에서 미리 계산할 수 있을 때 특히 유용합니다.
 
-Together, these two approaches showcase the trade-offs involved in implementing division in Compact: the `vector` solution offers a fully in-contract solution that guarantees correctness through computation, while the `witness` solution leverages external computation with in-contract verification for greater efficiency. The choice between them depends on the specific performance and trust model requirements of the application.
+이 두 접근 방식은 Compact에서 나눗셈을 구현할 때 수반되는 트레이드오프를 함께 보여줍니다: `vector` 방식은 연산을 통해 정확성을 보장하는 완전한 컨트랙트 내 솔루션을 제공하고, `witness` 방식은 외부 연산과 컨트랙트 내 검증을 결합하여 더 높은 효율성을 달성합니다. 둘 중 어떤 것을 선택할지는 애플리케이션의 구체적인 성능 및 신뢰 모델 요구사항에 따라 달라집니다.

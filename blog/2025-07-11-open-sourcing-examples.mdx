@@ -2,36 +2,37 @@
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 slug: open-sourcing-examples
-title: "Midnight’s First Step Toward Open Source – Say Hello to example-counter and example-bboard"
+title: "Midnight's First Step Toward Open Source – Say Hello to example-counter and example-bboard"
+description: Midnight의 첫 번째 오픈소스 예제 저장소인 example-counter와 example-bboard를 소개합니다. DevRel 팀이 프라이버시 우선 개발의 진입 장벽을 어떻게 낮추고 있는지 살펴봅니다.
 authors: lauren
 tags: [dapp, beginner, web3, intro]
 image: /img/blog/ecosystem.jpg
 date: 2025-07-11
 ---
 
-Midnight's Developer Relations team is actively shaping how developers learn, build, and experiment with privacy-first apps. In this post, we take a closer look at how DevRel is lowering the barrier to entry for new builders, supporting open-source tools, and helping the community navigate the unique challenges of developing on a privacy-preserving blockchain.
+Midnight의 Developer Relations 팀은 개발자가 프라이버시 우선 앱을 배우고, 구축하고, 실험하는 방식을 적극적으로 만들어 가고 있습니다. 이 글에서는 DevRel이 새 개발자의 진입 장벽을 어떻게 낮추고, 오픈소스 도구를 지원하며, 프라이버시 보존 blockchain 개발의 고유한 과제를 커뮤니티가 헤쳐나갈 수 있도록 돕고 있는지 살펴봅니다.
 
 <!--truncate-->
 
 ## From ZIP Files to GitHub: Opening the Gates
 
-Midnight is entering a new phase in our developer journey. Until now, developers had to download ZIP files from our documentation site just to get started. No versioning, no collaboration, no visibility.
+Midnight은 개발자 여정의 새로운 단계에 진입하고 있습니다. 지금까지 개발자는 시작하기 위해 문서 사이트에서 ZIP 파일을 다운로드해야 했습니다. 버전 관리도 없고, 협업도 없고, 가시성도 없었습니다.
 
-That changes today.
+오늘부터 달라집니다.
 
-The DevRel team is proud to share our first two open source example repositories: [`example-counter`](https://github.com/midnightntwrk/example-counter) and [`example-bboard`](https://github.com/midnightntwrk/example-bboard). These projects are more than demos. They’re intentionally scoped, composable references designed to help developers explore what’s possible with Midnight’s privacy-first architecture.
+DevRel 팀은 첫 두 개의 오픈소스 예제 저장소를 자랑스럽게 공개합니다: [`example-counter`](https://github.com/midnightntwrk/example-counter)와 [`example-bboard`](https://github.com/midnightntwrk/example-bboard). 이 프로젝트는 단순한 데모가 아닙니다. Midnight의 프라이버시 우선 아키텍처로 무엇이 가능한지 개발자가 탐색할 수 있도록 의도적으로 범위를 정하고 조합 가능하게 설계된 레퍼런스입니다.
 
-While our broader engineering team continues to open source core protocol components, these repos mark a different kind of milestone: showing others how to build on top of Midnight’s foundation. With versioned code and public visibility, developers can now fork, remix, and build with confidence.
+엔지니어링 팀이 핵심 프로토콜 구성요소의 오픈소스화를 계속하는 가운데, 이 저장소는 다른 종류의 이정표입니다: Midnight의 기반 위에 어떻게 구축하는지 보여주는 것입니다. 버전 관리된 코드와 공개적 가시성으로, 개발자는 이제 자신 있게 포크하고, 리믹스하고, 구축할 수 있습니다.
 
 ## A Simple Contract With a Purpose 
 
-[`example-counter`](https://github.com/midnightntwrk/example-counter) is a minimal dApp that introduces the fundamentals of building on Midnight. It walks through the full development flow:
+[`example-counter`](https://github.com/midnightntwrk/example-counter)는 Midnight에서 개발하는 기초를 소개하는 최소한의 DApp입니다. 전체 개발 흐름을 안내합니다:
 
-- Writing a Compact smart contract  
-- Running and compiling locally  
-- Using public state  
-- Deploying to the Midnight testnet  
-- Sending transactions  
+- Compact smart contract 작성
+- 로컬에서 실행 및 컴파일
+- Public state 사용
+- Midnight 테스트넷에 배포
+- Transaction 전송
 
 ```compact
 pragma language_version >= 0.16;
@@ -45,53 +46,53 @@ export circuit increment(): [] {
     round.increment(1);
 }
 ```
-It’s designed to build foundational literacy in Compact and Midnight’s dev tooling. It’s a simple but powerful way to learn Compact and become familiar with the development flow on Midnight.
+Compact과 Midnight 개발 도구에 대한 기초적인 이해를 쌓을 수 있도록 설계되었습니다. Compact을 배우고 Midnight에서의 개발 흐름에 익숙해지기 위한 간단하지만 강력한 방법입니다.
 
-Think of it as a `“Hello, World”` for privacy-enhancing dApp development.
+프라이버시 강화 DApp 개발의 `"Hello, World"`라고 생각하면 됩니다.
 
 ## Enforcing Rules Without Revealing Identity 
 
-[`example-bboard`](https://github.com/midnightntwrk/example-bboard) goes further. It simulates a public bulletin board, where users can post messages, and only the original author can remove their own post.
+[`example-bboard`](https://github.com/midnightntwrk/example-bboard)는 한 단계 더 나아갑니다. 사용자가 메시지를 게시할 수 있고, 원래 작성자만 자신의 게시물을 삭제할 수 있는 공개 게시판을 시뮬레이션합니다.
 
-It’s a small app that teaches a big concept: Midnight enables identity-aware rules without revealing identity.
+작은 앱이지만 큰 개념을 가르칩니다: Midnight은 신원을 공개하지 않으면서 신원 기반 규칙을 적용할 수 있습니다.
 
-This repo covers how to:
+이 저장소에서 다루는 내용은 다음과 같습니다:
 
-- Combine public and private state in a Compact contract  
-- Use zero-knowledge proofs to enforce permissions  
-- Validate ownership locally without exposing identity  
-- Design UI flows that respect user privacy by default  
+- Compact contract에서 public과 private state를 결합하는 방법
+- Zero-knowledge proof를 사용하여 권한을 적용하는 방법
+- 신원을 노출하지 않으면서 로컬에서 소유권을 검증하는 방법
+- 기본적으로 사용자 프라이버시를 존중하는 UI 흐름을 설계하는 방법
 
-It’s especially useful for teams exploring anonymous messaging, private voting, or access control without identity leakage.
+익명 메시징, 비공개 투표, 신원 유출 없는 접근 제어를 탐색하는 팀에게 특히 유용합니다.
 
 ## What It Means to Build in the Open 
 
-Speaking personally, I’ve spent most of my DevRel career working in open source. But this is the first time I’ve been part of a company transitioning into it.
+개인적으로, 저는 DevRel 경력의 대부분을 오픈소스에서 보냈습니다. 하지만 회사가 오픈소스로 전환하는 과정에 참여하는 것은 이번이 처음입니다.
 
-Open sourcing code isn’t just a technical milestone. It’s a culture shift. Releasing code publicly changes how a team thinks and operates.
+코드를 오픈소스화하는 것은 단순한 기술적 이정표가 아닙니다. 문화적 전환입니다. 코드를 공개적으로 릴리스하면 팀의 사고방식과 운영 방식이 바뀝니다.
 
-It means moving from perfectionism to progress. From private Slack threads to public GitHub Issues. From “we’ll fix it internally” to “anyone can help improve it.”
+완벽주의에서 진전으로, 비공개 Slack 스레드에서 공개 GitHub Issues로, "내부에서 고치겠다"에서 "누구나 개선을 도울 수 있다"로의 전환을 의미합니다.
 
-It’s a commitment to building alongside others, not just for them.
+다른 사람을 위해서가 아니라, 다른 사람과 함께 구축하겠다는 약속입니다.
 
-These first example repos mark the beginning of that shift for Midnight. They’re designed to help others learn by doing and to demonstrate that **privacy and collaboration can coexist**.
+이 첫 예제 저장소는 Midnight에서 그 전환의 시작입니다. 실습을 통해 배울 수 있도록 설계되었으며, **프라이버시와 협업이 공존할 수 있음**을 보여줍니다.
 
 ## Docs Are Up Next 
 
-We’re also preparing to open source our [Midnight Docs repo(https://github.com/midnightntwrk/midnight-docs)].
+[Midnight Docs 저장소](https://github.com/midnightntwrk/midnight-docs)도 곧 오픈소스화할 준비를 하고 있습니다.
 
-This is a major step toward transparency, trust, and co-creation. We want the documentation to grow alongside the ecosystem, which means making it easier for contributors to suggest improvements, fix issues, and help shape the developer experience.
+이것은 투명성, 신뢰, 공동 창작을 향한 중요한 발걸음입니다. 문서가 생태계와 함께 성장하길 원하며, 기여자가 개선을 제안하고, 문제를 수정하며, 개발자 경험을 만들어가는 데 쉽게 참여할 수 있도록 하려 합니다.
 
-## What’s Next? 
+## What's Next? 
 
-This is just the start. In the coming months, the DevRel team will:
+이것은 시작에 불과합니다. 앞으로 몇 달 동안 DevRel 팀은 다음과 같은 작업을 진행할 것입니다:
 
-- Publish more example dApps (and build them from scratch in the open)  
-- Create reusable components and templates  
-- Contribute improvements upstream to core tooling  
-- Document real-world use cases for easier onboarding  
+- 더 많은 예제 DApp 발행(공개적으로 처음부터 개발)
+- 재사용 가능한 컴포넌트와 템플릿 제작
+- 핵심 도구에 대한 업스트림 개선 기여
+- 더 쉬운 온보딩을 위한 실제 사용 사례 문서화
 
-We’re building in the open, for those who want to build with us.
+함께 구축하고 싶은 분들을 위해 공개적으로 개발하고 있습니다.
 
 ## Explore the Code 
 
@@ -101,4 +102,4 @@ We’re building in the open, for those who want to build with us.
 
 ## Join the Conversation 
 
-We’d love to hear your feedback, contributions, and ideas. Drop into [Discord](https://discord.gg/midnightnetwork), open an issue, or fork a repo and show us what you’ve built.
+여러분의 피드백, 기여, 아이디어를 듣고 싶습니다. [Discord](https://discord.gg/midnightnetwork)에 참여하거나, 이슈를 열거나, 저장소를 포크해서 구축한 것을 보여주세요.

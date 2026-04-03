@@ -2,38 +2,40 @@
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 slug: bech32m-hex
-title: From Hex to Bech32m - Midnight’s New Standard for Safer, Smarter Addresses
+title: From Hex to Bech32m - Midnight's New Standard for Safer, Smarter Addresses
 authors: devrel
 tags: [wallet, midnight.js]
 keywords: ["Midnight", "Bech32m", "Wallet"]
 image: /img/blog/wallets.jpg
 date: 2025-04-04
+description: Midnight 생태계의 새로운 기본 주소 형식인 Bech32m을 소개합니다. 오류 감지 기능이 내장된 사람이 읽을 수 있는 주소 형식입니다.
 ---
 
-The Midnight ecosystem is evolving—one important change is the new default address format: Bech32m, which is a human-readable address format with error detection.
+Midnight 생태계가 진화하고 있습니다. 중요한 변경 사항 중 하나는 새로운 기본 주소 형식인 Bech32m입니다. 오류 감지 기능이 내장된 사람이 읽을 수 있는 주소 형식입니다.
 
 <!--truncate-->
 
-Midnight now uses Bech32m as the default format for wallet addresses and public keys. This change improves readability, safety, and metadata clarity. Hex is deprecated but still temporarily supported for backward compatibility. Here's how to migrate your dApp.
+Midnight은 이제 지갑 주소와 공개 키의 기본 형식으로 Bech32m을 사용합니다. 이 변경으로 가독성, 안전성, 메타데이터 명확성이 향상됩니다. Hex은 지원 중단되었지만, 하위 호환성을 위해 일시적으로 계속 지원됩니다. dApp을 마이그레이션하는 방법은 다음과 같습니다.
 
-This post explores what that means, why it matters, and how to adapt your applications accordingly.
+이 글에서는 이 변경이 의미하는 바, 왜 중요한지, 그리고 애플리케이션을 어떻게 적용해야 하는지 살펴봅니다.
 
 
 ## Why Move Away From Hex?
 
-Hexadecimal (base-16) encoding has been the long-standing default for representing blockchain addresses due to its simplicity, broad tooling support, and compact format. It provides a direct, low-level view of binary data, making it easy for machines to parse and developers to integrate. However, despite its convenience, hex lacks critical features for modern blockchain applications. It provides no built-in error detection, making it prone to copy-paste mistakes, and it offers no contextual information—such as the network or address type—leading to ambiguity and increased risk in user-facing systems.
+16진수(base-16) 인코딩은 단순성, 폭넓은 도구 지원, 간결한 형식 덕분에 블록체인 주소를 표현하는 데 오랫동안 기본으로 사용되어 왔습니다. 바이너리 데이터에 대한 직접적이고 저수준의 뷰를 제공하여, 머신이 파싱하고 개발자가 통합하기 쉽습니다. 그러나 이러한 편의성에도 불구하고, hex에는 현대 블록체인 애플리케이션에 필요한 핵심 기능이 부족합니다. 내장된 오류 감지 기능이 없어 복사-붙여넣기 실수가 발생하기 쉽고, 네트워크나 주소 유형 같은 컨텍스트 정보를 제공하지 않아 사용자 대면 시스템에서 모호성과 위험이 증가합니다.
 
 ## Introducing Bech32m
 
-To address the limitations of hex encoding, the blockchain ecosystem introduced Bech32, a human-readable address format originally developed for Bitcoin SegWit. Bech32m is a refined version of this format, designed specifically to support new cryptographic constructions such as Taproot, and is now used in the Midnight ecosystem. Unlike hex, Bech32m encodes data using a base-32 character set that avoids visually ambiguous characters (like 0 vs O), and includes a strong checksum for detecting errors caused by typos or miscopies.
+hex 인코딩의 한계를 해결하기 위해, 블록체인 생태계에서는 원래 Bitcoin SegWit을 위해 개발된 사람이 읽을 수 있는 주소 형식인 Bech32을 도입했습니다. Bech32m은 이 형식의 개선 버전으로, Taproot 같은 새로운 암호학적 구성을 지원하도록 특별히 설계되었으며, 현재 Midnight 생태계에서 사용되고 있습니다. hex과 달리 Bech32m은 시각적으로 혼동되기 쉬운 문자(예: 0 vs O)를 제외한 base-32 문자 세트를 사용하여 데이터를 인코딩하며, 오타나 잘못된 복사로 인한 오류를 감지하기 위한 강력한 체크섬을 포함합니다.
 
-A Bech32m string consists of three parts: a human-readable prefix (HRP) that identifies the network and address type (e.g., `mn_shield-addr_test` for Midnight testnet), a separator (1), and the encoded payload, which contains the actual data (e.g., coin public key and encryption public key). The result is a format that is not only safer and easier for users to handle, but also rich in metadata, making it far more suitable for decentralized applications where clarity and security are critical.
-Where Bech32m Is Used in Midnight
+Bech32m 문자열은 세 부분으로 구성됩니다: 네트워크와 주소 유형을 식별하는 사람이 읽을 수 있는 접두사(HRP, 예: Midnight 테스트넷의 경우 `mn_shield-addr_test`), 구분자(1), 그리고 실제 데이터(예: 코인 공개 키와 암호화 공개 키)를 포함하는 인코딩된 페이로드입니다. 결과적으로 사용자가 다루기에 더 안전하고 쉬울 뿐만 아니라, 메타데이터가 풍부하여 명확성과 보안이 중요한 탈중앙화 애플리케이션에 훨씬 적합한 형식입니다.
 
-The adoption of Bech32m isn’t limited to a single library — it’s a coordinated shift across the entire Midnight wallet ecosystem. With the release of Wallet SDK 4.0, Wallet API 4.0, DApp Connector API v2.0, and the latest version of the Midnight Lace Wallet, Bech32m is now the default encoding for wallet addresses and public keys.
-All core components have been updated to expose Bech32m-encoded fields by default while marking the legacy hex fields as deprecated. This ensures a smoother migration path for dApps and infrastructure that still rely on hexadecimal formats, without compromising on future-proofing or safety.
+## Where Bech32m Is Used in Midnight
 
-Here’s how this looks in practice using the `DAppConnectorWalletState` interface:
+Bech32m의 채택은 단일 라이브러리에 국한되지 않습니다. 전체 Midnight 지갑 생태계에 걸친 조율된 전환입니다. Wallet SDK 4.0, Wallet API 4.0, DApp Connector API v2.0, 그리고 최신 버전의 Midnight Lace Wallet 출시와 함께, Bech32m이 지갑 주소와 공개 키의 기본 인코딩이 되었습니다.
+모든 핵심 컴포넌트가 기본적으로 Bech32m으로 인코딩된 필드를 노출하도록 업데이트되었으며, 레거시 hex 필드는 지원 중단으로 표시되었습니다. 이를 통해 여전히 16진수 형식에 의존하는 dApp과 인프라의 원활한 마이그레이션 경로를 보장하면서, 미래 대비성이나 안전성을 저해하지 않습니다.
+
+실제로 `DAppConnectorWalletState` 인터페이스에서 이것이 어떻게 보이는지 확인하세요:
 
 ```
 interface DAppConnectorWalletState {
@@ -56,7 +58,7 @@ interface DAppConnectorWalletState {
 
 ## Backward Compatibility and Migration
 
-While Bech32m is now the primary format, legacy hex fields are still accessible through the `Legacy` postfixed — but these are officially deprecated and will be removed in future versions. If your dApp or tooling still expects hex values, the SDK provides a utility package to help with conversion:
+Bech32m이 이제 주요 형식이지만, 레거시 hex 필드는 `Legacy` 접미사를 통해 여전히 접근할 수 있습니다. 다만 이러한 필드는 공식적으로 지원 중단되었으며 향후 버전에서 제거될 예정입니다. dApp이나 도구가 여전히 hex 값을 사용한다면, SDK에서 변환을 돕는 유틸리티 패키지를 제공합니다:
 
 ```
 import { decodeBech32mAddress } from '@midnight-ntwrk/wallet-sdk-address-format';
@@ -64,21 +66,21 @@ import { decodeBech32mAddress } from '@midnight-ntwrk/wallet-sdk-address-format'
 const hexAddress = decodeBech32mAddress(address);
 ```
 
-This ensures you can continue to work with legacy systems while gradually migrating to the safer and more expressive Bech32m format.
+이를 통해 레거시 시스템과 계속 작업하면서 더 안전하고 표현력이 풍부한 Bech32m 형식으로 점진적으로 마이그레이션할 수 있습니다.
 
 ## What You Should Change
 
-If you’re consuming wallet state via the DApp Connector API or Wallet SDK, make sure you:
+DApp Connector API나 Wallet SDK를 통해 지갑 상태를 사용하고 있다면, 다음 사항을 확인하세요:
 
-✅ Switch from `addressLegacy → address`
+✅ `addressLegacy → address`로 전환
 
-✅ Switch from `coinPublicKeyLegacy → coinPublicKey`
+✅ `coinPublicKeyLegacy → coinPublicKey`로 전환
 
-✅ Switch from `encryptionPublicKeyLegacy → encryptionPublicKey`
+✅ `encryptionPublicKeyLegacy → encryptionPublicKey`로 전환
 
-✅ Use `@midnight-ntwrk/wallet-sdk-address-format` for conversion where needed
+✅ 필요한 경우 `@midnight-ntwrk/wallet-sdk-address-format`을 사용하여 변환
 
-Example:
+예시:
 
 ```
 import { decodeBech32mAddress } from '@midnight-ntwrk/wallet-sdk-address-format';
@@ -88,21 +90,21 @@ const hex = decodeBech32mAddress("mtst1q0yz7f64vu...");
 
 ## TL;DR: Bech32m Is Now the Default
 
-✅ Bech32m is the default address/public key format across all wallet-related packages
+✅ Bech32m이 모든 지갑 관련 패키지에서 주소/공개 키의 기본 형식입니다
 
-❌ Hex format fields (addressLegacy, coinPublicKeyLegacy, etc.) are deprecated
+❌ Hex 형식 필드(addressLegacy, coinPublicKeyLegacy 등)는 지원 중단되었습니다
 
-🛠️ Migration is simple — just use the new fields and types already provided
+🛠️ 마이그레이션은 간단합니다. 이미 제공된 새 필드와 타입을 사용하면 됩니다
 
-🔁 Legacy hex values are still temporarily available for backward compatibility
+🔁 레거시 hex 값은 하위 호환성을 위해 일시적으로 계속 사용할 수 있습니다
 
-📦 If you're building a dApp, make sure you're using `midnight-js@1.0.0`, which supports both Wallet SDK 4.0.0 and older versions. It also enables compatibility with Bech32m addresses.
+📦 dApp을 개발 중이라면, Wallet SDK 4.0.0과 이전 버전을 모두 지원하는 `midnight-js@1.0.0`을 사용하세요. Bech32m 주소와의 호환성도 지원합니다.
 
-💬 Have questions about the migration or need help updating your dApp? Drop us a note in [#dev-corner on Discord](https://discord.com/channels/1165826384975908924/1209887476290682910).
+💬 마이그레이션에 대한 질문이나 dApp 업데이트에 도움이 필요하신가요? [Discord의 #dev-corner](https://discord.com/channels/1165826384975908924/1209887476290682910)에서 문의하세요.
 
 ✅ Migration Checklist
 
-- [ ] Use `address`, not `addressLegacy`
-- [ ] Use `coinPublicKey`, not `coinPublicKeyLegacy`
-- [ ] Use `encryptionPublicKey`, not `encryptionPublicKeyLegacy`
-- [ ] Use `@midnight-ntwrk/wallet-sdk-address-format` for any needed conversions
+- [ ] `addressLegacy` 대신 `address` 사용
+- [ ] `coinPublicKeyLegacy` 대신 `coinPublicKey` 사용
+- [ ] `encryptionPublicKeyLegacy` 대신 `encryptionPublicKey` 사용
+- [ ] 필요한 변환에 `@midnight-ntwrk/wallet-sdk-address-format` 사용

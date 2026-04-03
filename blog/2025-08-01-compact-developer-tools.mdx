@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 slug: compact-developer-tools
 title: Introducing the Compact Developer Tools
+description: Compact 개발자 도구가 출시되었습니다. 툴체인 설치, 업데이트, 버전 전환, 컴파일러 호출 방법을 안내합니다.
 authors: [compactTeam]
 tags: [compact]
 image: /img/blog/zkp.jpg
@@ -10,82 +11,81 @@ date: 2025-08-01
 ---
 # Introducing the Compact Developer Tools
 
-We are proud to announce the launch of the Compact developer tools!
-Today we are launching `compact`, a command-line tool that is used for installing the Compact toolchain (e.g., the compiler),
-keeping it up to date, and invoking the toolchain tools themselves.
-The developer tools are now the "official" supported way to install and update the toolchain and to invoke other Compact tooling such as the Compact compiler.
+Compact 개발자 도구의 출시를 발표하게 되어 기쁩니다!
+오늘 `compact` 명령줄 도구를 출시합니다. 이 도구는 Compact 툴체인(예: 컴파일러)을 설치하고, 최신 상태로 유지하며, 툴체인 도구 자체를 실행하는 데 사용됩니다.
+개발자 도구는 이제 툴체인을 설치 및 업데이트하고 Compact 컴파일러 등 다른 Compact 도구를 호출하는 "공식" 지원 방법입니다.
 
-To avoid confusion, we will make a careful distinction between the "Compact toolchain" and the "Compact developer tools".
-The toolchain contains the compiler and will eventually contain other tooling that is specific to a particular version of the Compact language.
-The developer tools include the updater tools and will eventually support other tools that work consistently across different versions of the language.
-In the initial release, the Compact developer tools are primarily used to manage the installation of a Compact toolchain, but they will support additional tooling in the future.
+혼동을 피하기 위해 "Compact 툴체인"과 "Compact 개발자 도구"를 신중하게 구분하겠습니다.
+툴체인에는 컴파일러가 포함되어 있으며, 향후 특정 Compact 언어 버전에 특화된 다른 도구도 포함될 예정입니다.
+개발자 도구에는 업데이터 도구가 포함되어 있으며, 향후 다양한 언어 버전에서 일관되게 작동하는 다른 도구도 지원할 예정입니다.
+초기 릴리스에서 Compact 개발자 도구는 주로 Compact 툴체인의 설치를 관리하는 데 사용되지만, 향후 추가 도구를 지원할 것입니다.
 
-There is no new release of the Compact toolchain yet, but you can already start using the new developer tools to install and invoke the current version of the compiler.
+아직 Compact 툴체인의 새 릴리스는 없지만, 이미 새 개발자 도구를 사용하여 현재 버전의 컴파일러를 설치하고 호출할 수 있습니다.
 
 # The Old Toolchain Installation Method
 
-Before this new release, installing the Compact toolchain was a manual and tedious process:
+이번 신규 릴리스 이전에는 Compact 툴체인을 설치하는 것이 수동적이고 번거로운 과정이었습니다:
 
-1. Developers had to download a ZIP file for a specific compiler version and platform architecture
-1. They then had to extract it to a directory included in their PATH
-1. On macOS, they would have to give permission to run the two different binaries (the compiler and the ZK-key generator).
+1. 개발자가 특정 컴파일러 버전과 플랫폼 아키텍처에 맞는 ZIP 파일을 다운로드해야 했습니다
+1. 그런 다음 PATH에 포함된 디렉토리에 압축을 해제해야 했습니다
+1. macOS에서는 두 개의 서로 다른 바이너리(컴파일러와 ZK 키 생성기)에 실행 권한을 부여해야 했습니다
 
-This process would have to be repeated each time there was a new Compact toolchain release.
-Keeping multiple versions installed at once was also cumbersome and hard to manage.
+이 과정은 새 Compact 툴체인 릴리스가 나올 때마다 반복해야 했습니다.
+여러 버전을 동시에 설치하고 관리하는 것도 번거롭고 어려웠습니다.
 
 # The New Toolchain Installation Method
 
-The new way to install the Compact toolchain starts with a one-time installation of the `compact` command-line tool.
-Once installed, the developer tools can update themselves automatically.
-To install, run the following command:
+새로운 Compact 툴체인 설치 방법은 `compact` 명령줄 도구를 한 번 설치하는 것에서 시작합니다.
+한번 설치되면, 개발자 도구가 스스로 자동 업데이트할 수 있습니다.
+설치하려면 다음 명령을 실행하세요:
 
 ```
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
 ```
 
-This command will download and run a shell script.
-It will instruct you how to add the binary directory it uses to your `PATH` environment variable.
+이 명령은 셸 스크립트를 다운로드하여 실행합니다.
+사용하는 바이너리 디렉토리를 `PATH` 환경 변수에 추가하는 방법을 안내해 줍니다.
 
-Once you've done this, the `compact` command line tool is available to use.
-This tool has a number of useful subcommands that can be invoked.
-For instance, to **update** the toolchain to the latest version, you will run the command:
+이 작업을 완료하면 `compact` 명령줄 도구를 사용할 수 있습니다.
+이 도구에는 호출할 수 있는 여러 유용한 서브커맨드가 있습니다.
+예를 들어, 툴체인을 최신 버전으로 **업데이트**하려면 다음 명령을 실행합니다:
 
 ```
 compact update
 ```
 
-The output will look something like this (on an Apple Silicon macOS machine, for instance):
+출력은 다음과 같이 나타납니다(예: Apple Silicon macOS 머신에서):
 
 ```
 compact: aarch64-darwin -- 0.24.0 -- installed
 compact: aarch64-darwin -- 0.24.0 -- default.
 ```
 
-This subcommand will switch to the latest version of the toolchain available for your architecture.
-As of today, this is version 0.24.0 which is reported by the tool.
-The `compact` tool will download the toolchain artifacts if necessary (you will see a progress meter while it downloads).
-If you have already downloaded the artifacts, the tool will simply switch the default version to be the latest version.
+이 서브커맨드는 해당 아키텍처에서 사용 가능한 최신 버전의 툴체인으로 전환합니다.
+현재 기준으로 0.24.0 버전이며, 도구가 이를 보고합니다.
+`compact` 도구는 필요한 경우 툴체인 아티팩트를 다운로드합니다(다운로드 중 진행률 표시줄이 나타납니다).
+이미 아티팩트를 다운로드한 경우, 도구는 단순히 기본 버전을 최신 버전으로 전환합니다.
 
-When there is a new Compact toolchain release, such as 0.25.0, you will use the same subcommand as above to update to that new version.
+0.25.0 같은 새 Compact 툴체인 릴리스가 나오면, 위와 동일한 서브커맨드를 사용하여 해당 새 버전으로 업데이트합니다.
 
-You can **check** if there is a new version available using the `check` subcommand like this:
+`check` 서브커맨드를 사용하여 새 버전이 있는지 **확인**할 수 있습니다:
 
 ```
 compact check
 ```
 
-If there is a new version available, you will see something like:
+새 버전이 있으면 다음과 같이 표시됩니다:
 
 ```
 compact: aarch64-darwin -- Update Available -- 0.24.0
 compact: Latest version available: 0.25.0.
 ```
 
-This is reporting that you are on version 0.24.0 and that 0.25.0 is available.
+현재 0.24.0 버전을 사용 중이며 0.25.0이 사용 가능하다는 것을 보고합니다.
 
 :::note
-You will not actually see this output until there is a new version available.
-Instead, you will see that you are on the latest version:
+새 버전이 실제로 나오기 전까지는 이 출력을 볼 수 없습니다.
+대신 최신 버전을 사용 중이라는 메시지를 보게 됩니다:
 
 ```
 compact: aarch64-darwin -- Up to date -- 0.24.0
@@ -94,14 +94,14 @@ compact: aarch64-darwin -- Up to date -- 0.24.0
 
 # Switching Toolchain Versions
 
-You can also "update" to any other available toolchain, including previous ones.
-You can **list** all the versions available with the command:
+이전 버전을 포함하여 사용 가능한 다른 툴체인으로 "업데이트"할 수도 있습니다.
+다음 명령으로 사용 가능한 모든 버전을 **나열**할 수 있습니다:
 
 ```
 compact list
 ```
 
-The output will look something like this:
+출력은 다음과 같습니다:
 
 ```
 compact: available versions
@@ -111,17 +111,17 @@ compact: available versions
   0.22.0 - x86_macos, x86_linux
 ```
 
-This is showing the different versions, and which platforms they are available for.
-The arrow indicates the current default version, 0.24.0 in this case.
-This default is whichever you have currently set as the default (via `compact update`).
+각 버전과 사용 가능한 플랫폼을 보여줍니다.
+화살표는 현재 기본 버전(이 경우 0.24.0)을 나타냅니다.
+이 기본값은 `compact update`를 통해 현재 설정한 버전입니다.
 
-You can pass the flag `--installed` (or `-i`) to `compact list` to see the versions that are actually downloaded locally:
+`--installed`(또는 `-i`) 플래그를 `compact list`에 전달하여 실제로 로컬에 다운로드된 버전을 확인할 수 있습니다:
 
 ```
 compact list --installed
 ```
 
-The output will probably look like this:
+출력은 대략 다음과 같을 것입니다:
 
 ```
 compact: installed versions
@@ -129,8 +129,8 @@ compact: installed versions
 → 0.24.0
 ```
 
-The update subcommand can be used with a specific version to switch to that version.
-For example:
+update 서브커맨드에 특정 버전을 지정하여 해당 버전으로 전환할 수 있습니다.
+예를 들면:
 
 ```
 $ compact update 0.23.0
@@ -145,94 +145,94 @@ compact: installed versions
 ```
 
 :::note
-If you are on an Intel x86 macOS computer, you will not be able to update to version 0.23.0 because it was not available for that architecture.
-You can try the same commands above with version 0.22.0 instead.
+Intel x86 macOS 컴퓨터를 사용하는 경우, 0.23.0 버전은 해당 아키텍처에서 사용할 수 없으므로 업데이트할 수 없습니다.
+위와 동일한 명령을 0.22.0 버전으로 시도해 보세요.
 :::
 
-You can now switch back to the latest version with `compact update` or `compact update 0.24.0`.
-This time, nothing will be downloaded because that version is already installed locally.
+`compact update` 또는 `compact update 0.24.0`으로 최신 버전으로 다시 전환할 수 있습니다.
+이번에는 해당 버전이 이미 로컬에 설치되어 있으므로 아무것도 다운로드되지 않습니다.
 
 # Invoking the Compiler
 
-In addition to keeping the toolchain updated, the `compact` tool will also be the official supported way to invoke all the toolchain tools themselves.
-For the time being, the only such tool is the compiler, but we will be building out more tools in the future.
-The compiler can be invoked with the `compile` subcommand:
+툴체인을 최신 상태로 유지하는 것 외에도, `compact` 도구는 모든 툴체인 도구를 호출하는 공식 지원 방법이기도 합니다.
+현재로서는 유일한 도구가 컴파일러이지만, 향후 더 많은 도구를 구축할 예정입니다.
+컴파일러는 `compile` 서브커맨드로 호출할 수 있습니다:
 
 ```
 compact compile <contract file> <output directory>
 ```
 
-This will use the current default version of the toolchain (the one indicated by the arrow in `compact list`).
+현재 기본 버전의 툴체인(`compact list`에서 화살표로 표시되는 것)을 사용합니다.
 
 :::note
-If you are using macOS, you no longer have to explicitly give permission to run the compiler and ZK-key generation binaries.
+macOS를 사용하는 경우, 더 이상 컴파일러 및 ZK 키 생성 바이너리에 대한 실행 권한을 명시적으로 부여할 필요가 없습니다.
 :::
 
-You can override the default to use a specific (already installed) version by including the version number after a plus (`+`) sign like:
+플러스(`+`) 기호 뒤에 버전 번호를 포함하여 기본값을 재정의하고 특정(이미 설치된) 버전을 사용할 수 있습니다:
 
 ```
 compact compile +0.23.0 <contract file> <output directory>
 ```
 
-Looking ahead, we plan to remove the `compactc` executable.
-Going forward, `compact compile` will become the standard way to invoke the Compact compiler.
+앞으로 `compactc` 실행 파일을 제거할 계획입니다.
+향후 `compact compile`이 Compact 컴파일러를 호출하는 표준 방법이 될 것입니다.
 
 # Built-in Help
 
-The `compact` tool and all of its subcommands have detailed help pages provided by the tools themselves.
-You can see these in two different ways, either using the `help` subcommand or by using the `--help` flag.
+`compact` 도구와 모든 서브커맨드에는 도구 자체에서 제공하는 상세한 도움말 페이지가 있습니다.
+`help` 서브커맨드를 사용하거나 `--help` 플래그를 사용하는 두 가지 방법으로 확인할 수 있습니다.
 
-For the Compact tool itself, you can invoke `compact help` or `compact --help` and you will see the exact same help page.
-This page shows all the subcommands (`compile` is currently listed at the bottom of the page).
-It also shows common command line options.
+Compact 도구 자체에 대해서는 `compact help` 또는 `compact --help`를 실행하면 정확히 동일한 도움말 페이지를 볼 수 있습니다.
+이 페이지는 모든 서브커맨드를 보여줍니다(`compile`은 현재 페이지 하단에 나열됩니다).
+또한 공통 명령줄 옵션도 보여줍니다.
 
-For a specific subcommand, such as `update`, you can see detailed help either via `compact help update` or `compact update --help`.
-You can use the help pages to find all the subcommands and their options.
+`update` 같은 특정 서브커맨드에 대해서는 `compact help update` 또는 `compact update --help`를 통해 상세 도움말을 볼 수 있습니다.
+도움말 페이지를 사용하여 모든 서브커맨드와 옵션을 찾을 수 있습니다.
 
 :::note
-Because of the way that the tools are currently implemented, you cannot get compiler help via `compact help compile`.
-Instead, you will have to use `compact compile --help`.
+도구의 현재 구현 방식으로 인해 `compact help compile`로는 컴파일러 도움말을 볼 수 없습니다.
+대신 `compact compile --help`를 사용해야 합니다.
 :::
 
 # Versions
 
-The developer tools are separately versioned from the toolchain (i.e., compiler) itself.
-This is because the tools are capable of managing multiple versions of the toolchain.
+개발자 도구는 툴체인(즉, 컴파일러) 자체와 별도로 버전이 관리됩니다.
+이는 도구가 여러 버전의 툴체인을 관리할 수 있기 때문입니다.
 
-You can see the version of the developer tools with `compact --version`.
-That should currently be 0.1.0.
-You can also see the version of subcommands like `compact update --version`.
-Currently, built-in subcommands (that is, ones implemented by the developer tools, not the toolchain) all have the same version as the developer tools.
+개발자 도구의 버전은 `compact --version`으로 확인할 수 있습니다.
+현재 0.1.0일 것입니다.
+`compact update --version` 같은 서브커맨드의 버전도 확인할 수 있습니다.
+현재 내장 서브커맨드(즉, 툴체인이 아닌 개발자 도구가 구현한 것)는 모두 개발자 도구와 동일한 버전을 가집니다.
 
-You can find the version of the toolchain with `compact list -i` or `compact check` (though the latter will make an Internet check to see if there is a new version).
-You can also find it from the compiler via `compact compile --version`.
-This should currently be 0.24.0 if you are on the latest version.
+툴체인의 버전은 `compact list -i` 또는 `compact check`로 확인할 수 있습니다(후자는 새 버전이 있는지 인터넷 확인을 합니다).
+컴파일러를 통해서도 `compact compile --version`으로 확인할 수 있습니다.
+최신 버전을 사용하고 있다면 현재 0.24.0일 것입니다.
 
-As before, the Compact language itself is versioned separately from the toolchain.
-You can find this from the compiler via `compact compile --language-version`.
+이전과 마찬가지로 Compact 언어 자체는 툴체인과 별도로 버전이 관리됩니다.
+컴파일러를 통해 `compact compile --language-version`으로 확인할 수 있습니다.
 
 # Keeping the Developer Tools Up to Date
 
-Once they are installed, the developer tools are capable of keeping themselves up to date.
-You can check for updates with `compact self check`, and you can update to the latest version of the tool with `compact self update`.
+설치가 완료되면, 개발자 도구는 스스로 최신 상태를 유지할 수 있습니다.
+`compact self check`로 업데이트를 확인하고, `compact self update`로 도구의 최신 버전으로 업데이트할 수 있습니다.
 
-We have not provided a way to go back to a previous version of the developer tools themselves, because you generally won't need to do that.
-You don't necessarily have to update the developer tools themselves all the time, either.
-You **will** however want to update the developer tools themselves when we make more developer tools available.
-For example, a future release will include a Compact formatter available via a `compact format` subcommand.
-You will need to update the developer tools themselves to get access to the formatter tool.
-We will always announce such updates in the release notes for both the toolchain and the developer tools.
+개발자 도구 자체의 이전 버전으로 돌아가는 방법은 제공하지 않습니다. 일반적으로 그럴 필요가 없기 때문입니다.
+개발자 도구 자체를 항상 업데이트할 필요도 없습니다.
+그러나 더 많은 개발자 도구가 제공될 때 개발자 도구 자체를 업데이트해야 **합니다**.
+예를 들어, 향후 릴리스에는 `compact format` 서브커맨드로 사용할 수 있는 Compact 포매터가 포함될 것입니다.
+포매터 도구에 접근하려면 개발자 도구 자체를 업데이트해야 합니다.
+이러한 업데이트는 항상 툴체인과 개발자 도구 모두의 릴리스 노트에서 발표합니다.
 
 # How it Works
 
-The tool is currently a simple one, but its architecture is flexible and it will eventually support many more different developer tools.
-If you look at the help pages, you will see that the tools take a `--directory` command-line flag which tells them where to find the toolchain.
-By default this will be the directory `.compact` in your home directory.
+현재 도구는 단순하지만, 아키텍처가 유연하여 향후 훨씬 더 많은 다양한 개발자 도구를 지원할 수 있습니다.
+도움말 페이지를 보면 도구가 `--directory` 명령줄 플래그를 받는 것을 알 수 있습니다. 이 플래그는 툴체인의 위치를 지정합니다.
+기본적으로 홈 디렉토리의 `.compact` 디렉토리가 됩니다.
 
-If you look in that directory, you will see two subdirectories: `bin` and `versions`.
-The `versions` subdirectory contains separate subdirectories for each installed version, which contain the toolchain artifacts for that version.
-The `bin` subdirectory represents the default version, which is just a symbolic link to one of the installed versions.
+해당 디렉토리를 살펴보면 `bin`과 `versions`라는 두 개의 하위 디렉토리가 있습니다.
+`versions` 하위 디렉토리에는 각 설치된 버전의 별도 하위 디렉토리가 있으며, 해당 버전의 툴체인 아티팩트를 포함합니다.
+`bin` 하위 디렉토리는 기본 버전을 나타내며, 설치된 버전 중 하나에 대한 심볼릭 링크입니다.
 
-The command line tool is capable of checking for updates and downloading and unzipping toolchain artifacts if necessary.
-Switching between installed versions just changes the `bin` symbolic link to point to a different installed toolchain.
-Invoking the toolchain itself just invokes the corresponding default executables in the `bin` directory, or for a specific version if necessary.
+명령줄 도구는 업데이트를 확인하고 필요한 경우 툴체인 아티팩트를 다운로드 및 압축 해제할 수 있습니다.
+설치된 버전 간 전환은 단순히 `bin` 심볼릭 링크를 다른 설치된 툴체인을 가리키도록 변경하는 것입니다.
+툴체인 자체를 호출하는 것은 단순히 `bin` 디렉토리의 해당 기본 실행 파일을 호출하거나, 필요한 경우 특정 버전의 것을 호출합니다.

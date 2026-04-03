@@ -8,94 +8,95 @@ tags: [meeting]
 keywords: ["Midnight", "SPO", "Testnet"]
 image: /img/blog/meetings.jpg
 date: 2025-04-10
+description: Midnight 테스트넷의 Partner-Chains v1.5 업그레이드에 관한 코어 미팅 노트입니다. SPO 재등록, BLS 지원, 2025년 5월 출시 예정 등을 다룹니다.
 ---
 
-The Midnight testnet upgrade to Partner-Chains v1.5 requires SPO re-registration, adds BLS support, and is expected to roll out by May 2025.
+Midnight 테스트넷의 Partner-Chains v1.5 업그레이드에는 SPO 재등록이 필요하며, BLS 지원이 추가되고, 2025년 5월경 출시될 예정입니다.
 
 <!--truncate-->
 
 # Midnight Core Call 1 - Testnet Upgrade
 
-**Date**: April 10, 2025  
-**Time**: 12:00 PM EDT  
-**Topic**: Midnight Testnet Upgrade (Partner-Chains 1.5, BLS, Ledger Support)
+**날짜**: 2025년 4월 10일  
+**시간**: 오후 12:00 (미국 동부시간)  
+**주제**: Midnight 테스트넷 업그레이드 (Partner-Chains 1.5, BLS, Ledger 지원)
 
 
 ## Agenda
 
-1. Midnight Testnet Upgrade Overview
-2. Impact on Stake Pool Operators (SPOs)
-3. Impact on Developers
-4. Estimated Timeline
+1. Midnight 테스트넷 업그레이드 개요
+2. 스테이크 풀 운영자(SPO)에 미치는 영향
+3. 개발자에 미치는 영향
+4. 예상 일정
 5. Q&A
 
 ## Meeting Notes
 
 ### Midnight Testnet Upgrade Overview
 
-- Discussed the upcoming Midnight testnet upgrade as detailed in the [official blog post](https://midnight.network/blog/upcoming-testnet-02-upgrade-all-you-need-to-know).
+- [공식 블로그 포스트](https://midnight.network/blog/upcoming-testnet-02-upgrade-all-you-need-to-know)에 상세히 설명된 Midnight 테스트넷 업그레이드에 대해 논의했습니다.
 
 ### Impact on Stake Pool Operators (SPOs)
 
-- SPOs are required to re-register for the upgrade.
-- Improved user experience (UX) for registration:
-  - No dependency on Kupo.
-  - No need for `pc-contracts-cli`.
-  - Support for extended keys.
-  - Enhanced performance for `midnight-node`.
+- SPO은 업그레이드를 위해 재등록해야 합니다.
+- 등록 사용자 경험(UX) 개선 사항:
+  - Kupo 의존성 제거.
+  - `pc-contracts-cli` 불필요.
+  - 확장 키 지원.
+  - `midnight-node` 성능 향상.
 
 ### Impact on Developers
 
-- Developers will be expected to update all Midnight components, including:
+- 개발자는 다음을 포함한 모든 Midnight 컴포넌트를 업데이트해야 합니다:
   - Midnight JS
   - Wallet
   - Faucet
-- The proving system will transition from Pluto-Eris to BLS, requiring BLS-compatible components.
-- Compact contracts should remain functional but will need:
-  - Recompilation with BLS support using the proof-server.
-  - Redeployment.
+- 증명 시스템이 Pluto-Eris에서 BLS로 전환되므로, BLS 호환 컴포넌트가 필요합니다.
+- Compact 컨트랙트는 계속 작동하지만 다음이 필요합니다:
+  - proof-server을 사용한 BLS 지원 재컴파일.
+  - 재배포.
 
 ### Estimated Timeline
 
-- **ETA**: Around May 2025 (potentially late April or early May).
-- A precise maintenance window will be communicated proactively.
-- Stakeholders are advised to monitor for updates on the exact ETA.
+- **예상 시기**: 2025년 5월경 (4월 말 또는 5월 초 가능).
+- 정확한 유지보수 시간대는 사전에 공지될 예정입니다.
+- 관계자들은 정확한 일정에 대한 업데이트를 주시할 것을 권장합니다.
 
 ## Q&A Session
 
-**Q: Is it possible to eliminate the need for `db-sync` in the future?**
+**Q: 향후 `db-sync` 필요성을 없앨 수 있나요?**
 
-- Feedback about `db-sync` has been noted and shared with partner-chains.
-- For Partner-Chains v1.5 (the version targeted for this upgrade), Kupo has been eliminated.
+- `db-sync`에 대한 피드백은 기록되었으며 partner-chains 팀과 공유되었습니다.
+- Partner-Chains v1.5(이번 업그레이드 대상 버전)에서는 Kupo가 제거되었습니다.
 
-**Q: Where is SPO registration stored if it’s not on-chain, and what happens if the database is removed?**
+**Q: SPO 등록 정보가 온체인에 저장되지 않는다면 어디에 저장되며, 데이터베이스가 삭제되면 어떻게 되나요?**
 
-- Registrations are stored on the Cardano preview testnet within Midnight’s partner-chain contract.
-- Due to the reset, re-registration will be required.
-- Suggested upgrade sequence:
-  1. Re-register.
-  2. Update to the latest `midnight-node` version.
-  3. Delete the old `midnight-node` database.
-  4. Run `midnight-node` in validator mode.
+- 등록 정보는 Midnight의 partner-chain 컨트랙트 내 Cardano preview 테스트넷에 저장됩니다.
+- 리셋으로 인해 재등록이 필요합니다.
+- 권장 업그레이드 순서:
+  1. 재등록.
+  2. 최신 `midnight-node` 버전으로 업데이트.
+  3. 이전 `midnight-node` 데이터베이스 삭제.
+  4. 밸리데이터 모드로 `midnight-node` 실행.
 
-**Q: Will Midnight Core Calls be recurring?**
+**Q: Midnight Core Call이 정기적으로 진행되나요?**
 
-- Yes, scheduled for the second Thursday of every month.
-- Additional calls may be organized based on need.
+- 네, 매월 둘째 목요일에 예정되어 있습니다.
+- 필요에 따라 추가 콜이 진행될 수 있습니다.
 
-**Q: Is there a benchmark for transactions in the Battleship game? (Brick Towers offered to test)**
+**Q: Battleship 게임에서 트랜잭션 벤치마크가 있나요? (Brick Towers가 테스트 제안)**
 
-- No specific benchmarks have been established yet.
-- Game rounds are expected to be significantly faster.
+- 아직 구체적인 벤치마크는 설정되지 않았습니다.
+- 게임 라운드가 상당히 빨라질 것으로 예상됩니다.
 
-**Q: When will the upgrade roll out?**
+**Q: 업그레이드는 언제 진행되나요?**
 
-- Target is near May 2025, potentially late April or early May.
-- A precise maintenance window will be communicated soon.
+- 2025년 5월 근처가 목표이며, 4월 말이나 5월 초가 될 수 있습니다.
+- 정확한 유지보수 시간대는 곧 공지될 예정입니다.
 
 ## Action Items
 
-- **MN Team**: Will share precise maintenance window and ETA for the upgrade.
-- **SPOs**: Prepare for re-registration and update to Partner-Chains v1.5.
-- **Developers**: Will be expected to update Midnight components and recompile/deploy contracts with BLS support.
-- **All**: Join the [Block-Producers](https://discord.com/channels/1165826384975908924/1328720589548032032) channel on Discord to engage in deeper conversations with fellow SPOs.
+- **MN 팀**: 정확한 유지보수 시간대와 업그레이드 일정을 공유할 예정입니다.
+- **SPO**: 재등록을 준비하고 Partner-Chains v1.5로 업데이트하세요.
+- **개발자**: Midnight 컴포넌트를 업데이트하고 BLS 지원으로 컨트랙트를 재컴파일/배포해야 합니다.
+- **전원**: Discord의 [Block-Producers](https://discord.com/channels/1165826384975908924/1328720589548032032) 채널에 참여하여 다른 SPO와 심층적인 대화를 나누세요.

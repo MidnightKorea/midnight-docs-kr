@@ -7,104 +7,105 @@ authors: samantha
 tags: [intro, blockchain, beginner, web3]
 image: /img/blog/web3.jpg
 date: 2025-05-07
+description: 해시 함수와 전자 서명이라는 두 가지 핵심 암호학 도구가 Midnight 같은 탈중앙화 Web3 시스템에서 데이터 무결성, 진정성, 신뢰를 어떻게 보장하는지 알아봅니다.
 ---
 
-Two foundational cryptographic tools—hash functions and digital signatures—ensure data integrity, authenticity, and trust in decentralized Web3 systems like Midnight.
+해시 함수와 전자 서명이라는 두 가지 핵심 암호학 도구가 Midnight 같은 탈중앙화 Web3 시스템에서 데이터 무결성, 진정성, 신뢰를 보장합니다.
 
 <!--truncate-->
 
 # Learning Web3 from the Ground Up: Hash Functions & Digital Signatures
 
-I'm still at the beginning of my [Web3 journey](https://docs.midnight.network/blog/web3-intro), and already it’s clear: before you can build the future, you have to understand the foundations. This week, I focused on two key cryptographic building blocks: hash functions and digital signatures.
+아직 [Web3 여정](https://docs.midnight.network/blog/web3-intro)의 초반이지만, 이미 한 가지는 분명합니다: 미래를 구축하기 전에 기초를 이해해야 합니다. 이번 주에는 두 가지 핵심 암호학 구성 요소인 해시 함수와 전자 서명에 집중했습니다.
 
-These concepts might initially sound intimidating, but they're at the core of blockchain, ensuring data integrity, authenticity, and security. I learned about them through the "Intro to Blockchain" section of the [Cardano Academy](https://academy.cardanofoundation.org/)—a fantastic first stop on my learning journey. Here's a breakdown of what I took away.
+이 개념들이 처음에는 어렵게 들릴 수 있지만, 블록체인의 핵심에 있으며 데이터 무결성, 진정성, 보안을 보장합니다. [Cardano Academy](https://academy.cardanofoundation.org/)의 "Intro to Blockchain" 섹션을 통해 배웠으며, 학습 여정의 훌륭한 첫 번째 정거장이었습니다. 제가 얻은 핵심 내용을 정리해 보겠습니다.
 
 ## Hash Functions – The Digital Fingerprints of Blockchain
 
-Hash functions are everywhere in a blockchain—they link blocks, verify data, and secure transactions. Think of a hash function as a digital fingerprint: it takes an input of any size and produces a fixed-length string (called a **hash digest**) that uniquely represents that input.
+해시 함수는 블록체인 곳곳에 존재합니다. 블록을 연결하고, 데이터를 검증하며, 트랜잭션을 보호합니다. 해시 함수를 디지털 지문이라고 생각하면 됩니다: 임의 크기의 입력을 받아 해당 입력을 고유하게 나타내는 고정 길이 문자열(**해시 다이제스트**)을 생성합니다.
 
 ### Key Properties of Cryptographic Hash Functions
 
-To be helpful in a blockchain or cryptographic setting, hash functions must possess several specific properties that ensure their security and reliability. Some of the most important properties include:
+블록체인이나 암호학 환경에서 유용하려면, 해시 함수는 보안과 신뢰성을 보장하는 몇 가지 특정 속성을 갖추어야 합니다. 가장 중요한 속성은 다음과 같습니다:
 
-- **One-way**: You can go from input to hash, but not vice versa.  
+- **일방향성(One-way)**: 입력에서 해시로 갈 수 있지만, 그 반대는 불가능합니다.  
     
-- **Deterministic**: The same input will always produce the same output.  
+- **결정론적(Deterministic)**: 같은 입력은 항상 같은 출력을 생성합니다.  
     
-- **Avalanche Effect**: A tiny input change causes a massive output change.  
+- **눈사태 효과(Avalanche Effect)**: 입력의 아주 작은 변화가 출력에 큰 변화를 일으킵니다.  
     
-- **Preimage Resistance**: You can't guess the input just by looking at the hash.  
+- **역상 저항성(Preimage Resistance)**: 해시만 보고 입력을 추측할 수 없습니다.  
     
-- **Collision Resistance**: It's nearly impossible to find two different inputs that give the same hash.
+- **충돌 저항성(Collision Resistance)**: 같은 해시를 생성하는 두 가지 다른 입력을 찾는 것이 거의 불가능합니다.
 
-These properties are critical for ensuring that once data is recorded—like a transaction—it can't be altered without detection.
+이러한 속성은 트랜잭션과 같은 데이터가 한번 기록되면 감지 없이 변경될 수 없도록 보장하는 데 핵심적입니다.
 
 ### Real-World Use Cases
 
-Hash functions aren’t just theoretical—they’re used all the time in real-world systems to keep data secure. Here are a few practical ways they show up:
+해시 함수는 이론적인 것이 아닙니다. 실제 시스템에서 데이터를 안전하게 유지하기 위해 항상 사용됩니다. 실용적으로 활용되는 몇 가지 예시입니다:
 
-- **Password storage**: Systems store hashes, not the actual passwords.  
+- **비밀번호 저장**: 시스템은 실제 비밀번호가 아닌 해시를 저장합니다.  
     
-- **Data integrity**: Hashes are used to check if data has been altered.
+- **데이터 무결성**: 해시는 데이터가 변경되었는지 확인하는 데 사용됩니다.
 
-**Blockchain linking**: Every block contains the previous block's hash—alter one, and the whole chain breaks.
+**블록체인 연결**: 모든 블록은 이전 블록의 해시를 포함하며, 하나를 변경하면 전체 체인이 무너집니다.
 
-Popular hash functions include SHA-256 (used by Bitcoin), SHA-3, and RIPEMD-160. Some older algorithms, such as MD5 and SHA-1, are now considered insecure due to collision vulnerabilities.
+널리 사용되는 해시 함수로는 SHA-256(Bitcoin에서 사용), SHA-3, RIPEMD-160이 있습니다. MD5과 SHA-1 같은 오래된 알고리즘은 충돌 취약점으로 인해 현재 안전하지 않은 것으로 간주됩니다.
 
 ## Digital Signatures – Proving Who Sent What (and That It Wasn't Changed)
 
-If hash functions are about verifying data *hasn't changed*, digital signatures go a step further by proving **who sent the data**. This gives us **authenticity** and **non-repudiation**.
+해시 함수가 데이터가 *변경되지 않았음*을 검증하는 것이라면, 전자 서명은 한 단계 더 나아가 **누가 데이터를 보냈는지** 증명합니다. 이를 통해 **진정성**과 **부인 방지**가 가능합니다.
 
 ### How They Work (In a Nutshell)
 
-The digital signature process cleverly combines hashing and encryption to guarantee both authenticity and integrity. Here's a high-level overview of how it works: 
+전자 서명 과정은 해싱과 암호화를 교묘하게 결합하여 진정성과 무결성을 모두 보장합니다. 작동 방식에 대한 고수준 개요입니다:
 
-1. **Signing**: The sender hashes the original message and encrypts that hash using their private key, creating the **digital signature**.  
+1. **서명(Signing)**: 발신자가 원본 메시지를 해싱하고 그 해시를 개인 키로 암호화하여 **전자 서명**을 생성합니다.  
      
-2. **Verifying**: The recipient uses the sender's public key to decrypt the signature and then checks if the result matches the hash of the received message.  
+2. **검증(Verifying)**: 수신자가 발신자의 공개 키를 사용하여 서명을 복호화하고, 그 결과가 수신된 메시지의 해시와 일치하는지 확인합니다.  
      
-3. If the hashes match, the message is verified. If not, it's been tampered with.
+3. 해시가 일치하면 메시지가 검증됩니다. 일치하지 않으면 변조된 것입니다.
 
-Now, let’s make this less abstract. Think of it like sending a secure email using [PGP (Pretty Good Privacy)](https://www.varonis.com/blog/pgp-encryption):  
-When you send an encrypted email using PGP, your email client uses your private key to sign the message. Anyone who receives it can use your public key to confirm it was really you who sent it, and that the content hasn’t been changed in transit. The same principles apply to digital signatures on the blockchain: the sender signs a message or transaction, and anyone with the public key can verify it. While the tools and context differ, the underlying idea remains familiar: use cryptographic keys to establish trust without relying on a centralized authority.
+이것을 좀 더 구체적으로 설명해 보겠습니다. [PGP (Pretty Good Privacy)](https://www.varonis.com/blog/pgp-encryption)를 사용하여 안전한 이메일을 보내는 것처럼 생각하세요:  
+PGP를 사용하여 암호화된 이메일을 보낼 때, 이메일 클라이언트는 개인 키를 사용하여 메시지에 서명합니다. 수신자는 발신자의 공개 키를 사용하여 정말 발신자가 보낸 것인지, 그리고 전송 중 내용이 변경되지 않았는지 확인할 수 있습니다. 블록체인의 전자 서명에도 같은 원리가 적용됩니다: 발신자가 메시지나 트랜잭션에 서명하면, 공개 키를 가진 누구나 이를 검증할 수 있습니다. 도구와 맥락은 다르지만, 기본 아이디어는 동일합니다: 중앙 기관에 의존하지 않고 암호학 키를 사용하여 신뢰를 구축하는 것입니다.
 
 ### Why This Matters
 
-- Only the private key can create a valid signature.  
+- 개인 키만이 유효한 서명을 생성할 수 있습니다.  
     
-- Anyone can use the public key to verify it.  
+- 누구나 공개 키를 사용하여 검증할 수 있습니다.  
     
-- If someone tampers with the message, the signature will fail verification.
+- 누군가 메시지를 변조하면, 서명 검증이 실패합니다.
 
 ### Types of Digital Signature Algorithms
 
-Different blockchains and cryptographic systems utilize various signature algorithms, depending on their specific security and performance requirements. A few notable examples are:
+블록체인과 암호학 시스템마다 특정 보안 및 성능 요구사항에 따라 다양한 서명 알고리즘을 사용합니다. 주목할 만한 몇 가지 예시입니다:
 
-- **RSA**: Based on the difficulty of factoring large numbers.  
+- **RSA**: 큰 수의 소인수분해 어려움에 기반합니다.  
     
-- **DSA**: Based on the discrete log problem.  
+- **DSA**: 이산 로그 문제에 기반합니다.  
     
-- **ECDSA**: A more efficient elliptic curve version used by Bitcoin.  
+- **ECDSA**: Bitcoin에서 사용하는 더 효율적인 타원 곡선 버전입니다.  
     
-- **Ed25519**: The one used by Cardano, known for its speed, security, and small key sizes.
+- **Ed25519**: Cardano에서 사용하며, 속도, 보안, 작은 키 크기로 알려져 있습니다.
 
 ### Wallets: Where the Magic Happens
 
-Most of us don’t interact directly with private keys or raw cryptographic operations. Wallets make it manageable by handling keys and signing transactions securely in the background.
+대부분의 사람들은 개인 키나 원시 암호학 연산과 직접 상호작용하지 않습니다. 지갑이 백그라운드에서 키와 트랜잭션 서명을 안전하게 처리하여 관리 가능하게 만들어 줍니다.
 
-There are two main types of wallets:
+지갑에는 두 가지 주요 유형이 있습니다:
 
-- **Custodial wallets**: A third party, such as an exchange, manages your keys.  
+- **수탁형 지갑(Custodial wallets)**: 거래소 같은 제3자가 키를 관리합니다.  
     
-- **Non-custodial wallets**: You control your own keys—more responsibility, but more control.
+- **비수탁형 지갑(Non-custodial wallets)**: 본인이 직접 키를 관리합니다. 책임은 더 크지만, 통제권도 더 큽니다.
 
-Wallets also fall into two categories: hot (online) and cold (offline) storage. Hardware wallets, such as Ledger or Trezor, are considered cold storage because they keep your keys offline. Cold wallets are generally preferred for long-term or high-value holdings due to their increased security.
+지갑은 또한 핫(온라인)과 콜드(오프라인) 스토리지의 두 가지 범주로 나뉩니다. Ledger이나 Trezor 같은 하드웨어 지갑은 키를 오프라인으로 보관하기 때문에 콜드 스토리지로 분류됩니다. 콜드 지갑은 보안이 강화되어 장기 보관이나 고가치 자산 보유에 일반적으로 선호됩니다.
 
 
 ## Conclusion
 
-Hash functions and digital signatures are like the grammar and punctuation of blockchain. They quietly enable much of what makes the ecosystem secure and trustless. Learning about them provided a clearer understanding of how blockchains, such as Cardano, and tools like Midnight operate under the hood.
+해시 함수와 전자 서명은 블록체인의 문법과 구두점 같은 존재입니다. 생태계를 안전하고 신뢰 없이 작동하게 만드는 많은 부분을 조용히 가능하게 합니다. 이 개념들을 배우면서 Cardano 같은 블록체인과 Midnight 같은 도구가 내부적으로 어떻게 작동하는지 더 명확하게 이해할 수 있었습니다.
 
-I highly recommend checking out [Cardano Academy](https://academy.cardanofoundation.org/). It's approachable and well-structured. I also suggest doing your own research and diving into the Midnight documentation and Dev Diaries for more technical depth. Be sure to check out [last week’s blog post](https://docs.midnight.network/blog/web3-intro) on blockchain fundamentals.
+[Cardano Academy](https://academy.cardanofoundation.org/)를 강력히 추천합니다. 접근하기 쉽고 잘 구성되어 있습니다. 직접 조사하고 Midnight 문서와 Dev Diaries를 살펴보는 것도 추천합니다. 블록체인 기초에 대한 [지난주 블로그 포스트](https://docs.midnight.network/blog/web3-intro)도 꼭 확인하세요.
 
-If you're learning Web3 with me, I'd love to hear what's helped you, what's tripped you up, and what topics you'd like to see explored next. More foundational concepts to come next week!  
+Web3을 함께 배우고 계신다면, 무엇이 도움이 되었고, 무엇이 어려웠으며, 어떤 주제를 다음에 다루었으면 좋겠는지 듣고 싶습니다. 다음 주에도 기초 개념을 계속 다루겠습니다!  

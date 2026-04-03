@@ -7,70 +7,70 @@ authors: [kaleab]
 tags: [midnight, zero-knowledge, hackathon, blockchain, compact]
 image: /img/blog/hackathons.jpg
 date: 2025-08-13
+description: "해커톤에서의 좌절을 딛고 Midnight 생태계를 위한 개발 도구를 만들기까지의 여정"
 ---
 
 # From Frustration to Framework: Building on Midnight
 
-After participating in three hackathons this year, I thought I had a good idea of what to expect. Then came the fourth. It began like the others: an idea, a challenge, a blank terminal screen. But this one took an unexpected turn, one I didn't see coming.
+올해 세 번의 해커톤에 참가한 뒤, 무엇을 기대해야 하는지 충분히 알고 있다고 생각했습니다. 그런데 네 번째 해커톤은 달랐습니다. 아이디어, 도전, 빈 터미널 화면이라는 똑같은 시작이었지만, 예상치 못한 방향으로 흘러갔습니다.
 
-I had recently left my software engineering role to explore zero-knowledge protocols, an area in which I didn’t have much experience. It was a risk, but one I felt I had to take. I chose to pursue this path not only because zero-knowledge cryptography is built on one of the most elegant branches of mathematics, but also I believe privacy on the blockchain or on the internet is fundamental and should never be an afterthought.
+얼마 전 소프트웨어 엔지니어 직책을 떠나 영지식 프로토콜을 탐구하기 시작했습니다. 경험이 거의 없는 분야였지만, 반드시 도전해야 한다고 느꼈습니다. 영지식 암호학이 수학에서 가장 우아한 분야 중 하나를 기반으로 한다는 점도 있었지만, 블록체인이나 인터넷에서의 프라이버시는 근본적인 가치이며 결코 뒷전으로 밀려서는 안 된다고 믿었기 때문입니다.
 
+어느 날, 멘토가 [African Blockchain Championship](https://www.africanblockchamp.com/)을 언급하며 Zero-Knowledge 트랙을 살펴보라고 권했습니다. 그 작은 한마디가 전환점이 되었습니다.
 
-One day, my mentor casually mentioned the [African Blockchain Championship](https://www.africanblockchamp.com/) and suggested I look into the Zero-Knowledge track. That small nudge became a turning point.
-
-That’s when I discovered [Midnight](https://midnight.network/)!
+바로 그때 [Midnight](https://midnight.network/)을 발견했습니다!
 
 
 # Meet Midnight: Privacy on the Blockchain
 
-Midnight is a zero-knowledge proof-based privacy chain developed by Input Output, the parent company of Cardano. As a partner chain of Cardano, it aims to bring rational privacy through zero-knowledge technology to the broader ecosystem. They weren’t just building another blockchain—they were laying the foundation for private, decentralized computation. After diving into the documentation and setting up the tools, everything was finally in place. All that remained… was to begin. Only later did I realize: this wasn’t just the start of another hackathon—it was the beginning of something much bigger.
+Midnight은 Input Output이 개발한 영지식 증명 기반 프라이버시 체인으로, Cardano의 파트너 체인입니다. 영지식 기술을 통해 더 넓은 생태계에 합리적인 프라이버시를 제공하는 것을 목표로 합니다. 단순히 또 하나의 블록체인을 만드는 것이 아니라, 비공개 분산 컴퓨팅의 기반을 구축하고 있었습니다. 문서를 읽고 도구를 설정한 뒤 모든 준비가 끝났습니다. 남은 것은 시작뿐이었습니다. 나중에야 깨달았지만, 이것은 단순한 해커톤의 시작이 아니라 훨씬 더 큰 무언가의 시작이었습니다.
 
 # Building on Midnight
 
-Hacking on Midnight was challenging, as building in a testnet environment requires constant learning and adaptation to major changes. Within just a few weeks, significant network updates rendered the existing examples incompatible with the latest SDK versions. As a result, an example had to be cloned and debugged line by line. The example repository was dense, filled with layers of files and directories, and figuring out where to start was a challenge in itself.
+Midnight 위에서 개발하는 것은 쉽지 않았습니다. 테스트넷 환경에서의 작업은 끊임없는 학습과 잦은 변경에 대한 적응을 요구했기 때문입니다. 불과 몇 주 만에 대규모 네트워크 업데이트가 이루어져 기존 예제가 최신 SDK 버전과 호환되지 않게 되었습니다. 결국 예제를 클론해서 한 줄씩 디버깅해야 했습니다. 예제 저장소는 파일과 디렉터리가 겹겹이 쌓여 있어 어디서부터 시작해야 할지 파악하는 것 자체가 도전이었습니다.
 
-Fortunately, Midnight’s smart contract language, [Compact](https://docs.midnight.network/develop/reference/compact/), shares a syntax similar to TypeScript, which eased the learning curve. I pushed forward, determined to build something meaningful and make my mark—but in the end, my attempt fell short. With midterm exams approaching and the hackathon submission deadline close by, I had to make a difficult decision. I decided not to submit a project to the African Blockchain Championship hackathon. Still, a quiet sense of regret lingered. I couldn’t help but wonder: what if I had just pushed a *little* harder?
+다행히 Midnight의 스마트 컨트랙트 언어인 [Compact](https://docs.midnight.network/develop/reference/compact/)은 TypeScript와 비슷한 문법을 사용해서 학습 곡선이 완만했습니다. 의미 있는 결과물을 만들겠다는 각오로 밀고 나갔지만, 결국 시도는 부족했습니다. 중간고사가 다가오고 해커톤 제출 마감일이 임박한 상황에서 어려운 결정을 내려야 했습니다. African Blockchain Championship 해커톤에 프로젝트를 제출하지 않기로 한 것입니다. 그래도 아쉬움이 남았습니다. 조금만 *더* 노력했더라면 어떻게 되었을까 하는 생각이 계속 맴돌았습니다.
 
 # The Extended Deadline
 
-About a week later, I received an email from the ABC team announcing that the hackathon deadline had been extended. I was thrilled, and I promised myself I’d give it everything this time. It wasn’t long before I was back at it. A few weeks had passed since I’d last touched the project, and during that time, both the network and SDKs had been updated. I gathered my gear, updated my environment, and set out with renewed determination to finally build something solid. I wrote my contract and began debugging, but each change introduced a new layer of complexity. Every update required changes across multiple files. It was frustrating, exhausting, but strangely thrilling. I began thinking of ways to simplify the chaos, to make the process less painful, more intuitive. That’s when I started creating small scripts to streamline the workflow.
+약 일주일 뒤, ABC 팀에서 해커톤 마감 기한이 연장되었다는 이메일이 왔습니다. 기뻤고, 이번에는 전력을 다하겠다고 다짐했습니다. 얼마 지나지 않아 다시 작업에 돌입했습니다. 프로젝트를 마지막으로 손댄 지 몇 주가 지난 사이 네트워크와 SDK가 모두 업데이트되어 있었습니다. 장비를 챙기고 환경을 업데이트한 뒤, 이번에야말로 확실한 결과물을 만들겠다는 새로운 각오로 나섰습니다. 컨트랙트를 작성하고 디버깅을 시작했는데, 수정할 때마다 새로운 복잡성이 생겨났습니다. 한 번의 업데이트가 여러 파일에 걸친 변경을 요구했습니다. 좌절스럽고 지치기도 했지만, 이상하게도 짜릿했습니다. 이 혼돈을 단순화하고 과정을 좀 더 직관적으로 만들 방법을 고민하기 시작했습니다. 바로 그때 워크플로우를 간소화하기 위한 작은 스크립트를 만들기 시작했습니다.
 
-Earlier that month, I had joined the [Midnight Discord](https://discord.com/invite/midnightnetwork) to ask questions. One week, I jumped on a Discord community call, and to my surprise, I learned about an ongoing Midnight tooling hackathon that was happening asynchronously. Right then, it clicked: *this* was the hackathon I was meant to be part of from the start.
+그달 초에 질문을 하려고 [Midnight Discord](https://discord.com/invite/midnightnetwork)에 가입한 적이 있었습니다. 어느 주, Discord 커뮤니티 콜에 참여했는데, 놀랍게도 비동기로 진행 중인 Midnight 도구 해커톤이 있다는 것을 알게 되었습니다. 그 순간 깨달았습니다. *이것*이야말로 처음부터 참가해야 할 해커톤이었다는 것을.
 
 # From Personal Tool to Shared Project
 
-What started as a personal tool suddenly took on a bigger purpose. The hackathon provided me with the opportunity to share my work with others and contribute to shaping the future of smart contract development on Midnight. I took a little detour from my original hackathon submission—promising myself I’d return to it—and began refining the tool, aiming not just to build something functional, but something genuinely useful for newcomers to the ecosystem.
+개인 도구로 시작한 것이 갑자기 더 큰 의미를 갖게 되었습니다. 해커톤 덕분에 다른 사람들과 작업을 공유하고, Midnight 위에서의 스마트 컨트랙트 개발의 미래를 함께 만들어갈 기회가 생겼습니다. 원래 해커톤 제출물에서 잠시 우회하여 도구를 다듬기 시작했고, 단순히 작동하는 것을 넘어 생태계 입문자에게 진정으로 유용한 것을 만들겠다는 목표를 세웠습니다.
 
 ## Scaffold Midnight & Create Midnight App
 
-That’s how [**Scaffold Midnight**](http://github.com/kaleababayneh/scaffold-midnight) was born, a cloneable GitHub starter template. But I didn’t stop there. I realized it would be even more useful as an npm library, something developers could install with all dependencies bundled and start using right away. So, I polished the project and released the first version as [**create-midnight-app**](https://www.npmjs.com/package/create-midnight-app). But I didn’t want to stop at solving just one problem. Every issue I fixed revealed another. Through multiple iterations, I kept refining the library. It’s now at version 2.1.7, and I’m actively working to make it compatible with the latest release of Compact. It’s far from perfect, and that’s what makes it exciting. Every day, I wake up with a new idea, a new feature to add, or a better way to improve the developer experience!
+그렇게 [**Scaffold Midnight**](http://github.com/kaleababayneh/scaffold-midnight)이 탄생했습니다. 클론해서 바로 쓸 수 있는 GitHub 스타터 템플릿입니다. 하지만 여기서 멈추지 않았습니다. npm 라이브러리로 만들면 더 유용하겠다는 생각이 들었습니다. 모든 의존성이 번들로 포함되어 설치만 하면 바로 사용할 수 있도록 말입니다. 그래서 프로젝트를 다듬어 [**create-midnight-app**](https://www.npmjs.com/package/create-midnight-app)의 첫 버전을 출시했습니다. 하나의 문제를 해결하는 것에 그치고 싶지 않았습니다. 하나를 고칠 때마다 또 다른 문제가 드러났습니다. 여러 차례의 반복을 거쳐 계속 개선했고, 지금은 버전 2.1.7에 이르렀으며 최신 Compact 릴리스와 호환되도록 작업 중입니다. 완벽과는 거리가 멀지만, 그래서 더 흥미롭습니다. 매일 아침 새로운 아이디어, 추가할 기능, 개발자 경험을 개선할 더 나은 방법을 떠올리며 일어납니다!
 
 ![Create Midnight App](https://ibin.co/8rMdmI75JRDl.png)
 
-At its core, **create-midnight-app** is a scaffolding npm library for Midnight that automates the entire setup process. Developers can focus solely on writing their Compact contracts; the tool takes care of the rest. It handles wallet creation, faucet requests, balance checks, API configuration, CLI updates, and even function and file change imports are updated automatically. It reduces initial application setup time from over half an hour to just a few minutes.
+핵심적으로 **create-midnight-app**은 Midnight을 위한 스캐폴딩 npm 라이브러리로, 전체 설정 과정을 자동화합니다. 개발자는 Compact 컨트랙트 작성에만 집중하면 되고, 나머지는 도구가 처리합니다. 지갑 생성, 파우셋 요청, 잔액 확인, API 설정, CLI 업데이트, 함수와 파일 변경에 따른 임포트 갱신까지 자동으로 이루어집니다. 초기 애플리케이션 설정 시간을 30분 이상에서 단 몇 분으로 줄여줍니다.
 
-I had several euphoric moments while working on this project, but one instance in particular, stands out. 
+이 프로젝트를 진행하면서 짜릿한 순간이 여러 번 있었는데, 특히 기억에 남는 것이 하나 있습니다.
 
-One feature I was eager to build was a way for developers to request testnet tokens without ever leaving their code editor. The simplest idea was to send a request from the terminal directly to the official [Midnight faucet](%20https://midnight.network/test-faucet). But there was a catch—the site is protected by [Cloudflare Turnstile](https://www.cloudflare.com/application-services/products/turnstile/), which blocks automated requests to prevent spam and abuse. As a hacker, I started looking for a workaround. After some Googling and tips from friends, I tested several paid tools that claimed to bypass CAPTCHA protections. I spent an entire afternoon trying them, but none worked reliably. That’s when I remembered the genesis wallet, whose private key is publicly available. So, I implemented a workaround: instead of calling the faucet, I simulated a faucet transaction by transferring tokens directly from the genesis wallet to the user’s wallet. It’s not a long-term solution, and I know it won’t scale—but for now, it works and helps streamline the developer experience.
+꼭 만들고 싶었던 기능 중 하나는 개발자가 코드 에디터를 벗어나지 않고도 테스트넷 토큰을 요청할 수 있는 방법이었습니다. 가장 단순한 아이디어는 터미널에서 공식 [Midnight 파우셋](https://midnight.network/test-faucet)으로 직접 요청을 보내는 것이었습니다. 그런데 문제가 있었습니다. 해당 사이트는 스팸과 악용을 방지하기 위해 [Cloudflare Turnstile](https://www.cloudflare.com/application-services/products/turnstile/)로 보호되어 자동화된 요청을 차단하고 있었습니다. 해커로서 우회 방법을 찾기 시작했습니다. 검색과 지인들의 조언을 통해 CAPTCHA 보호를 우회한다고 주장하는 여러 유료 도구를 시도했습니다. 한나절을 투자했지만 제대로 작동하는 것이 없었습니다. 그때 제네시스 지갑이 떠올랐습니다. 프라이빗 키가 공개되어 있었기 때문입니다. 그래서 파우셋을 호출하는 대신, 제네시스 지갑에서 사용자 지갑으로 직접 토큰을 전송하는 방식으로 우회했습니다. 장기적인 해결책은 아니고 확장성도 부족하지만, 지금은 작동하며 개발자 경험 간소화에 기여하고 있습니다.
 
 # Submission and Recognition
 
-I finally submitted my project, and the judges’ reactions were incredibly [encouraging](https://youtu.be/xrCEBIBqS-Y?t=4453)—it gave me a renewed sense of inspiration. With that momentum, I turned my focus back to my original hackathon: the African Blockchain Championship. For this challenge, I built an anonymous, censorship-resistant voting platform. In many African countries—across 34 nations—roughly 30–40% of citizens no longer view voting as a fair or trustworthy process (Afrobarometer, 2023). That’s why anonymous voting isn’t just a feature—it’s a necessity. My project, [**Privote**](https://github.com/kaleababayneh/zkvote-midnight), aims to address this critical issue by leveraging zero-knowledge technology to protect voter identity and integrity.
+마침내 프로젝트를 제출했고, 심사위원들의 반응은 매우 [격려적이었습니다](https://youtu.be/xrCEBIBqS-Y?t=4453). 새로운 영감을 얻은 저는 원래 해커톤인 African Blockchain Championship으로 초점을 돌렸습니다. 이 대회를 위해 익명의 검열 저항 투표 플랫폼을 구축했습니다. 아프리카 34개국에서 시민의 약 30~40%가 더 이상 투표를 공정하고 신뢰할 수 있는 과정으로 여기지 않습니다(Afrobarometer, 2023). 그래서 익명 투표는 단순한 기능이 아니라 필수입니다. 제 프로젝트 [**Privote**](https://github.com/kaleababayneh/zkvote-midnight)은 영지식 기술을 활용하여 유권자의 신원과 무결성을 보호함으로써 이 중요한 문제를 해결하고자 합니다.
 
 
-As the submission deadline approached, I ran into a major hurdle: integrating the wallet into the frontend. I reached out to one of the Developer Relations Engineers, who kindly shared some example code. Unfortunately, I couldn’t get it working in time. With the clock ticking, I had to improvise. I quickly built a custom Chrome extension that enabled wallet interaction—running through the terminal on the backend—just in time for submission. While the current version still has some privacy limitations, the smart contract compiles successfully, and users can interact with it on the Midnight testnet—offering a real glimpse of what decentralized, anonymous voting could look like in practice.
+제출 마감이 다가오면서 큰 난관에 부딪혔습니다. 프런트엔드에 지갑을 통합하는 것이었습니다. Developer Relations 엔지니어 한 분에게 연락했더니 예제 코드를 공유해 주셨습니다. 안타깝게도 시간 안에 작동시킬 수 없었습니다. 시간이 촉박해지자 임기응변을 택했습니다. 백엔드에서 터미널을 통해 지갑 상호작용을 가능하게 하는 커스텀 Chrome 확장 프로그램을 급히 만들어 제출 시간에 맞췄습니다. 현재 버전에는 프라이버시 측면에서 한계가 있지만, 스마트 컨트랙트는 성공적으로 컴파일되고 사용자가 Midnight 테스트넷에서 상호작용할 수 있어, 분산형 익명 투표가 실제로 어떤 모습일 수 있는지 엿볼 수 있습니다.
 
 ![Private Hackathon](https://ibin.co/8rMho4816dhp.png)
 # The Midnight Community
 
-Even though there aren’t many resources available yet, the Midnight community more than makes up for it. Almost every question asked on Discord gets a response. It’s a space where people genuinely support each other—even during hackathons, when we’re technically competing and have little incentive to help other teams. In fact, during the hackathon, I often found myself answering questions in the Telegram group. I even hosted a workshop at the ABC hackathon on how to use **Create Midnight App**, helping others get started quickly and navigate the ecosystem more easily.
+아직 리소스가 많지 않지만, Midnight 커뮤니티가 이를 충분히 보완해 줍니다. Discord에서 질문하면 거의 항상 답변을 받을 수 있습니다. 해커톤 기간에도 기술적으로는 경쟁 관계이고 다른 팀을 도울 이유가 없는 상황에서도 서로 진심으로 돕는 공간입니다. 실제로 해커톤 중에 텔레그램 그룹에서 질문에 답하는 일이 잦았습니다. ABC 해커톤에서는 **Create Midnight App** 사용법에 대한 워크숍을 진행하여 다른 참가자들이 빠르게 시작하고 생태계를 쉽게 탐색할 수 있도록 도왔습니다.
 
-I also want to take a moment to thank the Midnight team for the recognition they gave me—it truly meant a lot. Beyond placing first in the CLI track, the support and appreciation I received from the community were genuinely heartwarming. I even had the chance to join a community call—not just as a participant this time, but as a [speaker](https://x.com/MidnightNtwrk/status/1942969613496758398)—to share my journey and the lessons I’d learned along the way.
+Midnight 팀의 인정에도 감사의 말씀을 드리고 싶습니다. 정말 큰 의미가 있었습니다. CLI 트랙에서 1위를 차지한 것 외에도, 커뮤니티로부터 받은 지지와 감사는 진심으로 따뜻했습니다. 커뮤니티 콜에도 참여할 기회가 있었는데, 이번에는 단순한 참가자가 아니라 [발표자](https://x.com/MidnightNtwrk/status/1942969613496758398)로서 여정과 교훈을 공유할 수 있었습니다.
 
 # Why Now is the Time to Build on Midnight
 
-And for you—my readers—this is honestly the best time to get involved in the Midnight ecosystem. There’s *almost always* a hackathon happening (seriously, it's kind of wild!). Right now, they’re even running a [mini DApp hackathon](https://midnight.network/hackathon/midnight-mini-dapp-hackathon). It’s an excellent opportunity to learn, build, and get your project noticed.
+독자 여러분께 말씀드리자면, 지금이야말로 Midnight 생태계에 참여하기 가장 좋은 시기입니다. *거의 항상* 해커톤이 진행 중입니다(정말 놀랍습니다!). 현재도 [미니 DApp 해커톤](https://midnight.network/hackathon/midnight-mini-dapp-hackathon)이 진행 중입니다. 배우고, 만들고, 프로젝트를 알릴 수 있는 훌륭한 기회입니다.
 
 ![Midnight Dapp Hackathon](https://ibin.co/8rMcCFquPRqS.png)
 
-As for me, I’m currently building something new for the hackathon. While I enjoy working on projects, I’ve found even more fulfillment in developing infrastructure tools. I have a long-term goal of building a web-based Midnight playground where anyone can start writing Compact code and begin interacting with the Midnight testnet without needing to install anything. I hope to continue collaborating with the Midnight team and growing my skills—especially in zero-knowledge protocols—as I continue this journey.
+저는 현재 해커톤을 위한 새로운 프로젝트를 구축하고 있습니다. 프로젝트를 만드는 것도 즐기지만, 인프라 도구를 개발하는 데서 더 큰 보람을 느끼고 있습니다. 장기 목표는 아무것도 설치하지 않고도 Compact 코드를 작성하고 Midnight 테스트넷과 상호작용할 수 있는 웹 기반 Midnight 플레이그라운드를 만드는 것입니다. 앞으로도 Midnight 팀과 협업하며, 특히 영지식 프로토콜 분야에서 역량을 키워나가고 싶습니다.

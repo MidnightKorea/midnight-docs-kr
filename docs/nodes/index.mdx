@@ -1,0 +1,67 @@
+---
+title: Nodes in Midnight
+sidebar_label: Nodes in Midnight
+description: Midnight 노드에 대한 레퍼런스입니다.
+keywords: [node]
+---
+
+# Midnight Node Overview
+
+Midnight Node는 Midnight 네트워크 운영을 위한 핵심 인프라입니다. 코어 프로토콜 로직을 구현하고, P2P 네트워킹을 관리하며, Cardano 네트워크와의 Partnerchain 통합을 통해 탈중앙화 운영을 지원합니다.
+
+## Functions
+
+Midnight Node의 주요 역할은 다음과 같습니다:
+
+* Midnight Ledger를 별도 컴포넌트로 실행하여 프로토콜 규칙을 적용하고 내부 상태 무결성을 유지합니다.
+* P2P 기능을 제공합니다: 노드 디스커버리, 연결 수립, 상태 gossip 등을 처리합니다.
+* 신뢰 기반(trustless)과 허가형(permissioned) 노드를 모두 지원하고, Cardano Partnerchain 요건을 충족하여 탈중앙화를 실현합니다.
+
+## Characteristics
+
+* Polkadot SDK 기반으로 구축되었습니다.
+* Partnerchain 컴포넌트와 Midnight Ledger를 구현합니다.
+* Partnerchain 노드로 동작하며, Cardano에 연결하기 위한 메커니즘이 정의되어 있습니다.
+
+## Architecture
+
+![Node Architecture](/img/node-architecture.png)
+
+## Core Parameters
+
+| Parameter                       | Value                        |
+|--------------------------------|------------------------------|
+| Block Time                     | 6초                          |
+| Session Length                 | 1200 slots                   |
+| Ledger Transactions per Block  | TBD  |
+| Hash Function                  | `blake2_256`                 |
+| Account Type                   | `sr25519` public key         |
+
+## Genesis Configuration
+
+### Ledger
+
+* 초기 코인 공급량 (testnet 전용): 100,000,000,000,000,000 단위.
+* 배분: 4개 지갑에 각 5개 출력으로 분할 (4 × 5 × 5,000,000,000,000,000).
+* 참고: 이 설정은 testnet 전용이며, 최종 mainnet 공급량과 **다릅니다**.
+
+
+### Consensus
+
+* 초기 validator 세트: Shielded가 운영하는 12개 신뢰 노드와 커뮤니티가 운영하는 다수의 등록 노드로 구성됩니다.
+* 'D' 파라미터가 허가형 노드와 등록 노드의 비율을 제어합니다.
+
+### Onchain Governance
+
+* 상위 권한을 가진 master("sudo") 키가 있으며, 향후 거버넌스 시스템으로 대체될 임시 체계입니다.
+* tx-pause 기능을 지원합니다: 거버넌스가 승인한 transaction으로 특정 transaction 유형을 일시 중지할 수 있습니다.
+
+## Signature Schemes
+
+노드 운영의 각 영역에서 서로 다른 암호화 방식을 사용합니다:
+
+* ECDSA – Partnerchain 합의 메시지 서명에 사용됩니다.
+* ed25519 – finality 관련 메시지 서명에 사용됩니다.
+* sr25519 – AURA 블록 저작 서명에 사용됩니다 (Schnorrkel / Ristretto / x25519 기반).
+
+자세한 내용은 [Cryptography](./cryptography) 섹션을 참고하세요.

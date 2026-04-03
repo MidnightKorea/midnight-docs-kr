@@ -1,0 +1,108 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2026 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+slug: troubleshoot-compact-nixos
+title: "Troubleshoot Compact toolchain installation issue on NixOS" 
+tags: [compact, nixos, troubleshooting]
+description: "NixOS에서 Midnight Compact 도구 설치 문제를 해결하는 방법입니다."
+sidebar_position: 15
+---
+
+# Troubleshoot Compact toolchain installation issue on NixOS
+
+Compact는 안전하고 효율적이며 유연한 탈중앙화 애플리케이션을 구축하기 위한 Midnight 전용 smart contract 프로그래밍 언어입니다. Compact 도구는 compact toolchain과 컴파일러를 설치, 업데이트, 관리, 실행하기 위한 커맨드라인 유틸리티입니다. 이 가이드에서는 NixOS에서 Midnight compact 도구를 설치하는 방법을 안내합니다.
+
+### Compiler version scope
+
+:::note 
+이 설치 문제는 compact 컴파일러 **0.26** 버전에서만 해당됩니다. 이미 수정이 완료되었으며, 0.27 버전이 정식 릴리스되면 이 가이드는 더 이상 필요하지 않습니다.
+:::
+
+이 가이드를 완료하면 다음을 할 수 있습니다:
+* NixOS에서 일반 설치가 실패하는 이유를 이해합니다.
+* Midnight 개발을 위해 compact를 설치하고 실행합니다.
+* `compactc`의 "No such file or directory" 에러를 수정합니다.
+
+### Prerequisites
+
+- NixOS 버전 23.11
+  - 24.05
+  - 25.11 **(권장 안정 릴리스)**
+
+커맨드라인 인터페이스에 대한 기본 지식이 필요합니다.
+
+---
+
+## Why standard installations fail on NixOS
+NixOS에서 일반 설치가 실패하는 이유는 NixOS가 기존 Linux 배포판과 달리 Filesystem Hierarchy Standard(FHS)를 따르지 않기 때문입니다. FHS는 Linux 운영체제의 디렉토리 구조와 내용을 정의하는 표준인데, NixOS는 격리를 위해 파일시스템을 데이터베이스처럼 사용하며 Nix store라는 특수 디렉토리에 패키지를 격리 저장합니다. 이 때문에 전통적인 FHS 구조를 전제로 하는 바이너리를 다운로드하는 애플리케이션에서 문제가 발생합니다.
+
+## Install the Compact compiler (FHS Environment)
+
+컴파일러를 설치하려면 `buildFHSEnv`를 사용합니다. 이 도구는 전통적인 FHS 시스템을 시뮬레이션하는 경량 샌드박스 환경을 생성합니다. 호스트의 `/nix/store`로 격리된 루트 파일시스템을 만들기 때문에 디스크 사용량이 매우 적습니다. NixOS에서 패치하기 어렵거나 불가능한 소프트웨어를 실행할 수 있게 해줍니다.
+
+### Create shell.nix
+아래 코드로 `shell.nix` 파일을 생성하세요:
+
+```nix
+{ pkgs ? import <nixpkgs> {} }:
+pkgs.buildFHSEnv {
+  name = "x-11";
+  targetPkgs = pkgs: [ pkgs.bash pkgs.glibc pkgs.curl];
+  runScript = "exec ${pkgs.bash}/bin/bash";
+}
+```
+
+macOS 사용자용 대안 (mkShell):
+macOS를 사용하는 경우 아래 버전을 대신 사용하세요:
+```nix
+{ pkgs ? import <nixpkgs> {} }:
+pkgs.mkShell {
+  name = "x-11";
+  buildInputs = with pkgs; [
+    bash
+    glibc
+    curl
+  ];
+}
+```
+### Run nix-shell
+다음 명령어로 환경에 진입합니다:
+```bash
+nix-shell
+```
+### Download the Compact compiler
+셸 내부에서 인스톨러를 실행합니다:
+```bash
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
+```
+### Update Compact
+설치 후 최신 버전으로 업데이트합니다:
+```bash
+compact update
+```
+## Fix "No such file or directory (os error 2)" error
+FHS 환경 내에서도 설치된 Compact 래퍼 스크립트 `compactc`는 `compact compile -help` 실행 시 종종 실패합니다. 인스톨러가 shebang(`#!`) 라인의 `bin/bash` 경로를 올바르게 해석하지 못해 `No such file or directory(os error 2)` 에러가 발생하기 때문입니다.
+
+**해결 방법**: 설치된 Compact 래퍼 스크립트의 bash 바이너리 경로를 FHS 샌드박스 내에서 접근 가능한 경로로 수정합니다.
+
+루트 디렉토리에 `compact_util.sh` 파일을 생성합니다. 이 파일이 유틸리티 스크립트 역할을 합니다:
+```bash
+#!/usr/bin/env bash
+cd ./.compact/versions/0.26.0/x86_64-unknown-linux-musl
+sed -i '1 i #!/usr/bin/env bash' compactc
+```
+스크립트에 실행 권한을 부여합니다:
+```bash
+chmod +x compact_util.sh
+```
+유틸리티 스크립트를 실행합니다:
+```bash
+./compact_util.sh
+```
+컴파일러가 정상 접근 가능한지 확인합니다:
+```bash
+compact compile --help
+```
+## Next steps
+Midnight은 프라이버시를 보호하는 DApp 구축을 위한 blockchain 플랫폼입니다. 개발자가 데이터를 격리, 검증, 공유하는 방식을 zero-knowledge(ZK) proof와 프로그래밍 가능한 기밀성 제어를 통해 정의할 수 있습니다.
+[Midnight 시작하기](../getting-started)

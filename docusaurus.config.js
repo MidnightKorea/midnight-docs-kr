@@ -333,15 +333,10 @@ const config = {
         href: "/",
       },
       items: [
-        // { to: "/api-reference",  label: "API reference",  position: "left",  activeBaseRegex: "^/api-reference(/|$)" },
-        // { to: "/sdks",  label: "SDKs",  position: "left",  activeBaseRegex: "^/sdks(/|$)" },
-        // { to: "/compact",  label: "Compact",  position: "left",  activeBaseRegex: "^/compact(/|$)" },
-        // { to: "/blog",  label: "Dev Diaries",  position: "left",  activeBaseRegex: "^/blog(/|$)" },
-        // {
-        //   type: 'docsVersionDropdown',
-        //   position: "right",
-        //   docsPluginId: 'main',
-        // },
+        { to: "/api-reference",  label: "API reference",  position: "left",  activeBaseRegex: "^/api-reference(/|$)" },
+        { to: "/sdks",  label: "SDKs",  position: "left",  activeBaseRegex: "^/sdks(/|$)" },
+        { to: "/compact",  label: "Compact",  position: "left",  activeBaseRegex: "^/compact(/|$)" },
+        { to: "/blog",  label: "Dev Diaries",  position: "left",  activeBaseRegex: "^/blog(/|$)" },
         {
           type: "html",
           position: "right",

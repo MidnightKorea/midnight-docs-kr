@@ -1,0 +1,385 @@
+---
+title: Fix version mismatch errors
+description: Midnight 컴파일러, 런타임 등 컴포넌트 간 버전 호환성 문제를 해결하는 방법입니다.
+sidebar_label: Fix version mismatches
+sidebar_position: 20
+tags: [troubleshooting, version, compatibility, errors]
+slug: /how-to/fix-version-mismatches
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import Step, { StepsProvider } from "@site/src/components/Step/Step";
+
+# Fix version mismatch errors
+
+Midnight 컴포넌트 간 버전 불일치로 인한 빌드 실패 및 런타임 에러를 해결하는 방법입니다.
+
+## Understand the cause of version mismatches
+
+Midnight은 호환되는 버전으로 함께 동작해야 하는 여러 컴포넌트로 구성됩니다:
+
+- **Compact toolchain**: 바이너리, 컴파일러, 포매터
+- **Runtime libraries**: `@midnight-ntwrk/compact-runtime`, `@midnight-ntwrk/ledger-v8` 등 관련 패키지
+- **JavaScript libraries**: `@midnight-ntwrk/midnight-js-contracts`, `@midnight-ntwrk/dapp-connector-api`, `@midnight-ntwrk/wallet-sdk-facade` 등 관련 패키지
+- **Proof server**: zero-knowledge proof 생성 서비스
+- **Indexer**: blockchain 데이터 조회용 GraphQL API (선택 사항)
+
+이 컴포넌트들의 버전이 맞지 않으면 빌드 에러, 배포 실패, 런타임 문제가 발생할 수 있습니다.
+
+:::info 호환성 매트릭스 확인
+어떤 버전이 서로 호환되는지 반드시 공식 [릴리스 호환성 매트릭스](/relnotes/support-matrix)를 확인하세요.
+:::
+
+## Check your current versions
+
+버전 불일치를 수정하기 전에, 현재 설치된 컴포넌트를 확인하고 호환성 매트릭스와 비교하세요.
+
+<StepsProvider>
+
+<Step>
+
+### Check the compiler version
+
+```bash
+compact --version
+```
+
+출력을 [호환성 매트릭스](/relnotes/support-matrix)와 비교합니다.
+
+</Step>
+
+<Step>
+
+### Check runtime package versions
+
+설치된 런타임 패키지 버전을 확인합니다:
+
+```bash
+npm list @midnight-ntwrk/compact-runtime
+npm list @midnight-ntwrk/ledger
+npm list @midnight-ntwrk/zswap
+```
+
+모든 런타임 패키지가 호환성 매트릭스에 명시된 호환 버전을 사용하는지 확인하세요.
+
+</Step>
+
+<Step>
+
+### Check proof server version
+
+Docker로 proof server를 실행 중이라면:
+
+```bash
+docker ps | grep proof-server
+docker logs [proof-server-container-id] | head -20
+```
+
+시작 로그에서 버전 정보를 확인합니다.
+
+</Step>
+
+<Step>
+
+### Compare versions with the compatibility matrix
+
+[릴리스 호환성 매트릭스](/relnotes/support-matrix)를 확인하고 버전이 호환되는지 검증합니다. 권장 버전과 맞지 않는 컴포넌트를 기록해 두세요.
+
+</Step>
+
+</StepsProvider>
+
+## Align component versions
+
+버전 불일치를 확인한 후, 모든 컴포넌트를 호환 버전으로 업데이트합니다. 개발 환경 전체의 호환성을 유지하려면 관련 컴포넌트를 항상 함께 업데이트하세요.
+
+<StepsProvider>
+
+<Step>
+
+### Consult the compatibility matrix
+
+[릴리스 호환성 매트릭스](/relnotes/support-matrix)에서 각 컴포넌트의 올바른 버전을 확인합니다:
+
+- Compact toolchain
+- Runtime libraries
+- JavaScript libraries
+- Proof server
+- Indexer (사용하는 경우)
+
+</Step>
+
+<Step>
+
+### Update runtime packages
+
+`package.json`을 매트릭스의 호환 버전으로 업데이트합니다:
+
+```json title="package.json"
+{
+  "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "x.x.x",
+    "@midnight-ntwrk/ledger": "x.x.x",
+    "@midnight-ntwrk/zswap": "x.x.x",
+    "@midnight-ntwrk/wallet": "x.x.x"
+  }
+}
+```
+
+업데이트한 패키지를 설치합니다:
+
+```bash
+npm install
+```
+
+</Step>
+
+<Step>
+
+### Update proof server
+
+Docker를 사용하는 경우, 컨테이너 이미지를 호환 버전으로 업데이트합니다. 현재 컨테이너를 중지하고, `docker-compose.yml`을 올바른 버전으로 수정한 뒤 재시작합니다:
+
+```bash
+# 현재 컨테이너 중지
+docker-compose down
+
+# docker-compose.yml을 호환 버전으로 수정 후 재시작
+docker-compose up -d
+```
+
+</Step>
+
+<Step>
+
+### Update the compiler
+
+[Compact releases](https://github.com/midnightntwrk/compact/releases)에서 호환 버전의 컴파일러를 다운로드하여 설치합니다.
+
+설치를 확인합니다:
+
+```bash
+compact --version
+```
+
+</Step>
+
+<Step>
+
+### Recompile contracts
+
+컴포넌트 업데이트 후, smart contract를 다시 컴파일합니다:
+
+```bash
+# 기존 아티팩트 삭제
+rm -rf contract/managed/
+
+# compact 명령어로 재컴파일
+compact compile src/contract.compact contract/managed
+```
+
+</Step>
+
+</StepsProvider>
+
+:::warning 컴포넌트 동기화 유지
+컴포넌트를 업데이트할 때는 반드시 호환성 매트릭스를 확인하세요. 관련 컴포넌트를 항상 함께 업데이트하여 개발 환경 전체의 호환성을 유지해야 합니다.
+:::
+
+## Lock exact versions
+
+프로젝트 설정에서 정확한 버전 번호를 지정하여 자동 버전 업데이트를 방지합니다. 프로젝트 안정성을 유지하고 예기치 않은 호환성 문제를 피할 수 있습니다.
+
+<StepsProvider>
+
+<Step>
+
+### Use exact version numbers
+
+`package.json`에서 `^`나 `~` 같은 범위 연산자 없이 정확한 버전을 지정하세요:
+
+```json title="package.json"
+{
+  "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "x.x.x",
+    "@midnight-ntwrk/ledger": "x.x.x"
+  }
+}
+```
+
+:::caution 버전 범위 사용 금지
+`^x.x.x`나 `~x.x.x` 같은 버전 범위 연산자를 사용하지 마세요. 예기치 않은 업데이트를 방지하려면 `x.x.x`처럼 정확한 버전만 지정하세요.
+:::
+
+</Step>
+
+<Step>
+
+### Use npm ci for installations
+
+재현 가능한 빌드를 위해 `npm install` 대신 `npm ci`를 사용하세요:
+
+```bash
+# lock 파일 기반 클린 설치
+rm -rf node_modules
+npm ci
+```
+
+`package-lock.json`에 명시된 정확한 버전이 설치됩니다.
+
+</Step>
+
+<Step>
+
+### Document your versions
+
+프로젝트 루트에 `VERSIONS.md` 파일을 만들어 사용 중인 컴포넌트 버전을 기록하세요. 팀원 간 일관성 유지와 버전 문제 해결에 도움이 됩니다:
+
+```markdown title="VERSIONS.md"
+# Component Versions
+
+Last verified: 2025-10-17
+
+## Versions in Use
+
+- Compact compiler: x.x.x
+- Runtime packages: x.x.x
+- Proof server: x.x.x
+- Node.js: xx.x.x
+
+## Compatibility Reference
+
+See: /relnotes/support-matrix
+```
+
+</Step>
+
+</StepsProvider>
+
+## Platform-specific considerations
+
+OS에 따라 추가 설정이나 확인이 필요할 수 있습니다. 해당 플랫폼을 선택하세요.
+
+<Tabs>
+<TabItem value="linux" label="Linux">
+
+모든 컴포넌트가 올바르게 설치되어 접근 가능한지 확인합니다:
+
+```bash
+# 컴파일러 위치 확인
+which compact
+
+# Node.js 버전 확인
+node --version
+```
+
+</TabItem>
+<TabItem value="mac" label="macOS">
+
+Apple Silicon(M1/M2/M3)에서는 Docker 이미지가 올바른 아키텍처를 사용하는지 확인하세요:
+
+```bash
+# Docker 아키텍처 확인
+docker info | grep Architecture
+```
+
+</TabItem>
+<TabItem value="windows" label="Windows/WSL">
+
+Windows Subsystem for Linux(WSL) 사용 시, Windows 마운트 경로 대신 네이티브 WSL 경로를 사용해야 성능과 일관성이 좋습니다:
+
+```bash
+# Windows 마운트 경로(/mnt/c/) 대신 네이티브 WSL 경로 사용
+cd /home/username/project
+
+# 컴파일러 접근 확인
+compact --version
+```
+
+</TabItem>
+</Tabs>
+
+## Create a version check script
+
+개발 환경 전체의 버전을 자동으로 확인하는 셸 스크립트입니다. 모든 컴포넌트가 호환성 매트릭스와 일치하는지 빠르게 검증할 수 있습니다.
+
+```bash title="check-versions.sh"
+#!/bin/bash
+
+echo "=== Midnight Version Check ==="
+echo ""
+
+echo "Compiler:"
+compact --version || echo "❌ Compiler not found"
+echo ""
+
+echo "Runtime packages:"
+npm list --depth=0 | grep @midnight-ntwrk || echo "❌ No Midnight packages found"
+echo ""
+
+echo "Node.js:"
+node --version
+echo ""
+
+echo "⚠️  Compare these versions with:"
+echo "/relnotes/support-matrix"
+```
+
+스크립트에 실행 권한을 부여하고 실행합니다:
+
+```bash
+chmod +x check-versions.sh
+./check-versions.sh
+```
+
+## Back up before upgrading
+
+컴포넌트 업그레이드 전에 프로젝트 파일을 백업하세요. 업그레이드 중 문제가 발생하더라도 데이터 손실을 방지할 수 있습니다:
+
+```bash
+# package.json 백업
+cp package.json package.json.backup
+
+# 컨트랙트 아티팩트 백업
+cp -r contract contract-backup
+
+# 현재 상태를 git에 커밋
+git add -A
+git commit -m "Backup before version upgrade"
+```
+
+## Verify after updates
+
+컴포넌트 버전을 맞춘 후, 모든 것이 정상 작동하는지 테스트합니다:
+
+```bash
+# 컴파일 테스트
+compact compile src/contract.compact contract/
+
+# 테스트 실행
+npm test
+
+# 에러 확인
+docker logs [proof-server-container-id]
+```
+
+## Common mistakes to avoid
+
+컴포넌트 버전 관리 시 흔히 하는 실수를 피하세요:
+
+:::caution
+
+- **버전 범위를 섞지 마세요**: 정확한 버전만 사용하세요.
+- **하나만 업데이트하지 마세요**: 관련 컴포넌트를 항상 함께 업데이트하세요.
+- **호환성 매트릭스를 건너뛰지 마세요**: 반드시 호환성을 먼저 확인하세요.
+- **재컴파일을 잊지 마세요**: 컴파일러 업데이트 후 컨트랙트를 재컴파일하세요.
+  :::
+
+## Get help
+
+위의 트러블슈팅 단계를 모두 따른 후에도 버전 문제가 지속되면 아래 리소스를 활용하세요:
+
+1. **호환성 매트릭스 확인**: [릴리스 호환성 매트릭스](/relnotes/support-matrix)에서 검증된 호환 버전을 확인하세요.
+2. **릴리스 노트 확인**: 컴포넌트 릴리스 노트에서 breaking change와 마이그레이션 가이드를 확인하세요.
+3. **도움 요청**: Discord의 #dev-chat 채널에 버전 정보와 에러 메시지를 함께 올려주세요.

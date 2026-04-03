@@ -1,0 +1,90 @@
+---
+sidebar_label: Setting up Boot Nodes
+description: Midnight boot node 설정 가이드입니다.
+keywords: [node]
+title: Setting up Boot Nodes
+sidebar_position: 20
+tags: [node]
+---
+
+# Setting up Boot Nodes for Midnight
+
+Boot node는 네트워크에 새로 참여하는 노드의 초기 연결 지점 역할을 하며, Midnight 네트워크의 중요한 구성 요소입니다. Boot node 운영은 선택 사항이지만, 운영하면 사용 가능한 노드 목록 확장에 기여할 수 있습니다.
+
+## Boot Node
+
+**Boot node**는 활성 피어 주소 목록을 제공하여 다른 노드가 Midnight blockchain에 연결할 수 있도록 돕는 특수한 유형의 노드입니다. 고유한 설정이 있는 것이 아니라, 연결 정보를 공유하는 데 사용되는 모든 노드가 boot node에 해당합니다.
+
+## Prerequisites
+
+Midnight boot node 설정 전에 다음 사항을 준비하세요:
+
+* [Docker](https://docs.docker.com/engine/install/) 설치 및 설정 완료.
+* [Cardano-db-sync 인스턴스 설정](./cardano-db-sync) 완료 (PostgreSQL 포트 접근 가능).
+* 충분한 리소스 (CPU, 메모리, 스토리지).
+
+## Setting Up a Boot Node
+
+### Step 1: Configure PostgreSQL Database
+
+다음 파라미터로 PostgreSQL 인스턴스를 설정합니다:
+
+* **Host:** PostgreSQL 서버 주소.
+* **Port:** 기본값 5432.
+* **Username:** 데이터베이스 사용자.
+* **Password:** 데이터베이스 비밀번호.
+* **Database Name:** 데이터베이스 이름 (예: cexplorer).
+
+### Step 2: Run the Docker Command for a Boot Node
+
+다음 Docker 명령어로 boot node를 설정합니다:
+
+```bash
+docker run \
+  --name midnight-boot-node \
+  --platform linux/amd64 \
+  -p 30333:30333 \
+  -v midnight-data:/node \
+  -e MIDNIGHT_NODE_IMAGE="midnightnetwork/midnight-node:<VERSION>" \
+  -e BASE_PATH="./node/chain/" \
+  -e CFG_PRESET="testnet" \
+  midnightnetwork/midnight-node:<VERSION> \
+  --listen-addr /ip4/0.0.0.0/tcp/30333 \
+  --bootnodes \
+  /dns/boot-node-01.testnet-02.midnight.network/tcp/30333/ws/p2p/12D3KooWMjUq13USCvQR9Y6yFzYNYgTQBLNAcmc8psAuPx2UUdnB \
+  --no-private-ip
+```
+
+`<VERSION>`을 [릴리스 호환성 매트릭스](../../relnotes/support-matrix)에 따른 올바른 노드 버전으로 바꾸세요.
+
+## Known Environment Boot Nodes
+
+대상 환경에 맞는 boot node를 사용하세요.
+
+### Preprod
+
+```bash
+--bootnodes /dns/bootnode-1.preprod.midnight.network/tcp/30333/ws/p2p/12D3KooWQxxUgq7ndPfAaCFNbAxtcKYxrAzTxDfRGNktF75SxdX5 \
+--bootnodes /dns/bootnode-2.preprod.midnight.network/tcp/30333/ws/p2p/12D3KooWNrUBs22FfmgjqFMa9ZqKED2jnxwsXWw5E4q2XVwN35TJ
+```
+
+### Preview
+
+```bash
+--bootnodes /dns/bootnode-1.preview.midnight.network/tcp/30333/ws/p2p/12D3KooWK66i7dtGVNSwDh9tTeqov1q6LSdWsRLJvTyzTCaywYgK \
+--bootnodes /dns/bootnode-2.preview.midnight.network/tcp/30333/ws/p2p/12D3KooWHqFfXFwb7WW4jwR8pr4BEf562v5M6c8K3CXAJq4Wx6ym
+```
+
+## Verifying the Node
+
+### Check Logs
+
+노드 로그를 모니터링하여 네트워크와 정상 동기화되는지 확인합니다:
+
+```bash
+docker logs -f <node-name>
+```
+
+### Test Connectivity
+
+노드의 P2P 포트(기본값: `30333`)가 열려 있고 네트워크 통신이 가능한지 확인하세요. `telnet`, `netcat`, `nmap` 같은 도구로 포트 상태를 점검하고, 노드가 네트워크에 올바르게 연결되어 있는지 검증합니다.

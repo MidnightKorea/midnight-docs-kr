@@ -5,36 +5,36 @@
 
 ## Prerequisites
 
-- Operate a Cardano SPO and have the following Cardano keys handy:
-  - The SPO `cold.skey`.
-  - A valid UTXO with associated `payment.vkey` and `payment.skey`.
+- Cardano SPO를 운영 중이며 다음 Cardano 키를 준비해야 합니다:
+  - SPO `cold.skey`.
+  - 유효한 UTXO와 이에 연결된 `payment.vkey` 및 `payment.skey`.
   
-  NEW: Cardano *extended* BIP32-Ed25519 are now supported!
+  NEW: Cardano *extended* BIP32-Ed25519가 이제 지원됩니다!
 
-- Partner-chain-dependencies are fully synced [(Step 2)](./step-2):
-  - Port to `Ogmios` and `Postgres` must be accessible.
+- Partner-chain 의존성이 완전히 동기화되어 있어야 합니다 [(Step 2)](./step-2):
+  - `Ogmios`와 `Postgres` 포트에 접근 가능해야 합니다.
 
 :::tip
 
-It's easier to perform the registration on the same instance as the partner-chain-dependencies. Especially if you're using the provided compose files within this guide.
+partner-chain 의존성이 있는 동일 인스턴스에서 등록을 수행하는 것이 더 쉽습니다. 특히 이 가이드에서 제공하는 compose 파일을 사용하는 경우에 그렇습니다.
 
 :::
 
 ## 1. Install `midnight-node`.
 
-Midnight-node contains the Partner-chain CLI wizards that make interaction with the Midnight Partner-chain contracts, such as submitting a block producer candidacy, much easier.
+Midnight-node에는 Midnight Partner-chain 컨트랙트와의 상호작용(예: block producer 후보 등록 제출)을 훨씬 쉽게 해주는 Partner-chain CLI wizard가 포함되어 있습니다.
 
 :::note
 
-Midnight-node is only available as a Docker image at the current stage of the Midnight project.
+현재 Midnight 프로젝트 단계에서 Midnight-node는 Docker 이미지로만 제공됩니다.
 
 :::
 
-1. Clone the `Midnight-node-docker` repo (if applicable):
+1. `Midnight-node-docker` 저장소를 클론하세요(해당되는 경우):
 
 :::tip
 
-If you already cloned the `midnight-node-docker` repo in [(Step 2)](./step-2), then you can simply skip cloning and use that instance.
+[(Step 2)](./step-2)에서 이미 `midnight-node-docker` 저장소를 클론했다면, 클론을 건너뛰고 해당 인스턴스를 사용하면 됩니다.
 
 :::
 
@@ -43,20 +43,20 @@ git clone git@github.com:midnightntwrk/midnight-node-docker.git
 cd midnight-node-docker
 ```
 
-Upon entering the directory, `direnv` prompts you to allow the `.envrc` file.
+디렉토리에 들어가면, `direnv`가 `.envrc` 파일 허용 여부를 묻습니다.
 
-2. **Using `midnight-node wizards`**:
+2. **`midnight-node wizards` 사용하기**:
 
-Invoking the Partner-chains CLI wizards requires a file in current directory called, `pc-chain-config.json`. This file is located in the `midnight-node-docker` repository in `envs/testnet-02/pc-chain-config.json`. If you are using the `midnight-node.sh` script, then it will be automatically mounted from `envs/testnet-02/pc-chain-config.json`.
+Partner-chains CLI wizard를 호출하려면 현재 디렉토리에 `pc-chain-config.json` 파일이 있어야 합니다. 이 파일은 `midnight-node-docker` 저장소의 `envs/testnet-02/pc-chain-config.json`에 위치합니다. `midnight-node.sh` 스크립트를 사용하는 경우, `envs/testnet-02/pc-chain-config.json`에서 자동으로 마운트됩니다.
 
-- Invoke the Partner-chain `wizards` with `./midnight-node`:
+- `./midnight-node`로 Partner-chain `wizards`를 호출하세요:
 
 ```shell
 ./midnight-node.sh wizards --help
 ```
 
 <details>
-  <summary>Example output</summary>
+  <summary>출력 예시</summary>
 
 ```shell
 Partner Chains text "wizards" for setting up chain
@@ -133,44 +133,44 @@ Options:
 
 ## 2. Generate Partner-chain keys
 
-For this sequence we'll use the `midnight-shell.sh` script and invoke the `wizards` commands within the container.
+이 시퀀스에서는 `midnight-shell.sh` 스크립트를 사용하여 컨테이너 내에서 `wizards` 명령을 실행합니다.
 
-1. Enter `midnight-node` shell:
+1. `midnight-node` 셸에 진입하세요:
 
 ```shell
 ./midnight-shell.sh
 ```
 
-This will mount the `./data` directory and put you in the `midnight-node` container where you can run `midnight-node` commands.
+`./data` 디렉토리를 마운트하고 `midnight-node` 컨테이너 안으로 들어가서 `midnight-node` 명령을 실행할 수 있습니다.
 
-For example:
+예시:
 
 ```
 $ ./midnight-shell.sh
 root@dcb8af95f166:/# 
 ```
 
-In the above example, `dcb8af95f166` is the midnight-node's container ID. You can enter the container with the `midnight-shell.sh` script or more traditionally enter the container using docker commands:
+위 예시에서 `dcb8af95f166`은 midnight-node의 컨테이너 ID입니다. `midnight-shell.sh` 스크립트로 컨테이너에 진입하거나, docker 명령으로 직접 진입할 수도 있습니다:
 
 ```bash
-docker container list -la # list the midnight-node container and it's "container ID"
-docker exec -it <container-id> /bin/bash # enter the container's shell by ID
-docker exec -it dcb /bin/bash # for example enter container "dcb8af95f166"
+docker container list -la # midnight-node 컨테이너와 "container ID" 확인
+docker exec -it <container-id> /bin/bash # 컨테이너 ID로 셸 진입
+docker exec -it dcb /bin/bash # 예: 컨테이너 "dcb8af95f166"에 진입
 ```
 
-2. Generate Partner-chain keys
+2. Partner-chain 키 생성
 
 
 :::important
 
-The following sequence is performed within the `midnight-node` container. Make sure you're running ./midnight-node in the container.
+다음 시퀀스는 `midnight-node` 컨테이너 내에서 수행됩니다. 컨테이너 안에서 ./midnight-node을 실행 중인지 확인하세요.
 
 :::
 
-- Invoke `./midnight-node wizards generate-keys` and follow the prompts:
+- `./midnight-node wizards generate-keys`를 실행하고 프롬프트를 따르세요:
 
 <details>
-<summary><b>Example output (generate-keys)</b></summary>
+<summary><b>출력 예시 (generate-keys)</b></summary>
 ```bash
 ./midnight-node wizards generate-keys
 This 🧙 wizard will generate the following keys and save them to your node's keystore:
@@ -217,7 +217,7 @@ command output: 12D3KooWBAZC9CdRDPWB4trSfLJYDqqUVoZ3xFDcb2tF3M7vjL9F
 ```
 </details>
 
-The container will now have a `data/` directory structure like so:
+컨테이너에 다음과 같은 `data/` 디렉토리 구조가 생성됩니다:
 
 ```shell
 data/
@@ -231,15 +231,15 @@ data/
             └── secret_ed25519 # network (node) key
 ```
 
-This `data/` directory will be used for the Midnight-node in [(Step 4)](./step-4).
+이 `data/` 디렉토리는 [(Step 4)](./step-4)에서 Midnight-node에 사용됩니다.
 
-- We need to move the keys from the generic partner chains directory to a keystore our node can find.
+- 키를 일반 partner chains 디렉토리에서 노드가 찾을 수 있는 keystore로 이동해야 합니다.
 
 ```shell
 mv -R ./data/chains/undeployed/ ./data/chains/partner_chains_template
 ```
 
-The file structure should now look like this:
+파일 구조는 다음과 같아야 합니다:
 
 ```bash
 data/
@@ -255,17 +255,17 @@ data/
 
 ## 3. Make Cardano-keys accessible to container
 
-The registration will be performed in the midnight-node container as done with the previous `generate-keys` step. However, now is a good time to ensure required Cardano keys are accessible to the container.
+등록은 이전 `generate-keys` 단계와 마찬가지로 midnight-node 컨테이너 내에서 수행됩니다. 지금 시점에서 필요한 Cardano 키가 컨테이너에서 접근 가능한지 확인해 두는 것이 좋습니다.
 
-For example, let's assume your keys are in a `cardano-keys` directory on the host machine. This can be copied to the container using the `docker cp` command.
+예를 들어, 호스트 머신의 `cardano-keys` 디렉토리에 키가 있다고 가정합니다. `docker cp` 명령으로 컨테이너에 복사할 수 있습니다.
 
 ```
 docker cp /path/to/cardano-keys/ <container-ID>:cardano-keys
 ```
 
-This will place the `cardano-keys` directory and it's contents in the root directory of the `midnight-node` container.
+이 명령은 `cardano-keys` 디렉토리와 그 내용을 `midnight-node` 컨테이너의 루트 디렉토리에 배치합니다.
 
-For example:
+예시:
 
 ```bash
 $ docker cp cardano-keys/ cb5:cardano-keys/
@@ -280,7 +280,7 @@ boot		 etc   media	      pc-chain-config.json  run   tmp
 cardano-keys	 home  midnight-node  proc		    sbin  usr
 ```
 
-To remove this directory from the container: 
+컨테이너에서 이 디렉토리를 삭제하려면: 
 
 ```
 docker exec <container-ID> rm -r cardano-keys/
@@ -288,24 +288,24 @@ docker exec <container-ID> rm -r cardano-keys/
 
 ## 3. Register as a candidate
 
-Registration is a 3 command process. You will have to: 
+등록은 3단계 명령 과정입니다. 다음을 수행해야 합니다: 
 
-1. Initiate the registration process,
-2. prepare regsitration signature,
-3. and finally submit the registration.
+1. 등록 프로세스를 시작하고,
+2. 등록 서명을 준비한 후,
+3. 최종 등록을 제출합니다.
 
-This sequence is streamlined with the `./midnight-node wizards register1`, `register2` and `register3` commands.
+이 시퀀스는 `./midnight-node wizards register1`, `register2`, `register3` 명령으로 간소화됩니다.
 
 :::important
 
-Again, perform this sequence in the container.
+이 시퀀스도 반드시 컨테이너 내에서 수행하세요.
 
 :::
 
-- Invoke `./midnight-node wizards register1` and follow the prompts:
+- `./midnight-node wizards register1`을 실행하고 프롬프트를 따르세요:
 
 <details>
-<summary><b>Example output (register1)</b></summary>
+<summary><b>출력 예시 (register1)</b></summary>
 ```bash
 ./midnight-node wizards register1
 ⚙️ Registering as a committee candidate (step 1/3)
@@ -333,25 +333,25 @@ Run the following command to generate signatures on the next step. It has to be 
 <details>
 <summary><b>Common Errors</b></summary>
 
-1. **Error: "⚠️ No UTXOs found for the given address"**
-   - **Cause:**
-     - The address derived from `payment.vkey` has no unspent transaction outputs (UTXOs), meaning it hasn’t been funded with testnet Ada (tAda).
-     - The Cardano node might not be fully synced, so it can’t retrieve the latest balance.
-   - **Solution:**
-     - **Fund the Address:** Send tAda to your payment address using a faucet (e.g., Cardano testnet faucet) or another funded wallet.
-     - **Check Node Sync:** Verify the node is fully synced by running:
+1. **오류: "No UTXOs found for the given address"**
+   - **원인:**
+     - `payment.vkey`에서 파생된 주소에 미사용 트랜잭션 출력(UTXO)이 없습니다. 즉, testnet Ada(tAda)가 입금되지 않은 상태입니다.
+     - Cardano 노드가 완전히 동기화되지 않아 최신 잔액을 조회하지 못할 수 있습니다.
+   - **해결 방법:**
+     - **주소에 자금 입금:** faucet(예: Cardano testnet faucet) 또는 다른 자금이 있는 지갑에서 payment 주소로 tAda를 전송하세요.
+     - **노드 동기화 확인:** 다음 명령으로 노드가 완전히 동기화되었는지 확인하세요:
        ```bash
        ./cardano-cli.sh query tip
        ```
-       Ensure the `syncProgress` is `100%`. If not, wait for it to sync.
+       `syncProgress`가 `100%`인지 확인하세요. 그렇지 않으면 동기화가 완료될 때까지 기다리세요.
 </details>
 
-The `register1` command will return the register2 command for you. You simply need to copy and paste this in the shell.
+`register1` 명령은 register2 명령을 출력합니다. 셸에서 복사하여 붙여넣기만 하면 됩니다.
 
-- Copy and paste the `register2` command generated from `register1`:
+- `register1`에서 생성된 `register2` 명령을 복사하여 붙여넣으세요:
 
 <details>
-<summary><b>Example output (register2)</b></summary>
+<summary><b>출력 예시 (register2)</b></summary>
 ```shell
 /midnight-node wizards register2 \
  --genesis-utxo 46876a2250ec0e523eccc30b0fc6d6fa55c61dd200b83140acaab291edeb0b11#0 \
@@ -377,12 +377,12 @@ To finish the registration process, run the following command on the machine wit
 ```
 </details>
 
-The `register2` command will return the `register3` command. Simply copy and paste this into shell.
+`register2` 명령은 `register3` 명령을 반환합니다. 셸에 복사하여 붙여넣으세요.
 
-- Copy and paste the **register3** command and follow the prompts to submit registration:
+- **register3** 명령을 복사하여 붙여넣고 프롬프트를 따라 등록을 제출하세요:
 
 <details>
-<summary>Example output (register3)</summary>
+<summary>출력 예시 (register3)</summary>
 ```shell
 root@cb52f4691afd:/# /midnight-node wizards register3 \
 --genesis-utxo 46876a2250ec0e523eccc30b0fc6d6fa55c61dd200b83140acaab291edeb0b11#0 \
@@ -416,11 +416,11 @@ Registrations status for epoch 940:
 
 :::warning
 
-There's a known issue with register3 querying the Postgres database, but don't worry - the registration was successful and can be validated by querying the committee in the next step.
+register3에서 Postgres 데이터베이스를 조회할 때 알려진 이슈가 있지만 걱정하지 마세요 - 등록은 성공적으로 완료되었으며, 다음 단계에서 committee를 조회하여 확인할 수 있습니다.
 
 :::
 
-- After registering query the current epoch:
+- 등록 후 현재 epoch을 조회하세요:
 
 ```bash
 curl -L -X POST -H "Content-Type: application/json" -d '{
@@ -431,7 +431,7 @@ curl -L -X POST -H "Content-Type: application/json" -d '{
     }' https://rpc.testnet-02.midnight.network | jq
 ```
 
-Example output:
+출력 예시:
 
 ```bash
 curl -L -X POST -H "Content-Type: application/json" -d '{
@@ -461,7 +461,7 @@ curl -L -X POST -H "Content-Type: application/json" -d '{
 }
 ```
 
-- Query validator committee for `n` + 2 epochs.
+- `n` + 2 epoch의 validator committee를 조회하세요.
 
 ```
 curl -L -X POST -H "Content-Type: application/json" -d '{
@@ -472,18 +472,18 @@ curl -L -X POST -H "Content-Type: application/json" -d '{
     }' https://rpc.testnet-02.midnight.network | jq
 ```
 
-Look for your registration under `"candidateRegistrations": {)`. Ensure you see your Partner-chain keys in the registration and  `"isValid": true`
+`"candidateRegistrations": {)` 아래에서 본인의 등록 정보를 확인하세요. Partner-chain 키가 등록 정보에 포함되어 있고 `"isValid": true`인지 확인하세요.
 
-🥳 At this point you are now registered as a candidate in the validator committee! Now, it's time to run a **midnight-node** in validator mode to produce Midnight blocks.
+이 시점에서 validator committee의 후보자로 등록이 완료되었습니다! 이제 Midnight 블록을 생성하기 위해 **midnight-node**를 validator 모드로 실행할 차례입니다.
 
 ## Deregister
 
-Deregistration can be performed by invoking `midnight-node wizards deregister`. This should be performed in the container with access to keys used in registration. 
+`midnight-node wizards deregister`를 실행하여 등록을 해제할 수 있습니다. 등록에 사용한 키에 접근할 수 있는 컨테이너에서 수행하세요. 
 
-- Enter the midnight-node container
-- Invoke `midnight-node wizards deregister` and follow the prompts.
+- midnight-node 컨테이너에 진입하세요
+- `midnight-node wizards deregister`를 실행하고 프롬프트를 따르세요.
 
-For example:
+예시:
 
 ```
 root@cb52f4691afd:/# ./midnight-node wizards deregister
@@ -506,9 +506,9 @@ Partner Chains Smart Contracts require access to Ogmios. Please provide its conf
 2025-05-20T02:22:13.488982844+00:00 INFO partner_chains_cardano_offchain::await_tx - Transaction output 'd7ebd0b5f215ede15d25fc00c5e9fbfb24b36ffdf428f93fc83cde84440be376'
 ```
 
-Deregistration will remove the candidate from the committee in `n` + 2 epochs.
+등록 해제는 `n` + 2 epoch 후에 committee에서 후보가 제거됩니다.
 
-- Query validator committee for `n` + 2 epochs since submitting deregistration:
+- 등록 해제 제출 이후 `n` + 2 epoch의 validator committee를 조회하세요:
 
 ```
 curl -L -X POST -H "Content-Type: application/json" -d '{
@@ -519,4 +519,4 @@ curl -L -X POST -H "Content-Type: application/json" -d '{
     }' https://rpc.testnet-02.midnight.network | jq
 ```
 
-You should see your candidate is no longer on the list.
+본인의 후보가 더 이상 목록에 없는지 확인하세요.

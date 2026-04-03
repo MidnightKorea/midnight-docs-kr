@@ -1,0 +1,68 @@
+---
+title: Node endpoints
+sidebar_label: Node endpoints
+description: Midnight 네트워크의 주요 파라미터 레퍼런스입니다.
+keywords: [RPC, end points, endpoints]
+sidebar_position: 50
+tags: [node]
+---
+
+# Node endpoints
+
+자체 노드를 운영하여 다양한 UI 및 프로그래밍 방식으로 Midnight 네트워크와 상호작용하거나, 인프라 및 API 서비스 제공업체가 제공하는 public endpoint에 연결할 수 있습니다. 개발 편의를 위해 아래의 public endpoint를 사용할 수 있으며, API와 함께 사용하여 Midnight 네트워크 및 테스트 환경과 상호작용할 수 있습니다.
+
+## Network endpoints
+
+### Testnet network
+
+| Network | URL |
+| ------------- | ------------- |
+| Testnet-02 | https://rpc.testnet-02.midnight.network/ |
+| Explorer (temporary) | https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.testnet-02.midnight.network#/explorer |
+
+Midnight 노드 쿼리 예시:
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+        "jsonrpc": "2.0",
+        "method": "system_chain",
+        "params": [],
+        "id": 1
+      }' \
+  https://rpc.testnet-02.midnight.network/
+```
+사용 가능한 RPC 메서드를 `rpc_methods.json` 파일로 조회합니다:
+
+```bash
+curl \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"rpc_methods","params":[],"id":1}' \
+  https://rpc.testnet-02.midnight.network/ \
+  > rpc_methods.json
+```
+
+## Insomnia API Collection
+
+![insomnia_app_screenshot](/img/insomnia_app.gif)
+
+Midnight Node와의 상호작용을 쉽게 하기 위해 Insomnia API 컬렉션을 제공합니다. 이 컬렉션에는 노드의 각종 endpoint를 테스트하고 상호작용할 수 있는 사전 구성된 요청이 포함되어 있습니다.
+
+1. **컬렉션 다운로드**
+   - 아래 링크를 클릭하여 Insomnia API 컬렉션 파일을 다운로드합니다: 📦⬇ <a href="/files/Insomnia_2024-11-21.json" download>Midnight Node Insomnia Collection</a>
+.
+
+2. **Insomnia 실행**
+   - Insomnia가 설치되어 있지 않다면 [Insomnia 공식 웹사이트](https://insomnia.rest/download)에서 다운로드하여 설치하세요.
+
+3. **컬렉션 가져오기**
+   - Insomnia를 실행합니다.
+   - 메인 메뉴에서 `Import/Export`를 선택합니다.
+   - `Import Data` > `From File`을 선택합니다.
+   - 다운로드한 `Insomnia.json` 파일을 찾아 선택합니다.
+
+4. **컬렉션 사용**
+   - 가져오기가 완료되면 Insomnia 워크스페이스에 Midnight Node 컬렉션이 나타납니다.
+   - 컬렉션을 펼쳐서 사용 가능한 요청을 확인하고 활용하세요.
+   - API 키나 서버 URL 등 환경 변수 설정이 필요하면 적절히 구성합니다.

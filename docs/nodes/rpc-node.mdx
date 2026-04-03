@@ -1,0 +1,89 @@
+---
+title: Setting up RPC Nodes
+sidebar_label: Setting up RPC Nodes
+description: Midnight RPC node 설정 가이드입니다.
+keywords: [node]
+sidebar_position: 40
+tags: [node]
+---
+
+# Setting up RPC Nodes for Midnight
+
+RPC node는 개발자가 blockchain과 프로그래밍 방식으로 상호작용할 수 있는 API를 제공하며, Midnight 네트워크에서 중요한 역할을 합니다. Transaction 제출, blockchain 데이터 조회 등을 지원하여, 네트워크와 DApp 인프라를 연결하는 브릿지 역할을 합니다.
+
+## RPC Node
+
+**RPC node**는 HTTP 또는 WebSocket 기반 API를 노출하여 애플리케이션과 개발자가 Midnight blockchain과 상호작용할 수 있도록 하는 특수한 유형의 노드입니다. Full node나 archive node와 달리 외부 접근성과 API 성능에 중점을 둡니다.
+
+## Prerequisites
+
+Midnight RPC node 설정 전에 다음 사항을 준비하세요:
+
+* [Docker](https://docs.docker.com/engine/install/) 설치 및 설정 완료.
+* [Cardano-db-sync 인스턴스 설정](./cardano-db-sync) 완료 (PostgreSQL 포트 접근 가능).
+* 충분한 리소스 (CPU, 메모리, 스토리지).
+
+## Setting Up an RPC Node
+
+### Step 1: Configure PostgreSQL Database
+
+다음 파라미터로 Cardano-db-sync/ PostgreSQL 인스턴스를 설정합니다:
+
+* **Host:** PostgreSQL 서버 주소.
+* **Port:** 기본값 5432.
+* **Username:** 데이터베이스 사용자.
+* **Password:** 데이터베이스 비밀번호.
+* **Database Name:** 데이터베이스 이름 (예: cexplorer).
+
+### Step 2: Run the Docker Command for an RPC Node
+
+다음 Docker 명령어로 RPC node를 설정합니다:
+
+```bash
+docker run \
+  --name midnight-rpc-node \
+  --platform linux/amd64 \
+  -p 9944:9944 \
+  -p 30333:30333 \
+  -v midnight-data:/node \
+  -e MIDNIGHT_NODE_IMAGE="midnightnetwork/midnight-node:<VERSION>" \
+  -e BASE_PATH="./node/chain/" \
+  -e CFG_PRESET="testnet-02" \
+  midnightnetwork/midnight-node:<VERSION> \
+  --chain=/res/testnet-02/testnetRaw.json \
+  --rpc-methods=Safe \
+  --rpc-cors=all \
+  --rpc-external \
+  --ws-external
+```
+
+`<VERSION>`을 [릴리스 호환성 매트릭스](../../relnotes/support-matrix)에 따른 올바른 노드 버전으로 바꾸세요.
+
+
+## Verifying the Node
+
+### Check Logs
+
+노드 로그를 모니터링하여 네트워크와 정상 동기화되는지 확인합니다:
+
+```bash
+docker logs -f <node-name>
+```
+
+### Test Connectivity
+
+노드의 P2P 포트(기본값: `30333`)가 열려 있고 네트워크 통신이 가능한지 확인하세요. `telnet`, `netcat`, `nmap` 같은 도구로 포트 상태를 점검하고, 노드가 네트워크에 올바르게 연결되어 있는지 검증합니다.
+
+사용 가능한 RPC 메서드를 확인하려면 다음 curl 명령어를 실행하세요. 노드가 노출하는 모든 endpoint 목록이 출력됩니다:
+
+```bash
+curl -H "Content-Type: application/json" \
+     -X POST \
+     -d '{
+           "jsonrpc":"2.0",
+           "id":1,
+           "method":"rpc_methods",
+           "params":[]
+         }' \
+     http://127.0.0.1:9944
+```

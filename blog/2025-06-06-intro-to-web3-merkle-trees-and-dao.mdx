@@ -11,15 +11,15 @@ date: 2025-06-06
 ---
 # Learning Web3 from the Ground Up - Unpacking Merkle Trees and DAOs
 
-Web3 학습 여정을 이어가면서 주로 [Cardano Academy](https://cardanofoundation.org/academy)와 [Midnight Academy](https://docs.midnight.network/academy/)를 진행하고 그 내용을 [Midnight Dev Diaries](https://docs.midnight.network/blog)에 기록해 왔습니다. 하지만 이번 주에는 범위를 넓혀 생태계 전반의 다양한 초보자 친화적 자료를 탐색해 보았습니다. 그 과정에서 계속 등장하는 두 가지 기초 개념을 발견했습니다: Merkle Tree와 DAO(Decentralized Autonomous Organization, 탈중앙화 자율 조직)입니다.
+Web3 학습 여정을 이어오면서 주로 [Cardano Academy](https://cardanofoundation.org/academy)와 [Midnight Academy](https://docs.midnight.network/academy/)를 진행하고 그 내용을 [Midnight Dev Diaries](https://docs.midnight.network/blog)에 기록해 왔습니다. 하지만 이번 주에는 범위를 넓혀 생태계 전반의 초보자 친화적 자료를 다양하게 탐색해 보았습니다. 그 과정에서 반복적으로 등장하는 두 가지 기초 개념을 발견했습니다: Merkle Tree와 DAO(Decentralized Autonomous Organization, 탈중앙화 자율 조직)입니다.
 
-이 두 주제는 blockchain이 약속하는 투명성 보장, 데이터 무결성 검증, 탈중앙화 거버넌스의 핵심에 있습니다. 아래에 핵심 내용을 정리했으며, 더 깊이 알고 싶으시다면 글 끝에 유용한 참고 자료 목록을 첨부했습니다.
+이 두 주제는 blockchain이 약속하는 투명성 보장, 데이터 무결성 검증, 탈중앙화 거버넌스의 핵심입니다. 아래에 핵심 내용을 정리했으며, 더 깊이 알고 싶다면 글 끝에 참고 자료 목록을 첨부했습니다.
 
 ## Merkle Trees: Ensuring Data Integrity
 
-Merkle Tree는 해시 트리라고도 하며, 대규모 데이터 세트를 효율적이고 안전하게 검증할 수 있는 데이터 구조입니다. 핵심적으로 [이진 트리](https://www.geeksforgeeks.org/binary-tree-data-structure/)의 특수한 형태입니다. 이진 트리는 Web2 개발자들에게도 익숙한 구조로, 각 노드에 최대 두 개의 자식 노드가 있습니다. Merkle Tree가 다른 점은 값을 직접 저장하는 대신 해시를 저장한다는 것입니다. 이 해시는 데이터 블록을 나타내며 트리의 모든 데이터에 대한 간결하고 위조 방지 가능한 요약을 제공합니다.
+Merkle Tree는 해시 트리라고도 하며, 대규모 데이터를 효율적이고 안전하게 검증할 수 있는 데이터 구조입니다. 본질적으로 [이진 트리](https://www.geeksforgeeks.org/binary-tree-data-structure/)의 특수한 형태입니다. 이진 트리는 Web2 개발자에게도 익숙한 구조로, 각 노드에 최대 두 개의 자식 노드가 있습니다. Merkle Tree의 차이점은 값을 직접 저장하는 대신 해시를 저장한다는 것입니다. 이 해시가 데이터 블록을 대표하며, 트리 전체 데이터에 대한 간결하고 위조 불가능한 요약을 제공합니다.
 
-Merkle Tree는 blockchain에서 매우 중요합니다. 수천 건의 transaction 같은 대규모 데이터 세트를 효율적이고 안전하게 검증할 수 있기 때문입니다. 모든 transaction을 하나하나 확인하는 대신, 해시의 작은 부분 집합(Merkle proof라 합니다)만으로 특정 transaction이 블록에 포함되어 있는지 확인할 수 있습니다.
+Merkle Tree가 blockchain에서 중요한 이유는 수천 건의 transaction 같은 대규모 데이터를 효율적이고 안전하게 검증할 수 있기 때문입니다. 모든 transaction을 일일이 확인할 필요 없이, 해시의 작은 부분 집합(Merkle proof)만으로 특정 transaction이 블록에 포함되어 있는지 확인할 수 있습니다.
 
 Merkle Tree가 구축되는 과정을 간단히 정리하면 다음과 같습니다:
 
@@ -37,9 +37,9 @@ Merkle Tree가 구축되는 과정을 간단히 정리하면 다음과 같습니
 
 ## DAOs: Redefining Organizational Governance
 
-DAO(Decentralized Autonomous Organization, 탈중앙화 자율 조직)는 blockchain의 smart contract에 의해 운영되는 조직으로, 중앙집중식 리더십의 필요성을 없앱니다. 기존의 하향식 리더십을 투명하고 커뮤니티 주도적인 거버넌스로 대체하며, 모든 것이 코드, 즉 smart contract를 통해 실행됩니다.
+DAO(Decentralized Autonomous Organization, 탈중앙화 자율 조직)는 blockchain의 smart contract로 운영되는 조직으로, 중앙 리더십이 필요 없습니다. 기존의 하향식 리더십 대신 투명하고 커뮤니티 주도적인 거버넌스를 채택하며, 모든 것이 smart contract를 통해 실행됩니다.
 
-DAO에서는 규칙과 운영이 사전에 프로그래밍되어 온체인에 저장됩니다. 따라서 누구나 의사결정이 어떻게 이루어지는지, 자금이 어떻게 배분되는지, 제안이 어떻게 처리되는지 확인할 수 있습니다. 모든 것이 기본적으로 투명하고 감사 가능합니다. 한 명의 CEO나 이사회 대신 커뮤니티가 집단적으로 결정을 내립니다. 토큰 보유자가 제안에 투표할 수 있으며, 결과는 프로젝트에 대한 지분의 비중을 반영합니다. 이러한 집단적 의사결정 과정이 DAO를 설계상 탈중앙화되게 만듭니다. 그리고 이러한 규칙이 smart contract에 의해 자동으로 집행되므로, DAO는 수동 개입이나 중앙집중적 문지기 없이도 자율적으로 운영될 수 있습니다. 제안이 통과되면, smart contract가 코딩된 대로 결정을 실행합니다. 누군가가 버튼을 누를 때까지 기다릴 필요가 없습니다.
+DAO에서는 규칙과 운영이 사전에 프로그래밍되어 온체인에 저장됩니다. 누구나 의사결정 과정, 자금 배분 방식, 제안 처리 절차를 확인할 수 있습니다. 모든 것이 기본적으로 투명하고 감사 가능합니다. CEO나 이사회 대신 커뮤니티가 집단으로 결정을 내립니다. 토큰 보유자가 제안에 투표하며, 결과는 프로젝트 지분 비중을 반영합니다. 이 집단적 의사결정 구조가 DAO를 태생적으로 탈중앙화되게 만듭니다. 규칙이 smart contract로 자동 집행되므로, 수동 개입이나 중앙 관리자 없이도 자율 운영이 가능합니다. 제안이 통과되면 smart contract가 즉시 결정을 실행합니다. 누군가 버튼을 누를 때까지 기다릴 필요가 없습니다.
 
 그러나 DAO도 다음과 같은 과제에 직면합니다:
 
@@ -61,7 +61,7 @@ DAO는 다양한 분야에서 활용되고 있습니다:
 3. 토큰 보유자가 제안에 찬성 또는 반대 투표를 합니다.
 4. 일정 기준(정족수나 과반수 등)에 도달하면, 제안이 승인되고 smart contract에 의해 자동으로 실행됩니다.
 
-온체인 투표 외에도, 많은 DAO는 Snapshot(토큰 가중치 투표에 널리 사용), Aragon Voice, Tally(Governor contract와 자주 함께 사용), Coordinape(탈중앙화 보조금 및 동료 투표에 사용) 같은 오프체인 거버넌스 플랫폼을 활용합니다. 이러한 도구는 유연성을 제공하고, 가스 비용을 줄이며, 더 실험적인 거버넌스 설정을 가능하게 합니다.
+온체인 투표 외에도 많은 DAO가 오프체인 거버넌스 플랫폼을 활용합니다. Snapshot(토큰 가중치 투표에 널리 사용), Aragon Voice, Tally(Governor contract와 함께 사용), Coordinape(탈중앙화 보조금 및 동료 투표에 사용) 등이 대표적입니다. 이러한 도구는 유연성을 높이고, 가스 비용을 줄이며, 실험적인 거버넌스 방식도 지원합니다.
 
 토큰을 많이 보유할수록 더 많은 투표권을 갖게 됩니다. 이는 기업에서 주주가 투표하는 것과 유사하지만, 과정이 전적으로 온체인에서 중개자 없이 이루어집니다.
 
@@ -69,19 +69,19 @@ DAO는 다양한 분야에서 활용되고 있습니다:
 
 ## Interplay Between Merkle Trees and DAOs
 
-Merkle Tree와 DAO는 blockchain 세계에서 서로 다른 목적을 수행합니다. 하나는 데이터 무결성에, 다른 하나는 거버넌스에 초점을 맞추고 있습니다. 그러나 이 둘은 강력한 방식으로 서로를 보완합니다. 두 기술을 결합하면 DAO가 규모를 키우면서도 안전하고, 투명하며, 효율적으로 유지될 수 있습니다.
+Merkle Tree와 DAO는 blockchain에서 서로 다른 목적을 갖습니다. 하나는 데이터 무결성, 다른 하나는 거버넌스에 초점을 맞추고 있습니다. 하지만 이 둘은 강력하게 보완 관계를 이룹니다. 두 기술을 결합하면 DAO가 규모를 키우면서도 안전하고 투명하며 효율적으로 운영될 수 있습니다.
 
-예를 들어, 적격 투표자의 전체 목록을 저장하는 대신, DAO는 해당 목록을 나타내는 Merkle Root를 공개할 수 있습니다. 개별 투표자는 자신이 포함되어 있음을 확인하기 위해 짧은 암호학적 proof(Merkle proof)를 제출합니다. 이렇게 하면 투표가 경량화되고, 프라이버시를 유지하면서도 검증이 가능해집니다. 같은 방법으로 보조금 수혜자나 에어드롭 자격을 검증하여 공간과 가스 비용을 절약하면서 무결성을 보장할 수 있습니다.
+예를 들어, 적격 투표자 전체 목록을 온체인에 저장하는 대신 해당 목록을 대표하는 Merkle Root만 공개할 수 있습니다. 개별 투표자는 자신이 목록에 포함되어 있음을 짧은 암호학적 proof(Merkle proof)로 증명합니다. 투표 과정이 경량화되고, 프라이버시를 유지하면서도 검증이 가능합니다. 보조금 수혜자나 에어드롭 자격 검증에도 같은 방법을 적용하여 저장 공간과 가스 비용을 절약하면서 무결성을 보장할 수 있습니다.
 
-Merkle Tree는 또한 오프체인과 온체인 활동 사이의 다리 역할도 합니다. Snapshot을 통한 투표 추적이든 커뮤니티 신원 검증이든, 이러한 proof는 DAO가 성장하면서도 신뢰와 투명성을 유지할 수 있는 확장 가능한 방법을 제공합니다.
+Merkle Tree는 오프체인과 온체인 활동을 연결하는 다리 역할도 합니다. Snapshot 투표 추적이든 커뮤니티 신원 검증이든, 이 proof 구조가 DAO의 성장에 따른 신뢰와 투명성 유지를 뒷받침합니다.
 
-Merkle Tree는 DAO에 투명성이나 효율성을 희생하지 않으면서 거버넌스를 확장할 수 있는 암호학적 기반을 제공합니다. 투표자 자격 검증, 자금 분배 증명, 오프체인 데이터를 온체인 작업으로 연결하는 것 등, Merkle Tree는 DAO가 성장하면서도 신뢰와 책임성을 유지하도록 돕습니다. 이것은 기초적인 blockchain 구조가 탈중앙화 의사결정을 어떻게 지원하고 강화하는지 보여주는 훌륭한 사례입니다.
+정리하면 Merkle Tree는 투명성이나 효율성을 희생하지 않으면서 DAO 거버넌스를 확장할 수 있는 암호학적 기반을 제공합니다. 투표자 자격 검증, 자금 분배 증명, 오프체인 데이터와 온체인 작업의 연결 등에서 DAO가 성장하면서도 신뢰와 책임성을 유지하도록 돕습니다. 기초적인 blockchain 자료구조가 탈중앙화 의사결정을 어떻게 뒷받침하는지 보여주는 좋은 사례입니다.
 
 ## Conclusion
 
-Merkle Tree와 DAO는 blockchain 기술이 기술적 효율성과 커뮤니티 역량 강화 사이에서 어떻게 균형을 이루는지 보여줍니다. Merkle Tree는 transaction, 투표, 수혜자 목록 같은 대규모 데이터 세트를 빠르고 안전하게 검증할 수 있게 합니다. 동시에 DAO는 커뮤니티가 탈중앙화 프로젝트를 투명하고 공정하게 거버넌스할 수 있는 방식을 도입합니다. 이 둘을 결합하면, 탈중앙화를 희생하지 않으면서 신뢰를 확장할 수 있는 실용적인 솔루션이 됩니다. 투표를 검증하든, 자금을 분배하든, 멤버십을 증명하든, 이러한 도구는 Web3를 단순한 기술적 전환이 아닌, 사람들이 함께 조율하고, 결정하고, 구축하는 새로운 모델로 만드는 인프라를 구축합니다.
+Merkle Tree와 DAO는 blockchain 기술이 기술적 효율성과 커뮤니티 자율성을 어떻게 동시에 달성하는지 보여줍니다. Merkle Tree로 transaction, 투표, 수혜자 목록 같은 대규모 데이터를 빠르고 안전하게 검증할 수 있고, DAO는 커뮤니티가 탈중앙화 프로젝트를 투명하고 공정하게 운영할 수 있는 구조를 제공합니다. 이 둘을 결합하면 탈중앙화를 유지하면서도 신뢰를 확장할 수 있는 실용적인 해법이 됩니다. 투표 검증, 자금 분배, 멤버십 증명 등 이러한 도구는 Web3를 단순한 기술적 전환이 아니라 사람들이 함께 조율하고 결정하며 구축하는 새로운 모델의 기반으로 만들어 줍니다.
 
-이번 여정에서 처음으로 Cardano와 Midnight Academy를 넘어 탐색하면서, 이러한 기술이 생태계 전반에서 어떻게 설명되고 적용되는지에 대한 더 넓은 이해를 얻게 되었습니다. 함께 배우고 계시거나 다룬 주제를 더 깊이 파고 싶으시다면, 특히 도움이 되었던 자료들을 소개합니다:
+이번에 처음으로 Cardano와 Midnight Academy 범위를 넘어 탐색하면서, 이 기술들이 생태계 전반에서 어떻게 설명되고 적용되는지 폭넓게 이해하게 되었습니다. 함께 배우고 있거나 다룬 주제를 더 깊이 파고 싶다면, 특히 도움이 된 자료들을 소개합니다:
 
 - [Video: Merkle Trees Explained – Simply Explained](https://www.youtube.com/watch?v=3AcQyTs_Es4)
 - [Introduction to Merkle Trees – Geeks for Geeks](https://www.geeksforgeeks.org/introduction-to-merkle-tree/)

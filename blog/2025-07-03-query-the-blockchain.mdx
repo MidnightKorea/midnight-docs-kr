@@ -10,9 +10,9 @@ image: /img/blog/js.jpg
 date: 2025-07-04
 ---
 
-Midnight blockchain은 탈중앙화 애플리케이션(DApp)의 데이터 프라이버시와 컴플라이언스에 대해 새로운 접근 방식을 도입하며, zero-knowledge proof(ZKP)와 듀얼 토큰 시스템을 활용합니다.
+Midnight blockchain은 DApp의 데이터 프라이버시와 컴플라이언스에 새로운 접근 방식을 도입하며, zero-knowledge proof(ZKP)와 듀얼 토큰 시스템을 활용합니다.
 
-이 글에서는 Midnight blockchain에 연결하는 방법을 종합적으로 안내하며, Polkadot API와 Substrate 기반 blockchain(Midnight 포함)에 연결하기 위한 다양한 메서드를 사용하여 새 블록을 수신하고 블록에서 데이터를 추출하는 방법을 배우게 됩니다.
+이 글에서는 Midnight blockchain에 연결하는 방법을 안내합니다. Polkadot API를 사용하여 Substrate 기반 blockchain(Midnight 포함)에 접속하고, 새 블록을 실시간으로 수신하며, 블록에서 데이터를 추출하는 방법을 다룹니다.
 
 <!--truncate-->
 
@@ -22,11 +22,11 @@ Midnight blockchain은 탈중앙화 애플리케이션(DApp)의 데이터 프라
 
 Midnight은 기존 blockchain의 데이터 프라이버시 한계를 해결하기 위해 설계되었습니다. 이를 위해 다음 기술을 활용합니다:
 
-- [Zero-Knowledge Proof(ZKP)](https://www.google.com/url?q=https://docs.midnight.network/learn/glossary%23zero-knowledge-proof-zkp&sa=D&source=docs&ust=1751469460016839&usg=AOvVaw0GBVs0ZrYgq8Eggpat3hpn): 데이터 자체를 드러내지 않고 데이터의 검증을 가능하게 합니다.
+- [Zero-Knowledge Proof(ZKP)](https://www.google.com/url?q=https://docs.midnight.network/learn/glossary%23zero-knowledge-proof-zkp&sa=D&source=docs&ust=1751469460016839&usg=AOvVaw0GBVs0ZrYgq8Eggpat3hpn): 데이터 자체를 드러내지 않고도 데이터를 검증할 수 있습니다.
 - [듀얼 토큰 시스템](https://www.google.com/url?q=https://docs.midnight.network/learn/introduction/native-token/about-dust&sa=D&source=docs&ust=1751469460016900&usg=AOvVaw1yvGgY8EL1yJB3W61g1LQq): 거버넌스를 위한 NIGHT(비차폐)와 transaction 수수료 지불을 위한 DUST(차폐)를 사용합니다.
 - [Compact Smart Contract 언어](https://www.google.com/url?q=https://docs.midnight.network/develop/reference/compact/&sa=D&source=docs&ust=1751469460016917&usg=AOvVaw0DQvxLVoHOxx7vIhTKZFnG): TypeScript 기반 언어로 프라이버시 보존 smart contract 개발을 지원합니다.
 
-이러한 기능 덕분에 Midnight은 의료 기록, 금융 거래, 신원 확인 등 데이터 기밀성이 요구되는 애플리케이션에 적합합니다.
+이러한 기능 덕분에 Midnight은 의료 기록, 금융 거래, 신원 확인 등 데이터 기밀이 중요한 애플리케이션에 적합합니다.
 
 ## Connecting to the Midnight Blockchain
 
@@ -95,18 +95,18 @@ api.rpc.chain.subscribeNewHeads(async (lastHeader) => {
 
 ## What is an extrinsic?
 
-Midnight 같은 Substrate 기반 blockchain에서 extrinsic은 blockchain 런타임 외부에서 발생하여 블록에 포함되기 위해 네트워크에 제출되는 모든 정보를 의미합니다. Extrinsic은 사용자와 외부 주체가 blockchain과 상호작용하여 상태 변경 및 기타 작업을 수행하는 주요 수단입니다.
+Midnight 같은 Substrate 기반 blockchain에서 extrinsic은 런타임 외부에서 발생하여 블록 포함을 위해 네트워크에 제출되는 모든 정보를 말합니다. 사용자와 외부 주체가 blockchain과 상호작용하여 상태를 변경하는 주된 수단입니다.
 
 세 가지 주요 유형의 extrinsic이 있습니다:
 
-- **Signed Extrinsic**: 디지털 서명이 포함된 사용자 제출 transaction입니다. 토큰 전송이나 smart contract 상호작용 같은 작업을 포함합니다. 서명은 진위를 보장하고 네트워크가 transaction 수수료를 청구할 수 있게 합니다.
-- **Unsigned Extrinsic**: 서명 없이 제출되며, 보통 사용자 인증이 필요 없는 작업에 사용됩니다. 오용을 방지하기 위한 커스텀 검증 로직이 적용될 수 있습니다.
-- **Inherent Extrinsic**: Blockchain 자체에서 생성되며, 새 블록의 타임스탬프 설정 같은 시스템 수준 작업에 사용됩니다. 다른 extrinsic처럼 네트워크를 통해 전파되지 않고, 블록 생성 시 블록 프로듀서가 포함시킵니다.
+- **Signed Extrinsic**: 디지털 서명이 포함된 사용자 제출 transaction입니다. 토큰 전송이나 smart contract 호출 등이 해당합니다. 서명으로 진위를 보장하고 transaction 수수료를 청구할 수 있습니다.
+- **Unsigned Extrinsic**: 서명 없이 제출되며, 사용자 인증이 필요 없는 작업에 사용됩니다. 오용 방지를 위해 커스텀 검증 로직을 적용할 수 있습니다.
+- **Inherent Extrinsic**: Blockchain 자체에서 생성되며, 블록 타임스탬프 설정 같은 시스템 수준 작업에 사용됩니다. 네트워크를 통해 전파되지 않고, 블록 생성 시 블록 프로듀서가 직접 포함시킵니다.
 
-Extrinsic을 이해하는 것은 Substrate 기반 blockchain으로 작업하는 개발자에게 매우 중요합니다. 네트워크 상태의 변경을 실행하고 상호작용하는 기본 메커니즘이기 때문입니다.
+Extrinsic은 네트워크 상태를 변경하는 기본 메커니즘이므로, Substrate 기반 blockchain 개발자에게 반드시 이해해야 할 개념입니다.
 
 ## Conclusion 
 
-@polkadot/api 라이브러리의 WsProvider를 활용하면, 개발자는 Midnight blockchain에 효과적으로 연결하고, 실시간으로 새 블록을 모니터링하며, 애플리케이션에 필요한 데이터를 추출할 수 있습니다. 이 접근 방식은 Midnight 네트워크에서 프라이버시 중심 탈중앙화 애플리케이션을 구축하기 위한 견고한 기반을 제공합니다.
+@polkadot/api 라이브러리의 WsProvider를 활용하면 Midnight blockchain에 연결하고, 실시간으로 새 블록을 모니터링하며, 애플리케이션에 필요한 데이터를 추출할 수 있습니다. Midnight 네트워크에서 프라이버시 중심 DApp을 구축하기 위한 견고한 기반이 됩니다.
 
 > 더 많은 정보와 상세 문서는 [Midnight Developer Hub](https://midnight.network/developer-hub)를 방문하세요.

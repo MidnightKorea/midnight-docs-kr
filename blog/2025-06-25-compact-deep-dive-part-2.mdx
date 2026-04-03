@@ -94,10 +94,10 @@ const context = { ...contextOrig_0 };
 이 경우 두 개입니다(두 번째는 circuit의 파라미터 `newMessage`이고 첫 번째는 컴파일러가 삽입한 `CircuitContext` 파라미터입니다).
 일치하지 않으면 예외를 던집니다.
 
-이것이 Compact이 TypeScript와 다른 점 중 하나입니다.
-TypeScript 컴파일러가 생성하는 JavaScript 코드는 호출 코드도 TypeScript 타입 검사기를 통과했다고 가정하므로 런타임에 인자 개수나 타입을 검사하지 않습니다.
-Contract의 정확성이 이에 의존하므로, 우리는 그런 가정을 하지 않습니다.
-대신, 생성된 JavaScript 코드가 런타임에 적절한 검사를 수행합니다.
+이것이 Compact과 TypeScript의 차이점 중 하나입니다.
+TypeScript 컴파일러가 생성하는 JavaScript 코드는 호출 코드도 타입 검사를 통과했다고 가정하므로 런타임에 인자 개수나 타입을 검사하지 않습니다.
+하지만 contract의 정확성이 여기에 달려 있으므로, Compact에서는 그런 가정을 하지 않습니다.
+대신 생성된 JavaScript 코드가 런타임에 직접 검사를 수행합니다.
 
 `const` 바인딩을 사용하여 첫 번째 인자에 `contextOrig`(항상)을 기반으로 한 이름을 부여하고, 두 번째 인자에는 Compact 소스 코드에서 사용한 이름을 기반으로 한 이름을 부여합니다.
 변수명에 추가된 `_0` 같은 접미사는 컴파일러가 항상 고유한 이름을 생성하는 방식입니다.
@@ -128,7 +128,7 @@ const partialProofData = {
 ```
 
 이것은 Compact 런타임의 TypeScript 인터페이스 [`ProofData`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/interfaces/ProofData)를 만족하는 JavaScript 값입니다.
-이를 이해하려면 정의 내부를 살펴봐야 합니다. 그 정의(Compact 컴파일러 버전 0.24.0이 사용하는 Compact 런타임 버전)는 다음과 같습니다:
+정의를 살펴보겠습니다. Compact 컴파일러 버전 0.24.0이 사용하는 Compact 런타임의 정의는 다음과 같습니다:
 
 ```typescript
 interface ProofData {
@@ -139,9 +139,9 @@ interface ProofData {
 }
 ```
 
-이것을 `partialProofData`라고 부르는 이유는 필요한 proof 데이터의 **전부**를 반드시 포함하지 않기 때문입니다.
-오프체인에서 circuit의 JavaScript 코드를 실행할 때 일부 조건 분기는 건너뛸 수 있습니다.
-이 경우 proof는 수행되지 않은 분기를 채울 '더미' 데이터가 필요합니다.
+`partialProofData`라고 부르는 이유는 필요한 proof 데이터를 **전부** 포함하지 않을 수 있기 때문입니다.
+오프체인에서 circuit의 JavaScript 코드를 실행할 때 일부 조건 분기를 건너뛸 수 있습니다.
+이 경우 실행되지 않은 분기를 채울 '더미' 데이터가 proof에 필요합니다.
 이에 대해서는 시리즈 후반에 더 자세히 살펴보겠습니다.
 
 초기값은 앞서 본 보일러플레이트와 비슷합니다.
@@ -245,17 +245,16 @@ interface CircuitResults<T, U> {
 
 ### What are Wrappers For?
 
-왜 구현을 이런 방식으로 래핑할까요?
-몇 가지 이유가 있습니다.
+구현을 이런 방식으로 래핑하는 이유가 몇 가지 있습니다.
 
-첫째, 우리가 살펴본 대부분의 보일러플레이트 코드는 DApp의 JavaScript 코드에서 circuit을 호출할 때 사용됩니다.
-따라서 안전을 위해 추가 런타임 검사가 필요합니다.
-하지만 다른 Compact circuit에서 circuit을 호출할 때는 이러한 타입 검사가 필요하지 않습니다.
-Compact의 타입 시스템이 추가 런타임 검사가 필요 없음을 보장하므로, 구현 함수(예: `#_post_0`)를 직접 호출할 수 있습니다.
+첫째, 앞서 살펴본 보일러플레이트 코드 대부분은 DApp의 JavaScript 코드에서 circuit을 호출할 때 사용됩니다.
+안전을 위해 추가 런타임 검사가 필요합니다.
+반면, 다른 Compact circuit에서 호출할 때는 Compact 타입 시스템이 안전성을 보장하므로 이런 검사가 필요 없습니다.
+따라서 구현 함수(예: `#_post_0`)를 직접 호출할 수 있습니다.
 
-둘째, Compact circuit을 다른 circuit에서 호출할 때, 이는 우리가 구성 중인 동일한 transaction의 일부로 간주됩니다.
-따라서 이 경우 새로운 `ProofData` 객체를 구성하여 전달하고 싶지 않고, 결과를 `CircuitResults` 객체로 포장하고 싶지도 않습니다.
-DApp의 JavaScript 코드에서 오는 가장 바깥쪽 circuit 호출에서만 이를 수행하면 됩니다.
+둘째, Compact circuit을 다른 circuit에서 호출하면 같은 transaction의 일부로 처리됩니다.
+이 경우 새로운 `ProofData` 객체를 만들 필요도, 결과를 `CircuitResults`로 감쌀 필요도 없습니다.
+DApp의 JavaScript 코드에서 들어오는 최상위 circuit 호출에서만 이 작업을 수행하면 됩니다.
 
 ## Witnesses
 
@@ -299,8 +298,8 @@ Contract에는 각 witness에 대한 메서드가 있습니다:
 
 Circuit 래퍼 `post`는 JavaScript 코드에서 circuit을 호출할 때 사용되었고, Compact 코드에서 호출할 때는 (구현인 `#_post_0`을 직접 호출하여) 우회되었습니다.
 Witness의 경우 상황이 반대입니다.
-JavaScript 코드에서 witness(예: `witnesses.localSecretKey`)를 원하는 만큼 호출해도 우리는 상관하지 않으며 관찰하지도 않습니다.
-하지만 Compact circuit에서 호출하면 알아야 하므로, 래퍼(예: `localSecretKey_0`)를 호출합니다.
+JavaScript 코드에서 witness(예: `witnesses.localSecretKey`)를 몇 번이나 호출하든 상관없고 추적하지도 않습니다.
+하지만 Compact circuit에서 호출하면 이를 감지해야 하므로, 래퍼(예: `localSecretKey_0`)를 거쳐 호출합니다.
 
 Witness 구현은 `WitnessContext` 인자가 전달될 것으로 기대하므로, 여기서 전달할 하나를 구성합니다.
 Ledger, 현재 private state, contract 주소를 포함합니다.
@@ -309,9 +308,9 @@ Ledger, 현재 private state, contract 주소를 포함합니다.
 그런 다음 실제로 witness 구현을 호출하여 결과와 새 private state를 가져옵니다.
 Context를 변경하여 private state를 업데이트합니다(circuit 구현을 호출하기 전에 원본 context를 복사했으므로 복사본을 변경하는 것이 안전합니다).
 
-다음으로, witness가 반환한 후 런타임 타입 검사를 합니다.
-Circuit으로 들어오는 JavaScript 인자를 검사하는 것과 같은 이유입니다: witness 구현을 우리가 제어하지 않으므로 반환값이 circuit에서 기대하는 대로인지 확인해야 합니다.
-Compact의 타입 안전성은 이러한 런타임 검사에 의존합니다.
+다음으로 witness 반환값에 대한 런타임 타입 검사를 합니다.
+Circuit으로 들어오는 JavaScript 인자를 검사하는 것과 같은 이유입니다. Witness 구현을 직접 제어하지 않으므로, 반환값이 circuit이 기대하는 타입인지 확인해야 합니다.
+Compact의 타입 안전성은 이 런타임 검사에 의존합니다.
 
 마지막으로, 가장 바깥쪽 Compact circuit 호출을 실행하면서 구축 중인 proof 데이터의 private transcript에 witness의 반환값을 기록합니다.
 이것은 private 데이터이므로 ZK proof를 구성할 때 proof 서버가 이를 알아야 합니다(proof 서버가 private 데이터를 알고 있음을 증명할 수 있도록).

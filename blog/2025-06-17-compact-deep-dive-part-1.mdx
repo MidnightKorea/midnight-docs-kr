@@ -14,10 +14,10 @@ date: 2025-06-17
 이 글은 [개발자 튜토리얼](https://docs.midnight.network/develop/tutorial/)에서 다루는 수준까지 Compact에 익숙하다고 가정합니다.
 이 시리즈의 일부 글에서는 ZK proof와 Midnight 온체인 런타임의 구현 세부 사항을 깊이 있게 다룹니다.
 
-이러한 통찰은 현재 아키텍처를 반영하지만, 저수준 메커니즘을 설명하는 것이므로 플랫폼이 발전함에 따라 변경될 수 있습니다.
+이 내용은 현재 아키텍처를 반영하지만, 저수준 메커니즘을 다루는 만큼 플랫폼 발전에 따라 변경될 수 있습니다.
 
-한 가지 주의할 점은 여기에 나오는 거의 모든 내용이 구현 세부 사항이라는 것입니다.
-이는 세부 사항이 안정적이지 않으며, 필요에 따라 변경될 수 있고 실제로 변경될 것임을 의미합니다.
+주의할 점은 여기서 다루는 거의 모든 내용이 구현 세부 사항이라는 것입니다.
+이는 안정적이지 않으며, 필요에 따라 언제든 변경될 수 있습니다.
 
 ## Overview of the Bulletin Board Contract
 
@@ -164,10 +164,10 @@ index.cjs       index.cjs.map   index.d.cts
 마지막으로, JavaScript 구현을 위한 TypeScript 선언 파일 `index.d.cts`가 있습니다.
 이를 통해 `index.cjs`의 JavaScript 코드를 TypeScript에서 호출할 수 있고(그리고 중요하게도, TypeScript 컴파일러가 타입을 검사할 수 있습니다).
 
-이 전략(순수 TypeScript 구현 대신, TypeScript 선언 파일이 있는 JavaScript 구현)을 선택한 이유가 몇 가지 있습니다.
-첫째, TypeScript의 타입 시스템이 검사하지 않는 것에 대한 런타임 검사를 JavaScript 코드에 생성할 수 있습니다.
+순수 TypeScript 구현 대신 TypeScript 선언 파일이 있는 JavaScript 구현을 선택한 이유가 몇 가지 있습니다.
+첫째, TypeScript 타입 시스템이 검사하지 못하는 부분에 대한 런타임 검사를 JavaScript 코드에 삽입할 수 있습니다.
 둘째, Compact 소스 코드까지 매핑되는 디버깅용 소스 맵을 생성할 수 있습니다.
-TypeScript 컴파일러에서 얻게 되는 소스 맵은 TypeScript 컴파일러가 생성한 JavaScript 코드를 Compact 컴파일러가 생성한 TypeScript에만 연결하며, 원래 Compact 소스 코드까지는 연결하지 않습니다.
+TypeScript 컴파일러가 생성하는 소스 맵은 TypeScript 컴파일러의 JavaScript 출력을 Compact 컴파일러가 생성한 TypeScript에만 연결하며, 원래 Compact 소스 코드까지 연결하지는 않습니다.
 
 ## TypeScript Declaration
 

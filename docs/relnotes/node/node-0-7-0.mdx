@@ -7,7 +7,7 @@ displayed_sidebar: sidebar
 
 # Node
 
-Node은 Midnight 네트워크와 상호 작용하여 동기화, 트랜잭션 검증, 체인 상태 유지 등의 작업을 수행하는 블록체인 인프라 구성 요소입니다.
+Node는 Midnight 네트워크에서 블록 동기화, 트랜잭션 검증, 체인 상태 관리를 수행하는 블록체인 인프라 구성 요소입니다.
 
 [관련 문서 링크](../../develop/nodes-and-dapps/node-endpoints)
 
@@ -26,7 +26,7 @@ Node은 Midnight 네트워크와 상호 작용하여 동기화, 트랜잭션 검
 
 ## Midnight 0.7.0 release notes
 
-이번 릴리스는 기능 향상, 성능 최적화, 개발자 경험 개선을 위한 다양한 개선 사항과 새로운 기능을 도입합니다. 노드에는 보다 명확한 오류 보고를 위해 재작업된 RPC 오류 처리가 포함되어 있으며, 기존 인덱서와의 하위 호환성을 유지합니다.
+기능 향상, 성능 최적화, 개발자 경험 개선을 포함하는 릴리스입니다. RPC 오류 처리를 재작업하여 오류 보고가 명확해졌으며, 기존 인덱서와의 하위 호환성은 유지됩니다.
 
 ### Compatible Versions
 
@@ -45,25 +45,25 @@ Node은 Midnight 네트워크와 상호 작용하여 동기화, 트랜잭션 검
 
 ### New Features
 
-- `pallet-tx-pause`를 통해 extrinsic 호출을 일시정지/재개하는 거버넌스 기능을 추가했습니다.
-- 새로운 Runtime API를 통해 LedgerParameters와 TransactionCostModel을 노출했습니다.
-- 업그레이드에 필요한 투표 임계값을 설정하는 기능을 도입했습니다.
-- 보다 쉬운 설정을 위해 `BOOTNODES` 환경 변수를 추가했습니다.
-- `docker-compose`를 통한 헬스 체크를 지원하기 위해 Docker 이미지에 **curl**을 포함시켰습니다.
-- Docker 이미지에 `bytehound`를 추가하여 라이브 메모리 프로파일링을 활성화했습니다.
-- 보다 쉬운 키 생성을 위해 새로운 Earthly 타겟 `+generate-keys-qanet`을 도입했습니다.
-- 새로운 testnet-preview QA 환경을 위한 설정 파일을 추가했습니다.
+- `pallet-tx-pause`를 통한 extrinsic 호출 일시정지/재개 거버넌스 기능 추가
+- Runtime API에서 LedgerParameters와 TransactionCostModel 노출
+- 업그레이드 투표 임계값 설정 기능 추가
+- `BOOTNODES` 환경 변수 추가로 설정 간소화
+- Docker 이미지에 **curl** 포함 (`docker-compose` 헬스 체크 지원)
+- Docker 이미지에 `bytehound` 추가 (라이브 메모리 프로파일링)
+- Earthly 타겟 `+generate-keys-qanet` 추가로 키 생성 간소화
+- testnet-preview QA 환경용 설정 파일 추가
 
 ### Changes
 
-- Rust 컴파일러를 1.78에서 1.82로 업그레이드했습니다.
-- RocksDB 대신 ParityDB를 사용하도록 가중치를 업데이트했습니다.
-- 트랜잭션 제너레이터와 업그레이더 도구가 비보안 RPC 엔드포인트에 연결할 수 있도록 했습니다.
-- Ledger API를 리팩토링하여 `midnight_ledger`에서 `midnight_pallet` 및 Runtime API로 오류를 전파하도록 했습니다.
-- 새로운 Ledger API v2를 활성화했습니다.
-- 노드 이미지 크기를 약 1.7GB 줄였습니다.
-- 이식성 향상을 위해 설정 프리셋에서 상대 경로를 사용하도록 변경했습니다.
-- 수동 설정을 줄이기 위해 기존 부트노드 주소가 포함된 체인 스펙을 업데이트했습니다.
+- Rust 컴파일러 1.78 → 1.82 업그레이드
+- ParityDB 사용에 맞춰 가중치 업데이트 (RocksDB 대체)
+- 트랜잭션 제너레이터/업그레이더 도구의 비보안 RPC 엔드포인트 연결 지원
+- Ledger API 리팩토링: `midnight_ledger`에서 `midnight_pallet` 및 Runtime API로 오류 전파
+- Ledger API v2 활성화
+- 노드 이미지 크기 약 1.7GB 축소
+- 설정 프리셋에서 상대 경로 사용 (이식성 향상)
+- 체인 스펙에 기존 부트노드 주소 포함 (수동 설정 축소)
 
 ### Bug Fixes
 
@@ -86,8 +86,8 @@ Node은 Midnight 네트워크와 상호 작용하여 동기화, 트랜잭션 검
 
 ### Upgrade Instructions
 
-1. 최신 변경 사항과 자산을 풀(pull)하여 노드를 **0.7.0** 버전으로 업데이트하세요.
-2. 호환성을 보장하기 위해 Rust 컴파일러를 **1.82** 버전으로 업데이트하세요.
-3. 업데이트된 부트노드 주소를 체인 스펙에 통합하세요.
-4. 새로운 Ledger API v2 및 Runtime API 업데이트로 트랜잭션 워크플로를 테스트하고 검증하세요.
-5. 필요한 경우 extrinsic 일시정지/재개를 위한 새로운 `pallet-tx-pause`를 사용하여 거버넌스 설정을 구성하세요.
+1. 최신 변경 사항과 자산을 pull하여 노드를 **0.7.0**으로 업데이트하세요.
+2. Rust 컴파일러를 **1.82**로 업데이트하세요.
+3. 체인 스펙에 업데이트된 부트노드 주소를 반영하세요.
+4. Ledger API v2 및 Runtime API 업데이트로 트랜잭션 워크플로를 테스트하세요.
+5. 필요시 `pallet-tx-pause`로 거버넌스 설정을 구성하세요.

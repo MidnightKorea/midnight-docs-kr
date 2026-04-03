@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 sidebar_position: 20
 sidebar_label: Wallet SDK
-description: Developer guide for the Midnight Wallet SDK, covering unshielded, shielded, and DUST wallet operations.
+description: Midnight Wallet SDK 개발자 가이드로, 비차폐(unshielded), 차폐(shielded), DUST 지갑 운영을 다룹니다.
 tags: [wallet, sdk, DUST]
 toc_max_heading_level: 2
 id: wallet-developer-guide
@@ -14,36 +14,36 @@ import TabItem from '@theme/TabItem';
 
 # Midnight wallet SDK
 
-The Midnight wallet SDK provides a comprehensive TypeScript implementation for managing wallets on the Midnight Network. 
-It supports the three-token system that powers Midnight:
+Midnight wallet SDK은 Midnight Network에서 지갑을 관리하기 위한 포괄적인 TypeScript 구현체를 제공합니다.
+Midnight을 구동하는 세 가지 토큰 시스템을 지원합니다:
 
-- **Unshielded tokens**: NIGHT and other unshielded tokens
-- **Shielded tokens**: Shielded tokens with zero-knowledge proofs
-- **DUST**: DUST for transaction fees
+- **Unshielded tokens**: NIGHT 및 기타 비차폐 토큰
+- **Shielded tokens**: 영지식 증명이 적용된 차폐 토큰
+- **DUST**: 트랜잭션 수수료를 위한 DUST
 
-This guide covers how to use the wallet SDK to manage wallets on the Midnight Network.
+이 가이드에서는 wallet SDK을 사용하여 Midnight Network에서 지갑을 관리하는 방법을 설명합니다.
 
 ## Packages
 
-The Midnight wallet SDK provides a modular architecture with specialized packages for each operation. It consists of the following packages:
+Midnight wallet SDK은 각 기능별로 특화된 패키지를 갖춘 모듈식 아키텍처를 제공합니다. 다음과 같은 패키지로 구성되어 있습니다:
 
 | Package | Purpose |
 |---------|---------|
-| `@midnight-ntwrk/wallet-sdk-facade` | Unified API for all wallet operations |
-| `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | Manages NIGHT and unshielded tokens |
-| `@midnight-ntwrk/wallet-sdk-shielded` | Manages shielded tokens with ZK proofs |
-| `@midnight-ntwrk/wallet-sdk-dust-wallet` | Manages DUST for transaction fees |
-| `@midnight-ntwrk/wallet-sdk-hd` | Hierarchical deterministic key derivation |
-| `@midnight-ntwrk/wallet-sdk-address-format` | Bech32m address encoding and decoding |
-| `@midnight-ntwrk/wallet-sdk-node-client` | Communicates with Midnight nodes |
-| `@midnight-ntwrk/wallet-sdk-indexer-client` | Queries the Midnight indexer |
-| `@midnight-ntwrk/wallet-sdk-prover-client` | Interfaces with the proving server |
+| `@midnight-ntwrk/wallet-sdk-facade` | 모든 지갑 운영을 위한 통합 API |
+| `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | NIGHT 및 비차폐 토큰 관리 |
+| `@midnight-ntwrk/wallet-sdk-shielded` | ZK 증명이 적용된 차폐 토큰 관리 |
+| `@midnight-ntwrk/wallet-sdk-dust-wallet` | 트랜잭션 수수료를 위한 DUST 관리 |
+| `@midnight-ntwrk/wallet-sdk-hd` | 계층적 결정성(HD) 키 파생 |
+| `@midnight-ntwrk/wallet-sdk-address-format` | Bech32m 주소 인코딩 및 디코딩 |
+| `@midnight-ntwrk/wallet-sdk-node-client` | Midnight 노드와의 통신 |
+| `@midnight-ntwrk/wallet-sdk-indexer-client` | Midnight 인덱서 조회 |
+| `@midnight-ntwrk/wallet-sdk-prover-client` | 증명 서버와의 인터페이스 |
 
-For complete package details, see the [wallet SDK release notes](../../relnotes/wallet/).
+전체 패키지에 대한 자세한 내용은 [wallet SDK 릴리스 노트](../../relnotes/wallet/)를 참고하세요.
 
 ## Installation
 
-Install the wallet SDK using your preferred package manager:
+선호하는 패키지 매니저를 사용하여 wallet SDK을 설치하세요:
 
 <Tabs>
   <TabItem value="npm">
@@ -70,11 +70,11 @@ Install the wallet SDK using your preferred package manager:
   </TabItem>
 </Tabs>
 
-Replace `VERSION` with the compatible version of the wallet SDK packages as defined in the [release compatibility matrix](../../relnotes/support-matrix).
+`VERSION`을 [릴리스 호환성 매트릭스](../../relnotes/support-matrix)에 정의된 wallet SDK 패키지의 호환 버전으로 교체하세요.
 
 ## Wallet architecture
 
-The Wallet SDK uses a three-wallet architecture corresponding to Midnight's token model:
+Wallet SDK은 Midnight의 토큰 모델에 대응하는 세 가지 지갑 아키텍처를 사용합니다:
 
 ```mermaid
 graph TD
@@ -91,35 +91,35 @@ graph TD
     D --> G
 ```
 
-- **WalletFacade**: Unified interface that coordinates all three wallet types
-- **UnshieldedWallet**: Manages NIGHT and other unshielded tokens using UTxO model
-- **ShieldedWallet**: Manages privacy-preserving shielded tokens using ZK proofs
-- **DustWallet**: Manages DUST for paying transaction fees
+- **WalletFacade**: 세 가지 지갑 유형을 조율하는 통합 인터페이스
+- **UnshieldedWallet**: UTxO 모델을 사용하여 NIGHT 및 기타 비차폐 토큰을 관리
+- **ShieldedWallet**: ZK 증명을 사용하여 프라이버시가 보호되는 차폐 토큰을 관리
+- **DustWallet**: 트랜잭션 수수료 지불을 위한 DUST을 관리
 
 ## Derive wallet keys
 
-The Wallet SDK uses hierarchical deterministic (HD) key derivation following BIP-32/BIP-44/CIP-1852 standards. All three wallet types derive keys from a single seed.
+Wallet SDK은 BIP-32/BIP-44/CIP-1852 표준을 따르는 계층적 결정성(HD) 키 파생을 사용합니다. 세 가지 지갑 유형 모두 단일 시드에서 키를 파생합니다.
 
 ### Derivation path
 
-The SDK follows this derivation path:
+SDK은 다음과 같은 파생 경로를 따릅니다:
 
 ```
 m / 44' / 2400' / account' / role / index
 ```
 
-Path components:
+경로 구성 요소:
 
-- `account`: Account index, typically 0 for the first account
-- `role`: Wallet type identifier that determines the key's purpose:
-  - `0` (Roles.NightExternal): Unshielded operations
-  - `3` (Roles.Zswap): Shielded operations
-  - `4` (Roles.Dust): DUST token operations
-- `index`: Address index, typically 0 for the primary address
+- `account`: 계정 인덱스로, 일반적으로 첫 번째 계정은 0
+- `role`: 키의 용도를 결정하는 지갑 유형 식별자:
+  - `0` (Roles.NightExternal): 비차폐 운영
+  - `3` (Roles.Zswap): 차폐 운영
+  - `4` (Roles.Dust): DUST 토큰 운영
+- `index`: 주소 인덱스로, 일반적으로 기본 주소는 0
 
 ### Derive keys from a seed
 
-This example shows how to derive all three key types (unshielded, shielded, and DUST) from a single master seed. The function handles edge cases where key derivation might fail and automatically retries with the next index as specified in the BIP-44 standard.
+이 예제에서는 단일 마스터 시드에서 세 가지 키 유형(비차폐, 차폐, DUST)을 파생하는 방법을 보여줍니다. 이 함수는 키 파생이 실패할 수 있는 예외 상황을 처리하며, BIP-44 표준에 명시된 대로 다음 인덱스로 자동 재시도합니다.
 
 ```typescript
 import * as ledger from '@midnight-ntwrk/ledger-v7';
@@ -161,7 +161,7 @@ function deriveAllKeys(seed: Uint8Array) {
 ```
 ### Example usage
 
-This example shows how to derive all three key types (unshielded, shielded, and DUST) from a single master seed.
+이 예제에서는 단일 마스터 시드에서 세 가지 키 유형(비차폐, 차폐, DUST)을 파생하는 방법을 보여줍니다.
 
 ```typescript
 const seed = Buffer.from(
@@ -180,16 +180,16 @@ console.log('DUST seed:', derivedKeys.dust.seed.toString('hex'));
 ```
 
 :::warning Security
-Always clear the HD wallet after key derivation to avoid keeping the seed in memory longer than necessary.
+키 파생 후에는 반드시 HD wallet을 초기화하여, 시드가 필요 이상으로 메모리에 남아 있지 않도록 하세요.
 :::
 
 ## Initialize the wallet
 
-The `WalletFacade` provides a unified interface for all wallet operations. Initialize it with configuration and wallet-specific secret keys.
+`WalletFacade`은 모든 지갑 운영을 위한 통합 인터페이스를 제공합니다. 설정 정보와 지갑별 비밀 키를 사용하여 초기화하세요.
 
 ### Configuration
 
-Before initializing the wallet, create a configuration object that specifies network endpoints, cost parameters, and transaction history storage. The configuration differs depending on whether you connect to the hosted Preprod testnet or a local undeployed development network.
+지갑을 초기화하기 전에, 네트워크 엔드포인트, 비용 매개변수, 트랜잭션 기록 저장소를 지정하는 설정 객체를 생성하세요. 호스팅된 Preprod 테스트넷에 연결하는지, 로컬 미배포 개발 네트워크에 연결하는지에 따라 설정이 달라집니다.
 
 <Tabs>
   <TabItem value="preprod">
@@ -245,7 +245,7 @@ const configuration: DefaultConfiguration = {
 
 ### Complete initialization
 
-This example demonstrates the complete wallet initialization process, including key derivation, keystore creation, and starting all three wallet types. The initialization pattern ensures proper key management and wallet setup before network synchronization begins.
+이 예제에서는 키 파생, 키스토어 생성, 세 가지 지갑 유형 시작을 포함한 전체 지갑 초기화 과정을 보여줍니다. 이 초기화 패턴은 네트워크 동기화가 시작되기 전에 적절한 키 관리와 지갑 설정을 보장합니다.
 
 ```typescript
 import * as ledger from '@midnight-ntwrk/ledger-v7';
@@ -289,15 +289,15 @@ async function initWallet(seed: Buffer) {
 }
 ```
 
-For the complete example, see the [initialization snippet](https://github.com/midnightntwrk/midnight-wallet/blob/main/packages/docs-snippets/src/snippets/initialization.ts).
+전체 예제는 [초기화 스니펫](https://github.com/midnightntwrk/midnight-wallet/blob/main/packages/docs-snippets/src/snippets/initialization.ts)을 참고하세요.
 
 ## Wallet state
 
-The wallet exposes an observable state that updates as the blockchain synchronizes.
+지갑은 블록체인 동기화에 따라 업데이트되는 관찰 가능한 상태를 제공합니다.
 
 ### Access wallet state
 
-The wallet provides methods to access both the current state snapshot and subscribe to state changes over time. Use `waitForSyncedState()` to wait until the wallet finishes its initial synchronization with the blockchain before performing operations.
+지갑은 현재 상태 스냅샷에 접근하고 시간에 따른 상태 변경을 구독하는 메서드를 제공합니다. 작업을 수행하기 전에 `waitForSyncedState()`을 사용하여 지갑이 블록체인과의 초기 동기화를 완료할 때까지 대기하세요.
 
 ```typescript
 import * as rx from 'rxjs';
@@ -321,37 +321,37 @@ wallet.state().subscribe((state) => {
 
 ### Wallet state structure
 
-The wallet state includes:
+지갑 상태에는 다음 항목이 포함됩니다:
 
-- **Balances**: Token amounts grouped by token type
-- **Available coins**: Coins ready to spend
-- **Pending coins**: Coins waiting for confirmation
-- **Progress**: Synchronization status
-- **Addresses**: Bech32m-encoded addresses for each wallet type
+- **Balances**: 토큰 유형별로 그룹화된 토큰 수량
+- **Available coins**: 사용 가능한 코인
+- **Pending coins**: 확인 대기 중인 코인
+- **Progress**: 동기화 상태
+- **Addresses**: 각 지갑 유형의 Bech32m 인코딩 주소
 
 ## Address encoding
 
-Midnight uses Bech32m format for all addresses. The SDK provides utilities for encoding and decoding addresses.
+Midnight은 모든 주소에 Bech32m 형식을 사용합니다. SDK은 주소 인코딩 및 디코딩을 위한 유틸리티를 제공합니다.
 
 ### Address types
 
-Midnight supports three address types:
+Midnight은 세 가지 주소 유형을 지원합니다:
 
 | Prefix | Type | Description |
 |--------|------|-------------|
-| `mn_addr` | Unshielded | Payment addresses for NIGHT and unshielded tokens |
-| `mn_shield-addr` | Shielded | Payment addresses for shielded tokens |
-| `mn_dust` | DUST | Addresses for DUST generation |
+| `mn_addr` | Unshielded | NIGHT 및 비차폐 토큰의 결제 주소 |
+| `mn_shield-addr` | Shielded | 차폐 토큰의 결제 주소 |
+| `mn_dust` | DUST | DUST 생성용 주소 |
 
-Each prefix includes a network identifier:
-- **Mainnet**: no suffix (for example, `mn_addr`)
-- **Preprod**: `_preprod` suffix (for example, `mn_addr_preprod`)
-- **Preview**: `_preview` suffix
-- **Undeployed**: `_undeployed` suffix
+각 접두사에는 네트워크 식별자가 포함됩니다:
+- **Mainnet**: 접미사 없음 (예: `mn_addr`)
+- **Preprod**: `_preprod` 접미사 (예: `mn_addr_preprod`)
+- **Preview**: `_preview` 접미사
+- **Undeployed**: `_undeployed` 접미사
 
 ### Encode addresses
 
-Encoding converts raw public keys and addresses into human-readable Bech32m format. The encoded addresses include the network identifier and are suitable for sharing with users or displaying in user interfaces. Each wallet type requires different encoding based on its key structure.
+인코딩은 원시 공개 키와 주소를 사람이 읽을 수 있는 Bech32m 형식으로 변환합니다. 인코딩된 주소에는 네트워크 식별자가 포함되며, 사용자에게 공유하거나 사용자 인터페이스에 표시하기에 적합합니다. 각 지갑 유형은 키 구조에 따라 서로 다른 인코딩이 필요합니다.
 
 ```typescript
 import {
@@ -389,7 +389,7 @@ const dustBech32m = MidnightBech32m.encode(networkId, dustAddress).toString();
 
 ### Decode addresses
 
-Decoding converts Bech32m-formatted addresses back into their raw byte representations. This is necessary when you need to extract the underlying public keys or address bytes for cryptographic operations, transaction building, or verification. The decode process validates the address format and network identifier.
+디코딩은 Bech32m 형식의 주소를 원시 바이트 표현으로 다시 변환합니다. 암호화 작업, 트랜잭션 구성 또는 검증을 위해 기본 공개 키나 주소 바이트를 추출해야 할 때 필요합니다. 디코딩 과정에서 주소 형식과 네트워크 식별자가 검증됩니다.
 
 ```typescript
 // Parse and decode unshielded address
@@ -401,15 +401,15 @@ const parsedShielded = MidnightBech32m.parse(shieldedBech32m);
 const decodedShielded = parsedShielded.decode(ShieldedAddress, networkId);
 ```
 
-For complete address examples, see the [addresses snippet](https://github.com/midnightntwrk/midnight-wallet/blob/main/packages/docs-snippets/src/snippets/addresses.no-net.ts).
+전체 주소 예제는 [주소 스니펫](https://github.com/midnightntwrk/midnight-wallet/blob/main/packages/docs-snippets/src/snippets/addresses.no-net.ts)을 참고하세요.
 
 ## Make transfers
 
-The wallet provides high-level methods for transferring tokens. The following examples assume you have initialized the wallet and derived the necessary keys as shown in the [Initialize the wallet](#initialize-the-wallet) section.
+지갑은 토큰 전송을 위한 고수준 메서드를 제공합니다. 다음 예제에서는 [Initialize the wallet](#initialize-the-wallet) 섹션에 표시된 대로 지갑을 초기화하고 필요한 키를 파생했다고 가정합니다.
 
 ### Unshielded transfers
 
-Unshielded transfers move NIGHT or other unshielded tokens between addresses using standard UTxO-based transactions. These transfers are visible on the blockchain and require signing with the unshielded secret key.
+비차폐 전송은 표준 UTxO 기반 트랜잭션을 사용하여 주소 간에 NIGHT 또는 기타 비차폐 토큰을 이동합니다. 이 전송은 블록체인에서 공개되며, 비차폐 비밀 키로 서명해야 합니다.
 
 ```typescript
 import * as ledger from '@midnight-ntwrk/ledger-v7';
@@ -441,11 +441,11 @@ await wallet
   .then((tx) => wallet.submitTransaction(tx));
 ```
 
-Unshielded transfers require signing with the unshielded secret key since they involve UTxO-based transactions with Schnorr signatures.
+비차폐 전송은 Schnorr 서명이 적용된 UTxO 기반 트랜잭션이므로 비차폐 비밀 키로 서명해야 합니다.
 
 ### Shielded transfers
 
-Shielded transfers move tokens privately using zero-knowledge proofs. These transfers hide transaction amounts and participant identities from observers while still maintaining verifiable correctness. Unlike unshielded transfers, they do not require unshielded signature operations.
+차폐 전송은 영지식 증명을 사용하여 토큰을 비공개로 이동합니다. 이 전송은 검증 가능한 정확성을 유지하면서도 관찰자로부터 트랜잭션 금액과 참여자 신원을 숨깁니다. 비차폐 전송과 달리 비차폐 서명 작업이 필요하지 않습니다.
 
 ```typescript
 await wallet
@@ -475,12 +475,12 @@ await wallet
 ```
 
 :::note
-Shielded transfers do not require unshielded signatures since all operations are proven with zero-knowledge proofs.
+차폐 전송은 모든 작업이 영지식 증명으로 검증되므로 비차폐 서명이 필요하지 않습니다.
 :::
 
 ### Combined transfers
 
-The wallet supports atomic transactions that combine both unshielded and shielded token transfers. This allows you to move different token types in a single operation, reducing transaction overhead and ensuring both transfers complete together or not at all.
+지갑은 비차폐 토큰 전송과 차폐 토큰 전송을 결합하는 원자적 트랜잭션을 지원합니다. 이를 통해 서로 다른 토큰 유형을 단일 작업으로 이동할 수 있어, 트랜잭션 오버헤드를 줄이고 두 전송이 모두 함께 완료되거나 모두 실패하도록 보장합니다.
 
 ```typescript
 await wallet
@@ -522,11 +522,11 @@ await wallet
 
 ## Balance transactions
 
-Transaction balancing automatically provides inputs to cover outputs and fees. The wallet supports balancing at different stages of transaction construction. The following examples assume you have an initialized wallet with the necessary secret keys.
+트랜잭션 밸런싱은 출력과 수수료를 충당하기 위한 입력을 자동으로 제공합니다. 지갑은 트랜잭션 구성의 여러 단계에서 밸런싱을 지원합니다. 다음 예제에서는 필요한 비밀 키가 있는 초기화된 지갑이 있다고 가정합니다.
 
 ### Balance an unproven transaction
 
-Balancing an unproven transaction selects appropriate inputs to cover the specified outputs and transaction fees. This operation must occur before zero-knowledge proof generation, allowing the wallet to determine the complete set of inputs required. The example below assumes you have created a transaction intent specifying the desired outputs.
+미증명 트랜잭션의 밸런싱은 지정된 출력과 트랜잭션 수수료를 충당하기 위해 적절한 입력을 선택합니다. 이 작업은 영지식 증명 생성 전에 수행되어야 하며, 지갑이 필요한 전체 입력 집합을 결정할 수 있게 합니다. 아래 예제에서는 원하는 출력을 지정하는 트랜잭션 인텐트를 이미 생성했다고 가정합니다.
 
 ```typescript
 const unprovenTx = ledger.Transaction.fromParts(
@@ -550,7 +550,7 @@ const balancedRecipe = await wallet.balanceUnprovenTransaction(
 
 ### Balance a finalized transaction
 
-Balancing a finalized transaction adds inputs to a transaction that already contains zero-knowledge proofs. This is particularly useful for DUST sponsorship scenarios where a separate party pays transaction fees. The `tokenKindsToBalance` parameter controls which token types to balance.
+확정된 트랜잭션의 밸런싱은 이미 영지식 증명이 포함된 트랜잭션에 입력을 추가합니다. 이 기능은 별도의 당사자가 트랜잭션 수수료를 지불하는 DUST 스폰서십 시나리오에서 특히 유용합니다. `tokenKindsToBalance` 매개변수로 밸런싱할 토큰 유형을 제어합니다.
 
 ```typescript
 const finalizedRecipe = await wallet.balanceFinalizedTransaction(
@@ -568,11 +568,11 @@ const finalizedRecipe = await wallet.balanceFinalizedTransaction(
 
 ## Manage DUST
 
-DUST is generated from registered NIGHT holdings and is required to pay transaction fees. The following examples assume you have an initialized wallet with an unshielded keystore and the necessary secret keys.
+DUST은 등록된 NIGHT 보유량에서 생성되며, 트랜잭션 수수료를 지불하는 데 필요합니다. 다음 예제에서는 비차폐 키스토어와 필요한 비밀 키가 있는 초기화된 지갑이 있다고 가정합니다.
 
 ### Register NIGHT for DUST generation
 
-Registration designates unshielded NIGHT coins to generate DUST tokens over time. Once registered, these coins continuously produce DUST that accumulates in your DUST wallet. The registered NIGHT remains in your unshielded wallet and can be deregistered later.
+등록은 시간이 지남에 따라 DUST 토큰을 생성하도록 비차폐 NIGHT 코인을 지정합니다. 등록되면 이 코인은 DUST 지갑에 축적되는 DUST을 지속적으로 생산합니다. 등록된 NIGHT은 비차폐 지갑에 그대로 남아 있으며, 나중에 등록을 해제할 수 있습니다.
 
 ```typescript
 const { unshielded } = await wallet.waitForSyncedState();
@@ -588,12 +588,12 @@ await wallet
 ```
 
 :::info
-DUST generation begins automatically once NIGHT is registered. You must wait for the blockchain to process the registration before DUST appears in your wallet.
+NIGHT이 등록되면 DUST 생성이 자동으로 시작됩니다. DUST이 지갑에 표시되려면 블록체인이 등록을 처리할 때까지 기다려야 합니다.
 :::
 
 ### Deregister NIGHT from DUST generation
 
-Deregistration stops DUST generation from previously registered NIGHT coins. This operation requires DUST to pay the transaction fee, so you must balance the transaction with `tokenKindsToBalance: ['dust']` after creating the deregistration recipe.
+등록 해제는 이전에 등록된 NIGHT 코인에서의 DUST 생성을 중지합니다. 이 작업에는 트랜잭션 수수료를 지불하기 위한 DUST이 필요하므로, 등록 해제 레시피를 생성한 후 `tokenKindsToBalance: ['dust']`로 트랜잭션을 밸런싱해야 합니다.
 
 ```typescript
 const { unshielded } = await wallet.waitForSyncedState();
@@ -620,7 +620,7 @@ await wallet
 
 ### Redesignate DUST to another address
 
-Redesignation redirects DUST generation from registered NIGHT coins to a different DUST address. This is useful when transferring DUST generation rights to another wallet or service. The redesignation operation is atomic and requires DUST for transaction fees.
+재지정은 등록된 NIGHT 코인에서의 DUST 생성을 다른 DUST 주소로 리다이렉트합니다. DUST 생성 권한을 다른 지갑이나 서비스로 이전할 때 유용합니다. 재지정 작업은 원자적이며, 트랜잭션 수수료로 DUST이 필요합니다.
 
 ```typescript
 await wallet
@@ -646,15 +646,15 @@ await wallet
 
 ## DUST sponsorship
 
-DUST sponsorship enables a service to pay transaction fees on behalf of users. This is useful for DApps that want to subsidize user fees. The following example demonstrates a two-party sponsorship flow where the user prepares a transaction and a sponsor adds the required DUST for fees.
+DUST 스폰서십은 서비스가 사용자를 대신하여 트랜잭션 수수료를 지불할 수 있게 합니다. 사용자 수수료를 보조하려는 DApp에 유용합니다. 다음 예제에서는 사용자가 트랜잭션을 준비하고 스폰서가 수수료에 필요한 DUST을 추가하는 양자 간 스폰서십 흐름을 보여줍니다.
 
 ### Sponsorship workflow
 
-DUST sponsorship follows a three-step process that separates transaction creation from fee payment:
+DUST 스폰서십은 트랜잭션 생성과 수수료 지불을 분리하는 세 단계 프로세스를 따릅니다:
 
-1. User creates and balances transaction without fees
-2. Sponsor balances the transaction to add DUST for fees
-3. Sponsor submits the transaction
+1. 사용자가 수수료 없이 트랜잭션을 생성하고 밸런싱합니다
+2. 스폰서가 수수료를 위한 DUST을 추가하도록 트랜잭션을 밸런싱합니다
+3. 스폰서가 트랜잭션을 제출합니다
 
 ```typescript
 // User prepares transaction without fees
@@ -691,15 +691,15 @@ await sponsorWallet
 
 ## Atomic swaps
 
-Atomic swaps enable trustless token exchanges between parties. The SDK supports creating swap offers that can be merged into a single transaction. The following examples assume both parties have initialized wallets with the necessary secret keys.
+아토믹 스왑은 당사자 간의 신뢰 불필요(trustless) 토큰 교환을 가능하게 합니다. SDK은 단일 트랜잭션으로 병합할 수 있는 스왑 제안 생성을 지원합니다. 다음 예제에서는 양쪽 당사자 모두 필요한 비밀 키로 지갑을 초기화했다고 가정합니다.
 
 ### Create and execute a swap
 
-The swap process involves two parties: 
-- The initiator creates a partial transaction offering tokens in exchange for different tokens.
-- The counterparty completes the swap by balancing the transaction with their own inputs.
+스왑 프로세스는 두 당사자가 참여합니다:
+- 개시자가 다른 토큰과 교환하기 위해 토큰을 제공하는 부분 트랜잭션을 생성합니다.
+- 상대방이 자신의 입력으로 트랜잭션을 밸런싱하여 스왑을 완료합니다.
 
-The wallet handles all cryptographic operations and ensures both parties receive their expected tokens atomically.
+지갑이 모든 암호화 작업을 처리하며, 양쪽 당사자가 기대하는 토큰을 원자적으로 수령하도록 보장합니다.
 
 ```typescript
 // Alice initiates swap
@@ -735,16 +735,16 @@ await bobWallet
 ```
 
 :::info
-The swap is atomic - either both parties exchange tokens or the transaction fails. Token amounts and types are hidden from observers.
+스왑은 원자적입니다. 양쪽 당사자가 토큰을 교환하거나 트랜잭션이 실패하거나 둘 중 하나입니다. 토큰 금액과 유형은 관찰자로부터 숨겨집니다.
 :::
 
 ## Use alternative proving
 
-By default, the wallet uses an HTTP-based proving server. For browser environments or alternative deployment scenarios, you can use WASM-based proving.
+기본적으로 지갑은 HTTP 기반 증명 서버를 사용합니다. 브라우저 환경이나 대안적 배포 시나리오에서는 WASM 기반 증명을 사용할 수 있습니다.
 
 ### WASM proving
 
-For browser environments or situations where HTTP access to a proving server is restricted, you can use WebAssembly-based proving. This approach runs proof generation entirely in the client environment but is significantly slower than using a dedicated proving server.
+브라우저 환경이나 증명 서버에 대한 HTTP 접근이 제한된 상황에서는 WebAssembly 기반 증명을 사용할 수 있습니다. 이 방식은 클라이언트 환경에서 증명 생성을 전적으로 실행하지만, 전용 증명 서버를 사용하는 것보다 상당히 느립니다.
 
 ```typescript
 import { makeWasmProvingService } from '@midnight-ntwrk/wallet-sdk-capabilities';
@@ -759,16 +759,16 @@ const wallet = await WalletFacade.init({
 ```
 
 :::warning Performance
-WASM proving is slower than native proving servers. Use it only when HTTP access to a proving server is not available.
+WASM 증명은 네이티브 증명 서버보다 느립니다. 증명 서버에 대한 HTTP 접근이 불가능할 때만 사용하세요.
 :::
 
 ## Lifecycle management
 
-The wallet lifecycle management provides control over the wallet's startup and shutdown processes.
+지갑 수명 주기 관리는 지갑의 시작 및 종료 프로세스에 대한 제어를 제공합니다.
 
 ### Start the wallet
 
-Starting the wallet initiates all synchronization processes with the Midnight Network. This includes connecting to the node, indexer, and beginning to scan for transactions and state updates. You must call this method after initializing the wallet facade but before performing any operations.
+지갑을 시작하면 Midnight Network과의 모든 동기화 프로세스가 시작됩니다. 여기에는 노드 및 인덱서에 연결하고 트랜잭션과 상태 업데이트 스캔을 시작하는 것이 포함됩니다. 이 메서드는 wallet facade을 초기화한 후, 어떤 작업을 수행하기 전에 호출해야 합니다.
 
 ```typescript
 await wallet.start(shieldedSecretKeys, dustSecretKey);
@@ -776,21 +776,21 @@ await wallet.start(shieldedSecretKeys, dustSecretKey);
 
 ### Stop the wallet
 
-Stopping the wallet gracefully shuts down all background processes, closes network connections to the node and indexer, and releases resources. This ensures clean termination and prevents resource leaks in your application.
+지갑을 중지하면 모든 백그라운드 프로세스를 정상적으로 종료하고, 노드 및 인덱서에 대한 네트워크 연결을 닫으며, 리소스를 해제합니다. 이를 통해 깔끔한 종료를 보장하고 애플리케이션에서 리소스 누수를 방지합니다.
 
 ```typescript
 await wallet.stop();
 ```
 
 :::warning
-Always stop the wallet before exiting your application to ensure proper cleanup of network connections and resources.
+애플리케이션을 종료하기 전에 반드시 지갑을 중지하여 네트워크 연결과 리소스가 제대로 정리되도록 하세요.
 :::
 
 ## DApp integration
 
-For DApp integration, use the DApp Connector API, which provides a standardized interface for wallet interactions. This API enables DApps to interact with browser wallets like Lace through a consistent interface. 
+DApp 통합에는 지갑 상호작용을 위한 표준화된 인터페이스를 제공하는 DApp Connector API를 사용하세요. 이 API를 통해 DApp이 Lace와 같은 브라우저 지갑과 일관된 인터페이스로 상호작용할 수 있습니다.
 
-The example below shows how a DApp connects to and interacts with a Lace Midnight wallet.
+아래 예제에서는 DApp이 Lace Midnight 지갑에 연결하고 상호작용하는 방법을 보여줍니다.
 
 ```typescript
 import { nativeToken } from '@midnight-ntwrk/ledger-v7';
@@ -855,10 +855,10 @@ try {
 }
 ```
 :::tip
-To learn more about the DApp Connector API, see the [DApp Connector API](/api-reference/dapp-connector) documentation.
+DApp Connector API에 대해 더 알아보려면 [DApp Connector API](/api-reference/dapp-connector) 문서를 참고하세요.
 :::
 
 ## References
 
-- [Wallet SDK repository](https://github.com/midnightntwrk/midnight-wallet/tree/main/packages/docs-snippets/src/snippets)
-- [Wallet SDK release notes](../../relnotes/wallet/)
+- [Wallet SDK 리포지토리](https://github.com/midnightntwrk/midnight-wallet/tree/main/packages/docs-snippets/src/snippets)
+- [Wallet SDK 릴리스 노트](../../relnotes/wallet/)

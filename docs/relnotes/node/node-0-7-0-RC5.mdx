@@ -1,0 +1,56 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Node
+displayed_sidebar: sidebar
+---
+
+# Node
+
+Node은 Midnight 네트워크와 상호 작용하여 동기화, 트랜잭션 검증, 체인 상태 유지 등의 작업을 수행하는 블록체인 인프라 구성 요소입니다.
+
+[관련 문서 링크](../../develop/nodes-and-dapps/node-endpoints)
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  2 December 2024
+</div>
+
+## Midnight 0.7.0 RC5 release notes
+
+Midnight 노드의 최신 업데이트와 개선 사항을 안내합니다. 새로운 기능, 버그 수정, 호환성에 영향을 주는 변경 사항 등이 포함되어 있습니다.
+
+### New Features
+
+- 트랜잭션 검증을 복원했습니다.
+- 트랜잭션 검증의 복잡성을 줄였습니다.
+- 기존 부트노드 주소를 포함하도록 체인 스펙을 업데이트했습니다.
+
+### Bug Fixes
+
+- 트랜잭션 검증 시 메모리 소비 문제를 수정했습니다.
+- 예기치 않은 런타임 동작을 유발하는 문제를 해결했습니다.
+
+### Breaking Changes
+
+- 트랜잭션 검증 로직 변경으로 인해 이전 동작에 의존하는 워크플로를 재검증해야 할 수 있습니다.
+- 런타임 팔렛 순서 조정이 사용자 정의 설정과의 호환성에 영향을 줄 수 있습니다.
+
+### Known Issues
+
+- 완전한 트랜잭션 검증의 재구현으로 특정 환경에서 추가 메모리 사용이 발생할 수 있습니다.
+
+### Upgrade Instructions
+
+1. 최신 변경 사항과 자산을 풀(pull)하여 노드를 **0.7.0-rc5** 버전으로 업데이트하세요.
+2. 복원된 로직과의 호환성을 보장하기 위해 트랜잭션 검증에 의존하는 워크플로를 테스트하세요.
+3. 체인 스펙 설정을 확인하고 최신 변경 사항에 따라 부트노드가 업데이트되었는지 확인하세요.
+4. 팔렛의 올바른 초기화 순서를 확인하기 위해 런타임 설정을 재검토하세요.

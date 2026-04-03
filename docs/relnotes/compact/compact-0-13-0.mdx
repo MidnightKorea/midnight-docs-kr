@@ -1,0 +1,254 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact compiler 0.20.0 (Compact language 0.13.0)
+displayed_sidebar: sidebar
+---
+
+# Compact compiler 0.20.0 (Compact language 0.13.0)
+
+Compact은 Midnight의 전용 스마트 컨트랙트 프로그래밍 언어로, 안전하고 효율적이며 유연한 탈중앙화 애플리케이션을 구축하기 위해 설계되었습니다.
+
+Compact 컴파일러는 Compact 스마트 컨트랙트 코드를 실행 가능한 바이트코드와 증명 생성 회로로 변환합니다.
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  27 November 2024
+</div>
+
+## Compact compiler 0.20.0 (Compact language 0.13.0) release notes
+
+오늘 Compact 컴파일러 버전 0.20.0을 릴리스합니다. 이 릴리스는 Compact 언어를 버전 0.13.0으로 업데이트하며, 이전 Compact 버전 0.11.x에서 일부 호환성을 깨는 변경이 포함되어 있습니다.
+
+새 릴리스를 다운로드하여 사용해 볼 수 있습니다. 새 버전의 컴파일러로 Compact 코드를 다시 컴파일하면 아래에 설명된 호환성을 깨는 변경에 맞춰 코드를 업데이트해야 할 수 있습니다. `compactc` 0.20.0으로 반드시 업그레이드할 필요는 없습니다. Compact 코드를 업데이트하지 않고 `compactc` 0.19.x를 계속 사용해도 정상 동작합니다. 다만, `compactc` 0.19.x에 대한 추가 버그 수정 릴리스는 계획하고 있지 않습니다.
+
+## Summary of Changes
+
+### Language Changes
+
+- **[호환성을 깨는 변경]** include 검색 순서가 변경되었습니다.
+- 파일에서 모듈을 가져올 수 있습니다.
+- 표준 라이브러리가 이제 내장 모듈입니다.
+- 새로운 구조체 생성 구문이 도입되었습니다.
+- 구조체 생성에서 스프레드 구문을 사용할 수 있습니다.
+- **[호환성을 깨는 변경]** `new`가 제거되었습니다.
+- `map`과 `fold`를 위한 화살표 회로 구문이 도입되었습니다.
+- **[호환성을 깨는 변경]** 익명 회로 구문이 제거되었습니다.
+- 시퀀스("쉼표") 표현식을 괄호 밖에서 사용할 수 있습니다.
+
+### Compiler Changes
+
+- 오류 보고가 개선되었습니다.
+- 내보낸 회로의 순서가 TypeScript에서도 Compact과 동일합니다.
+- `install.sh` 스크립트가 제거되었습니다.
+- 버그 수정.
+
+---
+
+## Language Changes
+
+### **[Breaking Change]** Include Search Order Has Changed
+
+Compact에서 `include` 키워드는 Compact 소스 파일의 전체 텍스트를 컨트랙트의 특정 지점에 삽입하는 데 사용됩니다. 이전에는 컴파일러가 환경 변수 `COMPACT_PATH`의 경로를 왼쪽에서 오른쪽 순서로 검색하여 포함된 파일을 찾았습니다. 이제 컴파일러는:
+
+1. 먼저 포함하는 소스 파일의 디렉터리를 기준으로 포함된 파일을 검색합니다.
+2. 찾지 못하면 `COMPACT_PATH`의 경로를 기준으로 파일을 검색하며, 여전히 왼쪽에서 오른쪽 순서입니다.
+
+새 검색 순서로 찾은 파일이 이전 검색 순서로 찾은 파일과 다른 경우 코드를 업데이트해야 할 수 있습니다.
+
+#### Why We Made This Change
+
+포함하는 파일의 디렉터리를 기준으로 파일을 포함하는 것(예: 같은 디렉터리, 하위 디렉터리, 형제 디렉터리)이 `COMPACT_PATH`를 재구성하지 않고도 더 편리합니다. 또한 소스 트리의 다른 위치에 같은 이름의 파일이 있을 때 잠재적인 충돌을 방지합니다.
+
+#### How to Fix Your Code
+
+이 변경이 코드를 깨뜨리는 경우(예: 의도한 "글로벌" 파일 대신 다른 "로컬" 파일을 찾는 경우):
+
+- 새 검색 순서가 의도한 파일로 해석되도록 원치 않는 로컬 파일을 이름 변경하거나 이동하세요.
+
+---
+
+### Modules Can Be Imported from Files
+
+이전에는 컨트랙트에서 사용하는 모든 모듈이 메인 컨트랙트 소스 파일이나 `include` 파일에 있어야 했습니다. Compact 0.13.0에서는 별도의 파일에서 모듈을 직접 가져올 수 있어 다음이 가능합니다:
+
+- 재사용 가능한 유틸리티 모듈.
+- 메인 컨트랙트 코드와 유틸리티 코드의 명확한 분리.
+
+모듈은 이제 두 가지 방법으로 가져올 수 있습니다:
+
+#### Importing by Name
+
+```compact
+import M0; // 모듈 M0 가져오기
+```
+
+컴파일러는 다음 순서로 `M0`이라는 모듈을 검색합니다:
+
+1. 스코프 내(최상위 레벨에서 정의되거나 가져온 것).
+2. 포함하는 파일의 디렉터리를 기준으로 `M0.compact`라는 파일.
+3. `COMPACT_PATH`에 지정된 디렉터리에서 `M0.compact`라는 파일.
+
+#### Importing by Path
+
+```compact
+import 'lib/M2'; // 상대 경로로 가져오기
+import '/absolute/path/M3'; // 절대 경로로 가져오기
+```
+
+경로로 가져올 때:
+
+- 컴파일러가 제공된 경로에 `.compact`를 추가합니다.
+- 상대 경로는 가져오는 파일을 기준으로 해석됩니다.
+- 절대 경로는 그대로 사용됩니다.
+
+---
+
+### The Standard Library Is Now a Builtin Module
+
+이전에는 Compact 표준 라이브러리가 개발자가 수동으로 포함해야 하는 파일(`std.compact`)로 제공되었습니다. 이제 `CompactStandardLibrary`라는 내장 모듈이 되었습니다. 개발자는 다음과 같이 가져올 수 있습니다:
+
+```compact
+import CompactStandardLibrary;
+```
+
+`std.compact` 파일은 하위 호환성을 위해 여전히 제공되지만, 더 이상 필수가 아닙니다.
+
+---
+
+### New Structure Creation Syntax
+
+TypeScript/JavaScript 객체 리터럴에서 영감을 받은 새로운 구조체 생성 구문이 도입되었습니다. 이 구문은 위치 기반과 이름 기반 필드 값을 모두 지원하여 더 읽기 쉽고 유연한 구조체 초기화가 가능합니다:
+
+```compact
+struct Point {
+  x: Uint<32>;
+  y: Uint<32>;
+}
+
+Point { 3, 4 }       // 위치 기반 필드
+Point { x: 3, y: 4 } // 이름 기반 필드
+Point { y: 4, x: 3 } // 이름 기반 필드 (순서 무관)
+```
+
+#### Why We Made This Change
+
+새 구문은 필드가 많은 구조체에서 특히 더 읽기 쉬우며, 이름 기반 필드를 임의의 순서로 지정할 수 있습니다.
+
+#### How to Fix Your Code
+
+이전 `new` 구문 대신 새 구조체 생성 구문을 사용하세요(다음 섹션 참조).
+
+---
+
+### Spread Syntax in Structure Creation
+
+Compact은 이제 기존 구조체에서 새 구조체 값을 생성하기 위한 "스프레드" 연산자(`...`)를 지원합니다. 몇 개의 필드만 수정할 때 모든 필드를 명시적으로 복사할 필요가 없습니다:
+
+```compact
+struct ColorPoint {
+  x: Uint<32>;
+  y: Uint<32>;
+  color: Color;
+}
+
+const cp0 = ColorPoint { 3, 4, Color.red };
+const cp1 = ColorPoint { ...cp0, color: Color.green }; // 색상만 수정하여 복사
+```
+
+---
+
+### **[Breaking Change]** `new` Is Removed
+
+구조체 생성을 위한 `new` 구문이 새 구조체 생성 구문으로 대체되어 제거되었습니다.
+
+#### How to Fix Your Code
+
+`new StructName(...)`을 `StructName { ... }`으로 바꾸세요.
+
+---
+
+### Arrow Circuit Syntax for Procedure Calls, Map, and Fold
+
+Compact은 이제 `map`과 `fold` 표현식에서 사용할 수 있는 화살표 회로 구문을 지원합니다. 이 구문은 TypeScript 화살표 함수와 유사합니다:
+
+```compact
+map((x, y) => x + y, [1, 2, 3], [4, 5, 6]);
+fold((x, y): Uint<8> => x * y, 1, [1, 2, 3]);
+```
+
+---
+
+### **[Breaking Change]** Anonymous Circuit Syntax Is Removed
+
+이전 익명 회로 구문(`circuit` 키워드 사용)이 제거되었습니다. 화살표 회로 구문으로 대체하세요.
+
+#### How to Fix Your Code
+
+예를 들어:
+
+```compact
+// 이전 구문
+map(circuit (x, y) => x + y, [1, 2], [3, 4]);
+
+// 새 구문
+map((x, y) => x + y, [1, 2], [3, 4]);
+```
+
+---
+
+### Sequence Expressions Allowed Outside Parentheses
+
+시퀀스 표현식(예: `expr1, expr2, expr3`)을 이제 괄호 밖에서도 사용할 수 있으며, TypeScript/JavaScript와 일치합니다.
+
+---
+
+## Compiler Changes
+
+### Improvements to Error Reporting
+
+오류 메시지가 더 명확한 진단을 제공하고 문제의 근본 원인을 더 잘 드러내도록 개선되었습니다.
+
+---
+
+### Exported Circuits Order Matches Between TypeScript and Compact
+
+생성된 TypeScript 인터페이스 파일에서 내보낸 회로의 순서가 이제 Compact 소스 파일의 순서와 일치합니다.
+
+---
+
+### The `install.sh` Script Is Removed
+
+이전에 컴파일러 릴리스에 포함되었던 `install.sh` 스크립트가 혼동을 줄이기 위해 제거되었습니다.
+
+---
+
+### Bug Fixes
+
+개발자가 보고한 문제를 해결하는 여러 버그 수정이 이번 릴리스에 포함되었습니다. Discord 서버를 통한 피드백을 환영합니다.
+
+---
+
+## TL;DR
+
+Compact 언어 0.13.0은 호환성을 깨는 변경과 향상된 기능을 도입합니다:
+
+- **모듈**: 파일에서 직접 가져올 수 있습니다.
+- **표준 라이브러리**: 이제 내장 모듈(`CompactStandardLibrary`)입니다.
+- **구조체**: 새 생성 구문과 스프레드 연산자.
+- **익명 회로**: 화살표 회로 구문으로 대체되었습니다.
+- **`new`**: 새 구조체 구문으로 대체되어 제거되었습니다.
+- **컴파일러 개선**: 더 나은 오류 메시지와 버그 수정.
+
+## Artifacts
+
+- [Compiler Linux](https://d3fazakqrumx6p.cloudfront.net/artifacts/compiler/compactc_0.20.0/compactc-linux.zip)
+- [Compiler macOS](https://d3fazakqrumx6p.cloudfront.net/artifacts/compiler/compactc_0.20.0/compactc-macos.zip)

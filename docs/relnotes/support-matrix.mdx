@@ -1,0 +1,37 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compatibility matrix
+displayed_sidebar: sidebar
+hide_table_of_contents: true
+sidebar_position: 1
+---
+
+# Compatibility matrix
+
+---
+
+:::note
+이 매트릭스는 최신 테스트 완료 버전만 반영합니다. 이전 버전도 동작할 수 있지만, 호환성을 보장하거나 지원을 제공하지는 않습니다.
+:::
+
+| **Functional Area**        | **Component**                       | **Version** | **Notes**                                   |
+|----------------------------|-------------------------------------|-------------|---------------------------------------------|
+| Network                    | Network                             | **Preprod/Preview/Mainnet** | 현재 네트워크 환경         |
+|                            | Node (Midnight)                     | 0.22.3      | Preview                                      |
+|                            |                                     | 0.22.2      | Preprod & Mainnet                            |
+| Runtime & Contracts        | Compact Toolchain (`compact`)       | 0.5.1       | 컴파일러 설치 및 컨트랙트 컴파일      |
+|                            | Compact Compiler (`compactc`)       | 0.30.0      | Midnight용 컨트랙트 컴파일러              |
+|                            | Compact Runtime                     | 0.15.0      | 컨트랙트용 런타임 라이브러리               |
+|                            | Compact JS                          | 2.5.0       | 컴파일된 컨트랙트용 TypeScript 실행 환경 |
+|                            | Platform JS                         | 2.2.4       | 핵심 추상화 및 타입                 |
+|                            | On-chain Runtime                    | 3.0.0       | 온체인 런타임 지원 (v3)               |
+|                            | Ledger                              | 8.0.3       | 핵심 원장 로직                           |
+| SDKs & APIs                | Wallet SDK Facade                   | 3.0.0       | 지갑 통합 구축용 SDK        |
+|                            | Midnight.js                         | 4.0.2       | DApp 프레임워크: 컨트랙트, 타입, 프로바이더 |
+|                            | testkit-js                          | 4.0.2       | E2E 테스트 프레임워크                       |
+|                            | DApp Connector API                  | 4.0.1       | DApp과 지갑 간 인터페이스         |
+| Indexing & Data            | Midnight Indexer                    | 4.0.1       | Midnight 전용 블록체인 인덱서 (v4)   |
+| ZK & Proving Services      | Proof Server                        | 8.0.3       | ZKP 증명 생성 처리                |
+| Tools                      | Block Explorer                      | 0.5.0       | 온체인 데이터 브라우저                       |
+|                            | Faucet (tNIGHT)                     | 0.11.9      | 테스트넷용 테스트 토큰 배포        |

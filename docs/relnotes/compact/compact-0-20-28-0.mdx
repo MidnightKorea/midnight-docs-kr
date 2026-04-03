@@ -1,0 +1,264 @@
+---
+title: Compact toolchain 0.28.0 (Compact language 0.20.0)
+displayed_sidebar: sidebar
+---
+
+## Version
+
+- **Version:** Compact toolchain 0.28.0, Compact language 0.20.0
+- **Date:** 2026-01-28
+- **Environment:** Preview, Preprod
+
+## High-level summary
+
+오늘 Compact 툴체인 버전 0.28.0을 릴리스합니다.
+이 버전은 업데이트된 Compact 언어 버전 0.20.0을 컴파일합니다.
+
+:::important
+
+이 버전은 Midnight 네트워크의 새로운 "Preproduction Testnet"(줄여서 "Preprod")과 "Preview Testnet"(줄여서 "Preview") 환경을 대상으로 하는 첫 번째 툴체인 버전입니다.
+컴파일러 버전 0.28.0 이상으로 컴파일된 컨트랙트는 이전 환경("testnet" 또는 "testnet-02"로 알려진)에서 동작하지 않습니다.
+마찬가지로, 0.28.0 이전 버전으로 컴파일된 컨트랙트는 Preprod이나 Preview 환경에서 동작하지 않습니다.
+
+:::
+
+이 릴리스는 Midnight 네트워크의 중요한 마일스톤인 새로운 Preprod 및 Preview 환경 출시의 일부입니다.
+호환성을 깨는 변경 사항을 확인하기 위해 릴리스 노트를 주의 깊게 읽어주세요.
+
+## Audience
+
+이 릴리스 노트는 Compact 컨트랙트 개발자와 Compact 런타임을 사용하는 DApp 개발자를 대상으로 합니다.
+
+## Summary of updates
+
+Preprod과 Preview 환경은 Midnight 원장 버전 7을 사용합니다(테스트넷의 원장 버전 4와 비교). 이 버전의 원장은 네이티브 비차폐(unshielded) 토큰에 대한 새로운 지원을 포함합니다.
+
+- Compact 표준 라이브러리에 비차폐 토큰을 위한 새 API와 기존 API에 대한 일부 호환성을 깨는 이름 변경이 있습니다.
+- Compact이 이제 구조적("투명") 및 명목적("불투명") 타입 별칭 정의를 모두 지원합니다.
+- Compact이 이제 선택적 모듈 가져오기와 이름 변경을 지원합니다.
+- `Uint` 범위의 의미가 변경되었습니다.
+- 최대 표현 가능한 부호 없는 정수가 더 작아졌습니다.
+- 다양한 크기에 대한 새로운 컴파일러 강제 한계가 있습니다.
+  이전에 컴파일되던 프로그램이 이제 컴파일되지 않으므로 호환성을 깨는 변경입니다.
+  다만, 해당 컨트랙트는 어차피 동작할 가능성이 낮았습니다.
+- 표준 라이브러리 타입 `CurvePoint`가 `NativePoint`로 이름이 변경되었습니다. 내보내지지 않은 내부 타입의 명목적 타입 별칭입니다.
+- 표준 라이브러리가 `NativePoint`의 접근자로 새 회로 `NativePointX`와 `NativePointY`를 제공합니다.
+- 생성된 JavaScript 코드와 Compact 런타임이 이제 Common JS(CJS) 모듈 대신 ECMAScript 모듈(ESM)을 사용합니다.
+  DApp에 대한 호환성을 깨는 변경이지만, ESM만으로 작업하는 개발자에게는 오히려 간소화될 것입니다.
+- 상향 캐스트가 더 이상 튜플 참조와 슬라이스가 상수 인덱스를 인식하는 것을 방해하지 않습니다.
+- 범위 밖의 바이트 값 인덱스가 컴파일러에서 더 일찍 감지되어, 이전에 오류 없이 컴파일되던 프로그램에 추가 오류가 표시될 수 있습니다.
+- TypeScript와 JavaScript의 예약어가 이제 Compact의 예약어에 포함됩니다.
+- `for` 루프 본문에서 `return`이 더 이상 허용되지 않습니다.
+- 컴파일러가 더 이상 필요하지 않은 특정 회로에 대해 ZKIR 코드와 증명자/검증자 키를 생성하지 않습니다.
+- 회로 시그니처, 호출, 익명 회로의 포매팅이 개선되었습니다.
+- `if`/`else if` 문의 포매팅이 개선되었습니다.
+- 포매터의 줄 길이를 설정할 수 있으며, 기본값은 100컬럼입니다.
+- 여러 버그 수정과 성능 개선이 포함되어 있습니다.
+
+## New features
+
+아래는 이 릴리스에 추가된 새 기능의 상세 내역입니다.
+
+### Unshielded tokens
+
+비차폐 토큰을 다루기 위한 새로운 표준 라이브러리 회로와 원장 커널 연산이 있습니다.
+
+비차폐 토큰의 발행과 전송을 위한 새 회로: `mintUnshieldedToken`, `sendUnshielded`, `receiveUnshielded`.
+비차폐 토큰 잔액을 다루기 위한 새 회로: `unshieldedBalance`, `unshieldedBalanceLt`, `unshieldedBalanceGt`, `unshieldedBalanceLte`, `unshieldedBalanceGte`.
+
+원장 커널에 새 연산: `mintUnshielded`, `claimUnshieldedCoinSpend`, `incUnshieldedOutputs`, `incUnshieldedInputs`.
+
+이것은 비호환성 변경이 아니지만, 아래에 기술된 호환성을 깨는 변경이 필요했습니다.
+
+### Type aliases
+
+Compact이 이제 구조적("투명") 및 명목적("불투명") 타입 별칭을 모두 지원합니다.
+
+구조적 타입 별칭은 TypeScript와 동일합니다. `type Name = Type` 선언은 `Name`을 `Type`의 별칭으로 정의합니다. `Name`과 `Type`은 정확히 동일한 타입입니다.
+
+예를 들어 `type U32 = Uint<32>`는 `U32`를 `Uint<32>`와 동등하고 교환 가능하게 정의합니다.
+
+명목적 타입 별칭은 기본 타입으로 표현이 주어지는 새로운 별개의 타입을 도입합니다. 이 기능은 TypeScript에는 없습니다. `new type Name = Type` 선언은 `Name`과 `Type` 타입의 값과 동일한 값을 가진 별개의 타입을 도입합니다. `Name`은 `Type`의 서브타입도 슈퍼타입도 아닙니다. 다음과 같은 의미에서 호환됩니다:
+
+- `Name` 타입의 값은 `Type` 타입의 값을 사용할 수 있는 기본 연산(산술 등)에 사용할 수 있습니다.
+- `Name` 타입의 값은 `Type`으로 그리고 `Type`에서 명시적으로 캐스트할 수 있습니다.
+
+예를 들어, `type RGB = Vector<3, Uint<8>>`는 `RGB`를 별개의 타입으로 정의합니다. `RGB` 타입의 값은 `Vector<3, Uint<8>>` 타입의 벡터처럼 참조하거나 슬라이스할 수 있지만, 명시적 캐스트 없이 `Vector<3, Uint<8>>` 타입을 기대하는 함수에 전달할 수 없습니다.
+
+산술 연산이 명목적 타입 별칭 `T`의 값을 받으면, 다른 피연산자도 `T` 타입이어야 하며 결과는 `T` 타입으로 캐스트됩니다. 결과를 `T`로 표현할 수 없으면 타입 오류가 발생할 수 있습니다.
+
+두 종류의 별칭 모두 제네릭 매개변수를 가질 수 있습니다. 예를 들어, `type V3<T> = Vector<3, T>` 또는 `new type VField<#N> = Vector<N, Field>`.
+
+### Selective module importing and renaming
+
+이제 Compact 모듈에서 개별 요소를 선택적으로 가져오고, 가져온 요소의 이름을 개별적으로 변경할 수 있습니다.
+
+TypeScript와 JavaScript의 ES 모듈처럼 동작합니다.
+
+예를 들어:
+
+```compact
+import { getMatch, putMatch as originalPutMatch } from Matching;
+```
+
+이렇게 하면 `getMatch`를 `getMatch`로, `putMatch`를 `originalPutMatch`로 가져오며, `Matching`의 다른 요소는 가져오지 않습니다. 이를 통해 이름 충돌을 피하고(이름 변경으로), 모듈에 새 요소가 추가될 경우 발생할 수 있는 미래의 충돌도 방지할 수 있습니다(필요한 것만 가져와서).
+
+선택적 가져오기와 이름 변경은 Compact의 기존 모듈 접두사와 함께 동작합니다:
+
+```compact
+import { getMatch, putMatch as originalPutMatch } from Matching prefix M_;
+```
+
+이렇게 하면 `getMatch`를 `M_getMatch`로, `putMatch`를 `M_originalPutMatch`로 가져옵니다.
+
+`CompactStandardLibrary`가 모듈이므로 표준 라이브러리에서도 선택적 가져오기와 이름 변경이 동작합니다.
+
+기존 가져오기 형식도 여전히 지원되지만, `from`이 예약어에 추가되었으므로 기술적으로는 호환성을 깨는 변경입니다.
+
+## Improvements
+
+아래는 이 릴리스에서 개선된 기존 기능의 상세 내역입니다.
+
+### There are improvements to the formatter
+
+- 여러 줄에 걸친 회로 시그니처, 호출, 익명 회로의 포매팅을 변경했습니다. 이전에는 수직 정렬에 지나치게 적극적이어서 포매팅이 오른쪽으로 "밀려나는" 경향이 있었습니다. 이제 이러한 코드에서 수평 공백이 훨씬 줄었습니다.
+- 연쇄 `if`/`else if` 문에 대한 포매터의 처리가 C 스타일 언어(TypeScript와 JavaScript 포함)의 표준 관행과 맞지 않았습니다. 이를 개선했습니다.
+- 포매터의 줄 길이를 이제 설정할 수 있습니다. `compact format`에 `--line-length N`을 전달하면 되며, `N`은 컬럼 수입니다. 기본값은 100컬럼입니다.
+
+### Upward casts do not prevent tuple constant indexing
+
+이전 릴리스에서 숫자 리터럴이 아닌 표현식으로도 튜플, 벡터, 바이트 값을 인덱싱할 수 있도록 허용했습니다. 단, 컴파일러가 해당 표현식의 특정 상수 값을 결정할 수 있어야 했습니다.
+
+상수값 표현식을 인식하는 컴파일러 분석이 튜플 값의 상향 캐스트(슈퍼타입으로의 타입 캐스트)를 올바르게 인식하지 못했습니다. 이를 변경했습니다.
+
+결과적으로, 실제로 상수 인덱싱을 사용하는 더 많은 프로그램이 타입 체크와 컴파일을 통과합니다.
+
+### The compiler no longer generates ZKIR code and cryptographic keys for some circuits that do not need it
+
+컴파일러는 Midnight 원장을 사용하는 회로에 대해 ZKIR 코드와 증명자/검증자 키를 생성합니다. Midnight 원장을 사용하지 않는 회로에는 이것이 필요하지 않습니다. 이전에는 순수 회로에 대해 생성하지 않았습니다. 순수 회로는 Midnight 원장을 사용하지 않고 위트니스를 호출하지 않는 회로입니다.
+
+이는 이전에 위트니스 호출로 인해서만 비순수인 회로(즉, Midnight 원장을 사용하지 않지만 순수하지 않은 회로)에 대해서도 생성했음을 의미합니다.
+
+이러한 회로에 대해 더 이상 생성하지 않도록 컴파일러를 변경했습니다. 불필요했으며, 키 생성이 컴파일러에서 가장 느린 부분이므로 순수한 사용자 경험 향상입니다.
+
+## Breaking changes
+
+아래는 컨트랙트 업데이트 등 조치가 필요할 수 있는 호환성을 깨는 변경의 상세 내역입니다.
+
+### Name changes to APIs for shielded tokens
+
+혼동을 피하고 온체인 런타임의 명명과 일치시키기 위해, 차폐(shielded) 토큰을 다루는 표준 라이브러리 회로와 원장 커널 연산의 이름이 변경되었습니다. 차폐 토큰 API에서 사용되는 구조체도 이름이 변경되었습니다.
+
+**동기:** 이제 해당 이름에 `Shielded`가 포함되어 비차폐 대응물과 구별하고 혼동을 방지합니다.
+
+이것은 호환성을 깨는 변경입니다. `compact fixup` 도구가 수정합니다. Compact devtools를 사용하여 컨트랙트를 업데이트할 수 있습니다. devtools 버전 0.3.0(이상)인지 확인하세요. `compact fixup`이 활성화됩니다. `compact self update`로 devtools를 최신 버전으로 업데이트할 수 있습니다.
+
+fixup 도구를 사용하려면, 먼저 컨트랙트의 `language_version` pragma를 0.19 이상으로, `compiler_version` pragma를 0.27 이상으로 변경하세요. 그렇지 않으면 잘못된 변경을 방지하기 위해 도구가 컨트랙트를 변경하지 않습니다. 그런 다음 `.compact` 파일에 `compact fixup <file>`을 실행하세요. fixup 도구가 업데이트된 컨트랙트를 표준 출력에 출력합니다.
+
+fixup 도구는 컨트랙트를 Compact 포매터를 사용하여 다시 포맷합니다. 일부 수정(이름 변경 등)이 기존 포매팅을 방해하기 때문입니다. fixup 도구가 (다른) 변경을 하지 않더라도 이 작업은 수행됩니다.
+
+### The meaning of `Uint` ranges has changed
+
+범위 제한 부호 없는 정수의 `Uint` 범위(`Uint<0..n>` 형태, 크기 지정 부호 없는 정수 `Uint<n>` 형태가 **아닌**)가 왼쪽은 포함(inclusive, 반드시 0), 오른쪽은 제외(exclusive, `n`)로 변경되었습니다. 이전에는 양쪽 모두 포함이었습니다.
+
+예를 들어, 이제 `Uint<0..3>` 타입은 값 집합 {0, 1, 2}로 해석되며, 이전에는 {0, 1, 2, 3}이었습니다.
+
+**동기:** 언어의 다른 곳, 즉 `for` 루프의 범위와 일관되지 않았기 때문에 변경했습니다. 이러한 불일치는 미묘한 버그의 원인이 될 수 있습니다.
+
+이것은 범위 제한 부호 없는 정수에 대한 호환성을 깨는 변경입니다. 더 일반적으로 사용되는 크기 지정 부호 없는 정수(`Uint<n>`)는 변경되지 않았습니다.
+
+`compact fixup` 도구는 기본적으로 이를 업데이트하지 않지만, `--update-Uint-ranges` 플래그를 전달하면 수정을 시도합니다:
+
+- `n`이 숫자 리터럴인 `Uint<n>`의 경우, `n`+1과 같은 숫자 리터럴 `m`으로 `Uint<m>`로 변경합니다.
+- `n`이 제네릭 크기 매개변수인 `Uint<n>`의 경우, 경고를 발생시킵니다.
+
+제네릭 크기 매개변수를 사용하는 코드를 수정하려면, 제네릭의 사용처(숫자 리터럴로 인스턴스화되는 곳)를 찾아 업데이트해야 합니다.
+
+### The maximum representable unsigned integer value has changed to be smaller
+
+범위 제한 부호 없는 정수의 온체인 표현은 `Field`의 전체 바이트 수(현재 31)에 맞도록 제한합니다. 이 범위 밖의 부호 없는 값을 사용하려는 시도는 때때로 설명할 수 없는 증명 실패를 초래했을 것입니다.
+
+따라서 `Uint<n>`의 `n`의 최대값과 `Uint<0..m>`의 `m`의 최대값이 다음으로 줄었습니다:
+`n`은 248(8 * 31), `m`은 452312848583266388373324160190187140051835877600158453279131187530910662656(2^248).
+
+**동기:** 증명 서버가 이보다 큰 부호 없는 정수를 올바르게 처리하지 못합니다.
+이것은 `Uint` 타입에 대한 호환성을 깨는 변경입니다.
+최대 `Field` 값은 변경되지 않았습니다.
+
+### There are compiler-enforced size bounds
+
+컴파일러가 이제 튜플, 벡터(`Vector`), 바이트 값(`Bytes`) 타입에 대해 최대 요소 크기 한계를 부과합니다. 이 최대 요소 크기 한계는 2^24(= 16,777,216)입니다.
+
+또한 `MerkleTree`와 `HistoricMerkleTree` 원장 ADT 타입에 대한 최대 깊이 한계가 있습니다. 이 최대 한계는 깊이 32입니다.
+
+**동기:** 이러한 프로그램이 실질적으로 동작하지 않았기 때문에 이 제한을 부과했습니다. 튜플, 벡터, 바이트 값의 경우 암호화 키 생성이 실패하거나 컴파일러가 종료되지 않았습니다. Merkle 트리 깊이 제한은 Midnight 블록체인 원장의 해당 제한 때문입니다.
+
+### The standard library type `CurvePoint` is renamed to `NativePoint`
+
+Compact 표준 라이브러리 타입 `CurvePoint`를 `NativePoint`로 이름을 변경했습니다. `NativePoint`는 내보내지지 않은 내부 타입의 명목적(불투명) 타입 별칭입니다.
+
+`NativePoint`는 실제로 한 쌍의 `Field` 값 `struct` 필드(아핀 x 및 y 좌표)를 가진 `struct` 타입입니다. 구조체 생성 구문으로 생성할 수 있습니다: `NativePoint { 0, 1 }`.
+
+**그러나 `NativePoint`의 구조체 표현에 의존하지 마세요.** 향후 릴리스, 가능하면 다음 릴리스에서 표현을 변경할 예정입니다.
+
+표준 라이브러리에 `NativePoint` 접근자 회로 `NativePointX`와 `NativePointY`를 도입했습니다. 이 접근자 회로로 아핀 x 및 y 좌표에 접근할 수 있습니다.
+
+코드를 수정하려면 `CurvePoint`를 `NativePoint`로 바꿔야 합니다. 또한 `pt`가 이제 `NativePoint` 타입인 경우 `pt.x` 형태의 표현식을 `NativePointX(pt)`로, `pt.y`도 마찬가지로 바꿔야 합니다.
+
+**동기:** 다음을 준비하기 위해 이 변경을 했습니다:
+
+- `NativePoint`의 표현을 회로에서 더 효율적으로 변경하기 위해 표현을 숨기고자 합니다.
+- 다른(외부) 곡선의 포인트를 도입하기 위해, `CurvePoint`라는 이름이 너무 일반적입니다.
+
+또한 접근자 `NativePointX`와 `NativePointY`는 TypeScript 명명 규칙을 따르지 않습니다(소문자로 시작해야 합니다). 향후 릴리스, 가능하면 다음 릴리스에서 이름을 변경할 예정입니다.
+
+### The reserved words from TypeScript and JavaScript are now included as Compact reserved words
+
+TypeScript와 JavaScript의 전체 예약어 목록을 Compact의 예약어로 포함시켰습니다. 일부는 미래 예약어로 간주됩니다. Compact에서 아직 사용되지 않지만 향후 사용을 위해 예약합니다.
+
+**동기:** 호환성을 깨는 변경 없이 사용할 키워드가 없으면 언어 설계가 궁지에 몰릴 수 있습니다. 이전에 예약되지 않은 키워드를 예약하는 것은 호환성을 깨는 변경이며, 개발자가 코드의 식별자 이름을 변경해야 합니다. Compact 언어 버전 1.0을 릴리스하기 전에 이러한 단어를 지금 예약하여 향후 호환성을 깨는 변경을 줄이고자 합니다.
+
+Compact 0.20 예약어의 전체 목록은 [파서 구현](https://github.com/LFDT-Minokawa/compact/blob/v0.28.0/compiler/parser.ss#L56)에서 확인할 수 있습니다. 이 단어 중 하나를 사용하여 컴파일러 오류가 발생하면, 해당 식별자의 이름을 변경해야 합니다.
+
+### Out-of-range constant bytes value indexes are detected earlier in the compiler
+
+컴파일러는 튜플, 벡터, 바이트 값 인덱스가 범위를 벗어나면 오류를 표시합니다(컨트랙트를 컴파일하지 않음). 그러나 바이트 값의 경우, 이 오류 감지가 이전보다 컴파일러에서 더 일찍 이동되었습니다.
+
+이것은 호환성을 깨는 변경입니다. 오류를 감지하기 전에 컴파일러가 코드를 폐기하여 이전에 컴파일되던 프로그램에서 이제 컴파일러 오류가 발생합니다.
+
+**동기:** 새로운 타입 별칭 기능을 지원하기 위한 내부 구현 변경으로 이 작업을 수행했습니다.
+
+코드를 수정하려면, 해당 오류를 수정해야 합니다. 이전에 컴파일러가 표시하지 않았던 진짜 오류입니다.
+
+### Generated JavaScript code and the Compact runtime now uses ES modules (ESM)
+
+컴파일러가 생성하는 JavaScript 코드와 Compact 런타임이 이제 ESM만을 사용합니다. 이전에는 Common JS(CJS) 모듈을 사용했습니다.
+
+**동기:** ESM이 공식 표준 JavaScript 모듈 시스템이며 CJS보다 더 보편화되고 있습니다. 또한 ESM을 사용하는 프로젝트에 CJS 모듈을 혼합하는 것이 개발자에게 어려울 수 있습니다.
+
+이것은 DApp에 대한 호환성을 깨는 변경입니다. 컨트랙트 코드와 Compact 런타임을 가져오는 방식을 변경해야 할 것입니다.
+
+## Fixed defect list
+
+많은 버그 수정이 있으며, 일부 경우에서 증명을 위한 회로 표현의 크기가 줄었습니다.
+
+이 변경 사항 중 일부는 호환성을 깨는 변경입니다:
+
+- 이전에는 모든 도달 불가능한 문이 컴파일러에 의해 보고되지 않았습니다. 이제 올바르게 보고되지만, 이전에 컴파일되던 컨트랙트가 이제 컴파일되지 않을 수 있습니다. 도달 불가능한 코드를 제거하거나 주석 처리하세요.
+
+- 컴파일러가 이전에 타입 체크하지 않던 특정 가져오지 않은 모듈을 이제 타입 체크합니다. 이전에 발견되지 않은 타입 오류로 인해 프로그램이 컴파일에 실패할 수 있습니다. 타입 오류를 수정하세요.
+
+- 컴파일러가 이제 단일 문 컨텍스트(`if` 문의 분기나 `for` 루프의 본문 등)에서 발생하는 다중 바인딩 `const` 바인딩 문과 구조 분해 `const` 바인딩 문을 거부합니다. 이는 혼동을 주는 하위 컴파일러 오류를 유발할 수 있었습니다. 상수가 어디에서도 사용될 수 없으므로 프로그래머의 의도를 반영할 가능성이 매우 낮습니다.
+
+- 컴파일러가 `Bytes<0>`에서 `Field`나 `Uint` 값으로의 양방향 캐스트를 허용하지 않습니다. 이것은 때때로 동작했지만 혼동을 주는 하위 컴파일러 오류를 유발할 수도 있었습니다.
+
+- 컴파일러가 이제 본문에 `return` 문이 있는 `for` 루프를 명시적으로 거부합니다. 이는 올바르게 동작한 적이 없으며 현재 동작하도록 의도되지 않았습니다. 이전에는 근본 원인과 직접 관련 없는 암호화 오류 메시지로 나중에 컴파일러에서 실패하거나, 런타임에서 이상한 잘못된 동작으로 실패했습니다.
+
+## Links and references
+
+- [Compact 문서 포털](https://docs.midnight.network/compact),
+  [언어 레퍼런스](https://docs.midnight.network/compact/compact-reference) 및
+  [표준 라이브러리 문서](https://docs.midnight.network/compact/compact-std-library) 포함
+- DApp용 [Compact 런타임 TypeScript API](https://docs.midnight.network/api-reference/compact-runtime)
+- [Compact 컴파일러 사용법](https://docs.midnight.network/compact/reference/tools/compiler-usage)
+- 버그 리포트 및 기능 요청을 위한 GitHub [오픈소스 프로젝트](https://github.com/LFDT-Minokawa/compact)

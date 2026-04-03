@@ -1,0 +1,121 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Midnight Indexer
+displayed_sidebar: sidebar
+---
+
+# Midnight Indexer
+
+Midnight Indexer는 Midnight 노드에서 최종 사용자 애플리케이션으로 블록체인 데이터 흐름을 최적화하기 위해 설계된 컴포넌트 세트입니다. 블록 이력을 조회하고 처리하며, 인덱싱된 데이터를 효율적으로 저장하고, 쿼리와 구독을 위한 GraphQL API를 제공합니다.
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  9 May 2025
+</div>
+
+## Midnight Indexer 2.0.0 Release Notes
+
+### Stable Release
+
+* **Version**: 2.0.0
+* **Audience**: 노드 운영자, Midnight 생태계와 통합하는 개발자
+* **Environment**: 프로덕션 준비 완료
+
+이번 릴리스(2.0.0)는 안정적이며 프로덕션 환경에 배포할 수 있습니다. 공개 및 프로덕션 환경에서 안전하게 사용할 수 있습니다.
+
+### Key Changes & Highlights
+
+:::note
+이 릴리스는 wallet-sdk v5.0.0 이상(Lace Wallet v3.0.0 이상과 호환)이 필요합니다.
+:::
+
+이번 Midnight Indexer 2.0.0 릴리스는 Midnight Node 0.12.0 릴리스 및 Midnight Ledger 4.0.0 릴리스와 함께 제공됩니다. 이번 릴리스로 이전 Scala 기반 Indexer의 지원이 종료됩니다.
+
+또한 GraphQL API v1에 호환성 변경 사항이 포함되어 있으며, 주로 일관되고 의미 있는 네이밍과 지갑 이벤트에 대한 GraphQL 구독에 관련된 변경입니다.
+
+### Changelog
+
+#### Features
+
+* 지갑 구독 `ProgressUpdates` 재설계 (indexer-api)
+* API에 트레이싱 추가 (indexer-api)
+* 모든 GraphQL 작업에 카운터 추가 (indexer-api)
+* 네이밍 및 입력값 정리 (indexer-api)
+* bech32m으로 인코딩된 키/주소만 지원
+* 컨트랙트 쿼리 및 구독의 `contract_action` 이름 변경 (indexer-api)
+
+#### Bug Fixes
+
+* 지갑 구독에 누락된 로깅 추가 (indexer-api)
+* 실패한 트랜잭션에 대한 축소 업데이트 건너뛰기 (indexer-api)
+* `ContractCallOrDeploy`에 트랜잭션 추가 (indexer-api)
+* `ContractCall`에 `deploy` 추가 (indexer-api)
+* `active_wallets`에서 발생하는 무해한 데이터베이스 오류 메시지 제거 (wallet-indexer)
+
+#### Refactor
+
+* 텔레메트리에 `log`, `logforth`, `fastrace` 사용
+* bytes 속성을 바이트 뉴타입으로 교체
+* `SessionId`(Copy)를 값으로 전달
+* `main/run`을 `main.rs`로 이동
+* 블록 및 트랜잭션 해시(배열)를 값으로 전달 (indexer-api)
+* 트랜잭션 및 컨트랙트 액션의 지연 해석 (indexer-api)
+
+#### Miscellaneous
+
+* 일관된 오류 처리 적용 (indexer-api)
+* 디버그 로깅 추가 (indexer-api)
+
+### Breaking Changes
+
+#### Migration from Scala-based to Rust-based indexer
+
+**영향**: API 엔드포인트는 유사하나, 내부 구현 및 성능 특성이 다릅니다
+**필요한 조치**:
+
+* 새로운 Rust 기반 인덱서에서 통합을 테스트하세요: `https://indexer-rs.testnet-02.midnight.network/api/v1/graphql`
+* 이전 엔드포인트(`indexer.testnet-02...`)에서 마이그레이션을 시작하세요
+* PostgreSQL 및 NATS(클라우드) 또는 SQLite(단독 실행)에 필요한 의존성을 충족하는지 확인하세요.
+* 실행 중인 Midnight Node에 대한 네트워크 접근을 확보하세요.
+* Midnight Node 0.12.0은 체인 리셋이 필요하므로 스토리지(PostgreSQL/SQLite 및 NATS)도 리셋해야 합니다.
+
+### Known Issues
+
+* **macOS 호환성**: macOS에서의 테스트가 제한적입니다. 네이티브 SQLite 통합에서 문제가 발생할 수 있습니다.
+* **Windows 지원**: 동작하지만 공식적으로 지원되지는 않습니다. Linux 환경을 권장합니다.
+
+### Compatibility
+
+* Midnight 생태계: Midnight Node 0.12 및 관련 인프라와 완전히 호환됩니다.
+* 운영 체제: Linux에서 완전 테스트되었으며, Windows와 macOS는 제한적으로 지원됩니다.
+
+### Additional Resources
+
+* **커뮤니티 지원**: [Discord](https://discord.com/invite/midnightnetwork)에서 논의에 참여하세요
+
+### Upgrade/Migration Guide
+
+#### Prerequisites
+
+* PostgreSQL 설치 및 구성 완료(프로덕션용)
+* Midnight 노드에 대한 네트워크 접근
+
+### Installation & Migration:
+
+* 새 인덱서 바이너리를 배포하세요
+* 적절한 백엔드(SQLite 또는 PostgreSQL)에 연결하세요
+* API 통합을 새 엔드포인트로 변경하세요
+
+###  Post-Upgrade Checks
+
+* GraphQL 쿼리가 예상대로 처리되는지 확인하세요
+* 로그에서 오류 없이 시작되는지 모니터링하세요

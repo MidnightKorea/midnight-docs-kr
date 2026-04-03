@@ -1,0 +1,69 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: DApp Connector API
+displayed_sidebar: sidebar
+---
+
+# DApp Connector API
+
+DApp Connector API은 탈중앙화 애플리케이션(DApp)이 지갑 접근을 요청하고, 인가를 확인하며, Midnight 네트워크와 상호작용하기 위한 서비스 URI를 조회할 수 있도록 합니다.
+
+[관련 문서 링크](../../develop/reference/midnight-api/dapp-connector/interfaces/DAppConnectorAPI)
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  2 April 2025
+</div>
+
+## Midnight DApp Connector API 2.0.0 Release Notes
+
+새로운 기능, 버그 수정, 기능 및 안정성 향상을 위한 브레이킹 체인지 등 Midnight DApp Connector의 최신 업데이트와 개선 사항을 확인하세요.
+
+### Key Changes & Highlights
+
+* **Bech32m Address format**: 이 버전은 `bech32m`과 `hex`(레거시) 형식을 모두 지원합니다. 기본 형식은 `Bech32m`입니다.
+
+### Changelog
+
+#### Breaking Changes
+
+*Address format change*
+
+* **Impact**: 기본 주소 형식이 `bech32m`으로 변경되었습니다
+* **Action Required**: dapp connector API을 구현할 때, 지갑에서 전달되는 관련 속성을 API에 맞춰 매칭해야 합니다.
+
+#### New Features
+
+*Bech32m address format*
+
+* **Description**: 주소 형식을 통해 사용자가 생성된 네트워크(undeployed, devnet, testnet, mainnet)와 주소 유형(shielded address 또는 unshielded address)에 따라 주소, 공개 키, 개인 키를 구분할 수 있습니다.
+* **Usage/Configuration**: 기본적으로 활성화되어 있습니다
+
+### Upgrade/Installation/Migration Instructions
+
+#### Prerequisites
+
+없음
+
+#### Step-by-Step Instructions
+
+dapp connector api 버전을 `@midnight-ntwrk/dapp-connector-api@2.0.0`으로 업데이트하세요.
+
+#### Post-Upgrade Verification
+
+위 버전이 설치되었는지 확인하세요.
+
+### Compatibility
+
+* **Operating Systems**: 없음.
+* **Third-Party Tools**: Node.js >=18
+* **Midnight Ecosystem Compatibility**: Midnight.js 1.0.0 및 테스트를 새 API에 맞춰 업데이트해야 합니다. 또한 지갑을 사용하는 모든 사용자는 위의 브레이킹 체인지에 맞춰 업데이트하고 대응해야 합니다.

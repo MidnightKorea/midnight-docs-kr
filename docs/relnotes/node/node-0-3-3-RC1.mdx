@@ -1,0 +1,76 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Node
+displayed_sidebar: sidebar
+---
+
+# Node
+
+Node은 Midnight 네트워크와 상호 작용하여 동기화, 트랜잭션 검증, 체인 상태 유지 등의 작업을 수행하는 블록체인 인프라 구성 요소입니다.
+
+[관련 문서 링크](../../develop/nodes-and-dapps/node-endpoints)
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  18 April 2024
+</div>
+
+## Midnight 0.3.3 RC1 devnet release notes
+
+Midnight 노드의 최신 업데이트와 개선 사항을 안내합니다. 기능 향상, 버그 수정, 호환성에 영향을 주는 변경 사항 등이 포함되어 있습니다.
+
+### New Features
+
+- `clippy`를 적용했습니다.
+- 변경 로그(changelog) 적용을 의무화했습니다.
+- `decode_transactions`이 벡터 대신 슬라이스를 받도록 변경했습니다.
+- 트랜잭션 적용 후 Midnight 원장 상태의 역직렬화 검사를 도입했습니다.
+- 원장 상태 역직렬화를 위한 LRU 캐시를 구현했습니다.
+- 런타임 릴리스 도구를 추가했습니다.
+- `--seed` 노드 파라미터를 필수로 변경하고, `SEED` 환경 변수를 통한 저장을 지원하도록 CLI 기능을 개선했습니다.
+- 여러 부트 노드를 인자로 지정할 수 있도록 했습니다.
+- 공개 devnet chainspec을 지원하도록 `--seed` 기능을 확장했습니다.
+- dev 노드 명령어를 단순화했습니다.
+- 체인 스펙 명령어와 초기 체인 스펙을 추가했습니다.
+- GitHub Actions를 통해 E2E 테스트를 실행할 수 있도록 했습니다.
+- 인자에서 여러 부트 노드를 지정할 수 있는 기능을 도입했습니다.
+- 사이드체인 인프라용 Docker Compose 설정을 추가했습니다.
+
+### Bug Fixes
+
+- 특정 작업 중 발생하는 RPC 패닉을 수정했습니다.
+- 이미지 빌드 문제를 해결하고 안정적인 배포 워크플로를 확보했습니다.
+- 응답의 일관성을 위해 JSON 블록 출력을 수정했습니다.
+- Substrate WS 설정 업데이트로 인한 호환성 문제를 해결했습니다.
+- clippy 린트를 수정했습니다.
+- 노드 버전 조회를 위한 CI를 수정했습니다.
+- 빌드 프로세스의 안정성 문제를 해결하기 위해 nix 이미지 빌드를 수정했습니다.
+
+### Breaking Changes
+
+- 노드를 `v0.0.25` 버전으로 업그레이드했습니다.
+- Ariadne 외 코드 및 기능 플래그를 제거했습니다.
+- Ariadne 외 Docker 이미지 빌드를 중단했습니다.
+- active-flow 및 incoming-tx 팔렛을 폐지했습니다.
+- `--seed` 인자 구현을 리팩토링하여 CLI를 변경했습니다.
+- 공개 devnet용 체인 스펙 형식을 업데이트했습니다.
+
+### Known Issues
+
+- 일부 기능은 대규모 배포 환경에서 최적화가 필요할 수 있습니다.
+- 이전 RPC 설정을 사용할 때 특정 상황에서 사소한 불일치가 나타날 수 있습니다.
+
+### Upgrade Instructions
+
+1. 이번 릴리스와의 호환성을 위해 Rust 컴파일러를 안정 버전으로 업데이트하세요.
+2. 업데이트된 체인 스펙과 런타임 도구에 접근하려면 최신 Docker 이미지를 풀(pull)하세요.
+3. 필수 `--seed` 파라미터를 포함하도록 노드 설정을 업데이트하거나, `SEED` 환경 변수에 값을 설정하세요.

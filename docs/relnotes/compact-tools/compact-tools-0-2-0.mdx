@@ -1,0 +1,88 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact developer tools 0.2.0
+displayed_sidebar: sidebar
+---
+
+## Compact developer tools 0.2.0 release notes
+
+오늘 Compact developer tools 0.2.0을 릴리스합니다.
+이번 버전은 Compact developer tools 자체의 업데이트와 Compact compiler 0.25.0과 함께 릴리스되는 새로운 Compact formatter 도구를 지원합니다.
+formatter은 TypeScript 및 프로그래밍 언어 관례에 따라 Compact 코드를 포맷합니다.
+
+
+## New Features
+
+### Compact Self Update
+
+Compact developer tool을 **업데이트**하려면 다음을 실행하세요:
+
+```
+$ compact self update
+downloading compact 0.2.0 aarch64-apple-darwin
+installing to /Users/my-name/.local/bin
+  compact
+everything's installed!
+compact: compact -- Update installed -- 0.2.0
+```
+
+### Formatter
+
+formatter을 사용하려면 Compact compiler을 업데이트해야 합니다. 다음을 실행하세요:
+
+```
+$ compact update
+compact: aarch64-darwin -- 0.25.0 -- installed
+compact: aarch64-darwin -- 0.25.0 -- default.
+```
+
+Compact compiler을 업데이트하지 않고 formatter을 사용하려고 하면 `Error: formatter not available` 오류가 발생합니다.
+
+현재 디렉토리(하위 디렉토리 포함)의 모든 Compact 컨트랙트를 인플레이스로 포맷하려면 다음을 실행하세요:
+
+```
+$ compact format
+```
+
+formatter이 컨트랙트를 파싱할 수 없으면 `some-contract.compact: failed`가 표시됩니다. 그러나 포맷이 성공하면 컨트랙트가 인플레이스로 포맷되며 Compact developer tool에서 별도의 피드백은 없습니다.
+
+특정 디렉토리의 Compact 컨트랙트를 인플레이스로 **포맷**하려면(하위 디렉토리 포함) 다음을 실행하세요:
+
+```
+$ compact format <my-directory.compact>
+```
+
+Compact 컨트랙트 목록을 인플레이스로 **포맷**하려면 다음을 실행하세요:
+
+```
+$ compact format <contract-1.compact> <contract-2.compact> <...>
+```
+
+현재 디렉토리(하위 디렉토리 포함)의 Compact 컨트랙트가 올바르게 포맷되었는지 **확인**하려면 다음을 실행하세요:
+
+```
+$ compact format --check
+```
+
+올바르게 포맷되지 않은 Compact 코드가 있으면 오류를 반환하는 편리한 플래그입니다.
+올바르게 포맷되지 않은 컨트랙트가 있으면 컨트랙트 이름, `-`로 시작하는 원본 줄, `+`로 시작하는 올바르게 포맷된 줄이 표시됩니다.
+예시:
+
+```
+./some-contract.compact:
+   22 |    george,
+   23 |  }
+   24 |
+-  25 | -export   struct Structure {
++  25 | +export struct Structure {
+   26 |    a: Names;
+   27 |  }
+   28 |
+```
+
+formatter 사용법에 대한 도움말을 보려면 다음을 실행하세요:
+
+```
+$ compact help format
+```

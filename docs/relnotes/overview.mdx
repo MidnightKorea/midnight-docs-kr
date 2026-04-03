@@ -1,0 +1,131 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: "Release Overview"
+hide_title: true
+displayed_sidebar: sidebar
+
+---
+
+<h1 style={{ marginBottom: '0.1rem' }}>Latest Stable Release</h1>
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+</div>
+
+## Compatibility
+
+이번 릴리스는 Preview, Preprod, Mainnet 환경에 Midnight Ledger 8.0을 제공하며, 런타임, SDK, 도구 업데이트를 포함합니다.
+ 
+  
+---  
+  
+## Environments  
+
+아래는 DApp 개발을 위한 Preview, Preprod, Mainnet 환경별 유용한 링크입니다.
+
+### Preview
+- **Node RPC**: https://rpc.preview.midnight.network
+- **Proof Server**: https://lace-proof-pub.preview.midnight.network
+- **Indexer (GraphQL)**: https://indexer.preview.midnight.network/api/v3/graphql
+- **Faucet UI**: https://faucet.preview.midnight.network/
+- **Block Explorer**: https://explorer.preview.midnight.network
+- **cNgD DApp**: https://dust.preview.midnight.network
+
+### Preprod
+- **Node RPC**: https://rpc.preprod.midnight.network
+- **Proof Server**: https://lace-proof-pub.preprod.midnight.network
+- **Indexer (GraphQL)**: https://indexer.preprod.midnight.network/api/v3/graphql
+- **Faucet UI**: https://faucet.preprod.midnight.network/
+- **Block Explorer**: https://explorer.preprod.midnight.network
+- **cNgD DApp**: https://dust.preprod.midnight.network
+
+### Mainnet
+
+Mainnet 공개 엔드포인트는 아직 게시되지 않았습니다. 사용 가능해지면 이곳에 추가될 예정입니다.
+
+---
+
+## Compatibility matrix
+
+아래 호환성 매트릭스는 이번 릴리스 기준으로 Preview, Preprod, Mainnet 환경에서 함께 테스트된 버전을 나타냅니다.
+
+### Preview
+
+| Component | Version |
+|---------|--------|
+| Ledger | 8.0.3 |
+| Node | 0.22.3 |
+| Proof Server | 8.0.3 |
+| On-chain Runtime | 3.0.0 |
+| Compact Runtime | 0.15.0 |
+| Compact Toolchain (`compact`) | 0.5.1 |
+| Compact Compiler (`compactc`) | 0.30.0 |
+| Compact JS | 2.5.0 |
+| Platform JS | 2.2.4 |
+| Indexer | 4.0.1 |
+| DApp Connector API | 4.0.1 |
+| Wallet SDK Facade | 3.0.0 |
+| Midnight.js | 4.0.2 |
+| testkit-js | 4.0.2 |
+| Block Explorer | 0.5.0 |
+| Faucet | 0.11.9 |
+
+### Preprod & Mainnet
+
+| Component | Version |
+|---------|--------|
+| Ledger | 8.0.3 |
+| Node | 0.22.2 |
+| Proof Server | 8.0.3 |
+| On-chain Runtime | 3.0.0 |
+| Compact Runtime | 0.15.0 |
+| Compact Toolchain (`compact`) | 0.5.1 |
+| Compact Compiler (`compactc`) | 0.30.0 |
+| Compact JS | 2.5.0 |
+| Platform JS | 2.2.4 |
+| Indexer | 4.0.1 |
+| DApp Connector API | 4.0.1 |
+| Wallet SDK Facade | 3.0.0 |
+| Midnight.js | 4.0.2 |
+| testkit-js | 4.0.2 |
+| Block Explorer | 0.5.0 |
+| Faucet | 0.11.9 (Preprod only) |
+
+---
+
+## Release notes & references  
+
+아래 목록은 DApp 개발에 필요한 각 컴포넌트의 상세 릴리스 노트를 담고 있습니다.
+  
+- Ledger   
+  https://github.com/midnightntwrk/midnight-ledger/releases 
+  
+- Node    
+  https://github.com/midnightntwrk/midnight-node/releases 
+  
+- Indexer  
+  https://github.com/midnightntwrk/midnight-indexer/releases
+
+- Compact Compiler  
+  https://github.com/midnightntwrk/compact/releases
+  
+- DApp Connector API   
+  https://github.com/midnightntwrk/midnight-dapp-connector-api/releases  
+  
+- Wallet SDK    
+  https://github.com/midnightntwrk/midnight-wallet/blob/main/RELEASE_NOTES.md  
+  
+- Midnight.js   
+  https://github.com/midnightntwrk/midnight-js/releases
+  
+- Compact JS
+  https://www.npmjs.com/package/@midnight-ntwrk/compact-js?activeTab=versions
+  
+---

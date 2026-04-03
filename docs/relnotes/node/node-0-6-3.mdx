@@ -1,0 +1,65 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Node
+displayed_sidebar: sidebar
+---
+
+# Node
+
+Node은 Midnight 네트워크와 상호 작용하여 동기화, 트랜잭션 검증, 체인 상태 유지 등의 작업을 수행하는 블록체인 인프라 구성 요소입니다.
+
+[관련 문서 링크](../../develop/nodes-and-dapps/node-endpoints)
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  13 September 2024
+</div>
+
+## Midnight 0.6.3 RC testnet release notes
+
+Midnight 노드의 최신 업데이트와 개선 사항을 안내합니다. 새로운 기능, 버그 수정, 호환성에 영향을 주는 변경 사항 등이 포함되어 있습니다.
+
+### New Features
+
+- 빌드 단순화를 도입했습니다.
+- 디버깅 파드용 슬립 모드를 추가했습니다.
+- qa-net 및 testnet 환경에 대한 지원을 개선하기 위해 `ariadne-qa/qanet`용 `addresses.json` 및 체인 스펙을 업데이트했습니다.
+- 노출된 열거형에 scale codec 인덱스를 추가했습니다.
+- CLI를 조정하고 개선했습니다.
+- 프루닝(pruning) CLI 인자를 재구현했습니다.
+- 리소스 사용량을 추적하기 위한 스토리지 모니터를 노드에 추가했습니다.
+- HALO2 지원을 통합하고 원장을 **v3.0.0-beta.1**로 업그레이드한 후, **alpha4** 및 **alpha5**로 추가 업그레이드했습니다.
+- 설정 시스템을 도입했습니다.
+- 여러 원장 버전에 대한 지원을 추가했습니다.
+- 런타임 버전 관리를 위한 고유 트랜잭션(inherent transaction)을 추가하고 체인 스펙을 업그레이드했습니다.
+
+### Bug Fixes
+
+- 오래된 `inputoutput` 이미지 참조 관련 문제를 수정했습니다.
+- 비로컬 노드에서의 트랜잭션 제너레이터 동기화 문제를 해결했습니다.
+- 체인 스펙 관련 문제를 해결했습니다.
+- WSS RPC에서 작동하도록 제너레이터 Docker 빌드를 수정하고 동기화 속도를 개선했습니다.
+- `cargo.lock` 및 의존성 불일치 문제를 해결했습니다.
+- testnet 제네시스 상태에서 네트워크 ID 불일치를 수정했습니다.
+- 트랜잭션 처리 시 트랜잭션 제너레이터 이미지 충돌 문제를 수정했습니다.
+
+### Breaking Changes
+
+- 원장을 **v3.0.0-beta.1**로 업그레이드했습니다.
+- 특정 CLI 인자의 이름을 변경하고 대체했습니다(예: `SEED`를 다시 `SEED_PHRASE`로 변경).
+- testnet용 체인 스펙을 업데이트했습니다.
+- 노드 및 제너레이터 이미지에서 사용하지 않는 환경 변수를 제거했습니다.
+
+### Known Issues
+
+- 이전 체인 스펙을 새로운 제네시스 상태와 통합할 때 사소한 불일치가 발생할 수 있습니다.
+- HALO2 및 스토리지 모니터에 대한 성능 최적화가 진행 중입니다.

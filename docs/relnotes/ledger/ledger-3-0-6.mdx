@@ -1,0 +1,62 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Ledger
+displayed_sidebar: sidebar
+---
+
+# Ledger
+
+Midnight의 원장(ledger)은 컨트랙트 상태와 토큰 상태의 공개 기록으로, Zswap의 암호학적 커밋먼트와 컨트랙트 주소를 해당 상태에 매핑하는 구조로 구성됩니다.
+
+[관련 문서 링크](../../develop/how-midnight-works/semantics)
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  22 January 2025
+</div>
+
+## Midnight 3.0.6 Ledger release notes
+
+Midnight Ledger의 최신 업데이트와 개선 사항을 확인하세요. 새로운 기능, 버그 수정, 기능성과 안정성을 향상시키기 위한 호환성 변경 사항이 포함되어 있습니다.
+
+## New Features
+
+- `coinCommitment` 및 `coinNullifier` 함수를 도입했습니다.
+- Zswap 패키지에서 키를 Zswap 로컬 상태와 분리하는 API를 도입했습니다.
+- `midnight-storage-0.3`에서 `Map`의 직렬화 형식이 변경된 호환성 변경 사항을 처리합니다. 이로 인해 중첩된 `Map` 구조를 포함하는 모든 타입에 마이너 버전 업데이트가 필요했습니다.
+
+## Breaking Changes
+
+- 일부 데이터 구조는 비공개 필드 추가로 인해 더 이상 직접 생성할 수 없습니다:
+  - `Transaction`은 더 이상 공개 구조체 열거형이 아닙니다. 해당 구성 요소는 `StandardTransaction`과 `ClaimMintTransaction`으로 분리되었으며, 현재 비공개로 설정되어 있습니다.
+  - `ContractCall`, `ContractDeploy`, `MaintenanceUpdate`는 이제 비공개입니다.
+  - 트랜잭션을 구성하려면 `transaction-construction` 기능과 해당 메서드를 사용하세요.
+- `midnight-storage-0.3`의 변경으로 직렬화에 영향을 미쳤으며, 중첩된 `Map` 구조를 포함하는 타입에 대한 업데이트가 필요합니다.
+
+## Bug Fixes
+
+- 인메모리 환경에서 잘못된 정보를 사용하는 Schnorr 증명의 보안 버그를 수정했습니다.
+- 원장에서 발생 가능한 여러 패닉 사례를 제거했습니다.
+- 잔액 확인의 취약점을 제거했습니다(소수의 트랜잭션에 영향을 미치는 호환성 변경 사항).
+- Schnorr 증명이 직렬화 후 유지되지 않는 문제를 수정했습니다.
+- 인메모리 환경의 Schnorr 증명 관련 보안 문제를 수정했습니다.
+- 트랜잭션 재직렬화 문제를 수정했습니다.
+- WASM `checkProofData` 엔드포인트를 수정했습니다.
+- WASM API `fees` 엔드포인트를 수정했습니다.
+- 유지보수 업데이트의 Schnorr 증명이 직렬화 후 유지되지 않는 문제를 수정했습니다.
+- 증명 서버에서 디버그 로깅이 제거되지 않는 문제를 수정했습니다.
+
+### Artifacts
+
+- [Ledger](https://www.npmjs.com/package/@midnight-ntwrk/ledger)
+- [Zswap](https://www.npmjs.com/package/@midnight-ntwrk/ledger?activeTab=versions)
+- [Onchain runtime](https://www.npmjs.com/package/@midnight-ntwrk/onchain-runtime?activeTab=versions)

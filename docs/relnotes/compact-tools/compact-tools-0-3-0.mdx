@@ -1,0 +1,61 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact developer tools 0.3.0
+displayed_sidebar: sidebar
+---
+
+## Compact developer tools 0.3.0 release notes
+
+오늘 Compact developer tools (devtools) 0.3.0을 릴리스합니다.
+이번 버전은 많은 경우에 컨트랙트를 새로운 언어 버전으로 업데이트할 수 있는 새로운 `fixup` 하위 명령에 대한 지원을 추가합니다.
+이것은 브레이킹 체인지가 아니며 다른 변경 사항은 없습니다.
+
+기존에 devtools을 설치한 경우, `compact self update` 명령으로 업데이트할 수 있습니다.
+
+기존 devtools 설치가 없는 경우, [릴리스 페이지](https://github.com/midnightntwrk/compact/releases/tag/compact-v0.3.0)에 표시된 셸 명령을 사용하여 버전 0.3.0을 설치할 수 있습니다.
+
+## New Features
+
+### The Compact fixup tool
+
+이번 릴리스에서 `compact fixup` 하위 명령을 활성화합니다.
+기술적으로, fixup 도구은 Compact 툴체인에서 제공되며, devtools의 내장 명령이 아닙니다.
+fixup 도구은 이미 Compact 툴체인 버전 0.25.0과 최신 버전 0.26.0에 포함되어 있었습니다.
+이번 devtools 0.3.0 릴리스은 단순히 이를 활성화합니다.
+해당 버전 중 하나를 사용 중이라면 이미 도구가 있으므로 툴체인을 업데이트할 필요가 없습니다.
+툴체인 버전 0.24.0 이하를 사용 중이고 `fixup`을 호출하려고 하면 다음과 같은 메시지가 표시됩니다:
+
+```
+Error: fixup tool not available - please install a compiler version that includes fixup-compact
+```
+
+사용 중인 툴체인 버전은 현재 버전을 화살표로 표시하는 `compact list` 하위 명령이나 버전을 출력하는 `compact compile --version`으로 확인할 수 있습니다.
+
+fixup 도구은 언어 변경 시 컨트랙트를 새 언어 버전으로 업데이트하는 데 사용할 수 있습니다.
+`compact fixup` 하위 명령으로 호출하며, Compact 소스 코드 파일을 입력받아 업데이트된 파일을 표준 출력으로 작성합니다.
+평소와 같이 `compact help fixup` 또는 `compact fixup --help`로 도움말을 볼 수 있습니다.
+
+참고 사항:
+
+* 표준 출력으로 작성하는 동작은 입력 파일을 덮어쓰는 formatter의 동작과 다릅니다.
+  fixup 후 덮어쓰기를 원하면 `compact fixup`에 `-i` 또는 `--in-place` 플래그를 전달하면 됩니다.
+  이후 devtools 릴리스에서 이 두 도구에 대해 일관된 인터페이스를 제공할 예정입니다.
+
+* `fixup`은 `fixup` 자체가 지원하는 것과 다른 언어 또는 컴파일러 버전 pragma가 있는 컨트랙트를 변경하지 않습니다.
+  시도하면 `language version 0.19.0 mismatch`와 같은 메시지가 표시됩니다. 여기서 0.19.0은 예상되는 버전입니다
+  (마찬가지로 컴파일러 버전이 일치하지 않으면 `compiler version 0.26.0 mismatch`와 같은 메시지가 표시됩니다).
+  예상되는 언어 버전은 `compact compile --language-version`으로 확인할 수 있으며, 예상되는 컴파일러 버전은 툴체인 버전과 동일합니다.
+  이러한 동작의 이유는 컨트랙트를 "수정"하여 깨뜨리지 않도록 하기 위함입니다.
+
+* **중요:** 위의 사항은 도구를 실행하기 전에 먼저 컨트랙트의 언어 또는 컴파일러 버전 pragma를 조정해야 한다는 것을 의미합니다.
+  다른 변경은 필요하지 않습니다.
+
+* `fixup`은 formatter을 사용하여 코드를 포맷합니다.
+  이는 fixup이 수행하는 일부 변경이 포맷을 깨뜨릴 수 있으므로, 코드를 다시 포맷하기 위함입니다.
+  변경 사항이 없더라도 일관된 동작을 보장하기 위해 포맷을 수행합니다.
+
+컨트랙트가 이미 툴체인 버전 0.26.0에 대해 "fixed up" 되어 있다면, 이 도구은 당장은 유용하지 않을 수 있습니다.
+
+시험 삼아 사용해보고 싶다면, 예를 들어 컨트랙트에서 표준 라이브러리 회로 `persistentHash`를 이전 `persistent_hash` 철자(툴체인 버전 0.24.0 기준)로 변경해 볼 수 있습니다.
+그러면 fixup 도구이 해당 회로를 새 철자로 되돌립니다.

@@ -1,0 +1,283 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: DApp Connector API v4.0.0 release notes
+description: This API provides a comprehensive interface for the DApp - Wallet connection, defining the structure of the data and operations available.
+displayed_sidebar: sidebar
+toc_max_heading_level: 2
+---
+
+* **Version**: v4.0.0  
+* **Date**: 28 January 2026  
+* **Environment**: Preview, PreProd
+
+---
+
+## High-level summary
+
+이번 릴리스은 DApp Connector API의 전면적인 재설계입니다. 타입 기반 아키텍처, 네트워크 인식 연결, 세분화된 잔액/주소 메서드, 증명 위임, CAIP-372 호환 지갑 검색 기능을 도입합니다. 브레이킹 체인지가 v3.0.0을 사용하는 모든 개발자에게 영향을 미칩니다.
+
+---
+
+## Audience
+
+이번 릴리스 노트는 다음 개발자에게 중요합니다:
+
+- DApp에서 `@midnight-ntwrk/dapp-connector-api`을 사용하는 개발자
+- Midnight 애플리케이션에 지갑 기능을 통합하는 개발자
+- DApp Connector API와 호환되는 지갑 구현을 유지 관리하는 개발자
+
+---
+
+## What changed (Summary of updates)
+
+- 인터페이스 기반에서 타입 기반 아키텍처로 API 전면 재설계
+- `enable()`/`isEnabled()` 연결 모델을 네트워크 인식 `connect(networkId)`로 교체
+- `@midnight-ntwrk/wallet-api` 및 `@midnight-ntwrk/zswap` 의존성 제거
+- `getProvingProvider()` 메서드를 통한 증명 위임 추가
+- `makeIntent()` 메서드를 통한 아토믹 스왑 지원 추가
+- 단일 `state()` 메서드를 대체하는 세분화된 잔액 및 주소 메서드 추가
+- 새로운 오류 코드 추가: `PermissionRejected` 및 `Disconnected`
+- 크로스 바운더리 호환성을 위해 `APIError`을 클래스에서 타입으로 변경
+- 종합적인 사양 문서 추가
+
+---
+
+## New features
+
+이번 릴리스에서 추가된 새로운 기능의 상세 내용입니다.
+
+### Proving delegation (`getProvingProvider`)
+
+DApp이 ZK 증명 생성을 지갑에 위임할 수 있습니다. 이를 통해 지갑이 사용자 선호도에 따라 다양한 증명 방식(로컬, 원격, 하드웨어 가속)을 제공할 수 있어 유연성과 사용자 경험이 향상됩니다. DApp이 `KeyMaterialProvider`을 제공하면 Midnight Ledger의 인터페이스와 호환되는 `ProvingProvider`을 받습니다.
+
+### Intent creation (`makeIntent`)
+
+아토믹 스왑 시나리오를 위해 의도적으로 불균형한 인텐트가 포함된 트랜잭션을 생성합니다. 구성 가능한 인텐트 ID와 수수료 결제 옵션으로 원하는 입력 및 출력을 지정할 수 있습니다. DEX 통합 및 P2P 토큰 스왑에 필수적입니다.
+
+### Transfer creation (`makeTransfer`)
+
+지정된 출력으로 전송 트랜잭션을 생성하는 간소화된 메서드입니다. 코인 선택 및 트랜잭션 구성의 모든 복잡성을 내부적으로 처리합니다.
+
+### Data signing (`signData`)
+
+구성 가능한 인코딩(hex, base64, text) 및 키 유형 선택으로 지갑 키를 사용하여 임의 데이터에 서명할 수 있습니다. 실수로 트랜잭션에 서명하는 것을 방지하기 위해 데이터에 자동으로 접두사가 추가됩니다.
+
+### Transaction history (`getTxHistory`)
+
+지갑과 관련된 페이지네이션된 트랜잭션 내역을 조회합니다. 트랜잭션 해시와 상세 상태 정보(pending, confirmed, finalized, discarded)를 포함합니다.
+
+### Connection status (`getConnectionStatus`)
+
+DApp이 지갑 연결이 여전히 유효한지, 어떤 네트워크에 연결되어 있는지 확인할 수 있습니다.
+
+### Hint usage (`hintUsage`)
+
+DApp이 사용하려는 API 메서드를 힌트로 제공하여, 지갑이 더 나은 UX를 위해 사전에 사용자 권한을 요청할 수 있도록 합니다.
+
+### CAIP-372 compatible discovery
+
+새로운 `InitialAPI` 타입은 CAIP-372 초안 사양과 호환되는 표준화된 지갑 검색을 위해 `rdns`(역방향 DNS 식별자), `name`, `icon`, `apiVersion`을 포함합니다.
+
+---
+
+## New features requiring configuration updates
+
+구성 업데이트가 필요한 새로운 기능의 상세 내용입니다.
+
+### Network-aware connection
+
+모든 DApp은 대상 네트워크를 지정하도록 연결 로직을 업데이트해야 합니다. 이를 통해 DApp이 올바른 네트워크에 연결되고 멀티 네트워크 지갑을 지원할 수 있습니다.
+
+**필수 업데이트**:
+- `wallet.enable()`을 `wallet.connect(networkId)`로 교체하세요.
+- Preview에는 `'preview'`, Mainnet에는 `'mainnet'`, 테스트 네트워크에는 다른 문자열을 사용하세요.
+
+---
+
+## Improvements
+
+이번 릴리스에서 추가된 개선 사항의 상세 내용입니다.
+
+### Granular balance methods
+
+단일 `state()` 메서드를 특정 메서드(`getShieldedBalances`, `getUnshieldedBalances`, `getDustBalance`)로 교체하여 더 명확한 의미와 더 세분화된 권한 제어를 제공합니다.
+
+### Granular address methods
+
+다양한 주소 유형을 조회하기 위한 별도의 메서드(`getShieldedAddresses`, `getUnshieldedAddress`, `getDustAddress`)를 Bech32m 인코딩으로 제공합니다.
+
+### Type-based architecture
+
+인터페이스/클래스 기반 설계에서 TypeScript 타입으로 전환하여, 크로스 바운더리 `instanceof` 문제를 해소하고 `ts-custom-error` 의존성을 제거하여 번들 크기를 줄였습니다.
+
+### Enhanced transaction balancing
+
+트랜잭션 밸런싱을 `balanceUnsealedTransaction`과 `balanceSealedTransaction`으로 분리하여 다양한 사용 사례에 적합한 메서드를 제공합니다.
+
+---
+
+## Deprecations
+
+이번 릴리스에서 deprecated된 기능 목록입니다.
+
+### Prover server URI
+
+- **Starts**: v4.0.0 
+- **Full removal**: v5.0.0 (예정) 
+- **Replacement**: `getProvingProvider()` 메서드
+
+**마이그레이션 단계**:
+- 설정에서 `proverServerUri` 사용을 중단하세요.
+- `getProvingProvider(keyMaterialProvider)`을 사용하여 proving provider을 얻으세요.
+- 키 자료 확인을 위해 Midnight.js의 `ZKConfigProvider`와 통합하세요.
+
+---
+
+## Breaking changes
+
+브레이킹 체인지 및 개발자에게 필요한 조치 사항의 상세 내용입니다.
+
+### Complete API redesign
+
+전체 API 구조가 인터페이스 기반에서 타입 기반 아키텍처로 재설계되었습니다.
+
+**영향 범위**: v3.0.0 API을 사용하는 모든 기존 DApp 통합에 영향을 미칩니다.
+
+**필수 조치**:
+- 모든 import를 새 타입 이름으로 업데이트하세요.
+- `DAppConnectorAPI`을 `InitialAPI`로 교체하세요.
+- `DAppConnectorWalletAPI`을 `WalletConnectedAPI`로 교체하세요.
+- `DAppConnectorWalletState` 사용을 개별 메서드 호출로 교체하세요.
+
+**코드 예시**:
+
+```typescript
+// v3.0.0
+const wallet: DAppConnectorAPI = window.midnight?.someWallet;
+const enabled = await wallet.isEnabled();
+const walletApi = await wallet.enable();
+const state = await walletApi.state();
+console.log(state.address);
+
+// v4.0.0
+const wallet: InitialAPI = window.midnight?.someWallet;
+const connectedApi = await wallet.connect('preview');
+const addresses = await connectedApi.getShieldedAddresses();
+console.log(addresses.shieldedAddress);
+```
+
+### Connection model
+
+`enable()` 및 `isEnabled()` 메서드가 제거되고 `connect(networkId)`로 교체되었습니다.
+
+**영향 범위**: 기존 DApp의 모든 연결 로직에 영향을 미칩니다.
+
+**필수 조치**:
+- `wallet.enable()`을 `wallet.connect(networkId)`로 교체하세요.
+- `isEnabled()` 확인을 제거하고 대신 `getConnectionStatus()`을 사용하세요.
+- 네트워크 ID 매개변수를 제공하세요 (Preview에는 'preview', Mainnet에는 'mainnet' 사용).
+
+### State access removal
+
+결합된 지갑 상태를 반환하는 `state()` 메서드가 제거되었습니다.
+
+**영향 범위**: `state().address`, `state().coinPublicKey` 등에 접근하는 모든 코드에 영향을 미칩니다.
+
+**필수 조치**:
+- `state()`을 적절한 세분화된 메서드로 교체하세요.
+- shielded 주소와 키에는 `getShieldedAddresses()`을 사용하세요.
+- unshielded 주소에는 `getUnshieldedAddress()`을 사용하세요.
+- 잔액에는 `getShieldedBalances()` / `getUnshieldedBalances()`을 사용하세요.
+
+**코드 예시**:
+
+```typescript
+// v3.0.0
+const state = await walletApi.state();
+const address = state.address;
+const coinPubKey = state.coinPublicKey;
+
+// v4.0.0
+const { shieldedAddress, shieldedCoinPublicKey } = await connectedApi.getShieldedAddresses();
+```
+
+### Transaction balancing
+
+`balanceAndProveTransaction(tx, newCoins)`이 `balanceUnsealedTransaction(tx)` 및 `balanceSealedTransaction(tx)`으로 교체되었습니다.
+
+**영향 범위**: 모든 트랜잭션 밸런싱 로직에 영향을 미칩니다.
+
+**필수 조치**:
+- 사용 사례에 unsealed(컨트랙트 상호작용) 또는 sealed(스왑 완료) 밸런싱이 필요한지 결정하세요.
+- 메서드 호출을 업데이트하고 문자열 기반 트랜잭션 형식을 처리하세요.
+- `newCoins` 매개변수를 제거하세요 (더 이상 필요하지 않습니다).
+
+**코드 예시**:
+
+```typescript
+// v3.0.0
+const provedTx = await walletApi.balanceAndProveTransaction(tx, newCoins);
+
+// v4.0.0
+const { tx: balancedTx } = await connectedApi.balanceUnsealedTransaction(serializedTx);
+```
+
+### APIError type
+
+`APIError`이 `CustomError`을 확장하는 클래스에서 타입 별칭으로 변경되었습니다.
+
+**영향 범위**: `instanceof APIError` 검사에 영향을 미칩니다.
+
+**필수 조치**:
+- `error instanceof APIError`을 `error.type === 'DAppConnectorAPIError'`로 교체하세요.
+- 오류 처리 로직을 업데이트하세요.
+
+**코드 예시**:
+
+```typescript
+// v3.0.0
+try {
+  await walletApi.submitTransaction(tx);
+} catch (error) {
+  if (error instanceof APIError) {
+    console.log(error.code);
+  }
+}
+
+// v4.0.0
+try {
+  await connectedApi.submitTransaction(tx);
+} catch (error) {
+  if (error.type === 'DAppConnectorAPIError') {
+    console.log(error.code);
+  }
+}
+```
+
+### Configuration interface
+
+`ServiceUriConfig`이 `Configuration`으로 이름이 변경되었고, `networkId`가 추가되었으며, `proverServerUri`가 선택적이 되고 deprecated 처리되었습니다.
+
+**영향 범위**: `ServiceUriConfig`을 import하거나 사용하는 코드에 영향을 미칩니다.
+
+**필수 조치**:
+- import를 `Configuration` 타입을 사용하도록 업데이트하세요.
+- 선택적 `proverServerUri`을 처리하세요.
+- `networkId`가 예상 네트워크와 일치하는지 검증하세요.
+
+### Removed dependencies
+
+`@midnight-ntwrk/wallet-api` 및 `@midnight-ntwrk/zswap`이 의존성에서 제거되었습니다.
+
+**영향 범위**: 이러한 전이적 의존성에 의존하던 타입 import에 영향을 미칩니다.
+
+**필수 조치**: 트랜잭션 타입을 문자열 직렬화 형식을 사용하도록 업데이트하세요.
+
+---
+
+## Links and references
+
+- **Specification**: [DApp Connector API specification](https://github.com/midnightntwrk/midnight-dapp-connector-api/blob/main/SPECIFICATION.md)
+- **API documentation**: [DApp Connector API documentation](/api-reference/dapp-connector/)
+- **NPM package**: [@midnight-ntwrk/dapp-connector-api](https://www.npmjs.com/package/@midnight-ntwrk/dapp-connector-api)

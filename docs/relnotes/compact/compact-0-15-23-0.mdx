@@ -1,0 +1,131 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact compiler 0.23.0 (Compact language 0.15.0)
+displayed_sidebar: sidebar
+---
+
+## Compact compiler 0.23.0 (Compact language 0.15.0) release notes
+
+오늘 Compact 컴파일러 버전 0.23.0을 릴리스합니다. 이 릴리스는 Compact 언어를 버전 0.14.0에서 0.15.0으로 업데이트합니다. 새 버전의 컴파일러는 곧 예정된 Midnight [테스트넷 업그레이드](https://midnight.network/blog/upcoming-testnet-02-upgrade-all-you-need-to-know)와 함께 제공됩니다.
+
+테스트넷 업그레이드는 **호환성을 깨는** 변경입니다: 업그레이드된 테스트넷 네트워크에서 동작하려면 컨트랙트를 Compact 컴파일러 버전 0.23.0 이상으로 컴파일해야 합니다. 네트워크 업그레이드의 일부로 증명 시스템이 변경되어 컨트랙트에서 Compact 컴파일러가 생성하는 새로운 증명자 및 검증자 키가 필요합니다.
+
+:::important
+
+컴파일러는 증명자 및 검증자 키를 생성하기 위해 별도의 바이너리 파일(`zkir`)을 사용합니다. 컴파일러에서 `error: unrecognized subcommand 'compile-many'` 오류 메시지가 표시되면 호환되지 않는 버전의 `zkir` 바이너리를 사용하고 있는 것입니다. 경로에서 찾은 `zkir` 바이너리가 컴파일러 버전 0.23.0에 포함된 것인지 확인하세요.
+
+:::
+
+이 릴리스에는 일부 언어 변경도 포함되어 있으며, 이에 따라 Compact 언어 버전이 0.15로 증가했습니다.
+
+또한 다수의 버그 수정과 컴파일러 개선이 포함되어 있으며, 아래에 추가로 설명합니다.
+
+## Summary of Changes
+
+이 릴리스에는 다음과 같은 언어 변경이 포함되어 있습니다:
+
+- [호환성을 깨는 변경] 최대 `Field` 값이 변경되었습니다
+- [비호환성 변경 아님] 후행 쉼표와 세미콜론이 더 많은 곳에서 허용됩니다
+
+또한 다음 버그 수정이 포함되어 있습니다:
+
+- 잘못된 `Field` 산술 오버플로 및 언더플로 수정
+- 잘못된 공통 부분식 제거로 인한 크래시 수정
+- 원장 ADT 타입으로의 캐스트 시도 시 크래시 수정
+- 큰 정수 리터럴 관련 크래시 수정
+
+컴파일러 동작 방식에 대한 개선이 이루어졌습니다:
+
+- 키 생성 중 진행률 표시기
+- 컴파일러가 이제 오래된 ZKIR 파일을 제거합니다
+- 개발자가 나눗셈을 사용하려 할 때 더 나은 오류 메시지
+
+## Language Updates
+
+이 릴리스에는 Compact 언어에 대한 몇 가지 변경이 포함되어 있습니다. 아래 설명된 두 기능에 의존하는 컨트랙트를 작성하는 경우, 다음과 같이 Compact 언어 버전 0.15를 명시적으로 요청할 수 있습니다:
+
+```compact
+pragma language_version 0.15;
+```
+
+### [Breaking] The maximum `Field` value has changed
+
+Midnight 테스트넷 업그레이드에는 ZK 증명 시스템의 변경이 포함됩니다. zkSNARK를 생성하는 데 사용되는 타원 곡선이 Pluto-Eris에서 BLS12-381로 전환됩니다. 이 전환이 Compact 언어에 미치는 영향은 DApp의 TypeScript 코드에서 `MAX_FIELD`로 사용할 수 있는 최대 필드 값이 변경된다는 것입니다.
+
+이것은 **호환성을 깨는** 변경입니다. 이 값에 의존하는 컨트랙트가 있다면 변경해야 할 수 있습니다.
+
+### [Non-breaking] Trailing commas and semicolons are now allowed in more places
+
+TypeScript는 쉼표로 구분된 목록에서 후행 쉼표를 허용하지만, Compact에서는 동일한 모든 위치에서 허용하지 않았습니다. Compact의 구문 항목 목록 전체에서 후행 쉼표 지원을 추가했습니다. 단, 시퀀스 표현식에서는 허용하지 않습니다(TypeScript에서도 허용되지 않습니다).
+
+이 변경을 적용할 때 안타깝게도 후행 쉼표를 허용하려고 했던 일부 위치를 업데이트하지 못했습니다: 현재 회로나 위트니스 호출의 인수 목록과 `map` 또는 `fold` 표현식에서는 동작하지 않습니다. 이는 향후 릴리스에서 수정될 버그입니다.
+
+다음은 후행 쉼표를 보여주는 예시입니다:
+
+```compact
+circuit foo<T, S,>(x: T, y: S,): [S, T,] {
+  return [y, x,];
+}
+
+export circuit bar(): Uint<8> {
+  foo<Uint<8>, Uint<8>,>(1, 2);
+  foo<Uint<8>, Uint<8>>(1, 2,);  // 의도하지 않은 구문 오류 (컴파일러 버그)
+  return 1, 2, 3,;  // 의도된 구문 오류 (TypeScript와 일치)
+}
+```
+
+이것은 **비호환성 변경이 아닙니다**. 이전에 컴파일되고 실행되던 프로그램은 동일한 결과로 계속 컴파일되고 실행됩니다.
+
+## Bug Fixes
+
+### Fix for incorrect `Field` arithmetic overflow and underflow
+
+Compact의 `Field` 타입은 기본 암호화 백엔드에 따라 고정된 최대값을 갖습니다. `Field` 덧셈과 곱셈의 오버플로는 "래핑"되어야 합니다: 결과는 최대 필드 값 더하기 1의 나머지(modulo)여야 합니다. 마찬가지로 `Field` 뺄셈의 언더플로도 래핑되어야 합니다. 이는 컴파일러가 생성한 JavaScript 코드에서 올바르게 구현되지 않았습니다. 잘못된 결과 외에도 증명이 올바른 산술을 사용하기 때문에 트랜잭션을 제출할 수 없는 상황이 발생할 수 있었습니다. 이제 [언어 레퍼런스](https://docs.midnight.network/develop/reference/compact/compact-reference#binary-arithmetic-expressions)에 설명된 대로 올바르게 동작하도록 수정되었습니다.
+
+### Fix for a crash due to incorrect common subexpression elimination
+
+Compact 컴파일러는 증명의 크기와 복잡성을 줄이기 위해 회로에 대한 다수의 최적화를 수행합니다. 그중 하나가 "공통 부분식 제거"입니다. 이 최적화는 부분식의 첫 번째 발생이 다른 회로 최적화(데드 코드 제거)에 의해 제거된 코드에 있을 때 올바르게 수행되지 않았습니다. 다음 예시에서:
+
+```compact
+export circuit foo(x: Field): [] {
+  if (false) {
+    assert (x != 0) 'oops1';
+  }
+  assert (x != 0) 'oops2';
+}
+```
+
+컴파일러는 `x != 0`의 두 번째 발생을 제거하고 첫 번째 것을 사용하려 했지만, 첫 번째 발생도 도달 불가능하여 제거했습니다. 결과적으로 내부 컴파일러 오류(실패한 단언)로 인한 크래시가 발생했습니다. 이 문제가 수정되었습니다.
+
+### Fix for a crash when trying to cast to a ledger ADT type
+
+Compact에서 `Counter`나 `Map`과 같은 원장 ADT 타입은 Compact 타입으로 사용할 수 없습니다. 개발자가 Compact 값을 원장 ADT 타입으로 캐스트하려 하면, 오류 메시지로 실패하는 대신 컴파일러가 내부 오류로 실패했습니다. 이제 수정되어 컴파일러가 해당 위치에서 "invalid context for a ledger ADT type"을 보고합니다.
+
+### Fix for crashes involving large integer literals
+
+Compact 정수는 고정된 최대값으로 제한됩니다. 이 제한은 기본 암호화 백엔드에 따릅니다. 이 값을 초과하는 정수 리터럴에 대한 컴파일러의 처리가 일관되지 않았습니다. 일부 경우에는 오류를 보고하고, 일부 경우에는 크래시했습니다.
+
+크래시하던 경우를 수정하여 대신 컴파일 타임 오류를 발생시킵니다.
+
+## Compiler Improvements
+
+### There is a progress meter during key generation
+
+컴파일러 출력 중 하나는 zkSNARK를 구성하고 검증하는 데 사용되는 암호화 키 쌍(증명자 및 검증자 키)입니다. 컨트랙트에서 내보낸 각 회로에 대해 한 쌍의 키가 있습니다. 키 생성은 보통 컴파일에서 가장 느린 부분이며, 일부 사용자는 키 생성 중에 컴파일러가 "멈춘" 것으로 인식합니다.
+
+컴파일러가 진행 중임을 확인하고 남은 작업량을 추정할 수 있도록 키 생성 중 진행률 표시기를 추가했습니다.
+
+### The compiler removes stale ZKIR files
+
+컴파일러는 출력 디렉터리의 `zkir` 하위 디렉터리에 ZKIR 파일을 생성하며, 컨트랙트의 최상위 레벨에서 내보낸 각 회로에 대해 하나의 파일을 생성합니다. 이 파일은 증명자 및 검증자 키를 생성하는 데 사용됩니다. 이전에는 컴파일러가 이 디렉터리에 오래된 파일을 남겨두어 불필요한 키 생성이 발생했습니다. 잠재적으로 키 생성이 실패하는 문제(예: 새 컴파일러 릴리스에서 증명 시스템이 업데이트된 경우)가 발생할 수 있었습니다.
+
+예를 들어, 컨트랙트가 `foo`와 `bar`라는 회로를 내보내면, 컴파일러는 두 회로 모두에 대해 ZKIR 파일과 키를 생성합니다. 나중에 `bar` 회로를 제거하도록 컨트랙트를 변경하면, `bar`의 ZKIR 파일은 출력 디렉터리에 남아 있고 컴파일러는 `bar`에 대한 증명자 및 검증자 키를 계속 생성하려 했습니다.
+
+이제 컴파일러가 호출될 때 오래된 ZKIR 파일을 제거합니다. 키 생성이 컴파일에서 가장 느린 부분이므로, 이는 사용성 향상입니다.
+
+### Better error message when a developer attempts to use division
+
+Compact은 아직 나눗셈 연산자(`/`)를 지원하지 않습니다. 개발자가 사용하려 하면, 컴파일러는 "unexpected character ' '"라고 불만을 표시했습니다. 컴파일러가 `/` 문자를 Compact 주석의 시작으로 인식하려 하고 바로 뒤에 다른 `/`를 찾고 있었기 때문입니다.
+
+이 경우 보고되는 오류를 더 유용하게 변경했습니다. 이제 컴파일러는 `+`, `-`, `*`와 같은 이항 연산자를 찾고 있었다고 보고하여 개발자가 `/`가 지원되지 않음을 이해할 수 있게 합니다.

@@ -1,0 +1,74 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact.js 2.4.0 release notes
+description: Provides a TypeScript-based runtime for compiled Compact smart contracts.
+displayed_sidebar: sidebar
+toc_max_heading_level: 2
+---
+
+- **Version**: 2.4.0  
+- **Date**: 2026-01-28  
+- **Environment**: Preprod, Preview
+
+---
+
+## High-level summary 
+
+Compact.js은 [Compact](../../compact) 언어로 컴파일된 스마트 컨트랙트를 위한 TypeScript 기반 실행 환경을 제공합니다. 이번 릴리스은 Compact.js의 초기 릴리스이며, Midnight.js와 Node Toolkit 내부에서 사용됩니다.
+
+Compact.js은 도구 및 프레임워크 개발자를 위한 코어 라이브러리와, 라이브러리가 제공하는 기능을 [Effect의 CLI](https://effect-ts.github.io/effect/docs/cli)로 구축된 명령줄 애플리케이션에 통합할 수 있는 커맨드로 캡슐화한 _command_ 패키지를 제공합니다.
+
+---
+
+## Audience
+
+이번 릴리스은 Midnight 블록체인에서 컨트랙트를 배포하고 상호작용하는 도구나 프레임워크를 구축하는 개발자에게 해당됩니다.
+
+---
+
+## New features
+
+이번 릴리스의 새로운 기능은 다음과 같습니다:
+
+### Core library
+
+`@midnight-ntwrk/compact-js`은 Compact 컴파일러가 생성한 컴파일된 자산으로부터 `CompiledContract` 인스턴스를 빌드하는 핵심 기능을 제공합니다. 이 인스턴스을 `ContractExecutable` 인스턴스로 변환하여 컨트랙트 인스턴스를 초기화하고 실행하는 데 사용할 수 있습니다.
+
+### Commanding
+
+`@midnight-ntwrk/compact-js-command`은 `CompiledContract`을 정의하는 TypeScript 기반 설정을 소비하고 이를 명령줄 인터페이스를 통해 노출하는 커맨드를 제공합니다.
+
+---
+
+## Deprecations
+
+해당 없음
+
+---
+
+## Breaking changes
+
+해당 없음
+
+---
+
+## Important notes
+
+개발자가 Compact.js을 사용하여 Compact으로 컴파일된 컨트랙트와 런타임에서 상호작용할 수 있지만, 이번 릴리스은 주로 Midnight.js 컨트랙트 패키지(`@midnight-ntwrk/midnight-js-contracts`)가 컨트랙트를 배포하고 회로를 호출하는 데 내부적으로 사용하기 위한 것입니다.
+
+DApp 개발자는 이러한 기능을 위해 Midnight.js을 계속 사용하는 것을 권장합니다.
+
+---
+
+## Known issues
+
+해당 없음
+
+---
+
+## Links and references
+
+- **GitHub repository**: [Compact.js](https://github.com/midnightntwrk/midnight-sdk/tree/main/compact-js)
+- **NPM package**: [@midnight-ntwrk/compact-js](https://www.npmjs.com/package/@midnight-ntwrk/compact-js/v/2.4.0)
+- **Midnight.js documentation**: [Wallet developer guide](/sdks/official/wallet-developer-guide)

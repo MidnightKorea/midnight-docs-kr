@@ -1,0 +1,182 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Midnight.js
+displayed_sidebar: sidebar
+---
+
+# Midnight.js
+
+Midnight.js은 Midnight 블록체인에서 탈중앙화 애플리케이션 개발을 지원하기 위해 설계된 클라이언트 라이브러리입니다.
+
+[관련 문서 링크](/api-reference/midnight-js/packages)
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  2 April 2025
+</div>
+
+## Midnight.js 1.0.0 Release Notes
+
+새로운 기능, 버그 수정, 호환성에 영향을 주는 변경 사항 등 Midnight.js의 최신 업데이트와 개선 내용을 안내합니다.
+
+### Key Changes & Highlights
+
+
+- **마일스톤 릴리스** -- 이번 릴리스부터 시맨틱 버전 관리를 적용합니다.  
+- **Wallet 4.0.0 지원** -- Bech32m이 기본 주소 형식이 되었습니다. `midnight-js@1.0.0`은 Wallet 4.0.0과 이전 버전을 모두 지원합니다.  
+- **midnight-js-testing** -- 테스트 프레임워크가 공개되었습니다. 알려진 이슈 항목을 참고하세요.  
+- **midnight-js-logger-provider** -- 개발자가 커스텀 로깅 전략을 정의할 수 있습니다. 알려진 이슈 항목을 참고하세요.  
+- **Node.js 22 LTS 검증 완료** -- 최신 장기 지원 릴리스와 완벽하게 호환됩니다.  
+- **보안** -- 알려진 취약점 완화를 위해 패키지 의존성이 업데이트되었습니다.  
+
+### Changelog
+
+#### Fixed
+
+- `createCircuitCallTxInterface` -- private state key 'undefined'에서 private state를 찾을 수 없는 문제를 수정했습니다.
+- `@midnight-ntwrk/zswap`의 최상위 await에서 오류가 발생하는 문제를 수정했습니다.
+- `midnight-js`을 Node.js 22를 사용하도록 업데이트했습니다.
+- `[midnight-js]` LevelDB -- `midnight-level-db/LOCK` 잠금: 리소스를 일시적으로 사용할 수 없는 문제를 수정했습니다.
+- `[midnight-js]` `watchForContractState`이 논블로킹으로 동작하도록 수정했습니다.
+- `[midnight-js]` proof-server에 대한 연속 호출 시 소켓 연결이 끊기는 문제를 수정했습니다.
+- Checkmarx/Renovate에서 보고된 취약점을 수정했습니다.
+- Indexer 클라이언트가 TLS를 통한 WebSocket을 사용하도록 수정했습니다.
+- `[midnight-js-contracts]` `unsubmittedCallTx`에서 `submit()`을 두 번 호출하면 'null pointer passed to rust' 오류가 발생하는 문제를 수정했습니다.
+
+#### Changed
+
+- 새로운 지갑 키 구조와 주소 형식을 지원하도록 `Midnight.js`을 업데이트했습니다.
+- `deployContract`이 null 상태의 컨트랙트를 허용하지 않도록 변경했습니다.
+- 현재 설정된 네트워크 ID에 대한 전역 접근을 제공합니다.
+- 리팩토링: 공통 16진수 유틸리티를 새로운 `midnight-js-utils` 패키지로 분리했습니다.
+
+#### Added
+
+- `http-client-proof-provider`에 재시도/백오프 전략을 구현했습니다.
+- `deployContract`와 `findDeployContract`의 타입 추론 기능을 추가했습니다.
+- witness state 타입으로 null을 사용할 때 "Value cannot be null or undefined" 오류 처리를 추가했습니다.
+- `contracts`와 `private-state-provider`이 private state 없는 컨트랙트를 지원합니다.
+- `watchFor` 쿼리에 재시도 제한을 추가했습니다.
+- `http-proof-provider` 클라이언트 연결의 오류 처리를 개선했습니다.
+- `Midnight.js`에서 개발자 정의 로깅을 지원합니다.
+- 조합 가능한 컨트랙트를 지원하는 `PrivateStateProvider` 인터페이스를 구현했습니다.
+- 조합 가능한 컨트랙트를 지원하는 `PrivateStateProvider` 인터페이스를 설계했습니다.
+
+### Breaking Changes
+
+1. *`PrivateStateProvider`이 다중 Private State를 지원*
+
+   `PrivateStateProvider` 인터페이스가 이제 다중 컨트랙트 private state를 지원합니다.
+   
+   ```ts
+   interface PrivateStateProvider<PSI extends PrivateStateId = string, PS = any>
+   ```
+   
+   다중 컨트랙트 private state를 처리하기 위한 타입 지정 키-값 저장소 인터페이스입니다.
+   
+   `PSI`: private state ID (문자열 리터럴의 유니온 타입 가능).
+   
+   `PS`: private state 타입 (private state 타입의 유니온 타입 가능).
+
+2. *`privateStateKey`이 `privateStateId`로 이름 변경*
+
+   `privateStateKey` 매개변수가 새로운 `PrivateStateProvider` 인터페이스와 일관성을 유지하기 위해 `privateStateId`로 이름이 변경되었습니다. 이 변경은 contracts 라이브러리의 다수 함수, 인터페이스에 영향을 줍니다. 
+   
+   ```ts
+   type PrivateStateId = string
+   
+   A type representing an ID used to store a contract's private state.
+   ```
+   
+   예시:
+   
+   ```ts
+   const getStates: <PS>(publicDataProvider: PublicDataProvider, privateStateProvider: PrivateStateProvider<PrivateStateId, PS>, contractAddress: ContractAddress, privateStateId: PrivateStateId) => Promise<ContractStates<PS>>
+   
+   Retrieves the Zswap, ledger, and private states of the contract corresponding to the given identifier using the given providers.
+   
+   @param publicDataProvider
+   
+   The provider to use to fetch the public states (Zswap and ledger) from the blockchain.
+   
+   @param privateStateProvider — The provider to use to fetch the private state.
+   
+   @param contractAddress — The ledger address of the contract.
+   
+   @param privateStateId — The identifier for the private state of the contract.
+   ```
+
+### Known Issues
+
+- **midnight-js-logger-provider** -- 새로운 logger provider이 아직 contracts 라이브러리에 통합되지 않았습니다.
+
+- **midnight-js-testing** -- 테스트 프레임워크가 복잡하며, 추가 안내가 제공될 예정입니다.  
+  [문서는 여기에서 확인할 수 있습니다](https://github.com/midnightntwrk/midnight-js/blob/main/packages/testing/README.md) *(참고: 이 링크는 현재 공개적으로 접근할 수 없으며, 연결된 GitHub 계정이 필요합니다)*.
+
+### Upgrade/Installation/Migration Instructions
+
+패키지 버전 변경 사항은 다음과 같습니다:
+
+```ts
+"resolutions": {
+    "@midnight-ntwrk/compact-runtime/@midnight-ntwrk/onchain-runtime": "^0.2.6",
+    "@midnight-ntwrk/zswap": "^3.0.6"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "^0.7.0",
+    "@midnight-ntwrk/dapp-connector-api": "2.0.0",
+    "@midnight-ntwrk/ledger": "^3.0.6",
+    "@midnight-ntwrk/midnight-js-contracts": "1.0.0",
+    "@midnight-ntwrk/midnight-js-fetch-zk-config-provider": "1.0.0",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "1.0.0",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "1.0.0",
+    "@midnight-ntwrk/midnight-js-level-private-state-provider": "1.0.0",
+    "@midnight-ntwrk/midnight-js-network-id": "1.0.0",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "1.0.0",
+    "@midnight-ntwrk/midnight-js-types": "1.0.0",
+    "@midnight-ntwrk/midnight-js-utils": "1.0.0",
+    "@midnight-ntwrk/wallet": "4.0.0",
+    "@midnight-ntwrk/wallet-api": "4.0.0",
+    "@midnight-ntwrk/wallet-sdk-address-format": "1.0.0",
+    "fp-ts": "^2.16.1",
+    "io-ts": "^2.2.20",
+    "pino": "^8.16.0",
+    "pino-pretty": "^10.2.3",
+    "rxjs": "^7.8.1"
+  },
+  ```
+
+  일반적인 코드 변경:
+
+![Midnight JS Code Change](/img/midnight-js-code-change.png)
+
+### Compatibility
+
+- **운영 체제**: OS별 호환성 이슈는 확인되지 않았습니다.
+
+- **서드파티 도구**: **Node.js v18** 이상이 필요합니다.
+
+- **Midnight 생태계 호환성**:  
+  `Midnight.js`와 관련 테스트를 새로운 API를 지원하도록 업데이트해야 합니다.  
+  지갑 사용자는 이번 릴리스에서 도입된 호환성에 영향을 주는 변경 사항에 맞게 대응해야 합니다.
+
+
+
+
+
+
+
+- `resolutions`에서 `@midnight-ntwrk/compact-runtime/@midnight-ntwrk/onchain-runtime`을 `^0.2.2`에서 `^0.2.4`로 업데이트했습니다.
+- `resolutions`에서 `@midnight-ntwrk/zswap`을 `^3.0.2`에서 `^3.0.6`으로 업데이트했습니다.
+- `dependencies`에서 `@midnight-ntwrk/dapp-connector-api`을 `^1.2.2`에서 `^1.2.3`으로 업데이트했습니다.
+- `dependencies`에서 `@midnight-ntwrk/ledger`을 `^3.0.2`에서 `^3.0.6`으로 업데이트했습니다.
+- `dependencies`에서 `@midnight-ntwrk/wallet`을 `^3.7.3`에서 `^3.7.5`로 업데이트했습니다.

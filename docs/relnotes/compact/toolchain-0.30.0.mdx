@@ -1,0 +1,165 @@
+# Compact toolchain 0.30.0
+
+* **Date**: 2026-03-17
+* **Language version:** 0.22.0
+* **Compact runtime version:** 0.15.0
+* **Environment**: 릴리스 시점 기준 Preview Testnet. 전체 호환성 매트릭스는 [릴리스 노트 개요](https://docs.midnight.network/relnotes/overview)를 참조하세요.
+
+## High-level summary
+
+버전 0.30에서 Compact 툴체인은 이제 Midnight 원장 버전 8을 대상으로 합니다. 이전 툴체인 버전(예: 0.28, 0.29)은 원장 버전 7을 대상으로 했습니다. 원장 8 블록체인용으로 컨트랙트를 컴파일하는 경우, Compact 툴체인 0.30 이상을 사용해야 합니다. 이전 버전도 동작할 수 있지만 테스트되지 않았고 지원되지 않으며, 알려진 버그가 있습니다. 원장 7 블록체인용으로 컨트랙트를 컴파일하는 경우, Compact 툴체인 0.29 또는 이전 호환 버전을 사용해야 합니다.
+
+함께 제공되는 Compact devtools 릴리스 버전 0.5.0이 있습니다. Compact 툴체인 버전 0.30.0을 사용하기 위해 Compact devtools를 반드시 업데이트할 필요는 **없습니다**. 다만, devtools 업데이트에는 새로운 기능이 포함되어 있습니다. 이미 devtools가 설치되어 있다면 `compact self update` 명령으로 업데이트할 수 있습니다. devtools가 아직 설치되지 않았다면 https://github.com/midnightntwrk/compact/releases/tag/compact-v0.5.0의 `curl` 명령으로 설치할 수 있습니다.
+
+## Audience
+
+이 릴리스 노트는 Compact 스마트 컨트랙트 개발자와 Compact 런타임을 사용하는 DApp 개발자를 대상으로 합니다.
+
+## What changed
+
+이 릴리스는 새 버전의 Midnight 원장, 버전 8.0을 대상으로 합니다. 주요 이점은 사용자에게 영향을 미치던 여러 버그가 수정된 블록체인 버전이라는 것입니다. 추가로:
+
+- 컴파일러가 `--ledger-version` 및 `--runtime-version` 플래그를 지원합니다
+- 컴파일러와 fixup 도구가 이제 `--compact-path` 및 `--trace-search` 플래그를 지원합니다
+- 표준 라이브러리 `NativePoint` 타입이 `JubjubPoint`로 이름이 변경되었습니다
+- JavaScript 불투명 값에 `persistentHash`와 `persistentCommit`을 사용하면 컴파일러 오류가 발생합니다
+- include 파일과 파일에서 가져온 모듈에 대한 새로운 검색 순서가 있습니다
+- 언어 레퍼런스가 이제 현재 버전의 언어에 대해 대부분 최신 상태입니다
+- 릴리스 노트가 릴리스 자체에 포함됩니다
+
+## New features
+
+컴파일러가 이제 `--ledger-version`과 `--runtime-version` 플래그를 지원합니다. 컴파일러와 fixup 도구가 이제 `--compact-path`와 `--trace-search` 플래그를 지원합니다. 릴리스 노트가 이제 릴리스 자체에 포함됩니다.
+
+### Ledger and runtime version flags
+
+**설명**: 컴파일러 바이너리가 이제 새 `--ledger-version` 플래그를 통해 대상 Midnight 원장 버전을 보고할 수 있습니다. 또한 새 `--runtime-version` 플래그를 통해 생성된 JavaScript 코드에서 가져올 Compact 런타임 버전을 보고할 수 있습니다.
+
+Compact 스마트 컨트랙트는 현재 특정 버전의 Midnight 원장용으로 컴파일됩니다. 원장 버전은 예를 들어, 퍼블릭 상태의 형식과 증명자/검증자 키의 형식을 결정합니다. 스마트 컨트랙트는 일반적으로 컴파일된 원장의 주 버전 번호와 다른 원장에서는 동작하지 않습니다.
+
+컴파일러가 새 `--ledger-version` 플래그로 대상 원장 버전을 보고할 수 있습니다. 예시:
+
+```
+$ compact compile --ledger-version
+ledger-8.0.0
+```
+
+원장 버전은 [Midnight 원장](https://github.com/midnightntwrk/midnight-ledger) GitHub 저장소의 태그(또는 Git 커밋 해시나 브랜치 이름)에 대응합니다.
+
+컴파일러가 생성하는 JavaScript 코드는 핵심 언어 기능을 제공하기 위해 특정 버전의 Compact 런타임을 가져옵니다. 버전 1.0에 도달하기 전까지 Compact 런타임은 새 마이너 버전 번호에서 호환성을 깨는 변경이 있을 수 있으므로, 올바른 Compact 런타임 버전을 사용하도록 DApp을 구성하는 것이 중요합니다. 생성된 JavaScript 코드는 예상 버전을 사용하고 있는지 확인합니다.
+
+컴파일러가 새 `--runtime-version` 플래그로 가져올 Compact 런타임 버전을 보고할 수 있습니다. 예시:
+
+```
+$ compact compile --runtime-version
+0.15.0
+```
+
+Compact 런타임 패키지는 [npm에서 사용 가능](https://www.npmjs.com/package/@midnight-ntwrk/compact-runtime)합니다.
+
+`format` 및 `fixup` 도구와 같은 다른 Compact 툴체인 도구는 원장이나 런타임 버전에 의존하지 않으므로 이 플래그를 인식하지 못합니다.
+
+### Search path flags
+
+**설명**: 컴파일러와 fixup 도구가 이제 검색 경로를 값으로 받는 `--compact-path` 플래그를 지원합니다. 이 플래그가 설정되면 그 값이 검색 경로로 사용되고 `COMPACT_PATH` 환경 변수는 무시됩니다. 두 도구 모두 include 및 import 파일의 검색 순서를 표준 오류에 표시하는 새 `--trace-search` 플래그를 지원합니다.
+
+### Release notes distributed with the release
+
+**설명**: 릴리스 노트가 릴리스 `.zip` 파일에 Markdown 문서로 배포됩니다. 이전에는 [Midnight 개발자 문서](https://docs.midnight.network/relnotes/compact), [Compact 릴리스 저장소](https://github.com/midnightntwrk/compact/releases), [Minokawa 프로젝트의 Compact 저장소](https://github.com/LFDT-Minokawa/compact/tree/main/doc/release-notes)에서 사용 가능했습니다. 이제 릴리스를 구성하는 `.zip` 파일 아티팩트에도 포함됩니다.
+
+Compact devtools는 아티팩트를 아티팩트 디렉터리의 하위 디렉터리에 압축 해제합니다. devtools 아티팩트 디렉터리는 기본적으로 홈 디렉터리의 `.compact`이지만, `COMPACT_DIRECTORY` 환경 변수나 `compact` devtool 명령의 `--directory` 커맨드라인 플래그로 변경할 수 있습니다.
+
+예를 들어, Apple silicon macOS에서 기본 아티팩트 디렉터리를 사용하는 경우, 이 릴리스의 릴리스 노트는 `~/.compact/versions/0.30.0/aarch64-darwin/toolchain-0.30.0.md`에 있습니다.
+
+## Improvements
+
+언어 레퍼런스 문서가 현재 버전의 언어를 설명하도록 대폭 개정되었습니다. 생성된 TypeScript 코드가 이제 증명자/검증자 키가 있는 회로와 다른 비순수 회로를 구별합니다.
+
+**개선**: 최신 언어 레퍼런스
+
+https://docs.midnight.network/compact/reference/lang-ref에서 찾을 수 있는 언어 레퍼런스가 이제 현재 버전의 언어에 대해 대부분 최신 상태입니다.
+
+이것은 문서의 상당한 재작성 및 개선입니다.
+
+**개선**: `ProvableCircuits`
+
+**설명**: 생성된 TypeScript 코드에 이제 `ProvableCircuits<PS>` 타입과 `Contract` 클래스의 `provableCircuits` 필드가 포함됩니다. `ProvableCircuits`는 증명자 및 검증자 키가 있는 회로만 포함합니다.
+
+이전에는 TypeScript 코드에 `ImpureCircuits`와 `PureCircuits`만 있었습니다. 비순수 회로는 퍼블릭 원장 상태를 사용하거나 위트니스 함수를 호출하는 것이었고, 순수 회로는 나머지였습니다. Midnight.js는 `ImpureCircuits` 타입을 사용하여 증명이 필요한 회로 목록을 가져왔습니다. 그러나 위트니스 함수 호출만으로 비순수인 비순수 회로(즉, 퍼블릭 원장 상태를 사용하지 않는)는 증명이 필요하지 않으며, 증명을 생성하려 하면 실패했습니다.
+
+생성된 TypeScript 코드가 이제 더 세밀한 구별을 합니다. `ProvableCircuits`는 증명이 필요한 회로입니다. 항상 비순수이므로 `ImpureCircuits` 타입에도 포함됩니다. 따라서 이것은 **비호환성** 변경입니다.
+
+이 변경으로 Midnight.js의 버그가 수정됩니다.
+
+## Deprecations
+
+없음.
+
+## Breaking changes
+
+Compact 표준 라이브러리 타입 `NativePoint`가 `JubjubPoint`로 이름이 변경되었습니다. JavaScript 불투명 값에 `persistentHash` 또는 `persistentCommit`을 사용하면 이제 컴파일러 오류가 발생합니다. include 및 외부 모듈 파일의 검색 순서가 변경되었습니다.
+
+### `NativePoint` is renamed to `JubjubPoint`
+
+**변경 사항**: 표준 라이브러리 타입 `NativePoint`가 `JubjubPoint`로 이름이 변경되었으며, 곡선 포인트를 생성하고 접근하기 위한 표준 라이브러리 회로에도 대응하는 이름 변경이 있습니다.
+
+**영향**: 이전 이름을 사용하는 코드는 더 이상 컴파일되지 않습니다.
+
+Midnight 네트워크에서 사용하는 네이티브 ZK 효율적 타원 곡선은 [Jubjub](https://github.com/zkcrypto/jubjub)입니다. 현실을 더 명확히 반영하기 위해 `NativePoint` 이름을 `JubjubPoint`로 변경했습니다.
+
+표준 라이브러리 회로 `nativePointX`, `nativePointY`, `constructNativePoint`도 각각 `jubjubPointX`, `jubjubPointY`, `constructJubjubPoint`로 이름이 변경되었습니다.
+
+Compact 런타임의 타입 `NativePoint`와 `CompactTypeNativePoint`도 `JubjubPoint`와 `CompactTypeJubjubPoint`로 변경되었습니다. 런타임에는 동일한 이름의 Compact 회로에 대응하는 새 함수 `jubjubPointX`, `jubjubPointY`, `constructJubjubPoint`도 있습니다. 이전 버전은 Compact 표준 라이브러리에서만 구현되었고 Compact 런타임에는 반영되지 않았습니다.
+
+**필요한 조치**: 이러한 식별자를 사용하는 코드의 이름을 변경하세요. `compact fixup` 도구가 Compact 코드에 이름 변경을 적용할 수 있습니다. 필요한 경우 DApp의 TypeScript 또는 JavaScript 구현을 수동으로 업데이트하세요.
+
+### It is a compiler error to use `persistentHash` or `persistentCommit` on opaque JavaScript values
+
+**변경 사항**: 불투명 JavaScript 값(`Opaque<'string'>` 또는 `Opaque<'Uint8Array'>`)을 포함하는 Compact 값에 표준 라이브러리 회로 `persistentHash` 또는 `persistentCommit`을 직접 또는 간접적으로(예: 구현에서 `persistentHash`를 사용하는 표준 라이브러리 회로를 통해) 사용하면 이제 컴파일러 오류가 발생합니다. 이는 표준 라이브러리 연산 `merkleTreePathRoot`과 원장 ADT `MerkleTree` 및 `HistoricMerkleTree` 삽입 연산에도 영향을 미칩니다.
+
+**영향**: 이전에 컴파일되던 일부 코드에서 이제 컴파일러 오류가 발생합니다.
+
+`Opaque<'string'>` 또는 `Opaque<'Uint8Array'>`를 포함하는 값은 `persistentHash` 또는 `persistentCommit`을 사용하여 ZK 증명에서 올바르게 해시할 수 없습니다. 이는 컴파일러가 증명자/검증자 키를 생성하려 할 때 Rust 크래시 형태로 실패했습니다.
+
+이제 Rust 크래시 대신 컴파일러 오류가 발생합니다.
+
+이전에 순수 회로에서 이러한 값을 해시하는 것이 가능했지만 이제 컴파일러 오류가 되므로 호환성을 깨는 변경입니다.
+
+### New search order for included files and modules imported from files
+
+**변경 사항**: Compact 컴파일러와 fixup 도구의 include 및 외부 모듈 파일 검색 순서가 변경되었습니다. 여전히 `COMPACT_PATH` 환경 변수를 사용하지만 아래에 설명된 대로 변경되었습니다.
+
+**영향**: 새 검색 순서가 의도와 다른 파일을 찾거나 파일을 전혀 찾지 못할 수 있습니다.
+
+이전 구현은 상대 경로와 절대 경로를 구분하지 않아 불행한 결과를 초래했습니다. 상대 경로의 경우, 명령이 호출된 디렉터리를 기준으로 include 또는 import 파일을 먼저 찾았습니다. 절대 경로의 경우, 찾지 못하면 include 파일의 디렉터리와 `COMPACT_PATH`의 각 디렉터리에 경로를 추가하여 상대 경로로 취급했습니다.
+
+**필요한 조치**: 이 변경으로 상대 경로가 더 이상 명령이 호출된 디렉터리에서 자동으로 검색되지 않습니다. 이것이 의도된 동작이었다면, 경로를 절대 경로로 만들거나 호출 디렉터리를 `COMPACT_PATH`에 추가하고 include 또는 import 파일을 기준으로 의도하지 않은 경로가 발견되지 않도록 하는 것이 해결 방법입니다.
+
+그리고 절대 경로는 더 이상 import 또는 include 파일의 디렉터리를 기준으로 찾거나 `COMPACT_PATH`를 검색하여 찾지 않습니다. 이에 대한 해결 방법은 경로를 절대로 만드는 접두사(디렉터리 구분자 또는 드라이브 지정자)를 제거하여 상대 경로로 취급되도록 하는 것입니다.
+
+## Known issues
+
+없음.
+
+## Links and references
+
+- [Compact 문서 포털](https://docs.midnight.network/compact),
+  [언어 레퍼런스](https://docs.midnight.network/compact/lang-ref) 및
+  [표준 라이브러리 문서](https://docs.midnight.network/compact/compact-std-library) 포함
+- DApp용 [Compact 런타임 TypeScript API](https://docs.midnight.network/api-reference/compact-runtime)
+- [Compact 컴파일러 사용법](https://docs.midnight.network/compact/reference/tools/compiler-usage)
+- 버그 리포트 및 기능 요청을 위한 GitHub [오픈소스 프로젝트](https://github.com/LFDT-Minokawa/compact)
+
+## Fixed defect list
+
+Compact 툴체인 0.30으로 업데이트하면 다음 결함이 수정됩니다. 이것이 반드시 Compact의 버그는 아니며, Midnight 네트워크의 다른 컴포넌트의 버그인 경우가 많습니다.
+
+- [Issue #40: `Opaque` 타입 값을 특정 표준 라이브러리 회로에 전달하면 컴파일러 오류가 되어야 함](https://github.com/LFDT-Minokawa/compact/issues/40)
+- [Issue #81: `v0.28.0`에서 `Vector<32, Uint<8>>`에서 `Bytes<32>`로의 캐스트에 대한 제약 수가 두 배로 됨](https://github.com/LFDT-Minokawa/compact/issues/81)
+- [Issue #107: NullifiersNEClaimedNullifiers로 회로 호출 실패](https://github.com/LFDT-Minokawa/compact/issues/107)
+- [Issue #110: AllCommitmentsSubsetCheckFailure로 회로 호출 실패](https://github.com/LFDT-Minokawa/compact/issues/110)
+- [Issue #117: 컨트랙트 생성자에서 차폐 토큰을 발행할 수 없음](https://github.com/LFDT-Minokawa/compact/issues/117)
+- [Issue #139: compactc의 include 및 모듈 파일 검색 순서가 직관적이지 않고 안전하지 않을 수 있음](https://github.com/LFDT-Minokawa/compact/issues/139)
+- [Issue #151: `sendUnshielded`와 `receiveUnshielded` 사용 시 회로 호출 실패](https://github.com/LFDT-Minokawa/compact/issues/151)
+- [Issue #155: 특화되지 않은 제네릭 Uint을 포함하는 타입 선언 실패](https://github.com/LFDT-Minokawa/compact/issues/155)
+- [Issue #187: 피연산자 교환 비교 연산자(`>`와 `<=`)가 피연산자가 같지 않을 때 ZKIR 검증 실패](https://github.com/LFDT-Minokawa/compact/issues/187)

@@ -1,0 +1,70 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact compiler 0.22.0 (Compact language 0.14.0)
+displayed_sidebar: sidebar
+---
+
+# Compact compiler 0.22.0 (Compact language 0.14.0)
+
+Compact은 Midnight의 전용 스마트 컨트랙트 프로그래밍 언어로, 안전하고 효율적이며 유연한 탈중앙화 애플리케이션을 구축하기 위해 설계되었습니다.
+
+Compact 컴파일러는 Compact 스마트 컨트랙트 코드를 실행 가능한 바이트코드와 증명 생성 회로로 변환합니다.
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  12 March 2025
+</div>
+
+## Compact compiler 0.22.0 (Compact language 0.14.0) release notes
+
+오늘 Compact 컴파일러 버전 0.22.0을 릴리스합니다. 이번 릴리스에서는 Compact 프로그래밍 언어의 변경 사항이 없습니다. `compactc` 버전 0.22.0은 이전 릴리스 버전 0.21.0과 동일한 언어(Compact 0.14.0)를 컴파일합니다.
+
+이 릴리스에는 다수의 버그 수정이 포함되어 있으므로 버전 0.22.0으로 업그레이드해야 합니다. 버그 수정 사항은 아래에 설명되어 있습니다.
+
+
+## Summary of Changes
+
+이 릴리스에는 다음 버그 수정이 포함되어 있습니다:
+
+- `Uint` 회로 매개변수에 대한 ZK 증명 문제 수정
+- 원장 ADT에 코인 삽입을 방해하던 문제 수정
+- `MerkleTree`의 `insert_index_default` 컴파일 시 크래시 수정
+- 일부 `Map`의 `insert_default` 컴파일 시 크래시 수정
+- 잘못된 프로그램의 타입 검사 시 크래시 수정
+- 입력 파일 읽기 시 드문 크래시 수정
+
+
+## Bug Fixes
+
+### Fix for an issue in ZK proofs for `Uint` circuit parameters
+
+회로에 `Uint` 타입의 매개변수가 두 개 이상 있고, 해당 타입의 비트 크기가 2의 거듭제곱이 아닌 경우, ZK 증명을 위한 잘못된 코드가 생성되었습니다. 생성된 JavaScript 코드는 정상이었지만 증명 서버가 크래시했습니다. 이제 수정되어 증명 서버가 증명을 정상적으로 수락합니다.
+
+### Fix for an issue preventing coin insertion into ledger ADTs
+
+원장 `List`, `Map`, `Set`에 코인을 삽입하면 생성된 JavaScript 코드 실행 시 `Error: expected cell` 메시지와 함께 실패했습니다. 이는 원장 상태를 업데이트하는 데 사용되는 Impact VM 코드의 버그였습니다. 이제 수정되어 코인 삽입이 정상적으로 동작합니다.
+
+### Fix for a crash when compiling `insert_index_default` for `MerkleTree`
+
+`MerkleTree`의 원장 ADT 연산 `insert_index_default`가 `Internal compiler error (please report): Exception in vmref-q` 메시지와 함께 컴파일에 실패했습니다. 이 문제가 수정되어 프로그램이 정상적으로 컴파일됩니다.
+
+### Fix for a crash when compiling `insert_default` for some `Map`s
+
+값 타입이 원장 ADT 타입인 `Map`의 원장 ADT 연산 `insert_default`가 컴파일에 실패했습니다. 컴파일러가 `Internal compiler error (please report): Exception: failed assertion (Ltypescript-Type? type)` 메시지와 함께 실패했습니다. 이 문제가 수정되어 프로그램이 정상적으로 컴파일됩니다.
+
+### Fix for a crash when type checking incorrect programs
+
+원장 ADT 타입이 사용되었지만 언어가 Compact 타입을 요구하는 일부 경우에서, 컴파일러가 `Internal compiler error (please report): Exception in infer-types: no matching clause for input` 메시지와 함께 코드 컴파일에 실패했습니다. 이제 수정되어 컴파일러가 유용한 오류 메시지를 표시합니다.
+
+### Fix for a rare crash when reading the input file
+
+드문 경우, `Uint` 타입이나 `for` 루프의 범위 구문(`..`)이 컴파일러 내부 파일 입력 버퍼의 경계에 위치할 때, 컴파일러가 `Internal compiler error (please report): Exception in unget-char: cannot unget #\\.` 메시지와 함께 컴파일에 실패했습니다. 이제 수정되어 프로그램이 정상적으로 컴파일됩니다.

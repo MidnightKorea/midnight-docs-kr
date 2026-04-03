@@ -1,0 +1,309 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact compiler 0.18.2 (Compact language 0.10.1)
+displayed_sidebar: sidebar
+---
+
+# Compact compiler 0.18.2 (Compact language 0.10.1)
+
+Compact은 Midnight의 전용 스마트 컨트랙트 프로그래밍 언어로, 안전하고 효율적이며 유연한 탈중앙화 애플리케이션을 구축하기 위해 설계되었습니다.
+
+Compact 컴파일러는 Compact 스마트 컨트랙트 코드를 실행 가능한 바이트코드와 증명 생성 회로로 변환합니다.
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  26 September 2024
+</div>
+
+## Compact compiler 0.18.2 (Compact language 0.10.1) release notes
+
+오늘 Midnight 퍼블릭 테스트넷을 출시합니다. 테스트넷과 함께 Compact 프로그래밍 언어 버전 0.10.1과 `compactc` 컴파일러 버전 0.18.2를 릴리스합니다.
+
+이번 테스트넷 릴리스에는 Midnight 데브넷의 언어 버전 0.5.0과 비교하여 여러 변경 사항이 있습니다. 일부는 호환성을 깨는 변경으로, 개발자가 코드를 업데이트해야 합니다.
+
+이 문서의 나머지 부분에서는 언어 및 컴파일러의 변경 사항을 설명합니다.
+
+## Summary of Changes
+- 새로운 퍼블릭 원장 선언 구문이 도입되었습니다.
+- `ledger` 키워드는 더 이상 원장 필드 접근에 사용되지 않습니다.
+- 원장 커널 연산은 `kernel`에서 사용할 수 있습니다.
+- 원장 필드 업데이트 축약형은 이제 문(statement)입니다.
+- Unsigned Integer 크기를 제네릭으로 지정할 수 있습니다.
+- 뺄셈의 정적 타이핑이 개선되었습니다.
+- 관계 연산자의 우선순위가 변경되었습니다.
+- 제네릭을 제네릭으로 매개변수화할 수 없습니다.
+- `contract` 식별자가 예약어가 되었습니다.
+- `run-compactc.sh` 쉘 스크립트가 `compactc`로 이름이 변경되었습니다.
+
+---
+
+## New Public Ledger Declaration Syntax
+
+퍼블릭 원장 선언 방식을 변경했습니다. Compact 0.5.0에서는 컨트랙트에 최대 하나의 `ledger` 블록이 있었습니다. `ledger` 블록에는 모든 원장 필드의 선언이 포함되었고, 컨트랙트의 퍼블릭 상태를 초기화하기 위한 생성자가 최대 하나 있었습니다. 예를 들어, Bulletin Board 튜토리얼에서:
+
+```compact
+ledger {
+    state: Cell[STATE];
+    message: Cell[Maybe[Opaque["string"]]];
+    instance: Counter;
+    poster: Cell[Bytes[32]];
+    constructor() {
+        ledger.state = STATE.vacant;
+        ledger.message = none[Opaque["string"]]();
+        ledger.instance.increment(1);
+    }
+}
+```
+
+위는 이전 원장 구문입니다.
+
+Compact 0.10.1에서는 `ledger` 블록이 제거되고 각 원장 필드에 대해 별도의 선언이 사용됩니다. 이러한 선언은 컨트랙트의 최상위 레벨이나 모듈 본문 어디에서든 위치할 수 있습니다. 생성자는 여전히 최대 하나이며, 존재할 경우 컨트랙트의 최상위 레벨에 위치해야 합니다. Bulletin Board 퍼블릭 상태 선언은 이제 다음과 같습니다:
+
+```compact
+export ledger state: Cell[STATE];
+export ledger message: Cell[Maybe[Opaque["string"]]];
+export ledger instance: Counter;
+export ledger poster: Cell[Bytes[32]];
+
+constructor() {
+    state = STATE.vacant;
+    message = none[Opaque["string"]]();
+    instance.increment(1);
+}
+```
+
+### Key Changes
+
+- **원장 필드는 개별적으로 선언됩니다.** `ledger` 키워드를 사용하며, 이전과 동일하게 이름과 타입을 갖습니다.
+- **원장 필드는 다른 선언과 동일한 네임스페이스에** 위치합니다. 컨트랙트 최상위 레벨이나 모듈 내에서 선언됩니다. 따라서 원장 필드 이름이 다른 이름과 충돌하면 컴파일 타임 오류가 발생합니다.
+- **원장 필드는 선택적으로 내보낼 수 있으며,** 선언 앞에 `export` 키워드를 붙입니다.
+- **내보낸 원장 필드는** 모듈을 가져오는 코드나 DApp의 TypeScript 코드에서 접근할 수 있으며, 읽기 전용 접근을 제공합니다.
+- **sealed 원장 필드는** `sealed` 키워드를 사용하여 컨트랙트 초기화 중에만 설정할 수 있습니다. 초기화 후에는 변경 불가능합니다.
+
+### Example with `sealed` Keyword
+
+```compact
+sealed ledger field1: Cell[Unsigned Integer[32]];
+export sealed ledger field2: Cell[Unsigned Integer[32]];
+
+circuit init(x: Unsigned Integer[32]): Void {
+    field2 = x;
+}
+
+constructor(x: Unsigned Integer[16]) {
+    field1 = 2 * x;
+    init(x);
+}
+```
+
+### Why We Made These Changes
+
+개발자가 코드에서 가장 적합한 위치에 원장 필드를 선언할 수 있는 유연성을 제공하고자 했습니다. 이제 원장 필드를 해당 필드에 접근하는 회로와 함께 선언할 수 있습니다. 이를 통해 모듈에 로컬(또는 "프라이빗")인 원장 필드를 만들 수 있습니다.
+
+### How to Fix Your Code
+
+이것은 **호환성을 깨는 변경**입니다. 이전 원장 선언 구문은 더 이상 동작하지 않습니다. 코드를 업데이트하려면:
+
+1. 선언에서 `ledger` 키워드와 중괄호를 제거하세요.
+2. 원장 필드(생성자 제외) 앞에 `ledger` 또는 `export ledger`를 붙이세요.
+3. 원장 필드 이름이 동일한 네임스페이스의 다른 이름과 충돌하지 않는지 확인하세요.
+
+컴파일러가 이름 충돌 시 오류를 표시합니다. 원장 필드 또는 충돌하는 선언의 이름을 변경해야 할 수 있으며, 컨트랙트 코드와 DApp의 TypeScript 구현 모두 업데이트해야 합니다.
+
+---
+
+## The `ledger` Keyword is No Longer Used for Ledger Field Access
+
+원장 선언 변경과 함께 원장 필드 접근 방식도 변경되었습니다. Compact 0.5.0에서는 `ledger` 키워드를 사용하여 원장 필드를 참조했습니다(예: `ledger.fieldName.operation(...)`). 여기서 `ledger`는 키워드입니다.
+
+Compact 0.10.1에서는 필드 이름이 해당 선언과 동일한 네임스페이스에서 비한정 식별자로 사용됩니다. 동일한 코드가 이제 `fieldName.operation(...)`으로 작성됩니다.
+
+### Why We Made This Change
+
+원장 필드가 이제 최상위 레벨 또는 모듈 레벨 선언이므로, 이름 앞에 키워드를 붙일 강한 이유가 없습니다.
+
+### How to Fix Your Code
+
+이것은 **호환성을 깨는 변경**입니다. `ledger` 키워드는 더 이상 필드 접근에 사용할 수 없습니다. 다음과 같이 코드를 업데이트하세요:
+
+- 원장 필드 접근에서 `ledger` 키워드와 점(`.`)을 제거하세요.
+- 원장 필드 이름이 다른 선언에 의해 가려지지 않는지 확인하세요. 가려지는 경우, 원장 필드 또는 충돌하는 선언의 이름을 변경하세요.
+
+---
+
+## Ledger Kernel Operations are Available on `kernel`
+
+Midnight 원장에는 커널 연산이 포함되어 있으며, 이는 개념적으로 특정 필드와 무관한 원장의 최상위 연산입니다. Compact 0.5.0에서는 `ledger` 키워드를 사용했습니다(예: `ledger.kernelOperation(...)`).
+
+Compact 0.10.1에서는 `ledger` 키워드 없이 커널 연산에 접근합니다. 대신, 표준 라이브러리에 `Kernel` 타입의 `kernel` 원장 필드가 있습니다. 예시:
+
+```compact
+kernel.kernelOperation(...);
+```
+
+### Why We Made This Change
+
+이 변경은 원장 접근에서 `ledger` 구문을 제거하여 언어 구문을 간소화하기 위한 것입니다.
+
+### How to Fix Your Code
+
+이것은 **호환성을 깨는 변경**입니다. 다음과 같이 코드를 업데이트하세요:
+
+1. 표준 라이브러리를 아직 포함하지 않았다면 포함하세요.
+2. `ledger` 키워드를 `kernel` 식별자로 대체하세요.
+
+코드에서 `kernel`이 다른 선언에 의해 가려지지 않는지 확인하세요.
+
+---
+
+## Ledger-Field Update Shortcuts Are Now Statements
+
+Compact 0.5.0과 Compact 0.10.1 모두 원장 쓰기, 증가, 감소 연산의 축약형을 제공합니다:
+
+```compact
+ledgerFieldAccess = expr;  // ledgerFieldAccess.write(expr)와 동일
+ledgerFieldAccess += expr; // ledgerFieldAccess.increment(expr)와 동일
+ledgerFieldAccess -= expr; // ledgerFieldAccess.decrement(expr)와 동일
+```
+
+Compact 0.5.0에서 이러한 축약형은 표현식(expression)이었습니다. Compact 0.10.1에서는 문(statement)이 되었습니다.
+
+### Why We Made This Change
+
+이 축약형은 `Void` 타입이며 부수 효과를 위해서만 사용됩니다. 따라서 표현식보다 문으로 사용하는 것이 더 적합합니다.
+
+### How to Fix Your Code
+
+이것은 **호환성을 깨는 변경**입니다. 문 컨텍스트 외부에서 이 축약형을 사용하는 코드는 문 컨텍스트에서만 사용하도록 다시 작성해야 합니다.
+
+---
+
+## Unsigned Integer Sizes Can Now Be Generic
+
+Compact 0.5.0에서 `Unsigned Integer[<= k]`와 `Unsigned Integer[k]` 타입은 `k`가 숫자 리터럴인 경우에만 유효했습니다.
+
+Compact 0.10.1에서는 `k`가 숫자 리터럴 또는 제네릭 매개변수 이름일 수 있으며, 다음 예시에서 확인할 수 있습니다:
+
+```compact
+circuit f[n](x: Unsigned Integer[8], y: Unsigned Integer[n]): Unsigned Integer[n] {
+    return x < 16 ? y : y - x;
+}
+```
+
+### Why We Made This Change
+
+Compact 0.5.0의 제한은 실질적인 목적이 없었으며, 이 일반화는 `Bytes`와 `Vector` 길이에 제네릭을 사용할 수 있는 기능과 일관됩니다.
+
+### How to Fix Your Code
+
+이것은 이전 구문의 순수한 일반화이므로 변경이 필요하지 않습니다. 여러 `Unsigned Integer` 크기나 최대값을 처리하기 위해 이전에 복제했던 코드가 이 변경을 활용하여 일반화될 수 있지만, 반드시 그럴 필요는 없습니다.
+
+---
+
+## Better Static Typing of Subtraction
+
+Compact 0.5.0에서 `a - b` 형태의 뺄셈 표현식에서 `a`가 `Unsigned Integer[<= m]` 타입이고 `b`가 `Unsigned Integer[<= n]` 타입이면, 결과는 `Unsigned Integer[<= k]` 타입이었으며 `k`는 `m`과 `n` 중 큰 값이었습니다.
+
+Compact 0.10.1에서는 동일한 연산의 결과가 `Unsigned Integer[<= m]` 타입입니다. 뺄셈이 언더플로(즉, 음수 결과를 내는 런타임 오류)되지 않으면, 결과는 분명히 `m`으로 제한됩니다.
+
+### Why We Made This Change
+
+이전 타이핑은 ZK 증명에서 뺄셈을 구현한 방식 때문이었습니다. 결과 타입에 대해 더 정확한 상한을 제공하도록 변경했습니다.
+
+### How to Fix Your Code
+
+아무것도 변경할 필요가 없습니다. `Unsigned Integer[<= m]`은 항상 `Unsigned Integer[<= k]`의 서브타입입니다(여기서 `k`는 `m`과 다른 상한 `n` 중 큰 값). `Unsigned Integer[<= k]`로 선언된 변수가 있다면, 컴파일러가 해당 타입으로의 업캐스트를 삽입합니다(항상 성공하며 런타임 영향이 없습니다).
+
+---
+
+## New Precedence for Relational Operators
+
+Compact 0.5.0에서 모든 관계 연산자(`==`, `!=`, `<`, `<=`, `>`, `>=`)는 동일한 우선순위를 가지며 좌결합이었습니다. 예를 들어, `a < b == c > d`는 `((a < b) == c) > d`로 파싱되었으며, 이는 타입 오류였습니다. 왜냐하면 크다(`>`) 비교는 숫자 타입을 요구하는데 등호 비교(`==`)의 결과는 비숫자 Boolean 타입이기 때문입니다.
+
+Compact 0.10.1에서는 `==`와 `!=`가 다른 관계 연산자보다 낮은 우선순위를 갖습니다. 모든 관계 연산자는 여전히 좌결합입니다. 위의 표현식은 이제 `(a < b) == (c > d)`로 파싱됩니다.
+
+### Why We Made This Change
+
+이 변경은 연산자 우선순위를 TypeScript 및 JavaScript와 일치시켜, 프로그래머가 예상대로 동작하면서 일부 괄호를 생략할 수 있게 합니다.
+
+### How to Fix Your Code
+
+아무것도 변경할 필요가 없습니다. 비교 연산 체인의 기본 비괄호 파싱은 Compact 0.5.0에서 타입 오류를 초래했을 것입니다. 이제 일부 불필요한 괄호를 제거할 수 있지만, 필수는 아닙니다.
+
+---
+
+## Generics Can No Longer Be Parameterized Over Generics
+
+Compact 0.5.0에서는 구조체, 회로, 위트니스, 모듈과 같은 제네릭을 다른 제네릭으로 매개변수화하여 선언할 수 있었습니다. 예를 들어:
+
+```compact
+struct Foo[F] {
+    x: F[Field];
+}
+```
+
+Compact 0.10.1에서는 이 기능이 제거되었습니다. 제네릭은 타입과 자연수 리터럴로만 매개변수화할 수 있습니다.
+
+### Why We Made This Change
+
+이 기능은 TypeScript에 직접적인 대응이 없었으며, 내보낸 구조체에서는 동작하지 않았습니다. 내보내지 않은 구조체로 사용을 제한하는 대신, 현재로서는 이 기능을 제거했습니다.
+
+### How to Fix Your Code
+
+이것은 **호환성을 깨는 변경**입니다. 이 기능을 사용하고 있었다면:
+
+1. 제네릭을 특화(specialize)하던 서로 다른 제네릭 타입을 수집하세요.
+2. 각 타입에 대해 비제네릭 버전을 만들어, 제네릭을 각 특화에 대한 비제네릭 버전으로 "분리"하세요.
+
+이로 인해 해당 제네릭 사용처에 연쇄적인 변경이 발생할 수 있습니다.
+
+---
+
+## The Identifier `contract` Is Now a Reserved Word
+
+Compact 0.5.0에서는 `contract`라는 이름을 일반 식별자(예: 모듈 이름, 타입 이름, 회로 이름, 매개변수 이름 등)로 사용할 수 있었습니다.
+
+Compact 0.10.1에서는 `contract`가 예약어입니다.
+
+### Why We Made This Change
+
+컨트랙트 간 호출 지원을 추가하고 있습니다. 새로 예약된 `contract`라는 단어는 (아직 문서화되지 않았고 완전히 기능하지 않는) 컨트랙트 타입 선언 구문에서 사용됩니다.
+
+### How to Fix Your Code
+
+이것은 **호환성을 깨는 변경**입니다. `contract`를 식별자로 사용하는 모든 곳을 다른 이름으로 대체해야 합니다.
+
+---
+
+## The `run-compactc.sh` Shell Script Is Renamed to `compactc`
+
+Midnight 데브넷에서는 `run-compactc.sh` 쉘 스크립트를 사용하여 컴파일러를 호출했습니다. 테스트넷에서는 이 스크립트가 `compactc`로 이름이 변경되었습니다.
+
+이전에 `compactc`로 명명되었던 컴파일러 바이너리 자체도 이름이 변경되었습니다. 사용자는 컴파일러 바이너리를 직접 호출하면 안 됩니다.
+
+### Why We Made This Change
+
+쉘 스크립트는 환경 변수를 올바르게 설정하기 위해 컴파일러 호출을 래핑합니다. 이러한 환경 변수 없이 컴파일러 바이너리를 직접 호출하면 다음과 같은 오류가 발생합니다:
+
+- 표준 라이브러리를 찾을 수 없음.
+- 컴파일러에서 ZK 증명 출력을 생성할 수 없음.
+
+이름 변경을 통해 쉘 스크립트가 컴파일러의 의도된 커맨드라인 인터페이스임을 명확히 합니다.
+
+### How to Fix Your Code
+
+`run-compactc.sh`를 직접 호출하거나 스크립트/별칭에서 호출하고 있었다면, `compactc`를 호출하도록 업데이트해야 합니다.
+
+## Artifacts
+
+- [Compiler Linux](https://d3fazakqrumx6p.cloudfront.net/artifacts/compiler/compactc_0.18.2/compactc-linux.zip)
+- [Compiler macOS](https://d3fazakqrumx6p.cloudfront.net/artifacts/compiler/compactc_0.18.2/compactc-macos.zip)

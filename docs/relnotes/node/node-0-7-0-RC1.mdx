@@ -1,0 +1,72 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Node
+displayed_sidebar: sidebar
+---
+
+# Node
+
+Node은 Midnight 네트워크와 상호 작용하여 동기화, 트랜잭션 검증, 체인 상태 유지 등의 작업을 수행하는 블록체인 인프라 구성 요소입니다.
+
+[관련 문서 링크](../../develop/nodes-and-dapps/node-endpoints)
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  21 November 2024
+</div>
+
+### Midnight 0.7.0 RC1 release notes
+
+Midnight 노드의 최신 업데이트와 개선 사항을 안내합니다. 새로운 기능, 버그 수정, 호환성에 영향을 주는 변경 사항 등이 포함되어 있습니다.
+
+### New Features
+
+- 하드포크 테스트 환경을 지원하는 간단한 마이그레이션 스크립트를 추가했습니다.
+- `create-utxo.sh`를 포함한 testnet-preview 파일과 함께 **Partnerchains dev 환경**을 통합했습니다.
+- `TransactionCostModel`과 `LedgerParameters`를 노출하는 새로운 `runtime_interface v2`를 활성화했습니다.
+- 트랜잭션 일시정지(`tx-pause`) 기능을 도입했습니다.
+- 제네시스 블록에 런타임 버전을 노출했습니다.
+- 디버깅 기능을 개선했습니다.
+- 잘못된 블록을 수동으로 설정하는 기능을 추가했습니다.
+- 검증자 인센티브를 위한 블록 보상 기능을 통합했습니다.
+- **Midnight Storage 0.2.7**로 업데이트했습니다.
+- Ledger API를 리팩토링하여 잠재적 패닉을 수정하고 모듈화를 개선했습니다.
+
+### Bug Fixes
+
+- testnet 체인 스펙 부트노드를 수정했습니다.
+- 워크스페이스 외부에서의 트랜잭션 제너레이터 빌드 문제를 해결했습니다.
+- 보다 넓은 플랫폼 지원을 위해 ARM 아키텍처에서의 제너레이터 문제를 수정했습니다.
+- 필요 시 트랜잭션 제너레이터와 업그레이더가 비보안 RPC 엔드포인트에 연결하도록 업데이트했습니다.
+- QA 환경 관련 JSON 블록 RPC 메서드를 수정했습니다.
+- 풀(pool) 내 트랜잭션 수명을 제한했습니다.
+- 상태 캐시를 완전히 활용하도록 트랜잭션 검증을 수정하여 효율성을 개선했습니다.
+- 노드 이미지 크기를 약 1.7GB 줄였습니다.
+- 체인 스펙 동기화 및 순서 의존성 관련 문제를 해결했습니다.
+
+### Breaking Changes
+
+- Partnerchains 업데이트 및 설정을 도입했습니다.
+- 실험적 기능으로 블록 수혜자를 활성화했습니다.
+- 투표 임계값과 세션 기간을 조정했습니다.
+- 제네시스 블록에 버전 정보를 포함하도록 런타임 동작을 업데이트했습니다.
+
+### Known Issues
+
+- 트랜잭션 검증 워크플로에 대한 추가 최적화가 필요할 수 있습니다.
+
+### Upgrade Instructions
+
+1. 최신 변경 사항과 자산을 풀(pull)하여 노드를 **0.7.0-rc1** 버전으로 업데이트하세요.
+2. 필요에 따라 Partnerchains 설정과 testnet-preview 파일을 통합하세요.
+3. 체인 스펙 부트노드를 업데이트하고 연결 상태를 확인하세요.
+4. 새로운 런타임을 테스트하세요.

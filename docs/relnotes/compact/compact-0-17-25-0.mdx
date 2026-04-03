@@ -1,0 +1,96 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact compiler 0.25.0 (Compact language 0.17.0)
+displayed_sidebar: sidebar
+---
+
+## Compact compiler 0.25.0 (Compact language 0.17.0) release notes
+
+오늘 Compact 컴파일러 버전 0.25.0을 릴리스합니다.
+이 릴리스는 Compact 언어를 버전 0.16.0에서 0.17.0으로 업데이트합니다.
+
+## Summary of Changes
+
+이 릴리스에는 Compact 언어와 표준 라이브러리에 대한 새로운 비호환성 변경(즉, 하위 호환)이 포함되어 있습니다. 컴파일러 개선 사항도 있습니다.
+
+- Compact이 이제 `Bytes`와 `Vector` 타입 간 캐스트를 지원합니다
+- `const` 선언문에서 이제 여러 상수를 선언할 수 있습니다
+- 표준 라이브러리가 블록 시간에 대한 접근을 제공합니다
+- Compact 컴파일러가 이제 파일 이름에 공백이 있는 컨트랙트를 허용합니다
+- 증명 키 생성 실패 시 컴파일러가 메시지를 출력합니다
+- 0-9 이외의 유니코드 숫자 문자에 대해 컴파일러가 구문 분석 오류를 출력합니다
+
+
+## Language changes
+
+### Compact now supports casts between `Bytes` and `Vector` types
+
+Compact에는 부호 없는 크기 `n`으로 매개변수화된 `Bytes<n>` 타입이 있습니다. 또한 부호 없는 크기 `n`과 Compact 타입 `T`로 매개변수화된 `Vector<n, T>` 타입이 있습니다. Compact 0.17.0에서는 `Bytes<k>`에서 `Vector<k, Uint<8>>`로의 타입 캐스트(`as` 연산자 사용)를 추가했습니다(동일한 `k`에 대해). `Vector<k, Uint<8>>`에서 `Bytes<k>`로의 타입 캐스트도 추가했습니다(동일한 `k`에 대해).
+
+**동기:** Compact에서 이 두 타입이 구별되는 이유는 서로 다른 표현과 성능 특성을 가질 수 있기 때문입니다. `Bytes`는 바이트가 더 큰 수(구체적으로 기본 소수 체의 요소)로 패킹된 "패킹된" 표현을 가지며, 접근하려면 언패킹해야 합니다. `Vector`는 요소가 고정 크기 배열로 표현되는 "언패킹된" 표현을 가집니다.
+
+서로 다른 표현과 연산 비용 차이로 인해, `Vector`는 `Bytes`보다 더 많은 연산(인덱싱, `for` 루프나 `map`, `fold` 연산자를 사용한 반복 등)을 사용할 수 있습니다. 궁극적으로 두 타입 모두에서 동일한 모든 연산을 사용할 수 있게 할 계획입니다. 그러나 현재로서는 `Bytes`를 `Vector`와 동일한 방식으로 작업할 수 없습니다.
+
+`Bytes`에 대한 더 나은 지원을 위한 첫 번째 단계로, `Uint<8>` 요소의 `Vector`와 양방향 캐스트를 도입했습니다. 이를 통해 `Bytes` 타입의 값을 언패킹하고, 요소를 조작하고, 반복할 수 있습니다. 또한 벡터를 생성하고 `Bytes` 값으로 패킹할 수도 있습니다.
+
+:::warning
+`Bytes`와 `Vector` 간의 양방향 캐스트는 결과를 완전히 언패킹하고 패킹합니다. 이를 위해 `Bytes` 또는 `Vector`의 크기에 비례하는 수의 회로 연산이 필요합니다. 증명 시간 면에서 비용이 클 수 있습니다(또는 고정 회로 크기 제한에 도달할 수도 있습니다).
+:::
+
+이것은 완전히 새로운 기능이며 언어에 대한 **비호환성 변경이 아닙니다**.
+
+### `const` declaration statements now allow multiple constants
+
+Compact에는 TypeScript의 `const` 선언처럼 동작하는 `const` 선언문이 있습니다. Compact 언어 버전 0.17 이전에는 문당 하나의 선언만 지원했습니다. 따라서 두 개의 다른 상수를 선언하려면 다음과 같이 작성했습니다:
+
+```compact
+const x: Uint<8> = 127;
+const y: Bytes<16> = pad(16, "Compact");
+```
+
+이제 쉼표로 구분하여 같은 줄에 선언할 수 있습니다:
+
+```compact
+const x: Uint<8> = 127, y: Bytes<16> = pad(16, "Compact");
+```
+
+타입 주석은 여전히 생략할 수 있으며, 이 경우 상수 값의 타입에 기반하여 추론됩니다.
+
+**동기:** 이 변경은 TypeScript에서 가능한 이러한 선언과 언어를 더 유사하게 만듭니다. TypeScript와 동일한 방식으로 동작하도록 의도되었습니다: 초기화 전에 상수를 참조할 수 없으며, `const` 선언에서 동일한 이름에 대해 둘 이상의 바인딩을 가질 수 없습니다.
+
+이것은 기존 기능에 대한 새로운 능력이며 언어에 대한 **비호환성 변경이 아닙니다**.
+
+## New standard library and ledger APIs
+
+### The standard library provides access to block time
+
+자주 요청되었던 것은 컨트랙트가 시간 개념을 가질 수 있는 것입니다. Compact 0.17에서는 시간을 다루기 위한 새로운 표준 라이브러리 회로와 새로운 원장 커널 연산을 추가했습니다. 이는 "블록 시간" 개념에 기반합니다. DApp에서 트랜잭션을 제출하기 전에 컨트랙트 코드를 실행할 때, 블록 시간은 컨트랙트 진입점을 실행하기 전에 로컬 머신에서 가져온 타임스탬프입니다. 이 시간은 실행 중에 변경되지 않습니다. 온체인에서 상태 업데이트를 실행할 때, 블록 시간은 트랜잭션이 포함되는 블록의 대략적인 시간입니다.
+
+Compact 표준 라이브러리는 블록 시간을 특정 시간 값과 비교하는 회로를 제공합니다. `blockTimeGt`(초과) 회로의 시그니처는 `blockTimeGt(time: Uint<64>): Boolean`입니다. `time` 인수는 Unix epoch 이후의 초 단위로 측정됩니다. 이 회로는 현재 블록 시간이 주어진 시간 이후인 경우에만 `true`를 반환합니다. `blockTimeGt`와 동일한 시그니처를 가진 `blockTimeGte`(이상), `blockTimeLt`(미만), `blockTimeLte`(이하) 회로도 표준 라이브러리에 있습니다.
+
+이 기능을 지원하기 위한 새로운 원장 커널 연산 쌍이 있습니다. 원장 커널은 표준 라이브러리에서 `kernel`로 내보내집니다. 새 연산의 시그니처는 `blockTimeGreaterThan(time: Uint<64>): Boolean`과 `blockTimeLessThan(time: Uint<64>): Boolean`입니다. 표준 라이브러리 회로는 이러한 커널 연산으로 간단하게 구현됩니다. 예를 들어, `blockTimeGt(t)`는 `kernel.blockTimeGreaterThan(t)`로 구현되고 `blockTimeLte(t)`는 `!kernel.blockTimeGreaterThan`으로 구현됩니다.
+
+따라서 일반적으로 컨트랙트에서 표준 라이브러리가 제공하는 전체 회로 세트를 사용하면 됩니다.
+
+이것은 표준 라이브러리에 대한 **비호환성 변경이 아닙니다**.
+
+## Changes to generated code
+
+이 릴리스에서는 컴파일러가 생성하는 JavaScript 코드에 약간의 변경이 있습니다. 그러나 생성된 컨트랙트의 TypeScript API에는 **변경이 없습니다**.
+
+## Compiler changes
+
+### The Compact compiler now allows contract filenames to have spaces in them
+
+이전에는 파일 이름에 공백이 있는 컨트랙트를 `compact`로 컴파일할 수 없었습니다. 이 릴리스에서 수정되었으며, 이제 전체 입력 디렉터리와 파일 이름을 큰따옴표로 감싸서 이러한 컨트랙트를 컴파일할 수 있습니다.
+
+### The compiler prints a message when proof key generation fails
+
+컴파일 중 증명자 및 검증자 키를 생성하기 위해 `zkir`이라는 별도의 실행 파일이 사용됩니다. 이 릴리스 이전에는, 해당 실행 파일이 아무것도 출력하지 않고 실패한 경우(예: 메모리 부족으로 크래시한 경우) 무엇이 잘못되었는지 표시가 없었습니다.
+
+이 릴리스에서는 컴파일러가 이러한 실패를 감지하고 메시지를 출력한 후, 종료 코드 255(-1)로 실패합니다.
+
+### The compiler prints a parse error when facing Unicode numeric characters other than 0-9
+
+이전에는 컨트랙트에서 0-9 이외의 유니코드 숫자 문자를 사용하면 내부 오류가 발생했습니다. 이제 수정되어 컴파일러가 이러한 문자를 파싱할 때 구문 분석 오류를 표시합니다.

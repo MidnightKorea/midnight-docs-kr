@@ -1,0 +1,209 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact compiler 0.24.0 (Compact language 0.16.0)
+displayed_sidebar: sidebar
+---
+
+## Compact compiler 0.24.0 (Compact language 0.16.0) release notes
+
+오늘 Compact 컴파일러 버전 0.24.0을 릴리스합니다.
+이 릴리스는 Compact 언어를 버전 0.15.0에서 0.16.0으로 업데이트합니다.
+
+## Summary of Changes
+
+Compact 언어와 라이브러리, 그리고 컴파일러 동작 방식에 비교적 긴 변경 목록이 있으며, 일부 호환성을 깨는 변경이 포함되어 있습니다:
+
+- [호환성을 깨는 변경] 표준 라이브러리의 많은 이름의 철자를 변경했습니다
+- [호환성을 깨는 변경] 내보낸 회로와 생성자 인수에 `disclose`가 필요합니다
+- [호환성을 깨는 변경] 원장 읽기 및 제거 연산에서 값의 `disclose`가 필요할 수 있습니다
+- [호환성을 깨는 변경] 분기 조건 표현식에 `disclose`가 필요할 수 있습니다
+- [호환성을 깨는 변경] `assert`가 이제 함수형 표현식 연산자입니다
+- `=`, `+=`, `-=` 연산자가 이제 표현식입니다
+- 인수 목록 끝에 후행 쉼표가 허용됩니다
+- [호환성을 깨는 변경] 토큰 발행 실패 수정
+- [호환성을 깨는 변경] 내보낸 원장 필드의 철자 변경을 중단했습니다
+- [호환성을 깨는 변경] 대소문자만 다른 여러 내보낸 회로를 더 이상 허용하지 않습니다
+- [호환성을 깨는 변경] `std.compact` 파일을 제거했습니다
+
+개발자에게 영향을 미치는 것으로 알려진 문제에 대한 버그 수정이 포함되어 있습니다:
+
+- 일부 조건부 반환 값으로 인한 크래시 수정
+- 생성된 JavaScript 코드의 잘못된 우선순위로 인한 버그 수정
+
+컴파일러 기능을 계속 개선했으며, 특히 오류 보고를 개선했습니다:
+
+- 누락된 `disclose` 연산자에 대한 오류 보고 개선
+- `=`, `+=`, `-=` 표현식에 대한 오류 메시지 개선
+- 표준 라이브러리 이름 중복에 대한 오류 메시지 개선
+- 잘못된 내보내기에 대한 오류 메시지 개선
+
+## Language changes
+
+이번 릴리스에서 주요 호환성을 깨는 언어 및 컴파일러 변경을 적용했습니다. 표준 라이브러리의 많은 이름을 TypeScript 코딩 규칙에 맞추어 변경했습니다. 컨트랙트에서 위트니스 반환 값의 `disclose`가 필요한 연산 범위를 확대했습니다. 언어의 일부 문을 표현식으로도 사용할 수 있도록 변경했습니다.
+
+### [Breaking] We have changed the spelling of very many of the standard library names
+
+표준 라이브러리의 대부분의 이름(원장 ADT 연산 포함)은 이전에 소위 `snake_case` 이름(모두 소문자, 밑줄로 단어 구분)을 사용했습니다. (예외는 `QualifiedCoinInfo`와 같은 타입 이름과 표준 라이브러리 자체의 이름인 `CompactStandardLibrary`였습니다.) 표준 라이브러리의 snake_case 이름을 `camelCase` 이름(보통 소문자로 시작, 후속 단어는 대문자)으로 변경했습니다.
+
+이를 통해 표준 라이브러리가 표준 TypeScript 코딩 규칙을 따르게 됩니다. snake_case 명명 규칙은 Compact을 가능한 한 TypeScript의 설계를 따르겠다고 결정하기 전에 확립된 것이었습니다. 두 가지 명명 규칙이 혼합된 컨트랙트를 읽는 것이 어색하다고 느꼈습니다.
+
+이것은 **호환성을 깨는** 변경입니다. 표준 라이브러리를 사용하는 컨트랙트는 변경된 항목에 대해 새 이름을 사용하도록 업데이트하고 다시 컴파일해야 합니다. 이 변경을 지원하는 `fixup-compact` 도구에 대해서는 아래를 참조하세요.
+
+### [Breaking] Exported circuit and constructor arguments are required to be `disclose`d
+
+Compact은 온체인에서 관찰할 수 있는 위트니스 반환 값을 `disclose` 연산자로 감싸도록 요구합니다. 이전에는 퍼블릭 원장에 기록되거나 퍼블릭 원장에 기록되는 값을 도출하는 데 사용되는 위트니스 반환 값에 적용되었습니다.
+
+내보낸 회로와 컨트랙트 생성자에 전달되는 인수 값은 온체인에서 관찰할 수 있습니다. Compact 0.16.0에서는 이것도 `disclose` 연산자로 감싸도록 요구합니다.
+
+이것은 **호환성을 깨는** 변경입니다. 이전에 컴파일되던 프로그램에 이제 추가 `disclose` 연산자가 필요합니다.
+
+### [Breaking] Ledger read and removal operations can now require values to be `disclose`d
+
+이전에는 원장 쓰기 연산을 잠재적으로 위트니스 반환 값의 `disclose` 연산자가 필요한 것으로 취급했습니다. 그러나 읽기 연산과 제거(예: 원장 `Set`에서의 `remove`)는 비공개 연산으로 취급했습니다. 실제로 이러한 연산도 온체인에서 관찰할 수 있습니다. 모든 원장 연산은 트랜잭션의 일부인 퍼블릭 트랜스크립트에 포함되기 때문입니다. 이제 이러한 연산도 잠재적으로 위트니스 반환 값 공개가 필요하도록 변경했습니다.
+
+이것은 **호환성을 깨는** 변경입니다. 이전에 컴파일되던 프로그램에 이제 추가 `disclose` 연산자가 필요합니다.
+
+### [Breaking] Branch condition expressions are sometimes required to be `disclose`d
+
+위트니스 반환 값이 분기 조건으로 사용되면, 그 값은 잠재적으로 온체인에서 관찰될 수 있습니다. 예를 들어, 다음과 같은 간단한 컨트랙트에서:
+
+```compact
+ledger value: Uint<8>;
+
+witness test(): Boolean;
+
+export circuit doIt(): [] {
+  if (test()) {
+    value = 255;
+  } else {
+    value = 0;
+  }
+}
+```
+
+`value`에 대한 원장 필드 업데이트는 온체인에서 관찰 가능하며, 이를 통해 위트니스 `test`가 반환한 값을 추론할 수 있습니다. 하나의 분기만 원장에 기록하는 경우(원장 기록이 발생하는지 여부를 관찰하여)에도 동일한 추론이 적용되며, 위트니스 반환 값에서 파생된 분기 조건(예: `age() >= 18`)에도 적용됩니다. 이러한 모든 경우에서 분기 조건으로 사용되는 표현식을 `disclose` 연산자로 감싸야 합니다.
+
+이것은 **호환성을 깨는** 변경입니다. 이전에 컴파일되던 프로그램에 이제 추가 `disclose` 연산자가 필요합니다.
+
+### [Breaking] `assert` is now a function-like expression operator
+
+Compact 0.14 이전에서 `assert`는 문(statement)이었습니다. 두 개의 하위 표현식(조건과 메시지 문자열 리터럴)을 가졌습니다. 내부 사용성 테스트에서 TypeScript 프로그래머가 이 구문에 놀랐다는 것을 발견했습니다. 그들은 `assert`가 괄호로 감싼 인수 목록이 있는 함수 호출처럼 보일 것으로 예상했습니다.
+
+`assert`의 구문을 함수 호출처럼 보이도록 변경했습니다. 이전에 다음과 같이 작성했다면:
+
+```compact
+assert age() >= 18 "failed age check";
+```
+
+이제 다음과 같이 작성합니다:
+
+```compact
+assert(age() >= 18, "failed age check");
+```
+
+표현식처럼 보이므로, 실제로 언어에서 표현식으로 만들었습니다. 이는 일부 경우에 유용합니다. 예를 들어, 익명("화살표") 회로 본문에서 중괄호 없이 `assert`를 사용할 수 있습니다:
+
+```compact
+map((x) => assert(x >= 18, "failed age check"), ages);
+```
+
+표현식 시퀀스("쉼표 표현식")에서도 사용할 수 있습니다:
+
+```compact
+const difference = assert(x >= y, "underflow error"), x - y;
+```
+
+이것은 **호환성을 깨는** 변경입니다. `assert`를 포함하는 컨트랙트는 `assert` 문을 다시 작성해야 합니다.
+
+### The `=`, `+=`, and `-=` operators are now expressions
+
+Compact 0.15에서 `=`, `+=`, `-=` 연산자는 문(표현식이 아님)에서 사용되었습니다. 이는 원장 ADT 연산 `write`, `increment`, `decrement`의 축약형이었습니다. 이러한 원장 ADT 연산은 `[]` 타입의 표현식에서 사용할 수 있었으므로, 명시적 원장 ADT 연산은 사용할 수 있지만 축약형은 사용할 수 없는 컨텍스트가 있었습니다. Compact 0.16.0에서는 축약 버전도 표현식으로 변경했습니다.
+
+비호환성 변경이 아닙니다. 이전에 컴파일되고 실행되던 프로그램은 동일한 동작을 유지합니다.
+
+### Trailing commas are now allowed at the end of argument lists
+
+Compact 0.15.0에서 TypeScript가 허용하는 대부분의 위치에서 후행 쉼표를 허용하도록 언어를 변경했습니다. 그러나 실수로 일부 위치에 이 변경을 적용하지 못했습니다. 즉, 회로 호출, 원장 ADT 연산, `map` 및 `fold` 표현식의 인수 목록에서 허용하지 않았습니다. 이제 이러한 위치에서도 허용합니다.
+
+비호환성 변경이 아닙니다. Compact 0.15.0에서 컴파일되던 프로그램은 Compact 0.16.0에서도 변경 없이 컴파일됩니다.
+
+### [Breaking] Fix for a failure to mint tokens
+
+Midnight 온체인 런타임의 구현에서는 한 번에 발행하는 토큰의 실제 양이 64비트 정수에 맞아야 했습니다. 그러나 Compact 표준 라이브러리의 `mint_token` 함수는 이 양을 128비트 정수로 허용했습니다. 이로 인해 정상적으로 컴파일되지만 양이 너무 클 경우 배포 시 온체인에서 실패할 수 있는 컨트랙트가 만들어졌습니다. `mint_token`이 64비트 정수를 받도록 변경했습니다.
+
+이것은 **호환성을 깨는** 변경입니다. 이전에 정상적으로 컴파일되고 동작하던 프로그램이 더 이상 컴파일되지 않으며 업데이트가 필요합니다.
+
+### [Breaking] We have stopped changing the spelling of exported ledger fields
+
+컴파일러 버전 0.23.0 이전에서 생성된 TypeScript 및 JavaScript 코드는 밑줄이 있는 내보낸 원장 필드 이름의 철자를 변경했습니다. 예를 들어, 필드 이름이 `foo_bar`이면 생성된 TS/JS 코드에서 사용되는 이름은 `fooBar`였습니다. 그러나 이로 인해 이름 충돌이 발생할 수 있었습니다(예: `foo_bar`와 `foo_Bar`는 Compact에서 다른 이름이지만 생성된 TS/JS 코드에서는 동일한 철자를 갖습니다). 생성된 TS/JS 코드에서 이러한 원장 필드의 이름을 변경하지 않도록 컴파일러를 변경했습니다.
+
+이것은 **호환성을 깨는** 변경입니다. 이전 이름 변경에 의존하던 DApp은 변경되지 않은 이름을 사용하도록 업데이트해야 합니다.
+
+### [Breaking] We no longer allow multiple exported circuits whose names differ only in casing
+
+이전에는 컴파일러가 철자는 같지만 대소문자만 다른 내보낸 회로(예: `dosomething`과 `doSomething`)를 허용했습니다. 컴파일러는 증명 서버가 사용할 출력 파일을 생성합니다(출력 디렉터리의 `zkir` 및 `keys` 하위 디렉터리). 각 내보낸 회로에 대해 별도의 출력 파일이 있습니다. 대소문자를 구분하지 않는 파일 시스템에서는 이러한 내보낸 회로의 파일 이름을 구별할 수 없었습니다. 결과적으로 마지막으로 작성된 출력 파일만 남았습니다(이전 파일이 덮어쓰였습니다).
+
+이제 이를 중복 이름 충돌 오류로 처리합니다.
+
+이것은 호환성을 깨는 변경입니다. 이전에 컴파일되던 컨트랙트에서 컴파일러 오류가 발생할 수 있으며, 오류를 피하기 위해 내보낸 회로의 이름을 변경해야 합니다.
+
+### [Breaking] We have removed the `std.compact` file
+
+몇 달 전에 표준 라이브러리를 `import CompactStandardLibrary`로 가져오는 내장 모듈로 만들었습니다. 그 전에는 `include 'std.compact'`로 포함하는 Compact 소스 파일이었습니다. 변경 시 비호환성 변경이 되지 않도록 `import CompactStandardLibrary` 한 줄이 포함된 `std.compact` 파일을 계속 제공했습니다.
+
+현재 보이는 대부분의 컨트랙트는 `import` 형식을 올바르게 사용합니다. 컴파일러 버전 0.24.0에서 `std.compact` 파일을 제거했습니다.
+
+이것은 **호환성을 깨는** 변경입니다. `fixup-compact` 도구(아래 참조)가 `include` 형식을 올바른 `import` 형식으로 자동 대체합니다.
+
+## Developer Tools
+
+- Compact 0.17.0 "fixup" 도구
+
+Compact 0.16.0 릴리스에는 중요한 호환성을 깨는 변경이 포함되어 있습니다. Compact 0.17.0 릴리스에 컨트랙트를 현재 버전의 Compact으로 업데이트할 수 있는 도구를 포함할 계획이며, 필요한 변경 일부를 자동으로 수행합니다. 이 도구가 특히 수행하는 작업 중 하나는 안전하게 변경 가능한 경우 표준 라이브러리 함수의 변경된 이름을 자동으로 업데이트하는 것입니다. 이를 통해 사용자가 Compact 0.16.0 이상에서 동작하도록 컨트랙트를 업데이트하는 데 도움이 됩니다.
+
+## Bug Fixes
+
+이 릴리스에는 여러 버그 수정이 포함되어 있습니다. 아래 기록된 것들은 외부 개발자가 보고한 것입니다.
+
+### Fix for a crash due to some conditional return values
+
+회로가 서로 다른 실행 경로에서 다른 값을 반환할 때, 해당 값이 동일한 타입의 다른 표현을 가진 경우 일부 케이스에서 컴파일러가 내부 오류로 실패했습니다. 예를 들어, 한 경로에서 부수 효과가 있는 원장 연산의 값(예: `field.write(0)`)을 반환하고 다른 경로에서 빈 튜플(`[]`)을 반환하는 경우에 발생했습니다. 한 경로에서 벡터 타입 값을 반환하고 다른 경로에서 동등한 튜플 타입 값을 반환하는 경우에도 발생했습니다.
+
+이 오류를 수정했습니다.
+
+### Fix for a bug due to incorrect precedence in generated JavaScript code
+
+Compact 컴파일러는 컨트랙트의 생성된 JavaScript 코드에서 조건(삼항, 또는 `?:`) 표현식을 사용했습니다. 일부 경우, 생성된 코드가 JavaScript의 우선순위 규칙을 올바르게 따르지 않아 생성된 코드에서 잘못된 결과나 JS 구문 오류가 발생했습니다. 이 문제를 수정했습니다.
+
+## Compiler Improvements
+
+### Improved error reporting for missing `disclose` operators
+
+누락된 `disclose` 연산자에 대한 컴파일러의 오류 메시지 보고 방식을 개선했습니다. 이전에는 컴파일러가 첫 번째 실패만 보고하고 중단했습니다. 이제 모든 실패를 보고하도록 변경했습니다.
+
+발생하는 공개 종류에 대한 더 많은 정보를 포함하여, 프로그래머가 의도한 것인지 판단하는 데 도움을 줍니다. 간접 공개(즉, 위트니스 반환 값에서 파생된 값의 공개)의 경우, 위트니스 반환 값이 컨트랙트의 공개 위치에 어떻게 도달했는지에 대한 상세 경로를 포함했습니다. 이를 통해 프로그래머가 공개가 의도된 것인지 판단하고, 그렇다면 컨트랙트가 컴파일되도록 `disclose` 연산자를 어디에 삽입하는 것이 가장 좋은지 결정하는 데 도움이 됩니다.
+
+마지막으로, 표준 라이브러리 구현 내에서 발생하는 공개는 컨트랙트 프로그래머와 관련 없는 내부 표준 라이브러리 구현 위치가 아닌, 컨트랙트가 표준 라이브러리를 호출하는 위치에서 발생하는 것으로 보고됩니다.
+
+### Improved error messages for `=`, `+=`, and `-=` expressions
+
+`=`, `+=`, `-=` 연산자는 각각 원장 `write`, `increment`, `decrement` 연산의 축약형입니다. 이전에는 이를 사용하는 프로그램이 예를 들어 `write`에서 오류를 보고했습니다. 컨트랙트가 `write` 연산을 명시적으로 사용하지 않기 때문에 혼동을 줄 수 있었습니다.
+
+이제 이러한 오류를 실제 소스 코드 기준으로 보고합니다.
+
+### Improved error message for duplicating names from the standard library
+
+프로그래머가 표준 라이브러리에서 내보낸 이름을 중복 사용하면, 오류 메시지가 혼란스럽게 해당 이름에 대한 중복 바인딩을 언급했지만 컨트랙트에서는 하나의 바인딩만 보였습니다. 두 바인딩의 위치를 모두 표시하도록 오류 메시지를 더 명확하게 변경했습니다. 또한 새로운 개선된 오류 보고에서 제안된 몇 가지 추가 개선을 적용했습니다. 첫째, 원장 ADT 관련 오류가 이제 표준 라이브러리에서 가져온 것임을 올바르게 표시합니다. 둘째, 표준 라이브러리 관련 오류의 소스 위치가 프로그래머에게 의미 없는 표준 라이브러리 구현 줄과 열 번호 대신 `<standard library>`로 렌더링됩니다.
+
+### Improved error message for invalid exports
+
+유효한 내보내기가 아닌 이름이 `export` 선언을 통해 내보내진 경우, 이전에는 컴파일러가 `export`를 오류 위치로 표시했습니다. 이제 컴파일러가 특정 잘못된 내보내기를 표시합니다.
+
+예를 들어, 다음 코드에서:
+
+```compact
+export { foo, bar, baz }
+```
+
+`bar`가 잘못된 내보내기인 경우, 컴파일러는 이제 `bar`를 오류의 구체적인 원인으로 표시합니다.

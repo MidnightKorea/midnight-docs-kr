@@ -1,0 +1,80 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Midnight Wallet API
+displayed_sidebar: sidebar
+---
+
+# Midnight Wallet API
+
+Midnight Wallet API은 지갑 운영을 위한 포괄적인 인터페이스를 제공하며, 지갑 상태의 구조, 상태와 상호작용하는 메서드, 내부에서 사용되는 타입과 변수를 정의합니다.
+
+[관련 문서 링크](/api-reference/wallet-api)
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  2 April 2025
+</div>
+
+## Midnight Wallet API 4.0.0 Release Notes
+
+### Stable Release
+
+* **Version**: 4.0.0
+* **Audience**: 지갑 개발자, 통합 엔지니어, 노드 운영자
+* **Environment**: 프로덕션 준비 완료
+
+:::important
+`wallet-4.0.0`으로 업그레이드하면 지갑 내 잔액이 더 이상 표시되지 않습니다. 업그레이드 전에 중요한 데이터를 백업하거나 필요한 트랜잭션을 완료하세요.
+:::
+
+이 릴리스(4.0.0)는 안정적이며 프로덕션에 사용 가능합니다. 공개 및 프로덕션 환경에 안전하게 배포할 수 있습니다.
+
+### Key Changes & Highlights
+
+* **Bech32m 주소 형식**: 이 버전은 `bech32m`과 `hex`(레거시) 형식을 모두 지원합니다. 기본 형식은 `Bech32m`입니다.
+
+### Changelog
+
+#### Breaking Changes
+
+*주소 형식 변경*
+
+* **영향**: 기본 주소 형식이 `bech32m`입니다.
+* **필요한 조치**: Wallet API을 구현할 때 주소 형식을 그에 맞게 구현해야 합니다.
+
+#### New Features
+
+*`Bech32m` 주소 형식*
+
+* **설명**: 주소 형식을 통해 사용자는 생성된 네트워크(미배포, devnet, testnet, mainnet)와 주소 유형(차폐 주소 또는 비차폐 주소)에 따라 주소, 공개 키, 개인 키를 구분할 수 있습니다.
+* **사용/설정**: 기본적으로 활성화되어 있습니다.
+
+
+### Upgrade/Installation/Migration Instructions
+
+#### Prerequisites
+
+없음
+
+#### Step-by-Step Instructions
+
+dapp connector API 버전을 `@midnight-ntwrk/wallet-api@4.0.0`으로 업데이트하세요.
+
+#### Post-Upgrade Verification
+
+위 버전이 설치되어 있는지 확인하세요.
+
+### Compatibility
+
+* **운영 체제**: 해당 없음.
+* **서드파티 도구**: Node.js >=18
+* **Midnight 생태계 호환성**: Wallet SDK을 이를 지원하도록 업데이트해야 합니다(이미 완료됨).

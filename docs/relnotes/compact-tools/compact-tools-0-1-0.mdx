@@ -1,0 +1,31 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact developer tools 0.1.0
+displayed_sidebar: sidebar
+---
+
+## Compact developer tools 0.1.0 release notes
+
+오늘 Compact developer tools의 초기 버전을 릴리스합니다.
+이번 릴리스은 developer tools의 버전 0.1.0입니다.
+Compact 툴체인(즉, 컴파일러) 버전 0.22, 0.23, 0.24에서 작동합니다.
+
+## Initial Features
+
+이번은 developer tooling의 초기 버전입니다.
+도구 사용 방법에 대한 자세한 설명은 [발표 블로그 포스트](https://docs.midnight.network/blog/compact-developer-tools)에 있습니다.
+
+도구는 `compact` 명령줄 도구의 하위 명령을 호출하여 사용할 수 있습니다.
+다음 하위 명령을 사용할 수 있습니다:
+
+- `help` 도구 및 하위 명령에 대한 자세한 도움말을 제공합니다
+- `check` 원격 서버에서 툴체인 업데이트를 확인합니다
+- `update` 최신 버전 또는 특정 버전으로 업데이트하며, 필요 시 다운로드합니다
+- `list` 원격 서버 또는 로컬에 설치된 사용 가능한 버전을 나열합니다
+- `clean` 다운로드된 툴체인 아티팩트를 제거하며, 현재 기본 툴체인을 유지하는 옵션이 있습니다
+- `compile` 기본 툴체인 또는 특정 툴체인을 사용하여 Compact 컨트랙트를 컴파일합니다
+- `self check` developer tools 자체의 업데이트를 확인합니다
+- `self update` developer tools의 최신 버전으로 업데이트합니다
+
+모든 도구에는 상세한 내장 도움말 페이지가 있습니다.

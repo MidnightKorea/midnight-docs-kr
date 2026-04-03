@@ -1,0 +1,157 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Ledger 7.0.0 release notes
+description: Ledger is a component of the blockchain infrastructure that interacts with the Midnight network to perform tasks such as syncing, validating transactions, and maintaining the chain state.
+displayed_sidebar: sidebar
+---
+
+* **Version**: v7.0.0
+* **Date**: 27 January 2026
+* **Environment**: Preview, PreProd
+
+---
+
+## High-level summary
+
+Ledger 7.0.0은 midnight-zk 1.0과 함께 Midnight Structured Reference String(SRS)으로 전환하는 메이저 릴리스입니다.
+또한 Zswap 컴포넌트를 활용한 트랜스크립트 분할을 위한 새로운 `addCalls` 엔드포인트를 추가합니다.
+
+이번 릴리스에는 ZK 키 자료에 대한 호환성 변경 사항이 포함되어 있으며, 트레저리 접근을 완전히 비활성화합니다. 또한 다수의 보안 감사 수정 사항과 치명적인 버그 수정이 포함되어 있습니다.
+
+---
+
+## Audience
+
+이 릴리스 노트는 Ledger WASM 바인딩을 사용하여 애플리케이션을 구축하는 개발자에게 중요합니다.
+
+---
+
+## What changed (Summary of updates)
+
+- Midnight SRS 및 midnight-zk 1.0으로 전환했습니다.
+- Zswap 컴포넌트를 활용한 트랜스크립트 분할을 위한 `addCalls` 엔드포인트를 도입했습니다.
+- 차원 가중치를 적용한 전체 비용 기반으로 가격 구조를 변경했습니다.
+- 트레저리 접근을 완전히 비활성화했습니다.
+- 토큰 타입 계산, 컨트랙트 밸런싱 등 여러 치명적 버그를 수정했습니다.
+- Least Authority의 보안 감사 수정 사항을 적용했습니다.
+
+---
+
+## New features
+
+이번 릴리스에서 도입된 새로운 기능은 다음과 같습니다.
+
+### Endpoint for transcript partitioning (`addCalls`)
+
+Zswap 컴포넌트를 활용한 `addCalls`를 통해 트랜스크립트 분할을 가능하게 하는 새로운 엔드포인트입니다.
+대상 세그먼트를 알 필요 없이 오퍼를 생성하거나 델타에서 값을 다시 명시할 필요 없이 사용할 수 있습니다.
+WASM에서 수정 시 트랜잭션의 바인딩 무작위성을 자동으로 재계산하여, 트랜잭션 편집의 안정성을 높였습니다.
+
+### Circuit k-value computation (WASM)
+
+ZKIR의 WASM 바인딩에서 회로의 k-값을 계산하는 기능이 추가되었으며, ZKIR v2용 프로토콜 회로에 대한 테스트를 포함합니다.
+
+### Fee safety margin functions
+
+최대 가격 조정과 수수료 안전 마진을 계산하는 함수를 공개하여, `n`개 블록에 대한 상향 조정을 처리합니다.
+
+---
+
+## New features requiring configuration updates
+
+설정 업데이트가 필요한 새로운 기능은 다음과 같습니다.
+
+### Midnight SRS and midnight-zk 1.0
+
+이전 SRS로 생성된 모든 기존 증명과 검증자 키는 무효화됩니다. 업그레이드 후 애플리케이션에서 검증자 키를 재생성해야 합니다.
+
+**필요한 업데이트**:
+- midnight-zk 1.0 의존성으로 업데이트하세요.
+- 새로운 Midnight SRS를 사용하여 증명을 재생성하세요.
+
+### Expose DustLocalState parameters
+
+`DustLocalState`에서 Dust 파라미터(`syncTime`, `utxos`)를 공개하여 상태를 더 쉽게 확인할 수 있습니다.
+
+---
+
+## Deprecations
+
+이번 릴리스에서는 없습니다.
+
+---
+
+## Breaking changes
+
+아래는 호환성 변경 사항과 개발자에게 필요한 조치 사항입니다.
+
+### Switch to Midnight SRS and midnight-zk 1.0
+
+원장이 공식 Midnight Structured Reference String(SRS)과 midnight-zk 1.0을 사용하게 되었습니다.
+
+**영향**: 이전 SRS로 생성된 모든 증명과 검증자 키가 무효화됩니다.
+
+**필요한 조치**: 업그레이드 후 모든 ZK 검증자 키를 재생성하세요.
+
+### Pricing structure overhaul
+
+가격 책정 방식이 개별 차원별 비용 대신 차원 가중치를 적용한 전체 비용 방식으로 변경되었습니다.
+
+**영향**: 이전 비용 구조에 의존하는 수수료 추정 코드에 영향을 줍니다.
+이 변경은 원장에서는 블록이 대부분 비어 있다고 판단하면서 노드에서는 가득 찼다고 판단하여 가격이 하락하는 불일치 문제를 해결합니다.
+
+**필요한 조치**:
+- 새로운 가격 모델에 맞게 수수료 추정 로직을 업데이트하세요.
+- 트랜잭션 비용 계산을 검토하세요.
+
+### Treasury access disabled
+
+위임 권한이 확립될 때까지 트레저리 접근이 완전히 비활성화되었습니다.
+
+**영향**: 트레저리 자금에 접근하려는 모든 코드가 실패합니다.
+
+**필요한 조치**:
+- 애플리케이션에서 트레저리 접근 코드를 제거하세요.
+- 이는 트레저리 자금을 보존하기 위한 의도된 조치입니다.
+
+### Deltas must be non-zero
+
+트랜잭션 델타는 이제 0이 아닌 값이어야 합니다.
+
+**영향**: 값이 0인 델타를 포함하는 트랜잭션이 영향을 받습니다.
+
+**필요한 조치**: 트랜잭션 구성에서 값이 0인 델타를 제거하세요.
+
+---
+
+## Fixed defect list
+
+Ledger 7.0.0에서 수정된 결함은 다음과 같습니다:
+
+| **Defect number** | **Description** |
+| ----------------- | --------------- |
+| PM-19672 | 컨트랙트 발행 토큰의 토큰 타입 계산이 잘못되어, 발행된 토큰 사용 시 후속 오류가 발생하는 문제를 수정했습니다. |
+| PM-19979 | 여러 인텐트가 있는 컨트랙트에서 밸런싱 버그가 발생했습니다. 각 인텐트에 대해 컨트랙트 호출이 잘못 계산되었습니다. |
+| PM-20790 | cNgD에서의 재해싱이 불충분한 Merkle 트리 증거로 인해 동기화 중단을 초래했습니다. |
+| PM-20077 | `Option<Date>` 직렬화가 잘못되는 문제를 수정했습니다. |
+| PM-20350 | ClaimRewardsTransaction에 대한 여러 수정 사항을 적용했습니다. |
+| PM-21160 | WASM의 증명 프로바이더 래퍼가 `undefined` 값을 잘못 처리하는 문제를 수정했습니다. |
+| PR-49 | 수수료 계산의 교착 상태로 인해 time-to-dismiss 제한으로 대규모 비증명 트랜잭션을 처리할 수 없는 문제를 수정했습니다. |
+| PR-37 | 수동으로 구성된 정렬 값에서 후행 0이 올바르게 제거되지 않는 문제를 수정했습니다. |
+| PR-39 | 증명 서버가 Dust 키를 잘못 가져오는 문제를 수정했습니다. |
+| PR-99 | 고정 길이 바이트 역직렬화에서 정의되지 않은 동작이 발생할 수 있는 문제를 수정했습니다. |
+| PR-125 | 무한대 점에서의 확인을 항등점으로 수정했습니다. |
+| PR-81 | `midnight-ledger`가 의존성일 때 `cargo-vendor`가 실패하는 문제를 수정했습니다. |
+
+---
+
+## Security fixes
+
+Least Authority 감사에서 식별된 보안 수정 사항을 적용했습니다.
+
+---
+
+## Links and references
+- **GitHub repository**: [Midnight Ledger](https://github.com/midnightntwrk/midnight-ledger)
+- **API documentation**: [Midnight Ledger API](/api-reference/ledger/)

@@ -1,0 +1,78 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Midnight Indexer
+displayed_sidebar: sidebar
+---
+
+# Midnight Indexer
+
+Midnight Indexer는 Midnight 노드에서 최종 사용자 애플리케이션으로 블록체인 데이터 흐름을 최적화하기 위해 설계된 컴포넌트 세트입니다. 블록 이력을 조회하고 처리하며, 인덱싱된 데이터를 효율적으로 저장하고, 쿼리와 구독을 위한 GraphQL API를 제공합니다.
+
+---
+
+<div 
+  style={{
+    marginTop: '0',
+    fontSize: '1rem',
+    fontWeight: 'normal',
+    marginBottom: '0.5rem'
+  }}
+>
+  11 June 2025
+</div>
+
+## Midnight Indexer 2.1.3 Release Notes
+
+### Stable Release
+
+* **Version**: 2.1.3
+* **Audience**: 노드 운영자, Midnight 생태계와 통합하는 개발자
+* **Environment**: 프로덕션 준비 완료
+
+이번 릴리스(2.1.3)는 안정적이며 프로덕션 환경에 배포할 수 있습니다. 공개 및 프로덕션 환경에서 안전하게 사용할 수 있습니다.
+
+### Key Changes & Highlights
+
+:::note
+이 릴리스는 wallet-sdk v5.0.0 이상(Lace Wallet v3.0.0 이상과 호환)이 필요합니다.
+:::
+
+
+### Changelog
+
+#### Features
+
+* PostgreSQL 풀 구성 확장
+
+#### Refactor
+
+* 스토리지 접근 최소화
+
+
+### Compatibility
+
+* Midnight 생태계: Midnight Node 0.12 및 관련 인프라와 완전히 호환됩니다.
+* 운영 체제: Linux에서 완전 테스트되었으며, Windows와 macOS는 제한적으로 지원됩니다.
+
+### Additional Resources
+
+* **커뮤니티 지원**: [Discord](https://discord.com/invite/midnightnetwork)에서 논의에 참여하세요
+
+### Upgrade/Migration Guide
+
+#### Prerequisites
+
+* PostgreSQL 설치 및 구성 완료(프로덕션용)
+* Midnight 노드에 대한 네트워크 접근
+
+### Installation & Migration
+
+* 새 인덱서 바이너리를 배포하세요
+* 적절한 백엔드(SQLite 또는 PostgreSQL)에 연결하세요
+* API 통합을 새 엔드포인트로 변경하세요
+
+###  Post-Upgrade Checks
+
+* GraphQL 쿼리가 예상대로 처리되는지 확인하세요
+* 로그에서 오류 없이 시작되는지 모니터링하세요

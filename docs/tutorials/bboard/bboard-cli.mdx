@@ -13,7 +13,7 @@ import TabItem from '@theme/TabItem';
 
 # Bulletin board CLI
 
-이 튜토리얼에서는 [게시판 컨트랙트](./smart-contract) 튜토리얼에서 생성한 게시판 스마트 컨트랙트와 상호작용하는 명령줄 인터페이스를 구축하는 방법을 설명합니다.
+이 튜토리얼에서는 [게시판 컨트랙트](./smart-contract) 튜토리얼에서 생성한 게시판 스마트 컨트랙트와 상호작용하는 명령줄 인터페이스를 구축합니다.
 
 ## Prerequisites
 
@@ -31,7 +31,7 @@ import TabItem from '@theme/TabItem';
 - **api**: 컨트랙트 상호작용을 위한 재사용 가능한 추상화 계층
 - **bboard-cli**: 명령줄 애플리케이션
 
-API 패키지는 컨트랙트 배포, 상태 관리, 트랜잭션 제출을 처리하면서 실시간 업데이트를 위한 반응형 상태 observable을 노출하는 고수준 인터페이스(`BBoardAPI`)를 제공합니다.
+API 패키지는 컨트랙트 배포, 상태 관리, 트랜잭션 제출을 처리하는 고수준 인터페이스(`BBoardAPI`)이며, 실시간 업데이트를 위한 반응형 상태 observable도 포함합니다.
 CLI 패키지는 지갑 관리, 사용자 상호작용 및 메인 애플리케이션 로직을 구현합니다.
 
 ## Set up the root package

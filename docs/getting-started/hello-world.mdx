@@ -13,7 +13,7 @@ import Step, { StepsProvider } from "@site/src/components/Step/Step";
 
 # Create your first Midnight contract
 
-이 튜토리얼에서는 첫 번째 Compact smart contract를 작성하고, Preprod 테스트 네트워크에 배포한 뒤, 프라이버시 보존 로직으로 blockchain에 Hello World 메시지를 기록합니다.
+이 튜토리얼에서는 첫 번째 Compact smart contract를 작성하고, Preprod 테스트 네트워크에 배포한 뒤, 프라이버시를 보장하는 방식으로 blockchain에 Hello World 메시지를 기록합니다.
 
 완료하면 다음을 수행할 수 있습니다:
 
@@ -86,7 +86,7 @@ export circuit storeMessage(newMessage: Opaque<"string">): [] {
 - `pragma language_version`은 contract가 사용하는 Compact 버전을 지정합니다.
 - `ledger message`는 온체인 상태에 문자열 값을 저장하는 `message`라는 state variable을 생성합니다. 온체인 상태는 blockchain에서 공개적이고 영구적입니다.
 - `circuit storeMessage`는 온체인 상태를 수정하는 로직을 정의하는 Compact circuit입니다.
-- `newMessage: Opaque<"string">`는 입력 파라미터입니다. *Circuit 파라미터는 기본적으로 비공개입니다.* `disclose()` 함수는 비공개 값을 공개 저장해도 안전하다고 표시합니다. 이 함수 없이 `newMessage`를 ledger에 직접 할당하면 컴파일러 오류가 발생합니다.
+- `newMessage: Opaque<"string">`는 입력 파라미터입니다. *Circuit 파라미터는 기본적으로 비공개입니다.* `disclose()` 함수는 비공개 값을 공개 상태로 저장하겠다고 명시적으로 선언하는 역할을 합니다. 이 함수 없이 `newMessage`를 ledger에 직접 할당하면 컴파일러 오류가 발생합니다.
 
 </Step>
 

@@ -23,7 +23,7 @@ Midnight DApp을 실행하려면 다음이 필요합니다:
 
 ## Midnight CLI tool
 
-[`create-mn-app`](https://www.npmjs.com/package/create-mn-app) CLI 도구는 Midnight DApp용 스타터 템플릿을 제공합니다. TypeScript 설정, 핫 리로딩, wallet 운영 로직이 사전 구성되어 있습니다.
+[`create-mn-app`](https://www.npmjs.com/package/create-mn-app) CLI 도구는 Midnight DApp용 스타터 템플릿을 제공합니다. TypeScript 설정, 핫 리로딩, wallet 연동 로직이 미리 구성되어 있습니다.
 
 새 DApp을 스캐폴딩하세요:
 
@@ -35,7 +35,7 @@ npx create-mn-app [project-name]
 `[project-name]`을 새 DApp의 이름으로 교체하세요.
 :::
 
-CLI가 템플릿을 선택하라는 프롬프트를 표시합니다. 사용 가능한 옵션:
+실행하면 템플릿 선택 메뉴가 나타납니다. 사용 가능한 옵션:
 
 - Hello world
 - Counter
@@ -106,7 +106,7 @@ npm run setup
 
 이 스크립트는 proof server 시작, contract 컴파일, Preprod 네트워크 배포를 순서대로 수행합니다.
 
-CLI가 새 wallet 생성 또는 기존 wallet 복원을 선택하라는 프롬프트를 표시합니다. 새 wallet을 생성하면 CLI가 wallet seed를 생성하고 wallet 주소를 표시합니다. Wallet seed는 복원 시 필요하므로 안전한 곳에 저장하세요.
+새 wallet을 생성할지, 기존 wallet을 복원할지 선택하는 메뉴가 나타납니다. 새 wallet을 생성하면 seed와 wallet 주소가 표시됩니다. Seed는 복원 시 필요하므로 안전한 곳에 저장하세요.
 
 :::note
 [Preprod faucet](https://faucet.preprod.midnight.network/)에서 tNIGHT token을 받아 wallet에 충전해야 합니다. tNIGHT는 Midnight blockchain에서 transaction 수수료 지불에 필요한 tDUST를 생성합니다.
@@ -181,7 +181,7 @@ cd my-app
 npm install
 ```
 
-ZK proof를 사용하여 온체인에 신원을 공개하지 않으면서 게시자와 메시지 소유자의 신원을 검증합니다. 자세한 내용은 [Bulletin board DApp](../examples/dapps/bboard) 예제를 참고하세요.
+ZK proof를 활용해 온체인에서 신원을 드러내지 않으면서도 게시자와 메시지 소유자를 검증합니다. 자세한 내용은 [Bulletin board DApp](../examples/dapps/bboard) 예제를 참고하세요.
 
 ## CLI options
 

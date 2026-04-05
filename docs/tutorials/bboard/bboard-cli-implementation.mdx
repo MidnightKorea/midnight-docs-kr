@@ -13,7 +13,7 @@ import TabItem from '@theme/TabItem';
 
 # Bulletin board CLI implementation
 
-이 튜토리얼에서는 지갑 관리, DUST 생성, 대화형 명령줄 인터페이스를 제공하는 CLI 패키지를 구현하는 방법을 설명합니다.
+이 튜토리얼에서는 지갑 관리, DUST 생성, 대화형 명령줄 인터페이스가 포함된 CLI 패키지를 구현합니다.
 
 ## Prerequisites
 
@@ -90,7 +90,7 @@ cd bboard-cli
 
 ## Network configuration
 
-설정 모듈은 다양한 Midnight 환경에 연결하기 위한 네트워크별 설정을 정의합니다. CLI가 네트워크 엔드포인트에 접근하고, private 상태 저장소를 관리하며, DUST 생성 설정을 구성하는 방법을 표준화하는 공통 `Config` 인터페이스를 제공합니다.
+설정 모듈은 다양한 Midnight 환경에 연결하기 위한 네트워크별 설정을 정의합니다. 공통 `Config` 인터페이스를 통해 네트워크 엔드포인트 접근, private 상태 저장소 관리, DUST 생성 설정을 표준화합니다.
 
 `bboard-cli/src/config.ts`를 생성하고 공유 설정 인터페이스로 시작합니다:
 
@@ -249,7 +249,7 @@ export const createLogger = async (logPath: string): Promise<pino.Logger> => {
 
 ## Implement wallet utilities
 
-지갑 유틸리티는 지갑 상태 동기화 및 자금 지원 작업을 관리합니다. 이 함수들은 컨트랙트 상호작용을 시도하기 전에 지갑이 블록체인과 적절히 동기화되어 있고 충분한 자금이 있는지 확인합니다.
+지갑 유틸리티는 지갑 상태 동기화 및 자금 지원 작업을 관리합니다. 컨트랙트와 상호작용하기 전에 지갑이 블록체인과 동기화되었는지, 자금이 충분한지 확인하는 함수들입니다.
 
 `bboard-cli/src/wallet-utils.ts`를 생성합니다:
 
@@ -292,7 +292,7 @@ export const getInitialUnshieldedState = async (logger: Logger, wallet: Unshield
 };
 ```
 
-이 함수들은 지갑 상태에 대한 타입 안전 접근을 제공합니다:
+이 함수들은 지갑 상태에 타입 안전하게 접근합니다:
 - `getInitialState()`: 런타임 타입 검사를 사용하여 차폐(shielded) 및 비차폐(unshielded) 지갑을 모두 처리하는 제네릭 함수
 - `getInitialShieldedState()`: 차폐 지갑 상태를 가져오고 작업을 로깅
 - `getInitialUnshieldedState()`: 비차폐 지갑 상태를 가져오고 작업을 로깅
@@ -489,7 +489,7 @@ DUST 생성은 tNIGHT 토큰을 지정하여 트랜잭션 수수료를 위한 DU
 
 ## Implement wallet provider
 
-지갑 프로바이더는 Wallet SDK를 Midnight.js contracts API에 연결하여 컨트랙트 배포 및 트랜잭션 시스템에 필요한 인터페이스를 구현합니다. 암호학적 키, 트랜잭션 밸런싱 및 지갑 생명주기 작업을 관리합니다.
+지갑 프로바이더는 Wallet SDK와 Midnight.js contracts API를 연결하며, 컨트랙트 배포 및 트랜잭션 시스템에 필요한 인터페이스를 구현합니다. 암호학적 키, 트랜잭션 밸런싱, 지갑 생명주기 작업을 관리합니다.
 
 `bboard-cli/src/midnight-wallet-provider.ts`를 생성하고 다음 임포트 및 클래스 정의를 추가합니다:
 
@@ -537,7 +537,7 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
 
 ### Implement key provider methods
 
-이 메서드들은 차폐 자금 수신 및 트랜잭션 데이터 복호화에 필요한 공개 키를 노출합니다:
+이 메서드들은 차폐 자금 수신 및 트랜잭션 데이터 복호화에 필요한 공개 키를 반환합니다:
 
 ```typescript title="bboard-cli/src/midnight-wallet-provider.ts"
   getCoinPublicKey(): CoinPublicKey {
@@ -549,7 +549,7 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
   }
 ```
 
-`getCoinPublicKey()` 메서드는 차폐 토큰을 수신하기 위한 주소를 반환하고, `getEncryptionPublicKey()`는 이 지갑으로 전송된 차폐 트랜잭션 데이터를 복호화하기 위한 키를 제공합니다.
+`getCoinPublicKey()` 메서드는 차폐 토큰을 수신하기 위한 주소를 반환하고, `getEncryptionPublicKey()`는 이 지갑으로 전송된 차폐 트랜잭션 데이터를 복호화하는 키를 반환합니다.
 
 ### Implement transaction methods
 
@@ -630,7 +630,7 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
 
 ## Implement the main CLI logic
 
-메인 CLI 모듈은 전체 게시판 애플리케이션을 관리하며, 지갑 설정, 컨트랙트 상호작용, 대화형 사용자 인터페이스를 하나로 묶습니다. 환경 시작부터 정상 종료까지의 애플리케이션 생명주기를 관리합니다.
+메인 CLI 모듈은 지갑 설정, 컨트랙트 상호작용, 대화형 사용자 인터페이스를 하나로 묶어 게시판 애플리케이션 전체를 관리합니다. 환경 시작부터 정상 종료까지의 애플리케이션 생명주기를 처리합니다.
 
 `bboard-cli/src/index.ts`를 생성하고 다음 임포트를 추가합니다:
 
@@ -832,7 +832,7 @@ const mainLoop = async (providers: BBoardProviders, rli: Interface, logger: Logg
 ```
 
 루프는 먼저 `deployOrJoin()`을 호출하여 컨트랙트 연결을 초기화합니다. 트랜잭션이 컨트랙트를 수정할 때마다 자동으로 업데이트를 받기 위해 반응형 상태 observable을 구독합니다.
-`finally` 블록은 루프가 종료될 때 구독이 정리되도록 보장합니다.
+`finally` 블록 덕분에 루프가 종료될 때 구독이 반드시 정리됩니다.
 
 ### Wallet setup menu
 
@@ -962,7 +962,7 @@ export const run = async (config: Config, testEnv: TestEnvironment, logger: Logg
 4. **DUST 생성**: DUST 생성을 위해 UTXO를 등록합니다 (활성화된 경우)
 5. **프로바이더 구성**: 필요한 6개의 프로바이더(private 상태, 공개 데이터, ZK 설정, proof, 지갑, midnight)를 모두 설정합니다
 6. **메인 루프 진입**: 대화형 게시판 세션을 시작합니다
-7. **정리**: 중첩된 `finally` 블록이 오류가 발생하더라도 리소스 정리를 보장합니다
+7. **정리**: 중첩된 `finally` 블록으로 오류가 발생해도 리소스가 반드시 정리됩니다
 
 ### Error logging utility
 

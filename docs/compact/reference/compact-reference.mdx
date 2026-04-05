@@ -701,7 +701,7 @@ new type VField<#N> = Vector<N, Field>;
 반면에, 튜플 타입이 항상 동일한 벡터 타입을 가지는 것은 아닙니다.
 예를 들어 `[Boolean, Field]`이나 `[Uint<8>, Uint<16>]`은 어떤 벡터 타입과도
 동일하지 않습니다.
-그러나 가능하게 다른 타입 *T<sub>1</sub>*, ..., *T<sub>n</sub>*을 가진
+그러나 서로 다를 수 있는 타입 *T<sub>1</sub>*, ..., *T<sub>n</sub>*을 가진
 튜플 타입 `[`*T<sub>1</sub>*, ..., *T<sub>n</sub>*`]`이
 타입 집합 \{*T<sub>1</sub>*, ..., *T<sub>n</sub>*}의 최소 상한 *S*가
 존재하면 "*벡터 타입을 가진다*"고 말합니다.
@@ -885,11 +885,11 @@ Compact 프로그램은 0개 이상의 프로그램 요소의 시퀀스입니다
 
 간략히:
 
-- [pragma 형식](#pragmas)은 프로그램이 요구하는 컴파일러 및/또는 언어 버전을 선언할 수 있게 합니다.
+- [pragma 형식](#pragmas)은 프로그램이 요구하는 컴파일러 및/또는 언어 버전을 선언합니다.
 - [모듈 정의](#modules-exports-and-imports)는 자체 중첩된 스코프에 프로그램 요소의 시퀀스를 포함하는 Compact 모듈을 정의합니다.
 - [export 형식](#exports)은 모듈 또는 [프로그램 자체](#top-level-exports)에서 바인딩을 export합니다.
 - [import 형식](#imports)은 Compact 모듈에서 바인딩을 import합니다.
-- [include 형식](#include-files)은 다른 파일에서 프로그램 요소를 포함할 수 있게 합니다.
+- [include 형식](#include-files)은 다른 파일의 프로그램 요소를 포함합니다.
 - [구조체 정의](#structure-types)는 구조체 타입을 정의합니다.
 - [열거형 정의](#enumeration-types)는 열거형 타입을 정의합니다.
 - [컨트랙트 선언](#contract-types)은 컨트랙트 타입을 선언합니다.
@@ -1306,7 +1306,7 @@ constructor가 기본값을 재정의할 수 있습니다.
 - 모든 Compact 타입 *T*에 대한 `List<`*T*`>`
 - 모든 *n*(1 \< *n* \<= 32)과 모든 Compact 타입 *T*에 대한 `MerkleTree<`*n*, *T*`>`
 - 모든 *n*(1 \< *n* \<= 32)과 모든 Compact 타입 *T*에 대한 `HistoricMerkleTree<`*n*, *T*`>`
-- 특정 ledger 상태에 의존하지 않는 ledger 연산에 대한 접근을 제공하는 특수 타입 `Kernel`
+- 특정 ledger 상태에 의존하지 않는 ledger 연산을 사용할 수 있는 특수 타입 `Kernel`
 
 각 ledger 타입은 다음으로 호출할 수 있는 연산 세트를 지원합니다:
 
@@ -1640,7 +1640,7 @@ Compact 컴파일러가 (올바른) Compact 프로그램에 대해 생성하는 
 
 블록은 단일 문장이 허용되는 모든 곳에서 단일 문장 대신 사용할 수 있으며,
 이는 `if` 문의 "then" 및 "else" 부분이나 `for` 문의 본문에서
-여러 문장을 평가할 수 있게 합니다.
+여러 문장을 실행할 수 있습니다.
 
 모든 circuit 정의의 본문과 constructor(있는 경우)의 본문은
 항상 블록입니다.
@@ -2612,8 +2612,8 @@ export circuit setf(x: Uint<16>): [] {
 동등하게, 래핑된 표현식의 값이 실제로 witness 데이터를 포함하든 아니든
 포함하지 않는 것처럼 가장하라고 컴파일러에 알리는 것입니다.
 
-컴파일러는 거짓 경보가 없도록 열심히 노력하며, 공개의 성격과
-어떻게 발생하는지에 대한 정확하고 정밀한 정보를 제공합니다.
+컴파일러는 거짓 경보를 최소화하며, 공개의 성격과
+발생 경위를 정확하고 상세하게 보고합니다.
 
 종종 같은 값이 다른 경로를 따라 공개되며, 공개의 성격은 특히 조건 표현식을 통한
 간접 공개를 포함하는 경우 더 모호할 수 있습니다.
@@ -2662,7 +2662,7 @@ prover/verifier 키 쌍과 proof 생성을 위한 지침도 생성됩니다.
 ### Structure of exported TypeScript
 
 export된 TypeScript는 모든 TypeScript 애플리케이션에서 컨트랙트와
-상호작용하는 데 사용할 수 있는 여러 선언을 노출합니다.
+상호작용하는 데 필요한 여러 선언을 포함합니다.
 
 컨트랙트는 TypeScript 모듈에서 다음을 export합니다:
 

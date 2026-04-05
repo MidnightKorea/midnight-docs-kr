@@ -10,9 +10,9 @@ toc_max_heading_level: 2
 
 # Bulletin board contract
 
-이 튜토리얼에서는 Midnight 블록체인에서 프라이버시를 보호하는 게시판 스마트 컨트랙트를 구축하는 방법을 보여줍니다.
+이 튜토리얼에서는 Midnight 블록체인에서 프라이버시를 보호하는 게시판 스마트 컨트랙트를 구축합니다.
 
-게시판 컨트랙트는 사용자가 프라이버시를 유지하면서 메시지를 게시하고 제거할 수 있게 합니다.
+게시판 컨트랙트를 사용하면 프라이버시를 유지하면서 메시지를 게시하고 제거할 수 있습니다.
 원래 게시자만 메시지를 제거할 수 있으며, 이는 게시자의 신원을 온체인에 공개하지 않고 ZK proof를 통해 시행됩니다.
 
 ## Prerequisites
@@ -42,7 +42,7 @@ example-bboard/
 
 ## Write the smart contract
 
-이 섹션에서는 스마트 컨트랙트를 작성하는 과정과 핵심 개념을 설명합니다.
+스마트 컨트랙트를 작성하면서 핵심 개념을 살펴봅니다.
 
 ### Create the contract file
 
@@ -77,7 +77,7 @@ pragma language_version >= 0.22;
 import CompactStandardLibrary;
 ```
 
-`CompactStandardLibrary`는 Compact의 내장 타입과 함수에 대한 접근을 제공합니다. 선택적 값을 위한 `Maybe`, 시퀀스 추적을 위한 `Counter`, 암호학적 commitment를 위한 `persistentHash`, Maybe 값의 `some` 및 `none` 생성자 등이 포함됩니다.
+`CompactStandardLibrary`를 통해 Compact의 내장 타입과 함수를 사용할 수 있습니다. 선택적 값을 위한 `Maybe`, 시퀀스 추적을 위한 `Counter`, 암호학적 commitment를 위한 `persistentHash`, Maybe 값의 `some` 및 `none` 생성자 등이 포함됩니다.
 
 :::note
 표준 라이브러리에서 사용 가능한 기능에 대해 자세히 알아보려면 [Compact 표준 라이브러리](../../../compact/standard-library/) 참조를 확인하세요.
@@ -100,7 +100,7 @@ export enum State {
 
 이 열거형은:
 
-- `export`는 TypeScript에서 열거형에 접근 가능하게 합니다
+- `export`를 사용하면 TypeScript에서 열거형에 접근할 수 있습니다
 - `State`는 열거형 타입 이름입니다
 - `VACANT`은 빈 게시판을 나타냅니다 (값 0)
 - `OCCUPIED`는 메시지가 있는 게시판을 나타냅니다 (값 1)
@@ -128,7 +128,7 @@ export ledger sequence: Counter;
 export ledger owner: Bytes<32>;
 ```
 
-각 ledger 필드는 특정 목적을 수행합니다:
+각 ledger 필드의 역할은 다음과 같습니다:
 
 - `state`: 게시판이 비어 있는지 점유되어 있는지 추적합니다
 - `message`: 현재 메시지를 선택적 Opaque 문자열로 저장합니다
@@ -176,11 +176,11 @@ witness localSecretKey(): Bytes<32>;
 
 이 선언은:
 
-- `witness`는 임의의 계산을 수행하는 TypeScript 또는 JavaScript로 구현된 함수로 표시합니다.
-- `localSecretKey`는 사용자의 비밀 키의 32바이트 값을 반환합니다.
+- `witness`는 TypeScript 또는 JavaScript로 구현되어 임의의 계산을 수행하는 함수임을 나타냅니다.
+- `localSecretKey`는 사용자 비밀 키의 32바이트 값을 반환합니다.
 - 반환 값은 기본적으로 private이며 온체인이나 공개 ledger 상태에 나타나지 않습니다.
 
-Witness는 프라이버시를 보호하는 계산을 가능하게 합니다. private 상태 접근이나 값 생성 같은 모든 계산을 수행할 수 있으며, circuit가 proof 생성에 사용하는 결과를 반환합니다.
+Witness를 통해 프라이버시를 보호하면서 계산을 수행할 수 있습니다. private 상태 접근이나 값 생성 같은 모든 계산이 가능하며, circuit가 proof 생성에 사용할 결과를 반환합니다.
 
 ### Create the post circuit
 
@@ -199,8 +199,8 @@ export circuit post(newMessage: Opaque<'string'>): [] {
 
 이 circuit는 다음 작업을 순서대로 처리합니다:
 
-- **게시판 상태 검증**: `assert(state == State.VACANT, ...)`는 게시판이 비어 있을 때만 게시가 발생하도록 합니다.
-- **commitment 생성**: `publicKey()` 헬퍼 circuit를 호출하여 비밀 키와 현재 시퀀스 번호로 암호학적 commitment를 생성합니다. 이것이 원래 게시자만 메시지를 제거할 수 있게 하는 것입니다.
+- **게시판 상태 검증**: `assert(state == State.VACANT, ...)`로 게시판이 비어 있을 때만 게시할 수 있도록 합니다.
+- **commitment 생성**: `publicKey()` 헬퍼 circuit를 호출하여 비밀 키와 현재 시퀀스 번호로 암호학적 commitment를 생성합니다. 이를 통해 원래 게시자만 메시지를 제거할 수 있습니다.
 - **Disclose**: commitment를 `disclose()`로 래핑하여 이 값을 온체인에 공개해도 안전하다고 컴파일러에 알립니다.
 - **메시지 저장**: `message`를 `some(newMessage)`로 설정하고 명시적으로 공개하기 위해 `disclose()`로 래핑합니다.
 - **상태 업데이트**: `state = State.OCCUPIED`로 변경하여 게시판이 점유되었음을 표시합니다.
@@ -272,7 +272,7 @@ commitment는 중요한 특성을 가집니다:
 - **결정적**: 동일한 입력은 항상 동일한 출력을 생성합니다
 - **게시물별 고유**: 시퀀스 번호는 각 게시물이 다른 commitment를 갖도록 보장합니다
 
-도메인 분리자는 보안 모범 사례입니다. 동일한 비밀 키를 사용하더라도 게시판을 위해 생성된 해시가 다른 목적으로 생성된 해시와 혼동되지 않도록 보장합니다.
+도메인 분리자는 보안 모범 사례입니다. 동일한 비밀 키를 사용하더라도 게시판용 해시가 다른 목적의 해시와 혼동되지 않습니다.
 
 완성된 게시판 컨트랙트는 다음과 같아야 합니다:
 
@@ -425,7 +425,7 @@ export type Circuits<PS> = {
 각 circuit 메서드는:
 
 - Compact 코드에서 내보낸 circuit에 대응합니다
-- ledger 상태와 witness 함수에 대한 접근을 제공하는 `CircuitContext`를 받습니다
+- ledger 상태와 witness 함수에 접근할 수 있는 `CircuitContext`를 받습니다
 - Compact circuit 매개변수와 일치하는 매개변수를 받습니다
 - ZK proof를 생성하기 위해 proof 서버로 전송되는 `ProofData`를 포함하는 `CircuitResults`를 반환합니다
 - Compact 타입에 적합한 JavaScript 타입(`string`, `Uint8Array`)을 사용합니다
@@ -472,7 +472,7 @@ export type Witnesses<PS> = {
 이 타입은:
 
 - Compact 코드의 `witness localSecretKey()` 선언에 대응합니다
-- ledger 상태, private 상태, 컨트랙트 주소에 대한 접근을 제공하는 `WitnessContext`를 받습니다
+- ledger 상태, private 상태, 컨트랙트 주소에 접근할 수 있는 `WitnessContext`를 받습니다
 - 업데이트된 private 상태와 32바이트 비밀 키를 포함하는 튜플 `[PS, Uint8Array]`를 반환합니다
 - circuit 실행 중 private 데이터를 제공하기 위해 DApp에서 구현해야 합니다
 
@@ -490,17 +490,17 @@ export declare class Contract<PS = any, W extends Witnesses<PS> = Witnesses<PS>>
 }
 ```
 
-`Contract` 클래스는 컴파일된 컨트랙트와 상호작용하기 위한 메인 인터페이스를 제공합니다:
+`Contract` 클래스는 컴파일된 컨트랙트와 상호작용하기 위한 메인 인터페이스입니다:
 
 - private 상태를 위한 `PS`와 witness를 위한 `W` 타입 매개변수를 사용합니다
-- 순수 circuit 함수를 위한 `circuits`를 제공합니다
-- witness와 상호작용하는 circuit를 위한 `impureCircuits`를 제공합니다
+- `circuits`로 순수 circuit 함수에 접근합니다
+- `impureCircuits`로 witness와 상호작용하는 circuit에 접근합니다
 - 생성자에서 witness 구현을 받습니다
-- `initialState`를 통해 컨트랙트 상태를 초기화하며, 이 메서드는 생성자를 호출합니다
+- `initialState`로 컨트랙트 상태를 초기화하며, 이 메서드는 생성자를 호출합니다
 
 ## Implement witness functions
 
-게시판 컨트랙트는 circuit 실행 중 사용자의 비밀 키에 대한 접근을 제공하기 위한 witness 구현이 필요합니다.
+게시판 컨트랙트는 circuit 실행 중 사용자의 비밀 키에 접근하기 위한 witness 구현이 필요합니다.
 
 ### Create the witnesses file
 
@@ -535,7 +535,7 @@ export const witnesses = {
 - `createBBoardPrivateState()`: 비밀 키로 private 상태를 초기화하는 헬퍼 함수.
 - `witnesses.localSecretKey`: `WitnessContext<Ledger, BBoardPrivateState>`를 받고 `[BBoardPrivateState, Uint8Array]` 튜플을 반환하는 구현. 이 함수는 컨텍스트에서 `privateState`를 추출하고 변경되지 않은 private 상태와 비밀 키를 모두 반환합니다.
 
-witness 함수는 ledger 상태, private 상태, 컨트랙트 주소에 대한 접근을 제공하는 `WitnessContext` 매개변수를 받습니다. Compact 런타임은 circuit 실행 중 이 컨텍스트를 자동으로 전달합니다.
+witness 함수는 ledger 상태, private 상태, 컨트랙트 주소에 접근할 수 있는 `WitnessContext` 매개변수를 받습니다. Compact 런타임은 circuit 실행 중 이 컨텍스트를 자동으로 전달합니다.
 
 :::info Compact 런타임 API
 `WitnessContext` 타입은 Compact 런타임 API의 일부입니다. witness 컨텍스트 및 기타 런타임 타입에 대한 자세한 정보는 [Compact 런타임 API 문서](/api-reference/compact-runtime)를 참조하세요.
@@ -566,11 +566,11 @@ export const CompiledBBoardContractContract = CompiledContract.make<
 
 이 파일은 게시판 컨트랙트의 메인 진입점 역할을 합니다.
 생성된 컨트랙트 코드와 witness 구현의 모든 타입과 함수를 재내보내기하여
-소비 애플리케이션을 위한 단일 임포트 포인트를 제공합니다.
+사용하는 애플리케이션에서 하나의 임포트 포인트로 접근할 수 있습니다.
 
 ### Initialize the npm package
 
-컨트랙트에는 의존성 관리, 빌드 스크립트 정의, DApp에서 사용할 컨트랙트 패키징을 위한 `package.json` 파일이 필요합니다. 이를 통해 컨트랙트를 재사용 가능한 모듈로 쉽게 컴파일, 빌드, 배포할 수 있습니다.
+컨트랙트에는 의존성 관리, 빌드 스크립트 정의, DApp용 컨트랙트 패키징을 위한 `package.json` 파일이 필요합니다. 이 파일을 통해 컨트랙트를 재사용 가능한 모듈로 쉽게 컴파일, 빌드, 배포할 수 있습니다.
 
 `contract` 디렉터리에 `package.json` 파일을 생성합니다:
 

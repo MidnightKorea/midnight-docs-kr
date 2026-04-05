@@ -10,7 +10,7 @@ toc_max_heading_level: 2
 
 # Bulletin board API implementation
 
-이 튜토리얼에서는 게시판 컨트랙트 상호작용을 위한 재사용 가능한 추상화 계층을 제공하는 API 패키지를 구현하는 방법을 설명합니다. 이 패키지는 CLI와 브라우저 기반 UI 간에 공유할 수 있습니다.
+이 튜토리얼에서는 게시판 컨트랙트 상호작용을 위한 재사용 가능한 추상화 계층인 API 패키지를 구현합니다. 이 패키지는 CLI와 브라우저 기반 UI 간에 공유할 수 있습니다.
 
 ## Prerequisites
 
@@ -138,7 +138,7 @@ export type BBoardDerivedState = {
 
 ## Implement the BBoardAPI class
 
-`BBoardAPI` 클래스는 게시판 스마트 컨트랙트와 상호작용하기 위한 고수준 인터페이스를 제공합니다. 컨트랙트 배포, 상태 관리 및 트랜잭션 제출을 처리하면서 실시간 업데이트를 위한 반응형 상태 observable을 노출합니다.
+`BBoardAPI` 클래스는 게시판 스마트 컨트랙트와 상호작용하기 위한 고수준 인터페이스입니다. 컨트랙트 배포, 상태 관리 및 트랜잭션 제출을 처리하며, 실시간 업데이트를 위한 반응형 상태 observable도 포함합니다.
 
 `api/src/index.ts`를 생성하고 다음 섹션을 추가합니다.
 
@@ -176,7 +176,7 @@ export interface DeployedBBoardAPI {
 }
 ```
 
-이 인터페이스는 컨트랙트 주소, 반응형 상태 observable, 그리고 메시지 게시 및 제거를 위한 메서드를 노출합니다.
+이 인터페이스에는 컨트랙트 주소, 반응형 상태 observable, 그리고 메시지 게시 및 제거 메서드가 포함됩니다.
 
 ### Implement the constructor and state observable
 
@@ -345,7 +345,7 @@ export * as utils from './utils/index.js';
 export * from './common-types.js';
 ```
 
-이 내보내기는 API의 유틸리티 함수와 TypeScript 타입을 CLI 애플리케이션 및 API 모듈의 다른 소비자에게 제공합니다.
+이 내보내기를 통해 CLI 애플리케이션 등 API 모듈을 사용하는 곳에서 유틸리티 함수와 TypeScript 타입에 접근할 수 있습니다.
 
 ## Build the API package
 

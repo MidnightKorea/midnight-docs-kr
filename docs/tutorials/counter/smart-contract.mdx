@@ -50,7 +50,7 @@ example-counter/
     └── package.json
 ```
 
-이 구조 덕분에 다음이 가능합니다:
+이 구조를 사용하면:
 
 - 사용자 인터페이스와 독립적으로 컨트랙트 로직을 테스트할 수 있습니다.
 - 여러 애플리케이션(CLI, 웹, 모바일)에서 컨트랙트를 재사용할 수 있습니다.
@@ -59,7 +59,7 @@ example-counter/
 
 ## Set up the project
 
-이 섹션에서는 프로젝트를 설정하고 컨트랙트 파일을 생성하는 과정을 설명합니다.
+프로젝트를 설정하고 컨트랙트 파일을 생성합니다.
 
 ### Create the directory structure
 
@@ -126,7 +126,7 @@ npm init -y
 
 ## Write the smart contract
 
-이 섹션에서는 스마트 컨트랙트를 작성하는 과정과 핵심 개념을 설명합니다.
+스마트 컨트랙트를 작성하면서 핵심 개념을 살펴봅니다.
 
 ### Create the contract file
 
@@ -162,7 +162,7 @@ pragma language_version >= 0.22;
 import CompactStandardLibrary;
 ```
 
-`CompactStandardLibrary`는 카운터 값을 증가 및 감소시키는 데 사용되는 `Counter` 타입과 같은 내장 타입 및 함수를 제공합니다.
+`CompactStandardLibrary`를 통해 카운터 값을 증가 및 감소시키는 `Counter` 타입 등 내장 타입과 함수를 사용할 수 있습니다.
 
 ### Define the ledger state
 
@@ -181,7 +181,7 @@ export ledger round: Counter;
 
 이 선언은 블록체인에 공개 카운터를 생성합니다:
 
-- `export`는 ledger 상태를 TypeScript API 및 컨트랙트의 JavaScript 구현에서 접근 가능하게 합니다.
+- `export`를 사용하면 TypeScript API 및 컨트랙트의 JavaScript 구현에서 ledger 상태에 접근할 수 있습니다.
 - `ledger`는 모든 네트워크 참여자가 읽을 수 있는 온체인 공개 상태 변수로 선언합니다.
 - `round`는 카운터 변수의 이름입니다.
 - `Counter`는 `CompactStandardLibrary`의 타입으로, 0으로 초기화되며 increment/decrement 메서드를 제공합니다.
@@ -208,7 +208,7 @@ export circuit increment(): [] {
 
 이 circuit는 컨트랙트의 유일한 연산을 정의합니다:
 
-- `export circuit`는 TypeScript API 및 JavaScript 구현을 위한 호출 가능한 진입점으로 표시합니다.
+- `export circuit`는 TypeScript API 및 JavaScript 구현에서 호출할 수 있는 진입점으로 표시합니다.
 - `increment()`는 빈 매개변수 목록을 가진 circuit 이름으로, 이 연산은 입력이 필요하지 않습니다.
 - `: []`는 반환 타입을 빈 튜플로 지정하여 반환 값이 없음을 나타냅니다.
 - `round.increment(1)`는 `Counter` 타입의 내장 `increment` 메서드를 호출하여 카운터를 1 증가시킵니다.
@@ -351,11 +351,11 @@ export declare class Contract<PS = any, W extends Witnesses<PS> = Witnesses<PS>>
 }
 ```
 
-`Contract` 클래스는 컴파일된 컨트랙트와 상호작용하기 위한 메인 인터페이스를 제공합니다:
+`Contract` 클래스는 컴파일된 컨트랙트와 상호작용하기 위한 메인 인터페이스입니다:
 
 - 두 개의 타입 매개변수를 사용합니다: private 상태 타입을 위한 `PS`와 witness 타입을 위한 `W`.
-- `circuits` 필드는 외부 상태를 수정하지 않는 순수 circuit 함수에 대한 접근을 제공합니다.
-- `impureCircuits` 필드는 witness와 상호작용할 수 있는 불순 circuit 함수에 대한 접근을 제공합니다.
+- `circuits` 필드로 외부 상태를 수정하지 않는 순수 circuit 함수에 접근합니다.
+- `impureCircuits` 필드로 witness와 상호작용할 수 있는 불순 circuit 함수에 접근합니다.
 - 생성자는 컨트랙트의 witness 구현을 초기화하기 위한 `witnesses` 매개변수를 받습니다.
 - `initialState` 메서드는 `context` 매개변수를 받아 초기 컨트랙트 상태를 포함하는 `ConstructorResult`를 반환합니다.
 
@@ -380,7 +380,7 @@ export const witnesses = {};
 - `CounterPrivateState`: `number` 타입의 `privateCounter` 속성을 가진 private 상태 타입을 정의합니다.
 DApp이 로컬에서 추적하는 오프체인 데이터를 나타냅니다.
 - `witnesses`: Counter 컨트랙트가 Compact 코드에서 witness 함수를 선언하지 않으므로 빈 객체입니다.
-Witness는 circuit 실행 중 private 데이터에 대한 접근을 제공하지만, 이 간단한 컨트랙트에서는 필요하지 않습니다.
+Witness는 circuit 실행 중 private 데이터에 접근하는 역할이지만, 이 간단한 컨트랙트에서는 필요하지 않습니다.
 
 ### Create the index file
 
@@ -403,7 +403,7 @@ export * from './witnesses';
 
 이 파일은:
 
-- 소비자를 위한 단일 임포트 포인트를 제공합니다
+- 사용하는 곳에서 하나의 임포트 포인트로 접근할 수 있습니다
 - 생성된 컨트랙트 API를 재내보내기합니다
 - witness 구현을 포함합니다
 

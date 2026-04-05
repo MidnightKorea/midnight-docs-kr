@@ -9,7 +9,7 @@ tags: [node]
 
 # Node endpoints
 
-자체 노드를 운영하여 다양한 UI 및 프로그래밍 방식으로 Midnight 네트워크와 상호작용하거나, 인프라 및 API 서비스 제공업체가 제공하는 public endpoint에 연결할 수 있습니다. 개발 편의를 위해 아래의 public endpoint를 사용할 수 있으며, API와 함께 사용하여 Midnight 네트워크 및 테스트 환경과 상호작용할 수 있습니다.
+자체 노드를 운영하거나, 인프라 및 API 서비스 제공업체의 public endpoint에 연결하여 Midnight 네트워크에 접근할 수 있습니다. 아래의 public endpoint는 개발 및 테스트 용도로 자유롭게 사용할 수 있습니다.
 
 ## Network endpoints
 
@@ -33,7 +33,7 @@ curl -X POST \
       }' \
   https://rpc.testnet-02.midnight.network/
 ```
-사용 가능한 RPC 메서드를 `rpc_methods.json` 파일로 조회합니다:
+사용 가능한 RPC 메서드 목록을 `rpc_methods.json` 파일로 저장합니다:
 
 ```bash
 curl \
@@ -47,7 +47,7 @@ curl \
 
 ![insomnia_app_screenshot](/img/insomnia_app.gif)
 
-Midnight Node와의 상호작용을 쉽게 하기 위해 Insomnia API 컬렉션을 제공합니다. 이 컬렉션에는 노드의 각종 endpoint를 테스트하고 상호작용할 수 있는 사전 구성된 요청이 포함되어 있습니다.
+Midnight Node의 각종 endpoint를 손쉽게 테스트할 수 있도록 Insomnia API 컬렉션을 제공합니다. 이 컬렉션에는 사전 구성된 요청이 포함되어 있어 바로 사용할 수 있습니다.
 
 1. **컬렉션 다운로드**
    - 아래 링크를 클릭하여 Insomnia API 컬렉션 파일을 다운로드합니다: 📦⬇ <a href="/files/Insomnia_2024-11-21.json" download>Midnight Node Insomnia Collection</a>

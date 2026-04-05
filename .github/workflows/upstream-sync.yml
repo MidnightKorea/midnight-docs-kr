@@ -2,7 +2,7 @@ name: Upstream Sync Check
 
 on:
   schedule:
-    - cron: '0 9 * * 1'  # 매주 월요일 09:00 UTC (한국 18:00)
+    - cron: '0 9 * * *'  # 매일 09:00 UTC (한국 18:00)
   workflow_dispatch:  # 수동 트리거
 
 permissions:

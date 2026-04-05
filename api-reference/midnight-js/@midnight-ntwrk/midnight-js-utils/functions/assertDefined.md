@@ -8,7 +8,7 @@
 
 > **assertDefined**\<`A`\>(`value`, `message?`): `asserts value is NonNullable<A>`
 
-Asserts that the given value is non-nullable.
+주어진 값이 null이나 undefined가 아닌지 확인합니다.
 
 ## Type Parameters
 
@@ -22,13 +22,13 @@ Asserts that the given value is non-nullable.
 
 `A` \| `null` \| `undefined`
 
-The value to test for nullability.
+null 여부를 검사할 값입니다.
 
 ### message?
 
 `string`
 
-The error message to use if an error is thrown.
+오류 발생 시 사용할 오류 메시지입니다.
 
 ## Returns
 
@@ -36,4 +36,4 @@ The error message to use if an error is thrown.
 
 ## Throws
 
-Error If the value is nullable.
+값이 null 또는 undefined인 경우 Error를 발생시킵니다.

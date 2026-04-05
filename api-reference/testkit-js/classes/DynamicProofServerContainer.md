@@ -60,7 +60,7 @@
 
 `Promise`\<`void`\>
 
-A promise that resolves when the container is stopped
+컨테이너가 중지되면 이행되는 프로미스
 
 #### Implementation of
 
@@ -72,7 +72,7 @@ A promise that resolves when the container is stopped
 
 > `static` **start**(`logger`, `maybeUID?`, `maybeNetworkId?`): `Promise`\<`DynamicProofServerContainer`\>
 
-Starts a new proof server container.
+새 증명 서버 컨테이너를 시작합니다.
 
 #### Parameters
 
@@ -86,16 +86,16 @@ Starts a new proof server container.
 
 `string`
 
-Optional unique identifier for the container
+컨테이너의 고유 식별자 (선택사항)
 
 ##### maybeNetworkId?
 
 `string`
 
-Optional network ID for the container
+컨테이너의 네트워크 ID (선택사항)
 
 #### Returns
 
 `Promise`\<`DynamicProofServerContainer`\>
 
-A promise that resolves to the new container instance
+새 컨테이너 인스턴스로 이행되는 프로미스

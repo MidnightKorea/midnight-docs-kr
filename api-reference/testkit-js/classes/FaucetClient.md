@@ -2,8 +2,8 @@
 
 ***
 
-Client for interacting with the Midnight faucet service.
-Provides functionality to request test tokens for wallet addresses.
+Midnight 파우셋 서비스와 상호작용하기 위한 클라이언트입니다.
+지갑 주소에 테스트 토큰을 요청하는 기능을 제공합니다.
 
 ## Constructors
 
@@ -43,14 +43,14 @@ Provides functionality to request test tokens for wallet addresses.
 
 > **health**(): `Promise`\<`void` \| `AxiosResponse`\<`any`, `any`, \{ \}\>\>
 
-Checks the health status of the faucet service.
-Makes a GET request to the health endpoint of the faucet service.
+파우셋 서비스의 상태를 확인합니다.
+파우셋 서비스의 health 엔드포인트에 GET 요청을 보냅니다.
 
 #### Returns
 
 `Promise`\<`void` \| `AxiosResponse`\<`any`, `any`, \{ \}\>\>
 
-A promise that resolves to the response of the health check or logs an error if the request fails
+상태 확인 응답으로 이행되는 프로미스를 반환하며, 요청 실패 시 오류를 로깅합니다
 
 ***
 
@@ -58,8 +58,8 @@ A promise that resolves to the response of the health check or logs an error if 
 
 > **requestTokens**(`walletAddress`): `Promise`\<`void`\>
 
-Requests test tokens from the faucet for a specified wallet address.
-Makes a POST request to the faucet service with the wallet address.
+지정된 지갑 주소에 파우셋으로부터 테스트 토큰을 요청합니다.
+지갑 주소를 포함하여 파우셋 서비스에 POST 요청을 보냅니다.
 
 #### Parameters
 
@@ -73,8 +73,8 @@ Makes a POST request to the faucet service with the wallet address.
 
 `Promise`\<`void`\>
 
-A promise that resolves when the request is complete
+요청이 완료되면 이행되는 프로미스
 
 #### Throws
 
-Will log but not throw if the request fails
+요청 실패 시 예외를 발생시키지 않고 로깅만 합니다

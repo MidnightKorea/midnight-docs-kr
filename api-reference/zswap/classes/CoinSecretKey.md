@@ -6,7 +6,7 @@
 
 # Class: CoinSecretKey
 
-A user secret key capable of spending Zswap coins
+Zswap 코인을 사용할 수 있는 사용자 비밀 키입니다.
 
 ## Methods
 

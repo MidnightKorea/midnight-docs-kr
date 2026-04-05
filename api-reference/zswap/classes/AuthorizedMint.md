@@ -6,7 +6,7 @@
 
 # Class: AuthorizedMint
 
-A request to mint a coin, authorized by the mint's recipient
+민트 수신자가 승인한 코인 민팅 요청입니다.
 
 ## Properties
 

@@ -6,7 +6,7 @@
 
 # Class: Input
 
-A shielded transaction input
+차폐 트랜잭션 입력입니다.
 
 ## Properties
 

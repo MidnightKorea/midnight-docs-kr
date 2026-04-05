@@ -10,9 +10,8 @@
 
 DApp Connector가 발생시키는 오류 타입의 선언입니다.
 
-It is not a class extending the base `Error` type, because
-it would make it difficult to implement in a way where `instanceof APIError` would work.
-Instead a check like `error.type === 'DAppConnectorAPIError'` should be used.
+기본 `Error` 타입을 확장하는 클래스가 아닙니다. 클래스로 만들면 `instanceof APIError`가 정상 동작하도록 구현하기 어렵기 때문입니다.
+대신 `error.type === 'DAppConnectorAPIError'`와 같은 방식으로 검사해야 합니다.
 
 ## Type Declaration
 

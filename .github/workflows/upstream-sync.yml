@@ -1,0 +1,119 @@
+name: Upstream Sync Check
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # 매주 월요일 09:00 UTC (한국 18:00)
+  workflow_dispatch:  # 수동 트리거
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  sync-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/midnightntwrk/midnight-docs.git || true
+          git fetch upstream main
+
+      - name: Check for new commits
+        id: check
+        run: |
+          BEHIND=$(git rev-list --count HEAD..upstream/main)
+          echo "behind=$BEHIND" >> $GITHUB_OUTPUT
+          echo "Upstream is $BEHIND commits ahead"
+
+      - name: Generate changed files report
+        if: steps.check.outputs.behind != '0'
+        id: report
+        run: |
+          BEHIND=${{ steps.check.outputs.behind }}
+
+          # 변경 파일 분류
+          ALL_FILES=$(git diff --name-only HEAD...upstream/main)
+
+          INFRA=$(echo "$ALL_FILES" | grep -E '^(package\.json|yarn\.lock|\.yarnrc|\.github/|src/|static/|docusaurus\.config)' || true)
+          API_REF=$(echo "$ALL_FILES" | grep -E '^api-reference/' || true)
+          DOCS=$(echo "$ALL_FILES" | grep -E '^(docs|blog|sdks|compact|relnotes)/' | grep -v '^docs/_learn' | grep -v '^docs/_develop' || true)
+
+          INFRA_COUNT=$(echo "$INFRA" | grep -c . || echo 0)
+          API_COUNT=$(echo "$API_REF" | grep -c . || echo 0)
+          DOCS_COUNT=$(echo "$DOCS" | grep -c . || echo 0)
+
+          # 최근 커밋 요약
+          COMMITS=$(git log --oneline HEAD..upstream/main | head -20)
+
+          # Issue 본문 생성
+          cat > /tmp/issue-body.md << 'HEADER'
+          ## Upstream 동기화 알림
+
+          upstream에 새로운 변경사항이 감지되었습니다.
+          HEADER
+
+          echo "" >> /tmp/issue-body.md
+          echo "**새 커밋**: ${BEHIND}개" >> /tmp/issue-body.md
+          echo "" >> /tmp/issue-body.md
+
+          echo "### 변경 파일 분류" >> /tmp/issue-body.md
+          echo "| 분류 | 파일 수 |" >> /tmp/issue-body.md
+          echo "|------|---------|" >> /tmp/issue-body.md
+          echo "| 인프라 (CI, 패키지 등) | ${INFRA_COUNT} |" >> /tmp/issue-body.md
+          echo "| API Reference | ${API_COUNT} |" >> /tmp/issue-body.md
+          echo "| 콘텐츠 (docs, blog 등) | ${DOCS_COUNT} |" >> /tmp/issue-body.md
+          echo "" >> /tmp/issue-body.md
+
+          if [ "$DOCS_COUNT" != "0" ]; then
+            echo "### 번역 필요 파일" >> /tmp/issue-body.md
+            echo "$DOCS" | while read -r f; do
+              [ -n "$f" ] && echo "- [ ] \`$f\`" >> /tmp/issue-body.md
+            done
+            echo "" >> /tmp/issue-body.md
+          fi
+
+          if [ "$API_COUNT" != "0" ]; then
+            echo "<details><summary>API Reference 변경 파일 (${API_COUNT}개)</summary>" >> /tmp/issue-body.md
+            echo "" >> /tmp/issue-body.md
+            echo "$API_REF" | while read -r f; do
+              [ -n "$f" ] && echo "- \`$f\`" >> /tmp/issue-body.md
+            done
+            echo "" >> /tmp/issue-body.md
+            echo "</details>" >> /tmp/issue-body.md
+            echo "" >> /tmp/issue-body.md
+          fi
+
+          echo "### 최근 커밋" >> /tmp/issue-body.md
+          echo '```' >> /tmp/issue-body.md
+          echo "$COMMITS" >> /tmp/issue-body.md
+          echo '```' >> /tmp/issue-body.md
+          echo "" >> /tmp/issue-body.md
+
+          echo "### 작업 순서" >> /tmp/issue-body.md
+          echo "1. \`git fetch origin\` → \`git merge origin/main\`" >> /tmp/issue-body.md
+          echo "2. conflict 해결 (한국어 번역 유지 우선)" >> /tmp/issue-body.md
+          echo "3. 새 콘텐츠 번역" >> /tmp/issue-body.md
+          echo "4. \`git push deploy main\`" >> /tmp/issue-body.md
+
+      - name: Create issue
+        if: steps.check.outputs.behind != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BEHIND=${{ steps.check.outputs.behind }}
+
+          # 중복 이슈 방지: 열린 sync 이슈가 있으면 생성하지 않음
+          EXISTING=$(gh issue list --label "upstream-sync" --state open --limit 1 --json number -q '.[0].number')
+
+          if [ -n "$EXISTING" ]; then
+            echo "Open sync issue #$EXISTING already exists, skipping"
+          else
+            gh issue create \
+              --title "Upstream 동기화: ${BEHIND}개 새 커밋 감지" \
+              --body-file /tmp/issue-body.md \
+              --label "upstream-sync"
+          fi

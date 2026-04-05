@@ -6,8 +6,7 @@
 
 # Class: StateBoundedMerkleTree
 
-Represents a fixed-depth Merkle tree storing hashed data, whose preimages
-are unknown
+해시된 데이터를 저장하는 고정 깊이 Merkle 트리를 나타내며, 프리이미지는 알 수 없습니다
 
 ## Constructors
 
@@ -17,7 +16,7 @@ are unknown
 new StateBoundedMerkleTree(height): StateBoundedMerkleTree;
 ```
 
-Create a blank tree with the given height
+주어진 높이의 빈 트리를 생성합니다
 
 #### Parameters
 
@@ -47,8 +46,7 @@ collapse(start, end): StateBoundedMerkleTree;
 
 **`Internal`**
 
-Erases all but necessary hashes between, and inclusive of, `start` and
-`end` inidices
+`start`와 `end` 인덱스 사이(포함)에서 필요한 해시만 남기고 나머지를 제거합니다
 
 #### Parameters
 
@@ -66,7 +64,7 @@ Erases all but necessary hashes between, and inclusive of, `start` and
 
 #### Throws
 
-If the indices are out-of-bounds for the tree, or `end < start`
+인덱스가 트리 범위를 벗어나거나 `end < start`인 경우
 
 ***
 
@@ -78,8 +76,8 @@ findPathForLeaf(leaf): AlignedValue | undefined;
 
 **`Internal`**
 
-Internal implementation of the finding path primitive.
-Returns undefined if the leaf is not in the tree.
+경로 찾기 프리미티브의 내부 구현입니다.
+리프가 트리에 없으면 undefined를 반환합니다.
 
 #### Parameters
 
@@ -101,7 +99,7 @@ pathForLeaf(index, leaf): AlignedValue;
 
 **`Internal`**
 
-Internal implementation of the path construction primitive
+경로 생성 프리미티브의 내부 구현
 
 #### Parameters
 
@@ -119,7 +117,7 @@ Internal implementation of the path construction primitive
 
 #### Throws
 
-If the index is out-of-bounds for the tree
+인덱스가 트리 범위를 벗어나는 경우
 
 ***
 
@@ -129,9 +127,9 @@ If the index is out-of-bounds for the tree
 rehash(): StateBoundedMerkleTree;
 ```
 
-Rehashes the tree, updating all internal hashes and ensuring all
-node hashes are present. Necessary because the onchain runtime does
-not automatically rehash trees.
+트리를 다시 해싱하여 모든 내부 해시를 업데이트하고 모든 노드 해시가
+존재하도록 보장합니다. 온체인 런타임이 자동으로 트리를 재해싱하지
+않으므로 필요합니다.
 
 #### Returns
 
@@ -147,8 +145,8 @@ root(): AlignedValue | undefined;
 
 **`Internal`**
 
-Internal implementation of the merkle tree root primitive.
-Returns undefined if the tree has not been fully hashed.
+Merkle 트리 루트 프리미티브의 내부 구현입니다.
+트리가 완전히 해싱되지 않은 경우 undefined를 반환합니다.
 
 #### Returns
 
@@ -180,7 +178,7 @@ toString(compact?): string;
 update(index, leaf): StateBoundedMerkleTree;
 ```
 
-Inserts a value into the Merkle tree, returning the updated tree
+Merkle 트리에 값을 삽입하고 업데이트된 트리를 반환합니다
 
 #### Parameters
 
@@ -198,4 +196,4 @@ Inserts a value into the Merkle tree, returning the updated tree
 
 #### Throws
 
-If the index is out-of-bounds for the tree
+인덱스가 트리 범위를 벗어나는 경우

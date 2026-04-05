@@ -10,4 +10,4 @@
 type Signature = string;
 ```
 
-A hex-encoded signature BIP-340 signature, with a 3-byte version prefix
+3바이트 버전 접두사가 포함된 16진수 인코딩된 BIP-340 서명

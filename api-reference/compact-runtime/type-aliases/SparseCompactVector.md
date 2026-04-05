@@ -13,7 +13,7 @@ type SparseCompactVector = {
 };
 ```
 
-A data structure indicating the locations of contract references in a Compact vector.
+Compact 벡터에서 컨트랙트 참조의 위치를 나타내는 데이터 구조입니다.
 
 ## Properties
 
@@ -23,7 +23,7 @@ A data structure indicating the locations of contract references in a Compact ve
 sparseType: SparseCompactType;
 ```
 
-A data structure indicating the locations of contract references in the elements of a Compact vector.
+Compact 벡터의 요소에서 컨트랙트 참조의 위치를 나타내는 데이터 구조입니다.
 
 ***
 

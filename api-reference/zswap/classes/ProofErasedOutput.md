@@ -6,9 +6,9 @@
 
 # Class: ProofErasedOutput
 
-An [Output](Output.md) with all proof information erased
+모든 증명 정보가 삭제된 [Output](Output.md)입니다.
 
-Primarily for use in testing, or handling data known to be correct from
+주로 테스트 또는 올바른 것으로 알려진 데이터 처리에 사용됩니다.
 external information
 
 ## Properties
@@ -19,7 +19,7 @@ external information
 readonly commitment: string;
 ```
 
-The commitment of the output
+출력의 커밋먼트입니다.
 
 ***
 
@@ -29,7 +29,7 @@ The commitment of the output
 readonly contractAddress: undefined | string;
 ```
 
-The contract address receiving the output, if the recipient is a contract
+수신자가 컨트랙트인 경우 출력을 수신하는 컨트랙트 주소입니다.
 
 ## Methods
 

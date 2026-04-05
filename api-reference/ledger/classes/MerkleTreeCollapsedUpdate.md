@@ -6,9 +6,7 @@
 
 # Class: MerkleTreeCollapsedUpdate
 
-A compact delta on the coin commitments Merkle tree, used to keep local
-spending trees in sync with the global state without requiring receiving all
-transactions.
+코인 커밋먼트 머클 트리의 압축 델타로, 모든 트랜잭션을 수신하지 않고도 로컬 소비 트리를 글로벌 상태와 동기화하는 데 사용됩니다.
 
 ## Constructors
 
@@ -21,8 +19,7 @@ new MerkleTreeCollapsedUpdate(
    end): MerkleTreeCollapsedUpdate;
 ```
 
-Create a new compact update from a non-compact state, and inclusive
-`start` and `end` indices
+비압축 상태와 `start`, `end` 인덱스(포함)로 새 압축 업데이트를 생성합니다.
 
 #### Parameters
 
@@ -44,7 +41,7 @@ Create a new compact update from a non-compact state, and inclusive
 
 #### Throws
 
-If the indices are out-of-bounds for the state, or `end < start`
+인덱스가 상태 범위를 벗어나거나 `end < start`인 경우
 
 ## Methods
 

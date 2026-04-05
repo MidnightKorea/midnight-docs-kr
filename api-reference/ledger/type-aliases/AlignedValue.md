@@ -13,8 +13,7 @@ type AlignedValue = {
 };
 ```
 
-An onchain data value, in field-aligned binary format, annotated with its
-alignment.
+필드 정렬 바이너리 형식의 온체인 데이터 값으로, 정렬 정보가 포함됩니다.
 
 ## Properties
 

@@ -10,4 +10,4 @@
 type Nullifier = string;
 ```
 
-A Zswap nullifier, as a hex-encoded 256-bit bitstring
+16진수 인코딩된 256비트 비트열인 Zswap 무효화기

@@ -10,7 +10,7 @@
 function shieldedToken(): ShieldedTokenType;
 ```
 
-Default shielded token type for testing
+테스트용 기본 차폐 토큰 유형입니다.
 
 ## Returns
 

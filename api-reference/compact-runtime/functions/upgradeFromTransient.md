@@ -10,11 +10,11 @@
 function upgradeFromTransient(x): Uint8Array;
 ```
 
-The Compact builtin `upgrade_from_transient` function
+Compact 내장 `upgrade_from_transient` 함수
 
-This function "upgrades" the output of a [transientHash](transientHash.md) or
-[transientCommit](transientCommit.md) to 256-bit byte string, which can then be used in
-[persistentHash](persistentHash.md) or [persistentCommit](persistentCommit.md).
+[transientHash](transientHash.md) 또는 [transientCommit](transientCommit.md)의 출력을
+256비트 바이트열로 "업그레이드"하며, 그 결과를 [persistentHash](persistentHash.md) 또는
+[persistentCommit](persistentCommit.md)에서 사용할 수 있습니다.
 
 ## Parameters
 
@@ -28,4 +28,4 @@ This function "upgrades" the output of a [transientHash](transientHash.md) or
 
 ## Throws
 
-If `x` is not a valid field element
+`x`가 유효한 필드 요소가 아닌 경우

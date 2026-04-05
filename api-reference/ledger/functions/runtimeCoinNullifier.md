@@ -12,7 +12,7 @@ function runtimeCoinNullifier(coin, sender_evidence): AlignedValue;
 
 **`Internal`**
 
-Internal implementation of the runtime's coin nullifier primitive.
+런타임 코인 널리파이어 프리미티브의 내부 구현입니다.
 
 ## Parameters
 

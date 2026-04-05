@@ -12,7 +12,7 @@ function upgradeFromTransient(transient): Value;
 
 **`Internal`**
 
-Internal implementation of the upgrade from transient primitive
+트랜지언트에서 업그레이드하는 프리미티브의 내부 구현입니다.
 
 ## Parameters
 

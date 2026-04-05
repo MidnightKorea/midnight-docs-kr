@@ -12,7 +12,7 @@ function hashToCurve(align, val): Value;
 
 **`Internal`**
 
-Internal implementation of the hash to curve primitive
+해시-투-커브 프리미티브의 내부 구현입니다.
 
 ## Parameters
 

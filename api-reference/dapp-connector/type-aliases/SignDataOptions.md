@@ -28,4 +28,4 @@ How are data for signing encoded.
 
 > **keyType**: `"unshielded"`
 
-What kind of key to use for signing
+서명에 사용할 키 종류

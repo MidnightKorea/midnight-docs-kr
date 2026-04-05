@@ -14,7 +14,7 @@ type ShieldedCoinInfo = {
 };
 ```
 
-Information required to create a new coin, alongside details about the
+새 코인을 생성하는 데 필요한 정보와 세부 사항입니다.
 recipient
 
 ## Properties
@@ -25,7 +25,7 @@ recipient
 nonce: Nonce;
 ```
 
-The coin's randomness, preventing it from colliding with other coins
+다른 코인과의 충돌을 방지하는 코인의 랜덤값입니다.
 
 ***
 
@@ -35,7 +35,7 @@ The coin's randomness, preventing it from colliding with other coins
 type: RawTokenType;
 ```
 
-The coin's type, identifying the currency it represents
+코인이 나타내는 통화를 식별하는 코인 유형입니다.
 
 ***
 
@@ -45,6 +45,6 @@ The coin's type, identifying the currency it represents
 value: bigint;
 ```
 
-The coin's value, in atomic units dependent on the currency
+통화에 따른 최소 단위로 표현된 코인의 값입니다.
 
-Bounded to be a non-negative 64-bit integer
+음이 아닌 64비트 정수로 제한됩니다.

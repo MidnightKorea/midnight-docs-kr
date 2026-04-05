@@ -10,7 +10,7 @@
 function communicationCommitmentRandomness(): string
 ```
 
-Samples a new [CommunicationCommitmentRand](../type-aliases/CommunicationCommitmentRand.md) uniformly
+새 [CommunicationCommitmentRand](../type-aliases/CommunicationCommitmentRand.md)를 균일하게 샘플링합니다
 
 ## Returns
 

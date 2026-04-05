@@ -8,7 +8,7 @@
 
 > **CallResult**\<`C`, `PCK`\> = `object`
 
-Contains all information resulting from circuit execution.
+서킷 실행 결과의 모든 정보를 포함합니다.
 
 ## Type Parameters
 
@@ -26,7 +26,7 @@ Contains all information resulting from circuit execution.
 
 > `readonly` **private**: [`CallResultPrivate`](CallResultPrivate.md)\<`C`, `PCK`\>
 
-The private/sensitive data produced by the circuit execution.
+서킷 실행으로 생성된 프라이빗/민감 데이터입니다.
 
 ***
 
@@ -34,4 +34,4 @@ The private/sensitive data produced by the circuit execution.
 
 > `readonly` **public**: [`CallResultPublic`](CallResultPublic.md)
 
-The public/non-sensitive data produced by the circuit execution.
+서킷 실행으로 생성된 퍼블릭/비민감 데이터입니다.

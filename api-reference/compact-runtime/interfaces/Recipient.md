@@ -6,7 +6,7 @@
 
 # Interface: Recipient
 
-The recipient of a coin produced by a circuit.
+회로에서 생성된 코인의 수신자입니다.
 
 ## Properties
 
@@ -16,7 +16,7 @@ The recipient of a coin produced by a circuit.
 readonly is_left: boolean;
 ```
 
-Whether the recipient is a user or a contract.
+수신자가 사용자인지 컨트랙트인지 나타냅니다.
 
 ***
 
@@ -26,7 +26,7 @@ Whether the recipient is a user or a contract.
 readonly left: string;
 ```
 
-The recipient's public key, if the recipient is a user.
+수신자가 사용자인 경우 수신자의 공개 키입니다.
 
 ***
 
@@ -36,4 +36,4 @@ The recipient's public key, if the recipient is a user.
 readonly right: string;
 ```
 
-The recipient's contract address, if the recipient is a contract.
+수신자가 컨트랙트인 경우 수신자의 컨트랙트 주소입니다.

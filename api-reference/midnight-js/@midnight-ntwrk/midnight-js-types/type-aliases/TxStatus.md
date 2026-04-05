@@ -8,4 +8,4 @@
 
 > **TxStatus** = *typeof* [`FailEntirely`](../variables/FailEntirely.md) \| *typeof* [`FailFallible`](../variables/FailFallible.md) \| *typeof* [`SucceedEntirely`](../variables/SucceedEntirely.md)
 
-The status of a transaction.
+트랜잭션의 상태입니다.

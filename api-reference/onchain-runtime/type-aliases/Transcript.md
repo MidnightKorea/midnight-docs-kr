@@ -14,7 +14,7 @@ type Transcript<R>: {
 };
 ```
 
-A transcript of operations, to be recorded in a transaction
+트랜잭션에 기록될 연산의 트랜스크립트
 
 ## Type Parameters
 

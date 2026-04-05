@@ -71,9 +71,8 @@ export const Details = ({
   );
 };
 
-Represents a token balance held by a contract.
-This type is exposed through the GraphQL API to allow clients to query
-unshielded token balances for any contract action (Deploy, Call, Update).
+컨트랙트가 보유한 토큰 잔고를 나타냅니다.
+GraphQL API를 통해 노출되며, 클라이언트가 모든 컨트랙트 액션(Deploy, Call, Update)의 비차폐 토큰 잔고를 조회할 수 있습니다.
 
 ```graphql
 type ContractBalance {
@@ -86,11 +85,11 @@ type ContractBalance {
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractBalance.<b>tokenType</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-Hex-encoded token type identifier.
+16진수로 인코딩된 토큰 타입 식별자입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractBalance.<b>amount</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String!</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-Balance amount as string to support larger integer values (up to 16 bytes).
+큰 정수 값(최대 16바이트)을 지원하기 위해 문자열로 표현된 잔고 금액입니다.
 
 ### Member Of
 

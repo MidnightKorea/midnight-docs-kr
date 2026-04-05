@@ -6,8 +6,8 @@
 
 # Interface: CurvePoint
 
-A point in the embedded elliptic curve. TypeScript representation of the
-Compact type of the same name
+내장 타원 곡선 위의 점입니다. 동일한 이름의 Compact 타입에 대한
+TypeScript 표현
 
 ## Properties
 

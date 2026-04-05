@@ -10,4 +10,4 @@
 type CoinCommitment = string;
 ```
 
-A Zswap coin commitment, as a hex-encoded 256-bit bitstring
+16진수 인코딩된 256비트 비트열인 Zswap 코인 커밋먼트

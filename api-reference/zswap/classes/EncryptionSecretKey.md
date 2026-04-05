@@ -6,8 +6,7 @@
 
 # Class: EncryptionSecretKey
 
-Holds the encryption secret key of a user, which may be used to determine if
-a given offer contains outputs addressed to this user
+사용자의 암호화 비밀 키를 보유하며, 주어진 오퍼에 이 사용자에게 보내진 출력이 포함되어 있는지 확인하는 데 사용할 수 있습니다.
 
 ## Methods
 

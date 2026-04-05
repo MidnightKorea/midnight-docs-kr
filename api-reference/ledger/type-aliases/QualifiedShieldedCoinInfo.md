@@ -15,7 +15,7 @@ type QualifiedShieldedCoinInfo = {
 };
 ```
 
-Information required to spend an existing coin, alongside authorization of
+기존 코인을 소비하는 데 필요한 정보와 승인 정보입니다.
 the owner
 
 ## Properties
@@ -26,9 +26,9 @@ the owner
 mt_index: bigint;
 ```
 
-The coin's location in the chain's Merkle tree of coin commitments
+체인의 코인 커밋먼트 머클 트리에서 코인의 위치입니다.
 
-Bounded to be a non-negative 64-bit integer
+음이 아닌 64비트 정수로 제한됩니다.
 
 ***
 
@@ -38,7 +38,7 @@ Bounded to be a non-negative 64-bit integer
 nonce: Nonce;
 ```
 
-The coin's randomness, preventing it from colliding with other coins
+다른 코인과의 충돌을 방지하는 코인의 랜덤값입니다.
 
 ***
 
@@ -48,7 +48,7 @@ The coin's randomness, preventing it from colliding with other coins
 type: RawTokenType;
 ```
 
-The coin's type, identifying the currency it represents
+코인이 나타내는 통화를 식별하는 코인 유형입니다.
 
 ***
 
@@ -58,6 +58,6 @@ The coin's type, identifying the currency it represents
 value: bigint;
 ```
 
-The coin's value, in atomic units dependent on the currency
+통화에 따른 최소 단위로 표현된 코인의 값입니다.
 
 Bounded to be a non-negative 64-bit integer

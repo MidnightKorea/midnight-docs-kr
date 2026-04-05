@@ -6,8 +6,7 @@
 
 # Class: VerifierKeyInsert
 
-An update instruction to insert a verifier key at a specific operation and
-version.
+특정 연산 및 버전에 검증자 키를 삽입하는 업데이트 명령입니다.
 
 ## Constructors
 

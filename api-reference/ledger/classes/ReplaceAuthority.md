@@ -6,8 +6,7 @@
 
 # Class: ReplaceAuthority
 
-An update instruction to replace the current contract maintenance authority
-with a new one.
+현재 컨트랙트 유지보수 권한을 새 권한으로 교체하는 업데이트 명령입니다.
 
 ## Constructors
 

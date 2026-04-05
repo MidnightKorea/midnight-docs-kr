@@ -6,13 +6,12 @@
 
 # Class: ContractOperation
 
-An individual operation, or entry point of a contract, consisting primarily
-of a ZK verifier keys, potentially for different versions of the proving
-system.
+컨트랙트의 개별 연산 또는 진입점으로, 주로 ZK 검증 키로 구성되며
+증명 시스템의 서로 다른 버전에 대응할 수 있습니다.
 
-Only the latest available version is exposed to this API.
+이 API에서는 최신 버전만 노출됩니다.
 
-Note that the serialized form of the key is checked on initialization
+키의 직렬화된 형태는 초기화 시 검증됩니다
 
 ## Constructors
 

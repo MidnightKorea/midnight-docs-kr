@@ -10,7 +10,7 @@
 function parseCheckResult(result): (undefined | bigint)[];
 ```
 
-Parses the result of a proof-server check call
+증명 서버 검증 호출의 결과를 파싱합니다.
 
 ## Parameters
 

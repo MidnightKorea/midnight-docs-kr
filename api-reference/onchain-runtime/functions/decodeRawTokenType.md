@@ -10,8 +10,8 @@
 function decodeRawTokenType(tt): string
 ```
 
-Decode a raw [RawTokenType](../type-aliases/RawTokenType.md) from a `Uint8Array` originating from Compact's
-`RawTokenType` type
+Compact의 `RawTokenType` 타입에서 유래한 `Uint8Array`로부터
+raw [RawTokenType](../type-aliases/RawTokenType.md)을 디코딩합니다
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 A [Transient](Transient.md), with all proof information erased
 
-Primarily for use in testing, or handling data known to be correct from
+주로 테스트 또는 올바른 것으로 알려진 데이터 처리에 사용됩니다.
 external information
 
 ## Properties
@@ -19,7 +19,7 @@ external information
 readonly commitment: string;
 ```
 
-The commitment of the transient
+트랜지언트의 커밋먼트입니다.
 
 ***
 
@@ -29,7 +29,7 @@ The commitment of the transient
 readonly contractAddress: undefined | string;
 ```
 
-The contract address creating the transient, if applicable
+해당하는 경우, 트랜지언트를 생성하는 컨트랙트 주소입니다.
 
 ***
 
@@ -39,7 +39,7 @@ The contract address creating the transient, if applicable
 readonly nullifier: string;
 ```
 
-The nullifier of the transient
+트랜지언트의 널리파이어입니다.
 
 ## Methods
 

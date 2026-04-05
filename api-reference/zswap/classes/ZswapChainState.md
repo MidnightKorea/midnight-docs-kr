@@ -30,7 +30,7 @@ new ZswapChainState(): ZswapChainState
 readonly firstFree: bigint;
 ```
 
-The first free index in the coin commitment tree
+코인 커밋먼트 트리의 첫 번째 빈 인덱스입니다.
 
 ## Methods
 
@@ -76,7 +76,7 @@ toString(compact?): string
 tryApply(offer, whitelist?): [ZswapChainState, Map<string, bigint>]
 ```
 
-Try to apply an [Offer](Offer.md) to the state, returning the updated state
+[Offer](Offer.md)를 상태에 적용하고, 업데이트된 상태를 반환합니다.
 and a map on newly inserted coin commitments to their inserted indices.
 
 #### Parameters
@@ -151,7 +151,7 @@ static deserialize(raw, netid): ZswapChainState
 static deserializeFromLedgerState(raw, netid): ZswapChainState
 ```
 
-Given a whole ledger serialized state, deserialize only the Zswap portion
+전체 원장 직렬화 상태가 주어지면 Zswap 부분만 역직렬화합니다.
 
 #### Parameters
 

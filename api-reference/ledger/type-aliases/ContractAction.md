@@ -13,7 +13,7 @@ type ContractAction<P> =
   | MaintenanceUpdate;
 ```
 
-An interactions with a contract
+컨트랙트와의 상호작용입니다.
 
 ## Type Parameters
 

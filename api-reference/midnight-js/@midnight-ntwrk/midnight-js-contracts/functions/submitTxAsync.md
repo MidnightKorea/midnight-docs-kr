@@ -8,9 +8,7 @@
 
 > **submitTxAsync**\<`C`, `PCK`\>(`providers`, `options`): `Promise`\<`string`\>
 
-Proves, balances, and submits an unproven deployment or call transaction using
-the given providers, according to the given options. Unlike [submitTx](submitTx.md),
-this function returns immediately after submission without waiting for finalization.
+주어진 프로바이더를 사용하여 지정된 옵션에 따라 미증명 배포 또는 호출 트랜잭션을 증명, 밸런싱, 제출합니다. [submitTx](submitTx.md)와 달리 이 함수는 확정을 기다리지 않고 제출 직후 즉시 반환합니다.
 
 ## Type Parameters
 
@@ -28,18 +26,17 @@ this function returns immediately after submission without waiting for finalizat
 
 [`SubmitTxProviders`](../type-aliases/SubmitTxProviders.md)\<`C`, `PCK`\>
 
-The providers used to manage the transaction lifecycle.
+트랜잭션 수명 주기를 관리하는 데 사용되는 프로바이더입니다.
 
 ### options
 
 [`SubmitTxOptions`](../type-aliases/SubmitTxOptions.md)\<`PCK`\>
 
-Configuration.
+설정입니다.
 
 ## Returns
 
 `Promise`\<`string`\>
 
-A promise that resolves with the transaction ID immediately after submission,
-         or rejects if an error occurs during preparation or submission.
-         To watch for finalization, use providers.publicDataProvider.watchForTxData(txId).
+제출 직후 트랜잭션 ID로 이행되거나, 준비 또는 제출 중 오류가 발생하면 거부되는 프로미스입니다.
+         확정을 감시하려면 providers.publicDataProvider.watchForTxData(txId)를 사용하세요.

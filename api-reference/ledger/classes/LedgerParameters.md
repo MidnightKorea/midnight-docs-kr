@@ -6,8 +6,7 @@
 
 # Class: LedgerParameters
 
-Parameters used by the Midnight ledger, including transaction fees and
-bounds
+트랜잭션 수수료 및 한도를 포함하여 Midnight 원장에서 사용하는 매개변수입니다.
 
 ## Properties
 
@@ -17,7 +16,7 @@ bounds
 readonly dust: DustParameters;
 ```
 
-The parameters associated with DUST.
+DUST에 관련된 매개변수입니다.
 
 ***
 
@@ -27,7 +26,7 @@ The parameters associated with DUST.
 readonly feePrices: FeePrices;
 ```
 
-The fee prices for transaction
+트랜잭션 수수료 가격입니다.
 
 ***
 
@@ -37,7 +36,7 @@ The fee prices for transaction
 readonly transactionCostModel: TransactionCostModel;
 ```
 
-The cost model used for transaction fees contained in these parameters
+이 매개변수에 포함된 트랜잭션 수수료에 사용되는 비용 모델입니다.
 
 ## Methods
 
@@ -47,11 +46,7 @@ The cost model used for transaction fees contained in these parameters
 maxPriceAdjustment(): number;
 ```
 
-The maximum price adjustment per block with the current parameters, as a multiplicative
-factor (that is: 1.1 would indicate a 10% adjustment). Will always return the positive (>1)
-adjustment factor. Note that negative adjustments are the additive inverse (1.1 has a
-corresponding 0.9 downward adjustment), *not* the multiplicative as might reasonably be
-assumed.
+현재 매개변수 기준으로 블록당 최대 가격 조정치를 곱셈 인수로 반환합니다 (예: 1.1은 10% 조정). 항상 양의 (>1) 조정 인수를 반환합니다. 음의 조정은 곱셈이 아닌 덧셈의 역으로 적용됩니다 (1.1에 대응하는 하향 조정은 0.9).
 
 #### Returns
 
@@ -65,7 +60,7 @@ assumed.
 normalizeFullness(fullness): NormalizedCost;
 ```
 
-Normalizes a detailed block fullness cost to the block limits.
+상세 블록 충만도 비용을 블록 한도에 맞게 정규화합니다.
 
 #### Parameters
 
@@ -79,7 +74,7 @@ Normalizes a detailed block fullness cost to the block limits.
 
 #### Throws
 
-if any of the block limits is exceeded
+블록 한도 중 하나라도 초과한 경우
 
 ***
 
@@ -137,7 +132,7 @@ static deserialize(raw): LedgerParameters;
 static initialParameters(): LedgerParameters;
 ```
 
-The initial parameters of Midnight
+Midnight의 초기 매개변수입니다.
 
 #### Returns
 

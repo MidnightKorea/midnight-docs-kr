@@ -19,7 +19,7 @@ in [DeployTxOptionsWithPrivateState](DeployTxOptionsWithPrivateState.md).
 
 > `readonly` **privateStateId**: `PrivateStateId`
 
-The identifier for the private state of the contract.
+컨트랙트 프라이빗 상태의 식별자입니다.
 
 ## Type Parameters
 

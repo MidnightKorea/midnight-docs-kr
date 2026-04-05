@@ -8,7 +8,7 @@
 
 > **UnsubmittedDeployTxData**\<`C`\> = [`UnsubmittedDeployTxDataBase`](UnsubmittedDeployTxDataBase.md)\<`C`\> & `object`
 
-Data for an unsubmitted deployment transaction.
+미제출 배포 트랜잭션의 데이터입니다.
 
 ## Type Declaration
 
@@ -16,7 +16,7 @@ Data for an unsubmitted deployment transaction.
 
 > `readonly` **private**: [`UnsubmittedTxData`](UnsubmittedTxData.md) & `object`
 
-The data of this transaction that is only visible on the user device.
+사용자 기기에서만 조회 가능한 이 트랜잭션의 데이터입니다.
 
 #### Type Declaration
 

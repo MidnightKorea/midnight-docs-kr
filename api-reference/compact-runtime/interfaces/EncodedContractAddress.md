@@ -6,7 +6,7 @@
 
 # Interface: EncodedContractAddress
 
-A [ContractAddress](../type-aliases/ContractAddress.md) encoded as a byte string. This representation is used internally by the contract executable.
+바이트 문자열로 인코딩된 [ContractAddress](../type-aliases/ContractAddress.md)입니다. 이 표현은 컨트랙트 실행 파일 내부에서 사용됩니다.
 
 ## Properties
 
@@ -16,4 +16,4 @@ A [ContractAddress](../type-aliases/ContractAddress.md) encoded as a byte string
 readonly bytes: Uint8Array;
 ```
 
-The contract address's bytes.
+컨트랙트 주소의 바이트입니다.

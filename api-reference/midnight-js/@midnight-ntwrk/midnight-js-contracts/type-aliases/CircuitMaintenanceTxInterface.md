@@ -26,7 +26,7 @@ blockchain for this circuit at this contract's address.
 
 `VerifierKey`
 
-The new verifier key to add for this circuit.
+이 서킷에 추가할 새 검증자 키입니다.
 
 #### Returns
 

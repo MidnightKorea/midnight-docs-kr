@@ -2,8 +2,7 @@
 
 ***
 
-A proof server container that is started and stopped dynamically by the test
-suite on random port.
+테스트 스위트에 의해 랜덤 포트에서 동적으로 시작 및 중지되는 증명 서버 컨테이너입니다.
 
 ## Implements
 
@@ -15,7 +14,7 @@ suite on random port.
 
 > **dockerEnv**: `StartedDockerComposeEnvironment`
 
-The Docker Compose environment running the container
+컨테이너를 실행하는 Docker Compose 환경
 
 ## Methods
 
@@ -23,13 +22,13 @@ The Docker Compose environment running the container
 
 > **getMappedPort**(): `number`
 
-Gets the mapped port number for the container.
+컨테이너의 매핑된 포트 번호를 가져옵니다.
 
 #### Returns
 
 `number`
 
-The mapped port number
+매핑된 포트 번호
 
 ***
 
@@ -37,13 +36,13 @@ The mapped port number
 
 > **getUrl**(): `string`
 
-Gets the URL where the proof server can be accessed.
+증명 서버에 접근할 수 있는 URL을 가져옵니다.
 
 #### Returns
 
 `string`
 
-The URL of the proof server
+증명 서버의 URL
 
 #### Implementation of
 
@@ -55,7 +54,7 @@ The URL of the proof server
 
 > **stop**(): `Promise`\<`void`\>
 
-Stops the proof server container.
+증명 서버 컨테이너를 중지합니다.
 
 #### Returns
 
@@ -81,7 +80,7 @@ Starts a new proof server container.
 
 `Logger`
 
-Logger instance for recording operations
+작업 기록용 Logger 인스턴스
 
 ##### maybeUID?
 

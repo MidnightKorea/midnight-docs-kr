@@ -10,7 +10,7 @@
 function createZswapInput(circuitContext, qualifiedShieldedCoinInfo): [];
 ```
 
-Adds a coin to the list of inputs consumed by the circuit.
+회로가 소비하는 입력 목록에 코인을 추가합니다.
 
 ## Parameters
 
@@ -18,13 +18,13 @@ Adds a coin to the list of inputs consumed by the circuit.
 
 [`CircuitContext`](../interfaces/CircuitContext.md)
 
-The current circuit context.
+현재 회로 컨텍스트입니다.
 
 ### qualifiedShieldedCoinInfo
 
 [`EncodedQualifiedShieldedCoinInfo`](../interfaces/EncodedQualifiedShieldedCoinInfo.md)
 
-The input to consume.
+소비할 입력입니다.
 
 ## Returns
 

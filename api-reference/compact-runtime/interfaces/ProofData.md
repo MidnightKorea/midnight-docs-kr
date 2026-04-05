@@ -6,7 +6,7 @@
 
 # Interface: ProofData
 
-Encapsulates the data required to produce a zero-knowledge proof
+영지식 증명을 생성하는 데 필요한 데이터를 캡슐화합니다
 
 ## Extends
 
@@ -20,7 +20,7 @@ Encapsulates the data required to produce a zero-knowledge proof
 input: AlignedValue;
 ```
 
-The inputs to a circuit
+회로의 입력
 
 #### Inherited from
 
@@ -34,7 +34,7 @@ The inputs to a circuit
 output: AlignedValue;
 ```
 
-The outputs from a circuit
+회로의 출력
 
 ***
 
@@ -44,7 +44,7 @@ The outputs from a circuit
 privateTranscriptOutputs: AlignedValue[];
 ```
 
-The transcript of the witness call outputs
+위트니스 호출 출력의 트랜스크립트
 
 #### Inherited from
 
@@ -58,7 +58,7 @@ The transcript of the witness call outputs
 publicTranscript: Op<AlignedValue>[];
 ```
 
-The public transcript of operations
+연산의 공개 트랜스크립트
 
 #### Inherited from
 

@@ -16,4 +16,4 @@ Generates a filename for the wallet state file based on environment and optional
 
 `string`
 
-Generated filename for the wallet state
+생성된 지갑 상태 파일명

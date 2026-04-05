@@ -20,7 +20,7 @@ type Effects = {
 };
 ```
 
-The contract-external effects of a transcript.
+트랜스크립트의 컨트랙트 외부 효과입니다.
 
 ## Properties
 
@@ -45,7 +45,7 @@ The contracts called from this contract. The values are, in order:
 claimedNullifiers: Nullifier[];
 ```
 
-The nullifiers (spends) this contract call requires
+이 컨트랙트 호출에 필요한 널리파이어(소비)입니다.
 
 ***
 
@@ -55,7 +55,7 @@ The nullifiers (spends) this contract call requires
 claimedShieldedReceives: CoinCommitment[];
 ```
 
-The coin commitments (outputs) this contract call requires, as coins
+이 컨트랙트 호출에 필요한 코인 커밋먼트(출력)입니다.
 received
 
 ***
@@ -77,7 +77,7 @@ sent
 claimedUnshieldedSpends: Map<[TokenType, PublicAddress], bigint>;
 ```
 
-The unshielded UTXO outputs this contract expects to be present.
+이 컨트랙트가 존재할 것으로 예상하는 비차폐 UTXO 출력입니다.
 
 ***
 
@@ -98,7 +98,7 @@ separators to unsigned 64-bit integers.
 unshieldedInputs: Map<TokenType, bigint>;
 ```
 
-The unshielded inputs this contract expects.
+이 컨트랙트가 예상하는 비차폐 입력입니다.
 
 ***
 
@@ -119,4 +119,4 @@ separators to unsigned 64-bit integers.
 unshieldedOutputs: Map<TokenType, bigint>;
 ```
 
-The unshielded outputs this contract authorizes.
+이 컨트랙트가 승인하는 비차폐 출력입니다.

@@ -20,7 +20,7 @@
 
 > **status**: `"finalized"`
 
-Transaction included in chain and finalized
+체인에 포함되고 최종 확정된 트랜잭션
 
 \{ `executionStatus`: [`ExecutionStatus`](ExecutionStatus.md); `status`: `"confirmed"`; \}
 

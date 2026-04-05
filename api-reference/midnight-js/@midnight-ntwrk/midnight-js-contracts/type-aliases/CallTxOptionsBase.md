@@ -8,7 +8,7 @@
 
 > **CallTxOptionsBase**\<`C`, `PCK`\> = [`CallOptionsWithArguments`](CallOptionsWithArguments.md)\<`C`, `PCK`\>
 
-Base type for configuration for a call transaction; identical to [CallOptionsWithArguments](CallOptionsWithArguments.md).
+호출 트랜잭션 설정의 기본 타입입니다. [CallOptionsWithArguments](CallOptionsWithArguments.md)와 동일합니다.
 
 ## Type Parameters
 

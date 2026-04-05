@@ -10,7 +10,7 @@
 function isContractAddress(x): x is string;
 ```
 
-Tests whether the input value is a [ContractAddress](../type-aliases/ContractAddress.md), i.e., string.
+입력 값이 [ContractAddress](../type-aliases/ContractAddress.md), 즉 string인지 테스트합니다.
 
 ## Parameters
 
@@ -18,7 +18,7 @@ Tests whether the input value is a [ContractAddress](../type-aliases/ContractAdd
 
 `unknown`
 
-The value that is tested to be a [ContractAddress](../type-aliases/ContractAddress.md).
+[ContractAddress](../type-aliases/ContractAddress.md)인지 테스트할 값입니다.
 
 ## Returns
 

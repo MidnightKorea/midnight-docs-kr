@@ -8,7 +8,7 @@
 
 > **DeployTxOptions**\<`C`\> = [`DeployTxOptionsBase`](DeployTxOptionsBase.md)\<`C`\> \| [`DeployTxOptionsWithPrivateStateId`](DeployTxOptionsWithPrivateStateId.md)\<`C`\>
 
-Configuration for creating deploy transactions.
+배포 트랜잭션 생성을 위한 설정입니다.
 
 ## Type Parameters
 

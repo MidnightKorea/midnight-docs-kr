@@ -10,8 +10,8 @@
 function tokenType(domain_sep, contract): string;
 ```
 
-Derives the [TokenType](../type-aliases/TokenType.md) associated with a particular
-[DomainSeperator](../type-aliases/DomainSeperator.md) and contract.
+특정 [DomainSeperator](../type-aliases/DomainSeperator.md)와 컨트랙트에 연결된
+[TokenType](../type-aliases/TokenType.md)을 도출합니다.
 
 ## Parameters
 

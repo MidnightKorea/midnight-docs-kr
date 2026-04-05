@@ -10,7 +10,7 @@
 function dummyUserAddress(): string
 ```
 
-A sample user address
+샘플 사용자 주소
 
 ## Returns
 

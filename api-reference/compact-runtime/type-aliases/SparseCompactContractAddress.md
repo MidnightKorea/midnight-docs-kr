@@ -12,9 +12,9 @@ type SparseCompactContractAddress = {
 };
 ```
 
-A data structure indicating that the current CompactValue being explored is a contract reference. When this
-type is recognized, the current CompactValue should be a [ContractAddress](ContractAddress.md), and the address is added to
-the dependency set.
+현재 탐색 중인 CompactValue가 컨트랙트 참조임을 나타내는 데이터 구조입니다.
+이 타입이 인식되면 현재 CompactValue는 [ContractAddress](ContractAddress.md)여야 하며,
+해당 주소가 의존성 집합에 추가됩니다.
 
 ## Properties
 

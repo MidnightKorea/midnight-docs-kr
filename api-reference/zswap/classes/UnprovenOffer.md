@@ -8,7 +8,7 @@
 
 A [Offer](Offer.md), prior to being proven
 
-All "shielded" information in the offer can still be extracted at this
+이 단계에서 오퍼의 모든 "차폐" 정보를 추출할 수 있습니다.
 stage!
 
 ## Constructors
@@ -31,10 +31,9 @@ new UnprovenOffer(): UnprovenOffer
 readonly deltas: Map<string, bigint>;
 ```
 
-The value of this offer for each token type; note that this may be
-negative
+각 토큰 유형별 이 오퍼의 값입니다. 음수일 수 있습니다.
 
-This is input coin values - output coin values, for value vectors
+값 벡터에서 입력 코인 값 - 출력 코인 값입니다.
 
 ***
 
@@ -44,7 +43,7 @@ This is input coin values - output coin values, for value vectors
 readonly inputs: UnprovenInput[];
 ```
 
-The inputs this offer is composed of
+이 오퍼를 구성하는 입력입니다.
 
 ***
 
@@ -54,7 +53,7 @@ The inputs this offer is composed of
 readonly outputs: UnprovenOutput[];
 ```
 
-The outputs this offer is composed of
+이 오퍼를 구성하는 출력입니다.
 
 ***
 
@@ -64,7 +63,7 @@ The outputs this offer is composed of
 readonly transient: UnprovenTransient[];
 ```
 
-The transients this offer is composed of
+이 오퍼를 구성하는 트랜지언트입니다.
 
 ## Methods
 
@@ -74,7 +73,7 @@ The transients this offer is composed of
 merge(other): UnprovenOffer
 ```
 
-Combine this offer with another
+이 오퍼를 다른 오퍼와 결합합니다.
 
 #### Parameters
 
@@ -155,7 +154,7 @@ static fromInput(
    value): UnprovenOffer
 ```
 
-Creates a singleton offer, from an [UnprovenInput](UnprovenInput.md) and its value
+[UnprovenInput](UnprovenInput.md)과 해당 값으로 단일 오퍼를 생성합니다.
 vector
 
 #### Parameters
@@ -187,7 +186,7 @@ static fromOutput(
    value): UnprovenOffer
 ```
 
-Creates a singleton offer, from an [UnprovenOutput](UnprovenOutput.md) and its value
+[UnprovenOutput](UnprovenOutput.md)과 해당 값으로 단일 오퍼를 생성합니다.
 vector
 
 #### Parameters
@@ -216,7 +215,7 @@ vector
 static fromTransient(transient): UnprovenOffer
 ```
 
-Creates a singleton offer, from an [UnprovenTransient](UnprovenTransient.md)
+[UnprovenTransient](UnprovenTransient.md)로 단일 오퍼를 생성합니다.
 
 #### Parameters
 

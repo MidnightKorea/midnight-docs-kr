@@ -6,7 +6,7 @@
 
 # Class: ZswapOutput\<P\>
 
-A shielded transaction output
+차폐된 트랜잭션 출력입니다.
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ A shielded transaction output
 readonly commitment: string;
 ```
 
-The commitment of the output
+출력의 커밋먼트입니다.
 
 ***
 
@@ -32,7 +32,7 @@ The commitment of the output
 readonly contractAddress: undefined | string;
 ```
 
-The contract address receiving the output, if the recipient is a contract
+수신자가 컨트랙트인 경우 출력을 수신하는 컨트랙트 주소입니다.
 
 ***
 
@@ -42,7 +42,7 @@ The contract address receiving the output, if the recipient is a contract
 readonly proof: P;
 ```
 
-The proof of this output
+이 출력의 증명입니다.
 
 ## Methods
 
@@ -114,11 +114,9 @@ static new(
    target_epk): UnprovenOutput;
 ```
 
-Creates a new output, targeted to a user's coin public key.
+사용자의 코인 공개 키를 대상으로 새 출력을 생성합니다.
 
-Optionally the output contains a ciphertext encrypted to the user's
-encryption public key, which may be omitted *only* if the [ShieldedCoinInfo](../type-aliases/ShieldedCoinInfo.md)
-is transferred to the recipient another way
+선택적으로 사용자의 암호화 공개 키로 암호화된 암호문을 포함하며, [ShieldedCoinInfo](../type-aliases/ShieldedCoinInfo.md)가 다른 방법으로 수신자에게 전달되는 경우에*만* 생략할 수 있습니다.
 
 #### Parameters
 
@@ -153,10 +151,9 @@ static newContractOwned(
    contract): UnprovenOutput;
 ```
 
-Creates a new output, targeted to a smart contract
+스마트 컨트랙트를 대상으로 새 출력을 생성합니다.
 
-A contract must *also* explicitly receive a coin created in this way for
-the output to be valid
+출력이 유효하려면 컨트랙트가 이 방식으로 생성된 코인을 명시적으로 수신해야 *합니다*.
 
 #### Parameters
 

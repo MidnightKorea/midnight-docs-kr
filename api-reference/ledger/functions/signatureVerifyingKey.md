@@ -10,7 +10,7 @@
 function signatureVerifyingKey(sk): string;
 ```
 
-Returns the verifying key for a given signing key
+주어진 서명 키에 대한 검증 키를 반환합니다.
 
 ## Parameters
 

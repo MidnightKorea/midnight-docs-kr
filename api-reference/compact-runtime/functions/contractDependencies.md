@@ -10,13 +10,13 @@
 function contractDependencies(contractReferenceLocations, state): string[];
 ```
 
-Given a [StateValue](../classes/StateValue.md) representing the current ledger state of a contract, uses the [ContractReferenceLocations](../type-aliases/ContractReferenceLocations.md)
-object produced by the Compact compiler to extract the current contract addresses present in the given ledger state. The produced
-contract addresses represent the contracts on which the root contract depends. The dependencies are used in a multi-contract
-setting to fetch the ledger states of all contracts on which the root contract depends prior to execution.
+컨트랙트의 현재 원장 상태를 나타내는 [StateValue](../classes/StateValue.md)가 주어지면, Compact 컴파일러가 생성한 [ContractReferenceLocations](../type-aliases/ContractReferenceLocations.md)
+객체를 사용하여 주어진 원장 상태에 존재하는 현재 컨트랙트 주소를 추출합니다. 생성된
+컨트랙트 주소는 루트 컨트랙트가 의존하는 컨트랙트를 나타냅니다. 이 의존성은 멀티 컨트랙트
+환경에서 실행 전에 루트 컨트랙트가 의존하는 모든 컨트랙트의 원장 상태를 가져오는 데 사용됩니다.
 
-NOTE: The given [ContractReferenceLocations](../type-aliases/ContractReferenceLocations.md) must be from the contract executable containing the ledger state constructor
-      that produced the given [StateValue](../classes/StateValue.md).
+참고: 주어진 [ContractReferenceLocations](../type-aliases/ContractReferenceLocations.md)는 주어진 [StateValue](../classes/StateValue.md)를 생성한 원장 상태 생성자를 포함하는
+      컨트랙트 실행 파일의 것이어야 합니다.
 
 ## Parameters
 
@@ -24,29 +24,26 @@ NOTE: The given [ContractReferenceLocations](../type-aliases/ContractReferenceLo
 
 [`ContractReferenceLocations`](../type-aliases/ContractReferenceLocations.md)
 
-A data structure pointing to contract references in the ledger state of the root contract.
+루트 컨트랙트의 원장 상태에서 컨트랙트 참조를 가리키는 데이터 구조입니다.
 
 ### state
 
 [`StateValue`](../classes/StateValue.md)
 
-The current ledger state of the root contract.
+루트 컨트랙트의 현재 원장 상태입니다.
 
 ## Returns
 
 `string`[]
 
-A list of all contract addresses (references) present in the given ledger state.
+주어진 원장 상태에 존재하는 모든 컨트랙트 주소(참조) 목록입니다.
 
 ## Remarks
 
-The algorithm has three main stages:
+알고리즘은 세 가지 주요 단계로 구성됩니다:
 
-         1. It unwraps the [PublicLedgerSegments](../type-aliases/PublicLedgerSegments.md) in the given [ContractReferenceLocations](../type-aliases/ContractReferenceLocations.md) until a [SparseCompactADT](../type-aliases/SparseCompactADT.md) is reached.
-            Each time a [PublicLedgerSegments](../type-aliases/PublicLedgerSegments.md) is unwrapped, it casts the current state value to a state value array and proceeds recursively with each
-            of the state values and unwrapped ledger segments.
-         2. It unwraps each [SparseCompactADT](../type-aliases/SparseCompactADT.md) in the current [PublicLedgerSegments](../type-aliases/PublicLedgerSegments.md) until a [SparseCompactType](../type-aliases/SparseCompactType.md) is reached.
-            Each time a [SparseCompactADT](../type-aliases/SparseCompactADT.md) is unwrapped, it casts the current state value to a state representation indicated by
-            the [SparseCompactADT](../type-aliases/SparseCompactADT.md).
-         3. Once the current state can no longer be reduced, it must represent a Compact contract address somewhere inside the state,
-            and that contract address is added to the dependency set.
+         1. 주어진 [ContractReferenceLocations](../type-aliases/ContractReferenceLocations.md)에서 [SparseCompactADT](../type-aliases/SparseCompactADT.md)에 도달할 때까지 [PublicLedgerSegments](../type-aliases/PublicLedgerSegments.md)를 풀어냅니다.
+            [PublicLedgerSegments](../type-aliases/PublicLedgerSegments.md)를 풀어낼 때마다 현재 상태 값을 상태 값 배열로 캐스팅하고, 각 상태 값과 풀어낸 원장 세그먼트에 대해 재귀적으로 진행합니다.
+         2. 현재 [PublicLedgerSegments](../type-aliases/PublicLedgerSegments.md)에서 [SparseCompactType](../type-aliases/SparseCompactType.md)에 도달할 때까지 각 [SparseCompactADT](../type-aliases/SparseCompactADT.md)를 풀어냅니다.
+            [SparseCompactADT](../type-aliases/SparseCompactADT.md)를 풀어낼 때마다 현재 상태 값을 해당 [SparseCompactADT](../type-aliases/SparseCompactADT.md)가 나타내는 상태 표현으로 캐스팅합니다.
+         3. 현재 상태를 더 이상 축소할 수 없으면, 상태 내부 어딘가에 Compact 컨트랙트 주소가 존재해야 하며 해당 컨트랙트 주소가 의존성 집합에 추가됩니다.

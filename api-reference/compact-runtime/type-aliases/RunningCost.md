@@ -15,7 +15,7 @@ type RunningCost = {
 };
 ```
 
-A running tally of synthetic resource costs.
+합성 리소스 비용의 누적 합계입니다.
 
 ## Properties
 
@@ -25,7 +25,7 @@ A running tally of synthetic resource costs.
 bytesDeleted: bigint;
 ```
 
-The number of (modelled) bytes deleted.
+삭제된 (모델링된) 바이트 수입니다.
 
 ***
 
@@ -35,7 +35,7 @@ The number of (modelled) bytes deleted.
 bytesWritten: bigint;
 ```
 
-The number of (modelled) bytes written.
+기록된 (모델링된) 바이트 수입니다.
 
 ***
 
@@ -45,7 +45,7 @@ The number of (modelled) bytes written.
 computeTime: bigint;
 ```
 
-The amount of (modelled) time spent in single-threaded compute, measured in picoseconds.
+단일 스레드 연산에 소요된 (모델링된) 시간으로, 피코초 단위입니다.
 
 ***
 
@@ -55,4 +55,4 @@ The amount of (modelled) time spent in single-threaded compute, measured in pico
 readTime: bigint;
 ```
 
-The amount of (modelled) time spent reading from disk, measured in picoseconds.
+디스크 읽기에 소요된 (모델링된) 시간으로, 피코초 단위입니다.

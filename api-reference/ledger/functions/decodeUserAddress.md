@@ -10,8 +10,7 @@
 function decodeUserAddress(addr): string;
 ```
 
-Decode a [UserAddress](../type-aliases/UserAddress.md) from a `Uint8Array` originating from
-Compact's `UserAddress` type
+Compact의 `UserAddress` 타입의 `Uint8Array`에서 [UserAddress](../type-aliases/UserAddress.md)를 디코딩합니다.
 
 ## Parameters
 

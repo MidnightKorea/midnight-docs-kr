@@ -14,7 +14,7 @@ type Transcript<R> = {
 };
 ```
 
-A transcript of operations, to be recorded in a transaction
+트랜잭션에 기록될 연산의 트랜스크립트
 
 ## Type Parameters
 
@@ -30,8 +30,8 @@ A transcript of operations, to be recorded in a transaction
 effects: Effects;
 ```
 
-The effects of the transcript, which are checked before execution, and
-must match those constructed by [program](#program)
+실행 전에 검사되는 트랜스크립트의 효과로,
+[program](#program)이 구성한 것과 일치해야 합니다
 
 ***
 
@@ -41,8 +41,8 @@ must match those constructed by [program](#program)
 gas: RunningCost;
 ```
 
-The execution budget for this transcript, which [program](#program) must not
-exceed
+이 트랜스크립트의 실행 예산으로, [program](#program)이
+초과해서는 안 됩니다
 
 ***
 
@@ -52,4 +52,4 @@ exceed
 program: Op<R>[];
 ```
 
-The sequence of operations that this transcript captured
+이 트랜스크립트가 캡처한 연산의 시퀀스

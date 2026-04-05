@@ -8,8 +8,8 @@
 
 > **SubmittedCallTx**\<`C`, `PCK`\> = `object`
 
-Data returned from an asynchronous call transaction submission.
-Contains the transaction ID and call transaction data without waiting for finalization.
+비동기 호출 트랜잭션 제출에서 반환된 데이터입니다.
+확정을 기다리지 않고 트랜잭션 ID와 호출 트랜잭션 데이터를 포함합니다.
 
 ## Type Parameters
 
@@ -27,7 +27,7 @@ Contains the transaction ID and call transaction data without waiting for finali
 
 > `readonly` **callTxData**: [`UnsubmittedCallTxData`](UnsubmittedCallTxData.md)\<`C`, `PCK`\>
 
-The unproven call transaction data including private state.
+프라이빗 상태를 포함하는 미증명 호출 트랜잭션 데이터입니다.
 
 ***
 
@@ -35,4 +35,4 @@ The unproven call transaction data including private state.
 
 > `readonly` **txId**: `string`
 
-The transaction ID returned from submission.
+제출에서 반환된 트랜잭션 ID입니다.

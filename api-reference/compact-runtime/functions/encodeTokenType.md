@@ -10,8 +10,8 @@
 function encodeTokenType(tt): Uint8Array;
 ```
 
-Encode a [TokenType](../type-aliases/TokenType.md) into a `Uint8Array` for use in Compact's
-`TokenType` type
+[TokenType](../type-aliases/TokenType.md)을 Compact의 `TokenType` 타입에서
+사용하기 위한 `Uint8Array`로 인코딩합니다
 
 ## Parameters
 

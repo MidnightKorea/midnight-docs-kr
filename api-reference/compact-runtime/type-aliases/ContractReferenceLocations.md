@@ -12,6 +12,6 @@ type ContractReferenceLocations =
   | PublicLedgerSegments;
 ```
 
-A data structure indicating the locations of all contract references in a given ledger state. If it is a [EmptyPublicLedger](EmptyPublicLedger.md),
-then no contract references are present in the ledger state. If it is a [PublicLedgerSegments](PublicLedgerSegments.md), then contract references are
-present and can be extracted using [contractDependencies](../functions/contractDependencies.md).
+주어진 원장 상태에서 모든 컨트랙트 참조의 위치를 나타내는 데이터 구조입니다. [EmptyPublicLedger](EmptyPublicLedger.md)이면
+원장 상태에 컨트랙트 참조가 없습니다. [PublicLedgerSegments](PublicLedgerSegments.md)이면 컨트랙트 참조가
+존재하며 [contractDependencies](../functions/contractDependencies.md)를 사용하여 추출할 수 있습니다.

@@ -10,4 +10,4 @@
 type CommunicationCommitmentRand = string;
 ```
 
-The hex-encoded randomness to [CommunicationCommitment](CommunicationCommitment.md)
+[CommunicationCommitment](CommunicationCommitment.md)의 16진수 인코딩된 무작위 값

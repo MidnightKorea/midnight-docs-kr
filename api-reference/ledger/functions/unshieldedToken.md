@@ -10,7 +10,7 @@
 function unshieldedToken(): UnshieldedTokenType;
 ```
 
-Default unshielded token type for testing
+테스트용 기본 비차폐 토큰 유형입니다.
 
 ## Returns
 

@@ -16,7 +16,7 @@ Base type for public data relevant to an unsubmitted deployment transaction.
 
 > `readonly` **contractAddress**: [`ContractAddress`](#)
 
-The ledger address of the contract that was deployed.
+배포된 컨트랙트의 원장 주소입니다.
 
 ***
 
@@ -24,4 +24,4 @@ The ledger address of the contract that was deployed.
 
 > `readonly` **initialContractState**: `ContractState`
 
-The initial public state of the contract deployed to the blockchain.
+블록체인에 배포된 컨트랙트의 초기 퍼블릭 상태입니다.

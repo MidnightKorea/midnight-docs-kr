@@ -13,7 +13,7 @@ type ShieldedTokenType = {
 };
 ```
 
-Shielded token type (or color), as a hex-encoded 35-byte string
+16진수로 인코딩된 35바이트 문자열 형태의 차폐 토큰 유형(또는 컬러)입니다.
 
 ## Properties
 

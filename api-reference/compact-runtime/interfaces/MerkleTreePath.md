@@ -6,8 +6,8 @@
 
 # Interface: MerkleTreePath\<A\>
 
-A path demonstrating inclusion in a Merkle tree. TypeScript representation
-of the Compact type of the same name.
+Merkle 트리 포함을 증명하는 경로입니다. 동일한 이름의 Compact 타입에 대한
+TypeScript 표현입니다.
 
 ## Type Parameters
 

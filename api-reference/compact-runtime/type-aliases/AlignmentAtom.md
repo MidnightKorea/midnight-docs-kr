@@ -20,4 +20,4 @@ type AlignmentAtom =
 };
 ```
 
-A atom in a larger [Alignment](Alignment.md).
+[Alignment](Alignment.md) 내의 원자 단위입니다.

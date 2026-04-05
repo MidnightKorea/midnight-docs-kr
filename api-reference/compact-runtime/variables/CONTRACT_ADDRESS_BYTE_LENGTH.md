@@ -10,4 +10,4 @@
 const CONTRACT_ADDRESS_BYTE_LENGTH: 32 = 32;
 ```
 
-The expected length (in bytes) of a contract address.
+컨트랙트 주소의 예상 길이(바이트)입니다.

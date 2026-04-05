@@ -13,7 +13,7 @@ function createProvingPayload(
    keyMaterial?): Uint8Array;
 ```
 
-Creates a payload for proving a specific proof through the proof server
+증명 서버를 통해 특정 증명을 수행하기 위한 페이로드를 생성합니다.
 
 ## Parameters
 

@@ -12,8 +12,7 @@ function valueToBigInt(x): bigint;
 
 **`Internal`**
 
-Internal conversion between field-aligned binary values and bigints within
-the scalar field
+필드 정렬 바이너리 값과 스칼라 필드 내 bigint 사이의 내부 변환
 
 ## Parameters
 
@@ -27,4 +26,4 @@ the scalar field
 
 ## Throws
 
-If the value does not encode a field element
+값이 필드 요소를 인코딩하지 않는 경우

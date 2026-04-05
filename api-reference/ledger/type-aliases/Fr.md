@@ -10,4 +10,4 @@
 type Fr = Uint8Array;
 ```
 
-An internal encoding of a value of the proof systems scalar field
+증명 시스템 스칼라 필드 값의 내부 인코딩입니다.

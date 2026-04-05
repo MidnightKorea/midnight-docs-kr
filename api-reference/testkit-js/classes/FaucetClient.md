@@ -11,7 +11,7 @@ Provides functionality to request test tokens for wallet addresses.
 
 > **new FaucetClient**(`faucetUrl`, `logger`): `FaucetClient`
 
-Creates a new FaucetClient instance.
+새 FaucetClient 인스턴스를 생성합니다.
 
 #### Parameters
 
@@ -19,13 +19,13 @@ Creates a new FaucetClient instance.
 
 `string`
 
-The URL of the faucet service endpoint
+파우셋 서비스 엔드포인트의 URL
 
 ##### logger
 
 `Logger`
 
-Logger instance for recording operations
+작업 기록용 Logger 인스턴스
 
 #### Returns
 
@@ -67,7 +67,7 @@ Makes a POST request to the faucet service with the wallet address.
 
 `string`
 
-The address to receive the test tokens
+테스트 토큰을 수신할 주소
 
 #### Returns
 

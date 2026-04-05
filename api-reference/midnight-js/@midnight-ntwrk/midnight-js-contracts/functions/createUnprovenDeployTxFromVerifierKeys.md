@@ -6,20 +6,19 @@
 
 # Function: createUnprovenDeployTxFromVerifierKeys()
 
-Calls a contract constructor and creates an unbalanced, unproven, unsubmitted, deploy transaction
-from the constructor results.
+컨트랙트 생성자를 호출하고, 생성자 결과로부터 밸런싱되지 않은 미증명 미제출 배포 트랜잭션을 생성합니다.
 
 ## Param
 
-The verifier keys for the contract being deployed.
+배포할 컨트랙트의 검증자 키입니다.
 
 ## Param
 
-The Zswap coin public key of the current user.
+현재 사용자의 Zswap 코인 공개 키입니다.
 
 ## Param
 
-Configuration.
+설정입니다.
 
 ## Param
 

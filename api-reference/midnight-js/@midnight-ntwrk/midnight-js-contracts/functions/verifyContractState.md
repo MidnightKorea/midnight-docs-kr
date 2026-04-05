@@ -8,7 +8,7 @@
 
 > **verifyContractState**(`verifierKeys`, `contractState`): `void`
 
-Checks that the given `contractState` contains the given `verifierKeys`.
+주어진 `contractState`에 지정된 `verifierKeys`가 포함되어 있는지 확인합니다.
 
 ## Parameters
 
@@ -16,13 +16,13 @@ Checks that the given `contractState` contains the given `verifierKeys`.
 
 \[`string`, `VerifierKey`\][]
 
-The verifier keys the client has for the deployed contract we're checking.
+확인 대상 배포된 컨트랙트에 대해 클라이언트가 보유한 검증자 키입니다.
 
 ### contractState
 
 `ContractState`
 
-The (typically already deployed) contract state containing verifier keys.
+검증자 키를 포함하는 (일반적으로 이미 배포된) 컨트랙트 상태입니다.
 
 ## Returns
 
@@ -30,4 +30,4 @@ The (typically already deployed) contract state containing verifier keys.
 
 ## Throws
 
-ContractTypeError When one or more of the local and deployed verifier keys do not match.
+ContractTypeError 로컬과 배포된 검증자 키 중 하나 이상이 일치하지 않을 때.

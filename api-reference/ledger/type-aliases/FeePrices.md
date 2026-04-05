@@ -16,7 +16,7 @@ type FeePrices = {
 };
 ```
 
-The fee prices for transaction
+트랜잭션 수수료 가격입니다.
 
 ## Properties
 
@@ -26,7 +26,7 @@ The fee prices for transaction
 blockUsageFactor: number;
 ```
 
-The price factor of block usage.
+블록 사용량의 가격 인수입니다.
 
 ***
 
@@ -36,7 +36,7 @@ The price factor of block usage.
 computeFactor: number;
 ```
 
-The price factor of time spent in single-threaded compute.
+단일 스레드 연산에 소비된 시간의 가격 인수입니다.
 
 ***
 
@@ -46,7 +46,7 @@ The price factor of time spent in single-threaded compute.
 overallPrice: number;
 ```
 
-The overall price of a full block in an average cost dimension.
+평균 비용 차원에서 전체 블록의 총 가격입니다.
 
 ***
 
@@ -56,7 +56,7 @@ The overall price of a full block in an average cost dimension.
 readFactor: number;
 ```
 
-The price factor of time spent reading from disk.
+디스크 읽기에 소비된 시간의 가격 인수입니다.
 
 ***
 
@@ -66,4 +66,4 @@ The price factor of time spent reading from disk.
 writeFactor: number;
 ```
 
-The price factor of time spent writing to disk.
+디스크 쓰기에 소비된 시간의 가격 인수입니다.

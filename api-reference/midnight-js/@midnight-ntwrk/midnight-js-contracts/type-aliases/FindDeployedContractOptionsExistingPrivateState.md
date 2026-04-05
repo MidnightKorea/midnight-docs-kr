@@ -19,7 +19,7 @@ private state ID.
 
 > `readonly` **privateStateId**: `PrivateStateId`
 
-An identifier for the private state of the contract being found.
+검색 중인 컨트랙트의 프라이빗 상태에 대한 식별자입니다.
 
 ## Type Parameters
 

@@ -8,7 +8,7 @@
 
 > **DesiredInput** = `object`
 
-Desired input from an intent. It specifies the type of the input and the amount to provide.
+인텐트의 원하는 입력입니다. 입력 타입과 제공할 금액을 지정합니다.
 
 ## Properties
 

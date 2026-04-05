@@ -12,7 +12,7 @@ function transientHash(align, val): Value
 
 **`Internal`**
 
-Internal implementation of the transient hash primitive
+일시적 해시 프리미티브의 내부 구현
 
 ## Parameters
 

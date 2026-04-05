@@ -6,12 +6,9 @@
 
 # Class: ContractMaintenanceAuthority
 
-A committee permitted to make changes to this contract. If a threshold of
-the public keys in this committee sign off, they can change the rules of
-this contract, or recompile it for a new version.
+이 컨트랙트를 변경할 수 있는 위원회입니다. 위원회 공개 키 중 임계값 이상이 서명하면 이 컨트랙트의 규칙을 변경하거나 새 버전으로 재컴파일할 수 있습니다.
 
-If the threshold is greater than the number of committee members, it is
-impossible for them to sign anything.
+임계값이 위원회 멤버 수보다 크면 어떤 것도 서명할 수 없습니다.
 
 ## Constructors
 
@@ -24,13 +21,11 @@ new ContractMaintenanceAuthority(
    counter?): ContractMaintenanceAuthority;
 ```
 
-Constructs a new authority from its components
+구성 요소로부터 새 권한을 생성합니다.
 
-If not supplied, `counter` will default to `0n`. Values should be
-non-negative, and at most 2^32 - 1.
+`counter`를 지정하지 않으면 기본값은 `0n`입니다. 값은 음이 아니어야 하며, 최대 2^32 - 1이어야 합니다.
 
-At deployment, `counter` must be `0n`, and any subsequent update should
-set counter to exactly one greater than the current value.
+배포 시 `counter`는 `0n`이어야 하며, 이후 업데이트 시 현재 값보다 정확히 1만큼 큰 값으로 설정해야 합니다.
 
 #### Parameters
 
@@ -58,7 +53,7 @@ set counter to exactly one greater than the current value.
 readonly committee: string[];
 ```
 
-The committee public keys
+위원회 공개 키입니다.
 
 ***
 
@@ -68,7 +63,7 @@ The committee public keys
 readonly counter: bigint;
 ```
 
-The replay protection counter
+재생 공격 방지 카운터입니다.
 
 ***
 
@@ -78,7 +73,7 @@ The replay protection counter
 readonly threshold: number;
 ```
 
-How many keys must sign rule changes
+규칙 변경에 필요한 서명 키 수입니다.
 
 ## Methods
 

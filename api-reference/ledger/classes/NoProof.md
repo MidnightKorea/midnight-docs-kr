@@ -6,7 +6,7 @@
 
 # Class: NoProof
 
-A unit type used to indicate the absence of proofs.
+증명이 없음을 나타내는 단위 타입입니다.
 
 ## Constructors
 

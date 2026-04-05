@@ -6,8 +6,8 @@
 
 # Interface: MerkleTreeDigest
 
-The hash value of a Merkle tree. TypeScript representation of the Compact
-type of the same name
+Merkle 트리의 해시 값입니다. 동일한 이름의 Compact 타입에 대한
+TypeScript 표현
 
 ## Properties
 

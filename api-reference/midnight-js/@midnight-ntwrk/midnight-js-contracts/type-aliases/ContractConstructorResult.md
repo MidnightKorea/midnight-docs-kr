@@ -8,7 +8,7 @@
 
 > **ContractConstructorResult**\<`C`\> = `object`
 
-The updated states resulting from executing a contract constructor.
+컨트랙트 생성자 실행 결과로 업데이트된 상태입니다.
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ The updated states resulting from executing a contract constructor.
 
 > `readonly` **nextContractState**: `ContractState`
 
-The public state resulting from executing the contract constructor.
+컨트랙트 생성자 실행 결과로 생성된 퍼블릭 상태입니다.
 
 ***
 
@@ -30,7 +30,7 @@ The public state resulting from executing the contract constructor.
 
 > `readonly` **nextPrivateState**: `Contract.PrivateState`\<`C`\>
 
-The private state resulting from executing the contract constructor.
+컨트랙트 생성자 실행 결과로 생성된 프라이빗 상태입니다.
 
 ***
 
@@ -38,4 +38,4 @@ The private state resulting from executing the contract constructor.
 
 > `readonly` **nextZswapLocalState**: `ZswapLocalState`
 
-The Zswap local state resulting from executing the contract constructor.
+컨트랙트 생성자 실행 결과로 생성된 Zswap 로컬 상태입니다.

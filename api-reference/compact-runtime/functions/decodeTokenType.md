@@ -10,8 +10,8 @@
 function decodeTokenType(tt): string;
 ```
 
-Decode a [TokenType](../type-aliases/TokenType.md) from a `Uint8Array` originating from Compact's
-`TokenType` type
+Compact의 `TokenType` 타입에서 비롯된 `Uint8Array`로부터
+[TokenType](../type-aliases/TokenType.md)을 디코딩합니다
 
 ## Parameters
 

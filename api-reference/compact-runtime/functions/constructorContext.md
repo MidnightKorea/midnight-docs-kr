@@ -10,7 +10,7 @@
 function constructorContext<T>(initialPrivateState, coinPublicKey): ConstructorContext<T>;
 ```
 
-Creates a new [ConstructorContext](../interfaces/ConstructorContext.md) with the given initial private state and an empty Zswap local state.
+주어진 초기 프라이빗 상태와 빈 Zswap 로컬 상태로 새 [ConstructorContext](../interfaces/ConstructorContext.md)를 생성합니다.
 
 ## Type Parameters
 
@@ -24,13 +24,13 @@ Creates a new [ConstructorContext](../interfaces/ConstructorContext.md) with the
 
 `T`
 
-The private state to use to execute the contract's constructor.
+컨트랙트 생성자를 실행하는 데 사용할 프라이빗 상태입니다.
 
 ### coinPublicKey
 
 `string`
 
-The Zswap coin public key of the user executing the contract.
+컨트랙트를 실행하는 사용자의 Zswap 코인 공개 키입니다.
 
 ## Returns
 

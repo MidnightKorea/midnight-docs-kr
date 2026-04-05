@@ -8,7 +8,7 @@
 
 > **createCircuitCallTxInterface**\<`C`\>(`providers`, `compiledContract`, `contractAddress`, `privateStateId`): [`CircuitCallTxInterface`](../type-aliases/CircuitCallTxInterface.md)\<`C`\>
 
-Creates a circuit call transaction interface for a contract.
+컨트랙트의 서킷 호출 트랜잭션 인터페이스를 생성합니다.
 
 ## Type Parameters
 
@@ -22,25 +22,25 @@ Creates a circuit call transaction interface for a contract.
 
 [`ContractProviders`](../type-aliases/ContractProviders.md)\<`C`\>
 
-The providers to use to build transactions.
+트랜잭션을 빌드하는 데 사용할 프로바이더입니다.
 
 ### compiledContract
 
 `CompiledContract`\<`C`, `any`\>
 
-The contract to use to execute circuits.
+서킷을 실행하는 데 사용할 컨트랙트입니다.
 
 ### contractAddress
 
 `string`
 
-The ledger address of the contract.
+컨트랙트의 원장 주소입니다.
 
 ### privateStateId
 
 `string` \| `undefined`
 
-The identifier of the state of the witnesses of the contract.
+컨트랙트 위트니스 상태의 식별자입니다.
 
 ## Returns
 

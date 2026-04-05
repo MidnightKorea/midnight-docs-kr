@@ -10,6 +10,6 @@
 const MAX_FIELD: bigint;
 ```
 
-The maximum value representable in Compact's `Field` type
+Compact의 `Field` 타입에서 표현 가능한 최대 값
 
-One less than the prime modulus of the proof system's scalar field
+증명 시스템 스칼라 필드의 소수 모듈러스보다 1 작은 값

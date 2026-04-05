@@ -10,15 +10,15 @@
 function persistentHash<A>(rtType, value): Uint8Array;
 ```
 
-The Compact builtin `persistent_hash` function
+Compact 내장 `persistent_hash` 함수
 
-This function is a non-circuit-optimised hash function for mostly arbitrary
-data. It is guaranteed to persist between upgrades, with the exception of
-devnet. It *should* be used to derive state data, and not for consistency
-checks where avoidable.
+대부분의 임의 데이터에 대한 비회로 최적화 해시 함수입니다.
+devnet을 제외하고 업그레이드 간 영속성이 보장됩니다.
+상태 데이터를 도출하는 데 사용해야 하며, 가능하면 일관성 검사에는
+사용하지 않아야 합니다.
 
-Note that data containing `Opaque` elements *may* throw runtime errors, and
-cannot be relied upon as a consistent representation.
+`Opaque` 요소가 포함된 데이터는 런타임 오류를 발생시킬 *수* 있으며,
+일관된 표현으로 신뢰할 수 없습니다.
 
 ## Type Parameters
 
@@ -42,4 +42,4 @@ cannot be relied upon as a consistent representation.
 
 ## Throws
 
-If `rtType` encodes a type containing Compact 'Opaque' types
+`rtType`이 Compact 'Opaque' 타입을 포함하는 타입을 인코딩하는 경우

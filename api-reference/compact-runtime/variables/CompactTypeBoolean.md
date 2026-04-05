@@ -10,4 +10,4 @@
 const CompactTypeBoolean: CompactType<boolean>;
 ```
 
-Runtime type of the builtin `Boolean` type
+내장 `Boolean` 타입의 런타임 타입

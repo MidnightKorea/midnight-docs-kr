@@ -10,7 +10,7 @@
 function nativeToken(): TokenType
 ```
 
-The base/system token type
+기본/시스템 토큰 유형입니다.
 
 ## Returns
 

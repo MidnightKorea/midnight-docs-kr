@@ -8,7 +8,7 @@
 
 > **new ProofServerClient**(`proofServer`, `logger`): `ProofServerClient`
 
-Creates an instance of ProofServerClient.
+ProofServerClient 인스턴스를 생성합니다.
 
 #### Parameters
 
@@ -16,13 +16,13 @@ Creates an instance of ProofServerClient.
 
 `string`
 
-The URL of the proof server service.
+증명 서버의 URL service.
 
 ##### logger
 
 `Logger`
 
-The logger instance for logging information.
+정보 로깅을 위한 Logger 인스턴스입니다.
 
 #### Returns
 
@@ -63,13 +63,13 @@ Proves a transaction by sending a POST request to the proof server.
 
 `ArrayBuffer`
 
-serialized transaction data
+직렬화된 트랜잭션 데이터
 
 ##### config?
 
 `AxiosRequestConfig` = `...`
 
-Axios request configuration
+Axios 요청 구성
 
 #### Returns
 

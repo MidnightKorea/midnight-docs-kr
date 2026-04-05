@@ -6,7 +6,7 @@
 
 # Class: PreProof
 
-The preimage, or data required to produce, a [Proof](Proof.md).
+[Proof](Proof.md)를 생성하는 데 필요한 프리이미지 또는 데이터입니다.
 
 ## Constructors
 

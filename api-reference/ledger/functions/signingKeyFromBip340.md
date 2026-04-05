@@ -10,7 +10,7 @@
 function signingKeyFromBip340(data): string;
 ```
 
-Creates a [SigningKey](../type-aliases/SigningKey.md) from provided Bip340 private key.
+제공된 BIP-340 개인 키로 [SigningKey](../type-aliases/SigningKey.md)를 생성합니다.
 
 ## Parameters
 

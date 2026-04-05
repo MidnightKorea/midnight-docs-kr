@@ -8,7 +8,7 @@
 
 > **ScopedTransactionOptions** = `object`
 
-Options for use when creating scoped transactions.
+스코프 트랜잭션 생성 시 사용할 옵션입니다.
 
 ## Properties
 
@@ -16,4 +16,4 @@ Options for use when creating scoped transactions.
 
 > `readonly` `optional` **scopeName?**: `string`
 
-An optional name for the transaction scope.
+트랜잭션 스코프의 선택적 이름입니다.

@@ -6,7 +6,7 @@
 
 # Class: CostModel
 
-A cost model for calculating transaction fees
+트랜잭션 수수료 계산을 위한 비용 모델
 
 ## Methods
 
@@ -34,7 +34,7 @@ toString(compact?): string
 static initialCostModel(): CostModel
 ```
 
-The initial cost model of Midnight
+Midnight의 초기 비용 모델
 
 #### Returns
 

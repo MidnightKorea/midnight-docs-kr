@@ -46,9 +46,9 @@ readonly encryptionSecretKey: EncryptionSecretKey;
 clear(): void;
 ```
 
-Clears the secret keys, so that they are no longer usable nor held in memory
-Note: it does not clear copies of the keys - which is particularly relevant for proof preimages
-Note: this will cause all other operations to fail
+비밀 키를 지워 더 이상 사용할 수 없고 메모리에도 남지 않게 합니다.
+참고: 키 복사본은 지워지지 않으며, 이는 증명 프리이미지에 특히 관련됩니다.
+참고: 이후 다른 모든 연산이 실패합니다.
 
 #### Returns
 
@@ -62,7 +62,7 @@ Note: this will cause all other operations to fail
 static fromSeed(seed): ZswapSecretKeys;
 ```
 
-Derives secret keys from a 32-byte seed
+32바이트 시드로부터 비밀 키를 도출합니다.
 
 #### Parameters
 
@@ -82,8 +82,8 @@ Derives secret keys from a 32-byte seed
 static fromSeedRng(seed): ZswapSecretKeys;
 ```
 
-Derives secret keys from a 32-byte seed using deprecated implementation.
-Use only for compatibility purposes
+더 이상 사용되지 않는 구현을 사용하여 32바이트 시드로부터 비밀 키를 도출합니다.
+호환성 목적으로만 사용하세요.
 
 #### Parameters
 

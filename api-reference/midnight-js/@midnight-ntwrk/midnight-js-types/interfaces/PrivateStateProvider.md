@@ -114,7 +114,7 @@ Retrieve the private state at the given private state ID.
 
 `PSI`
 
-The private state identifier.
+프라이빗 상태 식별자입니다.
 
 #### Returns
 
@@ -234,7 +234,7 @@ Remove the value at the given private state ID.
 
 `PSI`
 
-The private state identifier.
+프라이빗 상태 식별자입니다.
 
 #### Returns
 
@@ -274,7 +274,7 @@ Store the given private state at the given private state ID.
 
 `PSI`
 
-The private state identifier.
+프라이빗 상태 식별자입니다.
 
 ##### state
 

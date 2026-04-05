@@ -6,7 +6,7 @@
 
 # Interface: EncodedZswapLocalState
 
-Tracks the coins consumed and produced throughout circuit execution.
+회로 실행 전반에 걸쳐 소비되고 생성된 코인을 추적합니다.
 
 ## Properties
 
@@ -16,7 +16,7 @@ Tracks the coins consumed and produced throughout circuit execution.
 coinPublicKey: EncodedCoinPublicKey;
 ```
 
-The Zswap coin public key of the user executing the circuit.
+회로를 실행하는 사용자의 Zswap 코인 공개 키입니다.
 
 ***
 
@@ -26,7 +26,7 @@ The Zswap coin public key of the user executing the circuit.
 currentIndex: bigint;
 ```
 
-The Merkle tree index of the next coin produced.
+다음에 생성될 코인의 Merkle 트리 인덱스입니다.
 
 ***
 
@@ -36,7 +36,7 @@ The Merkle tree index of the next coin produced.
 inputs: EncodedQualifiedShieldedCoinInfo[];
 ```
 
-The coins consumed as inputs to the circuit.
+회로의 입력으로 소비된 코인입니다.
 
 ***
 
@@ -49,7 +49,7 @@ outputs: {
 }[];
 ```
 
-The coins produced as outputs from the circuit.
+회로의 출력으로 생성된 코인입니다.
 
 #### coinInfo
 

@@ -12,7 +12,7 @@ function ecMul(a, b): Value
 
 **`Internal`**
 
-Internal implementation of the elliptic curve multiplication primitive
+타원 곡선 곱셈 프리미티브의 내부 구현
 
 ## Parameters
 
@@ -30,5 +30,5 @@ Internal implementation of the elliptic curve multiplication primitive
 
 ## Throws
 
-If [a](ecMul.md#a) does not encode an elliptic curve point or [b](ecMul.md#b)
-does not encode a field element
+If [a](ecMul.md#a) 타원 곡선 점을 인코딩하지 않거나 [b](ecMul.md#b)
+필드 원소를 인코딩하지 않은 경우

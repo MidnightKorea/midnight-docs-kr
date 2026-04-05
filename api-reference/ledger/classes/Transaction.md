@@ -6,11 +6,9 @@
 
 # Class: Transaction\<S, P, B\>
 
-A Midnight transaction, consisting a section of [ContractAction](../type-aliases/ContractAction.md)s, and a guaranteed and fallible [ZswapOffer](ZswapOffer.md).
+[ContractAction](../type-aliases/ContractAction.md) 섹션과 guaranteed 및 fallible [ZswapOffer](ZswapOffer.md)로 구성된 Midnight 트랜잭션입니다.
 
-The guaranteed section are run first, and fee payment is taken during this
-part. If it succeeds, the fallible section is also run, and atomically
-rolled back if it fails.
+guaranteed 섹션이 먼저 실행되며, 이 과정에서 수수료가 지불됩니다. 성공하면 fallible 섹션도 실행되며, 실패 시 원자적으로 롤백됩니다.
 
 ## Type Parameters
 
@@ -34,7 +32,7 @@ rolled back if it fails.
 readonly bindingRandomness: bigint;
 ```
 
-The binding randomness associated with this transaction
+이 트랜잭션에 연결된 바인딩 랜덤값입니다.
 
 ***
 
@@ -44,12 +42,9 @@ The binding randomness associated with this transaction
 fallibleOffer: undefined | Map<number, ZswapOffer<P>>;
 ```
 
-The fallible Zswap offer
+fallible Zswap 오퍼입니다.
 
-Note that writing to this re-computes binding information if and only if
-this transaction is unbound *and* unproven. If this is not the case,
-creating or removing offer components will lead to a binding error down
-the line.
+이 값에 쓰기를 하면 트랜잭션이 바인딩되지 않았고 *또한* 증명되지 않은 경우에만 바인딩 정보가 재계산됩니다. 그렇지 않으면 오퍼 구성 요소를 생성하거나 제거할 때 바인딩 오류가 발생할 수 있습니다.
 
 #### Throws
 
@@ -64,12 +59,9 @@ transaction
 guaranteedOffer: undefined | ZswapOffer<P>;
 ```
 
-The guaranteed Zswap offer
+guaranteed Zswap 오퍼입니다.
 
-Note that writing to this re-computes binding information if and only if
-this transaction is unbound *and* unproven. If this is not the case,
-creating or removing offer components will lead to a binding error down
-the line.
+이 값에 쓰기를 하면 트랜잭션이 바인딩되지 않았고 *또한* 증명되지 않은 경우에만 바인딩 정보가 재계산됩니다. 그렇지 않으면 오퍼 구성 요소를 생성하거나 제거할 때 바인딩 오류가 발생할 수 있습니다.
 
 #### Throws
 
@@ -84,12 +76,9 @@ transaction
 intents: undefined | Map<number, Intent<S, P, B>>;
 ```
 
-The intents contained in this transaction
+이 트랜잭션에 포함된 인텐트입니다.
 
-Note that writing to this re-computes binding information if and only if
-this transaction is unbound *and* unproven. If this is not the case,
-creating or removing intents will lead to a binding error down the line,
-but modifying existing intents will succeed.
+이 값에 쓰기를 하면 트랜잭션이 바인딩되지 않았고 *또한* 증명되지 않은 경우에만 바인딩 정보가 재계산됩니다. 그렇지 않으면 인텐트를 생성하거나 제거할 때 바인딩 오류가 발생할 수 있지만, 기존 인텐트를 수정하는 것은 성공합니다.
 
 #### Throws
 
@@ -106,7 +95,7 @@ readonly rewards:
 | ClaimRewardsTransaction<S>;
 ```
 
-The rewards this transaction represents, if applicable
+이 트랜잭션이 나타내는 보상입니다 (해당하는 경우).
 
 ## Methods
 
@@ -123,12 +112,9 @@ addCalls(
 zswapTransient?): Transaction<S, P, B>;
 ```
 
-Adds a set of new calls to the transaction.
+트랜잭션에 새 호출 집합을 추가합니다.
 
-In contrast to [Intent.addCall](Intent.md#addcall), this takes calls *before*
-transcript partitioning ([partitionTranscripts](../functions/partitionTranscripts.md)), will create the
-target intent where needed, and will ensure that relevant Zswap parts are
-placed in the same section as contract interactions with them.
+[Intent.addCall](Intent.md#addcall)과 달리, 트랜스크립트 분할([partitionTranscripts](../functions/partitionTranscripts.md)) *이전*의 호출을 받아 필요한 곳에 대상 인텐트를 생성하고, 관련 Zswap 부분이 컨트랙트 상호작용과 같은 섹션에 배치되도록 합니다.
 
 #### Parameters
 
@@ -166,7 +152,7 @@ placed in the same section as contract interactions with them.
 
 #### Throws
 
-If called on bound, proven, or proof-erased transactions.
+바인딩된, 증명된, 또는 증명이 삭제된 트랜잭션에서 호출한 경우
 
 ***
 
@@ -176,7 +162,7 @@ If called on bound, proven, or proof-erased transactions.
 bind(): Transaction<S, P, Binding>;
 ```
 
-Enforces binding for this transaction. This is irreversible.
+이 트랜잭션에 바인딩을 강제합니다. 되돌릴 수 없습니다.
 
 #### Returns
 
@@ -190,7 +176,7 @@ Enforces binding for this transaction. This is irreversible.
 cost(params, enforceTimeToDismiss?): SyntheticCost;
 ```
 
-The underlying resource cost of this transaction.
+이 트랜잭션의 기본 리소스 비용입니다.
 
 #### Parameters
 
@@ -214,7 +200,7 @@ The underlying resource cost of this transaction.
 eraseProofs(): Transaction<S, NoProof, NoBinding>;
 ```
 
-Erases the proofs contained in this transaction
+이 트랜잭션에 포함된 증명을 삭제합니다.
 
 #### Returns
 
@@ -228,7 +214,7 @@ Erases the proofs contained in this transaction
 eraseSignatures(): Transaction<SignatureErased, P, B>;
 ```
 
-Removes signatures from this transaction.
+이 트랜잭션에서 서명을 제거합니다.
 
 #### Returns
 
@@ -242,9 +228,9 @@ Removes signatures from this transaction.
 fees(params, enforceTimeToDismiss?): bigint;
 ```
 
-The cost of this transaction, in SPECKs.
+이 트랜잭션의 비용(SPECK 단위)입니다.
 
-Note that this is *only* accurate when called with proven transactions.
+증명된 트랜잭션에서 호출할 때*만* 정확합니다.
 
 #### Parameters
 
@@ -268,12 +254,11 @@ Note that this is *only* accurate when called with proven transactions.
 feesWithMargin(params, margin): bigint;
 ```
 
-The cost of this transaction, in SPECKs, with a safety margin of `n` blocks applied.
+`n` 블록의 안전 마진이 적용된 이 트랜잭션의 비용(SPECK 단위)입니다.
 
-As with [fees](#fees), this is only accurate for proven transactions.
+[fees](#fees)와 마찬가지로, 증명된 트랜잭션에서만 정확합니다.
 
-Warning: `n` must be a non-negative integer, and it is an exponent, it is
-very easy to get a completely unreasonable margin here!
+경고: `n`은 음이 아닌 정수여야 하며, 지수로 사용되므로 비합리적인 마진이 나오기 쉽습니다!
 
 #### Parameters
 
@@ -297,8 +282,7 @@ very easy to get a completely unreasonable margin here!
 identifiers(): string[];
 ```
 
-Returns the set of identifiers contained within this transaction. Any of
-these *may* be used to watch for a specific transaction.
+이 트랜잭션에 포함된 식별자 집합을 반환합니다. 이 중 어느 것이든 특정 트랜잭션을 감시하는 데 사용할 수 *있습니다*.
 
 #### Returns
 
@@ -312,8 +296,7 @@ these *may* be used to watch for a specific transaction.
 imbalances(segment, fees?): Map<TokenType, bigint>;
 ```
 
-For given fees, and a given section (guaranteed/fallible), what the
-surplus or deficit of this transaction in any token type is.
+주어진 수수료와 주어진 섹션(guaranteed/fallible)에서 이 트랜잭션의 각 토큰 유형별 초과분 또는 부족분입니다.
 
 #### Parameters
 
@@ -341,7 +324,7 @@ If `segment` is not a valid segment ID
 merge(other): Transaction<S, P, B>;
 ```
 
-Merges this transaction with another
+이 트랜잭션을 다른 트랜잭션과 병합합니다.
 
 #### Parameters
 
@@ -355,8 +338,7 @@ Merges this transaction with another
 
 #### Throws
 
-If both transactions have contract interactions, or they spend the
-same coins
+두 트랜잭션 모두 컨트랙트 상호작용이 있거나 같은 코인을 소비하는 경우
 
 ***
 
@@ -366,11 +348,9 @@ same coins
 mockProve(): Transaction<S, Proof, Binding>;
 ```
 
-Mocks proving, producing a 'proven' transaction that, while it will
-*not* verify, is accurate for fee computation purposes.
+증명을 모의 수행하여 검증되지는 *않지만* 수수료 계산 목적으로는 정확한 '증명된' 트랜잭션을 생성합니다.
 
-Due to the variability in proof sizes, this *only* works for transactions
-that do not contain unproven contract calls.
+증명 크기의 가변성으로 인해, 미증명 컨트랙트 호출을 포함하지 않는 트랜잭션에서*만* 작동합니다.
 
 #### Returns
 
@@ -389,8 +369,8 @@ transaction contains unproven contract calls.
 prove(provider, cost_model): Promise<Transaction<S, Proof, B>>;
 ```
 
-Proves the transaction, with access to a low-level proving provider.
-This may *only* be called for `P = PreProof`.
+저수준 증명 제공자에 접근하여 트랜잭션을 증명합니다.
+`P = PreProof`인 경우에*만* 호출할 수 있습니다.
 
 #### Parameters
 
@@ -448,9 +428,7 @@ toString(compact?): string;
 transactionHash(): string;
 ```
 
-Returns the hash associated with this transaction. Due to the ability to
-merge transactions, this should not be used to watch for a specific
-transaction.
+이 트랜잭션과 연결된 해시를 반환합니다. 트랜잭션 병합이 가능하므로, 특정 트랜잭션을 감시하는 데 사용해서는 안 됩니다.
 
 #### Returns
 
@@ -467,7 +445,7 @@ wellFormed(
    tblock): VerifiedTransaction;
 ```
 
-Tests well-formedness criteria, optionally including transaction balancing
+올바른 형식 기준을 테스트하며, 선택적으로 트랜잭션 균형도 포함합니다.
 
 #### Parameters
 
@@ -489,7 +467,7 @@ Tests well-formedness criteria, optionally including transaction balancing
 
 #### Throws
 
-If the transaction is not well-formed for any reason
+어떤 이유로든 트랜잭션이 올바른 형식이 아닌 경우
 
 ***
 
@@ -551,7 +529,7 @@ static fromParts(
    intent?): UnprovenTransaction;
 ```
 
-Creates a transaction from its parts.
+구성 요소로부터 트랜잭션을 생성합니다.
 
 #### Parameters
 
@@ -587,8 +565,7 @@ static fromPartsRandomized(
    intent?): UnprovenTransaction;
 ```
 
-Creates a transaction from its parts, randomizing the segment ID to better
-allow merging.
+구성 요소로부터 트랜잭션을 생성하며, 병합을 용이하게 하기 위해 세그먼트 ID를 무작위로 지정합니다.
 
 #### Parameters
 
@@ -620,8 +597,7 @@ allow merging.
 static fromRewards<S>(rewards): Transaction<S, PreProof, Binding>;
 ```
 
-Creates a rewards claim transaction, the funds claimed must have been
-legitimately rewarded previously.
+보상 청구 트랜잭션을 생성합니다. 청구하는 자금은 이전에 정당하게 보상된 것이어야 합니다.
 
 #### Type Parameters
 

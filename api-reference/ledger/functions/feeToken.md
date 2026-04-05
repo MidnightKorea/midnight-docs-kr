@@ -10,7 +10,7 @@
 function feeToken(): DustTokenType;
 ```
 
-The system token type for fees
+수수료용 시스템 토큰 유형입니다.
 
 ## Returns
 

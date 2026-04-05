@@ -6,7 +6,7 @@
 
 # Class: VerifiedTransaction
 
-A transaction that has been validated with `wellFormed`.
+`wellFormed`로 검증된 트랜잭션입니다.
 
 ## Properties
 
@@ -16,4 +16,4 @@ A transaction that has been validated with `wellFormed`.
 readonly transaction: Transaction<SignatureErased, NoProof, NoBinding>;
 ```
 
-The actual underlying transaction
+실제 기본 트랜잭션입니다.

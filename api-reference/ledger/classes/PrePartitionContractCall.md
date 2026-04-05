@@ -6,12 +6,9 @@
 
 # Class: PrePartitionContractCall
 
-A [ContractCall](ContractCall.md) prior to being partitioned into guarnateed and
-fallible parts, for use with [Transaction.addCalls](Transaction.md#addcalls).
+[Transaction.addCalls](Transaction.md#addcalls)에서 사용하기 위해 guaranteed와 fallible 부분으로 분할되기 전의 [ContractCall](ContractCall.md)입니다.
 
-Note that this is similar, but not the same as [ContractCall](ContractCall.md), which
-assumes [partitionTranscripts](../functions/partitionTranscripts.md) was already used. [Transaction.addCalls](Transaction.md#addcalls) is a replacement for this that also handles
-Zswap components, and creates relevant intents when needed.
+[partitionTranscripts](../functions/partitionTranscripts.md)가 이미 사용되었다고 가정하는 [ContractCall](ContractCall.md)과 유사하지만 동일하지는 않습니다. [Transaction.addCalls](Transaction.md#addcalls)는 Zswap 구성 요소도 처리하고 필요 시 관련 인텐트를 생성하는 대체 방법입니다.
 
 ## Constructors
 

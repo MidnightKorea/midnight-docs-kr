@@ -10,7 +10,7 @@
 function sampleIntentHash(): string;
 ```
 
-Samples a dummy user intent hash, for use in testing
+테스트용 더미 사용자 인텐트 해시를 샘플링합니다.
 
 ## Returns
 

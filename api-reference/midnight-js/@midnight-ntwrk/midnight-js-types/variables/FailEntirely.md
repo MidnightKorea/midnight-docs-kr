@@ -8,4 +8,4 @@
 
 > `const` **FailEntirely**: `"FailEntirely"`
 
-Indicates that the transaction is invalid.
+트랜잭션이 유효하지 않음을 나타냅니다.

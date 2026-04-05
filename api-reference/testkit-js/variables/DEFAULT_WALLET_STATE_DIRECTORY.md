@@ -4,4 +4,4 @@
 
 > `const` **DEFAULT\_WALLET\_STATE\_DIRECTORY**: `"./.states"`
 
-Default directory path for storing wallet state files
+지갑 상태 파일 저장을 위한 기본 디렉터리 경로

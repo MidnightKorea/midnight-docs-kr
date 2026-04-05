@@ -16,7 +16,7 @@ The default configuration for the level database.
 
 > **midnightDbName**: `string` = `MN_LDB_DEFAULT_DB_NAME`
 
-The name of the database.
+데이터베이스의 이름입니다.
 
 ### privateStateStoreName
 

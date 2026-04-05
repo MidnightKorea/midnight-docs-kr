@@ -6,7 +6,7 @@
 
 # Interface: CircuitContext\<PS\>
 
-The external information accessible from within a Compact circuit call
+Compact 회로 호출 내에서 접근 가능한 외부 정보
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ The external information accessible from within a Compact circuit call
 costModel: CostModel;
 ```
 
-The cost model to use for the execution.
+실행에 사용할 비용 모델입니다.
 
 ***
 
@@ -32,7 +32,7 @@ The cost model to use for the execution.
 currentPrivateState: PS;
 ```
 
-The current private state for the contract.
+컨트랙트의 현재 프라이빗 상태입니다.
 
 ***
 
@@ -42,7 +42,7 @@ The current private state for the contract.
 currentQueryContext: QueryContext;
 ```
 
-The current on-chain context the transaction is evolving.
+트랜잭션이 진행 중인 현재 온체인 컨텍스트입니다.
 
 ***
 
@@ -52,7 +52,7 @@ The current on-chain context the transaction is evolving.
 currentZswapLocalState: EncodedZswapLocalState;
 ```
 
-The current Zswap local state. Tracks inputs and outputs produced during circuit execution.
+현재 Zswap 로컬 상태입니다. 회로 실행 중 생성된 입력과 출력을 추적합니다.
 
 ***
 
@@ -62,4 +62,4 @@ The current Zswap local state. Tracks inputs and outputs produced during circuit
 optional gasLimit: RunningCost;
 ```
 
-The gas limit for this circuit.
+이 회로의 가스 한도입니다.

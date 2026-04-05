@@ -30,7 +30,7 @@ A transcript of operations, to be recorded in a transaction
 effects: Effects;
 ```
 
-The effects of the transcript, which are checked before execution, and
+실행 전에 검증되는 트랜스크립트의 효과이며,
 must match those constructed by [program](#program)
 
 ***
@@ -52,4 +52,4 @@ exceed
 program: Op<R>[];
 ```
 
-The sequence of operations that this transcript captured
+이 트랜스크립트가 캡처한 연산 시퀀스입니다.

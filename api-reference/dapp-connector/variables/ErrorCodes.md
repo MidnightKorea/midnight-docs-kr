@@ -8,7 +8,7 @@
 
 > `const` **ErrorCodes**: `object`
 
-All possible error codes gathered in a single object.
+모든 가능한 오류 코드를 하나의 객체에 모은 것입니다.
 
 ## Type Declaration
 
@@ -16,28 +16,28 @@ All possible error codes gathered in a single object.
 
 > `readonly` **Disconnected**: `"Disconnected"` = `'Disconnected'`
 
-The connection to the wallet was lost
+지갑과의 연결이 끊어졌습니다
 
 ### InternalError
 
 > `readonly` **InternalError**: `"InternalError"` = `'InternalError'`
 
-The dapp connector wasn't able to process the request
+DApp Connector가 요청을 처리할 수 없었습니다
 
 ### InvalidRequest
 
 > `readonly` **InvalidRequest**: `"InvalidRequest"` = `'InvalidRequest'`
 
-Can be thrown in various circumstances, e.g. one being a malformed transaction
+다양한 상황에서 발생할 수 있으며, 예를 들어 잘못된 형식의 트랜잭션이 해당합니다
 
 ### PermissionRejected
 
 > `readonly` **PermissionRejected**: `"PermissionRejected"` = `'PermissionRejected'`
 
-Permission to perform action was rejected.
+작업 수행 권한이 거부되었습니다.
 
 ### Rejected
 
 > `readonly` **Rejected**: `"Rejected"` = `'Rejected'`
 
-The user rejected the request
+사용자가 요청을 거부했습니다

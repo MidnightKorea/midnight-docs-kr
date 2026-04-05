@@ -10,7 +10,7 @@
 function bigIntModFr(x): bigint
 ```
 
-Takes a bigint modulus the proof systems scalar field
+bigint를 증명 시스템의 스칼라 필드로 모듈러 연산합니다
 
 ## Parameters
 

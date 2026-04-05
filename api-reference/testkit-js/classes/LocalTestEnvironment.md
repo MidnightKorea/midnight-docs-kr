@@ -23,7 +23,7 @@ Creates a new LocalTestEnvironment instance
 
 `Logger`
 
-Logger instance for recording operations
+작업 기록용 Logger 인스턴스
 
 #### Returns
 
@@ -80,7 +80,7 @@ Object containing URLs for testnet services:
 
 > **getMidnightWalletProvider**(): `Promise`\<[`MidnightWalletProvider`](MidnightWalletProvider.md)\>
 
-Starts a single wallet instance.
+단일 지갑 인스턴스를 시작합니다.
 
 #### Returns
 
@@ -138,7 +138,7 @@ Optional proof server container
 
 `Promise`\<[`EnvironmentConfiguration`](../interfaces/EnvironmentConfiguration.md)\>
 
-The environment configuration
+환경 구성
 
 #### Throws
 
@@ -209,4 +209,4 @@ The ports of the containers in the given environment
 
 `Promise`\<[`EnvironmentConfiguration`](../interfaces/EnvironmentConfiguration.md)\>
 
-The environment configuration
+환경 구성

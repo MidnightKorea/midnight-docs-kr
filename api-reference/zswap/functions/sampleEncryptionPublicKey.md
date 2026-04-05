@@ -10,7 +10,7 @@
 function sampleEncryptionPublicKey(): EncPublicKey
 ```
 
-Samples a dummy user encryption public key, for use in testing
+테스트용 더미 사용자 암호화 공개 키를 샘플링합니다.
 
 ## Returns
 

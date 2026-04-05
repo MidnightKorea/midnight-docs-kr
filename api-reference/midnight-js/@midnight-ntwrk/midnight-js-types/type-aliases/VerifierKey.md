@@ -16,4 +16,4 @@ A type representing a verifier key derived from a contract circuit.
 
 > `readonly` **VerifierKey**: unique `symbol`
 
-Unique symbol brand.
+고유 심볼 브랜드입니다.

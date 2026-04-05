@@ -15,7 +15,7 @@ function proofDataIntoSerializedPreimage(
    key_location?): Uint8Array;
 ```
 
-Converts input, output, and transcript information into a proof preimage
+입력, 출력, 트랜스크립트 정보를 증명 프리이미지로 변환합니다.
 suitable to pass to a `ProvingProvider`.
 
 The `key_location` parameter is a string used to identify the circuit by

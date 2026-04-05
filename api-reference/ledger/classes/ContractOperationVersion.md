@@ -6,7 +6,7 @@
 
 # Class: ContractOperationVersion
 
-The version associated with a [ContractOperation](ContractOperation.md)
+[ContractOperation](ContractOperation.md)에 연결된 버전입니다.
 
 ## Constructors
 

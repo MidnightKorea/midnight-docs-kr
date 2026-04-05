@@ -10,7 +10,7 @@ Configuration for test logging
 
 > **fileName**: `string`
 
-Name of the log file
+로그 파일 이름
 
 ***
 
@@ -26,4 +26,4 @@ Log level (e.g. 'info', 'debug', etc)
 
 > **path**: `string`
 
-Directory path where log files will be written
+로그 파일이 기록될 디렉터리 경로

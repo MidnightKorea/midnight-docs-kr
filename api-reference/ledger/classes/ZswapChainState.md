@@ -6,9 +6,7 @@
 
 # Class: ZswapChainState
 
-The on-chain state of Zswap, consisting of a Merkle tree of coin
-commitments, a set of nullifiers, an index into the Merkle tree, and a set
-of valid past Merkle tree roots
+코인 커밋먼트의 머클 트리, 널리파이어 집합, 머클 트리 인덱스, 유효한 과거 머클 트리 루트 집합으로 구성된 Zswap의 온체인 상태입니다.
 
 ## Constructors
 
@@ -30,7 +28,7 @@ new ZswapChainState(): ZswapChainState;
 readonly firstFree: bigint;
 ```
 
-The first free index in the coin commitment tree
+코인 커밋먼트 트리의 첫 번째 빈 인덱스입니다.
 
 ## Methods
 
@@ -40,8 +38,7 @@ The first free index in the coin commitment tree
 filter(contractAddress): ZswapChainState;
 ```
 
-Filters the state to only include coins that are relevant to a given
-contract address.
+주어진 컨트랙트 주소에 관련된 코인만 포함하도록 상태를 필터링합니다.
 
 #### Parameters
 
@@ -115,8 +112,7 @@ toString(compact?): string;
 tryApply<P>(offer, whitelist?): [ZswapChainState, Map<string, bigint>];
 ```
 
-Try to apply an [ZswapOffer](ZswapOffer.md) to the state, returning the updated state
-and a map on newly inserted coin commitments to their inserted indices.
+[ZswapOffer](ZswapOffer.md)를 상태에 적용하고, 업데이트된 상태와 새로 삽입된 코인 커밋먼트에서 삽입된 인덱스로의 맵을 반환합니다.
 
 #### Type Parameters
 
@@ -168,7 +164,7 @@ static deserialize(raw): ZswapChainState;
 static deserializeFromLedgerState(raw): ZswapChainState;
 ```
 
-Given a whole ledger serialized state, deserialize only the Zswap portion
+전체 원장 직렬화 상태가 주어지면 Zswap 부분만 역직렬화합니다.
 
 #### Parameters
 

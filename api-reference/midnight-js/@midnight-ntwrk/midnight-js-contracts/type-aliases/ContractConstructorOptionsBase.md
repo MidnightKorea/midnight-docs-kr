@@ -8,7 +8,7 @@
 
 > **ContractConstructorOptionsBase**\<`C`\> = `object`
 
-Describes the target of a circuit invocation.
+서킷 호출의 대상을 설명합니다.
 
 ## Type Parameters
 
@@ -22,4 +22,4 @@ Describes the target of a circuit invocation.
 
 > `readonly` **compiledContract**: `CompiledContract.CompiledContract`\<`C`, `any`\>
 
-The compiled contract defining the circuit to call.
+호출할 서킷을 정의하는 컴파일된 컨트랙트입니다.

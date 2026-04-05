@@ -10,8 +10,8 @@
 function decodeCoinPublicKey(pk): string;
 ```
 
-Decode a [CoinPublicKey](../type-aliases/CoinPublicKey.md) from a `Uint8Array` originating from Compact's
-`CoinPublicKey` type
+Compact의 `CoinPublicKey` 타입에서 비롯된 `Uint8Array`로부터
+[CoinPublicKey](../type-aliases/CoinPublicKey.md)를 디코딩합니다
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > **getPublicStates**(`publicDataProvider`, `contractAddress`): `Promise`\<[`PublicContractStates`](../type-aliases/PublicContractStates.md)\>
 
-Fetches only the public visible (Zswap and ledger) states of a contract.
+컨트랙트의 공개적으로 조회 가능한 상태(Zswap 및 원장)만 가져옵니다.
 
 ## Parameters
 
@@ -16,14 +16,13 @@ Fetches only the public visible (Zswap and ledger) states of a contract.
 
 [`PublicDataProvider`](#)
 
-The provider to use to fetch the public states (Zswap and ledger)
-                          from the blockchain.
+블록체인에서 퍼블릭 상태(Zswap 및 원장)를 가져오는 데 사용할 프로바이더입니다.
 
 ### contractAddress
 
 `string`
 
-The ledger address of the contract.
+컨트랙트의 원장 주소입니다.
 
 ## Returns
 

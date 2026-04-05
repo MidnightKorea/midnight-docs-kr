@@ -14,7 +14,7 @@ type UtxoOutput = {
 };
 ```
 
-An output appearing in an [Intent](../classes/Intent.md).
+[Intent](../classes/Intent.md)에 나타나는 출력입니다.
 
 ## Properties
 
@@ -24,7 +24,7 @@ An output appearing in an [Intent](../classes/Intent.md).
 owner: UserAddress;
 ```
 
-The address owning these tokens.
+이 토큰을 소유한 주소입니다.
 
 ***
 
@@ -44,4 +44,4 @@ The token type of this UTXO
 value: bigint;
 ```
 
-The amount of tokens this UTXO represents
+이 UTXO가 나타내는 토큰 양입니다.

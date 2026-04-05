@@ -12,7 +12,7 @@ function emptyRunningCost(): RunningCost;
 
 **`Internal`**
 
-Function for creating an initial running cost of zero.
+초기 실행 비용을 0으로 생성하는 함수입니다.
 
 ## Returns
 

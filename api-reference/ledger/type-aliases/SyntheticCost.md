@@ -26,7 +26,7 @@ A modelled cost of a transaction or block.
 blockUsage: bigint;
 ```
 
-The number of bytes of blockspace used
+사용된 블록 공간 바이트 수입니다.
 
 ***
 
@@ -36,7 +36,7 @@ The number of bytes of blockspace used
 bytesChurned: bigint;
 ```
 
-The number of (modelled) bytes written temporarily or overwritten.
+(모델링된) 임시 기록 또는 덮어쓰기된 바이트 수입니다.
 
 ***
 

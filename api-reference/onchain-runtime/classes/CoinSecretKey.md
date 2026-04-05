@@ -6,7 +6,7 @@
 
 # Class: CoinSecretKey
 
-Holds the coin secret key of a user, serialized as a hex-encoded 32-byte string
+사용자의 코인 비밀 키를 보유하며, hex로 인코딩된 32바이트 문자열로 직렬화됩니다
 
 ## Methods
 
@@ -16,7 +16,7 @@ Holds the coin secret key of a user, serialized as a hex-encoded 32-byte string
 clear(): void
 ```
 
-Clears the coin secret key, so that it is no longer usable nor held in memory
+코인 비밀 키를 지워서 더 이상 사용할 수 없고 메모리에도 남지 않도록 합니다
 
 #### Returns
 

@@ -6,7 +6,7 @@
 
 # Interface: WitnessContext\<L, PS\>
 
-The external information accessible from within a Compact witness call
+Compact 위트니스 호출 내에서 접근 가능한 외부 정보
 
 ## Type Parameters
 
@@ -26,7 +26,7 @@ The external information accessible from within a Compact witness call
 readonly contractAddress: string;
 ```
 
-The address of the contract being called
+호출되는 컨트랙트의 주소
 
 ***
 
@@ -36,8 +36,8 @@ The address of the contract being called
 readonly ledger: L;
 ```
 
-The projected ledger state, if the transaction were to run against the
-ledger state as you locally see it currently
+트랜잭션이 로컬에서 현재 확인되는 원장 상태를 기준으로
+실행될 경우의 예상 원장 상태
 
 ***
 
@@ -47,4 +47,4 @@ ledger state as you locally see it currently
 readonly privateState: PS;
 ```
 
-The current private state for the contract
+컨트랙트의 현재 프라이빗 상태

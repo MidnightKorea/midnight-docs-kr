@@ -10,5 +10,5 @@
 type CoinPublicKey = string;
 ```
 
-A user public key capable of receiving Zswap coins, as a hex-encoded 35-byte
-string
+Zswap 코인을 수신할 수 있는 사용자 공개 키로, 16진수 인코딩된 35바이트
+문자열

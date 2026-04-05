@@ -10,4 +10,4 @@
 const CompactTypeMerkleTreeDigest: CompactType<MerkleTreeDigest>;
 ```
 
-Runtime type of [MerkleTreeDigest](../interfaces/MerkleTreeDigest.md)
+[MerkleTreeDigest](../interfaces/MerkleTreeDigest.md)의 런타임 타입

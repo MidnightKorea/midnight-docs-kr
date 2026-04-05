@@ -96,7 +96,7 @@ type Op<R>:
   | "ckpt";
 ```
 
-An individual operation in the onchain VM
+온체인 VM의 개별 연산
 
 ## Type Parameters
 

@@ -71,7 +71,7 @@ export const Details = ({
   );
 };
 
-A contract call.
+컨트랙트 호출입니다.
 
 ```graphql
 type ContractCall implements ContractAction {
@@ -89,34 +89,34 @@ type ContractCall implements ContractAction {
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractCall.<b>address</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The hex-encoded serialized address.
+16진수로 인코딩된 직렬화 주소입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractCall.<b>state</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The hex-encoded serialized state.
+16진수로 인코딩된 직렬화 상태입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractCall.<b>zswapState</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The hex-encoded serialized contract-specific zswap state.
+16진수로 인코딩된 컨트랙트별 zswap 직렬화 상태입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractCall.<b>entryPoint</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String!</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The entry point.
+엔트리 포인트입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractCall.<b>transaction</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Transaction!</b></code>](/midnight-indexer/types/interfaces/transaction.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="interface"/>
 
-Transaction for this contract call.
+이 컨트랙트 호출의 트랜잭션입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractCall.<b>deploy</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>ContractDeploy!</b></code>](/midnight-indexer/types/objects/contract-deploy.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="object"/>
 
-Contract deploy for this contract call.
+이 컨트랙트 호출의 배포 정보입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractCall.<b>unshieldedBalances</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>[ContractBalance!]!</b></code>](/midnight-indexer/types/objects/contract-balance.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="object"/>
 
-Unshielded token balances held by this contract.
+이 컨트랙트가 보유한 비차폐 토큰 잔고입니다.
 
 ### Interfaces
 
 #### [<code style={{ fontWeight: 'normal' }}><b>ContractAction</b></code>](/midnight-indexer/types/interfaces/contract-action.mdx) <Badge class="badge badge--secondary " text="interface"/>
 
-A contract action.
+컨트랙트 액션입니다.

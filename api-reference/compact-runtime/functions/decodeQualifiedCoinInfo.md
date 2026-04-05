@@ -10,8 +10,8 @@
 function decodeQualifiedCoinInfo(coin): QualifiedCoinInfo;
 ```
 
-Decode a [QualifiedCoinInfo](../type-aliases/QualifiedCoinInfo.md) from Compact's `QualifiedCoinInfo`
-TypeScript representation
+Compact의 `QualifiedCoinInfo` TypeScript 표현에서
+[QualifiedCoinInfo](../type-aliases/QualifiedCoinInfo.md)를 디코딩합니다
 
 ## Parameters
 

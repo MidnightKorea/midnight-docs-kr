@@ -20,7 +20,7 @@ type Effects = {
 };
 ```
 
-The contract-external effects of a transcript.
+트랜스크립트의 컨트랙트 외부 효과입니다.
 
 ## Properties
 
@@ -30,12 +30,12 @@ The contract-external effects of a transcript.
 claimedContractCalls: [bigint, ContractAddress, string, Fr][];
 ```
 
-The contracts called from this contract. The values are, in order:
+이 컨트랙트에서 호출한 컨트랙트입니다. 값은 순서대로:
 
-- The sequence number of this call
-- The contract being called
-- The entry point being called
-- The communications commitment
+- 이 호출의 시퀀스 번호
+- 호출되는 컨트랙트
+- 호출되는 진입점
+- 통신 커밋먼트
 
 ***
 
@@ -45,7 +45,7 @@ The contracts called from this contract. The values are, in order:
 claimedNullifiers: Nullifier[];
 ```
 
-The nullifiers (spends) this contract call requires
+이 컨트랙트 호출에 필요한 무효화기(소비)
 
 ***
 
@@ -55,8 +55,8 @@ The nullifiers (spends) this contract call requires
 claimedShieldedReceives: CoinCommitment[];
 ```
 
-The coin commitments (outputs) this contract call requires, as coins
-received
+이 컨트랙트 호출에 필요한 코인 커밋먼트(출력)로,
+수신된 코인
 
 ***
 
@@ -66,8 +66,8 @@ received
 claimedShieldedSpends: CoinCommitment[];
 ```
 
-The coin commitments (outputs) this contract call requires, as coins
-sent
+이 컨트랙트 호출에 필요한 코인 커밋먼트(출력)로,
+전송된 코인
 
 ***
 
@@ -77,7 +77,7 @@ sent
 claimedUnshieldedSpends: Map<[TokenType, PublicAddress], bigint>;
 ```
 
-The unshielded UTXO outputs this contract expects to be present.
+이 컨트랙트가 존재할 것으로 예상하는 비차폐 UTXO 출력입니다.
 
 ***
 
@@ -87,8 +87,8 @@ The unshielded UTXO outputs this contract expects to be present.
 shieldedMints: Map<string, bigint>;
 ```
 
-The shielded tokens minted in this call, as a map from hex-encoded 256-bit domain
-separators to unsigned 64-bit integers.
+이 호출에서 발행된 차폐 토큰으로, 16진수 인코딩된 256비트 도메인
+구분자에서 부호 없는 64비트 정수로의 맵입니다.
 
 ***
 
@@ -98,7 +98,7 @@ separators to unsigned 64-bit integers.
 unshieldedInputs: Map<TokenType, bigint>;
 ```
 
-The unshielded inputs this contract expects.
+이 컨트랙트가 예상하는 비차폐 입력입니다.
 
 ***
 
@@ -108,8 +108,8 @@ The unshielded inputs this contract expects.
 unshieldedMints: Map<string, bigint>;
 ```
 
-The unshielded tokens minted in this call, as a map from hex-encoded 256-bit domain
-separators to unsigned 64-bit integers.
+이 호출에서 발행된 비차폐 토큰으로, 16진수 인코딩된 256비트 도메인
+구분자에서 부호 없는 64비트 정수로의 맵입니다.
 
 ***
 
@@ -119,4 +119,4 @@ separators to unsigned 64-bit integers.
 unshieldedOutputs: Map<TokenType, bigint>;
 ```
 
-The unshielded outputs this contract authorizes.
+이 컨트랙트가 승인한 비차폐 출력입니다.

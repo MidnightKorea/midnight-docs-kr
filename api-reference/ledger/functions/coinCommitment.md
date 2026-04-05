@@ -10,7 +10,7 @@
 function coinCommitment(coin, coinPublicKey): string;
 ```
 
-Calculate commitment of a coin owned by a user
+사용자가 소유한 코인의 커밋먼트를 계산합니다.
 
 ## Parameters
 

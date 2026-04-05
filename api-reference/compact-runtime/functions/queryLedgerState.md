@@ -15,8 +15,8 @@ function queryLedgerState(
   | GatherResult[];
 ```
 
-Runs a program (query) against the current ledger state in the given circuit context. Records the transcript in the
-given partial proof data.
+주어진 회로 컨텍스트에서 현재 원장 상태에 대해 프로그램(쿼리)을 실행합니다.
+주어진 부분 증명 데이터에 트랜스크립트를 기록합니다.
 
 ## Parameters
 
@@ -24,19 +24,19 @@ given partial proof data.
 
 [`CircuitContext`](../interfaces/CircuitContext.md)
 
-The context for the currently executing circuit.
+현재 실행 중인 회로의 컨텍스트입니다.
 
 ### partialProofData
 
 [`PartialProofData`](../interfaces/PartialProofData.md)
 
-The partial proof data to insert the query results into.
+쿼리 결과를 삽입할 부분 증명 데이터입니다.
 
 ### program
 
 [`Op`](../type-aliases/Op.md)\<`null`\>[]
 
-The query to run.
+실행할 쿼리입니다.
 
 ## Returns
 

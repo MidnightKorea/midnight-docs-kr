@@ -15,7 +15,7 @@ type BlockContext = {
 };
 ```
 
-Context information about the block forwarded to [CallContext](CallContext.md).
+[CallContext](CallContext.md)에 전달되는 블록 관련 컨텍스트 정보입니다.
 
 ## Properties
 
@@ -25,7 +25,7 @@ Context information about the block forwarded to [CallContext](CallContext.md).
 lastBlockTime: bigint;
 ```
 
-The [secondsSinceEpoch](#secondssinceepoch) of the previous block
+이전 블록의 [secondsSinceEpoch](#secondssinceepoch)
 
 ***
 
@@ -35,7 +35,7 @@ The [secondsSinceEpoch](#secondssinceepoch) of the previous block
 parentBlockHash: string;
 ```
 
-The hash of the block prior to this transaction, as a hex-encoded string
+이 트랜잭션 이전 블록의 해시로, 16진수 인코딩된 문자열
 
 ***
 
@@ -45,7 +45,7 @@ The hash of the block prior to this transaction, as a hex-encoded string
 secondsSinceEpoch: bigint;
 ```
 
-The seconds since the UNIX epoch that have elapsed
+경과한 UNIX 에포크 이후 초
 
 ***
 
@@ -55,5 +55,5 @@ The seconds since the UNIX epoch that have elapsed
 secondsSinceEpochErr: number;
 ```
 
-The maximum error on [secondsSinceEpoch](#secondssinceepoch) that should occur, as a
-positive seconds value
+[secondsSinceEpoch](#secondssinceepoch)에서 발생할 수 있는 최대 오차로,
+양의 초 단위 값

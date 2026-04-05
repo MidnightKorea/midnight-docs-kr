@@ -6,8 +6,7 @@
 
 # Class: Binding
 
-A Fiat-Shamir proof of exponent binding (or ephemerally signing) an
-[Intent](Intent.md).
+[Intent](Intent.md)에 대한 지수 바인딩(또는 임시 서명)의 Fiat-Shamir 증명입니다.
 
 ## Constructors
 

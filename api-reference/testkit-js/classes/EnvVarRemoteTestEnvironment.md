@@ -15,7 +15,7 @@ Allows specifying custom endpoints through environment variables.
 
 > **new EnvVarRemoteTestEnvironment**(`logger`): `EnvVarRemoteTestEnvironment`
 
-Creates a new TestEnvironment instance.
+새 TestEnvironment 인스턴스를 생성합니다.
 
 #### Parameters
 
@@ -23,7 +23,7 @@ Creates a new TestEnvironment instance.
 
 `Logger`
 
-Logger instance for recording operations
+작업 기록용 Logger 인스턴스
 
 #### Returns
 
@@ -41,7 +41,7 @@ Logger instance for recording operations
 
 Returns the configuration for environment services based on environment variables.
 Required environment variables:
-- MN_TEST_NETWORK_ID: Network identifier (e.g., 'testnet', 'devnet')
+- MN_TEST_NETWORK_ID: 네트워크 식별자 (e.g., 'testnet', 'devnet')
 - MN_TEST_INDEXER: GraphQL API endpoint for the indexer
 - MN_TEST_INDEXER_WS: WebSocket endpoint for the indexer
 - MN_TEST_NODE: RPC endpoint for the blockchain node
@@ -68,7 +68,7 @@ If any required environment variable is not set
 
 > **getMidnightWalletProvider**(): `Promise`\<[`MidnightWalletProvider`](MidnightWalletProvider.md)\>
 
-Starts a single wallet instance.
+단일 지갑 인스턴스를 시작합니다.
 
 #### Returns
 
@@ -145,7 +145,7 @@ Optional proof server container to use instead of creating a new one
 
 `Promise`\<[`EnvironmentConfiguration`](../interfaces/EnvironmentConfiguration.md)\>
 
-The environment configuration
+환경 구성
 
 #### Inherited from
 
@@ -173,7 +173,7 @@ Creates and starts the specified number of wallet providers.
 
 `Promise`\<[`MidnightWalletProvider`](MidnightWalletProvider.md)[]\>
 
-Array of started wallet providers
+시작된 지갑 프로바이더 배열
 
 #### Inherited from
 

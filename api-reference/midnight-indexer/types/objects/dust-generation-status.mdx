@@ -71,7 +71,7 @@ export const Details = ({
   );
 };
 
-DUST generation status for a specific Cardano reward address.
+특정 Cardano 보상 주소의 DUST 생성 상태입니다.
 
 ```graphql
 type DustGenerationStatus {
@@ -91,39 +91,39 @@ type DustGenerationStatus {
 
 #### [<code style={{ fontWeight: 'normal' }}>DustGenerationStatus.<b>cardanoRewardAddress</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>CardanoRewardAddress!</b></code>](/midnight-indexer/types/scalars/cardano-reward-address.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The Bech32-encoded Cardano reward address (e.g., stake_test1... or stake1...).
+Bech32로 인코딩된 Cardano 보상 주소입니다(예: stake_test1... 또는 stake1...).
 
 #### [<code style={{ fontWeight: 'normal' }}>DustGenerationStatus.<b>dustAddress</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>DustAddress</b></code>](/midnight-indexer/types/scalars/dust-address.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-The Bech32m-encoded associated DUST address if registered.
+등록된 경우 Bech32m으로 인코딩된 관련 DUST 주소입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>DustGenerationStatus.<b>registered</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Boolean!</b></code>](/midnight-indexer/types/scalars/boolean.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-Whether this reward address is registered.
+이 보상 주소의 등록 여부입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>DustGenerationStatus.<b>nightBalance</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String!</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-NIGHT balance backing generation in STAR.
+STAR 단위의 생성 뒷받침 NIGHT 잔고입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>DustGenerationStatus.<b>generationRate</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String!</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-DUST generation rate in SPECK per second.
+초당 SPECK 단위의 DUST 생성률입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>DustGenerationStatus.<b>maxCapacity</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String!</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-Maximum DUST capacity in SPECK.
+SPECK 단위의 최대 DUST 용량입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>DustGenerationStatus.<b>currentCapacity</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String!</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-Current generated DUST capacity in SPECK.
+SPECK 단위의 현재 생성된 DUST 용량입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>DustGenerationStatus.<b>utxoTxHash</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Cardano UTXO transaction hash for update/unregister operations.
+업데이트/등록 해제 작업을 위한 Cardano UTXO 트랜잭션 해시입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>DustGenerationStatus.<b>utxoOutputIndex</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Int</b></code>](/midnight-indexer/types/scalars/int.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Cardano UTXO output index for update/unregister operations.
+업데이트/등록 해제 작업을 위한 Cardano UTXO 출력 인덱스입니다.
 
 ### Returned By
 

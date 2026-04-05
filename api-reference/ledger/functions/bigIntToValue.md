@@ -12,7 +12,7 @@ function bigIntToValue(x): Value;
 
 **`Internal`**
 
-Internal conversion between bigints and their field-aligned binary
+bigint와 필드 정렬 바이너리 간의 내부 변환입니다.
 representation
 
 ## Parameters

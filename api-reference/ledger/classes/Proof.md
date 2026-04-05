@@ -6,7 +6,7 @@
 
 # Class: Proof
 
-A zero-knowledge proof.
+영지식 증명입니다.
 
 ## Constructors
 

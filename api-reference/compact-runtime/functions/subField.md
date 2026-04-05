@@ -10,9 +10,9 @@
 function subField(x, y): bigint;
 ```
 
-Field subtraction
-returns the result of subtracting y from x, wrapping if necessary
-x and y are assumed to be values in the range [0, FIELD_MODULUS)
+필드 뺄셈
+x에서 y를 뺀 결과를 반환하며, 필요 시 래핑합니다
+x와 y는 [0, FIELD_MODULUS) 범위의 값으로 가정합니다
 
 ## Parameters
 

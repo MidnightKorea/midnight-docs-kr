@@ -18,7 +18,7 @@ Asserts that a string represents a hex-encoded contract address.
 
 `string`
 
-The source string.
+원본 문자열입니다.
 
 ## Returns
 

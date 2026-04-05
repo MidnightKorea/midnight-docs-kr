@@ -10,4 +10,4 @@
 type TransactionHash = string;
 ```
 
-The hash of a transaction, as a hex-encoded 256-bit bytestring
+16진수로 인코딩된 256비트 바이트 문자열 형태의 트랜잭션 해시입니다.

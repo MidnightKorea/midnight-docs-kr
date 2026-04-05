@@ -71,8 +71,7 @@ export const Details = ({
   );
 };
 
-Subscribe unshielded transaction events for the given address and the given transaction ID
-or zero if omitted.
+지정한 주소의 비차폐 트랜잭션 이벤트를 구독합니다. 주어진 트랜잭션 ID부터 시작하며, 생략하면 0부터 시작합니다.
 
 ```graphql
 unshieldedTransactions(
@@ -91,4 +90,4 @@ unshieldedTransactions(
 
 #### [<code style={{ fontWeight: 'normal' }}><b>UnshieldedTransactionsEvent</b></code>](/midnight-indexer/types/unions/unshielded-transactions-event.mdx) <Badge class="badge badge--secondary " text="union"/>
 
-An event of the unshielded transactions subscription.
+비차폐 트랜잭션 구독의 이벤트입니다.

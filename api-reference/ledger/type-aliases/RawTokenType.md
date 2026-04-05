@@ -10,4 +10,4 @@
 type RawTokenType = string;
 ```
 
-The internal identifier attached to a [TokenType](TokenType.md), as a hex-encoded string.
+16진수로 인코딩된 문자열 형태의 [TokenType](TokenType.md)에 첨부된 내부 식별자입니다.

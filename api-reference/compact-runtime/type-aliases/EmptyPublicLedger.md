@@ -13,7 +13,7 @@ type EmptyPublicLedger = {
 };
 ```
 
-A type indicating that no contract references are present in a contract's ledger state.
+컨트랙트의 원장 상태에 컨트랙트 참조가 없음을 나타내는 타입입니다.
 
 ## Properties
 

@@ -10,12 +10,11 @@
 function transientHash<A>(rtType, value): bigint;
 ```
 
-The Compact builtin `transient_hash` function
+Compact 내장 `transient_hash` 함수
 
-This function is a circuit-efficient compression function from arbitrary
-data to field elements, which is not guaranteed to persist between upgrades.
-It should not be used to derive state data, but can be used for consistency
-checks.
+임의의 데이터를 필드 요소로 압축하는 회로 효율적 압축 함수입니다.
+업그레이드 간 영속성이 보장되지 않습니다. 상태 데이터를 도출하는 데
+사용해서는 안 되지만, 일관성 검사에는 사용할 수 있습니다.
 
 ## Type Parameters
 

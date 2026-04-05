@@ -10,7 +10,7 @@
 function createShieldedCoinInfo(type_, value): ShieldedCoinInfo;
 ```
 
-Creates a new [ShieldedCoinInfo](../type-aliases/ShieldedCoinInfo.md), sampling a uniform nonce
+균일한 논스를 샘플링하여 새로운 [ShieldedCoinInfo](../type-aliases/ShieldedCoinInfo.md)를 생성합니다.
 
 ## Parameters
 

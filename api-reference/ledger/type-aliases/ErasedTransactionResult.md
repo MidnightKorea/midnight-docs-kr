@@ -13,7 +13,7 @@ type ErasedTransactionResult = {
 };
 ```
 
-The result status of applying a transaction, without error message
+오류 메시지 없는 트랜잭션 적용 결과 상태입니다.
 
 ## Properties
 

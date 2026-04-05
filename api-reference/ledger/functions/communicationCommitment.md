@@ -15,7 +15,7 @@ function communicationCommitment(
    rand): string;
 ```
 
-Computes the communication commitment corresponding to an input/output pair and randomness.
+입력/출력 쌍과 랜덤값에 대응하는 커뮤니케이션 커밋먼트를 계산합니다.
 
 ### Parameters
 

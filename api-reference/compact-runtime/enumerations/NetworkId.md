@@ -6,7 +6,7 @@
 
 # Enumeration: NetworkId
 
-The network currently being targeted
+현재 대상으로 지정된 네트워크
 
 ## Enumeration Members
 
@@ -16,7 +16,7 @@ The network currently being targeted
 DevNet: 1;
 ```
 
-A developer network, not guaranteed to be persistent
+개발자 네트워크로, 영속성이 보장되지 않습니다
 
 ***
 
@@ -26,7 +26,7 @@ A developer network, not guaranteed to be persistent
 MainNet: 3;
 ```
 
-The Midnight mainnet
+Midnight 메인넷
 
 ***
 
@@ -36,7 +36,7 @@ The Midnight mainnet
 TestNet: 2;
 ```
 
-A persistent testnet
+영속적인 테스트넷
 
 ***
 
@@ -46,4 +46,4 @@ A persistent testnet
 Undeployed: 0;
 ```
 
-A local test network
+로컬 테스트 네트워크

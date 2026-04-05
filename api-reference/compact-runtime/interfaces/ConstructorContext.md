@@ -6,7 +6,7 @@
 
 # Interface: ConstructorContext\<PS\>
 
-Passed to the constructor of a contract. Used to compute the contract's initial ledger state.
+컨트랙트의 생성자에 전달됩니다. 컨트랙트의 초기 원장 상태를 계산하는 데 사용합니다.
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ Passed to the constructor of a contract. Used to compute the contract's initial 
 initialPrivateState: PS;
 ```
 
-The private state we would like to use to execute the contract's constructor.
+컨트랙트 생성자를 실행하는 데 사용할 프라이빗 상태입니다.
 
 ***
 
@@ -32,4 +32,4 @@ The private state we would like to use to execute the contract's constructor.
 initialZswapLocalState: EncodedZswapLocalState;
 ```
 
-An initial (usually empty) Zswap local state to use to execute the contract's constructor.
+컨트랙트 생성자를 실행하는 데 사용할 초기(일반적으로 비어 있는) Zswap 로컬 상태입니다.

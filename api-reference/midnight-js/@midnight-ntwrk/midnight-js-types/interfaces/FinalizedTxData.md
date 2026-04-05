@@ -6,7 +6,7 @@
 
 # Interface: FinalizedTxData
 
-Data for any finalized transaction.
+확정된 트랜잭션의 데이터입니다.
 
 ## Properties
 
@@ -14,7 +14,7 @@ Data for any finalized transaction.
 
 > `readonly` **blockAuthor**: `string` \| `null`
 
-The author of the block in which the transaction was included.
+트랜잭션이 포함된 블록의 작성자입니다.
 
 ***
 
@@ -22,7 +22,7 @@ The author of the block in which the transaction was included.
 
 > `readonly` **blockHash**: `string`
 
-The block hash of the block in which the transaction was included.
+트랜잭션이 포함된 블록의 블록 해시입니다.
 
 ***
 
@@ -30,7 +30,7 @@ The block hash of the block in which the transaction was included.
 
 > `readonly` **blockHeight**: `number`
 
-The block height of the block in which the transaction was included.
+트랜잭션이 포함된 블록의 블록 높이입니다.
 
 ***
 
@@ -38,7 +38,7 @@ The block height of the block in which the transaction was included.
 
 > `readonly` **blockTimestamp**: `number`
 
-The timestamp of the block in which the transaction was included.
+트랜잭션이 포함된 블록의 타임스탬프입니다.
 
 ***
 
@@ -46,7 +46,7 @@ The timestamp of the block in which the transaction was included.
 
 > `readonly` **fees**: [`Fees`](../type-aliases/Fees.md)
 
-The fees associated with the transaction, including both paid and estimated fees.
+지불 수수료와 예상 수수료를 모두 포함하는 트랜잭션 관련 수수료입니다.
 
 ***
 
@@ -54,7 +54,7 @@ The fees associated with the transaction, including both paid and estimated fees
 
 > `readonly` **identifiers**: readonly `string`[]
 
-All transaction IDs of the submitted transaction.
+제출된 트랜잭션의 모든 트랜잭션 ID입니다.
 
 ***
 
@@ -62,7 +62,7 @@ All transaction IDs of the submitted transaction.
 
 > `readonly` **indexerId**: `number`
 
-The indexer internal db ID.
+인덱서 내부 DB ID입니다.
 
 ***
 
@@ -70,7 +70,7 @@ The indexer internal db ID.
 
 > `readonly` **protocolVersion**: `number`
 
-The protocol version of the transaction.
+트랜잭션의 프로토콜 버전입니다.
 
 ***
 
@@ -87,7 +87,7 @@ The segment identifier is represented as a number (key in the map), and the stat
 
 > `readonly` **status**: [`TxStatus`](../type-aliases/TxStatus.md)
 
-The status of a submitted transaction.
+제출된 트랜잭션의 상태입니다.
 
 ***
 
@@ -95,7 +95,7 @@ The status of a submitted transaction.
 
 > `readonly` **tx**: `Transaction`\<`SignatureEnabled`, `Proof`, `Binding`\>
 
-The transaction that was finalized.
+확정된 트랜잭션입니다.
 
 ***
 
@@ -103,7 +103,7 @@ The transaction that was finalized.
 
 > `readonly` **txHash**: `string`
 
-The transaction hash of the transaction in which the original transaction was included.
+원본 트랜잭션이 포함된 트랜잭션의 트랜잭션 해시입니다.
 
 ***
 
@@ -111,7 +111,7 @@ The transaction hash of the transaction in which the original transaction was in
 
 > `readonly` **txId**: `string`
 
-One of the transaction ID of the submitted transaction.
+제출된 트랜잭션의 트랜잭션 ID 중 하나입니다.
 
 ***
 

@@ -6,7 +6,7 @@
 
 # Interface: PartialProofData
 
-Encapsulates the data required to produce a zero-knowledge proof except the circuit output
+회로 출력을 제외하고 영지식 증명을 생성하는 데 필요한 데이터를 캡슐화합니다
 
 ## Extended by
 
@@ -20,7 +20,7 @@ Encapsulates the data required to produce a zero-knowledge proof except the circ
 input: AlignedValue;
 ```
 
-The inputs to a circuit
+회로의 입력
 
 ***
 
@@ -30,7 +30,7 @@ The inputs to a circuit
 privateTranscriptOutputs: AlignedValue[];
 ```
 
-The transcript of the witness call outputs
+위트니스 호출 출력의 트랜스크립트
 
 ***
 
@@ -40,4 +40,4 @@ The transcript of the witness call outputs
 publicTranscript: Op<AlignedValue>[];
 ```
 
-The public transcript of operations
+연산의 공개 트랜스크립트

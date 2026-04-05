@@ -71,7 +71,7 @@ export const Details = ({
   );
 };
 
-A contract update.
+컨트랙트 업데이트입니다.
 
 ```graphql
 type ContractUpdate implements ContractAction {
@@ -87,26 +87,26 @@ type ContractUpdate implements ContractAction {
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractUpdate.<b>address</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The hex-encoded serialized address.
+16진수로 인코딩된 직렬화 주소입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractUpdate.<b>state</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The hex-encoded serialized state.
+16진수로 인코딩된 직렬화 상태입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractUpdate.<b>zswapState</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The hex-encoded serialized contract-specific zswap state.
+16진수로 인코딩된 컨트랙트별 zswap 직렬화 상태입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractUpdate.<b>transaction</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Transaction!</b></code>](/midnight-indexer/types/interfaces/transaction.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="interface"/>
 
-Transaction for this contract update.
+이 컨트랙트 업데이트의 트랜잭션입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ContractUpdate.<b>unshieldedBalances</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>[ContractBalance!]!</b></code>](/midnight-indexer/types/objects/contract-balance.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="object"/>
 
-Unshielded token balances held by this contract after the update.
+업데이트 후 이 컨트랙트가 보유한 비차폐 토큰 잔고입니다.
 
 ### Interfaces
 
 #### [<code style={{ fontWeight: 'normal' }}><b>ContractAction</b></code>](/midnight-indexer/types/interfaces/contract-action.mdx) <Badge class="badge badge--secondary " text="interface"/>
 
-A contract action.
+컨트랙트 액션입니다.

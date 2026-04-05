@@ -43,13 +43,13 @@ The port number where the proof server is running
 
 > **getUrl**(): `string`
 
-Gets the URL where the proof server can be accessed.
+증명 서버에 접근할 수 있는 URL을 가져옵니다.
 
 #### Returns
 
 `string`
 
-The URL of the proof server
+증명 서버의 URL
 
 #### Implementation of
 
@@ -67,7 +67,7 @@ No-op stop method since this represents an external proof server.
 
 `Promise`\<`void`\>
 
-A resolved promise
+resolve된 Promise
 
 #### Implementation of
 

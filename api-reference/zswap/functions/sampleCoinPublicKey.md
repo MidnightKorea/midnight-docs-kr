@@ -10,7 +10,7 @@
 function sampleCoinPublicKey(): CoinPublicKey
 ```
 
-Samples a dummy user coin public key, for use in testing
+테스트용 더미 사용자 코인 공개 키를 샘플링합니다.
 
 ## Returns
 

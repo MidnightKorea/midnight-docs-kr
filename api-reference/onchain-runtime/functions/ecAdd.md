@@ -12,7 +12,7 @@ function ecAdd(a, b): Value
 
 **`Internal`**
 
-Internal implementation of the elliptic curve addition primitive
+타원 곡선 덧셈 프리미티브의 내부 구현
 
 ## Parameters
 
@@ -30,4 +30,4 @@ Internal implementation of the elliptic curve addition primitive
 
 ## Throws
 
-If either input does not encode an elliptic curve point
+입력 중 하나라도 타원 곡선 점을 인코딩하지 않은 경우

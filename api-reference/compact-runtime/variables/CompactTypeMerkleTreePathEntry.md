@@ -10,4 +10,4 @@
 const CompactTypeMerkleTreePathEntry: CompactType<MerkleTreePathEntry>;
 ```
 
-Runtime type of [MerkleTreePathEntry](../interfaces/MerkleTreePathEntry.md)
+[MerkleTreePathEntry](../interfaces/MerkleTreePathEntry.md)의 런타임 타입

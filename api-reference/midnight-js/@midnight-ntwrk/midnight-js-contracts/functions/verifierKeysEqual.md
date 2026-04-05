@@ -8,7 +8,7 @@
 
 > **verifierKeysEqual**(`a`, `b`): `boolean`
 
-Checks that two verifier keys are equal. Does initial length check match for efficiency.
+두 검증자 키가 동일한지 확인합니다. 효율성을 위해 먼저 길이 일치 여부를 검사합니다.
 
 ## Parameters
 
@@ -16,13 +16,13 @@ Checks that two verifier keys are equal. Does initial length check match for eff
 
 `Uint8Array`
 
-First verifier key.
+첫 번째 검증자 키입니다.
 
 ### b
 
 `Uint8Array`
 
-Second verifier key.
+두 번째 검증자 키입니다.
 
 ## Returns
 

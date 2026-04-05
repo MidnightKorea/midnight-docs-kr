@@ -8,7 +8,7 @@
 
 [Transaction](Transaction.md), prior to being proven
 
-All "shielded" information in the transaction can still be extracted at this
+이 단계에서 트랜잭션의 모든 "차폐" 정보를 추출할 수 있습니다.
 stage!
 
 ## Constructors
@@ -19,7 +19,7 @@ stage!
 new UnprovenTransaction(guaranteed, fallible?): UnprovenTransaction
 ```
 
-Creates the transaction from guaranteed/fallible [UnprovenOffer](UnprovenOffer.md)s
+guaranteed/fallible [UnprovenOffer](UnprovenOffer.md)로 트랜잭션을 생성합니다.
 
 #### Parameters
 
@@ -43,7 +43,7 @@ Creates the transaction from guaranteed/fallible [UnprovenOffer](UnprovenOffer.m
 readonly fallibleCoins: undefined | UnprovenOffer;
 ```
 
-The fallible Zswap offer
+fallible Zswap 오퍼입니다.
 
 ***
 
@@ -53,7 +53,7 @@ The fallible Zswap offer
 readonly guaranteedCoins: undefined | UnprovenOffer;
 ```
 
-The guaranteed Zswap offer
+guaranteed Zswap 오퍼입니다.
 
 ***
 
@@ -63,7 +63,7 @@ The guaranteed Zswap offer
 readonly mint: undefined | UnprovenAuthorizedMint;
 ```
 
-The mint this transaction represents, if applicable
+이 트랜잭션이 나타내는 민트입니다 (해당하는 경우).
 
 ## Methods
 
@@ -73,7 +73,7 @@ The mint this transaction represents, if applicable
 eraseProofs(): ProofErasedTransaction
 ```
 
-Erases the proofs contained in this transaction
+이 트랜잭션에 포함된 증명을 삭제합니다.
 
 #### Returns
 
@@ -87,8 +87,7 @@ Erases the proofs contained in this transaction
 identifiers(): string[]
 ```
 
-Returns the set of identifiers contained within this transaction. Any of
-these *may* be used to watch for a specific transaction.
+이 트랜잭션에 포함된 식별자 집합을 반환합니다. 이 중 어느 것이든 특정 트랜잭션을 감시하는 데 사용할 수 *있습니다*.
 
 #### Returns
 
@@ -102,7 +101,7 @@ these *may* be used to watch for a specific transaction.
 merge(other): UnprovenTransaction
 ```
 
-Merges this transaction with another
+이 트랜잭션을 다른 트랜잭션과 병합합니다.
 
 #### Parameters
 
@@ -116,8 +115,7 @@ Merges this transaction with another
 
 #### Throws
 
-If both transactions have contract interactions, or they spend the
-same coins
+두 트랜잭션 모두 컨트랙트 상호작용이 있거나 같은 코인을 소비하는 경우
 
 ***
 
@@ -185,7 +183,7 @@ static deserialize(raw, netid): UnprovenTransaction
 static fromMint(mint): UnprovenTransaction
 ```
 
-Creates a minting claim transaction, the funds claimed must have been
+민팅 청구 트랜잭션을 생성합니다. 청구하는 자금은
 legitimately minted previously.
 
 #### Parameters

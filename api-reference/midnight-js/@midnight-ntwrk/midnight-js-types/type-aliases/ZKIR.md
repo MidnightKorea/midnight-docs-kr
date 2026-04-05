@@ -16,4 +16,4 @@ A type representing a zero-knowledge circuit intermediate representation derived
 
 > `readonly` **ZKIR**: unique `symbol`
 
-Unique symbol brand.
+고유 심볼 브랜드입니다.

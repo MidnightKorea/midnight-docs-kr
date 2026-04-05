@@ -10,8 +10,8 @@
 function decodeContractAddress(addr): string;
 ```
 
-Decode a [ContractAddress](../type-aliases/ContractAddress.md) from a `Uint8Array` originating from
-Compact's `ContractAddress` type
+Compact의 `ContractAddress` 타입에서 비롯된 `Uint8Array`로부터
+[ContractAddress](../type-aliases/ContractAddress.md)를 디코딩합니다
 
 ## Parameters
 

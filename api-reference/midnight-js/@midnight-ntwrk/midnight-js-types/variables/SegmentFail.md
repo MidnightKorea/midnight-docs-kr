@@ -8,4 +8,4 @@
 
 > `const` **SegmentFail**: `"SegmentFail"`
 
-Indicates that the segment update is invalid.
+세그먼트 업데이트가 유효하지 않음을 나타냅니다.

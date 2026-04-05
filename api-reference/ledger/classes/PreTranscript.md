@@ -6,8 +6,7 @@
 
 # Class: PreTranscript
 
-A transcript prior to partitioning, consisting of the context to run it in, the program that
-will make up the transcript, and optionally a communication commitment to bind calls together.
+분할 전 트랜스크립트로, 실행 컨텍스트, 트랜스크립트를 구성할 프로그램, 그리고 선택적으로 호출을 묶는 커뮤니케이션 커밋먼트로 구성됩니다.
 
 ## Constructors
 

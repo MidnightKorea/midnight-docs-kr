@@ -6,7 +6,7 @@
 
 # Class: UtxoState
 
-The sub-state for unshielded UTXOs
+비차폐 UTXO의 하위 상태입니다.
 
 ## Constructors
 
@@ -28,7 +28,7 @@ new UtxoState(): UtxoState;
 readonly utxos: Set<Utxo>;
 ```
 
-The set of valid UTXOs
+유효한 UTXO 집합입니다.
 
 ## Methods
 
@@ -38,12 +38,9 @@ The set of valid UTXOs
 delta(prior, filterBy?): [Set<Utxo>, Set<Utxo>];
 ```
 
-Given a prior UTXO state, produce the set differences `this \ prior`, and
-`prior \ this`, optionally filtered by a further condition.
+이전 UTXO 상태가 주어지면 집합 차이 `this \ prior`와 `prior \ this`를 생성하며, 선택적으로 추가 조건으로 필터링합니다.
 
-Note that this should be more efficient than iterating or manifesting the
-[utxos](#utxos) value, as the low-level implementation can avoid traversing
-shared sub-structures.
+저수준 구현이 공유 하위 구조의 순회를 회피할 수 있으므로, [utxos](#utxos) 값을 반복하거나 구체화하는 것보다 더 효율적입니다.
 
 #### Parameters
 
@@ -67,7 +64,7 @@ shared sub-structures.
 filter(addr): Set<Utxo>;
 ```
 
-Filters out the UTXOs owned by a specific user address
+특정 사용자 주소가 소유한 UTXO를 필터링합니다.
 
 #### Parameters
 
@@ -87,7 +84,7 @@ Filters out the UTXOs owned by a specific user address
 lookupMeta(utxo): undefined | UtxoMeta;
 ```
 
-Lookup the metadata for a specific UTXO.
+특정 UTXO의 메타데이터를 조회합니다.
 
 #### Parameters
 

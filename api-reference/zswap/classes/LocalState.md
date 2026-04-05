@@ -6,7 +6,7 @@
 
 # Class: LocalState
 
-The local state of a user/wallet, consisting of a set
+미사용 코인 집합으로 구성된 사용자/지갑의 로컬 상태입니다.
 of unspent coins
 
 It also keeps track of coins that are in-flight, either expecting to spend
@@ -21,7 +21,7 @@ Merkle tree to generate proofs against.
 new LocalState(): LocalState
 ```
 
-Creates a new, empty state
+새로운 빈 상태를 생성합니다.
 
 #### Returns
 
@@ -35,7 +35,7 @@ Creates a new, empty state
 readonly coins: Set<QualifiedCoinInfo>;
 ```
 
-The set of *spendable* coins of this wallet
+이 지갑의 *소비 가능한* 코인 집합입니다.
 
 ***
 
@@ -45,7 +45,7 @@ The set of *spendable* coins of this wallet
 readonly firstFree: bigint;
 ```
 
-The first free index in the internal coin commitments Merkle tree.
+내부 코인 커밋먼트 머클 트리의 첫 번째 빈 인덱스입니다.
 This may be used to identify which merkle tree updates are necessary.
 
 ***
@@ -56,7 +56,7 @@ This may be used to identify which merkle tree updates are necessary.
 readonly pendingOutputs: Map<string, CoinInfo>;
 ```
 
-The outputs that this wallet is expecting to receive in the future
+이 지갑이 향후 수신할 것으로 예상하는 출력입니다.
 
 ***
 
@@ -66,7 +66,7 @@ The outputs that this wallet is expecting to receive in the future
 readonly pendingSpends: Map<string, QualifiedCoinInfo>;
 ```
 
-The spends that this wallet is expecting to be finalized on-chain in the
+이 지갑이 향후 온체인에서 확정될 것으로 예상하는 소비입니다.
 future
 
 ## Methods
@@ -77,7 +77,7 @@ future
 apply(secretKeys, offer): LocalState
 ```
 
-Locally applies an offer to the current state, returning the updated state
+현재 상태에 오퍼를 로컬로 적용하고 업데이트된 상태를 반환합니다.
 
 #### Parameters
 
@@ -101,7 +101,7 @@ Locally applies an offer to the current state, returning the updated state
 applyCollapsedUpdate(update): LocalState
 ```
 
-Applies a collapsed Merkle tree update to the current local state, fast
+압축된 머클 트리 업데이트를 현재 로컬 상태에 적용하고 빠르게
 forwarding through the indices included in it, if it is a correct update.
 
 The general flow for usage if Alice is in state A, and wants to ask Bob how to reach the new state B, is:
@@ -134,7 +134,7 @@ updates *are* included.
 applyFailed(offer): LocalState
 ```
 
-Locally marks an offer as failed, allowing inputs used in it to be
+오퍼를 실패로 로컬 표시하여 사용된 입력을
 spendable once more.
 
 #### Parameters
@@ -155,7 +155,7 @@ spendable once more.
 applyFailedProofErased(offer): LocalState
 ```
 
-Locally marks an proof-erased offer as failed, allowing inputs used in it
+증명이 삭제된 오퍼를 실패로 로컬 표시하여 사용된 입력을
 to be spendable once more.
 
 #### Parameters
@@ -176,7 +176,7 @@ to be spendable once more.
 applyProofErased(secretKeys, offer): LocalState
 ```
 
-Locally applies a proof-erased offer to the current state, returning the
+현재 상태에 증명이 삭제된 오퍼를 로컬로 적용하고
 updated state
 
 #### Parameters
@@ -204,7 +204,7 @@ applyProofErasedTx(
    res): LocalState
 ```
 
-Locally applies a proof-erased transaction to the current state, returning
+현재 상태에 증명이 삭제된 트랜잭션을 로컬로 적용하고
 the updated state
 
 #### Parameters
@@ -219,7 +219,7 @@ the updated state
 
 ##### res
 
-The result type of applying this transaction against the
+이 트랜잭션을 적용한 결과 타입입니다.
 ledger state
 
 `"success"` | `"partialSuccess"` | `"failure"`
@@ -236,7 +236,7 @@ ledger state
 applySystemTx(secretKeys, tx): LocalState
 ```
 
-Locally applies a system transaction to the current state, returning the
+현재 상태에 시스템 트랜잭션을 로컬로 적용하고
 updated state
 
 #### Parameters
@@ -264,7 +264,7 @@ applyTx(
    res): LocalState
 ```
 
-Locally applies a transaction to the current state, returning the updated
+현재 상태에 트랜잭션을 로컬로 적용하고 업데이트된
 state
 
 #### Parameters
@@ -317,7 +317,7 @@ spend(
    segment): [LocalState, UnprovenInput]
 ```
 
-Initiates a new spend of a specific coin, outputting the corresponding
+특정 코인의 새 소비를 시작하고 해당하는
 [UnprovenInput](UnprovenInput.md), and the updated state marking this coin as
 in-flight.
 
@@ -351,7 +351,7 @@ spendFromOutput(
    output): [LocalState, UnprovenTransient]
 ```
 
-Initiates a new spend of a new-yet-received output, outputting the
+아직 수신되지 않은 새 출력의 소비를 시작하고
 corresponding [UnprovenTransient](UnprovenTransient.md), and the updated state marking
 this coin as in-flight.
 
@@ -403,9 +403,9 @@ toString(compact?): string
 watchFor(coinPublicKey, coin): LocalState
 ```
 
-Adds a coin to the list of coins that are expected to be received
+수신 예정 코인 목록에 코인을 추가합니다.
 
-This should be used if an output is creating a coin for this wallet, which
+이 지갑을 위한 코인을 생성하는 출력이
 does not contain a ciphertext to detect it. In this case, the wallet must
 know the commitment ahead of time to notice the receipt.
 

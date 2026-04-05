@@ -8,7 +8,7 @@
 
 > **CallTxOptions**\<`C`, `PCK`\> = [`CallTxOptionsBase`](CallTxOptionsBase.md)\<`C`, `PCK`\> \| [`CallTxOptionsWithPrivateStateId`](CallTxOptionsWithPrivateStateId.md)\<`C`, `PCK`\>
 
-Call transaction configuration.
+호출 트랜잭션 설정입니다.
 
 ## Type Parameters
 

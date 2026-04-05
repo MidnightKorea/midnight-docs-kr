@@ -8,7 +8,7 @@
 
 > **HistoryEntry** = `object`
 
-Minimal information about a transaction relevant for the wallet.
+지갑과 관련된 트랜잭션의 최소 정보입니다.
 
 ## Properties
 
@@ -16,7 +16,7 @@ Minimal information about a transaction relevant for the wallet.
 
 > **txHash**: `string`
 
-Hex-encoded hash of transaction
+hex로 인코딩된 트랜잭션 해시
 
 ***
 

@@ -10,8 +10,8 @@
 function decodeZswapLocalState(state): ZswapLocalState;
 ```
 
-Converts an [EncodedZswapLocalState](../interfaces/EncodedZswapLocalState.md) to a [ZswapLocalState](../interfaces/ZswapLocalState.md). Used when we need to use data from contract
-execution to construct transactions.
+[EncodedZswapLocalState](../interfaces/EncodedZswapLocalState.md)를 [ZswapLocalState](../interfaces/ZswapLocalState.md)로 변환합니다. 컨트랙트
+실행 데이터를 사용하여 트랜잭션을 구성해야 할 때 사용합니다.
 
 ## Parameters
 
@@ -19,7 +19,7 @@ execution to construct transactions.
 
 [`EncodedZswapLocalState`](../interfaces/EncodedZswapLocalState.md)
 
-The encoded Zswap local state.
+인코딩된 Zswap 로컬 상태입니다.
 
 ## Returns
 

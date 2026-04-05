@@ -6,8 +6,8 @@
 
 # Class: TransactionResult
 
-The result status of applying a transaction.
-Includes an error message if the transaction failed, or partially failed.
+트랜잭션 적용 결과 상태입니다.
+트랜잭션이 실패하거나 부분적으로 실패한 경우 오류 메시지를 포함합니다.
 
 ## Properties
 

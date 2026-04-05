@@ -10,7 +10,7 @@
 function encodeZswapLocalState(state): EncodedZswapLocalState;
 ```
 
-Converts a [ZswapLocalState](../interfaces/ZswapLocalState.md) to an [EncodedZswapLocalState](../interfaces/EncodedZswapLocalState.md). Useful for testing.
+[ZswapLocalState](../interfaces/ZswapLocalState.md)를 [EncodedZswapLocalState](../interfaces/EncodedZswapLocalState.md)로 변환합니다. 테스트에 유용합니다.
 
 ## Parameters
 
@@ -18,7 +18,7 @@ Converts a [ZswapLocalState](../interfaces/ZswapLocalState.md) to an [EncodedZsw
 
 [`ZswapLocalState`](../interfaces/ZswapLocalState.md)
 
-The decoded Zswap local state.
+디코딩된 Zswap 로컬 상태입니다.
 
 ## Returns
 

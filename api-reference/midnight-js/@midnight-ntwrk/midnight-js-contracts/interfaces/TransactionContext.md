@@ -6,7 +6,7 @@
 
 # Interface: TransactionContext\<C, PCK\>
 
-Encapsulates the context for managing a scoped contract transaction.
+스코프 컨트랙트 트랜잭션을 관리하기 위한 컨텍스트를 캡슐화합니다.
 
 ## Type Parameters
 
@@ -100,18 +100,17 @@ Encapsulates the context for managing a scoped contract transaction.
 
 > **getCurrentStates**(): [`PublicContractStates`](../type-aliases/PublicContractStates.md) \| [`ContractStates`](../type-aliases/ContractStates.md)\<`PrivateState`\<`C`\>\> \| `undefined`
 
-Gets the current cached contract states within the transaction context.
+트랜잭션 컨텍스트 내에서 현재 캐시된 컨트랙트 상태를 가져옵니다.
 
 #### Returns
 
 [`PublicContractStates`](../type-aliases/PublicContractStates.md) \| [`ContractStates`](../type-aliases/ContractStates.md)\<`PrivateState`\<`C`\>\> \| `undefined`
 
-A cached [ContractStates](../type-aliases/ContractStates.md) instance, or `undefined` if circuit calls are yet to be made.
+캐시된 [ContractStates](../type-aliases/ContractStates.md) 인스턴스이거나, 아직 서킷 호출이 이루어지지 않은 경우 `undefined`입니다.
 
 #### Remarks
 
-The returned states represent the unsubmitted _running_ state of the contract within the transaction context,
-reflecting any unsubmitted circuit calls made to the contract during the scope of the transaction.
+반환된 상태는 트랜잭션 컨텍스트 내에서 컨트랙트의 미제출 _진행 중_ 상태를 나타내며, 트랜잭션 스코프 동안 컨트랙트에 대해 수행된 미제출 서킷 호출을 반영합니다.
 
 ***
 
@@ -119,11 +118,10 @@ reflecting any unsubmitted circuit calls made to the contract during the scope o
 
 > **getLastUnsubmittedCallTxDataToTransact**(): \[[`UnsubmittedCallTxData`](../type-aliases/UnsubmittedCallTxData.md)\<`C`, `PCK`\>, `string`?\] \| `undefined`
 
-Gets the last unsubmitted call transaction data.
+마지막 미제출 호출 트랜잭션 데이터를 가져옵니다.
 
 #### Returns
 
 \[[`UnsubmittedCallTxData`](../type-aliases/UnsubmittedCallTxData.md)\<`C`, `PCK`\>, `string`?\] \| `undefined`
 
-A tuple containing an [UnsubmittedCallTxData](../type-aliases/UnsubmittedCallTxData.md) instance, and an optional private state
-ID, or `undefined` if circuit calls are yet to be made.
+[UnsubmittedCallTxData](../type-aliases/UnsubmittedCallTxData.md) 인스턴스와 선택적 프라이빗 상태 ID를 포함하는 튜플이거나, 아직 서킷 호출이 이루어지지 않은 경우 `undefined`입니다.

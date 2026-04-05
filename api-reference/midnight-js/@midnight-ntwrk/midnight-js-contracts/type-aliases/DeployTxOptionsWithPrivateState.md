@@ -20,7 +20,7 @@ initial private state to run the contract constructor against.
 
 > `readonly` **initialPrivateState**: `Contract.PrivateState`\<`C`\>
 
-The private state to run the contract constructor against.
+컨트랙트 생성자를 실행할 프라이빗 상태입니다.
 
 ## Type Parameters
 

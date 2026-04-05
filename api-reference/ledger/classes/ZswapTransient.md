@@ -6,8 +6,7 @@
 
 # Class: ZswapTransient\<P\>
 
-A shielded "transient"; an output that is immediately spent within the same
-transaction
+차폐된 "트랜지언트"로, 동일 트랜잭션 내에서 즉시 소비되는 출력입니다.
 
 ## Type Parameters
 
@@ -23,7 +22,7 @@ transaction
 readonly commitment: string;
 ```
 
-The commitment of the transient
+트랜지언트의 커밋먼트입니다.
 
 ***
 
@@ -33,7 +32,7 @@ The commitment of the transient
 readonly contractAddress: undefined | string;
 ```
 
-The contract address creating the transient, if applicable
+해당하는 경우, 트랜지언트를 생성하는 컨트랙트 주소입니다.
 
 ***
 
@@ -43,7 +42,7 @@ The contract address creating the transient, if applicable
 readonly inputProof: P;
 ```
 
-The input proof of this transient
+이 트랜지언트의 입력 증명입니다.
 
 ***
 
@@ -53,7 +52,7 @@ The input proof of this transient
 readonly nullifier: string;
 ```
 
-The nullifier of the transient
+트랜지언트의 널리파이어입니다.
 
 ***
 
@@ -63,7 +62,7 @@ The nullifier of the transient
 readonly outputProof: P;
 ```
 
-The output proof of this transient
+이 트랜지언트의 출력 증명입니다.
 
 ## Methods
 
@@ -134,7 +133,7 @@ static newFromContractOwnedOutput(
    output): UnprovenTransient;
 ```
 
-Creates a new contract-owned transient, from a given output and its coin.
+주어진 출력과 코인으로 컨트랙트 소유의 새 트랜지언트를 생성합니다.
 
 The [QualifiedShieldedCoinInfo](../type-aliases/QualifiedShieldedCoinInfo.md) should have an `mt_index` of `0`
 

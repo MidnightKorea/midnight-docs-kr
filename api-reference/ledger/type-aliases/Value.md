@@ -10,4 +10,4 @@
 type Value = Uint8Array[];
 ```
 
-An onchain data value, in field-aligned binary format.
+필드 정렬 바이너리 형식의 온체인 데이터 값입니다.

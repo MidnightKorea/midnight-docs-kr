@@ -6,18 +6,17 @@
 
 # Class: StateValue
 
-Represents the core of a contract's state, and recursively represents each
-of its components.
+컨트랙트 상태의 핵심을 나타내며, 각 구성 요소를 재귀적으로 표현합니다.
 
-There are different *classes* of state values:
+상태 값에는 다양한 *종류*가 있습니다:
 - `null`
-- Cells of [AlignedValue](../type-aliases/AlignedValue.md)s
-- Maps from [AlignedValue](../type-aliases/AlignedValue.md)s to state values
-- Bounded Merkle trees containing [AlignedValue](../type-aliases/AlignedValue.md) leaves
-- Short (\<= 15 element) arrays of state values
+- [AlignedValue](../type-aliases/AlignedValue.md)의 셀
+- [AlignedValue](../type-aliases/AlignedValue.md)에서 상태 값으로의 맵
+- [AlignedValue](../type-aliases/AlignedValue.md) 리프를 포함하는 바운디드 머클 트리
+- 짧은 (\<= 15개 요소) 상태 값 배열
 
-State values are *immutable*, any operations that mutate states will return
-a new state instead.
+상태 값은 *불변*이며, 상태를 변경하는 모든 연산은
+기존 상태를 수정하는 대신 새 상태를 반환합니다.
 
 ## Methods
 

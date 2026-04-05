@@ -17,4 +17,4 @@ type Key =
 };
 ```
 
-A key used to index into an array or map in the onchain VM
+온체인 VM에서 배열 또는 맵에 인덱싱하는 데 사용되는 키

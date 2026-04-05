@@ -10,4 +10,4 @@
 const CompactTypeOpaqueString: CompactType<string>;
 ```
 
-Runtime type of `Opaque["string"]`
+`Opaque["string"]`의 런타임 타입

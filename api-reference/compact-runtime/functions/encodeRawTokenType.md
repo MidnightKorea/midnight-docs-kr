@@ -10,8 +10,8 @@
 function encodeRawTokenType(tt): Uint8Array;
 ```
 
-Encode a raw [RawTokenType](../type-aliases/RawTokenType.md) into a `Uint8Array` for use in Compact's
-`RawTokenType` type
+원시 [RawTokenType](../type-aliases/RawTokenType.md)을 Compact의 `RawTokenType` 타입에서
+사용하기 위한 `Uint8Array`로 인코딩합니다
 
 ## Parameters
 

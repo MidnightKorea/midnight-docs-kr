@@ -6,8 +6,7 @@
 
 # Class: LedgerParameters
 
-Parameters used by the Midnight ledger, including transaction fees and
-bounds
+트랜잭션 수수료 및 한도를 포함하여 Midnight 원장에서 사용하는 매개변수입니다.
 
 ## Properties
 
@@ -17,7 +16,7 @@ bounds
 readonly transactionCostModel: TransactionCostModel;
 ```
 
-The cost model used for transaction fees contained in these parameters
+이 매개변수에 포함된 트랜잭션 수수료에 사용되는 비용 모델입니다.
 
 ## Methods
 

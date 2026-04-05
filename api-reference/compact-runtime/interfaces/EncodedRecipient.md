@@ -6,7 +6,7 @@
 
 # Interface: EncodedRecipient
 
-A [Recipient](Recipient.md) with its fields encoded as byte strings. This representation is used internally by the contract executable.
+필드가 바이트 문자열로 인코딩된 [Recipient](Recipient.md)입니다. 이 표현은 컨트랙트 실행 파일 내부에서 사용됩니다.
 
 ## Properties
 
@@ -16,7 +16,7 @@ A [Recipient](Recipient.md) with its fields encoded as byte strings. This repres
 readonly is_left: boolean;
 ```
 
-Whether the recipient is a user or a contract.
+수신자가 사용자인지 컨트랙트인지 나타냅니다.
 
 ***
 
@@ -26,7 +26,7 @@ Whether the recipient is a user or a contract.
 readonly left: EncodedCoinPublicKey;
 ```
 
-The recipient's public key, if the recipient is a user.
+수신자가 사용자인 경우 수신자의 공개 키입니다.
 
 ***
 
@@ -36,4 +36,4 @@ The recipient's public key, if the recipient is a user.
 readonly right: EncodedContractAddress;
 ```
 
-The recipient's contract address, if the recipient is a contract.
+수신자가 컨트랙트인 경우 수신자의 컨트랙트 주소입니다.

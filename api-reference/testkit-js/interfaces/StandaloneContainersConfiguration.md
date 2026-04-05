@@ -10,7 +10,7 @@ Configuration for standalone mode containers
 
 > **container**: [`StandaloneContainerNames`](StandaloneContainerNames.md)
 
-Container endpoint configurations
+컨테이너 엔드포인트 구성
 
 ***
 
@@ -18,7 +18,7 @@ Container endpoint configurations
 
 > **fileName**: `string`
 
-Name of the container configuration file
+컨테이너 이름 configuration file
 
 ***
 
@@ -26,4 +26,4 @@ Name of the container configuration file
 
 > **path**: `string`
 
-Directory path where container configuration is located
+컨테이너 구성이 위치한 디렉터리 경로

@@ -6,40 +6,37 @@
 
 # Function: findDeployedContract()
 
-Creates an instance of [FoundContract](../type-aliases/FoundContract.md) given the address of a deployed contract and an
-optional private state ID at which an existing private state is stored. When given, the current value
-at the private state ID is used as the `initialPrivateState` value in the `finalizedDeployTxData`
-property of the returned `FoundContract`.
+배포된 컨트랙트의 주소와 기존 프라이빗 상태가 저장된 선택적 프라이빗 상태 ID를 사용하여 [FoundContract](../type-aliases/FoundContract.md) 인스턴스를 생성합니다. 프라이빗 상태 ID가 제공되면, 해당 ID의 현재 값이 반환되는 `FoundContract`의 `finalizedDeployTxData` 속성에서 `initialPrivateState` 값으로 사용됩니다.
 
 ## Param
 
-The providers used to manage transaction lifecycles.
+트랜잭션 수명 주기를 관리하는 데 사용되는 프로바이더입니다.
 
 ## Param
 
-Configuration.
+설정입니다.
 
 ## Throws
 
-Error Improper `privateStateId` and `initialPrivateState` configuration.
+Error `privateStateId`와 `initialPrivateState` 설정이 올바르지 않은 경우.
 
 ## Throws
 
-Error No contract state could be found at `contractAddress`.
+Error `contractAddress`에서 컨트랙트 상태를 찾을 수 없는 경우.
 
 ## Throws
 
-TypeError Thrown if `contractAddress` is not correctly formatted as a contract address.
+TypeError `contractAddress`가 올바른 컨트랙트 주소 형식이 아닌 경우.
 
 ## Throws
 
-ContractTypeError One or more circuits defined on `contract` are undefined on the contract
-                          state found at `contractAddress`, or have mis-matched verifier keys.
+ContractTypeError `contract`에 정의된 서킷 중 하나 이상이 `contractAddress`에서 찾은
+                          컨트랙트 상태에 정의되지 않았거나 검증자 키가 일치하지 않는 경우.
 
 ## Throws
 
-IncompleteFindContractPrivateStateConfig If an `initialPrivateState` is given but no
-                                                 `privateStateId` is given to store it under.
+IncompleteFindContractPrivateStateConfig `initialPrivateState`가 제공되었지만
+                                                 이를 저장할 `privateStateId`가 제공되지 않은 경우.
 
 ## Call Signature
 

@@ -6,7 +6,7 @@
 
 # Class: ContractOperationVersionedVerifierKey
 
-A versioned verifier key to be associated with a [ContractOperation](ContractOperation.md).
+[ContractOperation](ContractOperation.md)에 연결할 버전이 지정된 검증자 키입니다.
 
 ## Constructors
 

@@ -18,5 +18,4 @@ type GatherResult =
 };
 ```
 
-An individual result of observing the results of a non-verifying VM program
-execution
+비검증 VM 프로그램 실행 결과를 관찰한 개별 결과

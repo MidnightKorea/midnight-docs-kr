@@ -10,5 +10,5 @@
 const Bytes32Descriptor: CompactTypeBytes;
 ```
 
-The following are type descriptors used to implement createCoinCommitment. They are not intended for direct
-consumption.
+다음은 createCoinCommitment 구현에 사용되는 타입 디스크립터입니다.
+직접 사용하기 위한 것이 아닙니다.

@@ -14,7 +14,7 @@ type ProvingKeyMaterial = {
 };
 ```
 
-Contains the raw file contents required for proving
+증명에 필요한 원시 파일 내용을 포함합니다.
 
 ## Properties
 

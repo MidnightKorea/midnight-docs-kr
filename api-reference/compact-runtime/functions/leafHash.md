@@ -12,7 +12,7 @@ function leafHash(value): AlignedValue;
 
 **`Internal`**
 
-Internal implementation of the Merkle tree leaf hash primitive.
+Merkle 트리 리프 해시 프리미티브의 내부 구현입니다.
 
 ## Parameters
 

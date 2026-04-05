@@ -6,7 +6,7 @@
 
 # Class: VmResults
 
-Represents the results of a VM call
+VM 호출 결과를 나타냅니다.
 
 ## Properties
 
@@ -16,7 +16,7 @@ Represents the results of a VM call
 readonly events: GatherResult[];
 ```
 
-The events that got emitted by this VM invocation
+이 VM 호출에서 발생한 이벤트입니다.
 
 ***
 
@@ -26,7 +26,7 @@ The events that got emitted by this VM invocation
 readonly gasCost: RunningCost;
 ```
 
-The computed gas cost of running this VM invocation
+이 VM 호출 실행의 계산된 가스 비용입니다.
 
 ***
 
@@ -36,7 +36,7 @@ The computed gas cost of running this VM invocation
 readonly stack: VmStack;
 ```
 
-The VM stack at the end of the VM invocation
+VM 호출 종료 시점의 VM 스택입니다.
 
 ## Methods
 

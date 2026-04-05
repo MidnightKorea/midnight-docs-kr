@@ -6,13 +6,11 @@
 
 # Class: ContractTypeError
 
-The error that is thrown when there is a contract type mismatch between a given contract type,
-and the initial state that is deployed at a given contract address.
+주어진 컨트랙트 타입과 해당 컨트랙트 주소에 배포된 초기 상태 간에 타입이 일치하지 않을 때 발생하는 오류입니다.
 
 ## Remarks
 
-This error is typically thrown during calls to [findDeployedContract](../functions/findDeployedContract.md) where the supplied contract
-address represents a different type of contract to the contract type given.
+이 오류는 일반적으로 [findDeployedContract](../functions/findDeployedContract.md) 호출 시 제공된 컨트랙트 주소가 주어진 컨트랙트 타입과 다른 타입의 컨트랙트를 나타낼 때 발생합니다.
 
 ## Extends
 
@@ -24,7 +22,7 @@ address represents a different type of contract to the contract type given.
 
 > **new ContractTypeError**(`contractState`, `circuitIds`): `ContractTypeError`
 
-Initializes a new ContractTypeError.
+새 ContractTypeError를 초기화합니다.
 
 #### Parameters
 
@@ -32,14 +30,14 @@ Initializes a new ContractTypeError.
 
 `ContractState`
 
-The initial deployed contract state.
+초기 배포된 컨트랙트 상태입니다.
 
 ##### circuitIds
 
 `string`[]
 
-The circuits that are undefined, or have a verifier key mismatch with the
-                  key present in `contractState`.
+정의되지 않았거나, `contractState`에 있는 키와 검증자 키가 일치하지 않는
+                  서킷 목록입니다.
 
 #### Returns
 
@@ -55,8 +53,8 @@ The circuits that are undefined, or have a verifier key mismatch with the
 
 > `readonly` **circuitIds**: `string`[]
 
-The circuits that are undefined, or have a verifier key mismatch with the
-                  key present in `contractState`.
+정의되지 않았거나, `contractState`에 있는 키와 검증자 키가 일치하지 않는
+                  서킷 목록입니다.
 
 ***
 
@@ -64,4 +62,4 @@ The circuits that are undefined, or have a verifier key mismatch with the
 
 > `readonly` **contractState**: `ContractState`
 
-The initial deployed contract state.
+초기 배포된 컨트랙트 상태입니다.

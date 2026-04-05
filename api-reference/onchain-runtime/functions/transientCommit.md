@@ -15,7 +15,7 @@ function transientCommit(
 
 **`Internal`**
 
-Internal implementation of the transient commitment primitive
+일시적 커밋먼트 프리미티브의 내부 구현
 
 ## Parameters
 
@@ -38,4 +38,4 @@ Internal implementation of the transient commitment primitive
 ## Throws
 
 If [val](transientCommit.md#val) does not have alignment [align](transientCommit.md#align), or
-[opening](transientCommit.md#opening) does not encode a field element
+[opening](transientCommit.md#opening) 필드 원소를 인코딩하지 않은 경우

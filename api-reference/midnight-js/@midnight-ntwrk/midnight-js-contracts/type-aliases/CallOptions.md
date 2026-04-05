@@ -8,7 +8,7 @@
 
 > **CallOptions**\<`C`, `PCK`\> = [`CallOptionsWithProviderDataDependencies`](CallOptionsWithProviderDataDependencies.md)\<`C`, `PCK`\> \| [`CallOptionsWithPrivateState`](CallOptionsWithPrivateState.md)\<`C`, `PCK`\>
 
-Call options for a given contract and circuit.
+주어진 컨트랙트와 서킷에 대한 호출 옵션입니다.
 
 ## Type Parameters
 

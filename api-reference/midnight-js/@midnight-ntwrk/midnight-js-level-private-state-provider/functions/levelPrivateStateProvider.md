@@ -33,7 +33,7 @@ DO NOT use for production applications requiring data persistence.
 
 `Partial`\<[`LevelPrivateStateProviderConfig`](../interfaces/LevelPrivateStateProviderConfig.md)\> & `Pick`\<[`LevelPrivateStateProviderConfig`](../interfaces/LevelPrivateStateProviderConfig.md), `"privateStoragePasswordProvider"` \| `"accountId"`\>
 
-Database configuration options.
+데이터베이스 설정 옵션입니다.
 
 ## Returns
 

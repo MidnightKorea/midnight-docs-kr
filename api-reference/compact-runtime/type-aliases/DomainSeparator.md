@@ -10,4 +10,4 @@
 type DomainSeparator = Uint8Array;
 ```
 
-A token domain seperator, the pre-stage of `TokenType`, as 32-byte bytearray
+토큰 도메인 구분자로, `TokenType`의 전처리 단계이며 32바이트 바이트 배열입니다

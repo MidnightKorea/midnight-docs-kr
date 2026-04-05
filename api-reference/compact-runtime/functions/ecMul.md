@@ -10,10 +10,10 @@
 function ecMul(a, b): JubjubPoint;
 ```
 
-The Compact builtin `ec_mul` function
+Compact 내장 `ec_mul` 함수
 
-This function multiplies an elliptic curve point by a scalar (in
-multiplicative notation)
+타원 곡선 점에 스칼라를 곱합니다
+(곱셈 표기법)
 
 ## Parameters
 

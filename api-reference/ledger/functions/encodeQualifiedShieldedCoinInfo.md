@@ -15,8 +15,7 @@ function encodeQualifiedShieldedCoinInfo(coin): {
 };
 ```
 
-Encode a [QualifiedShieldedCoinInfo](../type-aliases/QualifiedShieldedCoinInfo.md) into a Compact's `QualifiedShieldedCoinInfo`
-TypeScript representation
+[QualifiedShieldedCoinInfo](../type-aliases/QualifiedShieldedCoinInfo.md)를 Compact의 `QualifiedShieldedCoinInfo` TypeScript 표현으로 인코딩합니다.
 
 ## Parameters
 

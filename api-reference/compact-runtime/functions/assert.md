@@ -12,7 +12,7 @@ function assert(b, s): void;
 
 **`Internal`**
 
-Compiler internal for assertions
+어설션을 위한 컴파일러 내부 함수
 
 ## Parameters
 

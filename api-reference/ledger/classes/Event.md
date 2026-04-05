@@ -6,7 +6,7 @@
 
 # Class: Event
 
-An event emitted by the ledger
+원장에서 발생한 이벤트입니다.
 
 ## Methods
 

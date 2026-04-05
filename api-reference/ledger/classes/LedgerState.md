@@ -6,7 +6,7 @@
 
 # Class: LedgerState
 
-The state of the Midnight ledger
+Midnight 원장의 상태입니다.
 
 ## Constructors
 
@@ -16,7 +16,7 @@ The state of the Midnight ledger
 new LedgerState(network_id, zswap): LedgerState;
 ```
 
-Intializes from a Zswap state, with an empty contract set
+빈 컨트랙트 집합으로 Zswap 상태에서 초기화합니다.
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Intializes from a Zswap state, with an empty contract set
 readonly blockRewardPool: bigint;
 ```
 
-The remaining unrewarded supply of native tokens.
+아직 보상되지 않은 네이티브 토큰의 남은 공급량입니다.
 
 ***
 
@@ -50,7 +50,7 @@ The remaining unrewarded supply of native tokens.
 readonly dust: DustState;
 ```
 
-The dust subsystem state
+Dust 하위 시스템의 상태입니다.
 
 ***
 
@@ -60,7 +60,7 @@ The dust subsystem state
 readonly lockedPool: bigint;
 ```
 
-The remaining size of the locked Night pool.
+잠긴 Night 풀의 남은 크기입니다.
 
 ***
 
@@ -70,7 +70,7 @@ The remaining size of the locked Night pool.
 parameters: LedgerParameters;
 ```
 
-The parameters of the ledger
+원장의 매개변수입니다.
 
 ***
 
@@ -80,7 +80,7 @@ The parameters of the ledger
 readonly reservePool: bigint;
 ```
 
-The size of the reserve Night pool
+예비 Night 풀의 크기입니다.
 
 ***
 
@@ -90,7 +90,7 @@ The size of the reserve Night pool
 readonly utxo: UtxoState;
 ```
 
-The unshielded utxos present
+존재하는 비차폐 UTXO입니다.
 
 ***
 
@@ -100,7 +100,7 @@ The unshielded utxos present
 readonly zswap: ZswapChainState;
 ```
 
-The Zswap part of the ledger state
+원장 상태의 Zswap 부분입니다.
 
 ## Methods
 
@@ -110,7 +110,7 @@ The Zswap part of the ledger state
 apply(transaction, context): [LedgerState, TransactionResult];
 ```
 
-Applies a [Transaction](Transaction.md)
+[Transaction](Transaction.md)을 적용합니다.
 
 #### Parameters
 
@@ -134,7 +134,7 @@ Applies a [Transaction](Transaction.md)
 applySystemTx(transaction, tblock): [LedgerState, Event[]];
 ```
 
-Applies a system transaction to this ledger state.
+이 원장 상태에 시스템 트랜잭션을 적용합니다.
 
 #### Parameters
 
@@ -160,7 +160,7 @@ Applies a system transaction to this ledger state.
 bridgeReceiving(recipient): bigint;
 ```
 
-How much in bridged night a recipient is owed and can claim.
+수령인에게 지급해야 하고 청구 가능한 브릿지된 Night의 양입니다.
 
 ##### Parameters
 
@@ -178,7 +178,7 @@ How much in bridged night a recipient is owed and can claim.
 bridgeReceiving(recipient): bigint;
 ```
 
-How much in bridged night a recipient is owed and can claim.
+수령인에게 지급해야 하고 청구 가능한 브릿지된 Night의 양입니다.
 
 ##### Parameters
 
@@ -198,7 +198,7 @@ How much in bridged night a recipient is owed and can claim.
 index(address): undefined | ContractState;
 ```
 
-Indexes into the contract state map with a given contract address
+주어진 컨트랙트 주소로 컨트랙트 상태 맵을 인덱싱합니다.
 
 #### Parameters
 
@@ -221,11 +221,9 @@ postBlockUpdate(
    overallBlockFullness?): LedgerState;
 ```
 
-Carries out a post-block update, which does amortized bookkeeping that
-only needs to be done once per state change.
+블록 후 업데이트를 수행합니다. 상태 변경당 한 번만 필요한 분할 상환 방식의 장부 관리를 합니다.
 
-Typically, `postBlockUpdate` should be run after any (sequence of)
-(system)-transaction application(s).
+일반적으로 `postBlockUpdate`는 (시스템) 트랜잭션 적용 후에 실행해야 합니다.
 
 #### Parameters
 
@@ -268,8 +266,8 @@ testingDistributeNight(
    tblock): LedgerState;
 ```
 
-Allows distributing the specified amount of Night to the recipient's address.
-Use is for testing purposes only.
+지정된 양의 Night을 수령인 주소로 배분합니다.
+테스트 목적으로만 사용해야 합니다.
 
 #### Parameters
 
@@ -315,7 +313,7 @@ toString(compact?): string;
 treasuryBalance(token_type): bigint;
 ```
 
-Retrieves the balance of the treasury for a specific token type.
+특정 토큰 유형에 대한 재무부 잔액을 조회합니다.
 
 #### Parameters
 
@@ -335,7 +333,7 @@ Retrieves the balance of the treasury for a specific token type.
 unclaimedBlockRewards(recipient): bigint;
 ```
 
-How much in block rewards a recipient is owed and can claim.
+수령인에게 지급해야 하고 청구 가능한 블록 보상의 양입니다.
 
 #### Parameters
 
@@ -358,7 +356,7 @@ updateIndex(
    balance): LedgerState;
 ```
 
-Sets the state of a given contract address from a [ChargedState](ChargedState.md)
+[ChargedState](ChargedState.md)로부터 주어진 컨트랙트 주소의 상태를 설정합니다.
 
 #### Parameters
 
@@ -386,7 +384,7 @@ Sets the state of a given contract address from a [ChargedState](ChargedState.md
 static blank(network_id): LedgerState;
 ```
 
-A fully blank state
+완전히 빈 상태입니다.
 
 #### Parameters
 

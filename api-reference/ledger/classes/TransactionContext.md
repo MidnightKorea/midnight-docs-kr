@@ -6,7 +6,7 @@
 
 # Class: TransactionContext
 
-The context against which a transaction is run.
+트랜잭션이 실행되는 컨텍스트입니다.
 
 ## Constructors
 
@@ -25,22 +25,19 @@ new TransactionContext(
 
 [`LedgerState`](LedgerState.md)
 
-A past ledger state that is used as a reference point
-for 'static' data.
+'정적' 데이터의 참조점으로 사용되는 과거 원장 상태입니다.
 
 ##### block\_context
 
 [`BlockContext`](../type-aliases/BlockContext.md)
 
-Information about the block this transaction is, or
-will be, contained in.
+이 트랜잭션이 포함되어 있거나 포함될 블록에 대한 정보입니다.
 
 ##### whitelist?
 
 `Set`\<`string`\>
 
-A list of contracts that are being tracked, or
-`undefined` to track all contracts.
+추적 중인 컨트랙트 목록이며, 모든 컨트랙트를 추적하려면 `undefined`입니다.
 
 #### Returns
 

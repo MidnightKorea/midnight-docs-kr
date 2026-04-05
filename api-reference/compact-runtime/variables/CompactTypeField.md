@@ -10,4 +10,4 @@
 const CompactTypeField: CompactType<bigint>;
 ```
 
-Runtime type of the builtin `Field` type
+내장 `Field` 타입의 런타임 타입

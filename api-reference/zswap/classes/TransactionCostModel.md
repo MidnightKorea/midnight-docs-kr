@@ -14,7 +14,7 @@
 readonly inputFeeOverhead: bigint;
 ```
 
-The increase in fees to expect from adding a new input to a transaction
+트랜잭션에 새 입력을 추가할 때 예상되는 수수료 증가분입니다.
 
 ***
 
@@ -24,7 +24,7 @@ The increase in fees to expect from adding a new input to a transaction
 readonly outputFeeOverhead: bigint;
 ```
 
-The increase in fees to expect from adding a new output to a transaction
+트랜잭션에 새 출력을 추가할 때 예상되는 수수료 증가분입니다.
 
 ## Methods
 

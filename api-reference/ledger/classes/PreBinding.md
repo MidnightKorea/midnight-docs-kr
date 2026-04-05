@@ -6,8 +6,7 @@
 
 # Class: PreBinding
 
-Information that will be used to bind an [Intent](Intent.md) in the future, but
-does not yet prevent modification of it.
+향후 [Intent](Intent.md)를 바인딩하는 데 사용될 정보이지만, 아직 수정을 방지하지는 않습니다.
 
 ## Constructors
 

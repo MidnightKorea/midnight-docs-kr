@@ -15,7 +15,7 @@ type BlockContext = {
 };
 ```
 
-Context information about the block forwarded to [CallContext](CallContext.md).
+[CallContext](CallContext.md)로 전달되는 블록에 대한 컨텍스트 정보입니다.
 
 ## Properties
 

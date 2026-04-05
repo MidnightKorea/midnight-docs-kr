@@ -10,7 +10,7 @@
 function addressFromKey(key): string;
 ```
 
-Converts a bare signature public key to its corresponding address.
+서명 공개 키를 해당 주소로 변환합니다.
 
 ## Parameters
 

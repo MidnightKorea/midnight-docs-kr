@@ -6,7 +6,7 @@
 
 # Class: ZswapInput\<P\>
 
-A shielded transaction input
+차폐된 트랜잭션 입력입니다.
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ A shielded transaction input
 readonly contractAddress: undefined | string;
 ```
 
-The contract address receiving the input, if the sender is a contract
+발신자가 컨트랙트인 경우 입력을 수신하는 컨트랙트 주소입니다.
 
 ***
 
@@ -32,7 +32,7 @@ The contract address receiving the input, if the sender is a contract
 readonly nullifier: string;
 ```
 
-The nullifier of the input
+입력의 널리파이어입니다.
 
 ***
 
@@ -42,7 +42,7 @@ The nullifier of the input
 readonly proof: P;
 ```
 
-The proof of this input
+이 입력의 증명입니다.
 
 ## Methods
 

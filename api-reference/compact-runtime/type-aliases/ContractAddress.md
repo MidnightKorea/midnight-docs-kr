@@ -10,4 +10,4 @@
 type ContractAddress = string;
 ```
 
-A contract address, as a hex-encoded 35-byte string
+16진수 인코딩된 35바이트 문자열인 컨트랙트 주소

@@ -10,7 +10,7 @@
 function decodeRecipient(__namedParameters): Recipient;
 ```
 
-Converts an [EncodedRecipient](../interfaces/EncodedRecipient.md) to a [Recipient](../interfaces/Recipient.md).
+[EncodedRecipient](../interfaces/EncodedRecipient.md)를 [Recipient](../interfaces/Recipient.md)로 변환합니다.
 
 ## Parameters
 

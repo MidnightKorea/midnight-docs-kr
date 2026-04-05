@@ -10,7 +10,7 @@
 function ownPublicKey(circuitContext): EncodedCoinPublicKey;
 ```
 
-Retrieves the Zswap coin public key of the user executing the circuit.
+회로를 실행하는 사용자의 Zswap 코인 공개 키를 가져옵니다.
 
 ## Parameters
 
@@ -18,7 +18,7 @@ Retrieves the Zswap coin public key of the user executing the circuit.
 
 [`CircuitContext`](../interfaces/CircuitContext.md)\<`unknown`\>
 
-The current circuit context.
+현재 회로 컨텍스트입니다.
 
 ## Returns
 

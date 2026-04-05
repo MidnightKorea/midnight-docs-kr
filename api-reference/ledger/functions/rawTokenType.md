@@ -10,7 +10,7 @@
 function rawTokenType(domain_sep, contract): string;
 ```
 
-Derives the raw [RawTokenType](../type-aliases/RawTokenType.md) associated with a particular
+특정 항목에 관련된 원시 [RawTokenType](../type-aliases/RawTokenType.md)을 도출합니다.
 [DomainSeparator](../type-aliases/DomainSeparator.md) and contract.
 
 ## Parameters

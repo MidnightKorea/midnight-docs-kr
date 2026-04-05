@@ -71,7 +71,7 @@ export const Details = ({
   );
 };
 
-A regular Midnight transaction.
+일반 Midnight 트랜잭션입니다.
 
 ```graphql
 type RegularTransaction implements Transaction {
@@ -98,73 +98,73 @@ type RegularTransaction implements Transaction {
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>id</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Int!</b></code>](/midnight-indexer/types/scalars/int.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The transaction ID.
+트랜잭션 ID입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>hash</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The hex-encoded transaction hash.
+16진수로 인코딩된 트랜잭션 해시입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>protocolVersion</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Int!</b></code>](/midnight-indexer/types/scalars/int.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The protocol version.
+프로토콜 버전입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>raw</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The hex-encoded serialized transaction content.
+16진수로 인코딩된 직렬화 트랜잭션 내용입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>transactionResult</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>TransactionResult!</b></code>](/midnight-indexer/types/objects/transaction-result.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="object"/>
 
-The result of applying this transaction to the ledger state.
+이 트랜잭션을 원장 상태에 적용한 결과입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>identifiers</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>[HexEncoded!]!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The hex-encoded serialized transaction identifiers.
+16진수로 인코딩된 직렬화 트랜잭션 식별자입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>merkleTreeRoot</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The hex-encoded serialized merkle-tree root.
+16진수로 인코딩된 직렬화 머클 트리 루트입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>startIndex</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Int!</b></code>](/midnight-indexer/types/scalars/int.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The zswap state start index.
+zswap 상태 시작 인덱스입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>endIndex</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Int!</b></code>](/midnight-indexer/types/scalars/int.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The zswap state end index.
+zswap 상태 종료 인덱스입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>fees</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>TransactionFees!</b></code>](/midnight-indexer/types/objects/transaction-fees.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="object"/>
 
-Fee information for this transaction.
+이 트랜잭션의 수수료 정보입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>block</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Block!</b></code>](/midnight-indexer/types/objects/block.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="object"/>
 
-The block for this transaction.
+이 트랜잭션이 포함된 블록입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>contractActions</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>[ContractAction!]!</b></code>](/midnight-indexer/types/interfaces/contract-action.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="interface"/>
 
-The contract actions for this transaction.
+이 트랜잭션의 컨트랙트 액션입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>unshieldedCreatedOutputs</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>[UnshieldedUtxo!]!</b></code>](/midnight-indexer/types/objects/unshielded-utxo.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="object"/>
 
-Unshielded UTXOs created by this transaction.
+이 트랜잭션으로 생성된 비차폐 UTXO입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>unshieldedSpentOutputs</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>[UnshieldedUtxo!]!</b></code>](/midnight-indexer/types/objects/unshielded-utxo.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="object"/>
 
-Unshielded UTXOs spent (consumed) by this transaction.
+이 트랜잭션으로 소비된 비차폐 UTXO입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>zswapLedgerEvents</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>[ZswapLedgerEvent!]!</b></code>](/midnight-indexer/types/objects/zswap-ledger-event.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="object"/>
 
-Zswap ledger events of this transaction.
+이 트랜잭션의 zswap 원장 이벤트입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>RegularTransaction.<b>dustLedgerEvents</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>[DustLedgerEvent!]!</b></code>](/midnight-indexer/types/interfaces/dust-ledger-event.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="interface"/>
 
-Dust ledger events of this transaction.
+이 트랜잭션의 DUST 원장 이벤트입니다.
 
 ### Interfaces
 
 #### [<code style={{ fontWeight: 'normal' }}><b>Transaction</b></code>](/midnight-indexer/types/interfaces/transaction.mdx) <Badge class="badge badge--secondary " text="interface"/>
 
-A Midnight transaction.
+Midnight 트랜잭션입니다.
 
 ### Member Of
 

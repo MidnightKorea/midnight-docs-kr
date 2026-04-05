@@ -8,7 +8,7 @@
 
 > **CallResultPublic** = `object`
 
-The public portions of the call result.
+호출 결과의 퍼블릭 부분입니다.
 
 ## Properties
 
@@ -16,7 +16,7 @@ The public portions of the call result.
 
 > `readonly` **nextContractState**: `StateValue`
 
-The public state resulting from executing the circuit.
+서킷 실행 결과로 생성된 퍼블릭 상태입니다.
 
 ***
 
@@ -35,4 +35,4 @@ can fail without invalidating the transaction, as long as the guaranteed section
 
 > `readonly` **publicTranscript**: `Op`\<`AlignedValue`\>[]
 
-The public transcript resulting from executing the circuit.
+서킷 실행 결과로 생성된 퍼블릭 트랜스크립트입니다.

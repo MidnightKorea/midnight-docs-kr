@@ -10,9 +10,9 @@
 function ecAdd(a, b): JubjubPoint;
 ```
 
-The Compact builtin `ec_add` function
+Compact 내장 `ec_add` 함수
 
-This function add two elliptic curve points (in multiplicative notation)
+두 타원 곡선 점을 더합니다(곱셈 표기법)
 
 ## Parameters
 

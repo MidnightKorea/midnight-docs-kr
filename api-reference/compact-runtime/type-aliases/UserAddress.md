@@ -10,4 +10,4 @@
 type UserAddress = string;
 ```
 
-A user public key address, as a hex-encoded 35-byte string
+16진수 인코딩된 35바이트 문자열인 사용자 공개 키 주소

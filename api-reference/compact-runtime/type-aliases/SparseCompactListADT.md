@@ -13,7 +13,7 @@ type SparseCompactListADT = {
 };
 ```
 
-A data structure indicating the locations of all contract references in a Compact `List` ADT.
+Compact `List` ADT에서 모든 컨트랙트 참조의 위치를 나타내는 데이터 구조입니다.
 
 ## Properties
 
@@ -31,4 +31,4 @@ tag: "list";
 valueType: SparseCompactValue;
 ```
 
-A data structure indicating the locations of all contract references in a Compact value in the outer `List` ADT.
+외부 `List` ADT의 Compact 값에서 모든 컨트랙트 참조의 위치를 나타내는 데이터 구조입니다.

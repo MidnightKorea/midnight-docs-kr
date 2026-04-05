@@ -15,7 +15,7 @@ type SparseCompactMapADT = {
 };
 ```
 
-A data structure indicating the locations of all contract references in a Compact `Map` ADT.
+Compact `Map` ADT에서 모든 컨트랙트 참조의 위치를 나타내는 데이터 구조입니다.
 
 ## Properties
 
@@ -25,8 +25,8 @@ A data structure indicating the locations of all contract references in a Compac
 optional keyType: SparseCompactValue;
 ```
 
-A data structure indicating the locations of all contract references in the Compact values that are the keys of the
-outer `Map` ADT.
+외부 `Map` ADT의 키인 Compact 값에서 모든 컨트랙트 참조의 위치를
+나타내는 데이터 구조입니다.
 
 ***
 
@@ -46,6 +46,6 @@ optional valueType:
   | SparseCompactValue;
 ```
 
-A data structure indicating the locations of all contract references in the Compact entities that are the values of the
-outer `Map` ADT. Since the values of a `Map` ADT may be either Compact values or other `Map` ADTs, we take the union
-of the corresponding data structures.
+외부 `Map` ADT의 값인 Compact 엔티티에서 모든 컨트랙트 참조의 위치를
+나타내는 데이터 구조입니다. `Map` ADT의 값은 Compact 값 또는 다른 `Map` ADT일 수 있으므로
+해당 데이터 구조의 합집합을 취합니다.

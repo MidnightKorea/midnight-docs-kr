@@ -16,7 +16,7 @@ A shielded transaction output
 readonly commitment: string;
 ```
 
-The commitment of the output
+출력의 커밋먼트입니다.
 
 ***
 
@@ -26,7 +26,7 @@ The commitment of the output
 readonly contractAddress: undefined | string;
 ```
 
-The contract address receiving the output, if the recipient is a contract
+수신자가 컨트랙트인 경우 출력을 수신하는 컨트랙트 주소입니다.
 
 ## Methods
 

@@ -14,4 +14,4 @@ The configuration for the proof request to the proof provider.
 
 > `readonly` `optional` **timeout?**: `number`
 
-The timeout for the request.
+요청의 타임아웃입니다.

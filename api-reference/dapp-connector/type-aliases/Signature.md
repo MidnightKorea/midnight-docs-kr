@@ -8,7 +8,7 @@
 
 > **Signature** = `object`
 
-Signature, accompanied by data signed and verifying key
+서명된 데이터 및 검증 키가 포함된 서명
 
 ## Properties
 
@@ -16,7 +16,7 @@ Signature, accompanied by data signed and verifying key
 
 > **data**: `string`
 
-The data signed
+서명된 데이터
 
 ***
 

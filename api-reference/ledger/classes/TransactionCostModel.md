@@ -14,7 +14,7 @@
 readonly baselineCost: RunningCost;
 ```
 
-A baseline cost to begin with
+시작 기준 비용입니다.
 
 ***
 
@@ -24,7 +24,7 @@ A baseline cost to begin with
 readonly inputFeeOverhead: bigint;
 ```
 
-The increase in fees to expect from adding a new input to a transaction
+트랜잭션에 새 입력을 추가할 때 예상되는 수수료 증가분입니다.
 
 ***
 
@@ -34,7 +34,7 @@ The increase in fees to expect from adding a new input to a transaction
 readonly outputFeeOverhead: bigint;
 ```
 
-The increase in fees to expect from adding a new output to a transaction
+트랜잭션에 새 출력을 추가할 때 예상되는 수수료 증가분입니다.
 
 ***
 
@@ -44,7 +44,7 @@ The increase in fees to expect from adding a new output to a transaction
 readonly runtimeCostModel: CostModel;
 ```
 
-A cost model for calculating transaction fees
+트랜잭션 수수료를 계산하기 위한 비용 모델입니다.
 
 ## Methods
 
@@ -102,7 +102,7 @@ static deserialize(raw): TransactionCostModel;
 static initialTransactionCostModel(): TransactionCostModel;
 ```
 
-The initial cost model of Midnight
+Midnight의 초기 비용 모델입니다.
 
 #### Returns
 

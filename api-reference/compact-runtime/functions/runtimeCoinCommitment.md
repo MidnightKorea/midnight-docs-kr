@@ -12,7 +12,7 @@ function runtimeCoinCommitment(coin, recipient): AlignedValue;
 
 **`Internal`**
 
-Internal implementation of the runtime's coin commitment primitive.
+런타임의 코인 커밋먼트 프리미티브 내부 구현입니다.
 
 ## Parameters
 

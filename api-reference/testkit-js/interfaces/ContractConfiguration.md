@@ -2,7 +2,7 @@
 
 ***
 
-Configuration interface for Midnight contracts.
+Midnight 컨트랙트의 구성 인터페이스입니다.
 
 ## Properties
 

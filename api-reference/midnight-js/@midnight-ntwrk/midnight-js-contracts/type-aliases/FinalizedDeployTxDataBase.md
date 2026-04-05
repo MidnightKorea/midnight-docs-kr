@@ -8,7 +8,7 @@
 
 > **FinalizedDeployTxDataBase**\<`C`\> = [`UnsubmittedDeployTxDataBase`](UnsubmittedDeployTxDataBase.md)\<`C`\> & `object`
 
-Data for a finalized deploy transaction submitted in this process.
+이 프로세스에서 제출된 확정 배포 트랜잭션의 데이터입니다.
 
 ## Type Declaration
 
@@ -16,7 +16,7 @@ Data for a finalized deploy transaction submitted in this process.
 
 > `readonly` **public**: `FinalizedTxData`
 
-The data of this transaction that is visible on the blockchain.
+블록체인에서 조회 가능한 이 트랜잭션의 데이터입니다.
 
 ## Type Parameters
 

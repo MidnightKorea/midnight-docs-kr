@@ -10,14 +10,14 @@
 function emptyZswapLocalState(coinPublicKey): EncodedZswapLocalState;
 ```
 
-Constructs a new [EncodedZswapLocalState](../interfaces/EncodedZswapLocalState.md) with the given coin public key. The result can be used to create a
-[ConstructorContext](../interfaces/ConstructorContext.md).
+주어진 코인 공개 키로 새 [EncodedZswapLocalState](../interfaces/EncodedZswapLocalState.md)를 생성합니다. 결과는
+[ConstructorContext](../interfaces/ConstructorContext.md)를 만드는 데 사용할 수 있습니다.
 
 ## Parameters
 
 ### coinPublicKey
 
-The Zswap coin public key of the user executing the circuit.
+회로를 실행하는 사용자의 Zswap 코인 공개 키입니다.
 
 `string` | [`EncodedCoinPublicKey`](../interfaces/EncodedCoinPublicKey.md)
 

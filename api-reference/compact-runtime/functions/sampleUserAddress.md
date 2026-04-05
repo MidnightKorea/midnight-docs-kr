@@ -10,7 +10,7 @@
 function sampleUserAddress(): string;
 ```
 
-Samples a uniform user address, for use in testing
+테스트용 균일 사용자 주소를 샘플링합니다
 
 ## Returns
 

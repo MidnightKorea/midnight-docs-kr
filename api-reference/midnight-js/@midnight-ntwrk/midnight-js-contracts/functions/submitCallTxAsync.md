@@ -8,38 +8,36 @@
 
 > **submitCallTxAsync**\<`C`, `PCK`\>(`providers`, `options`): `Promise`\<[`SubmittedCallTx`](../type-aliases/SubmittedCallTx.md)\<`C`, `PCK`\>\>
 
-Creates and submits a transaction for the invocation of a circuit on a given contract,
-returning immediately after submission without waiting for finalization.
+주어진 컨트랙트에서 서킷 호출을 위한 트랜잭션을 생성하고 제출하며, 확정을 기다리지 않고 제출 직후 즉시 반환합니다.
 
-Unlike [submitCallTx](submitCallTx.md), this function does not wait for transaction finalization,
-check transaction status, or update private state. The caller must handle these steps manually.
+[submitCallTx](submitCallTx.md)와 달리 이 함수는 트랜잭션 확정을 기다리거나, 트랜잭션 상태를 확인하거나, 프라이빗 상태를 업데이트하지 않습니다. 호출자가 이러한 단계를 직접 처리해야 합니다.
 
 ## Transaction Execution Phases
 
-Midnight transactions execute in two phases:
-1. **Guaranteed phase**: If failure occurs, the transaction is NOT included in the blockchain
-2. **Fallible phase**: If failure occurs, the transaction IS recorded on-chain as a partial success
+Midnight 트랜잭션은 두 단계로 실행됩니다:
+1. **보장 단계**: 실패 시 트랜잭션이 블록체인에 포함되지 않습니다
+2. **실패 허용 단계**: 실패 시 트랜잭션이 부분 성공으로 온체인에 기록됩니다
 
 ## Manual Post-Submission Steps
 
-After calling this function, you must manually:
-1. Watch for transaction finalization using `providers.publicDataProvider.watchForTxData(txId)`
-2. Check transaction status (compare against `SucceedEntirely`)
-3. Handle failures appropriately (throw errors, log, etc.)
-4. Update private state if transaction succeeded and `privateStateId` was provided
+이 함수를 호출한 후 다음 단계를 직접 수행해야 합니다:
+1. `providers.publicDataProvider.watchForTxData(txId)`를 사용하여 트랜잭션 확정을 감시합니다
+2. 트랜잭션 상태를 확인합니다 (`SucceedEntirely`와 비교)
+3. 실패를 적절히 처리합니다 (오류 발생, 로깅 등)
+4. 트랜잭션이 성공하고 `privateStateId`가 제공된 경우 프라이빗 상태를 업데이트합니다
 
 ## Failure Behavior (Manual Handling Required)
 
-**Guaranteed Phase Failure:**
-- Transaction is rejected and not included in the blockchain
-- `watchForTxData` may reject or return error status
-- You must NOT store private state updates
+**보장 단계 실패:**
+- 트랜잭션이 거부되어 블록체인에 포함되지 않습니다
+- `watchForTxData`가 거부되거나 오류 상태를 반환할 수 있습니다
+- 프라이빗 상태 업데이트를 저장하면 안 됩니다
 
-**Fallible Phase Failure:**
-- Transaction is recorded on-chain with non-`SucceedEntirely` status
-- `watchForTxData` returns transaction data with failed status
-- You must NOT store private state updates
-- Transaction appears in blockchain history as partial success
+**실패 허용 단계 실패:**
+- `SucceedEntirely`가 아닌 상태로 트랜잭션이 온체인에 기록됩니다
+- `watchForTxData`가 실패 상태의 트랜잭션 데이터를 반환합니다
+- 프라이빗 상태 업데이트를 저장하면 안 됩니다
+- 트랜잭션이 부분 성공으로 블록체인 이력에 나타납니다
 
 ## Type Parameters
 
@@ -57,20 +55,20 @@ After calling this function, you must manually:
 
 `SubmitCallTxProviders`\<`C`, `PCK`\>
 
-The providers used to manage the invocation lifecycle.
+호출 수명 주기를 관리하는 데 사용되는 프로바이더입니다.
 
 ### options
 
 [`CallTxOptions`](../type-aliases/CallTxOptions.md)\<`C`, `PCK`\>
 
-Configuration.
+설정입니다.
 
 ## Returns
 
 `Promise`\<[`SubmittedCallTx`](../type-aliases/SubmittedCallTx.md)\<`C`, `PCK`\>\>
 
-A `Promise` that resolves with the transaction ID and call transaction data immediately after submission;
-        or rejects with an error if the submission fails.
+제출 직후 트랜잭션 ID와 호출 트랜잭션 데이터로 이행되는 `Promise`입니다.
+        제출이 실패하면 오류와 함께 거부됩니다.
 
 ## Example
 

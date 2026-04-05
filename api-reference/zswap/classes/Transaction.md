@@ -6,12 +6,9 @@
 
 # Class: Transaction
 
-A Midnight transaction, consisting a guaranteed and fallible [Offer](Offer.md),
-and contract call information hidden from this API.
+guaranteed 및 fallible [Offer](Offer.md)와 이 API에서 숨겨진 컨트랙트 호출 정보로 구성된 Midnight 트랜잭션입니다.
 
-The guaranteed section are run first, and fee payment is taken during this
-part. If it succeeds, the fallible section is also run, and atomically
-rolled back if it fails.
+guaranteed 섹션이 먼저 실행되며, 이 과정에서 수수료가 지불됩니다. 성공하면 fallible 섹션도 실행되며, 실패 시 원자적으로 롤백됩니다.
 
 ## Properties
 
@@ -21,7 +18,7 @@ rolled back if it fails.
 readonly fallibleCoins: undefined | Offer;
 ```
 
-The fallible Zswap offer
+fallible Zswap 오퍼입니다.
 
 ***
 
@@ -31,7 +28,7 @@ The fallible Zswap offer
 readonly guaranteedCoins: undefined | Offer;
 ```
 
-The guaranteed Zswap offer
+guaranteed Zswap 오퍼입니다.
 
 ***
 
@@ -41,7 +38,7 @@ The guaranteed Zswap offer
 readonly mint: undefined | AuthorizedMint;
 ```
 
-The mint this transaction represents, if applicable
+이 트랜잭션이 나타내는 민트입니다 (해당하는 경우).
 
 ## Methods
 
@@ -51,7 +48,7 @@ The mint this transaction represents, if applicable
 eraseProofs(): ProofErasedTransaction
 ```
 
-Erases the proofs contained in this transaction
+이 트랜잭션에 포함된 증명을 삭제합니다.
 
 #### Returns
 
@@ -65,7 +62,7 @@ Erases the proofs contained in this transaction
 fees(params): bigint
 ```
 
-The cost of this transaction, in the atomic unit of the base token
+기본 토큰의 최소 단위로 표현된 이 트랜잭션의 비용입니다.
 
 #### Parameters
 
@@ -85,8 +82,7 @@ The cost of this transaction, in the atomic unit of the base token
 identifiers(): string[]
 ```
 
-Returns the set of identifiers contained within this transaction. Any of
-these *may* be used to watch for a specific transaction.
+이 트랜잭션에 포함된 식별자 집합을 반환합니다. 이 중 어느 것이든 특정 트랜잭션을 감시하는 데 사용할 수 *있습니다*.
 
 #### Returns
 
@@ -100,8 +96,7 @@ these *may* be used to watch for a specific transaction.
 imbalances(guaranteed, fees?): Map<string, bigint>
 ```
 
-For given fees, and a given section (guaranteed/fallible), what the
-surplus or deficit of this transaction in any token type is.
+주어진 수수료와 주어진 섹션(guaranteed/fallible)에서 이 트랜잭션의 각 토큰 유형별 초과분 또는 부족분입니다.
 
 #### Parameters
 
@@ -125,7 +120,7 @@ surplus or deficit of this transaction in any token type is.
 merge(other): Transaction
 ```
 
-Merges this transaction with another
+이 트랜잭션을 다른 트랜잭션과 병합합니다.
 
 #### Parameters
 
@@ -139,8 +134,7 @@ Merges this transaction with another
 
 #### Throws
 
-If both transactions have contract interactions, or they spend the
-same coins
+두 트랜잭션 모두 컨트랙트 상호작용이 있거나 같은 코인을 소비하는 경우
 
 ***
 
@@ -186,9 +180,7 @@ toString(compact?): string
 transactionHash(): string
 ```
 
-Returns the hash associated with this transaction. Due to the ability to
-merge transactions, this should not be used to watch for a specific
-transaction.
+이 트랜잭션과 연결된 해시를 반환합니다. 트랜잭션 병합이 가능하므로, 특정 트랜잭션을 감시하는 데 사용해서는 안 됩니다.
 
 #### Returns
 
@@ -224,8 +216,7 @@ static deserialize(raw, netid): Transaction
 static fromUnproven(prove, unproven): Promise<Transaction>
 ```
 
-Type hint that you should use an external proving function, for instance
-via the proof server.
+증명 서버 등 외부 증명 함수를 사용해야 한다는 타입 힌트입니다.
 
 #### Parameters
 

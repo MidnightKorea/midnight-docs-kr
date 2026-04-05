@@ -14,7 +14,7 @@ type CoinInfo: {
 };
 ```
 
-Information required to create a new coin, alongside details about the
+새 코인을 생성하는 데 필요한 정보와 세부 사항입니다.
 recipient
 
 ## Type declaration

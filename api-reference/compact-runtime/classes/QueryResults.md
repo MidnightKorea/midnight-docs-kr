@@ -6,7 +6,7 @@
 
 # Class: QueryResults
 
-The results of making a query against a specific state or context
+특정 상태 또는 컨텍스트에 대한 쿼리 결과
 
 ## Properties
 
@@ -16,8 +16,7 @@ The results of making a query against a specific state or context
 readonly context: QueryContext;
 ```
 
-The context state after executing the query. This can be used to execute
-further queries
+쿼리 실행 후의 컨텍스트 상태입니다. 추가 쿼리 실행에 사용할 수 있습니다
 
 ***
 
@@ -27,7 +26,7 @@ further queries
 readonly events: GatherResult[];
 ```
 
-Any events/results that occurred during or from the query
+쿼리 중 또는 쿼리로부터 발생한 이벤트/결과
 
 ***
 
@@ -37,7 +36,7 @@ Any events/results that occurred during or from the query
 readonly gasCost: RunningCost;
 ```
 
-The measured cost of executing the query
+쿼리 실행의 측정된 비용
 
 ## Methods
 

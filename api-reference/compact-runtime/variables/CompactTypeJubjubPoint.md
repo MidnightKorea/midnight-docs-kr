@@ -10,4 +10,4 @@
 const CompactTypeJubjubPoint: CompactType<JubjubPoint>;
 ```
 
-Runtime type of [JubjubPoint](../interfaces/JubjubPoint.md)
+[JubjubPoint](../interfaces/JubjubPoint.md)의 런타임 타입

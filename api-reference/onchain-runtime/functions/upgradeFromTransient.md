@@ -12,7 +12,7 @@ function upgradeFromTransient(transient): Value
 
 **`Internal`**
 
-Internal implementation of the upgrade from transient primitive
+transient에서의 업그레이드 프리미티브 내부 구현
 
 ## Parameters
 
@@ -26,4 +26,4 @@ Internal implementation of the upgrade from transient primitive
 
 ## Throws
 
-If [transient](upgradeFromTransient.md#transient) does not encode a field element
+If [transient](upgradeFromTransient.md#transient) 필드 원소를 인코딩하지 않은 경우

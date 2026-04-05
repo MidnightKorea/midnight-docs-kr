@@ -10,4 +10,4 @@
 const CompactTypeOpaqueUint8Array: CompactType<Uint8Array>;
 ```
 
-Runtime type of `Opaque["Uint8Array"]`
+`Opaque["Uint8Array"]`의 런타임 타입

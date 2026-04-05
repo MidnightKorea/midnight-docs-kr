@@ -71,7 +71,7 @@ export const Details = ({
   );
 };
 
-A transaction that created and/or spent UTXOs alongside these and other information.
+UTXO를 생성 및/또는 소비한 트랜잭션으로, 관련 정보를 함께 포함합니다.
 
 ```graphql
 type UnshieldedTransaction {
@@ -85,15 +85,15 @@ type UnshieldedTransaction {
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedTransaction.<b>transaction</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Transaction!</b></code>](/midnight-indexer/types/interfaces/transaction.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="interface"/>
 
-The transaction that created and/or spent UTXOs.
+UTXO를 생성 및/또는 소비한 트랜잭션입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedTransaction.<b>createdUtxos</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>[UnshieldedUtxo!]!</b></code>](/midnight-indexer/types/objects/unshielded-utxo.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="object"/>
 
-UTXOs created in the above transaction, possibly empty.
+위 트랜잭션에서 생성된 UTXO입니다(없을 수도 있음).
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedTransaction.<b>spentUtxos</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>[UnshieldedUtxo!]!</b></code>](/midnight-indexer/types/objects/unshielded-utxo.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="object"/>
 
-UTXOs spent in the above transaction, possibly empty.
+위 트랜잭션에서 소비된 UTXO입니다(없을 수도 있음).
 
 ### Implemented By
 

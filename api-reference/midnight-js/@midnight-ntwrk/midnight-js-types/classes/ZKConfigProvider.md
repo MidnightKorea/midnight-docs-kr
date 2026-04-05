@@ -17,7 +17,7 @@ for accessing static artifacts.
 
 `K` *extends* `string`
 
-The type of the circuit ID used by the provider.
+프로바이더가 사용하는 서킷 ID의 타입입니다.
 
 ## Constructors
 
@@ -53,7 +53,7 @@ Retrieves all zero-knowledge artifacts produced by `compactc` compiler for the g
 
 `K`
 
-The circuit ID of the artifacts to retrieve.
+조회할 아티팩트의 서킷 ID입니다.
 
 #### Returns
 

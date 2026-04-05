@@ -6,8 +6,7 @@
 
 # Class: ContractDeploy
 
-A contract deployment segment, instructing the creation of a new contract
-address, if not already present
+컨트랙트 배포 세그먼트로, 아직 존재하지 않는 경우 새 컨트랙트 주소 생성을 지시합니다.
 
 ## Constructors
 
@@ -17,9 +16,9 @@ address, if not already present
 new ContractDeploy(initial_state): ContractDeploy;
 ```
 
-Creates a deployment for an arbitrary contract state
+임의의 컨트랙트 상태에 대한 배포를 생성합니다.
 
-The deployment and its address are randomised.
+배포와 해당 주소는 무작위로 결정됩니다.
 
 #### Parameters
 
@@ -39,7 +38,7 @@ The deployment and its address are randomised.
 readonly address: string;
 ```
 
-The address this deployment will attempt to create
+이 배포가 생성하려는 주소입니다.
 
 ***
 

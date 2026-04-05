@@ -8,7 +8,7 @@
 
 [Transaction](Transaction.md), with all proof information erased
 
-Primarily for use in testing, or handling data known to be correct from
+주로 테스트 또는 올바른 것으로 알려진 데이터 처리에 사용됩니다.
 external information
 
 ## Properties
@@ -19,7 +19,7 @@ external information
 readonly fallibleCoins: undefined | ProofErasedOffer;
 ```
 
-The fallible Zswap offer
+fallible Zswap 오퍼입니다.
 
 ***
 
@@ -29,7 +29,7 @@ The fallible Zswap offer
 readonly guaranteedCoins: undefined | ProofErasedOffer;
 ```
 
-The guaranteed Zswap offer
+guaranteed Zswap 오퍼입니다.
 
 ***
 
@@ -39,7 +39,7 @@ The guaranteed Zswap offer
 readonly mint: undefined | ProofErasedAuthorizedMint;
 ```
 
-The mint this transaction represents, if applicable
+이 트랜잭션이 나타내는 민트입니다 (해당하는 경우).
 
 ## Methods
 
@@ -49,7 +49,7 @@ The mint this transaction represents, if applicable
 fees(params): bigint
 ```
 
-The cost of this transaction, in the atomic unit of the base token
+기본 토큰의 최소 단위로 표현된 이 트랜잭션의 비용입니다.
 
 #### Parameters
 
@@ -69,8 +69,7 @@ The cost of this transaction, in the atomic unit of the base token
 identifiers(): string[]
 ```
 
-Returns the set of identifiers contained within this transaction. Any of
-these *may* be used to watch for a specific transaction.
+이 트랜잭션에 포함된 식별자 집합을 반환합니다. 이 중 어느 것이든 특정 트랜잭션을 감시하는 데 사용할 수 *있습니다*.
 
 #### Returns
 
@@ -84,8 +83,7 @@ these *may* be used to watch for a specific transaction.
 imbalances(guaranteed, fees?): Map<string, bigint>
 ```
 
-For given fees, and a given section (guaranteed/fallible), what the
-surplus or deficit of this transaction in any token type is.
+주어진 수수료와 주어진 섹션(guaranteed/fallible)에서 이 트랜잭션의 각 토큰 유형별 초과분 또는 부족분입니다.
 
 #### Parameters
 
@@ -109,7 +107,7 @@ surplus or deficit of this transaction in any token type is.
 merge(other): ProofErasedTransaction
 ```
 
-Merges this transaction with another
+이 트랜잭션을 다른 트랜잭션과 병합합니다.
 
 #### Parameters
 
@@ -123,8 +121,7 @@ Merges this transaction with another
 
 #### Throws
 
-If both transactions have contract interactions, or they spend the
-same coins
+두 트랜잭션 모두 컨트랙트 상호작용이 있거나 같은 코인을 소비하는 경우
 
 ***
 

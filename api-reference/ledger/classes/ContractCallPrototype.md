@@ -6,7 +6,7 @@
 
 # Class: ContractCallPrototype
 
-A [ContractCall](ContractCall.md) still being assembled
+아직 조립 중인 [ContractCall](ContractCall.md)입니다.
 
 ## Constructors
 
@@ -32,11 +32,11 @@ new ContractCallPrototype(
 
 `string`
 
-The address being called
+호출 대상 주소입니다.
 
 ##### entry\_point
 
-The entry point being called
+호출 대상 진입점입니다.
 
 `string` | `Uint8Array`\<`ArrayBufferLike`\>
 
@@ -44,19 +44,19 @@ The entry point being called
 
 [`ContractOperation`](ContractOperation.md)
 
-The operation expected at this entry point
+이 진입점에서 예상되는 연산입니다.
 
 ##### guaranteed\_public\_transcript
 
-The guaranteed transcript computed
-for this call
+이 호출에 대해 계산된 guaranteed
+트랜스크립트입니다.
 
 `undefined` | [`Transcript`](../type-aliases/Transcript.md)\<[`AlignedValue`](../type-aliases/AlignedValue.md)\>
 
 ##### fallible\_public\_transcript
 
-The fallible transcript computed for
-this call
+이 호출에 대해 계산된 fallible
+트랜스크립트입니다.
 
 `undefined` | [`Transcript`](../type-aliases/Transcript.md)\<[`AlignedValue`](../type-aliases/AlignedValue.md)\>
 
@@ -64,34 +64,34 @@ this call
 
 [`AlignedValue`](../type-aliases/AlignedValue.md)[]
 
-The private transcript recorded for
-this call
+이 호출에 대해 기록된 프라이빗
+트랜스크립트입니다.
 
 ##### input
 
 [`AlignedValue`](../type-aliases/AlignedValue.md)
 
-The input(s) provided to this call
+이 호출에 제공된 입력입니다.
 
 ##### output
 
 [`AlignedValue`](../type-aliases/AlignedValue.md)
 
-The output(s) computed from this call
+이 호출에서 계산된 출력입니다.
 
 ##### communication\_commitment\_rand
 
 `string`
 
-The communication randomness used
-for this call
+이 호출에 사용된 커뮤니케이션
+랜덤값입니다.
 
 ##### key\_location
 
 `string`
 
-An identifier for how the key for this call may be
-looked up
+이 호출의 키를 조회하기 위한
+식별자입니다.
 
 #### Returns
 

@@ -17,7 +17,7 @@ function typeError(
 
 **`Internal`**
 
-Compiler internal for type errors
+타입 오류를 위한 컴파일러 내부 함수
 
 ## Parameters
 

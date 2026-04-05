@@ -22,7 +22,7 @@ Base type for the configuration options for [findDeployedContract](../functions/
 
 > `readonly` **compiledContract**: `CompiledContract.CompiledContract`\<`C`, `any`\>
 
-The compiled contract to use to execute circuits.
+서킷을 실행하는 데 사용할 컴파일된 컨트랙트입니다.
 
 ***
 
@@ -30,7 +30,7 @@ The compiled contract to use to execute circuits.
 
 > `readonly` **contractAddress**: [`ContractAddress`](#)
 
-The address of a previously deployed contract.
+이전에 배포된 컨트랙트의 주소입니다.
 
 ***
 

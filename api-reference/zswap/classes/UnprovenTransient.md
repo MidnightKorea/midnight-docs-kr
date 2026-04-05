@@ -8,7 +8,7 @@
 
 A [Transient](Transient.md), before being proven
 
-All "shielded" information in the transient can still be extracted at this
+이 단계에서 트랜지언트의 모든 "차폐" 정보를 추출할 수 있습니다.
 stage!
 
 ## Properties
@@ -19,7 +19,7 @@ stage!
 readonly commitment: string;
 ```
 
-The commitment of the transient
+트랜지언트의 커밋먼트입니다.
 
 ***
 
@@ -29,7 +29,7 @@ The commitment of the transient
 readonly contractAddress: undefined | string;
 ```
 
-The contract address creating the transient, if applicable
+해당하는 경우, 트랜지언트를 생성하는 컨트랙트 주소입니다.
 
 ***
 
@@ -39,7 +39,7 @@ The contract address creating the transient, if applicable
 readonly nullifier: string;
 ```
 
-The nullifier of the transient
+트랜지언트의 널리파이어입니다.
 
 ## Methods
 
@@ -110,7 +110,7 @@ static newFromContractOwnedOutput(
    output): UnprovenTransient
 ```
 
-Creates a new contract-owned transient, from a given output and its coin.
+주어진 출력과 코인으로 컨트랙트 소유의 새 트랜지언트를 생성합니다.
 
 The [QualifiedCoinInfo](../type-aliases/QualifiedCoinInfo.md) should have an `mt_index` of `0`
 

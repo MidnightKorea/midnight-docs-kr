@@ -350,7 +350,7 @@ setContainersConfiguration({
 });
 ```
 
-#### Logging configuration
+#### 로깅 구성
 
 The testkit uses [pino](https://github.com/pinojs/pino) with pretty-printing. Logs are written both to the console and to a file.
 

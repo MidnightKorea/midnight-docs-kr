@@ -6,8 +6,8 @@
 
 # Class: StateMap
 
-Represents a key-value map, where keys are [AlignedValue](../type-aliases/AlignedValue.md)s, and values
-are [StateValue](StateValue.md)s.
+키-값 맵을 나타내며, 키는 [AlignedValue](../type-aliases/AlignedValue.md)이고 값은
+[StateValue](StateValue.md)입니다.
 
 ## Constructors
 

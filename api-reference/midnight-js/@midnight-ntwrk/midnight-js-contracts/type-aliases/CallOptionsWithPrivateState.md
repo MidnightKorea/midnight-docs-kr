@@ -8,7 +8,7 @@
 
 > **CallOptionsWithPrivateState**\<`C`, `PCK`\> = [`CallOptionsWithProviderDataDependencies`](CallOptionsWithProviderDataDependencies.md)\<`C`, `PCK`\> & `object`
 
-Call options for contracts with private state.
+프라이빗 상태를 가진 컨트랙트의 호출 옵션입니다.
 
 ## Type Declaration
 
@@ -16,7 +16,7 @@ Call options for contracts with private state.
 
 > `readonly` **initialPrivateState**: `Contract.PrivateState`\<`C`\>
 
-The private state to run the circuit against.
+서킷을 실행할 프라이빗 상태입니다.
 
 ## Type Parameters
 

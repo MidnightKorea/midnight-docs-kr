@@ -10,7 +10,7 @@ Interface for a proof server running in a trusted environment.
 
 ## Type Param
 
-The type of the circuit ID used by the provider.
+프로바이더가 사용하는 서킷 ID의 타입입니다.
 
 ## Methods
 

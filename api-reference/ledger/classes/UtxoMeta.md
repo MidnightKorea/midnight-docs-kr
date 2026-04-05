@@ -6,7 +6,7 @@
 
 # Class: UtxoMeta
 
-Metadata about a specific UTXO
+특정 UTXO에 대한 메타데이터입니다.
 
 ## Constructors
 
@@ -34,4 +34,4 @@ new UtxoMeta(ctime): UtxoMeta;
 ctime: Date;
 ```
 
-The creation time of the UTXO, that is, when it was inserted into the state.
+UTXO의 생성 시간, 즉 상태에 삽입된 시점입니다.

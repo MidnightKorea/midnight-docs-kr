@@ -25,7 +25,7 @@ A running tally of synthetic resource costs.
 bytesDeleted: bigint;
 ```
 
-The number of (modelled) bytes deleted.
+(모델링된) 삭제된 바이트 수입니다.
 
 ***
 
@@ -35,7 +35,7 @@ The number of (modelled) bytes deleted.
 bytesWritten: bigint;
 ```
 
-The number of (modelled) bytes written.
+(모델링된) 기록된 바이트 수입니다.
 
 ***
 

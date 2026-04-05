@@ -8,7 +8,7 @@
 
 > **ContractConstructorOptionsWithProviderDataDependencies**\<`C`\> = [`ContractConstructorOptionsWithArguments`](ContractConstructorOptionsWithArguments.md)\<`C`\> & [`ContractConstructorOptionsProviderDataDependencies`](ContractConstructorOptionsProviderDataDependencies.md)
 
-Contract constructor options including arguments and provider data.
+인수와 프로바이더 데이터를 포함하는 컨트랙트 생성자 옵션입니다.
 
 ## Type Parameters
 

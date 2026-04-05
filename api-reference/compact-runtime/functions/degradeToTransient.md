@@ -10,11 +10,11 @@
 function degradeToTransient(x): bigint;
 ```
 
-The Compact builtin `degrade_to_transient` function
+Compact 내장 `degrade_to_transient` 함수
 
-This function "degrades" the output of a [persistentHash](persistentHash.md) or
-[persistentCommit](persistentCommit.md) to a field element, which can then be used in
-[transientHash](transientHash.md) or [transientCommit](transientCommit.md).
+[persistentHash](persistentHash.md) 또는 [persistentCommit](persistentCommit.md)의 출력을
+필드 요소로 "다운그레이드"하며, 그 결과를 [transientHash](transientHash.md) 또는
+[transientCommit](transientCommit.md)에서 사용할 수 있습니다.
 
 ## Parameters
 
@@ -28,4 +28,4 @@ This function "degrades" the output of a [persistentHash](persistentHash.md) or
 
 ## Throws
 
-If `x` is not 32 bytes long
+`x`가 32바이트가 아닌 경우

@@ -8,7 +8,7 @@
 
 > **createCircuitMaintenanceTxInterfaces**\<`C`\>(`providers`, `compiledContract`, `contractAddress`): [`CircuitMaintenanceTxInterfaces`](../type-aliases/CircuitMaintenanceTxInterfaces.md)\<`C`\>
 
-Creates a [CircuitMaintenanceTxInterfaces](../type-aliases/CircuitMaintenanceTxInterfaces.md).
+[CircuitMaintenanceTxInterfaces](../type-aliases/CircuitMaintenanceTxInterfaces.md)를 생성합니다.
 
 ## Type Parameters
 
@@ -22,19 +22,19 @@ Creates a [CircuitMaintenanceTxInterfaces](../type-aliases/CircuitMaintenanceTxI
 
 [`ContractProviders`](../type-aliases/ContractProviders.md)\<`C`\>
 
-The providers to use to build transactions.
+트랜잭션을 빌드하는 데 사용할 프로바이더입니다.
 
 ### compiledContract
 
 `CompiledContract`\<`C`, `any`\>
 
-The contract to use to execute circuits.
+서킷을 실행하는 데 사용할 컨트랙트입니다.
 
 ### contractAddress
 
 `string`
 
-The ledger address of the contract.
+컨트랙트의 원장 주소입니다.
 
 ## Returns
 

@@ -6,7 +6,7 @@
 
 # Enumeration: NetworkId
 
-The network currently being targeted
+현재 대상 네트워크입니다.
 
 ## Enumeration Members
 
@@ -26,7 +26,7 @@ A developer network, not guaranteed to be persistent
 MainNet: 3;
 ```
 
-The Midnight mainnet
+Midnight 메인넷입니다.
 
 ***
 

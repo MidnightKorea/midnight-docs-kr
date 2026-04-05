@@ -2,7 +2,7 @@
 
 ***
 
-Top-level configuration for all test containers
+모든 테스트 컨테이너의 최상위 구성
 
 ## Properties
 
@@ -10,7 +10,7 @@ Top-level configuration for all test containers
 
 > **log**: [`LogConfiguration`](LogConfiguration.md)
 
-Logging configuration
+로깅 구성
 
 ***
 

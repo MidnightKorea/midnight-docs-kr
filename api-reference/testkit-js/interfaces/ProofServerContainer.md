@@ -10,13 +10,13 @@ Interface representing a proof server container that can be started and stopped.
 
 > **getUrl**(): `string`
 
-Gets the URL where the proof server can be accessed.
+증명 서버에 접근할 수 있는 URL을 가져옵니다.
 
 #### Returns
 
 `string`
 
-The URL of the proof server
+증명 서버의 URL
 
 ***
 
@@ -24,7 +24,7 @@ The URL of the proof server
 
 > **stop**(): `Promise`\<`void`\>
 
-Stops the proof server container.
+증명 서버 컨테이너를 중지합니다.
 
 #### Returns
 

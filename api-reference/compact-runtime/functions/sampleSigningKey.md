@@ -10,7 +10,7 @@
 function sampleSigningKey(): string;
 ```
 
-Randomly samples a [SigningKey](../type-aliases/SigningKey.md).
+[SigningKey](../type-aliases/SigningKey.md)를 무작위로 샘플링합니다.
 
 ## Returns
 

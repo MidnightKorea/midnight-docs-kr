@@ -16,4 +16,4 @@ A type representing a prover key derived from a contract circuit.
 
 > `readonly` **ProverKey**: unique `symbol`
 
-Unique symbol brand.
+고유 심볼 브랜드입니다.

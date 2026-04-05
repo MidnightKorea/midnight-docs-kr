@@ -8,7 +8,7 @@
 
 > **UnsubmittedTxData** = `object`
 
-Data relevant to any unsubmitted transaction.
+미제출 트랜잭션에 관련된 데이터입니다.
 
 ## Properties
 
@@ -16,7 +16,7 @@ Data relevant to any unsubmitted transaction.
 
 > `readonly` **newCoins**: `ShieldedCoinInfo`[]
 
-New coins created during the construction of the transaction.
+트랜잭션 구성 중에 생성된 새 코인입니다.
 
 ***
 
@@ -24,4 +24,4 @@ New coins created during the construction of the transaction.
 
 > `readonly` **unprovenTx**: `UnprovenTransaction`
 
-The unproven ledger transaction produced.
+생성된 미증명 원장 트랜잭션입니다.

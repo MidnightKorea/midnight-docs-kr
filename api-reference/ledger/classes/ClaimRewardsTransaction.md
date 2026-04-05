@@ -6,7 +6,7 @@
 
 # Class: ClaimRewardsTransaction\<S\>
 
-A request to allocate rewards, authorized by the reward's recipient
+보상 수령인이 승인한 보상 할당 요청입니다.
 
 ## Type Parameters
 
@@ -71,7 +71,7 @@ kind?): ClaimRewardsTransaction<S>;
 readonly dataToSign: Uint8Array;
 ```
 
-The raw data any valid signature must be over to approve this transaction.
+이 트랜잭션을 승인하기 위해 유효한 서명이 서명해야 하는 원시 데이터입니다.
 
 ***
 
@@ -81,7 +81,7 @@ The raw data any valid signature must be over to approve this transaction.
 readonly kind: ClaimKind;
 ```
 
-The kind of claim being made, either a `Reward` or a `CardanoBridge` claim.
+청구 유형으로, `Reward` 또는 `CardanoBridge` 중 하나입니다.
 
 ***
 
@@ -91,7 +91,7 @@ The kind of claim being made, either a `Reward` or a `CardanoBridge` claim.
 readonly nonce: string;
 ```
 
-The rewarded coin's randomness, preventing it from colliding with other coins.
+보상 코인의 랜덤값으로, 다른 코인과의 충돌을 방지합니다.
 
 ***
 
@@ -101,7 +101,7 @@ The rewarded coin's randomness, preventing it from colliding with other coins.
 readonly owner: string;
 ```
 
-The signing key owning this coin.
+이 코인을 소유한 서명 키입니다.
 
 ***
 
@@ -111,7 +111,7 @@ The signing key owning this coin.
 readonly signature: S;
 ```
 
-The signature on this request.
+이 요청에 대한 서명입니다.
 
 ***
 
@@ -121,9 +121,9 @@ The signature on this request.
 readonly value: bigint;
 ```
 
-The rewarded coin's value, in atomic units dependent on the currency
+통화에 따른 최소 단위로 표현된 보상 코인의 값입니다.
 
-Bounded to be a non-negative 64-bit integer
+음이 아닌 64비트 정수로 제한됩니다.
 
 ## Methods
 

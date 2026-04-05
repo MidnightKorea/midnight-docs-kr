@@ -12,7 +12,7 @@ function convert_bigint_to_Uint8Array(n, x): Uint8Array;
 
 **`Internal`**
 
-Compiler internal for typecasts
+타입 캐스트를 위한 컴파일러 내부 함수
 
 ## Parameters
 

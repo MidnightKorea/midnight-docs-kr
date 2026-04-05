@@ -8,7 +8,7 @@
 
 > `const` **withContractScopedTransaction**: \<`C`, `PCK`\>(`providers`, `fn`, `options?`) => `Promise`\<[`FinalizedCallTxData`](../type-aliases/FinalizedCallTxData.md)\<`C`, `PCK`\>\>
 
-Executes a function within the context of a contract-scoped transaction.
+컨트랙트 스코프 트랜잭션의 컨텍스트 내에서 함수를 실행합니다.
 
 ## Type Parameters
 
@@ -26,28 +26,26 @@ Executes a function within the context of a contract-scoped transaction.
 
 [`ContractProviders`](../type-aliases/ContractProviders.md)\<`C`, `PCK`\>
 
-The contract providers to use within the transaction.
+트랜잭션 내에서 사용할 컨트랙트 프로바이더입니다.
 
 ### fn
 
 (`txCtx`) => `Promise`\<`void`\>
 
-The function to execute within the transaction context.
+트랜잭션 컨텍스트 내에서 실행할 함수입니다.
 
 ### options?
 
 [`ScopedTransactionOptions`](../type-aliases/ScopedTransactionOptions.md)
 
-Optional transaction scope options.
+선택적 트랜잭션 스코프 옵션입니다.
 
 ## Returns
 
 `Promise`\<[`FinalizedCallTxData`](../type-aliases/FinalizedCallTxData.md)\<`C`, `PCK`\>\>
 
-A `Promise` that resolves with the finalized transaction data of the single transaction
-created for all circuit calls made within `fn`.
+`fn` 내에서 수행된 모든 서킷 호출에 대해 생성된 단일 트랜잭션의 확정 데이터로 이행되는 `Promise`입니다.
 
 ## Remarks
 
-Where `fn` make circuit calls, these are batched together and submitted as a single transaction when
-the function completes successfully. If `fn` throws an error, any unsubmitted circuit calls are discarded.
+`fn`이 서킷 호출을 수행하면, 함수가 성공적으로 완료될 때 이들이 일괄 처리되어 단일 트랜잭션으로 제출됩니다. `fn`이 오류를 발생시키면 미제출된 서킷 호출은 모두 폐기됩니다.

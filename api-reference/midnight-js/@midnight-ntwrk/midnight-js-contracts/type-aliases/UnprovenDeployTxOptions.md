@@ -8,7 +8,7 @@
 
 > **UnprovenDeployTxOptions**\<`C`\> = [`DeployTxOptionsBase`](DeployTxOptionsBase.md)\<`C`\> \| [`DeployTxOptionsWithPrivateState`](DeployTxOptionsWithPrivateState.md)\<`C`\>
 
-Configuration for creating unproven deploy transactions.
+미증명 배포 트랜잭션 생성을 위한 설정입니다.
 
 ## Type Parameters
 

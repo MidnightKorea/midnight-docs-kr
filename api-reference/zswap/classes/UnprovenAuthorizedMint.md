@@ -17,7 +17,7 @@ proof for the authorization being generated
 readonly coin: CoinInfo;
 ```
 
-The coin to be minted
+민팅할 코인입니다.
 
 ***
 
@@ -27,7 +27,7 @@ The coin to be minted
 readonly recipient: string;
 ```
 
-The recipient of this mint
+이 민트의 수신자입니다.
 
 ## Methods
 

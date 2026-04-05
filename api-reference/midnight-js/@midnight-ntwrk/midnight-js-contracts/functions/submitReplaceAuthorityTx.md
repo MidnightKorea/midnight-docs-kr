@@ -8,31 +8,28 @@
 
 > **submitReplaceAuthorityTx**\<`C`\>(`providers`, `compiledContract`, `contractAddress`): (`newAuthority`) => `Promise`\<`FinalizedTxData`\>
 
-Constructs and submits a transaction that replaces the maintenance
-authority stored on the blockchain for this contract. After the transaction is
-finalized, the current signing key stored in the given private state provider
-is overwritten with the given new authority key.
+이 컨트랙트에 대해 블록체인에 저장된 유지보수 권한을 교체하는 트랜잭션을 구성하고 제출합니다. 트랜잭션이 확정된 후, 주어진 프라이빗 상태 프로바이더에 저장된 현재 서명 키가 새로운 권한 키로 덮어씁니다.
 
 ## Transaction Execution Phases
 
-Midnight transactions execute in two phases:
-1. **Guaranteed phase**: If failure occurs, the transaction is NOT included in the blockchain
-2. **Fallible phase**: If failure occurs, the transaction IS recorded on-chain as a partial success
+Midnight 트랜잭션은 두 단계로 실행됩니다:
+1. **보장 단계**: 실패 시 트랜잭션이 블록체인에 포함되지 않습니다
+2. **실패 허용 단계**: 실패 시 트랜잭션이 부분 성공으로 온체인에 기록됩니다
 
 ## Failure Behavior
 
-**Guaranteed Phase Failure:**
-- Transaction is rejected and not included in the blockchain
-- `ReplaceMaintenanceAuthorityTxFailedError` is thrown with transaction data
-- Signing key in private state provider is NOT updated (remains as current authority)
-- Contract authority on-chain remains unchanged
+**보장 단계 실패:**
+- 트랜잭션이 거부되어 블록체인에 포함되지 않습니다
+- 트랜잭션 데이터가 포함된 `ReplaceMaintenanceAuthorityTxFailedError`가 발생합니다
+- 프라이빗 상태 프로바이더의 서명 키가 업데이트되지 않습니다 (현재 권한 유지)
+- 온체인 컨트랙트 권한이 변경되지 않습니다
 
-**Fallible Phase Failure:**
-- Transaction is recorded on-chain with non-`SucceedEntirely` status
-- `ReplaceMaintenanceAuthorityTxFailedError` is thrown with transaction data
-- Signing key in private state provider is NOT updated (remains as current authority)
-- Contract authority on-chain may be partially updated but inconsistent
-- Transaction appears in blockchain history as partial success
+**실패 허용 단계 실패:**
+- `SucceedEntirely`가 아닌 상태로 트랜잭션이 온체인에 기록됩니다
+- 트랜잭션 데이터가 포함된 `ReplaceMaintenanceAuthorityTxFailedError`가 발생합니다
+- 프라이빗 상태 프로바이더의 서명 키가 업데이트되지 않습니다 (현재 권한 유지)
+- 온체인 컨트랙트 권한이 부분적으로 업데이트되었으나 일관되지 않을 수 있습니다
+- 트랜잭션이 부분 성공으로 블록체인 이력에 나타납니다
 
 ## Type Parameters
 
@@ -46,26 +43,24 @@ Midnight transactions execute in two phases:
 
 [`ContractProviders`](../type-aliases/ContractProviders.md)
 
-The providers to use to manage the transaction lifecycle.
+트랜잭션 수명 주기를 관리하는 데 사용할 프로바이더입니다.
 
 ### compiledContract
 
 `CompiledContract`\<`C`, `any`\>
 
-The compiled contract for which the maintenance authority
-                        should be updated.
+유지보수 권한을 업데이트할 컴파일된 컨트랙트입니다.
 
 ### contractAddress
 
 `string`
 
-The address of the contract for which the maintenance
-                       authority should be updated.
+유지보수 권한을 업데이트할 컨트랙트의 주소입니다.
 
-TODO: There are at least three options we should support in the future:
-      1. Replace authority and maintain key (current).
-      2. Replace authority and do not maintain key.
-      3. Add additional authorities and maintain original key.
+TODO: 향후 지원해야 할 옵션이 최소 세 가지 있습니다:
+      1. 권한 교체 및 키 유지 (현재 방식).
+      2. 권한 교체 및 키 미유지.
+      3. 추가 권한 부여 및 기존 키 유지.
 
 ## Returns
 
@@ -77,16 +72,15 @@ TODO: There are at least three options we should support in the future:
 
 `string`
 
-The signing key of the new contract maintenance authority.
+새 컨트랙트 유지보수 권한의 서명 키입니다.
 
 ### Returns
 
 `Promise`\<`FinalizedTxData`\>
 
-A promise that resolves with the finalized transaction data, or rejects if
-         an error occurs along the way.
+확정된 트랜잭션 데이터로 이행되거나, 중간에 오류가 발생하면 거부되는 프로미스입니다.
 
 ### Throws
 
-When transaction fails in either guaranteed or fallible phase.
-        The error contains the finalized transaction data for debugging.
+보장 단계 또는 실패 허용 단계에서 트랜잭션이 실패한 경우.
+        오류에는 디버깅을 위한 확정된 트랜잭션 데이터가 포함됩니다.

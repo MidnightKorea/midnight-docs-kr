@@ -8,7 +8,7 @@
 
 > **PublicContractStates** = `object`
 
-Object containing the publicly visible states of a contract.
+컨트랙트의 공개적으로 조회 가능한 상태를 포함하는 객체입니다.
 
 ## Properties
 
@@ -16,7 +16,7 @@ Object containing the publicly visible states of a contract.
 
 > `readonly` **contractState**: `ContractState`
 
-The (public) ledger state of a contract.
+컨트랙트의 (퍼블릭) 원장 상태입니다.
 
 ***
 
@@ -24,7 +24,7 @@ The (public) ledger state of a contract.
 
 > `readonly` **ledgerParameters**: `LedgerParameters`
 
-The ledger parameters in effect on the block associated with the contract state.
+컨트랙트 상태와 연결된 블록에서 적용되는 원장 매개변수입니다.
 
 ***
 
@@ -32,4 +32,4 @@ The ledger parameters in effect on the block associated with the contract state.
 
 > `readonly` **zswapChainState**: `ZswapChainState`
 
-The (public) Zswap chain state of a contract.
+컨트랙트의 (퍼블릭) Zswap 체인 상태입니다.

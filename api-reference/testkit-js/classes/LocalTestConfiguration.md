@@ -46,7 +46,7 @@ Optional URL for the faucet service to obtain test tokens
 
 > `readonly` **indexer**: `string`
 
-URL of the indexer HTTP endpoint
+인덱서 HTTP 엔드포인트의 URL
 
 #### Implementation of
 
@@ -70,7 +70,7 @@ WebSocket URL for the indexer service
 
 > `readonly` **networkId**: `string`
 
-Network identifier
+네트워크 식별자
 
 #### Implementation of
 
@@ -82,7 +82,7 @@ Network identifier
 
 > `readonly` **node**: `string`
 
-URL of the blockchain node
+블록체인 노드의 URL
 
 #### Implementation of
 
@@ -106,7 +106,7 @@ WebSocket URL for the blockchain node
 
 > `readonly` **proofServer**: `string`
 
-URL of the proof generation server
+증명 생성 서버의 URL
 
 #### Implementation of
 
@@ -118,7 +118,7 @@ URL of the proof generation server
 
 > `readonly` **walletNetworkId**: `string`
 
-Wallet Network identifier
+Wallet 네트워크 식별자
 
 #### Implementation of
 

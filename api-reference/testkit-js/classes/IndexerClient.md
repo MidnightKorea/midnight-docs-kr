@@ -8,7 +8,7 @@
 
 > **new IndexerClient**(`indexerUrl`, `logger`): `IndexerClient`
 
-Creates an instance of IndexerClient.
+IndexerClient 인스턴스를 생성합니다.
 
 #### Parameters
 
@@ -16,13 +16,13 @@ Creates an instance of IndexerClient.
 
 `string`
 
-The URL of the indexer service.
+인덱서 서비스의 URL입니다.
 
 ##### logger
 
 `Logger`
 
-The logger instance for logging information.
+정보 로깅을 위한 Logger 인스턴스입니다.
 
 #### Returns
 

@@ -23,7 +23,7 @@ type SegmentSpecifier =
 };
 ```
 
-Specifies where something should execute in a transaction.
+트랜잭션에서 실행 위치를 지정합니다.
 
 Options are:
 - As the first thing (alias for `{ tag: 'specific', value: 1 }`)

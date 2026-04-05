@@ -10,7 +10,7 @@
 function sampleTokenType(): TokenType
 ```
 
-Samples a uniform token type, for use in testing
+테스트용 균일한 토큰 유형을 샘플링합니다.
 
 ## Returns
 

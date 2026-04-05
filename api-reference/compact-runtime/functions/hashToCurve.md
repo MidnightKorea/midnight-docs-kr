@@ -10,17 +10,17 @@
 function hashToCurve<A>(rtType, x): JubjubPoint;
 ```
 
-The Compact builtin `hash_to_curve` function
+Compact 내장 `hash_to_curve` 함수
 
-This function maps arbitrary values representable in Compact to elliptic
-curve points in the proof system's embedded curve.
+Compact에서 표현 가능한 임의의 값을 증명 시스템의 내장 곡선 위의
+타원 곡선 점으로 매핑합니다.
 
-Outputs are guaranteed to have unknown discrete logarithm with respect to
-the group base, and any other output, but are not guaranteed to be unique (a
-given input can be proven correct for multiple outputs).
+출력은 그룹 기저 및 다른 출력에 대해 이산 로그가 알려지지 않도록
+보장되지만, 유일성은 보장되지 않습니다(하나의 입력이 여러 출력에 대해
+올바른 것으로 증명될 수 있음).
 
-Inputs of different types may have the same output, if they have the same
-field-aligned binary representation.
+서로 다른 타입의 입력도 동일한 필드 정렬 바이너리 표현을 가지면
+같은 출력을 가질 수 있습니다.
 
 ## Type Parameters
 

@@ -6,8 +6,7 @@
 
 # Interface: ContractMaintenanceTxInterface
 
-Interface for creating maintenance transactions for a contract that was
-deployed.
+배포된 컨트랙트의 유지보수 트랜잭션을 생성하기 위한 인터페이스입니다.
 
 ## Methods
 
@@ -15,8 +14,7 @@ deployed.
 
 > **replaceAuthority**(`newAuthority`): `Promise`\<`FinalizedTxData`\>
 
-Constructs and submits a transaction that replaces the maintenance
-authority stored on the blockchain for this contract.
+이 컨트랙트에 대해 블록체인에 저장된 유지보수 권한을 교체하는 트랜잭션을 구성하고 제출합니다.
 
 #### Parameters
 
@@ -24,7 +22,7 @@ authority stored on the blockchain for this contract.
 
 `string`
 
-The new contract maintenance authority for this contract.
+이 컨트랙트의 새 유지보수 권한입니다.
 
 #### Returns
 

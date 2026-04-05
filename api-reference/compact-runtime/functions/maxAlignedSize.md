@@ -12,7 +12,7 @@ function maxAlignedSize(alignment): bigint;
 
 **`Internal`**
 
-Internal implementation of the max aligned size primitive.
+최대 정렬 크기 프리미티브의 내부 구현입니다.
 
 ## Parameters
 

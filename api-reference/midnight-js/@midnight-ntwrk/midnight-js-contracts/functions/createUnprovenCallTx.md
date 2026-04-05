@@ -6,27 +6,25 @@
 
 # Function: createUnprovenCallTx()
 
-Calls a circuit using states fetched from the public data provider and private state
-provider, then creates an unbalanced, unproven, unsubmitted, call transaction.
+퍼블릭 데이터 프로바이더와 프라이빗 상태 프로바이더에서 가져온 상태를 사용하여 서킷을 호출한 후, 밸런싱되지 않은 미증명 미제출 호출 트랜잭션을 생성합니다.
 
 ## Param
 
-The providers to use to create the call transaction.
+호출 트랜잭션을 생성하는 데 사용할 프로바이더입니다.
 
 ## Param
 
-Configuration.
+설정입니다.
 
 ## Param
 
-Optional scoped transaction context to participate in an
-       existing transaction scope.
+기존 트랜잭션 스코프에 참여하기 위한 선택적 스코프 트랜잭션 컨텍스트입니다.
 
 ## Throws
 
-IncompleteCallTxPrivateStateConfig If a `privateStateId` was given but a `privateStateProvider`
-                                          was not. We assume that when a user gives a `privateStateId`,
-                                          they want to update the private state store.
+IncompleteCallTxPrivateStateConfig `privateStateId`가 제공되었지만 `privateStateProvider`가
+                                          제공되지 않은 경우. `privateStateId`를 지정하면 프라이빗 상태
+                                          저장소를 업데이트하려는 것으로 간주합니다.
 
 ## Call Signature
 

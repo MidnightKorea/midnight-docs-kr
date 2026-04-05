@@ -6,8 +6,7 @@
 
 # Class: WellFormedStrictness
 
-Strictness criteria for evaluating transaction well-formedness, used for
-disabling parts of transaction validation for testing.
+트랜잭션 올바른 형식 평가를 위한 엄격도 기준으로, 테스트 시 트랜잭션 검증의 일부를 비활성화하는 데 사용됩니다.
 
 ## Constructors
 
@@ -29,7 +28,7 @@ new WellFormedStrictness(): WellFormedStrictness;
 enforceBalancing: boolean;
 ```
 
-Whether to require the transaction to have a non-negative balance
+트랜잭션이 음이 아닌 잔액을 가져야 하는지 여부입니다.
 
 ***
 
@@ -39,7 +38,7 @@ Whether to require the transaction to have a non-negative balance
 enforceLimits: boolean;
 ```
 
-Whether to enforce the transaction byte limit
+트랜잭션 바이트 한도를 강제할지 여부입니다.
 
 ***
 
@@ -49,7 +48,7 @@ Whether to enforce the transaction byte limit
 verifyContractProofs: boolean;
 ```
 
-Whether to validate contract proofs in the transaction
+트랜잭션의 컨트랙트 증명을 검증할지 여부입니다.
 
 ***
 
@@ -59,7 +58,7 @@ Whether to validate contract proofs in the transaction
 verifyNativeProofs: boolean;
 ```
 
-Whether to validate Midnight-native (non-contract) proofs in the transaction
+트랜잭션의 Midnight 네이티브(비컨트랙트) 증명을 검증할지 여부입니다.
 
 ***
 
@@ -69,4 +68,4 @@ Whether to validate Midnight-native (non-contract) proofs in the transaction
 verifySignatures: boolean;
 ```
 
-Whether to enforce the signature verification
+서명 검증을 강제할지 여부입니다.

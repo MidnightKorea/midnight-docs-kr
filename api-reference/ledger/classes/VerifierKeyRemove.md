@@ -6,8 +6,7 @@
 
 # Class: VerifierKeyRemove
 
-An update instruction to remove a verifier key of a specific operation and
-version.
+특정 연산 및 버전의 검증자 키를 제거하는 업데이트 명령입니다.
 
 ## Constructors
 

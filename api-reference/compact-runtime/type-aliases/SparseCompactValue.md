@@ -14,7 +14,7 @@ type SparseCompactValue = {
 };
 ```
 
-A data structure indicating the locations of all contract references in a Compact value.
+Compact 값에서 모든 컨트랙트 참조의 위치를 나타내는 데이터 구조입니다.
 
 ## Properties
 
@@ -24,8 +24,8 @@ A data structure indicating the locations of all contract references in a Compac
 descriptor: CompactType<unknown>;
 ```
 
-A descriptor that can be used to convert an [AlignedValue](AlignedValue.md) into a TypeScript representation of the same value.
-This descriptor will only ever decode `struct`s or `Vector`s that contain contract addresses.
+[AlignedValue](AlignedValue.md)를 동일한 값의 TypeScript 표현으로 변환하는 데 사용할 수 있는 디스크립터입니다.
+이 디스크립터는 컨트랙트 주소를 포함하는 `struct` 또는 `Vector`만 디코딩합니다.
 
 ***
 
@@ -35,7 +35,7 @@ This descriptor will only ever decode `struct`s or `Vector`s that contain contra
 sparseType: SparseCompactType;
 ```
 
-A data structure indicating how to navigate to the contract addresses present in the output of the above `descriptor`.
+위 `descriptor`의 출력에 존재하는 컨트랙트 주소로 탐색하는 방법을 나타내는 데이터 구조입니다.
 
 ***
 

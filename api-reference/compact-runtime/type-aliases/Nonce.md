@@ -10,4 +10,4 @@
 type Nonce = string;
 ```
 
-A Zswap nonce, as a hex-encoded 256-bit string
+16진수 인코딩된 256비트 문자열인 Zswap 논스

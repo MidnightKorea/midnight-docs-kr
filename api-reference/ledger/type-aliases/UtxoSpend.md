@@ -16,7 +16,7 @@ type UtxoSpend = {
 };
 ```
 
-An input appearing in an [Intent](../classes/Intent.md), or a user's local book-keeping.
+[Intent](../classes/Intent.md)에 나타나는 입력 또는 사용자의 로컬 장부입니다.
 
 ## Properties
 
@@ -36,7 +36,7 @@ The hash of the intent outputting this UTXO
 outputNo: number;
 ```
 
-The output number of this UTXO in its parent [Intent](../classes/Intent.md).
+상위 [Intent](../classes/Intent.md)에서 이 UTXO의 출력 번호입니다.
 
 ***
 
@@ -46,7 +46,7 @@ The output number of this UTXO in its parent [Intent](../classes/Intent.md).
 owner: SignatureVerifyingKey;
 ```
 
-The signing key owning these tokens.
+이 토큰을 소유한 서명 키입니다.
 
 ***
 
@@ -66,4 +66,4 @@ The token type of this UTXO
 value: bigint;
 ```
 
-The amount of tokens this UTXO represents
+이 UTXO가 나타내는 토큰 양입니다.

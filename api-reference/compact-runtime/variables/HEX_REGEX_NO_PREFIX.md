@@ -10,4 +10,4 @@
 const HEX_REGEX_NO_PREFIX: RegExp;
 ```
 
-Regex matching hex strings of even length.
+짝수 길이의 16진수 문자열과 일치하는 정규식입니다.

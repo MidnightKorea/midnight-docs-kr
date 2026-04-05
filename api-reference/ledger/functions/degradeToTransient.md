@@ -12,7 +12,7 @@ function degradeToTransient(persistent): Value;
 
 **`Internal`**
 
-Internal implementation of the degrade to transient primitive
+트랜지언트로 저하하는 프리미티브의 내부 구현입니다.
 
 ## Parameters
 

@@ -13,5 +13,5 @@ type SparseCompactType =
   | SparseCompactContractAddress;
 ```
 
-A data structure indicating the locations of contract references in a Compact struct, vector, or (the terminating case)
-a contract address.
+Compact 구조체, 벡터 또는 (종결 케이스인) 컨트랙트 주소에서
+컨트랙트 참조의 위치를 나타내는 데이터 구조입니다.

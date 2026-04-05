@@ -6,7 +6,7 @@
 
 # Class: FetchZkConfigProvider\<K\>
 
-Retrieves ZK artifacts from a remote source.
+원격 소스에서 ZK 아티팩트를 조회합니다.
 
 ## Extends
 
@@ -30,13 +30,13 @@ Retrieves ZK artifacts from a remote source.
 
 `string`
 
-The endpoint to query for ZK artifacts.
+ZK 아티팩트를 조회할 엔드포인트입니다.
 
 ##### fetchFunc?
 
 \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
 
-The function to use to execute queries.
+쿼리를 실행하는 데 사용할 함수입니다.
 
 #### Returns
 
@@ -52,7 +52,7 @@ The function to use to execute queries.
 
 > `readonly` **baseURL**: `string`
 
-The endpoint to query for ZK artifacts.
+ZK 아티팩트를 조회할 엔드포인트입니다.
 
 ## Methods
 
@@ -82,7 +82,7 @@ Retrieves all zero-knowledge artifacts produced by `compactc` compiler for the g
 
 `K`
 
-The circuit ID of the artifacts to retrieve.
+조회할 아티팩트의 서킷 ID입니다.
 
 #### Returns
 

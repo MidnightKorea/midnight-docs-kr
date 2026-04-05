@@ -6,16 +6,15 @@
 
 # Function: createUnprovenDeployTx()
 
-Calls a contract constructor and creates an unbalanced, unproven, unsubmitted, deploy transaction
-from the constructor results.
+컨트랙트 생성자를 호출하고, 생성자 결과로부터 밸런싱되지 않은 미증명 미제출 배포 트랜잭션을 생성합니다.
 
 ## Param
 
-The providers to use to create the deploy transaction.
+배포 트랜잭션을 생성하는 데 사용할 프로바이더입니다.
 
 ## Param
 
-Configuration.
+설정입니다.
 
 ## Call Signature
 

@@ -6,7 +6,7 @@
 
 # Class: ContractCall\<P\>
 
-A single contract call segment
+단일 컨트랙트 호출 세그먼트입니다.
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ A single contract call segment
 readonly address: string;
 ```
 
-The address being called
+호출 대상 주소입니다.
 
 ***
 
@@ -32,7 +32,7 @@ The address being called
 readonly communicationCommitment: string;
 ```
 
-The communication commitment of this call
+이 호출의 커뮤니케이션 커밋먼트입니다.
 
 ***
 
@@ -42,7 +42,7 @@ The communication commitment of this call
 readonly entryPoint: string | Uint8Array<ArrayBufferLike>;
 ```
 
-The entry point being called
+호출 대상 진입점입니다.
 
 ***
 
@@ -54,7 +54,7 @@ readonly fallibleTranscript:
 | Transcript<AlignedValue>;
 ```
 
-The fallible execution stage transcript
+fallible 실행 단계 트랜스크립트입니다.
 
 ***
 
@@ -66,7 +66,7 @@ readonly guaranteedTranscript:
 | Transcript<AlignedValue>;
 ```
 
-The guaranteed execution stage transcript
+guaranteed 실행 단계 트랜스크립트입니다.
 
 ***
 
@@ -76,7 +76,7 @@ The guaranteed execution stage transcript
 readonly proof: P;
 ```
 
-The proof attached to this call
+이 호출에 첨부된 증명입니다.
 
 ## Methods
 

@@ -25,7 +25,7 @@ a query against the Indexer.
 
 readonly `GraphQLFormattedError`[]
 
-An array of GraphQL errors that occurred during the server-side execution.
+서버 측 실행 중 발생한 GraphQL 오류 배열입니다.
 
 #### Returns
 
@@ -41,7 +41,7 @@ An array of GraphQL errors that occurred during the server-side execution.
 
 > `readonly` **cause**: readonly `GraphQLFormattedError`[]
 
-An array of GraphQL errors that occurred during the server-side execution.
+서버 측 실행 중 발생한 GraphQL 오류 배열입니다.
 
 #### Inherited from
 

@@ -8,7 +8,7 @@
 
 > **APIError** = `Error` & `object`
 
-Declaration of the error type thrown by the DApp Connector.
+DApp Connector가 발생시키는 오류 타입의 선언입니다.
 
 It is not a class extending the base `Error` type, because
 it would make it difficult to implement in a way where `instanceof APIError` would work.
@@ -20,16 +20,16 @@ Instead a check like `error.type === 'DAppConnectorAPIError'` should be used.
 
 > **code**: [`ErrorCode`](ErrorCode.md)
 
-The code of the error that's thrown
+발생한 오류의 코드
 
 ### reason
 
 > **reason**: `string`
 
-The reason the error is thrown
+오류가 발생한 이유
 
 ### type
 
 > **type**: `"DAppConnectorAPIError"`
 
-indication it is a DApp Connector Error
+DApp Connector 오류임을 나타냅니다

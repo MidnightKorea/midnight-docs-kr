@@ -6,7 +6,7 @@
 
 # Interface: CircuitResults\<PS, R\>
 
-The results of the call to a Compact circuit
+Compact 회로 호출의 결과
 
 ## Type Parameters
 
@@ -26,8 +26,7 @@ The results of the call to a Compact circuit
 context: CircuitContext<PS>;
 ```
 
-The updated context after the circuit execution, that can be used to
-inform further runs
+회로 실행 후 업데이트된 컨텍스트로, 이후 실행에 활용할 수 있습니다
 
 ***
 
@@ -37,7 +36,7 @@ inform further runs
 gasCost: RunningCost;
 ```
 
-The gas consumption of the circuit execution
+회로 실행의 가스 소비량
 
 ***
 
@@ -47,7 +46,7 @@ The gas consumption of the circuit execution
 proofData: ProofData;
 ```
 
-The data required to prove this circuit run
+이 회로 실행을 증명하는 데 필요한 데이터
 
 ***
 
@@ -57,4 +56,4 @@ The data required to prove this circuit run
 result: R;
 ```
 
-The primary result, as returned from Compact
+Compact에서 반환된 기본 결과

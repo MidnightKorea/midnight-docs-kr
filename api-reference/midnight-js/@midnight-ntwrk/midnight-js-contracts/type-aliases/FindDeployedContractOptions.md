@@ -8,7 +8,7 @@
 
 > **FindDeployedContractOptions**\<`C`\> = [`FindDeployedContractOptionsBase`](FindDeployedContractOptionsBase.md)\<`C`\> \| [`FindDeployedContractOptionsExistingPrivateState`](FindDeployedContractOptionsExistingPrivateState.md)\<`C`\> \| [`FindDeployedContractOptionsStorePrivateState`](FindDeployedContractOptionsStorePrivateState.md)\<`C`\>
 
-Configuration for [findDeployedContract](../functions/findDeployedContract.md).
+[findDeployedContract](../functions/findDeployedContract.md)의 설정입니다.
 
 ## Type Parameters
 

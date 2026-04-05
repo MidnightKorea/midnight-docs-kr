@@ -16,7 +16,7 @@ Asserts that a string represents a hex-encoded sequence of bytes.
 
 `string`
 
-The source string.
+원본 문자열입니다.
 
 ### byteLen?
 

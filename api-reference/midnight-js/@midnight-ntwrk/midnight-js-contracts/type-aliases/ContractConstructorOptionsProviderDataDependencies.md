@@ -8,7 +8,7 @@
 
 > **ContractConstructorOptionsProviderDataDependencies** = `object`
 
-Data retrieved via providers that should be included in the constructor call options.
+생성자 호출 옵션에 포함해야 하는 프로바이더를 통해 조회된 데이터입니다.
 
 ## Properties
 
@@ -16,4 +16,4 @@ Data retrieved via providers that should be included in the constructor call opt
 
 > `readonly` **coinPublicKey**: `CoinPublicKey`
 
-The current user's ZSwap public key.
+현재 사용자의 ZSwap 공개 키입니다.

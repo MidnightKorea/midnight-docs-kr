@@ -18,7 +18,7 @@ Creates a new WalletSaveStateProvider instance
 
 `Logger`
 
-Logger instance for recording operations
+작업 기록용 Logger 인스턴스
 
 ##### seed
 
@@ -62,7 +62,7 @@ Full path including filename for the wallet state file
 
 > **logger**: `Logger`
 
-Logger instance for recording operations
+작업 기록용 Logger 인스턴스
 
 ## Methods
 

@@ -10,7 +10,7 @@
 function entryPointHash(entryPoint): string;
 ```
 
-Computes the (hex-encoded) hash of a given contract entry point. Used in
+주어진 컨트랙트 진입점의 (16진수 인코딩된) 해시를 계산합니다.
 composable contracts to reference the called contract's entry point ID
 in-circuit.
 

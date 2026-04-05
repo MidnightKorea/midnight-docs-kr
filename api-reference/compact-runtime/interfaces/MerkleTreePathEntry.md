@@ -6,8 +6,8 @@
 
 # Interface: MerkleTreePathEntry
 
-An entry in a Merkle path. TypeScript representation of the Compact type of
-the same name.
+Merkle 경로의 항목입니다. 동일한 이름의 Compact 타입에 대한
+TypeScript 표현입니다.
 
 ## Properties
 

@@ -8,7 +8,7 @@
 
 > **setNetworkId**(`id`): `void`
 
-Sets the global network identifier.
+글로벌 네트워크 식별자를 설정합니다.
 
 ## Parameters
 

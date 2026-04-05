@@ -15,7 +15,7 @@ function persistentCommit(
 
 **`Internal`**
 
-Internal implementation of the persistent commitment primitive
+영구 커밋먼트 프리미티브의 내부 구현
 
 ## Parameters
 

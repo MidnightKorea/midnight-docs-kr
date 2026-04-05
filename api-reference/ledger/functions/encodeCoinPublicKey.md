@@ -10,7 +10,7 @@
 function encodeCoinPublicKey(pk): Uint8Array;
 ```
 
-Encode a [CoinPublicKey](../type-aliases/CoinPublicKey.md) into a `Uint8Array` for use in Compact's
+[CoinPublicKey](../type-aliases/CoinPublicKey.md)를 Compact에서 사용할 `Uint8Array`로 인코딩합니다.
 `CoinPublicKey` type
 
 ## Parameters

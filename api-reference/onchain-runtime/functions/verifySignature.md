@@ -13,7 +13,7 @@ function verifySignature(
    signature): boolean
 ```
 
-Verifies if a signature is correct
+서명이 올바른지 검증합니다
 
 ## Parameters
 

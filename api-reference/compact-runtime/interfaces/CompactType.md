@@ -6,7 +6,7 @@
 
 # Interface: CompactType\<A\>
 
-A runtime representation of a type in Compact
+Compact 타입의 런타임 표현
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ A runtime representation of a type in Compact
 alignment(): Alignment;
 ```
 
-The field-aligned binary alignment of this type.
+이 타입의 필드 정렬 바이너리 정렬 방식입니다.
 
 #### Returns
 
@@ -36,9 +36,9 @@ The field-aligned binary alignment of this type.
 fromValue(value): A;
 ```
 
-Converts this type's field-aligned binary representation to its TypeScript
-representation destructively; (partially) consuming the input, and
-ignoring superflous data for chaining.
+이 타입의 필드 정렬 바이너리 표현을 TypeScript 표현으로
+파괴적으로 변환합니다. 입력을 (부분적으로) 소비하며,
+체이닝을 위해 불필요한 데이터는 무시합니다.
 
 #### Parameters
 
@@ -58,8 +58,8 @@ ignoring superflous data for chaining.
 toValue(value): Value;
 ```
 
-Converts this type's TypeScript representation to its field-aligned binary
-representation
+이 타입의 TypeScript 표현을 필드 정렬 바이너리
+표현으로 변환합니다
 
 #### Parameters
 

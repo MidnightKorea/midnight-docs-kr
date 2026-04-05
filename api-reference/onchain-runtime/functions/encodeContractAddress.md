@@ -10,8 +10,8 @@
 function encodeContractAddress(addr): Uint8Array
 ```
 
-Encode a [ContractAddress](../type-aliases/ContractAddress.md) into a `Uint8Array` for use in Compact's
-`ContractAddress` type
+[ContractAddress](../type-aliases/ContractAddress.md)를 Compact의
+`ContractAddress` 타입에서 사용할 `Uint8Array`로 인코딩합니다
 
 ## Parameters
 

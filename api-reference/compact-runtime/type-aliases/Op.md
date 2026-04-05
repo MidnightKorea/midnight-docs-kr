@@ -96,7 +96,7 @@ type Op<R> =
   | "ckpt";
 ```
 
-An individual operation in the onchain VM
+온체인 VM의 개별 연산
 
 ## Type Parameters
 
@@ -104,5 +104,5 @@ An individual operation in the onchain VM
 
 `R`
 
-`null` or [AlignedValue](AlignedValue.md), for gathering and verifying
-mode respectively
+수집 모드와 검증 모드에 각각 대응하는
+`null` 또는 [AlignedValue](AlignedValue.md)

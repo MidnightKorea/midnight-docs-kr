@@ -8,4 +8,4 @@
 
 > **ErrorCode** = *typeof* [`ErrorCodes`](../variables/ErrorCodes.md)\[keyof *typeof* [`ErrorCodes`](../variables/ErrorCodes.md)\]
 
-All possible error codes gathered in a single union type. They are defined in [ErrorCodes](../variables/ErrorCodes.md).
+모든 가능한 오류 코드를 하나의 유니온 타입으로 모은 것입니다. [ErrorCodes](../variables/ErrorCodes.md)에 정의되어 있습니다.

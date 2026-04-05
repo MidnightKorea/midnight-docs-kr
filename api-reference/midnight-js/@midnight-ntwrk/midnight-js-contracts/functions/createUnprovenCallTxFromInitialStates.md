@@ -6,14 +6,13 @@
 
 # Function: createUnprovenCallTxFromInitialStates()
 
-Calls a circuit using the provided initial `states` and creates an unbalanced,
-unproven, unsubmitted, call transaction.
+제공된 초기 `states`를 사용하여 서킷을 호출하고, 밸런싱되지 않은 미증명 미제출 호출 트랜잭션을 생성합니다.
 
 ## Param
 
 ## Param
 
-Configuration.
+설정입니다.
 
 ## Param
 

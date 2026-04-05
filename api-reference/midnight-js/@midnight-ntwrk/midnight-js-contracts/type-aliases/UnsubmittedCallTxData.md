@@ -8,7 +8,7 @@
 
 > **UnsubmittedCallTxData**\<`C`, `PCK`\> = [`CallResult`](CallResult.md)\<`C`, `PCK`\> & `object`
 
-Data for an unsubmitted call transaction.
+미제출 호출 트랜잭션의 데이터입니다.
 
 ## Type Declaration
 
@@ -16,7 +16,7 @@ Data for an unsubmitted call transaction.
 
 > `readonly` **private**: [`UnsubmittedTxData`](UnsubmittedTxData.md)
 
-Private data relevant to this call transaction.
+이 호출 트랜잭션과 관련된 프라이빗 데이터입니다.
 
 ## Type Parameters
 

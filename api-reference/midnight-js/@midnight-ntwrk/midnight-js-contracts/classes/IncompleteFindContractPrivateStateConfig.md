@@ -6,9 +6,7 @@
 
 # Class: IncompleteFindContractPrivateStateConfig
 
-An error indicating that an initial private state was specified for a contract find while a
-private state ID was not. We can't store the initial private state if we don't have a private state ID,
-and we need to let the user know that.
+컨트랙트 검색 시 초기 프라이빗 상태가 지정되었지만 프라이빗 상태 ID가 제공되지 않았음을 나타내는 오류입니다. 프라이빗 상태 ID 없이는 초기 프라이빗 상태를 저장할 수 없으므로 사용자에게 이를 알립니다.
 
 ## Extends
 

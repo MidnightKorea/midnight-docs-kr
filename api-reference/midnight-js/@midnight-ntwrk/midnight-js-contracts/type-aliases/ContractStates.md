@@ -17,7 +17,7 @@ state of a contract.
 
 > `readonly` **privateState**: `PS`
 
-The private state of a contract.
+컨트랙트의 프라이빗 상태입니다.
 
 ## Type Parameters
 

@@ -8,7 +8,7 @@
 
 A [Input](Input.md), with all proof information erased
 
-Primarily for use in testing, or handling data known to be correct from
+주로 테스트 또는 올바른 것으로 알려진 데이터 처리에 사용됩니다.
 external information
 
 ## Properties
@@ -19,7 +19,7 @@ external information
 readonly contractAddress: undefined | string;
 ```
 
-The contract address receiving the input, if the sender is a contract
+발신자가 컨트랙트인 경우 입력을 수신하는 컨트랙트 주소입니다.
 
 ***
 
@@ -29,7 +29,7 @@ The contract address receiving the input, if the sender is a contract
 readonly nullifier: string;
 ```
 
-The nullifier of the input
+입력의 널리파이어입니다.
 
 ## Methods
 

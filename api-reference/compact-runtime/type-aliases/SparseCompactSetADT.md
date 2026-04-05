@@ -13,7 +13,7 @@ type SparseCompactSetADT = {
 };
 ```
 
-A data structure indicating the locations of all contract references in a Compact `Set` ADT.
+Compact `Set` ADT에서 모든 컨트랙트 참조의 위치를 나타내는 데이터 구조입니다.
 
 ## Properties
 
@@ -31,4 +31,4 @@ tag: "set";
 valueType: SparseCompactValue;
 ```
 
-A data structure indicating the locations of all contract references in a Compact value in the outer `Set` ADT.
+외부 `Set` ADT의 Compact 값에서 모든 컨트랙트 참조의 위치를 나타내는 데이터 구조입니다.

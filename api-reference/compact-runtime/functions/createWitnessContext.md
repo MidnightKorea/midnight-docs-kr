@@ -15,7 +15,7 @@ contractAddress): WitnessContext<L, PS>;
 
 **`Internal`**
 
-Internal constructor for [WitnessContext](../interfaces/WitnessContext.md).
+[WitnessContext](../interfaces/WitnessContext.md)의 내부 생성자입니다.
 
 ## Type Parameters
 

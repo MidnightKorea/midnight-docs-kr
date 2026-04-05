@@ -20,7 +20,7 @@ type Effects: {
 };
 ```
 
-The contract-external effects of a transcript.
+트랜스크립트의 컨트랙트 외부 효과입니다.
 
 ## Type declaration
 

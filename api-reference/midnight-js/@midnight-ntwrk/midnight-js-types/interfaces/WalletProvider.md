@@ -15,7 +15,7 @@ transaction balancing and finalization, and provides access to cryptographic sec
 
 > **balanceTx**(`tx`, `ttl?`): `Promise`\<`FinalizedTransaction`\>
 
-Balances a transaction
+트랜잭션을 밸런싱합니다.
 
 #### Parameters
 
@@ -23,7 +23,7 @@ Balances a transaction
 
 [`UnboundTransaction`](../type-aliases/UnboundTransaction.md)
 
-The transaction to balance.
+밸런싱할 트랜잭션입니다.
 
 ##### ttl?
 

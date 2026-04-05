@@ -13,4 +13,4 @@ type TokenType =
   | DustTokenType;
 ```
 
-A token type (or color), as a hex-encoded 35-byte string, shielded, unshielded, or Dust
+차폐, 비차폐 또는 Dust 형태의 토큰 타입(또는 색상)으로, 16진수 인코딩된 35바이트 문자열

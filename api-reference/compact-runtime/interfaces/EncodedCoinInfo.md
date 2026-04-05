@@ -6,8 +6,8 @@
 
 # Interface: EncodedCoinInfo
 
-A [CoinInfo](../type-aliases/CoinInfo.md) with its fields encoded as byte strings. This representation is used internally by
-the contract executable.
+필드가 바이트 문자열로 인코딩된 [CoinInfo](../type-aliases/CoinInfo.md)입니다. 이 표현은
+컨트랙트 실행 파일 내부에서 사용됩니다.
 
 ## Properties
 
@@ -17,7 +17,7 @@ the contract executable.
 readonly color: Uint8Array;
 ```
 
-The coin's type, identifying the currency it represents.
+코인의 타입으로, 해당 코인이 나타내는 통화를 식별합니다.
 
 ***
 
@@ -27,7 +27,7 @@ The coin's type, identifying the currency it represents.
 readonly nonce: Uint8Array;
 ```
 
-The coin's randomness, preventing it from colliding with other coins.
+코인의 무작위 값으로, 다른 코인과 충돌하지 않도록 합니다.
 
 ***
 
@@ -37,4 +37,4 @@ The coin's randomness, preventing it from colliding with other coins.
 readonly value: bigint;
 ```
 
-The coin's value, in atomic units dependent on the currency. Bounded to be a non-negative 64-bit integer.
+코인의 값으로, 통화에 따른 최소 단위입니다. 음이 아닌 64비트 정수로 제한됩니다.

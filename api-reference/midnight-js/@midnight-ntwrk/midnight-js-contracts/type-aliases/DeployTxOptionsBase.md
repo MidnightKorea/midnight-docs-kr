@@ -8,7 +8,7 @@
 
 > **DeployTxOptionsBase**\<`C`\> = [`ContractConstructorOptionsWithArguments`](ContractConstructorOptionsWithArguments.md)\<`C`\> & `object`
 
-Base type for deploy transaction configuration.
+배포 트랜잭션 설정의 기본 타입입니다.
 
 ## Type Declaration
 

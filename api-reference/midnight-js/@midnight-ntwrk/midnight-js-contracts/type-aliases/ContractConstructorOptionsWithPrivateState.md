@@ -17,7 +17,7 @@ the target of a circuit invocation.
 
 > `readonly` **initialPrivateState**: `Contract.PrivateState`\<`C`\>
 
-The private state to run the circuit against.
+서킷을 실행할 프라이빗 상태입니다.
 
 ## Type Parameters
 

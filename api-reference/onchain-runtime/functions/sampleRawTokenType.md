@@ -10,8 +10,8 @@
 function sampleRawTokenType(): string
 ```
 
-Samples a uniform raw token type, for use in testing to construct
-both the shielded and unshielded token types.
+테스트용으로 균일한 raw 토큰 타입을 샘플링하며,
+차폐 및 비차폐 토큰 타입 모두를 생성하는 데 사용합니다.
 
 ## Returns
 

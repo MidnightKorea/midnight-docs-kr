@@ -8,7 +8,7 @@
 
 > **DeployedContract**\<`C`\> = [`FoundContract`](FoundContract.md)\<`C`\> & `object`
 
-Interface for a contract that has been deployed to the blockchain.
+블록체인에 배포된 컨트랙트의 인터페이스입니다.
 
 ## Type Declaration
 

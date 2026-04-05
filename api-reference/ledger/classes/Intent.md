@@ -6,8 +6,7 @@
 
 # Class: Intent\<S, P, B\>
 
-An intent is a potentially unbalanced partial transaction, that may be
-combined with other intents to form a whole.
+인텐트는 균형이 맞지 않을 수 있는 부분 트랜잭션으로, 다른 인텐트와 결합하여 완전한 트랜잭션을 구성할 수 있습니다.
 
 ## Type Parameters
 
@@ -31,7 +30,7 @@ combined with other intents to form a whole.
 actions: ContractAction<P>[];
 ```
 
-The action sequence of this intent.
+이 인텐트의 액션 시퀀스입니다.
 
 #### Throws
 
@@ -53,7 +52,7 @@ readonly binding: B;
 dustActions: undefined | DustActions<S, P>;
 ```
 
-The DUST interactions made by this intent
+이 인텐트에서 수행하는 DUST 상호작용입니다.
 
 #### Throws
 
@@ -67,7 +66,7 @@ Writing throws if `B` is [Binding](Binding.md).
 fallibleUnshieldedOffer: undefined | UnshieldedOffer<S>;
 ```
 
-The UTXO inputs and outputs in the fallible section of this intent.
+이 인텐트의 fallible 섹션에 포함된 UTXO 입력 및 출력입니다.
 
 #### Throws
 
@@ -82,7 +81,7 @@ is in the signature set.
 guaranteedUnshieldedOffer: undefined | UnshieldedOffer<S>;
 ```
 
-The UTXO inputs and outputs in the guaranteed section of this intent.
+이 인텐트의 guaranteed 섹션에 포함된 UTXO 입력 및 출력입니다.
 
 #### Throws
 
@@ -97,7 +96,7 @@ is in the signature set.
 ttl: Date;
 ```
 
-The time this intent expires.
+이 인텐트의 만료 시간입니다.
 
 #### Throws
 
@@ -111,7 +110,7 @@ Writing throws if `B` is [Binding](Binding.md).
 addCall(call): Intent<S, PreProof, PreBinding>;
 ```
 
-Adds a contract call to this intent.
+이 인텐트에 컨트랙트 호출을 추가합니다.
 
 #### Parameters
 
@@ -131,7 +130,7 @@ Adds a contract call to this intent.
 addDeploy(deploy): Intent<S, PreProof, PreBinding>;
 ```
 
-Adds a contract deploy to this intent.
+이 인텐트에 컨트랙트 배포를 추가합니다.
 
 #### Parameters
 
@@ -151,7 +150,7 @@ Adds a contract deploy to this intent.
 addMaintenanceUpdate(update): Intent<S, PreProof, PreBinding>;
 ```
 
-Adds a maintenance update to this intent.
+이 인텐트에 유지보수 업데이트를 추가합니다.
 
 #### Parameters
 
@@ -171,7 +170,7 @@ Adds a maintenance update to this intent.
 bind(segmentId): Intent<S, P, Binding>;
 ```
 
-Enforces binding for this intent. This is irreversible.
+이 인텐트에 바인딩을 강제합니다. 되돌릴 수 없습니다.
 
 #### Parameters
 
@@ -195,7 +194,7 @@ If `segmentId` is not a valid segment ID.
 eraseProofs(): Intent<S, NoProof, NoBinding>;
 ```
 
-Removes proofs from this intent.
+이 인텐트에서 증명을 제거합니다.
 
 #### Returns
 
@@ -209,7 +208,7 @@ Removes proofs from this intent.
 eraseSignatures(): Intent<SignatureErased, P, B>;
 ```
 
-Removes signatures from this intent.
+이 인텐트에서 서명을 제거합니다.
 
 #### Returns
 
@@ -223,7 +222,7 @@ Removes signatures from this intent.
 intentHash(segmentId): string;
 ```
 
-Returns the hash of this intent, for it's given segment ID.
+주어진 세그먼트 ID에 대한 이 인텐트의 해시를 반환합니다.
 
 #### Parameters
 
@@ -255,7 +254,7 @@ serialize(): Uint8Array;
 signatureData(segmentId): Uint8Array;
 ```
 
-The raw data that is signed for unshielded inputs in this intent.
+이 인텐트의 비차폐 입력에 서명되는 원시 데이터입니다.
 
 #### Parameters
 

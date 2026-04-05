@@ -16,7 +16,7 @@ Provides common functionality for managing test wallets and environments.
 
 > **new TestEnvironment**(`logger`): `TestEnvironment`
 
-Creates a new TestEnvironment instance.
+새 TestEnvironment 인스턴스를 생성합니다.
 
 #### Parameters
 
@@ -24,7 +24,7 @@ Creates a new TestEnvironment instance.
 
 `Logger`
 
-Logger instance for recording operations
+작업 기록용 Logger 인스턴스
 
 #### Returns
 
@@ -46,7 +46,7 @@ Logger instance for recording operations
 
 > **getMidnightWalletProvider**(): `Promise`\<[`MidnightWalletProvider`](MidnightWalletProvider.md)\>
 
-Starts a single wallet instance.
+단일 지갑 인스턴스를 시작합니다.
 
 #### Returns
 

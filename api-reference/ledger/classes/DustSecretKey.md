@@ -6,7 +6,7 @@
 
 # Class: DustSecretKey
 
-A secret key for the Dust, used to derive Dust UTxO nonces and prove credentials to spend Dust UTxOs
+Dust의 비밀 키로, Dust UTxO 논스를 도출하고 Dust UTxO를 소비하기 위한 자격 증명에 사용됩니다.
 
 ## Properties
 
@@ -24,7 +24,7 @@ publicKey: bigint;
 clear(): void;
 ```
 
-Clears the dust secret key, so that it is no longer usable nor held in memory
+Dust 비밀 키를 지워 더 이상 사용할 수 없고 메모리에도 남지 않게 합니다.
 
 #### Returns
 
@@ -38,7 +38,7 @@ Clears the dust secret key, so that it is no longer usable nor held in memory
 static fromBigint(bigint): DustSecretKey;
 ```
 
-Temporary method to create an instance of DustSecretKey from a bigint (its natural representation)
+bigint(고유 표현)로부터 DustSecretKey 인스턴스를 생성하는 임시 메서드입니다.
 
 #### Parameters
 
@@ -58,7 +58,7 @@ Temporary method to create an instance of DustSecretKey from a bigint (its natur
 static fromSeed(seed): DustSecretKey;
 ```
 
-Create an instance of DustSecretKey from a seed.
+시드로부터 DustSecretKey 인스턴스를 생성합니다.
 
 #### Parameters
 

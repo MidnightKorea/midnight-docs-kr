@@ -10,4 +10,4 @@
 type CommunicationCommitment = string;
 ```
 
-A hex-encoded commitment of data shared between two contracts in a call
+호출에서 두 컨트랙트 간에 공유되는 데이터의 16진수 인코딩된 커밋먼트

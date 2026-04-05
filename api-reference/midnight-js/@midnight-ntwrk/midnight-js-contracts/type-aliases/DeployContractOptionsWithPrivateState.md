@@ -17,13 +17,13 @@ only used if the contract being deployed has a private state.
 
 > `readonly` **initialPrivateState**: `Contract.PrivateState`\<`C`\>
 
-The private state to run the circuit against.
+서킷을 실행할 프라이빗 상태입니다.
 
 ### privateStateId
 
 > `readonly` **privateStateId**: `PrivateStateId`
 
-An identifier for the private state of the contract being found.
+검색 중인 컨트랙트의 프라이빗 상태에 대한 식별자입니다.
 
 ## Type Parameters
 

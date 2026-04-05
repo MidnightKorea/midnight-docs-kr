@@ -10,9 +10,9 @@
 const DUMMY_ADDRESS: string;
 ```
 
-A valid placeholder contract address
+유효한 플레이스홀더 컨트랙트 주소
 
 ## Deprecated
 
-Cannot handle NetworkIds, use
-[dummyContractAddress](../functions/dummyContractAddress.md) instead.
+NetworkId를 처리할 수 없으므로 대신
+[dummyContractAddress](../functions/dummyContractAddress.md)를 사용하십시오.

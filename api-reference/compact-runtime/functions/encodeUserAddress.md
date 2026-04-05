@@ -10,8 +10,8 @@
 function encodeUserAddress(addr): Uint8Array;
 ```
 
-Encode a [UserAddress](../type-aliases/UserAddress.md) into a `Uint8Array` for use in Compact's
-`UserAddress` type
+[UserAddress](../type-aliases/UserAddress.md)를 Compact의 `UserAddress` 타입에서
+사용하기 위한 `Uint8Array`로 인코딩합니다
 
 ## Parameters
 

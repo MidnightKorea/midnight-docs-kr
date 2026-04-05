@@ -10,4 +10,4 @@
 type Alignment = AlignmentSegment[];
 ```
 
-The alignment of an onchain field-aligned binary data value.
+온체인 필드 정렬 바이너리 데이터 값의 정렬 방식입니다.

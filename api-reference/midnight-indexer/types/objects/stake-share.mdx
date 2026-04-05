@@ -71,9 +71,9 @@ export const Details = ({
   );
 };
 
-Stake share information for an SPO.
+SPO의 스테이크 지분 정보입니다.
 
-Values are sourced from mainchain pool data (e.g., Blockfrost) and keyed by Cardano pool_id.
+메인체인 풀 데이터(예: Blockfrost)에서 가져온 값이며, Cardano pool_id를 키로 사용합니다.
 
 ```graphql
 type StakeShare {
@@ -96,51 +96,51 @@ type StakeShare {
 
 #### [<code style={{ fontWeight: 'normal' }}>StakeShare.<b>poolIdHex</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String!</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-Cardano pool ID (56-character hex string).
+Cardano 풀 ID(56자 16진수 문자열)입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>StakeShare.<b>name</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Pool name from metadata.
+메타데이터의 풀 이름입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>StakeShare.<b>ticker</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Pool ticker from metadata.
+메타데이터의 풀 티커입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>StakeShare.<b>homepageUrl</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Pool homepage URL from metadata.
+메타데이터의 풀 홈페이지 URL입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>StakeShare.<b>logoUrl</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Pool logo URL from metadata.
+메타데이터의 풀 로고 URL입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>StakeShare.<b>liveStake</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Current live stake in lovelace.
+현재 라이브 스테이크(lovelace 단위)입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>StakeShare.<b>activeStake</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Current active stake in lovelace.
+현재 활성 스테이크(lovelace 단위)입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>StakeShare.<b>liveDelegators</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Int</b></code>](/midnight-indexer/types/scalars/int.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Number of live delegators.
+현재 라이브 위임자 수입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>StakeShare.<b>liveSaturation</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Float</b></code>](/midnight-indexer/types/scalars/float.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Saturation ratio (0.0 to 1.0+).
+포화도 비율(0.0~1.0+)입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>StakeShare.<b>declaredPledge</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Declared pledge in lovelace.
+선언된 담보(lovelace 단위)입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>StakeShare.<b>livePledge</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Current live pledge in lovelace.
+현재 라이브 담보(lovelace 단위)입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>StakeShare.<b>stakeShare</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Float</b></code>](/midnight-indexer/types/scalars/float.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-Stake share as a fraction of total stake.
+전체 스테이크 대비 스테이크 지분 비율입니다.
 
 ### Returned By
 

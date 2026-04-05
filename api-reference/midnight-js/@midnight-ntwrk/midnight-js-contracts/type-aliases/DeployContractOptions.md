@@ -8,7 +8,7 @@
 
 > **DeployContractOptions**\<`C`\> = [`DeployContractOptionsBase`](DeployContractOptionsBase.md)\<`C`\> \| [`DeployContractOptionsWithPrivateState`](DeployContractOptionsWithPrivateState.md)\<`C`\>
 
-Configuration for [deployContract](../functions/deployContract.md).
+[deployContract](../functions/deployContract.md)의 설정입니다.
 
 ## Type Parameters
 

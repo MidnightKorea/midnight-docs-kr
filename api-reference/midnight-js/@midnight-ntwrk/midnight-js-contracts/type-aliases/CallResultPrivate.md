@@ -8,7 +8,7 @@
 
 > **CallResultPrivate**\<`C`, `PCK`\> = `object`
 
-The private (sensitive) portions of the call result.
+호출 결과의 프라이빗(민감) 부분입니다.
 
 ## Type Parameters
 
@@ -34,7 +34,7 @@ ZK representation of the circuit arguments.
 
 > `readonly` **nextPrivateState**: `Contract.PrivateState`\<`C`\>
 
-The private state resulting from executing the circuit.
+서킷 실행 결과로 생성된 프라이빗 상태입니다.
 
 ***
 
@@ -42,7 +42,7 @@ The private state resulting from executing the circuit.
 
 > `readonly` **nextZswapLocalState**: `ZswapLocalState`
 
-The Zswap local state resulting from executing the circuit.
+서킷 실행 결과로 생성된 Zswap 로컬 상태입니다.
 
 ***
 
@@ -66,4 +66,4 @@ ZK representation of the circuit witness call results.
 
 > `readonly` **result**: `Contract.CircuitReturnType`\<`C`, `PCK`\>
 
-The JS representation of the input to the circuit.
+서킷 입력의 JS 표현입니다.

@@ -6,10 +6,9 @@
 
 # Class: Offer
 
-A full Zswap offer; the zswap part of a transaction
+트랜잭션의 Zswap 부분인 완전한 Zswap 오퍼입니다.
 
-Consists of sets of [Input](Input.md)s, [Output](Output.md)s, and [Transient](Transient.md)s,
-as well as a [deltas](Offer.md#deltas) vector of the transaction value
+[Input](Input.md), [Output](Output.md), [Transient](Transient.md) 집합과 트랜잭션 값의 [deltas](Offer.md#deltas) 벡터로 구성됩니다.
 
 ## Properties
 
@@ -19,10 +18,9 @@ as well as a [deltas](Offer.md#deltas) vector of the transaction value
 readonly deltas: Map<string, bigint>;
 ```
 
-The value of this offer for each token type; note that this may be
-negative
+각 토큰 유형별 이 오퍼의 값입니다. 음수일 수 있습니다.
 
-This is input coin values - output coin values, for value vectors
+값 벡터에서 입력 코인 값 - 출력 코인 값입니다.
 
 ***
 
@@ -32,7 +30,7 @@ This is input coin values - output coin values, for value vectors
 readonly inputs: Input[];
 ```
 
-The inputs this offer is composed of
+이 오퍼를 구성하는 입력입니다.
 
 ***
 
@@ -42,7 +40,7 @@ The inputs this offer is composed of
 readonly outputs: Output[];
 ```
 
-The outputs this offer is composed of
+이 오퍼를 구성하는 출력입니다.
 
 ***
 
@@ -52,7 +50,7 @@ The outputs this offer is composed of
 readonly transient: Transient[];
 ```
 
-The transients this offer is composed of
+이 오퍼를 구성하는 트랜지언트입니다.
 
 ## Methods
 
@@ -62,7 +60,7 @@ The transients this offer is composed of
 merge(other): Offer
 ```
 
-Combine this offer with another
+이 오퍼를 다른 오퍼와 결합합니다.
 
 #### Parameters
 

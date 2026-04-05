@@ -203,7 +203,7 @@ type ExecutionStatus = Record<number, "Success" | "Failure">;
 type TxStatus =
   | {
       /**
-       * Transaction included in chain and finalized
+       * 체인에 포함되고 최종 확정된 트랜잭션
        */
       status: "finalized";
       executionStatus: ExecutionStatus;
@@ -230,7 +230,7 @@ type TxStatus =
 
 type HistoryEntry = { 
     /**
-     * Hex-encoded hash of transaction
+     * hex로 인코딩된 트랜잭션 해시
      */
     txHash: string; 
     txStatus: TxStatus 
@@ -261,13 +261,13 @@ type SignDataOptions = {
    */
   encoding: "hex" | "base64" | "text"
   /**
-   * What kind of key to use for signing
+   * 서명에 사용할 키 종류
    */
   keyType: "unshielded";
 };
 type Signature = {
   /**
-   * The data signed
+   * 서명된 데이터
    */
   data: string; 
   signature: string; 
@@ -377,26 +377,26 @@ Errors are modelled with a dedicated enumeration of codes:
 
 ```ts
 const ErrorCodes = {
-  /** The dapp connector wasn't able to process the request */
+  /** DApp Connector가 요청을 처리할 수 없었습니다 */
   InternalError: 'InternalError',
-  /** The user rejected the request */
+  /** 사용자가 요청을 거부했습니다 */
   Rejected: 'Rejected',
-  /** Can be thrown in various circumstances, e.g. one being a malformed transaction */
+  /** 다양한 상황에서 발생할 수 있으며, 예를 들어 잘못된 형식의 트랜잭션이 해당합니다 */
   InvalidRequest: 'InvalidRequest',
-  /** Permission to perform action was rejected. */
+  /** 작업 수행 권한이 거부되었습니다. */
   PermissionRejected: 'PermissionRejected'
-  /** The connection to the wallet was lost */
+  /** 지갑과의 연결이 끊어졌습니다 */
   Disconnected: 'Disconnected'
 } as const;
 
 type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];
 
 type APIError = Error & {
-  /** indication it is a DApp Connector Error */  
+  /** DApp Connector 오류임을 나타냅니다 */  
   type: 'DAppConnectorAPIError';
-  /** The code of the error that's thrown */
+  /** 발생한 오류의 코드 */
   code: ErrorCode;
-  /** The reason the error is thrown */
+  /** 오류가 발생한 이유 */
   reason: string;
 }
 ```

@@ -16,7 +16,7 @@ A shielded transaction input
 readonly contractAddress: undefined | string;
 ```
 
-The contract address receiving the input, if the sender is a contract
+발신자가 컨트랙트인 경우 입력을 수신하는 컨트랙트 주소입니다.
 
 ***
 
@@ -26,7 +26,7 @@ The contract address receiving the input, if the sender is a contract
 readonly nullifier: string;
 ```
 
-The nullifier of the input
+입력의 널리파이어입니다.
 
 ## Methods
 

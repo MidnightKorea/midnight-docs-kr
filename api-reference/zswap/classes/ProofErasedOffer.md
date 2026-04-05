@@ -6,9 +6,9 @@
 
 # Class: ProofErasedOffer
 
-An [Offer](Offer.md), with all proof information erased
+모든 증명 정보가 삭제된 [Offer](Offer.md)입니다.
 
-Primarily for use in testing, or handling data known to be correct from
+주로 테스트 또는 올바른 것으로 알려진 데이터 처리에 사용됩니다.
 external information
 
 ## Properties
@@ -19,10 +19,9 @@ external information
 readonly deltas: Map<string, bigint>;
 ```
 
-The value of this offer for each token type; note that this may be
-negative
+각 토큰 유형별 이 오퍼의 값입니다. 음수일 수 있습니다.
 
-This is input coin values - output coin values, for value vectors
+값 벡터에서 입력 코인 값 - 출력 코인 값입니다.
 
 ***
 
@@ -32,7 +31,7 @@ This is input coin values - output coin values, for value vectors
 readonly inputs: ProofErasedInput[];
 ```
 
-The inputs this offer is composed of
+이 오퍼를 구성하는 입력입니다.
 
 ***
 
@@ -42,7 +41,7 @@ The inputs this offer is composed of
 readonly outputs: ProofErasedOutput[];
 ```
 
-The outputs this offer is composed of
+이 오퍼를 구성하는 출력입니다.
 
 ***
 
@@ -52,7 +51,7 @@ The outputs this offer is composed of
 readonly transient: ProofErasedTransient[];
 ```
 
-The transients this offer is composed of
+이 오퍼를 구성하는 트랜지언트입니다.
 
 ## Methods
 

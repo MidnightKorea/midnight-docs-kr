@@ -8,7 +8,7 @@
 
 > **FoundContract**\<`C`\> = `object`
 
-Base type for a deployed contract that has been found on the blockchain.
+블록체인에서 발견된 배포 컨트랙트의 기본 타입입니다.
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ Base type for a deployed contract that has been found on the blockchain.
 
 > `readonly` **callTx**: [`CircuitCallTxInterface`](CircuitCallTxInterface.md)\<`C`\>
 
-Interface for creating call transactions for a contract.
+컨트랙트의 호출 트랜잭션을 생성하기 위한 인터페이스입니다.
 
 ***
 
@@ -48,4 +48,4 @@ deployed.
 
 > `readonly` **deployTxData**: [`FinalizedDeployTxDataBase`](FinalizedDeployTxDataBase.md)\<`C`\>
 
-Data for the finalized deploy transaction corresponding to this contract.
+이 컨트랙트에 대응하는 확정 배포 트랜잭션의 데이터입니다.

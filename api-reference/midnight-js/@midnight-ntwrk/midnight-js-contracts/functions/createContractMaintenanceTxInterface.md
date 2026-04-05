@@ -8,7 +8,7 @@
 
 > **createContractMaintenanceTxInterface**\<`C`\>(`providers`, `compiledContract`, `contractAddress`): [`ContractMaintenanceTxInterface`](../interfaces/ContractMaintenanceTxInterface.md)
 
-Creates a [ContractMaintenanceTxInterface](../interfaces/ContractMaintenanceTxInterface.md).
+[ContractMaintenanceTxInterface](../interfaces/ContractMaintenanceTxInterface.md)를 생성합니다.
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ Creates a [ContractMaintenanceTxInterface](../interfaces/ContractMaintenanceTxIn
 
 [`ContractProviders`](../type-aliases/ContractProviders.md)
 
-The providers to use to build transactions.
+트랜잭션을 빌드하는 데 사용할 프로바이더입니다.
 
 ### compiledContract
 
@@ -32,7 +32,7 @@ The providers to use to build transactions.
 
 `string`
 
-The ledger address of the contract.
+컨트랙트의 원장 주소입니다.
 
 ## Returns
 

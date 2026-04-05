@@ -46,7 +46,7 @@ readonly encryptionSecretKey: EncryptionSecretKey;
 static fromSeed(seed): SecretKeys
 ```
 
-Derives secret keys from a 32-byte seed
+32바이트 시드로부터 비밀 키를 도출합니다.
 
 #### Parameters
 
@@ -66,8 +66,8 @@ Derives secret keys from a 32-byte seed
 static fromSeedRng(seed): SecretKeys
 ```
 
-Derives secret keys from a 32-byte seed using deprecated implementation.
-Use only for compatibility purposes
+더 이상 사용되지 않는 구현을 사용하여 32바이트 시드로부터 비밀 키를 도출합니다.
+호환성 목적으로만 사용하세요.
 
 #### Parameters
 

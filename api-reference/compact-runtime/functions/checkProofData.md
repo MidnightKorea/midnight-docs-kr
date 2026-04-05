@@ -10,8 +10,8 @@
 function checkProofData(zkir, proofData): void;
 ```
 
-Verifies a given [ProofData](../interfaces/ProofData.md) satisfies the constrains of a ZK circuit
-descripted by given IR
+주어진 [ProofData](../interfaces/ProofData.md)가 주어진 IR로 기술된 ZK 회로의
+제약 조건을 충족하는지 검증합니다
 
 ## Parameters
 
@@ -29,4 +29,4 @@ descripted by given IR
 
 ## Throws
 
-If the circuit is not satisfied
+회로가 충족되지 않는 경우

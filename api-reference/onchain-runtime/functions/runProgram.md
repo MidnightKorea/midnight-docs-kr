@@ -14,7 +14,7 @@ function runProgram(
    gas_limit?): VmResults
 ```
 
-Runs a VM program against an initial stack, with an optional gas limit
+초기 스택에 대해 VM 프로그램을 실행하며, 선택적으로 가스 제한을 설정할 수 있습니다
 
 ## Parameters
 

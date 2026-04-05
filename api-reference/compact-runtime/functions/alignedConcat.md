@@ -12,7 +12,7 @@ function alignedConcat(...values): AlignedValue;
 
 **`Internal`**
 
-Concatenates multiple [AlignedValue](../type-aliases/AlignedValue.md)s
+여러 [AlignedValue](../type-aliases/AlignedValue.md)를 연결합니다
 
 ## Parameters
 

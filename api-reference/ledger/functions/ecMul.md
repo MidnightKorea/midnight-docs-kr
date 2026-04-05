@@ -12,7 +12,7 @@ function ecMul(a, b): Value;
 
 **`Internal`**
 
-Internal implementation of the elliptic curve multiplication primitive
+타원 곡선 곱셈 프리미티브의 내부 구현입니다.
 
 ## Parameters
 

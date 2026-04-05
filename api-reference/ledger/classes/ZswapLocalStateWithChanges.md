@@ -14,7 +14,7 @@
 readonly changes: ZswapStateChanges[];
 ```
 
-The state changes that occurred during the replay
+리플레이 중 발생한 상태 변경 사항입니다.
 
 ***
 
@@ -24,4 +24,4 @@ The state changes that occurred during the replay
 readonly state: ZswapLocalState;
 ```
 
-The updated local state after replaying events
+이벤트 리플레이 후 업데이트된 로컬 상태입니다.

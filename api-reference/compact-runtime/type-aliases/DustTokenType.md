@@ -12,7 +12,7 @@ type DustTokenType = {
 };
 ```
 
-Dust token type
+Dust 토큰 타입
 
 ## Properties
 

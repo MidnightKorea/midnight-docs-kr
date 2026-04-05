@@ -10,4 +10,4 @@
 type EncPublicKey = string;
 ```
 
-An encryption public key, used to inform users of new coins sent to them
+사용자에게 전송된 새 코인을 알리는 데 사용되는 암호화 공개 키입니다.

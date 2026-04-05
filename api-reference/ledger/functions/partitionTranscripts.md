@@ -10,9 +10,7 @@
 function partitionTranscripts(calls, params): PartitionedTranscript[];
 ```
 
-Finalizes a set of programs against their initial contexts,
-resulting in guaranteed and fallible [Transcript](../type-aliases/Transcript.md)s, optimally
-allocated, and heuristically covered for gas fees.
+초기 컨텍스트에서 프로그램 집합을 완결하여, 최적으로 할당되고 가스 수수료가 휴리스틱으로 충당된 guaranteed 및 fallible [Transcript](../type-aliases/Transcript.md)를 생성합니다.
 
 ## Parameters
 

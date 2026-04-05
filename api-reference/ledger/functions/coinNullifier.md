@@ -10,7 +10,7 @@
 function coinNullifier(coin, coinSecretKey): string;
 ```
 
-Calculate nullifier of a coin owned by a user
+사용자가 소유한 코인의 널리파이어를 계산합니다.
 
 ## Parameters
 

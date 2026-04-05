@@ -8,7 +8,7 @@
 
 > **createCircuitMaintenanceTxInterface**\<`C`, `PCK`\>(`providers`, `circuitId`, `compiledContract`, `contractAddress`): [`CircuitMaintenanceTxInterface`](../type-aliases/CircuitMaintenanceTxInterface.md)
 
-Creates a [CircuitMaintenanceTxInterface](../type-aliases/CircuitMaintenanceTxInterface.md).
+[CircuitMaintenanceTxInterface](../type-aliases/CircuitMaintenanceTxInterface.md)를 생성합니다.
 
 ## Type Parameters
 
@@ -26,13 +26,13 @@ Creates a [CircuitMaintenanceTxInterface](../type-aliases/CircuitMaintenanceTxIn
 
 [`ContractProviders`](../type-aliases/ContractProviders.md)\<`C`, `PCK`\>
 
-The providers to use to create and submit transactions.
+트랜잭션을 생성하고 제출하는 데 사용할 프로바이더입니다.
 
 ### circuitId
 
 `PCK`
 
-The circuit ID the interface is for.
+이 인터페이스가 대상으로 하는 서킷 ID입니다.
 
 ### compiledContract
 
@@ -42,8 +42,7 @@ The circuit ID the interface is for.
 
 `string`
 
-The address of the deployed contract for which this
-                       interface is being created.
+이 인터페이스를 생성할 배포된 컨트랙트의 주소입니다.
 
 ## Returns
 

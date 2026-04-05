@@ -12,7 +12,7 @@ function ecMulGenerator(val): Value;
 
 **`Internal`**
 
-Internal implementation of the elliptic curve generator multiplication
+타원 곡선 생성자 곱셈의 내부 구현입니다.
 primitive
 
 ## Parameters

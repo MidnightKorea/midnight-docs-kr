@@ -8,7 +8,7 @@
 
 A [Input](Input.md), before being proven
 
-All "shielded" information in the input can still be extracted at this
+이 단계에서 입력의 모든 "차폐" 정보를 추출할 수 있습니다.
 stage!
 
 ## Properties
@@ -19,7 +19,7 @@ stage!
 readonly contractAddress: undefined | string;
 ```
 
-The contract address receiving the input, if the sender is a contract
+발신자가 컨트랙트인 경우 입력을 수신하는 컨트랙트 주소입니다.
 
 ***
 
@@ -29,7 +29,7 @@ The contract address receiving the input, if the sender is a contract
 readonly nullifier: string;
 ```
 
-The nullifier of the input
+입력의 널리파이어입니다.
 
 ## Methods
 

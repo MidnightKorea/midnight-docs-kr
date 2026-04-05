@@ -13,7 +13,7 @@ type SparseCompactStruct = {
 };
 ```
 
-A data structure indicating the locations of contract references in a Compact struct.
+Compact 구조체에서 컨트랙트 참조의 위치를 나타내는 데이터 구조입니다.
 
 ## Properties
 
@@ -23,9 +23,9 @@ A data structure indicating the locations of contract references in a Compact st
 elements: Record<string, SparseCompactType>;
 ```
 
-A data structure indicating the locations of contract references in the elements of a Compact struct. The keys of
-the record correspond to fields of the Compact struct that contain contract references. We use the keys of the record
-to explore the elements of the corresponding CompactStruct.
+Compact 구조체의 요소에서 컨트랙트 참조의 위치를 나타내는 데이터 구조입니다.
+레코드의 키는 컨트랙트 참조를 포함하는 Compact 구조체의 필드에 대응합니다.
+레코드의 키를 사용하여 해당 CompactStruct의 요소를 탐색합니다.
 
 ***
 

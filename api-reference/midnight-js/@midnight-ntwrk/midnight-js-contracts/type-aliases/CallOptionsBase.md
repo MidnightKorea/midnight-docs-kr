@@ -8,7 +8,7 @@
 
 > **CallOptionsBase**\<`C`, `PCK`\> = `object`
 
-Describes the target of a circuit invocation.
+서킷 호출의 대상을 설명합니다.
 
 ## Type Parameters
 
@@ -26,7 +26,7 @@ Describes the target of a circuit invocation.
 
 > `readonly` **circuitId**: `PCK`
 
-The identifier of the circuit to call.
+호출할 서킷의 식별자입니다.
 
 ***
 
@@ -34,7 +34,7 @@ The identifier of the circuit to call.
 
 > `readonly` **compiledContract**: `CompiledContract.CompiledContract`\<`C`, `any`\>
 
-The contract defining the circuit to call.
+호출할 서킷을 정의하는 컨트랙트입니다.
 
 ***
 
@@ -42,4 +42,4 @@ The contract defining the circuit to call.
 
 > `readonly` **contractAddress**: [`ContractAddress`](#)
 
-The address of the contract being executed.
+실행 중인 컨트랙트의 주소입니다.

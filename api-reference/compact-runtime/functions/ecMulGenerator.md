@@ -10,10 +10,10 @@
 function ecMulGenerator(b): JubjubPoint;
 ```
 
-The Compact builtin `ec_mul_generator` function
+Compact 내장 `ec_mul_generator` 함수
 
-This function multiplies the primary group generator of the embedded curve
-by a scalar (in multiplicative notation)
+내장 곡선의 기본 그룹 생성자에 스칼라를 곱합니다
+(곱셈 표기법)
 
 ## Parameters
 

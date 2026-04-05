@@ -52,7 +52,7 @@ Handles transaction balancing, submission, and wallet state management.
 
 > **balanceTx**(`tx`, `ttl?`): `Promise`\<`FinalizedTransaction`\>
 
-Balances a transaction
+트랜잭션을 밸런싱합니다
 
 #### Parameters
 
@@ -60,7 +60,7 @@ Balances a transaction
 
 `UnboundTransaction`
 
-The transaction to balance.
+밸런싱할 트랜잭션입니다.
 
 ##### ttl?
 
@@ -146,7 +146,7 @@ Submit a transaction to the network to be consensed upon.
 
 `FinalizedTransaction`
 
-The finalized transaction to submit.
+제출할 최종 트랜잭션입니다.
 
 #### Returns
 

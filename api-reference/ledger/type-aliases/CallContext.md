@@ -19,7 +19,7 @@ type CallContext = {
 };
 ```
 
-The context information of a call provided to the VM.
+VM에 제공되는 호출의 컨텍스트 정보입니다.
 
 ## Properties
 
@@ -29,7 +29,7 @@ The context information of a call provided to the VM.
 balance: Map<TokenType, bigint>;
 ```
 
-The balances held by the called contract at the time it was called.
+호출 시점에 호출된 컨트랙트가 보유한 잔액입니다.
 
 ***
 
@@ -49,7 +49,7 @@ A public address identifying an entity.
 comIndices: Map<CoinCommitment, number>;
 ```
 
-The commitment indices map accessible to the contract.
+컨트랙트에서 접근 가능한 커밋먼트 인덱스 맵입니다.
 
 ***
 

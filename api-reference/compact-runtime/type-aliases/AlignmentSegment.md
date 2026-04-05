@@ -18,4 +18,4 @@ type AlignmentSegment =
 };
 ```
 
-A segment in a larger [Alignment](Alignment.md).
+[Alignment](Alignment.md) 내의 세그먼트입니다.

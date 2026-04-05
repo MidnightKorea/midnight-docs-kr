@@ -15,7 +15,7 @@ Provides URLs and endpoints for preprod network services.
 
 > **new PreprodTestEnvironment**(`logger`): `PreprodTestEnvironment`
 
-Creates a new TestEnvironment instance.
+새 TestEnvironment 인스턴스를 생성합니다.
 
 #### Parameters
 
@@ -23,7 +23,7 @@ Creates a new TestEnvironment instance.
 
 `Logger`
 
-Logger instance for recording operations
+작업 기록용 Logger 인스턴스
 
 #### Returns
 
@@ -62,7 +62,7 @@ Object containing URLs for preprod services:
 
 > **getMidnightWalletProvider**(): `Promise`\<[`MidnightWalletProvider`](MidnightWalletProvider.md)\>
 
-Starts a single wallet instance.
+단일 지갑 인스턴스를 시작합니다.
 
 #### Returns
 
@@ -139,7 +139,7 @@ Optional proof server container to use instead of creating a new one
 
 `Promise`\<[`EnvironmentConfiguration`](../interfaces/EnvironmentConfiguration.md)\>
 
-The environment configuration
+환경 구성
 
 #### Inherited from
 
@@ -167,7 +167,7 @@ Creates and starts the specified number of wallet providers.
 
 `Promise`\<[`MidnightWalletProvider`](MidnightWalletProvider.md)[]\>
 
-Array of started wallet providers
+시작된 지갑 프로바이더 배열
 
 #### Inherited from
 

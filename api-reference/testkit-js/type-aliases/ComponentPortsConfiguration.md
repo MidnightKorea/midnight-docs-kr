@@ -4,7 +4,7 @@
 
 > **ComponentPortsConfiguration** = `object`
 
-Configuration for component ports in the local test environment
+로컬 테스트 환경의 구성 요소 포트 구성
 
 ## Properties
 

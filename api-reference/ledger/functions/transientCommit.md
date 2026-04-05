@@ -15,7 +15,7 @@ function transientCommit(
 
 **`Internal`**
 
-Internal implementation of the transient commitment primitive
+트랜지언트 커밋먼트 프리미티브의 내부 구현입니다.
 
 ## Parameters
 

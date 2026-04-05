@@ -29,5 +29,5 @@ type EncodedStateValue =
 };
 ```
 
-An alternative encoding of [StateValue](../classes/StateValue.md) for use in [Op](Op.md) for
-technical reasons
+기술적 이유로 [Op](Op.md)에서 사용하기 위한
+[StateValue](../classes/StateValue.md)의 대체 인코딩

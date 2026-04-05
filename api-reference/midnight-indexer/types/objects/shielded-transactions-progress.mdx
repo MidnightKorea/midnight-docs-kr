@@ -71,7 +71,7 @@ export const Details = ({
   );
 };
 
-Information about the shielded transactions indexing progress.
+차폐 트랜잭션 인덱싱 진행 상태 정보입니다.
 
 ```graphql
 type ShieldedTransactionsProgress {
@@ -85,23 +85,15 @@ type ShieldedTransactionsProgress {
 
 #### [<code style={{ fontWeight: 'normal' }}>ShieldedTransactionsProgress.<b>highestEndIndex</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Int!</b></code>](/midnight-indexer/types/scalars/int.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The highest zswap state end index (see `endIndex` of `Transaction`) of all transactions. It
-represents the known state of the blockchain. A value of zero (completely unlikely) means
-that no shielded transactions have been indexed yet.
+전체 트랜잭션의 최대 zswap 상태 종료 인덱스입니다(`Transaction`의 `endIndex` 참조). 블록체인의 알려진 상태를 나타냅니다. 0인 경우(가능성 극히 낮음) 아직 차폐 트랜잭션이 인덱싱되지 않았음을 의미합니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ShieldedTransactionsProgress.<b>highestCheckedEndIndex</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Int!</b></code>](/midnight-indexer/types/scalars/int.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The highest zswap state end index (see `endIndex` of `Transaction`) of all transactions
-checked for relevance. Initially less than and eventually (when some wallet has been fully
-indexed) equal to `highest_end_index`. A value of zero (very unlikely) means that no wallet
-has subscribed before and indexing for the subscribing wallet has not yet started.
+관련성이 확인된 전체 트랜잭션의 최대 zswap 상태 종료 인덱스입니다(`Transaction`의 `endIndex` 참조). 처음에는 `highest_end_index`보다 작으며, 특정 지갑의 인덱싱이 완료되면 같아집니다. 0인 경우(가능성 매우 낮음) 아직 구독한 지갑이 없고 인덱싱이 시작되지 않았음을 의미합니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>ShieldedTransactionsProgress.<b>highestRelevantEndIndex</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Int!</b></code>](/midnight-indexer/types/scalars/int.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The highest zswap state end index (see `endIndex` of `Transaction`) of all relevant
-transactions for the subscribing wallet. Usually less than `highest_checked_end_index`
-unless the latest checked transaction is relevant for the subscribing wallet. A value of
-zero means that no relevant transactions have been indexed for the subscribing wallet.
+구독 중인 지갑에 관련된 전체 트랜잭션의 최대 zswap 상태 종료 인덱스입니다(`Transaction`의 `endIndex` 참조). 마지막으로 확인된 트랜잭션이 해당 지갑에 관련되지 않는 한, 보통 `highest_checked_end_index`보다 작습니다. 0인 경우 해당 지갑에 관련된 트랜잭션이 아직 인덱싱되지 않았음을 의미합니다.
 
 ### Implemented By
 

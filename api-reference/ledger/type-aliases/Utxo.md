@@ -16,7 +16,7 @@ type Utxo = {
 };
 ```
 
-An unspent transaction output
+미사용 트랜잭션 출력입니다.
 
 ## Properties
 
@@ -36,7 +36,7 @@ The hash of the intent outputting this UTXO
 outputNo: number;
 ```
 
-The output number of this UTXO in its parent [Intent](../classes/Intent.md).
+상위 [Intent](../classes/Intent.md)에서 이 UTXO의 출력 번호입니다.
 
 ***
 
@@ -46,7 +46,7 @@ The output number of this UTXO in its parent [Intent](../classes/Intent.md).
 owner: UserAddress;
 ```
 
-The address owning these tokens.
+이 토큰을 소유한 주소입니다.
 
 ***
 
@@ -66,4 +66,4 @@ The token type of this UTXO
 value: bigint;
 ```
 
-The amount of tokens this UTXO represents
+이 UTXO가 나타내는 토큰 양입니다.

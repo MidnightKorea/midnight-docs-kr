@@ -10,7 +10,7 @@ A class for compressing and decompressing files using gzip.
 
 > **new GzipFile**(`inputFile`, `outputFile`): `GzipFile`
 
-Creates a new GzipFile instance.
+새 GzipFile 인스턴스를 생성합니다.
 
 #### Parameters
 
@@ -18,13 +18,13 @@ Creates a new GzipFile instance.
 
 `string`
 
-The path to the input file to compress/decompress
+압축/해제할 입력 파일 경로
 
 ##### outputFile
 
 `string`
 
-The path where the compressed file will be saved
+압축 파일이 저장될 경로
 
 #### Returns
 
@@ -36,7 +36,7 @@ The path where the compressed file will be saved
 
 > **inputFile**: `string`
 
-The path to the input file
+입력 파일 경로
 
 ***
 
@@ -44,7 +44,7 @@ The path to the input file
 
 > **outputFile**: `string`
 
-The path to the output file
+출력 파일 경로
 
 ## Methods
 

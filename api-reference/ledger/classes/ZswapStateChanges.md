@@ -14,7 +14,7 @@
 readonly receivedCoins: QualifiedShieldedCoinInfo[];
 ```
 
-The coins that were received in this state change
+이 상태 변경에서 수신된 코인입니다.
 
 ***
 
@@ -24,7 +24,7 @@ The coins that were received in this state change
 readonly source: string;
 ```
 
-The source of the state change, as a hex-encoded string
+16진수로 인코딩된 문자열 형태의 상태 변경 출처입니다.
 
 ***
 
@@ -34,4 +34,4 @@ The source of the state change, as a hex-encoded string
 readonly spentCoins: QualifiedShieldedCoinInfo[];
 ```
 
-The coins that were spent in this state change
+이 상태 변경에서 소비된 코인입니다.

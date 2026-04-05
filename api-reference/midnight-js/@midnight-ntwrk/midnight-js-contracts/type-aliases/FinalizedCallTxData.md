@@ -8,7 +8,7 @@
 
 > **FinalizedCallTxData**\<`C`, `PCK`\> = [`UnsubmittedCallTxData`](UnsubmittedCallTxData.md)\<`C`, `PCK`\> & `object`
 
-Data for a submitted, finalized call transaction.
+제출 및 확정된 호출 트랜잭션의 데이터입니다.
 
 ## Type Declaration
 
@@ -16,7 +16,7 @@ Data for a submitted, finalized call transaction.
 
 > `readonly` **public**: `FinalizedTxData`
 
-Public data relevant to this call transaction.
+이 호출 트랜잭션과 관련된 퍼블릭 데이터입니다.
 
 ## Type Parameters
 

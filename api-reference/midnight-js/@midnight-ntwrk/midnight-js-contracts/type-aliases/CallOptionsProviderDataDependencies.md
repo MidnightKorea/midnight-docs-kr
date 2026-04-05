@@ -8,7 +8,7 @@
 
 > **CallOptionsProviderDataDependencies** = `object`
 
-Data retrieved via providers that should be included in the call options.
+호출 옵션에 포함해야 하는 프로바이더를 통해 조회된 데이터입니다.
 
 ## Properties
 
@@ -16,7 +16,7 @@ Data retrieved via providers that should be included in the call options.
 
 > `readonly` **coinPublicKey**: `CoinPublicKey`
 
-The Zswap public key of the current user.
+현재 사용자의 Zswap 공개 키입니다.
 
 ***
 
@@ -24,7 +24,7 @@ The Zswap public key of the current user.
 
 > `readonly` **initialContractState**: `ContractState`
 
-The initial public state of the contract to run the circuit against.
+서킷을 실행할 컨트랙트의 초기 퍼블릭 상태입니다.
 
 ***
 
@@ -32,7 +32,7 @@ The initial public state of the contract to run the circuit against.
 
 > `readonly` **initialZswapChainState**: `ZswapChainState`
 
-The initial public Zswap state of the contract to run the circuit against.
+서킷을 실행할 컨트랙트의 초기 퍼블릭 Zswap 상태입니다.
 
 ***
 
@@ -40,4 +40,4 @@ The initial public Zswap state of the contract to run the circuit against.
 
 > `readonly` **ledgerParameters**: `LedgerParameters`
 
-The ledger parameters to use when executing the circuit.
+서킷 실행 시 사용할 원장 매개변수입니다.

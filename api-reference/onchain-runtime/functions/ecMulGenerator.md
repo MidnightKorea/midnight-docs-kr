@@ -12,8 +12,7 @@ function ecMulGenerator(val): Value
 
 **`Internal`**
 
-Internal implementation of the elliptic curve generator multiplication
-primitive
+타원 곡선 생성자 곱셈 프리미티브의 내부 구현
 
 ## Parameters
 
@@ -27,4 +26,4 @@ primitive
 
 ## Throws
 
-if [val](ecMulGenerator.md#val) does not encode a field element
+if [val](ecMulGenerator.md#val) 필드 원소를 인코딩하지 않은 경우

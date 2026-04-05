@@ -8,7 +8,7 @@
 
 > **SubmitTxOptions**\<`PCK`\> = `object`
 
-Configuration for [submitTx](../functions/submitTx.md).
+[submitTx](../functions/submitTx.md)의 설정입니다.
 
 ## Type Parameters
 
@@ -36,4 +36,4 @@ context), this may be an array of circuit IDs.
 
 > `readonly` **unprovenTx**: `UnprovenTransaction`
 
-The transaction to prove, balance, and submit.
+증명, 밸런싱, 제출할 트랜잭션입니다.

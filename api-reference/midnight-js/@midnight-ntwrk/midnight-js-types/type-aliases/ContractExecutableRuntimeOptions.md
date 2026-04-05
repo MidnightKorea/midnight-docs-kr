@@ -16,7 +16,7 @@ Options for use when constructing a Compact.js contract executable runtime.
 
 > `readonly` **coinPublicKey**: `string`
 
-The current user's ZSwap public key.
+현재 사용자의 ZSwap 공개 키입니다.
 
 ***
 

@@ -71,7 +71,7 @@ export const Details = ({
   );
 };
 
-Represents an unshielded UTXO.
+비차폐 UTXO를 나타냅니다.
 
 ```graphql
 type UnshieldedUtxo {
@@ -92,43 +92,43 @@ type UnshieldedUtxo {
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedUtxo.<b>owner</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>UnshieldedAddress!</b></code>](/midnight-indexer/types/scalars/unshielded-address.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-Owner Bech32m-encoded address.
+소유자의 Bech32m 인코딩 주소입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedUtxo.<b>tokenType</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-Token hex-encoded serialized token type.
+16진수로 인코딩된 직렬화 토큰 타입입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedUtxo.<b>value</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>String!</b></code>](/midnight-indexer/types/scalars/string.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-UTXO value (quantity) as a string to support u128.
+u128을 지원하기 위해 문자열로 표현된 UTXO 값(수량)입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedUtxo.<b>intentHash</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The hex-encoded serialized intent hash.
+16진수로 인코딩된 직렬화 인텐트 해시입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedUtxo.<b>outputIndex</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Int!</b></code>](/midnight-indexer/types/scalars/int.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-Index of this output within its creating transaction.
+생성 트랜잭션 내에서 이 출력의 인덱스입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedUtxo.<b>ctime</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Int</b></code>](/midnight-indexer/types/scalars/int.mdx) <Badge class="badge badge--secondary " text="scalar"/>
 
-The creation time in seconds.
+초 단위의 생성 시각입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedUtxo.<b>initialNonce</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>HexEncoded!</b></code>](/midnight-indexer/types/scalars/hex-encoded.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-The hex-encoded initial nonce for DUST generation tracking.
+DUST 생성 추적을 위한 16진수 인코딩 초기 논스입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedUtxo.<b>registeredForDustGeneration</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Boolean!</b></code>](/midnight-indexer/types/scalars/boolean.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="scalar"/>
 
-Whether this UTXO is registered for DUST generation.
+이 UTXO의 DUST 생성 등록 여부입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedUtxo.<b>createdAtTransaction</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Transaction!</b></code>](/midnight-indexer/types/interfaces/transaction.mdx) <Badge class="badge badge--secondary badge--non_null" text="non-null"/> <Badge class="badge badge--secondary " text="interface"/>
 
-Transaction that created this UTXO.
+이 UTXO를 생성한 트랜잭션입니다.
 
 #### [<code style={{ fontWeight: 'normal' }}>UnshieldedUtxo.<b>spentAtTransaction</b></code>](#)<Bullet />[<code style={{ fontWeight: 'normal' }}><b>Transaction</b></code>](/midnight-indexer/types/interfaces/transaction.mdx) <Badge class="badge badge--secondary " text="interface"/>
 
-Transaction that spent this UTXO.
+이 UTXO를 소비한 트랜잭션입니다.
 
 ### Member Of
 

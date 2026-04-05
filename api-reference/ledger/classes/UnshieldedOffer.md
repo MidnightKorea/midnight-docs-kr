@@ -6,8 +6,7 @@
 
 # Class: UnshieldedOffer\<S\>
 
-An unshielded offer consists of inputs, outputs, and signatures that
-authorize the inputs. The data the signatures sign is provided by [Intent.signatureData](Intent.md#signaturedata).
+비차폐 오퍼는 입력, 출력, 그리고 입력을 승인하는 서명으로 구성됩니다. 서명이 서명하는 데이터는 [Intent.signatureData](Intent.md#signaturedata)에서 제공됩니다.
 
 ## Type Parameters
 

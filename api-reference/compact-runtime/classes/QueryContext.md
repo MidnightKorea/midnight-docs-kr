@@ -6,9 +6,8 @@
 
 # Class: QueryContext
 
-Provides the information needed to fully process a transaction, including
-information about the rest of the transaction, and the state of the chain at
-the time of execution.
+트랜잭션을 완전히 처리하는 데 필요한 정보를 제공하며, 나머지 트랜잭션에 대한
+정보와 실행 시점의 체인 상태를 포함합니다.
 
 ## Constructors
 
@@ -18,8 +17,7 @@ the time of execution.
 new QueryContext(state, address): QueryContext;
 ```
 
-Construct a basic context from a contract's address and current state
-value
+컨트랙트의 주소와 현재 상태 값으로 기본 컨텍스트를 생성합니다
 
 #### Parameters
 
@@ -43,7 +41,7 @@ value
 readonly address: string;
 ```
 
-The address of the contract
+컨트랙트의 주소
 
 ***
 
@@ -53,7 +51,7 @@ The address of the contract
 block: CallContext;
 ```
 
-The block-level information accessible to the contract
+컨트랙트가 접근할 수 있는 블록 수준 정보
 
 ***
 
@@ -63,8 +61,8 @@ The block-level information accessible to the contract
 readonly comIndices: Map<string, bigint>;
 ```
 
-The commitment indices map accessible to the contract, primarily via
-[qualify](#qualify)
+컨트랙트가 접근할 수 있는 커밋먼트 인덱스 맵으로, 주로
+[qualify](#qualify)를 통해 사용합니다
 
 ***
 
@@ -74,8 +72,8 @@ The commitment indices map accessible to the contract, primarily via
 effects: Effects;
 ```
 
-The effects that occurred during execution against this context, should
-match those declared in a [Transcript](../type-aliases/Transcript.md)
+이 컨텍스트에 대한 실행 중 발생한 효과로,
+[Transcript](../type-aliases/Transcript.md)에 선언된 것과 일치해야 합니다
 
 ***
 
@@ -85,7 +83,7 @@ match those declared in a [Transcript](../type-aliases/Transcript.md)
 readonly state: ChargedState;
 ```
 
-The current contract state retained in the context
+컨텍스트에 보유된 현재 컨트랙트 상태
 
 ## Methods
 
@@ -95,9 +93,9 @@ The current contract state retained in the context
 insertCommitment(comm, index): QueryContext;
 ```
 
-Register a given coin commitment as being accessible at a specific index,
-for use when receiving coins in-contract, and needing to record their
-index to later spend them
+주어진 코인 커밋먼트를 특정 인덱스에서 접근 가능하도록 등록합니다.
+컨트랙트 내에서 코인을 수신할 때 나중에 사용하기 위해 인덱스를
+기록하는 용도입니다
 
 #### Parameters
 
@@ -123,9 +121,9 @@ qualify(coin): Value | undefined;
 
 **`Internal`**
 
-Internal counterpart to [insertCommitment](#insertcommitment); upgrades an encoded
-[ShieldedCoinInfo](../type-aliases/ShieldedCoinInfo.md) to an encoded [QualifiedShieldedCoinInfo](../type-aliases/QualifiedShieldedCoinInfo.md) using the
-inserted commitments
+[insertCommitment](#insertcommitment)의 내부 대응 함수로, 삽입된 커밋먼트를 사용하여
+인코딩된 [ShieldedCoinInfo](../type-aliases/ShieldedCoinInfo.md)를 인코딩된
+[QualifiedShieldedCoinInfo](../type-aliases/QualifiedShieldedCoinInfo.md)로 업그레이드합니다
 
 #### Parameters
 
@@ -148,8 +146,7 @@ query(
    gas_limit?): QueryResults;
 ```
 
-Runs a sequence of operations in gather mode, returning the results of the
-gather.
+수집 모드에서 일련의 연산을 실행하고 수집 결과를 반환합니다.
 
 #### Parameters
 
@@ -177,9 +174,9 @@ gather.
 runTranscript(transcript, cost_model): QueryContext;
 ```
 
-Runs a transcript in verifying mode against the current query context,
-outputting a new query context, with the [state](#state) and [effects](#effects)
-from after the execution.
+현재 쿼리 컨텍스트에 대해 검증 모드로 트랜스크립트를 실행하고,
+실행 후의 [state](#state)와 [effects](#effects)가 포함된 새 쿼리 컨텍스트를
+출력합니다.
 
 #### Parameters
 
@@ -221,7 +218,7 @@ toString(compact?): string;
 toVmStack(): VmStack;
 ```
 
-Converts the QueryContext to [VmStack](VmStack.md).
+QueryContext를 [VmStack](VmStack.md)으로 변환합니다.
 
 #### Returns
 

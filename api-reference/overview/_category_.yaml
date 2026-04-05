@@ -6,4 +6,4 @@ link:
   type: doc
   id: index
 customProps:
-  description: Overview of the Midnight APIs.
+  description: Midnight API 개요입니다.

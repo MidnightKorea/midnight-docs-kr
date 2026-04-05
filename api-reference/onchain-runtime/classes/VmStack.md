@@ -6,10 +6,9 @@
 
 # Class: VmStack
 
-Represents the state of the VM's stack at a specific point. The stack is an
-array of [StateValue](StateValue.md)s, each of which is also annotated with whether
-it is "strong" or "weak"; that is, whether it is permitted to be stored
-on-chain or not.
+특정 시점의 VM 스택 상태를 나타냅니다. 스택은
+[StateValue](StateValue.md) 배열로, 각 요소에는 "강함" 또는 "약함" 주석이 달려 있습니다.
+이는 해당 값을 온체인에 저장할 수 있는지 여부를 나타냅니다.
 
 ## Constructors
 

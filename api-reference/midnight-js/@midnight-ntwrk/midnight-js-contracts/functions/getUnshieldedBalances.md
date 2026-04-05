@@ -8,7 +8,7 @@
 
 > **getUnshieldedBalances**(`publicDataProvider`, `contractAddress`): `Promise`\<`UnshieldedBalances`\>
 
-Fetches the unshielded balances associated with a specific contract address.
+특정 컨트랙트 주소에 연결된 비차폐 잔액을 가져옵니다.
 
 ## Parameters
 
@@ -16,13 +16,13 @@ Fetches the unshielded balances associated with a specific contract address.
 
 [`PublicDataProvider`](#)
 
-The provider to use to fetch the unshielded balances from the blockchain.
+블록체인에서 비차폐 잔액을 가져오는 데 사용할 프로바이더입니다.
 
 ### contractAddress
 
 `string`
 
-The ledger address of the contract.
+컨트랙트의 원장 주소입니다.
 
 ## Returns
 

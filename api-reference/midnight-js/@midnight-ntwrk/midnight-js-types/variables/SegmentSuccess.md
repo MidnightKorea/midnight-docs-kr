@@ -8,4 +8,4 @@
 
 > `const` **SegmentSuccess**: `"SegmentSuccess"`
 
-Indicates that the segment is valid.
+세그먼트가 유효함을 나타냅니다.

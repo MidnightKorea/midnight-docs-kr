@@ -18,4 +18,4 @@ type PublicAddress =
 };
 ```
 
-A public address that an entity can be identified by
+엔티티를 식별할 수 있는 공개 주소

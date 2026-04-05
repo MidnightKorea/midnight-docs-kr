@@ -6,9 +6,9 @@
 
 # Class: ChargedState
 
-Represents a [StateValue](StateValue.md) with storage annotations.
+스토리지 주석이 달린 [StateValue](StateValue.md)를 나타냅니다.
 
-These track the state usage that has been charged for so far.
+지금까지 과금된 상태 사용량을 추적합니다.
 
 ## Constructors
 

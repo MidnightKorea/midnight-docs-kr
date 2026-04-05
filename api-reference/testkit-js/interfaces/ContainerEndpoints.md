@@ -2,7 +2,7 @@
 
 ***
 
-Network endpoint configuration for a container
+컨테이너의 네트워크 엔드포인트 구성
 
 ## Properties
 
@@ -10,7 +10,7 @@ Network endpoint configuration for a container
 
 > **name**: `string`
 
-Name of the container
+컨테이너 이름
 
 ***
 
@@ -18,7 +18,7 @@ Name of the container
 
 > **port**: `number`
 
-Port number the container listens on
+컨테이너가 수신하는 포트 번호
 
 ***
 

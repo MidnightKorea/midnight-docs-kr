@@ -10,7 +10,7 @@
 function createProvingTransactionPayload(transaction, proving_data): Uint8Array;
 ```
 
-Creates a payload for proving a specific transaction through the proof server
+증명 서버를 통해 특정 트랜잭션을 증명하기 위한 페이로드를 생성합니다.
 
 ## Parameters
 
@@ -28,4 +28,4 @@ Creates a payload for proving a specific transaction through the proof server
 
 ## Deprecated
 
-Use `Transaction.prove` instead.
+`Transaction.prove`를 대신 사용하세요.

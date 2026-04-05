@@ -10,7 +10,7 @@ Client for interacting with a Midnight node's JSON-RPC API
 
 > **new NodeClient**(`nodeURL`, `logger`): `NodeClient`
 
-Creates a new NodeClient instance
+새 NodeClient 인스턴스를 생성합니다
 
 #### Parameters
 
@@ -18,13 +18,13 @@ Creates a new NodeClient instance
 
 `string`
 
-URL of the Midnight node
+Midnight 노드의 URL
 
 ##### logger
 
 `Logger`
 
-Logger instance for recording operations
+작업 기록용 Logger 인스턴스
 
 #### Returns
 
@@ -42,7 +42,7 @@ Logger instance for recording operations
 
 > **contractState**(`contractAddress`): `Promise`\<`ContractState` \| `null`\>
 
-Fetches the state of a contract
+컨트랙트의 상태를 조회합니다
 
 #### Parameters
 
@@ -50,13 +50,13 @@ Fetches the state of a contract
 
 `string`
 
-Address of the contract
+컨트랙트의 주소
 
 #### Returns
 
 `Promise`\<`ContractState` \| `null`\>
 
-Contract state or null if not found
+컨트랙트 상태(찾을 수 없으면 null)
 
 ***
 
@@ -79,7 +79,7 @@ A promise that resolves to the response of the health check or logs an error if 
 
 > **ledgerState**(`blockHash`): `Promise`\<`LedgerState`\>
 
-Fetches the ledger state at a given block
+지정된 블록의 원장 상태를 조회합니다
 
 #### Parameters
 
@@ -87,7 +87,7 @@ Fetches the ledger state at a given block
 
 `string`
 
-Hash of the block
+블록의 해시
 
 #### Returns
 
@@ -101,7 +101,7 @@ Ledger state
 
 > **ledgerStateBlob**(`blockHash`): `Promise`\<`Uint8Array`\<`ArrayBufferLike`\>\>
 
-Fetches the raw ledger state blob at a given block
+지정된 블록의 원시 원장 상태 blob을 조회합니다
 
 #### Parameters
 
@@ -109,13 +109,13 @@ Fetches the raw ledger state blob at a given block
 
 `string`
 
-Hash of the block
+블록의 해시
 
 #### Returns
 
 `Promise`\<`Uint8Array`\<`ArrayBufferLike`\>\>
 
-Raw ledger state data
+원시 원장 상태 데이터
 
 #### Throws
 
@@ -127,7 +127,7 @@ If no ledger state is found
 
 > **ledgerVersion**(`blockHash`): `Promise`\<`string`\>
 
-Fetches the ledger version at a given block
+지정된 블록의 원장 버전을 조회합니다
 
 #### Parameters
 
@@ -135,7 +135,7 @@ Fetches the ledger version at a given block
 
 `string`
 
-Hash of the block
+블록의 해시
 
 #### Returns
 

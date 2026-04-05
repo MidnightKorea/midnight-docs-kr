@@ -6,7 +6,7 @@
 
 # Class: SystemTransaction
 
-A privileged transaction issued by the system.
+시스템이 발행한 권한 있는 트랜잭션입니다.
 
 ## Methods
 

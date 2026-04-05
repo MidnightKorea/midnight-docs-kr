@@ -6,33 +6,28 @@
 
 # Compact runtime library
 
-This API provides runtime primitives used by Compact's TypeScript output, both
-for use by the compiler output directly, and to utilise it or reproduce its
-behaviour. This API re-exports a number of items from
-`@midnight-ntwrk/onchain-runtime-v2`, and wraps others in a more TypeScript-friendly
-API. Key parts of the API are:
+이 API는 Compact 컴파일러의 TypeScript 출력에서 사용하는 런타임 프리미티브를 제공합니다.
+컴파일러 출력에서 직접 사용하거나, 해당 동작을 활용 또는 재현하는 용도로 쓸 수 있습니다.
+이 API는 `@midnight-ntwrk/onchain-runtime-v2`의 여러 항목을 재내보내기하며, 일부는
+TypeScript에 적합한 형태로 래핑합니다. 주요 구성 요소는 다음과 같습니다:
 
--  setNetworkId, required to ensure the right network is being targeted
-- [CircuitContext](interfaces/CircuitContext.md), and [CircuitResults](interfaces/CircuitResults.md) part of the input and
-  output definition of all circuits
-- [WitnessContext](interfaces/WitnessContext.md), part of the input definition of all circuits
-- Built-in functions:
-  - Hashing/commitment
+-  setNetworkId: 올바른 네트워크를 대상으로 지정하는 데 필요
+- [CircuitContext](interfaces/CircuitContext.md) 및 [CircuitResults](interfaces/CircuitResults.md): 모든 회로의 입출력 정의에 사용
+- [WitnessContext](interfaces/WitnessContext.md): 모든 회로의 입력 정의에 사용
+- 내장 함수:
+  - 해싱/커밋먼트
     - [transientHash](functions/transientHash.md)
     - [transientCommit](functions/transientCommit.md)
     - [persistentHash](functions/persistentHash.md)
     - [persistentCommit](functions/persistentCommit.md)
     - [degradeToTransient](functions/degradeToTransient.md)
-  - Elliptic curve
+  - 타원 곡선
     - [ecAdd](functions/ecAdd.md)
     - [ecMul](functions/ecMul.md)
     - [ecMulGenerator](functions/ecMulGenerator.md)
     - [hashToCurve](functions/hashToCurve.md)
-- [ContractState](classes/ContractState.md), encapsulating the entirety of a smart contract's
-  on-chain state
-- [StateValue](classes/StateValue.md), encoding data a contract maintains on-chain
-- [QueryContext](classes/QueryContext.md), providing an annotated view into the contract state,
-  against which on-chain VM programs can be run
-- [CompactType](interfaces/CompactType.md), providing a runtime representation of basic Compact
-  datatypes
-- Various TypeScript types matching same-named Compact types
+- [ContractState](classes/ContractState.md): 스마트 컨트랙트의 온체인 상태 전체를 캡슐화
+- [StateValue](classes/StateValue.md): 컨트랙트가 온체인에서 유지하는 데이터를 인코딩
+- [QueryContext](classes/QueryContext.md): 컨트랙트 상태에 대한 주석이 달린 뷰를 제공하며, 이를 기반으로 온체인 VM 프로그램을 실행 가능
+- [CompactType](interfaces/CompactType.md): 기본 Compact 데이터 타입의 런타임 표현을 제공
+- Compact 타입과 동일한 이름의 다양한 TypeScript 타입

@@ -8,7 +8,7 @@
 
 > **createCallTxOptions**\<`C`, `PCK`\>(`compiledContract`, `circuitId`, `contractAddress`, `privateStateId`, `args`): [`CallTxOptions`](../type-aliases/CallTxOptions.md)\<`C`, `PCK`\>
 
-Creates a [CallTxOptions](../type-aliases/CallTxOptions.md) object from various data.
+다양한 데이터로부터 [CallTxOptions](../type-aliases/CallTxOptions.md) 객체를 생성합니다.
 
 ## Type Parameters
 

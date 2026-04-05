@@ -12,7 +12,7 @@ function coinCommitment(coin, recipient): AlignedValue;
 
 **`Internal`**
 
-Internal implementation of the coin commitment primitive.
+코인 커밋먼트 프리미티브의 내부 구현입니다.
 
 ## Parameters
 

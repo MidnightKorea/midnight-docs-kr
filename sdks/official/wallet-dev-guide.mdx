@@ -54,7 +54,7 @@ Midnight wallet SDK은 기능별 패키지로 나뉜 모듈식 구조입니다. 
                 @midnight-ntwrk/wallet-sdk-unshielded-wallet@VERSION \
                 @midnight-ntwrk/wallet-sdk-shielded@VERSION \
                 @midnight-ntwrk/wallet-sdk-dust-wallet@VERSION \
-                @midnight-ntwrk/ledger-v7@VERSION
+                @midnight-ntwrk/ledger-v8
     ```
   </TabItem>
   <TabItem value="yarn">
@@ -65,7 +65,7 @@ Midnight wallet SDK은 기능별 패키지로 나뉜 모듈식 구조입니다. 
                 @midnight-ntwrk/wallet-sdk-unshielded-wallet@VERSION \
                 @midnight-ntwrk/wallet-sdk-shielded@VERSION \
                 @midnight-ntwrk/wallet-sdk-dust-wallet@VERSION \
-                @midnight-ntwrk/ledger-v7@VERSION
+                @midnight-ntwrk/ledger-v8
     ```
   </TabItem>
 </Tabs>
@@ -122,7 +122,7 @@ m / 44' / 2400' / account' / role / index
 하나의 마스터 시드에서 비차폐, 차폐, DUST 키를 파생하는 예제입니다. 키 파생이 실패하면 BIP-44 표준에 따라 다음 인덱스로 자동 재시도합니다.
 
 ```typescript
-import * as ledger from '@midnight-ntwrk/ledger-v7';
+import * as ledger from '@midnight-ntwrk/ledger-v8';
 import type { Role } from '@midnight-ntwrk/wallet-sdk-hd';
 import { AccountKey, HDWallet, Roles } from '@midnight-ntwrk/wallet-sdk-hd';
 import { Buffer } from 'buffer';
@@ -192,7 +192,7 @@ console.log('DUST seed:', derivedKeys.dust.seed.toString('hex'));
 먼저 네트워크 엔드포인트, 비용 파라미터, 트랜잭션 기록 저장소를 지정하는 설정 객체를 만드세요. Preprod 테스트넷과 로컬 개발 네트워크의 설정이 다릅니다.
 
 <Tabs>
-  <TabItem value="preprod">
+  <TabItem value="preprod" label="Preprod">
 ```typescript
 import { type DefaultConfiguration } from '@midnight-ntwrk/wallet-sdk-facade';
 import { InMemoryTransactionHistoryStorage } from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
@@ -200,20 +200,19 @@ import { InMemoryTransactionHistoryStorage } from '@midnight-ntwrk/wallet-sdk-un
 const configuration: DefaultConfiguration = {
   networkId: 'preprod',
   costParameters: {
-    additionalFeeOverhead: 300_000_000_000_000n,
     feeBlocksMargin: 5,
   },
   relayURL: new URL('wss://rpc.preprod.midnight.network'),
   provingServerUrl: new URL('http://localhost:6300'),
   indexerClientConnection: {
-    indexerHttpUrl: 'https://indexer.preprod.midnight.network/api/v3/graphql',
-    indexerWsUrl: 'wss://indexer.preprod.midnight.network/api/v3/graphql/ws',
+    indexerHttpUrl: 'https://indexer.preprod.midnight.network/api/v4/graphql',
+    indexerWsUrl: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
   },
   txHistoryStorage: new InMemoryTransactionHistoryStorage(),
 };
 ```
   </TabItem>
-  <TabItem value="undeployed">
+  <TabItem value="undeployed" label="Undeployed">
 ```typescript
 import { type DefaultConfiguration } from '@midnight-ntwrk/wallet-sdk-facade';
 import { InMemoryTransactionHistoryStorage } from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
@@ -221,13 +220,12 @@ import { InMemoryTransactionHistoryStorage } from '@midnight-ntwrk/wallet-sdk-un
 const INDEXER_PORT = Number.parseInt(process.env['INDEXER_PORT'] ?? '8088', 10);
 const NODE_PORT = Number.parseInt(process.env['NODE_PORT'] ?? '9944', 10);
 const PROOF_SERVER_PORT = Number.parseInt(process.env['PROOF_SERVER_PORT'] ?? '6300', 10);
-const INDEXER_HTTP_URL = `http://localhost:${INDEXER_PORT}/api/v3/graphql`;
-const INDEXER_WS_URL = `ws://localhost:${INDEXER_PORT}/api/v3/graphql/ws`;
+const INDEXER_HTTP_URL = `http://localhost:${INDEXER_PORT}/api/v4/graphql`;
+const INDEXER_WS_URL = `ws://localhost:${INDEXER_PORT}/api/v4/graphql/ws`;
 
 const configuration: DefaultConfiguration = {
   networkId: 'undeployed',
   costParameters: {
-    additionalFeeOverhead: 300_000_000_000_000n,
     feeBlocksMargin: 5,
   },
   relayURL: new URL(`ws://localhost:${NODE_PORT}`),
@@ -248,7 +246,7 @@ const configuration: DefaultConfiguration = {
 키 파생부터 키스토어 생성, 세 지갑 시작까지 전체 초기화 과정을 보여주는 예제입니다. 네트워크 동기화 전에 키 관리와 지갑 설정이 올바르게 완료됩니다.
 
 ```typescript
-import * as ledger from '@midnight-ntwrk/ledger-v7';
+import * as ledger from '@midnight-ntwrk/ledger-v8';
 import { DustWallet } from '@midnight-ntwrk/wallet-sdk-dust-wallet';
 import { WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
 import { ShieldedWallet } from '@midnight-ntwrk/wallet-sdk-shielded';
@@ -362,7 +360,7 @@ import {
   ShieldedCoinPublicKey,
   ShieldedEncryptionPublicKey,
 } from '@midnight-ntwrk/wallet-sdk-address-format';
-import * as ledger from '@midnight-ntwrk/ledger-v7';
+import * as ledger from '@midnight-ntwrk/ledger-v8';
 
 const networkId = 'preprod';
 
@@ -412,7 +410,7 @@ const decodedShielded = parsedShielded.decode(ShieldedAddress, networkId);
 표준 UTxO 기반 트랜잭션으로 주소 간에 NIGHT 등 비차폐 토큰을 전송합니다. 블록체인에 공개되며, 비차폐 비밀 키로 서명해야 합니다.
 
 ```typescript
-import * as ledger from '@midnight-ntwrk/ledger-v7';
+import * as ledger from '@midnight-ntwrk/ledger-v8';
 
 await wallet
   .transferTransaction(
@@ -793,7 +791,7 @@ DApp에서 지갑과 연동하려면 DApp Connector API를 사용하세요. Lace
 아래 예제는 DApp에서 Lace Midnight 지갑에 연결하는 방법입니다.
 
 ```typescript
-import { nativeToken } from '@midnight-ntwrk/ledger-v7';
+import { nativeToken } from '@midnight-ntwrk/ledger-v8';
 
 // Check if wallet is available
 const wallet = window.midnight?.mnLace;

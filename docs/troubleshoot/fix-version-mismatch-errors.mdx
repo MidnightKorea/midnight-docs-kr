@@ -20,7 +20,7 @@ Midnight 컴포넌트 간 버전 불일치로 인한 빌드 실패 및 런타임
 Midnight은 호환되는 버전으로 함께 동작해야 하는 여러 컴포넌트로 구성됩니다:
 
 - **Compact toolchain**: 바이너리, 컴파일러, 포매터
-- **Runtime libraries**: `@midnight-ntwrk/compact-runtime`, `@midnight-ntwrk/ledger-v8` 등 관련 패키지
+- **Runtime libraries**: `@midnight-ntwrk/compact-runtime`, `@midnight-ntwrk/ledger-v8`, `@midnight-ntwrk/onchain-runtime-v3` 등 관련 패키지
 - **JavaScript libraries**: `@midnight-ntwrk/midnight-js-contracts`, `@midnight-ntwrk/dapp-connector-api`, `@midnight-ntwrk/wallet-sdk-facade` 등 관련 패키지
 - **Proof server**: zero-knowledge proof 생성 서비스
 - **Indexer**: blockchain 데이터 조회용 GraphQL API (선택 사항)
@@ -57,8 +57,8 @@ compact --version
 
 ```bash
 npm list @midnight-ntwrk/compact-runtime
-npm list @midnight-ntwrk/ledger
-npm list @midnight-ntwrk/zswap
+npm list @midnight-ntwrk/ledger-v8
+npm list @midnight-ntwrk/onchain-runtime-v3
 ```
 
 모든 런타임 패키지가 호환성 매트릭스에 명시된 호환 버전을 사용하는지 확인하세요.
@@ -120,9 +120,9 @@ docker logs [proof-server-container-id] | head -20
 {
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "x.x.x",
-    "@midnight-ntwrk/ledger": "x.x.x",
-    "@midnight-ntwrk/zswap": "x.x.x",
-    "@midnight-ntwrk/wallet": "x.x.x"
+    "@midnight-ntwrk/ledger-v8": "x.x.x",
+    "@midnight-ntwrk/onchain-runtime-v3": "x.x.x",
+    "@midnight-ntwrk/wallet-sdk-facade": "x.x.x"
   }
 }
 ```
@@ -203,7 +203,7 @@ compact compile src/contract.compact contract/managed
 {
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "x.x.x",
-    "@midnight-ntwrk/ledger": "x.x.x"
+    "@midnight-ntwrk/ledger-v8": "x.x.x"
   }
 }
 ```

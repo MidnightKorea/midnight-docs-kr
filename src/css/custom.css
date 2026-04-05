@@ -183,19 +183,6 @@ nav.theme-doc-sidebar-menu {
   text-decoration: none !important;
 }
 
-/* Top-level doc links - match category header style */
-.menu__list > .theme-doc-sidebar-item-link > .menu__link {
-  color: var(--ifm-heading-color) !important;
-  font-size: 0.875rem !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.08em !important;
-  padding: 1rem 1rem 0.5rem 1rem !important;
-  opacity: 0.7 !important;
-}
-
-.menu__list > .theme-doc-sidebar-item-link > .menu__link:hover {
-  opacity: 1 !important;
-}
 
 /* Menu Items - Clean and minimal with bigger font */
 .menu__link {

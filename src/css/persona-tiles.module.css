@@ -33,7 +33,7 @@
 /* --- CARD STYLE --- */
 .card {
   position: relative;
-  padding: 28px;
+  padding: 28px 130px 28px 28px;
   border-radius: var(--mn-radius);
   text-decoration: none;
   display: flex;

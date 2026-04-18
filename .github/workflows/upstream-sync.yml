@@ -116,8 +116,9 @@ jobs:
           if [ -n "$EXISTING" ]; then
             echo "Open sync issue #$EXISTING already exists, skipping"
           else
-            gh issue create \
+            ISSUE_URL=$(gh issue create \
               --title "Upstream 동기화: ${BEHIND}개 새 커밋 감지" \
-              --body-file /tmp/issue-body.md \
-              --label "upstream-sync"
+              --body-file /tmp/issue-body.md)
+            ISSUE_NUM=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
+            gh issue edit "$ISSUE_NUM" --add-label "upstream-sync"
           fi

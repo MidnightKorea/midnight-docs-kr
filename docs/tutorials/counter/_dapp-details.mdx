@@ -1,15 +1,15 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "counter DApp"
-title: "counter DApp"
+sidebar_label: "The counter DApp"
+title: "The counter DApp"
 description: "Midnight 네트워크에서 counter DApp을 구축하는 방법을 알아봅니다."
 sidebar_position: 30
 ---
 
 import CodeFromGithub from '@site/src/components/CodeFromGithub';
 
-# counter DApp
+# The counter DApp
 
 ## Project structure
 
@@ -72,7 +72,7 @@ counter DApp의 명령줄 인터페이스에 대한 모든 대화형 로직은 `
 - `testnet-remote.ts` - 로컬 proof 서버를 사용하면서 원격 TestNet의 Midnight 노드 및 Indexer에 연결하는 방식으로, counter DApp을 처음 실행할 때 사용합니다
 - `testnet-local.ts` - 자체 TestNet 노드와 indexer를 직접 실행하는 방식으로, 선택적 단계를 시도한 경우에 사용합니다
 - `testnet-remote-start-proof-server.ts` - `testnet-remote.ts`와 동일한 설정이지만, proof 서버를 스크립트 내에서 자동으로 시작합니다
-- `standalone.ts` - proof 서버, Midnight 노드, Indexer를 모두 TestNet과 독립적으로 로컬에서 실행하며, 단위 테스트용입니다.
+- `standalone.ts` - `DockerComposeEnvironment`를 호출하여 proof 서버, Midnight 노드, Indexer를 모두 TestNet과 분리된 상태로 로컬에서 실행하며, 단위 테스트용입니다.
 
 `testnet-remote.ts`를 보면 매우 짧다는 것을 알 수 있습니다:
 
@@ -108,7 +108,7 @@ Compact 컴파일러가 생성한 소스 파일의 많은 타입(예: `Contract`
 export type CounterContract = Contract<CounterPrivateState, Witnesses<CounterPrivateState>>;
 ```
 
-### DApp
+### The Dapp
 
 애플리케이션을 구현하는 두 개의 메인 파일은 `counter-cli/src/cli.ts`와 `counter-cli/src/api.ts`입니다. 전자는 애플리케이션의 메인 실행 루프를 포함합니다. 후자는 Midnight 네트워크와 상호작용하기 위한 편의 함수를 포함합니다.
 
@@ -133,7 +133,7 @@ export type CounterContract = Contract<CounterPrivateState, Witnesses<CounterPri
 
 `WalletBuilder` 클래스는 `buildFromSeed`라는 메인 진입점을 통해 지갑을 생성합니다. 지갑은 indexer를 통해 자금과 트랜잭션 결과를 모니터링하고, 노드를 통해 트랜잭션을 제출하며, proof 서버를 호출하여 트랜잭션 유효성 proof를 생성합니다. 따라서 지갑은 indexer, 노드, proof 서버의 주소를 알아야 합니다.
 
-:::note Wallet SDK v4.0.0 호환성
+:::note Wallet SDK v4.0.0 Compatibility
 counter DApp은 다음과 같은 주요 변경 사항이 있는 `@midnight-ntwrk/wallet@4.0.0`을 사용합니다:
 
 - `WalletBuilder.buildFromSeed()`는 **deprecated(지원 중단 예정)**입니다. 아직 작동하지만 향후 버전에서 제거될 예정이므로, 시드 매개변수와 함께 `WalletBuilder.build()`를 사용하세요.
@@ -159,7 +159,7 @@ counter DApp은 다음과 같은 주요 변경 사항이 있는 `@midnight-ntwrk
 
 지갑은 여러 토큰의 잔액을 추적할 수 있으므로, `waitForFunds` 코드에서는 `nativeToken` 잔액, 즉 tDUST를 명시적으로 요청합니다. tDUST 잔액이 0이 아닌 값이 되면 `waitForFunds`가 반환되고, `buildWalletAndWaitForFunds`는 지갑 객체를 반환합니다.
 
-#### Provider
+#### Providers
 
 스마트 컨트랙트를 위한 Midnight 프로그래밍 인터페이스는 높은 유연성을 위해 매개변수화가 잘 되어 있습니다. 예를 들어, DApp 개발자가 새로운 종류의 private 상태 저장소를 구현하거나 컨트랙트와 지갑 사이에 잔액 확인 로직을 넣을 수 있습니다. Midnight 라이브러리는 다양한 타입의 *provider*를 필드로 가진 JavaScript 객체를 통해 이러한 기능적 매개변수화를 처리합니다.
 

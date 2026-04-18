@@ -35,13 +35,44 @@ npx create-mn-app [project-name]
 `[project-name]`을 새 DApp의 이름으로 교체하세요.
 :::
 
-실행하면 템플릿 선택 메뉴가 나타납니다. 사용 가능한 옵션:
+The CLI tool first prompts you to choose the type of project you want to create:
+
+- Contract
+- Full DApp
+
+If you are new to Midnight development, then starting with _contract_ is recommended. It provides a minimal setup that focuses on compiling and deploying a Compact smart contract before working with a full application scaffold.
+
+#### Contract
+
+Selecting **Contract** scaffolds a minimal project for deploying a Compact smart contract.
+
+You are prompted to choose a contract template. Currently the available option is:
 
 - Hello world
-- Counter
+
+The Hello world contract is a basic example that demonstrates how to deploy a Compact contract and interact with it from the CLI.
+
+#### Full DApp
+
+Selecting **Full DApp** scaffolds a complete decentralized application with contract logic, deployment scripts, and a CLI for interacting with the contract.
+
+You are prompted to choose a DApp template. Available options include:
+
+- Counter  
 - Bulletin board
 
-Hello world 템플릿을 선택하고 프롬프트에 따라 설정을 완료하세요. 다음과 유사한 출력이 나타납니다:
+The Counter template is an example that demonstrates how to maintain and update shared contract state by incrementing or decrementing a counter.
+
+The Bulletin board template is a privacy-preserving message board that allows users to post and remove messages using zero-knowledge (ZK) proofs.
+
+이 가이드에서는 첫 번째 프롬프트에서 **Contract**를 선택하고, 템플릿 선택 프롬프트에서 **Hello world**를 선택하세요. 나머지 프롬프트에 따라 설정을 완료하세요.
+
+**Full DApp**을 선택한 경우, 각 템플릿의 전용 튜토리얼을 참고하세요:
+
+- [Counter DApp](../examples/dapps/counter)
+- [Bulletin board DApp](../examples/dapps/bboard)
+
+다음과 유사한 출력이 나타납니다:
 
 ```
 Creating a new Midnight app in /path/to/my-app.

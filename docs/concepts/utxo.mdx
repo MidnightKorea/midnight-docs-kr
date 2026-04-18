@@ -6,13 +6,13 @@ id: utxo
 
 # UTXO model
 
-UTXO의 세계에 오신 것을 환영합니다 - 디지털 가치에 대한 근본적으로 다른 사고방식입니다! Account 모델이 전통적인 은행 업무를 반영하여 익숙하게 느껴졌다면, UTXO 모델은 처음에는 낯설 수 있습니다. 하지만 이 낯섦이 바로 UTXO의 강점입니다. 이를 이해하면, Bitcoin이 왜 이 접근 방식을 개척했는지, Cardano가 왜 이를 채택하고 발전시켰는지, 그리고 Midnight가 왜 투명성과 프라이버시를 모두 달성하기 위한 기반으로 선택했는지 알 수 있습니다.
+UTXO 모델은 디지털 가치에 대한 근본적으로 다른 사고방식입니다. Account 모델이 전통적인 은행 업무를 반영하여 익숙하게 느껴졌다면, UTXO 모델은 처음에는 낯설 수 있습니다. 이를 이해하면 설계상의 trade-off가 분명해지며, Midnight가 왜 프라이버시와 병렬 처리를 위한 기반으로 UTXO를 선택했는지 알 수 있습니다.
 
-UTXO는 "Unspent Transaction Output"의 약자입니다. 쉽게 말해, 각 UTXO는 지갑 속 물리적 현금처럼 개별적인 디지털 코인이나 지폐입니다. 각각 특정 값이 있고, 특정 소유자에게 속하며, 반드시 전체가 소비되어야 합니다. 처음에는 제한적으로 보일 수 있는 이 제약이 실제로는 UTXO 모델의 가장 강력한 기능을 뒷받침합니다.
+UTXO는 "Unspent Transaction Output"의 약자입니다. 각 UTXO는 지갑 속 물리적 현금처럼 개별적인 디지털 코인입니다. 각각 특정 값이 있고, 특정 소유자에게 속하며, 반드시 전체가 소비되어야 합니다. 이 제약이 UTXO 모델의 가장 유용한 속성을 뒷받침합니다.
 
-## The Digital Cash Metaphor: Why It's Perfect
+## The digital cash metaphor
 
-현금 비유는 단순한 교육 도구가 아니라, UTXO의 실제 작동 방식에 대한 정확한 설명입니다. 자세히 살펴봅시다.
+현금 비유는 단순한 교육 도구가 아니라, UTXO의 실제 작동 방식에 대한 정확한 설명입니다:
 
 커피숍에서 $3.50짜리 라테를 주문했다고 상상해 보세요. 지갑을 열어보니 다음이 있습니다.
 
@@ -42,13 +42,13 @@ Transaction {
 }
 ```
 
-## Deep Dive: Core UTXO Concepts
+## Core UTXO concepts
 
-UTXO 모델의 근본 원칙을 살펴보되, Midnight의 구현 방식에 특히 주목합니다.
+다음 원칙들은 UTXO 모델이 Midnight에서 어떻게 작동하는지 설명합니다.
 
-### UTXOs Are Truly Indivisible
+### UTXOs are indivisible
 
-이것은 단순한 설계 선택이 아니라 보안 모델의 근본적 요구 사항입니다. 각 UTXO는 완전한 단위로 암호화적으로 봉인됩니다.
+이것은 단순한 설계 선택이 아니라 모델의 핵심 속성입니다. 각 UTXO는 완전한 단위로 처리됩니다:
 
 ```solidity
 // UTXO 시스템에서 이것은 불가능:
@@ -64,11 +64,11 @@ UTXO 모델의 근본 원칙을 살펴보되, Midnight의 구현 방식에 특�
 }
 ```
 
-이 분할 불가능성이 언뜻 불편해 보일 수 있지만, 원자적 transaction, 병렬 처리, 그리고 Midnight의 shielded token 구현을 가능하게 하는 핵심 속성입니다.
+이 분할 불가능성은 원자적 transaction, 병렬 처리, 그리고 Midnight의 shielded token 지원을 가능하게 합니다.
 
-### The Nullifier Set: Midnight's Elegant Solution
+### The nullifier set in Midnight
 
-Midnight의 구현이 Bitcoin과 크게 다른 부분입니다. UTXO를 단순히 데이터베이스에서 "사용됨"으로 표시하는 대신, Midnight은 정교한 nullifier 집합 방식을 사용합니다.
+Midnight는 사용된 출력을 추적하는 방식에서 Bitcoin과 다릅니다. UTXO를 단순히 "사용됨"으로 표시하는 대신, Midnight은 nullifier 집합을 사용합니다:
 
 ```solidity
 // Midnight에서 UTXO가 사용될 때:
@@ -88,15 +88,14 @@ NullifierSet = {
 
 이 접근 방식이 중요한 이유:
 
-* **가지치기 불필요**: Bitcoin과 달리, Midnight은 사용된 UTXO를 이력에서 제거하지 않음
-* **프라이버시 호환**: nullifier는 어떤 UTXO가 사용되었는지 밝히지 않고도 계산 가능
-* **수학적으로 안전**: nullifier가 집합에 포함되면, 해당 UTXO는 다시 사용 불가
-* **효율적인 검증**: 집합 소속 확인은 O(1) 연산으로 빠르게 수행
+* **가지치기 불필요**: Bitcoin과 달리, Midnight은 사용된 출력을 이력에서 제거하지 않음
+* **프라이버시 호환**: nullifier는 사용된 UTXO에 공개적으로 연결하지 않고도 검증 가능
+* **이중 소비 방지**: nullifier가 집합에 포함되면, 해당 소비는 다시 수락되지 않음
+* **효율적인 검증**: 노드가 검증 중 소속 여부를 효율적으로 확인 가능
 
-### Transaction Atomicity Through Output Creation
+### Transaction atomicity through output creation
 
-모든 UTXO transaction은 원자적입니다 - 모든 입력이 소비되고 모든 출력이 함께 생성되거나, 아무 일도 일어나지 않습니다.
-
+Every UTXO transaction is atomic: all inputs are consumed and all outputs are created together, or nothing happens.
 
 ```solidity
 // 원자성을 보여주는 다자간 결제:
@@ -115,9 +114,9 @@ Transaction {
 // 전부 실행되거나, 전혀 실행되지 않음
 ```
 
-### The UTXO Lifecycle in Midnight
+### The UTXO lifecycle in Midnight
 
-전체 라이프사이클을 이해하면 이 모델의 강점을 파악하는 데 도움이 됩니다.
+전체 라이프사이클을 이해하면 이 모델이 효과적인 이유를 파악하는 데 도움이 됩니다:
 
 ```solidity
 // 1. 생성: 트랜잭션에서 UTXO 생성
@@ -143,13 +142,13 @@ if (NullifierSet.contains(nullifier)) {
 }
 ```
 
-## Why This "Complicated" System? The Hidden Advantages
+## Why this system
 
-Account 잔액이 훨씬 간단한데 왜 Bitcoin이 이 복잡해 보이는 접근 방식을 만들었는지 궁금할 수 있습니다. 그 이유는 특정 기능을 구축할 때 비로소 드러나는 깊은 장점에 있습니다.
+Account 잔액이 언뜻 더 단순해 보일 수 있습니다. 실제로 UTXO 모델은 프라이버시, 동시성, 증명 가능성을 구축할 때 분명해지는 장점을 제공합니다.
 
-### Parallelism: The Natural Consequence
+### Parallelism as a model property
 
-UTXO 모델은 병렬성을 단순히 허용하는 것이 아니라, 필연적으로 만듭니다.
+UTXO 모델은 병렬성을 자연스럽게 가능하게 합니다:
 
 ```solidity
 // Account 모델: 강제 순차 처리
@@ -165,11 +164,11 @@ Tx2: UTXO_B (30 NIGHT) 소비 → Carol에게 전송
 // 이유? 완전히 독립적인 객체에 접근
 ```
 
-이것은 사소한 최적화가 아닙니다. 고처리량 시나리오에서 이 아키텍처 차이는 10배에서 100배에 이르는 성능 향상을 가져올 수 있습니다. 단일 차선 도로와 다차선 고속도로의 차이와 같습니다.
+이것은 사소한 최적화가 아닙니다. 고처리량 시나리오에서 이 아키텍처 차이는 처리량을 실질적으로 향상시킬 수 있습니다.
 
-### Privacy: Built Into the Foundation
+### Privacy built into the foundation
 
-UTXO 모델의 구조는 account 모델에서는 달성하기 어려운 프라이버시 기능을 자연스럽게 지원합니다.
+UTXO 모델은 account 기반 시스템에서는 구현하기 어려운 프라이버시 기능을 자연스럽게 지원합니다:
 
 ```solidity
 // Account 모델: 모든 것이 하나의 주소에 연결
@@ -183,14 +182,14 @@ AliceAccount: {
 UTXO_1: { value: 100, owner: AddressA }  // 급여 수령용
 UTXO_2: { value: 50, owner: AddressB }   // 온라인 쇼핑용
 UTXO_3: { value: 25, owner: AddressC }   // 기부용
-// 차폐 및 비차폐 token(UTXO)을 필요에 따라 사용 가능
+// 차폐 및 비차폐 token UTXO를 필요에 따라 사용 가능
 ```
 
-Midnight에서 이 장점은 더욱 강력해집니다. Token이 차폐 또는 비차폐 유형이 될 수 있어, account별이 아닌 transaction별로 프라이버시 수준을 선택하는 시스템을 구현합니다.
+Midnight에서 token UTXO는 차폐 또는 비차폐가 될 수 있어, account별이 아닌 transaction별로 프라이버시를 선택할 수 있습니다.
 
-### State Management: Elegant Efficiency
+### State management and efficiency
 
-UTXO 모델의 상태 관리 방식은 근본적으로 다르며 더 확장 가능합니다.
+UTXO의 상태 관리 방식은 account 모델과 다릅니다:
 
 ```solidity
 // 노드가 추적해야 하는 것:
@@ -207,28 +206,25 @@ ActiveState = {
 // account에서는 모든 이력이 현재 상태에 영향
 ```
 
-## Deep Comparison: Beyond the Surface
+## Deep comparison
 
-단순 비교를 넘어 심층적인 영향을 살펴봅시다.
+이 비교는 실제적인 영향을 요약합니다:
 
 | 측면                   | Account 모델              | UTXO 모델                    | Midnight에서 중요한 이유           |
 |--------------------------|-----------------------------|-------------------------------|----------------------------------------|
 | 가치 저장            | 단일 변경 가능 잔액      | 불변 개별 코인      | shielded token 구현 가능                |
 | Transaction 모델        | 상태 업데이트               | 상태 전환             | 자연스러운 감사 추적 및 증명 가능성    |
 | 동시성              | 잠금 → 처리 → 해제     | 잠금 불필요               | 대규모 처리량 잠재력           |
-| 프라이버시 접근         | 전체 잔액 혼합          | shielded token(UTXO)       | 세밀한 프라이버시 제어               |
+| 프라이버시 접근         | 전체 잔액 혼합          | shielded token UTXO       | 세밀한 프라이버시 제어               |
 | 이중 소비 방지  | 잔액 산술 확인    | nullifier 집합 소속      | 숨겨진 값에서도 작동          |
 | 상태 증가             | 무제한 (모든 account)    | 제한됨 (활성 UTXO만)   | 장기 지속 가능성               |
 | 결정론              | 실행 순서에 의존  | 순서 무관             | 예측 가능한 결과                   |
 
-## Key Insights: The UTXO Paradigm Shift
+## Key insights: the UTXO paradigm shift
 
-UTXO 모델은 잔액 추적 방식의 차이를 넘어, 디지털 가치가 어떻게 작동해야 하는지에 대한 근본적인 재구상입니다.
+UTXO 모델은 단순히 잔액을 추적하는 다른 방식이 아니라, 가치 흐름을 모델링하는 방식 자체를 바꿉니다:
 
-* 변경 가능에서 불변으로: 잔액을 수정하는 대신 개별 값을 생성하고 소비합니다. 이 불변성 덕분에 강력한 암호화 proof와 감사 추적이 가능합니다.
-
-* 순차에서 병렬로: 공유 상태를 제거하여 자연스러운 동시성을 확보합니다. 단순히 더 빠른 것이 아니라, 분산 시스템에 아키텍처적으로 더 적합합니다.
-
-* 단일에서 세분화로: 각 UTXO가 독립적이어서, 프라이버시, 소비, 소유권에 대한 세밀한 제어가 가능합니다.
-
-* Account에서 기능으로: UTXO는 가치뿐 아니라 기능, 권리, 또는 모든 종류의 개별 디지털 자산을 나타낼 수 있습니다.
+* 변경 가능에서 불변으로: 잔액을 수정하는 대신 개별 값을 생성하고 소비합니다. 이를 통해 강력한 감사 가능성과 proof 시스템을 지원합니다.
+* 순차에서 병렬로: 공유 잔액 업데이트를 피하여 독립적인 UTXO 간 자연스러운 동시성을 확보합니다.
+* 단일에서 세분화로: 각 UTXO가 독립적이어서 프라이버시, 소비, 소유권에 대한 세밀한 제어가 가능합니다.
+* Account에서 기능으로: UTXO는 가치, 권리, 또는 기타 개별 디지털 자산을 나타낼 수 있습니다.

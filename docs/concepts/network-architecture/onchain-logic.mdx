@@ -1,17 +1,27 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-title: Onchain Logic and State
-sidebar_label: Onchain Logic and State
+title: Onchain logic and state
+sidebar_label: Onchain logic and state
 description: Midnight 노드의 온체인 로직과 상태에 대한 참조 문서.
 keywords: [node]
 ---
 
-# Onchain Logic and State
+# Onchain logic and state
 
 Midnight 노드는 온체인 로직의 정의와 실행에 표준 Polkadot SDK 모델을 따릅니다. 네이티브 pre-compile을 제외한 모든 핵심 로직은 **WebAssembly (WASM)**으로 컴파일되며, 이것이 노드의 **런타임**, 즉 모든 참여 노드에서 일관되게 실행되는 상태 전환 함수를 구성합니다.
 
-런타임은 **FRAME pallet**이라 불리는 모듈형 구성 요소로 이루어집니다. 각 pallet은 특정 로직 도메인을 캡슐화하며, 스토리지 정의(map, multi-key map, list, value), 이벤트, 디스패치 가능 함수(트랜잭션), 오프체인 워커, 훅, 호스트 노출 함수, RPC 메서드를 포함할 수 있습니다. 이러한 모듈형 설계를 통해 스마트 컨트랙트 프레임워크와 유사한 방식으로 유연하고 확장 가능한 온체인 실행 환경을 제공하면서도, 사전 컴파일되어 체인 수준에서 관리됩니다.
+런타임은 **FRAME pallet**이라 불리는 모듈형 구성 요소로 이루어집니다. 각 pallet은 특정 로직 도메인을 캡슐화하며 다음을 포함할 수 있습니다:
+
+- 스토리지 정의(map, multi-key map, list, value)
+- 이벤트
+- 디스패치 가능 함수(트랜잭션)
+- 오프체인 워커
+- 훅
+- 호스트 노출 함수
+- RPC 메서드
+
+이러한 모듈형 설계를 통해 스마트 컨트랙트 프레임워크와 유사한 방식으로 유연하고 확장 가능한 온체인 실행 환경을 제공하면서도, 사전 컴파일되어 체인 수준에서 관리됩니다.
 
 Midnight의 런타임은 **Polkadot SDK**의 업스트림 pallet과 **Cardano Partner-Chains**에서 개발한 구성 요소를 모두 통합합니다. 주요 예시는 다음과 같습니다:
 
@@ -19,7 +29,7 @@ Midnight의 런타임은 **Polkadot SDK**의 업스트림 pallet과 **Cardano Pa
 - `pallet-grandpa`: GRANDPA 프로토콜을 통한 최종성을 관리합니다.
 - `pallet-partnerchains-session` 및 `pallet_session_validator_management`: partnerchain 환경에서 세션 교체와 검증자 관리를 조율합니다.
 
-Midnight의 프라이버시 보존 트랜잭션 로직을 구동하는 **핵심 pallet**은 `pallet-midnight`입니다. 내부적으로 관리되는 이 pallet은 **Midnight Ledger**의 상태 머신을 캡슐화합니다.
+Midnight의 프라이버시 보존 트랜잭션 로직을 구동하는 **핵심 pallet**은 `pallet-midnight`입니다. 내부적으로 관리되는 이 pallet은 [Midnight Ledger](/api-reference/ledger/)의 상태 머신을 캡슐화합니다.
 
 `pallet-midnight`는 **ZSwap 자산 이전**과 **컨트랙트 연산**을 포함하여 Midnight Ledger에서 발생하는 특수 트랜잭션을 처리합니다. 기존의 서명 기반 디스패치 대신, 각 트랜잭션에 내장된 암호학적 **증명**을 처리합니다. 네이티브 라이브러리를 활용하여 이러한 증명을 검증하고 대응하는 상태 전환을 실행합니다.
 

@@ -1,15 +1,19 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Zero-knowledge proofs
+sidebar_label: Zero-knowledge proofs
+description: A reference on how zero-knowledge proofs work and how they are used in Midnight.
+keywords: [zero-knowledge, proofs]
 ---
 
 # Zero-knowledge proof
 
-Zero-knowledge proof(ZKP)란 비밀 자체를 밝히지 않으면서도 해당 비밀을 알고 있다는 사실을 증명하는 기술입니다. 예를 들어, 정확한 값을 공개하지 않고도 어떤 속성이 특정 범위 안에 있다는 것을 증명할 수 있습니다. DApp이나 서비스의 잠재적 사용자는 ZKP를 활용하여, 자기주권 신원에서 필요한 정보만 선택적으로 공개하고 나머지는 비공개로 유지할 수 있습니다.
+Zero-knowledge proof(ZKP)란 비밀 자체를 밝히지 않으면서도 해당 비밀을 알고 있다는 사실을 증명하는 기술입니다. 예를 들어, 정확한 값을 공개하지 않고도 어떤 속성이 특정 범위 안에 있다는 것을 증명할 수 있습니다. DApp이나 서비스의 클라이언트는 ZKP를 활용하여, 자기주권 신원에서 필요한 정보만 선택적으로 공개하고 나머지는 비공개로 유지할 수 있습니다.
 
-예를 들어, 지방 선거에서 투표하려는 사람을 생각해 보겠습니다. 이 사람은 해당 선거구에 거주하고, 유권자 명부에 등록되어 있으며, 아직 투표하지 않은 상태여야 합니다. 기존 방식으로 이 사실을 증명하려면, 주소, 생년월일, 성명이 포함된 신분증을 제시해야 합니다. 또한 투표 시 유권자 명부에서 이름을 체크해야 하는데, 부패한 행정부가 이 과정을 악용하면 유권자가 강압에 노출될 수 있습니다.
+예를 들어, 지방 선거에서 투표하려는 사람을 생각해 보겠습니다. 이 사람은 해당 선거구에 거주하고, 유권자 명부에 등록되어 있으며, 아직 투표하지 않은 상태여야 합니다. 기존 방식으로 이 사실을 증명하려면, 주소, 생년월일, 성명이 포함된 문서를 제시해야 합니다. 또한 투표 시 유권자 명부에서 이름을 체크해야 하는데, 거버넌스가 취약한 경우 강압 위험이 발생할 수 있습니다.
 
-zero-knowledge 환경에서는 적절한 애플리케이션과 디지털 ID를 결합하면, 시민이 개인 식별 정보를 공개하지 않고도 다음을 증명할 수 있습니다: 주소가 해당 지역 내에 있다는 것, 유권자 등록이 되어 있다는 것, 아직 투표하지 않았다는 것.
+zero-knowledge 환경에서는 디지털 ID와 적절한 애플리케이션을 사용하여, 시민이 개인 식별 정보를 공개하지 않고도 다음을 증명할 수 있습니다: 주소가 해당 지역 내에 있다는 것, 유권자 등록이 되어 있다는 것, 아직 투표하지 않았다는 것.
 
 일반적으로 ZKP는 다음과 같은 사실을 증명하는 데 활용할 수 있습니다:
 
@@ -21,20 +25,29 @@ zero-knowledge 환경에서는 적절한 애플리케이션과 디지털 ID를 �
 
 ## ZK Snark
 
-Midnight은 zero-knowledge succinct non-interactive argument of knowledge(ZK Snark)를 사용합니다. ZK Snark는 특히 효율적이고 강력한 ZKP의 한 종류로, 두 가지 핵심적인 차별점이 있습니다:
+Midnight은 zero-knowledge succinct non-interactive arguments of knowledge(zk-SNARK)를 사용합니다. 이는 컴팩트한 proof와 효율적인 검증을 위해 설계된 ZKP의 한 종류입니다.
 
-- *간결성(Succinctness)*: ZK Snark는 증명 대상의 크기 대비 proof 크기가 준선형적으로 유지됩니다. 덕분에 검증이 효율적이고 전송 데이터량도 줄어들어, 실용적인 시스템 구축에 매우 유리합니다.
-- *효율성(Efficiency)*: ZK Snark는 비대화형 proof로, 증명자가 검증자와 추가로 상호작용하지 않아도 proof를 생성할 수 있습니다. 여러 라운드의 통신이 필요한 다른 ZKP 유형과 구별되는 특징입니다.
+두 가지 핵심 속성은 다음과 같습니다:
+- **간결성(Succinctness)**: Proof 크기가 진술의 크기 대비 작게 유지되어, 효율적인 검증과 전송 데이터량 감소가 가능합니다.
+- **비대화성(Non-interactivity)**: 증명자가 검증자와 상호작용하지 않고도 proof를 생성할 수 있습니다. 여러 라운드의 통신이 필요한 대화형 proof 시스템과 구별됩니다.
 
 ### How do ZK Snarks work?
 
-ZK Snark는 비대화형 지식 논증이므로, 증명자가 검증자와 지속적으로 주고받지 않아도 진술의 진실성을 입증할 수 있습니다. proof의 생성과 검증에는 타원 곡선 페어링 및 고급 대수적 기법 등의 수학적 연산이 사용됩니다.
+ZK Snark는 비대화형 지식 논증이므로, 증명자가 검증자와 지속적으로 주고받지 않아도 진술의 유효성을 입증할 수 있습니다. Proof의 생성과 검증에는 타원 곡선 기반 기법 등 고급 암호화 구성이 사용됩니다.
 
 전체적인 흐름은 다음과 같습니다:
 
 ![zk-snarks](https://ucarecdn.com/bacf5357-29d7-490e-8b13-ed13c671efaf/)
 
-ZK Snark의 작동 방식을 더 자세히 살펴보겠습니다:
+일반적인 과정은 다음과 같습니다:
+
+- **Setup phase**: 시스템이 증명 및 검증 알고리즘에 사용되는 공개 매개변수를 설정합니다. 이 매개변수는 체계의 보안과 정확성에 핵심적입니다.
+- **Key components**: ZK Snark는 특수 암호화 구성 요소(예: 타원 곡선 기반 구성 및 해싱 프리미티브)를 사용하여 컴팩트한 proof를 가능하게 합니다.
+- **Circuit construction**: 진술이 연산과 제약 조건을 정의하는 산술 circuit로 인코딩됩니다.
+- **Witness and proof generation**: 증명자가 비공개 witness, circuit, 공개 매개변수를 사용하여 witness 데이터를 드러내지 않고 진술이 유효하다는 proof를 생성합니다.
+- **Verification**: 검증자가 proof, 공개 매개변수, 진술을 사용하여 유효성을 효율적으로 확인합니다.
+
+더 자세히 살펴보면:
 
 -   **Setup phase**. 다른 암호화 프로토콜과 마찬가지로, ZK Snark도 먼저 특정 매개변수를 설정하는 단계를 거칩니다. 이 매개변수는 전체 시스템의 보안과 기능에 핵심적인 역할을 합니다.
 -   **Key components**. ZK Snark에는 타원 곡선 페어링(암호화에 사용되는 수학적 구조)과 특수 해시 함수(데이터를 고정 크기 값으로 변환하는 도구로, 일종의 디지털 지문) 등 여러 핵심 구성 요소가 포함됩니다. 이들이 간결하고 효율적인 proof 생성을 뒷받침합니다.

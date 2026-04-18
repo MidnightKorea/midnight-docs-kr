@@ -11,15 +11,15 @@ keywords: [node]
 
 Midnight 네트워크는 블록 생성을 위한 **AURA**와 최종성을 위한 **GRANDPA** 등 표준 **Substrate 프리미티브** 위에 구축된 변형 합의 모델을 사용합니다. 이러한 구성 요소는 Cardano Partnerchain으로서 Midnight의 고유한 요구 사항을 충족하도록 확장되었습니다.
 
-## Validator Selection
+## Validator selection
 
 표준 Substrate 체인과 달리 Midnight은 **커스텀 검증자 집합 선택 함수**를 사용합니다. 이 메커니즘은 **Cardano SPO의 스테이크 위임**을 반영하여, 기존 Cardano 검증자가 Midnight 합의에 참여할 수 있도록 합니다. 또한 **허가된 검증자**를 선택적으로 포함할 수 있어, 하이브리드 public/private 네트워크 배포에 유연하게 대응합니다.
 
-## AURA: Block Production
+## AURA: Block production
 
 **AURA (Authority Round)**는 각 블록 생성 담당 검증자를 결정하는 **PoA(Proof-of-Authority)** 알고리즘입니다. 검증자는 사전 정의된 슬롯과 세션 키를 기반으로 **라운드 로빈** 방식으로 순서를 돌아가며 블록을 생성합니다. 단순하고 빠르며 결정적이어서, 알려진 검증자 집합을 가진 고처리량 블록체인에 적합합니다.
 
-AURA는 Midnight 전용이 아니며, 원래 [OpenEthereum](https://github.com/paritytech/openethereum)에서 구현되었습니다. 자세한 내용은 [Polkadot 프로토콜 용어집](https://github.com/polkadot-developers/polkadot-docs/blob/79fe4ec5498411bc8ac8bfef58c79cd2c6713090/polkadot-protocol/glossary.md?plain=1#L29)을 참조하세요.
+AURA는 Midnight 전용이 아니며, 원래 [OpenEthereum](https://openethereum.github.io/Aura)에서 구현되었습니다. 자세한 내용은 [Polkadot 프로토콜 용어집](https://github.com/polkadot-developers/polkadot-docs/blob/79fe4ec5498411bc8ac8bfef58c79cd2c6713090/polkadot-protocol/glossary.md?plain=1#L29)을 참조하세요.
 
 
 ## GRANDPA: Finality

@@ -50,12 +50,9 @@ jobs:
           COMMITS=$(git log --oneline HEAD..upstream/main | head -20)
 
           # Issue 본문 생성
-          cat > /tmp/issue-body.md <<'HEADER'
-## Upstream 동기화 알림
-
-upstream에 새로운 변경사항이 감지되었습니다.
-HEADER
-
+          echo "## Upstream 동기화 알림" > /tmp/issue-body.md
+          echo "" >> /tmp/issue-body.md
+          echo "upstream에 새로운 변경사항이 감지되었습니다." >> /tmp/issue-body.md
           echo "" >> /tmp/issue-body.md
           echo "**새 커밋**: ${BEHIND}개" >> /tmp/issue-body.md
           echo "" >> /tmp/issue-body.md

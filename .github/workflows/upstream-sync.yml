@@ -50,11 +50,11 @@ jobs:
           COMMITS=$(git log --oneline HEAD..upstream/main | head -20)
 
           # Issue 본문 생성
-          cat > /tmp/issue-body.md << 'HEADER'
-          ## Upstream 동기화 알림
+          cat > /tmp/issue-body.md <<'HEADER'
+## Upstream 동기화 알림
 
-          upstream에 새로운 변경사항이 감지되었습니다.
-          HEADER
+upstream에 새로운 변경사항이 감지되었습니다.
+HEADER
 
           echo "" >> /tmp/issue-body.md
           echo "**새 커밋**: ${BEHIND}개" >> /tmp/issue-body.md
@@ -98,6 +98,13 @@ jobs:
           echo "2. conflict 해결 (한국어 번역 유지 우선)" >> /tmp/issue-body.md
           echo "3. 새 콘텐츠 번역" >> /tmp/issue-body.md
           echo "4. \`git push deploy main\`" >> /tmp/issue-body.md
+
+      - name: Ensure label exists
+        if: steps.check.outputs.behind != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "upstream-sync" --color "1d76db" --description "Upstream 동기화 알림" 2>/dev/null || true
 
       - name: Create issue
         if: steps.check.outputs.behind != '0'

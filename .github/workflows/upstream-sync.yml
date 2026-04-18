@@ -100,25 +100,28 @@ jobs:
         if: steps.check.outputs.behind != '0'
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          REPO: ${{ github.repository }}
         run: |
-          gh label create "upstream-sync" --color "1d76db" --description "Upstream 동기화 알림" 2>/dev/null || true
+          gh label create "upstream-sync" --color "1d76db" --description "Upstream 동기화 알림" --repo "$REPO" 2>/dev/null || true
 
       - name: Create issue
         if: steps.check.outputs.behind != '0'
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          REPO: ${{ github.repository }}
         run: |
           BEHIND=${{ steps.check.outputs.behind }}
 
           # 중복 이슈 방지: 열린 sync 이슈가 있으면 생성하지 않음
-          EXISTING=$(gh issue list --label "upstream-sync" --state open --limit 1 --json number -q '.[0].number')
+          EXISTING=$(gh issue list --label "upstream-sync" --state open --limit 1 --json number -q '.[0].number' --repo "$REPO")
 
           if [ -n "$EXISTING" ]; then
             echo "Open sync issue #$EXISTING already exists, skipping"
           else
             ISSUE_URL=$(gh issue create \
               --title "Upstream 동기화: ${BEHIND}개 새 커밋 감지" \
-              --body-file /tmp/issue-body.md)
+              --body-file /tmp/issue-body.md \
+              --repo "$REPO")
             ISSUE_NUM=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
-            gh issue edit "$ISSUE_NUM" --add-label "upstream-sync"
+            gh issue edit "$ISSUE_NUM" --add-label "upstream-sync" --repo "$REPO"
           fi

@@ -1,69 +1,69 @@
 ---
-title: The origins of sidechains and partner chains
+title: Sidechain과 partner chain의 기원
 description: Understanding the research foundation of the partner chain framework
 sidebar_label: Sidechains and partner chains
 keywords: [sidechains, partner chains]
 tags: [concepts]
 ---
 
-# The origins of sidechains and partner chains
+# Sidechain과 partner chain의 기원
 
-The original side chain research set the foundations for scalability, which further evolved into a partner chain framework, where a mature network like Cardano interacts with Midnight, its first partner chain.
+최초의 sidechain 연구는 확장성의 토대를 마련했으며, 이후 Cardano 같은 성숙한 네트워크가 첫 번째 partner chain인 Midnight와 상호작용하는 partner chain 프레임워크로 발전했습니다.
 
-## The evolution of scalability
+## 확장성의 진화
 
-Midnight builds upon a long line of research and development at Input | Output (IOG). This journey began with the 2019 academic paper [Proof-of-Stake Sidechains](https://eprint.iacr.org/2018/1239), and continuing with the evolution of the partner chain framework that allows for secure, private computation linked to a public settlement layer.
+Midnight는 Input | Output(IOG)의 오랜 연구 개발 성과 위에 구축되었습니다. 이 여정은 2019년 학술 논문 [Proof-of-Stake Sidechains](https://eprint.iacr.org/2018/1239)에서 시작되었으며, 안전한 프라이빗 연산을 퍼블릭 정산 레이어에 연결하는 partner chain 프레임워크의 발전으로 이어졌습니다.
 
-Midnight, as the first partner chain to Cardano, inherits security from the existing, highly decentralized, mature network. This means that developers can experiment with bold new features – like **programmable privacy** in the case of Midnight – without having to build a resilient infrastructure from scratch. 
+Cardano의 첫 번째 partner chain인 Midnight는 기존의 고도로 탈중앙화되고 성숙한 네트워크로부터 보안을 상속받습니다. 덕분에 개발자는 처음부터 견고한 인프라를 구축하지 않고도 Midnight의 **프로그래머블 프라이버시**와 같은 혁신적인 기능을 실험할 수 있습니다.
 
-## What is a sidechain?
+## Sidechain이란?
 
-A sidechain is a separate blockchain that runs in parallel with, and depends on, the main chain. It acts like a specialized subsystem where developers can implement custom rules, different languages, or other performance or security features without affecting the stability or speed of the primary chain.
+Sidechain은 메인 체인과 병렬로 실행되며 메인 체인에 의존하는 별도의 블록체인입니다. 기본 체인의 안정성이나 속도에 영향을 주지 않으면서 커스텀 규칙, 다른 언어, 기타 성능이나 보안 기능을 구현할 수 있는 특화된 서브시스템 역할을 합니다.
 
-Essentially, the goal of sidechains is to enable blockchain scalability or new functionality, while interoperability with the main chain makes it usable. Within a sidechain system, there are typically two chains, the main chain and the side chain, that are connected via bridges. These bridges enable the transfer of assets between the chains and allow smart contracts on different chains to interact. 
+Sidechain의 핵심 목표는 블록체인 확장성이나 새로운 기능을 가능하게 하는 것이며, 메인 체인과의 상호운용성이 이를 실제로 활용 가능하게 만듭니다. Sidechain 시스템에는 일반적으로 메인 체인과 sidechain이라는 두 체인이 브릿지로 연결되어 있습니다. 브릿지를 통해 체인 간 자산을 전송하고, 서로 다른 체인의 스마트 컨트랙트가 상호작용할 수 있습니다.
 
-One of the defining features of sidechains is that they are heterogenous. This means that the ledgers in the network do not need to be clones of one another; they can vary wildly in their design and operation, as follows:
+Sidechain의 핵심적인 특징 중 하나는 이질적(heterogeneous)이라는 점입니다. 네트워크의 원장이 서로 복제본일 필요가 없으며, 설계와 운영 방식이 크게 다를 수 있습니다:
 
-* **Different parties**: Maintained by distinct sets of validators or miners.
-* **Diverse consensus mechanisms**: One chain might use Proof-of-Work (PoW) while another uses Proof-of-Stake (PoS), or other consensus mechanisms.
-* **Varied assumptions**: Security may rely on a majority of hashing power, a majority of stake, or even a single trusted operator (eg in a private bank ledger).
+* **서로 다른 참여자**: 별도의 검증자 또는 채굴자 집합이 운영합니다.
+* **다양한 합의 메커니즘**: 한 체인은 Proof-of-Work(PoW)를, 다른 체인은 Proof-of-Stake(PoS)를 사용하거나, 기타 합의 메커니즘을 사용할 수 있습니다.
+* **서로 다른 보안 가정**: 해싱 파워의 다수, 스테이크의 다수, 또는 단일 신뢰 운영자(예: 프라이빗 은행 원장) 등에 보안이 의존할 수 있습니다.
 
-## How to verify cross-chain transactions
+## 크로스 체인 트랜잭션 검증 방법
 
-Imagine a system of two ledgers, A and B, connected by a bridge. To maintain consistency, the maintainers of ledger B must verify that incoming transfers from ledger A are legitimate. Since maintainers of ledger B cannot automatically access records on ledger A, several verification patterns are used to achieve this:
+브릿지로 연결된 두 원장 A와 B로 구성된 시스템을 생각해 보겠습니다. 일관성을 유지하려면, 원장 B의 관리자가 원장 A에서 들어오는 전송이 정당한지 검증해야 합니다. 원장 B의 관리자는 원장 A의 기록에 자동으로 접근할 수 없으므로, 이를 위해 여러 검증 패턴이 사용됩니다:
 
-* **Direct observation**: Nodes on ledger B run a full node (full or light-client) of ledger A. They can access everything, but are hardware-intensive.
-* **Certificate-based**: 
-    * **Optimistic**: Assumes transactions are valid unless a fraud proof is submitted.
-    * **Signature by full population**: All maintainers of ledger A collaboratively produce a stake-based threshold multisignature (like Mithril) on the state of the chain.
-    * **Signature by a small committee**: Cleverly selected to faithfully represent the whole population. 
+* **직접 관찰**: 원장 B의 노드가 원장 A의 풀 노드(전체 또는 라이트 클라이언트)를 실행합니다. 모든 데이터에 접근할 수 있지만 하드웨어 요구가 큽니다.
+* **인증서 기반**: 
+    * **낙관적(Optimistic)**: 사기 증명이 제출되지 않는 한 트랜잭션이 유효하다고 가정합니다.
+    * **전체 인구 서명**: 원장 A의 모든 관리자가 협력하여 체인 상태에 대한 스테이크 기반 임계값 멀티시그(Mithril 같은)를 생성합니다.
+    * **소규모 위원회 서명**: 전체 인구를 충실히 대표하도록 영리하게 선발된 위원회가 서명합니다.
 
-The certificate-based approaches may be further augmented by the use of SNARKs for better efficiency. 
+인증서 기반 접근 방식은 효율성을 높이기 위해 SNARK를 추가로 활용할 수 있습니다.
 
-## Security and the firewall property
+## 보안과 방화벽 속성
 
-What security guarantee do we expect from a system of ledgers interconnected in this way?
+이렇게 상호 연결된 원장 시스템에서 어떤 보안 보장을 기대할 수 있을까요?
 
-For each of the ledgers in the ecosystem, its necessary security assumption (e.g. honest majority of stake) can be either satisfied or violated. Security assumptions are considered monotone, which means that once a ledger’s underlying assumption is broken, the ledger is classified as failed. In this model, security is not recoverable; once the violation occurs, the ledger can no longer be trusted to provide its original guarantees.
+생태계 내 각 원장에는 고유한 보안 가정(예: 스테이크의 정직한 다수)이 있으며, 이것이 충족되거나 위반될 수 있습니다. 보안 가정은 단조(monotone)적으로 간주되어, 한 원장의 기반 가정이 깨지면 해당 원장은 실패 상태로 분류됩니다. 이 모델에서 보안은 복구할 수 없으며, 위반이 발생하면 해당 원장은 원래의 보장을 더 이상 신뢰할 수 없습니다.
 
-To protect the ecosystem, the *PoS Sidechains* paper formalizes two critical requirements for the entire system:
+생태계를 보호하기 위해, *PoS Sidechains* 논문은 전체 시스템에 대한 두 가지 핵심 요구사항을 형식화합니다:
 
-### Individual security
-As long as each ledger’s specific security assumption is satisfied, it must provide the standard features, in a nutshell:
-* **Safety**: Settled transactions remain settled forever;
-* **Liveness**: Valid transactions will eventually be settled.
+### 개별 보안
+각 원장의 고유한 보안 가정이 충족되는 한, 다음과 같은 표준 기능을 보장해야 합니다:
+* **안전성(Safety)**: 확정된 트랜잭션은 영원히 확정 상태를 유지합니다.
+* **활성(Liveness)**: 유효한 트랜잭션은 결국 확정됩니다.
 
-### The firewall property
-The firewall property aims to ensure that the failure of one ledger must not endanger the security of other connected ledgers. This is a vital concept in Midnight’s design.
+### 방화벽 속성
+방화벽 속성은 한 원장의 실패가 연결된 다른 원장의 보안을 위협하지 않도록 보장하는 것을 목표로 합니다. Midnight 설계에서 핵심적인 개념입니다.
 
-If Sidechain A is compromised, a user on the Cardano mainnet or sidechain B should not see their assets or consensus integrity at risk. The risk of a failed ledger must be contained.
+Sidechain A가 침해되더라도, Cardano 메인넷이나 Sidechain B의 사용자는 자산이나 합의 무결성이 위험에 처하지 않아야 합니다. 실패한 원장의 위험은 해당 원장 내에 격리되어야 합니다.
 
-Technically, this condition is captured by requiring that in case any ledger ever fails and the list of transactions it carried is lost irreversibly, there must exist an “explanation” list of transactions that it could have contained that is consistent with the contents of all the remaining—still secure and operational—ledgers, in the sense that together they result in a valid state of the overall system. 
+기술적으로, 이 조건은 다음을 요구합니다: 어떤 원장이 실패하여 그 원장의 트랜잭션 목록이 영구적으로 손실되더라도, 나머지 보안이 유지되고 운영 중인 모든 원장의 내용과 일관되는 "설명 가능한" 트랜잭션 목록이 존재해야 하며, 이들이 합쳐져 전체 시스템의 유효한 상태를 이루어야 합니다.
 
-## Why this research matters for Midnight
+## 이 연구가 Midnight에 중요한 이유
 
-Midnight is built on these exact principles and as the first partner chain of Cardano, the framework defined in this research paper ensures that while Midnight offers specialized ‘shielded’ transactions and data protection, the Cardano mainchain remains firewalled from it, ensuring the robustness of the whole ecosystem.
+Midnight는 바로 이 원칙 위에 구축되었으며, Cardano의 첫 번째 partner chain으로서 이 연구 논문에 정의된 프레임워크 덕분에 Midnight가 특화된 'shielded' 트랜잭션과 데이터 보호를 제공하면서도 Cardano 메인 체인은 이로부터 방화벽으로 보호되어 전체 생태계의 견고함을 유지합니다.
 
-## Learn more
+## 더 알아보기
 
-More details on the various ways sidechains interact, how they might support each other via merged staking, and the detailed logic behind the firewall property discussed above can be found in the research paper [Proof-of-Stake Sidechains](https://eprint.iacr.org/2018/1239).
+Sidechain 간의 다양한 상호작용 방식, merged staking을 통한 상호 지원, 그리고 위에서 논의한 방화벽 속성의 상세 논리에 대한 자세한 내용은 연구 논문 [Proof-of-Stake Sidechains](https://eprint.iacr.org/2018/1239)에서 확인할 수 있습니다.

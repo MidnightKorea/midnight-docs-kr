@@ -1,10 +1,8 @@
-# Compact fixup usage page
+# Compact fixup 사용법
 
-This is the usage page of **fixup-compact**, a fix up tool for Compact.
-This document assumes you are using **fixup-compact** by itself.
-However, use the Compact command-line tool instead of using the
-fix up tool on its own. [The usage page of the Compact command-line tool](dev-tool-usage)
-is provided separately.
+**fixup-compact** 도구의 사용법 페이지입니다.
+이 문서는 **fixup-compact**을 단독으로 사용하는 경우를 기준으로 합니다.
+다만, fixup 도구를 단독으로 사용하기보다는 Compact 커맨드라인 도구를 통해 사용하는 것을 권장합니다. [Compact 커맨드라인 도구 사용법](dev-tool-usage)은 별도 페이지에서 확인하세요.
 
 NAME
 ====
@@ -14,12 +12,7 @@ fixup-compact
 OVERVIEW
 ========
 
-The Compact fixup is part of Compact toolchain and
-it takes as input a Compact source program in a specified source
-file, attempts to update it to account for recent changes in the Compact
-language, formats it, and writes the updated and reformatted program to a
-specified file.  If such a file is not specified, it writes the updated and
-formatted program to standard output.
+Compact fixup은 Compact 툴체인의 일부로, 지정된 소스 파일의 Compact 소스 프로그램을 입력으로 받아 최근 Compact 언어 변경 사항을 반영하여 업데이트하고, 포매팅한 뒤, 지정된 파일에 결과를 기록합니다. 출력 파일이 지정되지 않으면 업데이트 및 포매팅된 프로그램을 표준 출력에 출력합니다.
 
 SYNOPSIS
 ========
@@ -29,96 +22,79 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-The flags _flag_ **...** are optional.  They are described under FLAGS later in
-this document.
+플래그 _flag_ **...**는 선택 사항이며, 아래 FLAGS 섹션에서 설명합니다.
 
-_sourcepath_ should specify a file containing a Compact source program, and
-_targetpath_ should specify the file into which the updated and formatted 
-program should be written.  _targetpath_
-may be the same as _sourcepath_,  in which case the source program is replaced
-with the updated and reformatted equivalent.  We recommend, however, that you
-direct the output to a different file and compare it with the original, to
-verify that the changes make sense. 
+_sourcepath_는 Compact 소스 프로그램이 담긴 파일을 지정하고, _targetpath_는 업데이트 및 포매팅된 프로그램을 기록할 파일을 지정합니다. _targetpath_를 _sourcepath_와 같게 설정하면 소스 프로그램이 업데이트 및 포매팅된 결과로 대체됩니다. 다만, 출력을 다른 파일로 지정하고 원본과 비교하여 변경 사항이 올바른지 확인하는 것을 권장합니다.
 
 FLAGS
 =====
 
-The following flags, if present, affect the fixup tool's behavior as follows:
+아래 플래그를 지정하면 fixup 도구의 동작이 다음과 같이 변경됩니다:
 
 **--help**
 
-Prints help text and exits.
+도움말을 출력한 뒤 종료합니다.
 
 **--version**
 
-Prints the compiler version and exits.
+컴파일러 버전을 출력한 뒤 종료합니다.
 
 **--language-version**
 
-Prints the language version and exits.
+언어 버전을 출력한 뒤 종료합니다.
 
 **--vscode**
 
-Causes error messages to be printed on a single line so they are rendered
-properly within the VS Code extension for Compact.
+오류 메시지를 한 줄로 출력하여 Compact VS Code 확장에서 올바르게 표시되도록 합니다.
 
 **--update-Uint-ranges**
 
-Adjusts the end point of each Uint whose size is given by
-a range with a constant end point and issues a warning for each Uint whose
-size is given by a range when the end point is a generic-variable reference.
+범위의 끝점이 상수인 각 Uint의 끝점을 조정하고, 범위의 끝점이 제네릭 변수 참조인 각 Uint에 대해 경고를 출력합니다.
 
 **--compact-path _search list_**
 
-Sets the Compact search list to **_search list_**, overriding the default (the
-value of the **COMPACT_PATH** environment variable, if set, otherwise empty).
-The search list is a colon-separated (semicolon-separated on Windows) list of
-directory pathnames.
+Compact 검색 목록을 **_search list_**로 설정하여 기본값(설정된 경우 **COMPACT_PATH** 환경 변수 값, 그렇지 않으면 빈 값)을 대체합니다.
+검색 목록은 콜론으로 구분된(Windows에서는 세미콜론으로 구분) 디렉토리 경로 목록입니다.
 
 **--trace-search**
 
-Causes the fixup tool to print a sequence of messages saying where it is looking
-for each included file and imported module source file.
+fixup 도구가 각 include 파일과 import 모듈 소스 파일을 어디서 찾고 있는지 메시지를 출력합니다.
 
 **--line-length _n_**
 
-Sets the target line length to _n_ (default 100).
+목표 줄 길이를 _n_으로 설정합니다(기본값 100).
 
 EXAMPLES
 ========
 
-Assuming **src/test.compact** contains a well-formed Compact program, running:
+**src/test.compact**에 올바른 Compact 프로그램이 있다고 가정하고, 다음을 실행하면:
 
 ```bash
 fixup-compact src/test.compact
 ```
 
-prints the updated and formatted program of **src/test.compact** to standard
-output.
+**src/test.compact**의 업데이트 및 포매팅된 프로그램을 표준 출력에 출력합니다.
 
-Assuming that **fixed** is an existing directory, running:
+**fixed**가 기존 디렉토리라고 가정하고, 다음을 실행하면:
 
 ```bash
 fixup-compact src/test.compact fixed/test.compact
 ```
 
-writes the updated and formatted program to **fixed/test.compact**.  If the
-**fixed** directory does not exist the fixup tool complains that it cannot
-create the output file.
+업데이트 및 포매팅된 프로그램을 **fixed/test.compact**에 기록합니다. **fixed** 디렉토리가 없으면 fixup 도구가 출력 파일을 생성할 수 없다는 오류를 출력합니다.
 
-Alternatively, running:
+다른 방법으로, 다음을 실행하면:
 
 ```bash
 fixup-compact src/test.compact src/test.compact
 ```
 
-rewrites the updated and formatted program to **src/test.compact**.
+업데이트 및 포매팅된 프로그램을 **src/test.compact**에 덮어씁니다.
 
-Assuming **src/test.compact** contains an ill-formed Compact program, running:
+**src/test.compact**에 잘못된 Compact 프로그램이 있는 경우, 다음을 실행하면:
 
 ```bash
 fixup-compact src/test.compact
 ```
 
-exits with an error message describing the problem that prevents the
-Compact program in **src/test.compact** from compiling.
+**src/test.compact**의 Compact 프로그램이 컴파일되지 못하는 원인을 설명하는 오류 메시지와 함께 종료됩니다.

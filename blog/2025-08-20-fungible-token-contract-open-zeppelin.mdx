@@ -10,9 +10,9 @@ description: "Midnight의 FungibleToken 컨트랙트 구조와 프라이버시 �
 
 ## Introduction to the FungibleToken contract on Midnight
 
-**Midnight**은 탈중앙화 애플리케이션에 *프라이버시*를 제공하기 위해 설계된 프라이버시 우선 블록체인입니다. [영지식 증명, 프로그래밍 가능한 데이터 보호, 그리고 개발자 친화적 도구](https://docs.midnight.network/develop/how-midnight-works/)인 **Compact**(TypeScript 기반 DSL, 도메인 특화 언어)을 통해 이를 실현합니다.
+Midnight은 탈중앙화 애플리케이션에 *프라이버시*를 제공하기 위해 설계된 프라이버시 우선 블록체인입니다. [영지식 증명, 프로그래밍 가능한 데이터 보호, 그리고 개발자 친화적 도구](https://docs.midnight.network/concepts/how-midnight-works/)인 **Compact(TypeScript 기반 DSL, 도메인 특화 언어)을 통해 이를 실현합니다.
 
-[**OpenZeppelin**](https://docs.openzeppelin.com/)은 Ethereum 생태계에서 실전 검증된 스마트 컨트랙트 라이브러리로 유명하며, 온체인에서 수조 달러 규모의 가치를 보호해 왔습니다. 최근 [OpenZeppelin은 Midnight과 파트너십을 맺고](https://midnight.network/blog/openzeppelin-joins-forces-with-midnight-to-shape-the-future-of-privacy-preserving-smart) ERC-20과 같은 친숙한 표준을 프라이버시 보존 버전으로 적용하여 Compact 생태계에 유사한 도구를 제공하고 있습니다.
+[OpenZeppelin](https://docs.openzeppelin.com/)은 Ethereum 생태계에서 실전 검증된 스마트 컨트랙트 라이브러리로 유명하며, 온체인에서 수조 달러 규모의 가치를 보호해 왔습니다. 최근 [OpenZeppelin은 Midnight과 파트너십을 맺고](https://midnight.network/blog/openzeppelin-joins-forces-with-midnight-to-shape-the-future-of-privacy-preserving-smart) ERC-20과 같은 친숙한 표준을 프라이버시 보존 버전으로 적용하여 Compact 생태계에 유사한 도구를 제공하고 있습니다.
 
 Ethereum 세계에서 **ERC-20** 표준은 `balanceOf`, `transfer`, `approve` 등의 공개 원장 함수를 가진 대체 가능 토큰을 정의합니다. 트랜잭션 데이터를 투명하게 노출하며 내장된 프라이버시가 없습니다. Midnight의 **FungibleToken** 컨트랙트는 여기서 영감을 얻었지만, Midnight의 영지식, 선택적 공개 프레임워크 안에서 동작합니다.
 
@@ -25,11 +25,11 @@ Ethereum 세계에서 **ERC-20** 표준은 `balanceOf`, `transfer`, `approve` �
 
 ---
 
-## Features of the FungibleToken Contract
+## Features of the FungibleToken contract
 
 Midnight의 FungibleToken 컨트랙트는 원장 상태 변수를 활용하여 잔액, 허용량, 총 공급량, 이름, 심볼, 소수점을 추적합니다. 기능은 `Mint`, `Burn`, `Transfer`, `Approve`, `TransferFrom`, `Initialize` 등의 "서킷"(진입점)을 통해 노출되며, 모두 특정 영지식 검증 전환을 강제하고 토큰 상태의 무결성을 유지합니다.
 
-### Ledger State Variables
+### Ledger state variables
 
 Compact에서 컨트랙트는 토큰 잔액과 허용량을 저장하는 구조화된 **상태**를 정의합니다. ERC-20과 유사합니다. `_balances` 맵은 사용자의 토큰 잔액을 추적하며 전송이 발생할 때 업데이트됩니다. `_allowances` 맵은 다른 사용자를 대신하여 토큰을 사용할 수 있도록 특정 사용자에게 부여된 권한을 추적합니다:
 
@@ -51,7 +51,7 @@ export sealed ledger _decimals: Uint<8>;
 
 이 값들은 컨트랙트가 관리하는 토큰에 대한 다양한 정보를 제공합니다. 총 공급량, 이름, 심볼, 소수점(표시용) 등입니다.
 
-### Entry Points and Circuits
+### Entry points and circuits
 
 Compact에서 진입점은 **서킷**(Solidity 함수와 유사)으로 정의되며, 각각 영지식 검증 전환을 모델링합니다. 서킷 진입점과 서킷의 차이점은 진입점은 트랜잭션을 통해 호출할 수 있지만, 진입점이 아닌 서킷은 내부용이라는 것입니다. 핵심 서킷은 다음과 같습니다:
 
@@ -67,7 +67,7 @@ Compact에서 진입점은 **서킷**(Solidity 함수와 유사)으로 정의되
 
 컨트랙트 수명 주기의 다음 단계에서는 컨트랙트의 원장에 저장된 다양한 메타데이터가 안전하게 초기화됩니다.
 
-## Initialization and Metadata**
+## Initialization and metadata
 
 다음 서킷들은 대체 가능 토큰 메타데이터와 사용자 잔액을 위한 필수 설정 및 조회 로직을 정의하며, 올바른 초기화를 강제합니다.
 
@@ -82,7 +82,7 @@ Compact에서 진입점은 **서킷**(Solidity 함수와 유사)으로 정의되
 
 ---
 
-## The Transfer Family
+## The transfer family
 
 **FungibleToken** 컨트랙트의 **전송** 서킷은 토큰 이동을 관리합니다. 주요 서킷은 다음과 같습니다: 안전한 사용자 주도 전송을 위한 `transfer`, 내부 토큰 이동을 위한 `_unsafeTransfer`, 관리자 전송을 위한 `_transfer`, 저수준 토큰 이동을 위한 `_unsafeUncheckedTransfer`, 그리고 모든 토큰 작업의 중앙 회계 함수인 `_update`.
 
@@ -146,7 +146,7 @@ Compact에서 진입점은 **서킷**(Solidity 함수와 유사)으로 정의되
 
 ---
 
-## Minting and Burning
+## Minting and burning
 
 FungibleToken 컨트랙트가 토큰을 생성하고 소멸하는 방법입니다. `_mint`와 `_burn` 함수가 무엇을 하고 주요 회계 시스템과 어떻게 연결되는지 살펴보겠습니다.
 
@@ -167,7 +167,7 @@ FungibleToken 컨트랙트가 토큰을 생성하고 소멸하는 방법입니�
 
 ---
 
-## Safety and Utility Glue (from `Utils` and `Initializable`)
+## Safety and utility glue (from `Utils` and `Initializable`)
 
 `Utils`와 `Initializable` 모듈이 제공하는 핵심 보호 장치와 유틸리티 함수를 살펴봅니다. 컨트랙트의 무결성을 유지하고 안전한 운영을 보장하는 필수 구성 요소입니다.
 
@@ -184,7 +184,7 @@ FungibleToken 컨트랙트가 토큰을 생성하고 소멸하는 방법입니�
 
 ---
 
-## How the Pieces Fit Together
+## How the pieces fit together
 
 FungibleToken 컨트랙트의 모든 구성 요소가 어떻게 연결되는지 정리합니다. 직접 전송이든, 위임 전송이든, 민팅이든, 소각이든, 결국 몇 가지 핵심 함수를 거쳐 최종적으로 `_update` 함수에서 회계 처리됩니다.
 

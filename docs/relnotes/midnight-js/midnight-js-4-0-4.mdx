@@ -1,7 +1,7 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-title: Midnight.js v4.0.4 release notes
+title: Midnight.js v4.0.4 릴리스 노트
 description: Midnight.js is a client library designed to facilitate the development of decentralized applications on the Midnight blockchain.
 displayed_sidebar: sidebar
 ---
@@ -12,39 +12,39 @@ displayed_sidebar: sidebar
 
 ---
 
-## High-level summary
+## 주요 변경 사항 요약
 
-This release strengthens Midnight.js with new package entry points, safer coin output encryption for multi-recipient flows, and important reliability fixes across proving, browser compatibility, and test tooling.
+이번 릴리스는 새로운 패키지 진입점, 다중 수신자 흐름에서의 안전한 coin output 암호화, proving/브라우저 호환성/테스트 도구 전반의 안정성 수정으로 Midnight.js를 강화합니다.
 
-v4.0.3 was not published due to release pipeline issues, and all changes were included in v4.0.4.
+v4.0.3은 릴리스 파이프라인 문제로 게시되지 않았으며, 모든 변경 사항이 v4.0.4에 포함되었습니다.
 
-## Audience
+## 대상 독자
 
-This release note is most relevant for developers who:
+이 릴리스 노트는 다음과 같은 개발자에게 유용합니다:
 
-- Build DApps with Midnight.js and want a single barrel import package.
-- Integrate proving via wallet-connected DApp Connector APIs.
-- Handle shielded outputs to burn addresses or third-party recipients.
-- Run compact fetch flows in CI environments with GitHub API limits.
+- Midnight.js로 DApp을 개발하면서 단일 barrel import 패키지를 원하는 경우
+- wallet 연동 DApp Connector API를 통한 proving을 구현하는 경우
+- burn address 또는 제3자 수신자에 대한 shielded output을 처리하는 경우
+- GitHub API 제한이 있는 CI 환경에서 compact fetch 흐름을 실행하는 경우
 
-## Summary of updates
+## 업데이트 요약
 
-- Added the new `@midnight-ntwrk/midnight-js` barrel package.
-- Added `@midnight-ntwrk/midnight-js-dapp-connector-proof-provider`.
-- Fixed recipient encryption handling in `zswapStateToOffer`.
-- Added browser-safe constant-time fallback for `timingSafeEqual`.
-- Exposed `additionalCoinEncPublicKeyMappings` through high-level APIs.
-- Delivered broad testkit-js stability fixes and expanded test coverage.
+- 새로운 `@midnight-ntwrk/midnight-js` barrel 패키지 추가
+- `@midnight-ntwrk/midnight-js-dapp-connector-proof-provider` 추가
+- `zswapStateToOffer`의 수신자 암호화 처리 수정
+- 브라우저 환경에서 `timingSafeEqual`의 constant-time fallback 추가
+- 고수준 API를 통한 `additionalCoinEncPublicKeyMappings` 노출
+- 광범위한 testkit-js 안정성 수정 및 테스트 범위 확대
 
 ---
 
-## New features
+## 신규 기능
 
-Below is a detailed breakdown of the new capabilities introduced in this release.
+이번 릴리스에 도입된 새로운 기능의 상세 내용입니다.
 
-### `@midnight-ntwrk/midnight-js` barrel package (#735)
+### `@midnight-ntwrk/midnight-js` barrel 패키지 (#735)
 
-This package provides a single import surface for core Midnight.js modules while intentionally excluding provider packages to keep bundles lightweight.
+핵심 Midnight.js 모듈에 대한 단일 import surface를 제공하며, 번들 크기를 가볍게 유지하기 위해 provider 패키지는 의도적으로 제외됩니다.
 
 ```typescript
 import { contracts, networkId, types, utils } from '@midnight-ntwrk/midnight-js';
@@ -52,16 +52,16 @@ import { deployContract } from '@midnight-ntwrk/midnight-js/contracts';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js/network-id';
 ```
 
-Re-export namespaces:
+re-export 네임스페이스:
 
-- `contracts` from `@midnight-ntwrk/midnight-js-contracts`
-- `networkId` from `@midnight-ntwrk/midnight-js-network-id`
-- `types` from `@midnight-ntwrk/midnight-js-types`
-- `utils` from `@midnight-ntwrk/midnight-js-utils`
+- `contracts`: `@midnight-ntwrk/midnight-js-contracts`
+- `networkId`: `@midnight-ntwrk/midnight-js-network-id`
+- `types`: `@midnight-ntwrk/midnight-js-types`
+- `utils`: `@midnight-ntwrk/midnight-js-utils`
 
 ### `@midnight-ntwrk/midnight-js-dapp-connector-proof-provider`
 
-This package adapts DApp Connector's proving APIs to the Midnight.js `ProofProvider` interface, enabling wallet-delegated proving without running a standalone proof server.
+DApp Connector의 proving API를 Midnight.js `ProofProvider` 인터페이스에 맞춰 변환하는 패키지로, 독립형 proof server 없이 wallet 위임 proving을 가능하게 합니다.
 
 ```typescript
 import { dappConnectorProofProvider } from '@midnight-ntwrk/midnight-js-dapp-connector-proof-provider';
@@ -73,66 +73,66 @@ const proofProvider = await dappConnectorProofProvider(
 );
 ```
 
-Main exports:
+주요 export:
 
 - `dappConnectorProofProvider`
 - `dappConnectorProvingProvider`
 - `DAppConnectorProvingAPI`
 
-### Per-recipient encryption key resolution
+### 수신자별 암호화 키 해석
 
-`zswapStateToOffer` now supports `EncryptionPublicKeyResolver` so each output can use the correct recipient encryption key.
+`zswapStateToOffer`가 `EncryptionPublicKeyResolver`를 지원하여 각 output이 올바른 수신자 암호화 키를 사용할 수 있습니다.
 
-The resolver supports:
+resolver가 지원하는 항목:
 
-- Wallet-owned outputs
-- Shielded burn address outputs
-- Optional third-party recipient key mappings
+- Wallet 소유 output
+- Shielded burn address output
+- 선택적 제3자 수신자 키 매핑
 
-This change prevents phantom balances caused by encrypting all outputs with the wallet's own key.
+이 변경으로 모든 output을 wallet 자체 키로 암호화하여 발생하던 phantom balance 문제가 방지됩니다.
 
-### Additional encryption mappings in high-level APIs
+### 고수준 API에서 추가 암호화 매핑
 
-`additionalCoinEncPublicKeyMappings` is now available in:
+`additionalCoinEncPublicKeyMappings`를 다음에서 사용할 수 있습니다:
 
 - `DeployContractOptionsBase`
 - `CallOptionsBase`
 - `ScopedTransactionOptions`
 - `TransactionContext.getAdditionalMappings()`
 
-### Browser-safe crypto comparison fallback
+### 브라우저 환경 안전 암호 비교 fallback
 
-When `crypto.timingSafeEqual` is unavailable in browser builds, Midnight.js now uses a constant-time fallback in `level-private-state-provider`.
-
----
-
-## Breaking changes
-
-No breaking API changes are introduced in v4.0.4.
+브라우저 빌드에서 `crypto.timingSafeEqual`을 사용할 수 없는 경우, `level-private-state-provider`에서 constant-time fallback을 사용합니다.
 
 ---
 
-## Bug fixes and quality improvements
+## 호환성 주의 사항 (Breaking changes)
 
-The following bug fixes and quality improvements are included in this release.
-
-### Compact fetch GitHub authentication support
-
-Compact fetch now accepts `GITHUB_TOKEN`, allowing authenticated GitHub API usage for higher rate limits and private release access.
-
-### Testkit-js reliability fixes
-
-This release includes broad testkit-js bug fixes across assertions, error propagation, env var handling, and bigint serialization, with unit test coverage for corrected behavior.
+v4.0.4에서는 breaking API 변경이 없습니다.
 
 ---
 
-## Known issues
+## 버그 수정 및 품질 개선
 
-No critical known issues were identified at release time.
+이번 릴리스에 포함된 버그 수정 및 품질 개선 사항입니다.
+
+### Compact fetch GitHub 인증 지원
+
+Compact fetch가 `GITHUB_TOKEN`을 지원하여, 더 높은 rate limit과 private release 접근을 위한 인증된 GitHub API 사용이 가능합니다.
+
+### Testkit-js 안정성 수정
+
+assertion, 오류 전파, 환경 변수 처리, bigint 직렬화 전반에 걸친 광범위한 testkit-js 버그 수정이 포함되었으며, 수정된 동작에 대한 unit test가 추가되었습니다.
 
 ---
 
-## Links and references
+## 알려진 이슈
+
+릴리스 시점에 확인된 치명적인 이슈는 없습니다.
+
+---
+
+## 링크 및 참고 자료
 
 - **GitHub**: [Midnight.js repository](https://github.com/midnightntwrk/midnight-js)
 - **API reference**: [Midnight.js API documentation](/api-reference/midnight-js/packages)

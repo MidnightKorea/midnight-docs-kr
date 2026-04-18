@@ -1,7 +1,7 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-title: Midnight.js v3.2.0 release notes
+title: Midnight.js v3.2.0 릴리스 노트
 description: Midnight.js is a client library designed to facilitate the development of decentralized applications on the Midnight blockchain.
 displayed_sidebar: sidebar
 ---
@@ -12,43 +12,43 @@ displayed_sidebar: sidebar
 
 ---
 
-## High-level summary
+## 주요 변경 사항 요약
 
-This release focuses on security hardening for private state management, stronger account-level isolation, and improved operational tooling for Midnight.js and testkit workflows.
+이번 릴리스는 private state 관리의 보안 강화, 계정 수준 격리 개선, Midnight.js 및 testkit 워크플로의 운영 도구 개선에 중점을 둡니다.
 
-It introduces new export/import and password rotation capabilities while tightening defaults and validation for secure production usage.
+새로운 export/import 및 비밀번호 교체 기능이 추가되었으며, 안전한 프로덕션 환경 사용을 위한 기본값과 검증 로직이 강화되었습니다.
 
-## Audience
+## 대상 독자
 
-This release note is most relevant for developers who:
+이 릴리스 노트는 다음과 같은 개발자에게 유용합니다:
 
-- Use `level-private-state-provider` for wallet or private state persistence.
-- Manage signing keys and encrypted private state lifecycle.
-- Operate CI/CD workflows and dependency automation for Midnight.js projects.
-- Need stable test environment support across preprod and preview.
+- `level-private-state-provider`로 wallet 또는 private state를 영속화하는 경우
+- signing key 및 암호화된 private state 생명주기를 관리하는 경우
+- Midnight.js 프로젝트에서 CI/CD 워크플로와 의존성 자동화를 운영하는 경우
+- preprod 및 preview 환경에서 안정적인 테스트 환경이 필요한 경우
 
-## Summary of updates
+## 업데이트 요약
 
-- Removed `walletProvider` config path in favor of password-provider-based storage access.
-- Made `accountId` mandatory for account-scoped storage isolation.
-- Added secure export/import and password rotation APIs.
-- Strengthened encryption lifecycle, salt handling, and cache invalidation controls.
-- Added testkit environment support for preview and preprod.
-- Delivered bug fixes for WASM payload handling, Zswap state handling, and network validation.
+- `walletProvider` 설정 경로가 제거되고, password-provider 기반 스토리지 접근 방식으로 변경되었습니다.
+- `accountId`가 계정 범위 스토리지 격리를 위해 필수 항목이 되었습니다.
+- 안전한 export/import 및 비밀번호 교체 API가 추가되었습니다.
+- 암호화 생명주기, salt 처리, 캐시 무효화 제어가 강화되었습니다.
+- testkit에 preview 및 preprod 환경 지원이 추가되었습니다.
+- WASM 페이로드 처리, Zswap 상태 처리, 네트워크 검증 관련 버그가 수정되었습니다.
 
 ---
 
-## New features
+## 신규 기능
 
-These additions improve developer ergonomics across provider configuration, storage operations, and testing workflows.
+provider 설정, 스토리지 작업, 테스트 워크플로 전반에서 개발 편의성을 높이는 기능이 추가되었습니다.
 
-### Enhanced URL handling in HTTP client proving provider
-The `httpClientProvingProvider` now properly handles URLs with existing paths and query parameters. Previously, URLs with paths would be incorrectly overwritten.
+### HTTP client proving provider의 URL 처리 개선
+`httpClientProvingProvider`가 기존 경로와 쿼리 파라미터가 포함된 URL을 올바르게 처리합니다. 이전에는 경로가 포함된 URL이 잘못 덮어쓰기되는 문제가 있었습니다.
 
 ```typescript
-// Now works correctly with URLs containing paths
+// 경로가 포함된 URL도 올바르게 동작합니다
 const provider = httpClientProvingProvider(
-  'https://prover.example.com/api/v1/', // Path is preserved
+  'https://prover.example.com/api/v1/', // 경로가 유지됩니다
   zkConfigProvider
 );
 // Endpoints: /api/v1/check, /api/v1/prove
@@ -56,13 +56,13 @@ const provider = httpClientProvingProvider(
 
 ### Signing key export/import
 
-Export and import signing keys with password protection and conflict resolution.
+비밀번호 보호 및 충돌 해결 기능을 갖춘 signing key export/import가 가능합니다.
 
 ```typescript
 // Export
 const keysExport = await provider.exportSigningKeys({ password: 'export-pw' });
 
-// Import with conflict handling
+// 충돌 처리 옵션과 함께 import
 await provider.importSigningKeys(keysExport, {
   password: 'export-pw',
   conflictStrategy: 'skip' // 'skip' | 'overwrite' | 'error'
@@ -71,7 +71,7 @@ await provider.importSigningKeys(keysExport, {
 
 ### Private state export/import
 
-Export and import private states with the same security features.
+동일한 보안 기능을 갖춘 private state export/import가 가능합니다.
 
 ```typescript
 // Export
@@ -85,39 +85,39 @@ await provider.importPrivateStates(statesExport, {
 });
 ```
 
-### Password rotation APIs
+### 비밀번호 교체 API
 
-These APIs provide explicit credential rotation for both private state and signing keys, enabling safer long-running deployments and operational key hygiene.
+private state와 signing key에 대한 명시적 자격 증명 교체 API로, 장기 운영 배포 환경에서의 안전한 키 관리를 지원합니다.
 
 ```typescript
-// Rotate private state password
+// Private state 비밀번호 교체
 provider.setContractAddress(contractAddress);
 await provider.changePassword(
   () => 'old-password',
   () => 'new-password'
 );
 
-// Rotate signing keys password
+// Signing key 비밀번호 교체
 await provider.changeSigningKeysPassword(
   () => 'old-password',
   () => 'new-password'
 );
 ```
 
-### Account migration support
+### 계정 마이그레이션 지원
 
-Use account-scoped migration utilities to move existing unscoped data into isolated account namespaces while preserving rollback options.
+계정 범위 마이그레이션 유틸리티를 사용하여 기존의 범위 없는 데이터를 격리된 계정 네임스페이스로 이동할 수 있으며, 롤백 옵션도 유지됩니다.
 
 ```typescript
 import { migrateToAccountScoped } from '@midnight-ntwrk/level-private-state-provider';
 
 const result = await migrateToAccountScoped({ accountId: walletAddress });
-// Original data preserved for rollback
+// 롤백을 위해 원본 데이터가 보존됩니다
 ```
 
-### Mnemonic-based wallet in testkit
+### Testkit의 mnemonic 기반 wallet
 
-New testkit helpers for mnemonic-based wallet generation.
+mnemonic 기반 wallet 생성을 위한 새로운 testkit 헬퍼가 추가되었습니다.
 
 ```typescript
 import { FluentWalletBuilder } from '@midnight-ntwrk/testkit';
@@ -126,17 +126,17 @@ const wallet = new FluentWalletBuilder()
   .withMnemonic('your mnemonic phrase...')
   .build();
 
-// Or use predefined test wallet
+// 또는 미리 정의된 테스트 wallet 사용
 const testWallet = new FluentWalletBuilder()
   .withTestWallet()
   .build();
 ```
 
-### Browser storage warning
-Automatic warning when using LevelDB storage in browser environments, alerting users to data persistence risks.
+### 브라우저 스토리지 경고
+브라우저 환경에서 LevelDB 스토리지 사용 시 데이터 영속성 위험을 알리는 자동 경고가 표시됩니다.
 
-### Testkit test environments
-Added support for preprod and preview test environments in testkit-js. Developers can now easily configure tests against different Midnight network environments using the `MN_TEST_ENVIRONMENT` variable.
+### Testkit 테스트 환경
+testkit-js에 preprod 및 preview 테스트 환경 지원이 추가되었습니다. `MN_TEST_ENVIRONMENT` 변수를 사용하여 다양한 Midnight 네트워크 환경에 대해 테스트를 쉽게 설정할 수 있습니다.
 
 ```typescript
 import { getTestEnvironment, createLogger } from '@midnight-ntwrk/testkit-js';
@@ -145,149 +145,149 @@ const logger = createLogger();
 const testEnvironment = getTestEnvironment(logger);
 const config = await testEnvironment.start();
 
-// config provides: indexer, indexerWS, node, nodeWS, faucet, proofServer
+// config에는 indexer, indexerWS, node, nodeWS, faucet, proofServer가 포함됩니다
 ```
 
 ```bash
-# Run tests against preprod network
+# preprod 네트워크에서 테스트 실행
 MN_TEST_ENVIRONMENT='preprod' yarn test
 
-# Run tests against preview network
+# preview 네트워크에서 테스트 실행
 MN_TEST_ENVIRONMENT='preview' yarn test
 ```
 
 ---
 
-## Breaking changes
+## 호환성 주의 사항 (Breaking changes)
 
-The following changes are critical and might break existing integrations.
+다음 변경 사항은 기존 연동에 영향을 줄 수 있으므로 반드시 확인하세요.
 
-### LevelPrivateStateProvider `walletProvider` option removed
+### LevelPrivateStateProvider `walletProvider` 옵션 제거
 
-**What changed**: The `walletProvider` configuration option has been removed. Instances must use `privateStoragePasswordProvider`.
+**변경 내용**: `walletProvider` 설정 옵션이 제거되었습니다. 인스턴스 생성 시 `privateStoragePasswordProvider`를 사용해야 합니다.
 
-**What breaks**: Any initialization path that still passes `walletProvider`.
+**영향 범위**: `walletProvider`를 전달하는 모든 초기화 코드
 
-**Required actions**:
-- Replace `walletProvider` with `privateStoragePasswordProvider`.
-- Validate password-provider behavior in all runtime environments.
+**필요 조치**:
+- `walletProvider`를 `privateStoragePasswordProvider`로 교체하세요.
+- 모든 런타임 환경에서 password-provider 동작을 검증하세요.
 
 ```typescript
 import { levelPrivateStateProvider } from '@midnight-ntwrk/level-private-state-provider';
 
-// v3.2.0 - walletProvider no longer supported
+// v3.2.0 - walletProvider는 더 이상 지원되지 않습니다
 const provider = levelPrivateStateProvider({
   privateStoragePasswordProvider: () => process.env.STORAGE_PASSWORD!,
   accountId: walletAddress
 });
 ```
 
-### LevelPrivateStateProvider `accountId` now required
+### LevelPrivateStateProvider `accountId` 필수화
 
-**What changed**: `accountId` is now a required configuration field for storage provider initialization.
+**변경 내용**: `accountId`가 스토리지 provider 초기화 시 필수 설정 항목이 되었습니다.
 
-**What breaks**: Any provider setup that omits `accountId`.
+**영향 범위**: `accountId`를 생략한 모든 provider 설정
 
-**Required actions**:
-- Add `accountId` to all provider instantiations.
-- Use a stable per-account identifier to preserve correct state partitioning.
+**필요 조치**:
+- 모든 provider 인스턴스 생성에 `accountId`를 추가하세요.
+- 올바른 state 파티셔닝을 위해 계정별 고유 식별자를 사용하세요.
 
 ```typescript
 const provider = levelPrivateStateProvider({
   privateStoragePasswordProvider: () => 'password',
-  accountId: walletAddress // Required - provides data isolation between accounts
+  accountId: walletAddress // 필수 - 계정 간 데이터 격리를 보장합니다
 });
 ```
 
-### Auth token removed from compact fetch
+### Compact fetch에서 auth token 제거
 
-**What changed**: The `authToken` parameter has been removed from compact fetch operations.
+**변경 내용**: compact fetch 작업에서 `authToken` 파라미터가 제거되었습니다.
 
-**What breaks**: Code that still passes `authToken` to compact fetch helpers.
+**영향 범위**: compact fetch 헬퍼에 `authToken`을 전달하는 코드
 
-**Required actions**:
-- Remove `authToken` from compact fetch call sites.
-- Verify compact artifact download flows in CI and local development.
+**필요 조치**:
+- compact fetch 호출부에서 `authToken`을 제거하세요.
+- CI 및 로컬 개발 환경에서 compact 아티팩트 다운로드 흐름을 확인하세요.
 
-## Security enhancements
+## 보안 강화
 
-This release includes multiple hardening updates for private state encryption and operational safety.
+이번 릴리스에는 private state 암호화와 운영 안전성을 위한 다수의 강화 업데이트가 포함되어 있습니다.
 
-### Multi-version encryption with increased PBKDF2 iterations
-- V2 encryption now uses **600,000 PBKDF2 iterations** (up from 100,000 in V1)
-- Automatic migration from V1 to V2 during password rotation
-- Enhanced password validation with character class and pattern checks
+### 다중 버전 암호화 및 PBKDF2 반복 횟수 증가
+- V2 암호화는 **600,000회 PBKDF2 반복**(V1의 100,000회에서 증가)을 사용합니다.
+- 비밀번호 교체 시 V1에서 V2로 자동 마이그레이션됩니다.
+- 문자 클래스 및 패턴 검사를 통한 비밀번호 검증이 강화되었습니다.
 
-### Consistent salt generation
-- New `getOrCreateSalt` utility prevents race conditions in private state operations
-- Salt consistency guaranteed across sequential operations
-- Prevents cryptographic issues from concurrent access
+### 일관된 salt 생성
+- 새로운 `getOrCreateSalt` 유틸리티로 private state 작업 시 race condition을 방지합니다.
+- 순차 작업 간 salt 일관성이 보장됩니다.
+- 동시 접근으로 인한 암호화 문제를 방지합니다.
 
-### Encryption caching and invalidation
-- Encryption keys are cached to avoid repeated PBKDF2 derivation
-- New `invalidateEncryptionCache()` API for cache management
-- Automatic cache invalidation after password rotation
+### 암호화 캐싱 및 무효화
+- 반복적인 PBKDF2 도출을 방지하기 위해 암호화 키가 캐싱됩니다.
+- 캐시 관리를 위한 새로운 `invalidateEncryptionCache()` API가 추가되었습니다.
+- 비밀번호 교체 후 자동으로 캐시가 무효화됩니다.
 
-### Secure password rotation
-- New `changePassword()` method for private states
-- New `changeSigningKeysPassword()` method for signing keys
-- Atomic batch writes ensure all-or-nothing re-encryption
-- Rotation locks for safe concurrent read/write operations
-- Automatic V1 to V2 migration during rotation
+### 안전한 비밀번호 교체
+- private state를 위한 새로운 `changePassword()` 메서드
+- signing key를 위한 새로운 `changeSigningKeysPassword()` 메서드
+- atomic batch write로 전체 또는 전무(all-or-nothing) 재암호화를 보장합니다.
+- 안전한 동시 읽기/쓰기를 위한 rotation lock
+- 교체 시 V1에서 V2로 자동 마이그레이션
 
-### Account-scoped isolation
-- Each `accountId` creates isolated storage namespaces
-- Account ID is SHA-256 hashed (32 characters) before use in storage paths
-- New `migrateToAccountScoped()` function for transitioning from unscoped storage
+### 계정 범위 격리
+- 각 `accountId`는 격리된 스토리지 네임스페이스를 생성합니다.
+- 계정 ID는 스토리지 경로에 사용되기 전 SHA-256으로 해싱됩니다(32자).
+- 범위 없는 스토리지에서 전환하기 위한 새로운 `migrateToAccountScoped()` 함수
 
-### Scoped transaction identity validation
-- New `ScopedTransactionIdentityMismatchError` prevents silent state mismatches
-- Identity tracking with `CachedStateIdentity` interface
-- Validation ensures batched calls target the same contract and private state
-
----
-
-## Bug fixes
-
-The following fixes resolve runtime and tooling defects reported across Midnight.js modules.
-
-### WASM payload buffer copy
-Fixed a critical issue where `payload.buffer` on a WASM subarray view was returning the entire WASM linear memory heap instead of the referenced bytes. This was sending megabytes of unrelated memory to the proof server, causing parse failures like `BadInput("Unsupported ZKIR version")` or corrupt field values. The fix replaces `payload.buffer` with `new Uint8Array(payload)` which copies only the view's bytes.
-
-### Zswap chain state handling
-Fixed an issue where the initial Zswap chain state was incorrectly merged instead of being reused, potentially causing state inconsistencies.
-
-### Lodash dependency removed
-Removed lodash dependency and replaced usage with native object spread, reducing bundle size and eliminating a dependency.
-
-### Fail fast on unset network ID
-Network ID validation now fails immediately with a clear error message when the network ID is not set, instead of silently proceeding and causing cryptic failures downstream.
-
-### TransactionContext excluded from circuit call arguments
-Fixed an issue where `TransactionContext` was incorrectly included in circuit call arguments, which could cause unexpected behavior in contract interactions.
-
-## Refactoring
-
-Internal cleanup updates improve type precision and maintainability.
-
-### Wallet state provider types
-Updated wallet state provider to use `ShieldedWalletAPI` and `UnshieldedWalletAPI` types for improved type specificity.
-
-
-## Testing
-
-This release also adds broader automated coverage for storage and environment scenarios.
-
-- Added comprehensive integration tests for Level Private State Provider export/import functionality
-- Added test environments for preprod and preview networks in testkit
-
-## Known issues
-
-No critical known issues were identified at release time.
+### 범위 지정 트랜잭션 ID 검증
+- 새로운 `ScopedTransactionIdentityMismatchError`로 조용한 상태 불일치를 방지합니다.
+- `CachedStateIdentity` 인터페이스를 통한 ID 추적
+- 배치 호출이 동일한 contract 및 private state를 대상으로 하는지 검증합니다.
 
 ---
 
-## Links and references
+## 버그 수정
+
+Midnight.js 모듈 전반에서 보고된 런타임 및 도구 관련 결함이 수정되었습니다.
+
+### WASM 페이로드 버퍼 복사
+WASM subarray 뷰에서 `payload.buffer`가 참조된 바이트가 아닌 전체 WASM linear memory heap을 반환하는 심각한 문제가 수정되었습니다. 이로 인해 수 메가바이트의 관련 없는 메모리가 proof server로 전송되어 `BadInput("Unsupported ZKIR version")` 같은 파싱 오류나 잘못된 필드 값이 발생했습니다. `payload.buffer`를 `new Uint8Array(payload)`로 대체하여 뷰의 바이트만 복사하도록 수정되었습니다.
+
+### Zswap chain state 처리
+초기 Zswap chain state가 재사용되지 않고 잘못 병합되어 상태 불일치가 발생할 수 있는 문제가 수정되었습니다.
+
+### Lodash 의존성 제거
+lodash 의존성이 제거되고 native object spread로 대체되어 번들 크기가 줄고 의존성이 하나 줄었습니다.
+
+### 미설정 network ID에 대한 즉시 실패 처리
+network ID가 설정되지 않은 경우 명확한 오류 메시지와 함께 즉시 실패하도록 변경되었습니다. 이전에는 조용히 진행되어 하위 단계에서 알 수 없는 오류가 발생했습니다.
+
+### TransactionContext가 circuit 호출 인수에서 제외됨
+`TransactionContext`가 circuit 호출 인수에 잘못 포함되어 contract 상호작용에서 예기치 않은 동작이 발생할 수 있는 문제가 수정되었습니다.
+
+## 리팩토링
+
+내부 정리를 통해 타입 정밀도와 유지보수성이 개선되었습니다.
+
+### Wallet state provider 타입
+wallet state provider가 `ShieldedWalletAPI` 및 `UnshieldedWalletAPI` 타입을 사용하도록 업데이트되어 타입 명세가 개선되었습니다.
+
+
+## 테스트
+
+이번 릴리스에서는 스토리지 및 환경 시나리오에 대한 자동화 테스트 범위가 확대되었습니다.
+
+- Level Private State Provider export/import 기능에 대한 종합 통합 테스트 추가
+- testkit에 preprod 및 preview 네트워크 테스트 환경 추가
+
+## 알려진 이슈
+
+릴리스 시점에 확인된 치명적인 이슈는 없습니다.
+
+---
+
+## 링크 및 참고 자료
 
 - **GitHub**: [Midnight.js repository](https://github.com/midnightntwrk/midnight-js)
 - **API reference**: [Midnight.js API documentation](/api-reference/midnight-js/packages)

@@ -1,38 +1,38 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Battleship tests"
-title: "Battleship tests"
-description: "Learn how to test the Battleship contract."
+sidebar_label: "Battleship 테스트"
+title: "Battleship 테스트"
+description: "Battleship 컨트랙트를 테스트하는 방법을 알아봅니다."
 sidebar_position: 20
 toc_max_heading_level: 2
 ---
 
 # Battleship tests
 
-The next phase in the smart contract development lifecycle is the frontend test suite. This is where smart contract developers run many iterations of tests on different instances of the contract. The permissionless nature of a public blockchain means that all contract circuits are available essentially as public APIs for each contract instance. 
+스마트 컨트랙트 개발 생명주기의 다음 단계는 프론트엔드 테스트 스위트입니다. 이 단계에서 개발자는 컨트랙트의 다양한 인스턴스에 대해 수많은 테스트 반복을 실행합니다. 퍼블릭 블록체인의 비허가적 특성상 모든 컨트랙트 회로는 사실상 각 컨트랙트 인스턴스의 공개 API로 접근 가능합니다.
 
-Developers must test everything they assume about the interaction with their contract, both succeeding and failing calls. The failure tests are just as important as the passing tests, because they are guarding against vulnerabilities in contracts.
+개발자는 컨트랙트와의 상호작용에 대해 가정하는 모든 것을 테스트해야 하며, 성공하는 호출과 실패하는 호출 모두를 검증해야 합니다. 실패 테스트는 통과 테스트만큼이나 중요한데, 컨트랙트의 취약점을 방어하는 역할을 하기 때문입니다.
 
-Successful test suites are those that comprehensively cover *every possible interaction with a contract*.
+좋은 테스트 스위트란 *컨트랙트와의 모든 가능한 상호작용을 빠짐없이 다루는 것*입니다.
 
 ## Prerequisites
 
-- Completing the Battleship [smart-contract](./smart-contract.mdx) tutorial
-- Yarn 
+- Battleship [스마트 컨트랙트](./smart-contract.mdx) 튜토리얼 완료
+- Yarn
 
 ## Setup
 
-Set up the project for testing by copying the following configuration files.
+다음 설정 파일을 복사하여 테스트 환경을 구성합니다.
 
 ### package.json
 
-From the project root:
+프로젝트 루트에서:
 ```bash
 touch package.json
 ```
 
-Populate the file:
+다음 내용으로 채웁니다:
 ```json
 {
   "name": "battleship",
@@ -83,19 +83,19 @@ Populate the file:
 }
 ```
 
-Install dependencies:
+의존성을 설치합니다:
 ```bash
 yarn install
 ```
 
 ### vitest.config.ts
 
-Create the test config file:
+테스트 설정 파일을 생성합니다:
 ```bash
 touch vitest.config.ts
 ```
 
-Populate it:
+다음 내용으로 채웁니다:
 ```typescript
 import { defineConfig } from 'vitest/config';
 
@@ -115,12 +115,12 @@ export default defineConfig({
 
 ### compose.yml
 
-Add the docker configuration for deploying to local devnet:
+로컬 devnet 배포를 위한 Docker 설정을 추가합니다:
 ```bash
 touch compose.yml
 ```
 
-Populate it:
+다음 내용으로 채웁니다:
 ```yml
 services:
   proof-server:
@@ -175,22 +175,22 @@ services:
 ```
 
 :::note
-This is a local devnet configuration *only*. Certain environment variables are present that should not be included in production applications.
+이 설정은 로컬 devnet *전용*입니다. 프로덕션 애플리케이션에 포함해서는 안 되는 환경 변수가 있습니다.
 :::
 
 ### Midnight setup
 
-For the Midnight specific setup:
+Midnight 전용 설정을 구성합니다:
 ```bash
 mkdir src && cd src
 ```
 
-Create the network config file:
+네트워크 설정 파일을 생성합니다:
 ```bash
 touch config.ts
 ```
 
-Populate the file:
+다음 내용으로 채웁니다:
 ```typescript
 export type NetworkConfig = {
   networkId: string;
@@ -224,14 +224,14 @@ export function getConfig(): NetworkConfig {
 }
 ```
 
-This config file is only setup for local devnet, but it can be extended to support other network configurations by adding to this pattern.
+이 설정 파일은 로컬 devnet만 지원하지만, 이 패턴을 확장하여 다른 네트워크 설정도 추가할 수 있습니다.
 
-Create the wallet class to enable creation of multiple wallets:
+여러 지갑을 생성할 수 있도록 wallet 클래스를 만듭니다:
 ```bash
 touch wallet.ts
 ```
 
-Populate the file:
+다음 내용으로 채웁니다:
 ```typescript
 import {
   type CoinPublicKey,
@@ -397,16 +397,16 @@ export async function syncWallet(
 }
 ```
 
-This wallet class can be reused across different projects, it does not change significantly with different Compact contract implementations.
+이 wallet 클래스는 다른 프로젝트에서도 재사용할 수 있으며, Compact 컨트랙트 구현이 달라져도 크게 변경되지 않습니다.
 
-Create the providers file:
+providers 파일을 생성합니다:
 ```bash
 touch providers.ts
 ```
 
-The providers are an important component of MidnightJS and they provide an interface for setting and retrieving data from private state, public state, wallet operations and more. This will be demonstrated in the actual test file.
+Provider는 MidnightJS의 중요한 구성 요소로, 비공개 상태, 공개 상태, 지갑 연산 등의 데이터를 설정하고 조회하는 인터페이스를 제공합니다. 실제 테스트 파일에서 이를 활용하는 방법을 보여드리겠습니다.
 
-Populate the providers file:
+다음 내용으로 채웁니다:
 ```typescript
 // Returns the providers in an object which can be created for each users individual tests
 import { type MidnightProviders } from '@midnight-ntwrk/midnight-js-types';
@@ -451,7 +451,7 @@ export function buildProviders(
 
 ## Tests, tests, and more tests
 
-Create the test directory and file:
+테스트 디렉토리와 파일을 생성합니다:
 ```bash
 mkdir test && cd test
 touch battle.test.ts
@@ -459,7 +459,7 @@ touch battle.test.ts
 
 ### Test imports
 
-The test file is an extremely important component of this process, so it is important to understand the concepts here. First, import necessary packages:
+테스트 파일은 이 과정에서 매우 중요한 구성 요소이므로, 여기서 다루는 개념을 잘 이해해야 합니다. 먼저 필요한 패키지를 import합니다:
 ```typescript
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { randomBytes } from 'node:crypto';
@@ -489,7 +489,7 @@ import type { DeployedContract,FinalizedCallTxData } from '@midnight-ntwrk/midni
 
 ### Wallet preparation
 
-Create identifiers for the players:
+플레이어의 식별자를 생성합니다:
 ```typescript
 const ALICE_SEED = '0000000000000000000000000000000000000000000000000000000000000001';
 const BOB_SEED = '0000000000000000000000000000000000000000000000000000000000000002';
@@ -502,9 +502,9 @@ const logger = pino({
 });
 ```
 
-Local devnet comes with pre-funded addresses for the first 3 seed accounts. Alice is assigned to one and Bob to two. Each player also needs a string for identifying their private state.
+로컬 devnet에는 처음 3개 seed 계정에 대한 사전 충전 주소가 제공됩니다. Alice는 1번, Bob은 2번에 할당됩니다. 각 플레이어에게는 비공개 상태를 식별하는 문자열도 필요합니다.
 
-Next, setup for the main test:
+다음으로 메인 테스트를 설정합니다:
 ```typescript
 describe('Battleship Smart Contract via midnight-js', async () => {
     let aliceWallet: MidnightWalletProvider;
@@ -521,13 +521,13 @@ describe('Battleship Smart Contract via midnight-js', async () => {
 });// end of describe
 ```
 
-`MidnightWalletProvider` is the type defined by the wallet class exported from `wallet.ts` and `BattleshipProviders` comes from the `providers.ts` exports. 
+`MidnightWalletProvider`는 `wallet.ts`에서 export한 wallet 클래스가 정의한 타입이고, `BattleshipProviders`는 `providers.ts`의 export에서 가져옵니다.
 
-`getConfig()` returns the network configuration from the `config.ts` file and is currently set up to operate on an `undeployed` network. The `const` assignments that follow are for placing each player's ship locations uniquely. These are assigned here for programmatic testing, but in the production version of this application these values would be presented by the user in some UI component.
+`getConfig()`는 `config.ts`에서 네트워크 설정을 반환하며 현재 `undeployed` 네트워크에서 동작하도록 구성되어 있습니다. 뒤따르는 `const` 할당은 각 플레이어의 함선 위치를 고유하게 지정합니다. 여기서는 프로그래밍 테스트 목적으로 값을 할당하지만, 프로덕션 버전에서는 사용자가 UI 컴포넌트를 통해 이 값을 입력합니다.
 
 ### Ledger queries
 
-Write a helper function for querying the ledger:
+원장 조회를 위한 헬퍼 함수를 작성합니다:
 ```typescript
     async function queryLedger(providers: BattleshipProviders) {
         const state = await providers.publicDataProvider.queryContractState(contractAddress);
@@ -537,11 +537,11 @@ Write a helper function for querying the ledger:
 })// end of describe
 ```
 
-This function starts to demonstrate the use of `providers` for each player. A particular player's provider object can be passed in to operate on the `publicDataProvider` and return the contract state as it exists currently on the blockchain. This function will be put to use soon.
+이 함수에서 각 플레이어의 `providers` 활용을 볼 수 있습니다. 특정 플레이어의 provider 객체를 전달하여 `publicDataProvider`를 통해 블록체인에 현재 존재하는 컨트랙트 상태를 조회하고 반환합니다. 이 함수는 곧 사용됩니다.
 
 ### beforeAll
 
-Now, perform `beforeAll` test operations:
+테스트 시작 전 `beforeAll` 작업을 수행합니다:
 ```typescript
     // setup before tests
     beforeAll(async () => {
@@ -574,15 +574,15 @@ Now, perform `beforeAll` test operations:
 })// end of describe
 ```
 
-`setNetworkId()` is a necessary call through MidnightJS to identify which network it needs to interact with for things like address formatting.
+`setNetworkId()`는 MidnightJS에서 주소 형식 등을 위해 어떤 네트워크와 상호작용할지 식별하는 데 필요한 호출입니다.
 
-Each user then calls `build()` from the wallet class to prepare a wallet. That wallet is then started and synced with the network by calling other functions of the wallet class.
+각 사용자는 wallet 클래스의 `build()`를 호출하여 지갑을 준비합니다. 그런 다음 지갑을 시작하고 wallet 클래스의 다른 함수를 호출하여 네트워크와 동기화합니다.
 
-Finally, each user builds their providers (public, private, wallet) by calling `buildProviders()` from the exports in `providers.ts`.
+마지막으로 각 사용자는 `providers.ts`에서 export한 `buildProviders()`를 호출하여 provider(공개, 비공개, 지갑)를 구성합니다.
 
 ### afterAll
 
-After the tests complete these wallets need to be stopped, so `afterAll()`:
+테스트가 완료되면 지갑을 중지해야 하므로 `afterAll()`을 작성합니다:
 ```typescript
     // tear down after tests
     afterAll(async () => {
@@ -598,9 +598,9 @@ After the tests complete these wallets need to be stopped, so `afterAll()`:
 })// end of describe
 ```
 
-The first tests are ready to be written!
+이제 첫 번째 테스트를 작성할 준비가 되었습니다!
 
-Each individual test should be structured as an `it()` from the Vitest package:
+각 개별 테스트는 Vitest 패키지의 `it()`으로 구성합니다:
 ```typescript
     it('deploys the contract', async () => {
 
@@ -610,7 +610,7 @@ Each individual test should be structured as an `it()` from the Vitest package:
 
 ### Deploying the contract
 
-Deploying the contract is the logical first thing to do, it sends the contract code out to the network and allows access to the contract circuits via MidnightJS calls. In order to call the `deployContract` function of MidnightJS an initial private state needs to be created for *Alice the Deployer(TM)*:
+컨트랙트를 배포하는 것이 논리적으로 첫 번째 작업입니다. 컨트랙트 코드를 네트워크에 전송하고 MidnightJS 호출을 통해 컨트랙트 회로에 접근할 수 있게 합니다. MidnightJS의 `deployContract` 함수를 호출하려면 *배포자 Alice*를 위한 초기 비공개 상태를 생성해야 합니다:
 ```typescript
     it('deploys the contract', async () => {
         const aliceSk = randomBytes(32);
@@ -625,11 +625,11 @@ Deploying the contract is the logical first thing to do, it sends the contract c
 });// end of describe
 ```
 
-`aliceSk` is a collection of random bytes signifying a DApp specific secret key. This is the key that will be hashed to publish a DApp specific public key for each player. With this pattern, players can be tracked in this DApp, but not outside of it.
+`aliceSk`는 DApp 전용 비밀 키를 나타내는 랜덤 바이트입니다. 이 키를 해싱하여 각 플레이어의 DApp 전용 공개 키를 게시합니다. 이 패턴으로 이 DApp 내에서는 플레이어를 추적할 수 있지만, 다른 DApp에서는 추적할 수 없습니다.
 
-`alicePrivateState` is the return value of calling the `createBattlePrivateState` function exported from `witnesses.ts`. This creates a properly typed object that matches the expectations of the compiled contract accessed through MidnightJS.
+`alicePrivateState`는 `witnesses.ts`에서 export한 `createBattlePrivateState` 함수의 반환값입니다. MidnightJS를 통해 접근하는 컴파일된 컨트랙트의 타입 기대값과 일치하는 객체를 생성합니다.
 
-Deploy the contract to the blockchain:
+블록체인에 컨트랙트를 배포합니다:
 ```typescript
         const deployed: DeployedContract<Contract> = 
             await (deployContract<Contract>)(aliceProviders, {
@@ -642,16 +642,16 @@ Deploy the contract to the blockchain:
 });// end of describe
 ```
 
-`deployContract` is the MidnightJS function to deploy the contract to the blockchain. It takes the following arguments:
-- `aliceProviders` the providers object of the user making the call
-- `compiledContract` is the compiled Battleship contract from the `index.ts` file
-- `privateStateId` is the unique identifier to the private state of the caller
-- `initialPrivateState` is the starting private state for the caller, the return value of the `createBattlePrivateState` function
-- `args` are any constructor arguments required by the contract
+`deployContract`는 블록체인에 컨트랙트를 배포하는 MidnightJS 함수입니다. 다음 인자를 받습니다:
+- `aliceProviders` -- 호출하는 사용자의 providers 객체
+- `compiledContract` -- `index.ts` 파일에서 가져온 컴파일된 Battleship 컨트랙트
+- `privateStateId` -- 호출자의 비공개 상태에 대한 고유 식별자
+- `initialPrivateState` -- 호출자의 초기 비공개 상태, `createBattlePrivateState` 함수의 반환값
+- `args` -- 컨트랙트에서 요구하는 constructor 인자
 
-When this call finalizes, it returns a value of the `DeployedContract` type that can be inspected and verified itself.
+호출이 확정되면 `DeployedContract` 타입의 값을 반환하며, 이를 직접 검사하고 검증할 수 있습니다.
 
-Now that the contract is deployed, set the global `contractAddress` and private state for Alice:
+컨트랙트가 배포되었으므로 전역 `contractAddress`와 Alice의 비공개 상태를 설정합니다:
 ```typescript
         contractAddress = deployed.deployTxData.public.contractAddress;      
         aliceProviders.privateStateProvider.setContractAddress(contractAddress);
@@ -664,11 +664,11 @@ Now that the contract is deployed, set the global `contractAddress` and private 
 });// end of describe
 ```
 
-Failing to call `setContractAddress()` before accessing `aliceProviders.privateStateProvider` will cause an error. Always assign the contract address as soon as it is available.
+`aliceProviders.privateStateProvider`에 접근하기 전에 `setContractAddress()`를 호출하지 않으면 오류가 발생합니다. 컨트랙트 주소가 확보되는 즉시 반드시 할당하세요.
 
-It is important to note that simply creating an object of the private state for Alice through `createBattlePrivateState` is not enough. This needs to be passed in to `privateStateProvider.set()` to initialize the MidnightJS provider for private state, this is where private state will be accessed in future tests.
+`createBattlePrivateState`로 Alice의 비공개 상태 객체를 단순히 생성하는 것만으로는 충분하지 않다는 점에 주의하세요. `privateStateProvider.set()`에 전달하여 MidnightJS의 비공개 상태 provider를 초기화해야 합니다. 이후 테스트에서 비공개 상태에 접근할 때 이 provider를 사용합니다.
 
-Because the contract is deployed it should have an initial state on the blockchain that reflects successful constructor execution. Use the `queryLedger()` function to check that the state is as expected:
+컨트랙트가 배포되었으므로 constructor가 성공적으로 실행된 결과가 블록체인에 초기 상태로 반영되어야 합니다. `queryLedger()` 함수로 상태가 기대한 대로인지 확인합니다:
 ```typescript
         const state = await queryLedger(aliceProviders);
         expect(state.board1State).toEqual(BoardState.SET);
@@ -678,21 +678,21 @@ Because the contract is deployed it should have an initial state on the blockcha
 });// end of describe
 ```
 
-If you flip back to the `.compact` file and inspect the contructor, it will give you a good indication of expected states and what should be tested.
+`.compact` 파일의 constructor를 다시 살펴보면 예상 상태와 테스트 항목을 파악하는 데 도움이 됩니다.
 
-Now that the first test is complete, run it and see if it passes. Be sure the docker engine is running and start the local devnet:
+첫 번째 테스트가 완성되었으므로 실행하여 통과하는지 확인합니다. Docker 엔진이 실행 중인지 확인하고 로컬 devnet을 시작하세요:
 ```bash
 yarn env:up
 ```
 
-Local devnet requires a Node, Indexer and Proof server running locally, so be sure to leave these services running for the duration of these tests and check the status of the container before moving on to the next step.
+로컬 devnet에는 Node, Indexer, Proof server가 로컬에서 실행되어야 하므로, 테스트가 진행되는 동안 이 서비스를 계속 실행해 두고 다음 단계로 진행하기 전에 컨테이너 상태를 확인하세요.
 
-In a *seperate terminal*, execute the test script on local devnet:
+*별도의 터미널*에서 로컬 devnet 테스트 스크립트를 실행합니다:
 ```bash
 yarn test:local
 ```
 
-The test should start by syncing player wallets and initializing their providers. After that it should display a successful deployment of the contract!
+테스트는 플레이어 지갑을 동기화하고 provider를 초기화하는 것으로 시작됩니다. 그 후 컨트랙트가 성공적으로 배포되었다고 표시됩니다!
 ```
 [20:32:05.816] INFO (11363): Wallet sync complete after 104 emissions
 [20:32:05.824] INFO (11363): Providers initialized, ready to test.
@@ -703,11 +703,11 @@ The test should start by syncing player wallets and initializing their providers
       Tests  1 passed (1)
 ```
 
-It is good practice to run each test after writing them, so that you can verify proper execution before moving on to the next step.
+테스트를 작성할 때마다 바로 실행하여 다음 단계로 넘어가기 전에 정상 동작을 확인하는 것이 좋습니다.
 
 ### Bob accepts the game
 
-Bob is ready to accept the game:
+Bob이 게임에 참여할 준비가 되었습니다:
 ```typescript
     });// end of it('deploys the contract')
     it('Allows Bob to acceptGame', async () => {
@@ -744,15 +744,15 @@ Bob is ready to accept the game:
 });// end of describe
 ```
 
-Bob's private state is set up in the same way as Alice, though this time the shape of the MidnightJS function has changed slightly. `submitCallTx` is the function to execute for basic contract calls and it has similar requirements to `deployContract`. Inspect it closely to check for differences. `submitCallTx` is what will be used to interact with the contract now that it is deployed.
+Bob의 비공개 상태는 Alice와 같은 방식으로 설정하지만, MidnightJS 함수의 형태가 약간 다릅니다. `submitCallTx`는 기본 컨트랙트 호출에 사용하는 함수이며 `deployContract`와 비슷한 요구사항이 있습니다. 차이점을 주의 깊게 살펴보세요. `submitCallTx`는 배포된 컨트랙트와 상호작용할 때 사용하게 됩니다.
 
 :::note
-The return value of `submitCallTx` is captured in `txData` for demonstration. It is not being used here, but holds useful information for inspecting circuit return data (status, txId, txHash, block info, fees, unshielded outputs, etc..).
+`submitCallTx`의 반환값을 `txData`에 캡처하여 보여드립니다. 여기서는 직접 사용하지 않지만, 회로 반환 데이터(status, txId, txHash, 블록 정보, 수수료, unshielded 출력 등)를 검사하는 데 유용합니다.
 :::
 
 ### Alice takes the first shot
 
-Now that the contract is deployed and Bob has joined the game, the `turn` value recorded on the ledger means that it is Alice's turn to shoot. Write that test:
+컨트랙트가 배포되고 Bob이 게임에 참여했으므로, 원장에 기록된 `turn` 값에 따라 Alice의 사격 차례입니다. 해당 테스트를 작성합니다:
 ```typescript
     it('Allows Alice to take the first shot(MISS)', async () => {
         const shot = BigInt(5);// miss
@@ -777,7 +777,7 @@ Now that the contract is deployed and Bob has joined the game, the `turn` value 
 });// end of describe
 ```
 
-This pattern should start to look familiar and continue to be used for most of the remaining tests. But what about the pattern for failed transaction calls? After all, testing for expected failures is just as important as testing the successful calls. Add a cheat attempt by Bob to this test to simulate attempting to shoot out of turn:
+이 패턴이 이제 익숙해지기 시작할 것이며, 나머지 대부분의 테스트에서도 계속 사용됩니다. 하지만 실패하는 트랜잭션 호출의 패턴은 어떨까요? 결국 예상되는 실패를 테스트하는 것은 성공하는 호출을 테스트하는 것만큼 중요합니다. Bob이 순서를 무시하고 사격을 시도하는 부정행위를 이 테스트에 추가합니다:
 ```typescript
     it('Allows Alice to take the first shot(MISS)', async () => {
         const shot = BigInt(5);// miss
@@ -816,7 +816,7 @@ This pattern should start to look familiar and continue to be used for most of t
 });// end of describe
 ```
 
-This is a test of the Compact explicit state management. If the `assert` statements are implemented correctly with the custom `TurnState`, the contract will not allow Bob to cheat here. Run these tests to find out:
+이것은 Compact의 명시적 상태 관리를 테스트합니다. `assert` 문이 커스텀 `TurnState`와 함께 올바르게 구현되어 있다면 Bob의 부정행위를 허용하지 않습니다. 테스트를 실행하여 확인해 봅니다:
 ```bash
 yarn test:local
 ```
@@ -825,21 +825,21 @@ yarn test:local
 Bobs shot (out of turn) was rejected!
 ```
 
-No cheating Bob.
+부정행위는 통하지 않습니다, Bob.
 
 ### Test yourself
 
-Now that you've seen the pattern for successful and failing calls, write some tests yourself that progress the interaction of the contract. Look back at the `.compact` code to verify the state after a certain circuit executes and check these through `queryLedger()` at the end of each test. (hint: `submitCallTx` calls to circuits with no arguments should omit the `args` field.)
+성공하는 호출과 실패하는 호출의 패턴을 확인했으니, 이제 직접 테스트를 작성하여 컨트랙트 상호작용을 진행해 보세요. `.compact` 코드를 다시 살펴보며 특정 회로 실행 후 상태를 확인하고, 각 테스트 끝에서 `queryLedger()`를 통해 검증하세요. (힌트: 인자가 없는 회로에 대한 `submitCallTx` 호출은 `args` 필드를 생략해야 합니다.)
 
-For a challenge, work with the returned `txData` from `submitCallTx` to inspect and operate on the return values there.
+도전 과제로, `submitCallTx`에서 반환되는 `txData`를 활용하여 반환값을 검사하고 활용해 보세요.
 
-To view the entire test suite for reference see `battleship.test.ts` in [example-battleship](https://github.com/midnightntwrk/example-battleship/blob/main/src/test/battleship.test.ts). The linear progression of this tutorial has reached its end. Using the test file in the link above should provide the needed code for completing these tests. 
+전체 테스트 스위트를 참고하려면 [example-battleship](https://github.com/midnightntwrk/example-battleship/blob/main/src/test/battleship.test.ts)의 `battleship.test.ts`를 확인하세요. 이 튜토리얼의 순차적 진행은 여기까지입니다. 위 링크의 테스트 파일을 참고하면 나머지 테스트를 완성하는 데 필요한 코드를 확인할 수 있습니다.
 
 ### Further cheating attempts
 
-The next interesting thing to consider are the other guards against cheating. A lot of emphasis was put on the protection implemented in the Compact contract, but this should be tested explicitly.
+다음으로 흥미로운 것은 나머지 부정행위 방어 기능입니다. Compact 컨트랙트에 구현된 보호 메커니즘을 강조했는데, 이를 명시적으로 테스트해야 합니다.
 
-To simulate Bob(or Alice) attempting to maliciously change their private state, create a new private state object and set the private state provider:
+Bob(또는 Alice)이 비공개 상태를 악의적으로 변경하려는 시도를 시뮬레이션하려면, 새로운 비공개 상태 객체를 생성하고 비공개 상태 provider에 설정합니다:
 ```typescript
         logger.info(`Bob realizes it is going to be a HIT and tries to cheat...`);
         const bobPrivateState = await bobProviders.privateStateProvider.get(BOB_PRIVATE_ID);
@@ -866,19 +866,19 @@ To simulate Bob(or Alice) attempting to maliciously change their private state, 
         logger.info(`Bob successfully reverted his private state to the original!`);
 ```
 
-- `bobProviders.privateStateProvider.get(BOB_PRIVATE_ID)` retrieves the current private state
-- `createBattlePrivateState` creates a new private state object with different locations for Bob's ships
-- `bobProviders.privateStateProvider.set()` sets the private state for Bob to the new object
-- Then run the call for `submitCallTx` as expecting `.rejects.toThrow()` and watch Bob get rejected!
-- Be sure to reset Bob's private state to the original ship locations so that future calls succeed when expected to do so
+- `bobProviders.privateStateProvider.get(BOB_PRIVATE_ID)` -- 현재 비공개 상태 조회
+- `createBattlePrivateState` -- Bob의 함선 위치가 다른 새로운 비공개 상태 객체 생성
+- `bobProviders.privateStateProvider.set()` -- Bob의 비공개 상태를 새 객체로 설정
+- 그런 다음 `submitCallTx` 호출이 `.rejects.toThrow()`를 기대하도록 실행하면 Bob의 시도가 거부됩니다!
+- 이후 호출이 예상대로 성공하려면 Bob의 비공개 상태를 원래 함선 위치로 반드시 되돌려야 합니다
 
 ## Conclusion
 
-This concludes the Battleship tutorial. Some important lessons have been covered:
-- Private state management (setting, getting and changing it) in MidnightJS
-- Explicit state management in our Compact code
-- Calling in to our contract through MidnightJS
-- Successful and failing contract calls and tests
-- Defensive programming
+Battleship 튜토리얼이 마무리되었습니다. 다음과 같은 핵심 내용을 다루었습니다:
+- MidnightJS에서의 비공개 상태 관리 (설정, 조회, 변경)
+- Compact 코드에서의 명시적 상태 관리
+- MidnightJS를 통한 컨트랙트 호출
+- 성공/실패 컨트랙트 호출과 테스트
+- 방어적 프로그래밍
 
-Thanks for following along. Shout out in the Discord dev-chat that you've become a Battleship master or share any feedback on this tutorial or if you mustache us any questions. To inspect the full Battleship repository, see [example-battleship](https://github.com/midnightntwrk/example-battleship).
+따라와 주셔서 감사합니다. Battleship 마스터가 되셨다면 Discord dev-chat에서 알려주시거나, 이 튜토리얼에 대한 피드백이나 질문을 공유해 주세요. 전체 Battleship 리포지토리는 [example-battleship](https://github.com/midnightntwrk/example-battleship)에서 확인하실 수 있습니다.

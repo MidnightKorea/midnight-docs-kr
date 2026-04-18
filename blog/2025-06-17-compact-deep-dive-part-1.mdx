@@ -7,11 +7,9 @@ tags: [compact]
 image: /img/blog/zkp.jpg
 date: 2025-06-17
 ---
-# Compact Deep Dive – Part 1: Top-level Contract Structure
-
 이 글은 Midnight 네트워크에서 Compact contract가 어떻게 작동하는지 탐구하는 Compact Deep Dive 시리즈의 일부입니다.
 각 글은 서로 다른 기술적 주제에 초점을 맞추며 독립적으로 읽을 수 있지만, 전체를 함께 읽으면 Compact이 실제로 어떻게 작동하는지 더 완전한 그림을 얻을 수 있습니다.
-이 글은 [개발자 튜토리얼](https://docs.midnight.network/develop/tutorial/)에서 다루는 수준까지 Compact에 익숙하다고 가정합니다.
+이 글은 [개발자 튜토리얼](/category/tutorials)에서 다루는 수준까지 Compact에 익숙하다고 가정합니다.
 이 시리즈의 일부 글에서는 ZK proof와 Midnight 온체인 런타임의 구현 세부 사항을 깊이 있게 다룹니다.
 
 이 내용은 현재 아키텍처를 반영하지만, 저수준 메커니즘을 다루는 만큼 플랫폼 발전에 따라 변경될 수 있습니다.
@@ -21,7 +19,7 @@ date: 2025-06-17
 
 ## Overview of the Bulletin Board Contract
 
-익숙한 [Bulletin Board](https://docs.midnight.network/develop/tutorial/creating/bboard-contract#compiling-the-contract)를 예시로 사용하겠습니다.
+익숙한 [Bulletin Board](/tutorials/bboard/smart-contract)를 예시로 사용하겠습니다.
 Compact 툴체인 버전 0.24.0으로 컴파일합니다.
 Compact 언어는 기능이 추가되고 변경되면서 계속 진화하고 있으므로, 이 코드는 0.24.0 이외의 다른 Compact 툴체인 버전에서는 컴파일되지 않을 수 있습니다.
 :::note 
@@ -29,7 +27,7 @@ Compact 언어는 기능이 추가되고 변경되면서 계속 진화하고 있
 :::
 
 ```compact
-pragma language_version 0.16;
+pragma language_version >=0.22;
 
 import CompactStandardLibrary;
 
@@ -194,7 +192,7 @@ import type * as __compactRuntime from '@midnight-ntwrk/compact-runtime';
 이후에 Compact 런타임이 상당히 복잡하다는 것을 알게 될 것입니다(Rust로 구현되어 WebAssembly로 컴파일된 온체인 런타임의 상당 부분을 재내보내기합니다).
 
 필요하다면 DApp에서 이 패키지를 직접 임포트하여 Compact 런타임 타입과 함수에 접근할 수도 있습니다.
-Compact 런타임의 API 문서는 [Midnight 문서](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/)에서 확인할 수 있습니다.
+Compact 런타임의 API 문서는 [Compact runtime](/api-reference/compact-runtime/) API reference에서 확인할 수 있습니다.
 
 ### Compact `enum` Types
 
@@ -253,7 +251,7 @@ export type Ledger = {
 export declare function ledger(state: __compactRuntime.StateValue): Ledger;
 ```
 
-이 함수는 Compact 런타임의 [`StateValue`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/classes/StateValue) 타입 값을 받습니다.
+이 함수는 Compact 런타임의 [`StateValue`](/api-reference/compact-runtime/classes/StateValue) 타입 값을 받습니다.
 이 시리즈의 Part 2에서 이 함수가 witness에 `Ledger`를 전달하는 데 어떻게 사용되는지 살펴보겠습니다.
 
 ### Compact Circuits
@@ -291,14 +289,14 @@ Compact 컴파일러는 이 타입이 무엇인지 알지 못하며(알 필요�
 이 circuit의 TypeScript API가 Compact 시그니처에서 예측 가능하게 도출되었음을 알 수 있으며, 몇 가지 차이점이 있습니다.
 
 첫째, circuit은 `CircuitContext<T>` 타입의 추가 첫 번째 인자를 받습니다.
-이것은 [Compact 런타임](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/interfaces/CircuitContext)에 선언된 인터페이스입니다.
+이것은 [Compact runtime](/api-reference/compact-runtime/interfaces/CircuitContext)에 선언된 인터페이스입니다.
 Contract의 온체인 및 private state의 캡슐화, 별도의 Zswap 상태, 그리고 circuit이 실제로 온체인에서 실행되는 경우의 온체인 컨텍스트 표현을 포함합니다(다만 이 JavaScript 코드는 온체인에서 실행되는 것이 **아닙니다**).
 
 둘째, Compact 타입 `Opaque<"string">`이 TypeScript 타입 `string`으로 표현됩니다.
 Compact의 목표 중 하나는 Compact 타입의 TypeScript 표현이 항상 예측 가능한 것입니다.
 
 셋째, 반환 타입(Compact에서는 `[]`)이 실제로는 `CircuitResults<T, []>`입니다.
-이것은 [Compact 런타임](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/interfaces/CircuitResults)에 선언된 또 다른 인터페이스입니다.
+이것은 [Compact runtime](/api-reference/compact-runtime/interfaces/CircuitResults)에 선언된 또 다른 인터페이스입니다.
 TypeScript 타입 `[]`의 실제 반환값과 함께, ZK proof를 구성하는 데 필요한 일부 proof 데이터, 그리고 circuit 실행 후의 public 및 private state를 나타내는 새 `CircuitContext<T>`를 포함합니다.
 
 여기서 `takeDown`에 대해서는 자세히 다루지 않겠지만, 그 시그니처도 마찬가지로 Compact의 circuit 시그니처에서 예측 가능하게 도출되었음을 확인할 수 있습니다.
@@ -329,7 +327,7 @@ export type Witnesses<T> = {
 
 Witness의 시그니처도 Compact witness 선언에서 예측 가능하게 도출됩니다.
 `WitnessContext<Ledger, T>` 타입의 추가 첫 번째 인자가 있습니다.
-이 인터페이스는 [Compact 런타임](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/interfaces/WitnessContext)에 선언되어 있습니다.
+이 인터페이스는 [Compact runtime](/api-reference/compact-runtime/interfaces/WitnessContext)에 선언되어 있습니다.
 공개 ledger 상태의 스냅샷, `T` 타입의 contract private state, 그리고 contract 주소를 포함합니다.
 Witness는 `T` 타입의 새 private state와 Compact 반환값으로 구성된 튜플(두 요소의 TypeScript 배열)을 반환합니다.
 Compact 타입 `Bytes<32>`는 기본 TypeScript 타입 Uint8Array로 표현됩니다.

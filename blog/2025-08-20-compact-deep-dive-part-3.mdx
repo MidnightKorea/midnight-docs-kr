@@ -9,7 +9,7 @@ image: /img/blog/zkp.jpg
 date: 2025-08-20
 description: "Compact 컨트랙트의 온체인 런타임과 공개 원장 상태 업데이트 동작 원리를 심층 분석합니다"
 ---
-# Compact Deep Dive - Part 3: The On-chain Runtime
+# Compact Deep Dive - Part 3: The on-chain runtime
 
 이 블로그 글은 Compact Deep Dive 시리즈의 세 번째 파트로, Compact 컨트랙트가 Midnight 네트워크에서 어떻게 동작하는지를 다룹니다.
 각 글은 서로 다른 기술 주제를 다루며 독립적으로 읽을 수 있지만, 함께 읽으면 Compact의 실제 동작 방식을 더 완전히 이해할 수 있습니다.
@@ -20,7 +20,7 @@ description: "Compact 컨트랙트의 온체인 런타임과 공개 원장 상�
 
 이 글에서는 온체인 런타임과 DApp에서 공개 원장 상태 업데이트가 어떻게 이루어지는지 살펴봅니다.
 
-# The Bulletin Board's `post` Circuit
+# The bulletin board's `post` circuit
 
 이전 파트에서는 Bulletin Board 예제 DApp을 통해 컨트랙트 구조와 서킷 및 위트니스 구현을 살펴보았습니다.
 컨트랙트의 내보내기된 서킷(예: Bulletin Board 예제의 `post`)에는 실제 구현을 호출하는 외부 "래퍼"가 있다는 것을 확인했습니다.
@@ -87,7 +87,7 @@ Midnight 노드는 공개 원장 상태 업데이트를 수행하기 위해 스�
 이 머신은 **Impact**라는 바이트코드 언어로 작성된 프로그램을 실행합니다.
 트랜잭션을 제출하기 전에 DApp에서 공개 상태의 로컬 복사본을 업데이트할 때도 동일한 Impact VM을 사용합니다.
 
-# The On-Chain Runtime and the Impact VM
+# The on-chain runtime and the Impact VM
 
 Compact 런타임 패키지에는 온체인 런타임의 내장 버전이 포함되어 있습니다.
 Midnight 네트워크 노드에서 원장 구현에 사용되는 것과 정확히 동일한 Rust 코드입니다.
@@ -123,12 +123,12 @@ VM 스택의 값은 불변입니다.
 예를 들어, 상태 업데이트는 스택에서 세 번째에 있는 기존 상태 값을 **변경**하는 것이 아니라 새 값으로 **교체**하여 수행됩니다.
 
 `Contract._query`의 세 번째 인수는 Impact VM 명령어의 JavaScript 표현인 `Op` 배열입니다.
-`Op`은 온체인 런타임에 [정의된](https://docs.midnight.network/develop/reference/midnight-api/onchain-runtime/type-aliases/Op) 타입입니다.
-트랜잭션은 이 명령어의 [바이너리 인코딩](https://docs.midnight.network/develop/how-midnight-works/impact#programs)을 사용합니다.
+`Op`은 온체인 런타임에 [정의된](api-reference/onchain-runtime/type-aliases/Op) 타입입니다.
+트랜잭션은 이 명령어의 [바이너리 인코딩](/concepts/how-midnight-works/impact#programs)을 사용합니다.
 명령어 배열은 부분적인 Impact 프로그램입니다.
 전체 프로그램은 일반적으로 여러 번의 `Contract._query` 호출을 통해 구성됩니다.
 
-# Ledger Read Operations
+# Ledger read operations
 
 위에서 본 `state` 필드의 원장 읽기에 대한 Impact 코드는 다음과 같았습니다:
 

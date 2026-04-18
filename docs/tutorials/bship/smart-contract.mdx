@@ -1,129 +1,128 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Battleship contract"
-title: "Battleship contract"
-description: "Learn about best practices while building a Battleship contract."
+sidebar_label: "Battleship 컨트랙트"
+title: "Battleship 컨트랙트"
+description: "Battleship 컨트랙트를 구축하며 모범 사례를 익혀보세요."
 sidebar_position: 10
 toc_max_heading_level: 2
 ---
 
 # Battleship contract
 
-The Battleship tutorial is an intermediate level demonstration of the following features:
-- Compact contracts as state machines
-- Explicit state management
-- Private state data (setting, getting, updating, verifying, maliciously manipulating)
-- Operations on a `List`
-- Intermediate Witness functionality
-- Frontend tests with MidnightJS
+이 Battleship 튜토리얼은 다음 기능을 다루는 중급 수준의 예제입니다:
+- 상태 머신으로서의 Compact 컨트랙트
+- 명시적 상태 관리
+- 비공개 상태 데이터 (설정, 조회, 갱신, 검증, 악의적 조작)
+- `List` 연산
+- 중급 Witness 기능
+- MidnightJS를 활용한 프론트엔드 테스트
 
-It has two main components:
-1. Compact contract
-1. Test script
+이 튜토리얼에는 두 가지 핵심 구성 요소가 있습니다:
+1. Compact 컨트랙트
+1. 테스트 스크립트
 
-This tutorial demonstrates writing safe and secure Compact contracts with a mix of public and private data while verifying the operation of the contract with MidnightJS in a local devnet test script. It is best consumed by writing each code block by hand rather than copying and pasting code.
+공개 데이터와 비공개 데이터가 혼합된 안전한 Compact 컨트랙트를 작성하고, MidnightJS로 로컬 devnet에서 테스트하는 과정을 다룹니다. 코드를 직접 한 줄씩 타이핑하며 따라가는 것을 권장합니다. 복사/붙여넣기보다 훨씬 효과적입니다.
 
 ## Prerequisites
 
-Before you begin this tutorial, ensure you have:
-- [Installed the toolchain](../../getting-started/installation)
-- Node.js v22+
-- Completed a beginner tutorial (optional)
+시작하기 전에 다음 사항을 확인하세요:
+- [툴체인 설치](../../getting-started/installation) 완료
+- Node.js v22 이상
+- 초급 튜토리얼 완료 (선택사항)
 
 ## Problem analysis
 
-Battleship is a guessing game for two players. It is played on two individual grids with each player's ships marked on their grid. The location of a player's ships are hidden from the other player. Players alternate turns calling "shots" at the other player's ships with the objective of "sinking" those ships. The first player to correctly hit all of the opposing ships wins.  
+Battleship(배틀쉽)은 두 명이 즐기는 추측 게임입니다. 각 플레이어는 개별 격자에 자신의 함선을 배치하며, 상대방에게는 함선 위치가 보이지 않습니다. 플레이어는 번갈아 가며 상대 함선을 향해 "사격"하고, 상대 함선을 모두 "격침"하는 것이 목표입니다. 먼저 상대 함선을 모두 맞힌 플레이어가 승리합니다.
 
-Battleship is centered around the idea of private data (ships) and public data (shots, hits) being used in combination. The board game version comes with significant trust assumptions that make it vulnerable to malicious actors. A player could simply claim a MISS when it was in fact a HIT. They could move their ship in the middle of the game (change private state), or even look around the board at the location of the opposing player's ships to ensure a victory.
+Battleship의 핵심은 비공개 데이터(함선)와 공개 데이터(사격, 명중)의 조합입니다. 보드게임 버전은 상당한 신뢰 가정에 의존하기 때문에 악의적 플레이어에 취약합니다. 플레이어가 HIT인데도 MISS라고 거짓 주장할 수 있고, 게임 도중 함선을 이동(비공개 상태 변경)하거나, 상대 함선 위치를 몰래 확인하여 승리를 보장할 수도 있습니다.
 
-Using blockchain, the rules of this game can be enforced by moving those trust assumptions on-chain. With Midnight, private data can be hidden in plain sight while verifying its validity in the private state of a given player.
+블록체인을 활용하면 이러한 신뢰 가정을 온체인으로 옮겨 규칙을 강제할 수 있습니다. Midnight에서는 비공개 데이터를 공개적으로 노출하지 않으면서도 해당 플레이어의 비공개 상태에서 유효성을 검증할 수 있습니다.
 
 ## Program design
 
-For the purposes of simplifying the code associated with this tutorial, it implements a more basic version of the game. The main differences in this version will be:
-- Using a single number line instead of a grid
-- A single number on the line represents the position of a ship
-- Reduce the number of HITS required to win to two
+코드를 간결하게 유지하기 위해 이 튜토리얼에서는 단순화된 버전으로 구현합니다. 원래 게임과의 주요 차이점은 다음과 같습니다:
+- 격자 대신 단일 숫자 라인 사용
+- 라인 위의 숫자 하나가 함선의 위치를 나타냄
+- 승리에 필요한 HIT 횟수를 2회로 축소
 
 ### Operational steps
 
-First, consider the operational components of the contract. What does the contract need to do? 
+먼저 컨트랙트가 수행할 작업을 순서대로 정리합니다.
 
-In order, it needs to:
-1. Deploy the contract and allow player 1 to set their board
-2. Allow player 2 to join the game and set their board
-3. Player 1 shoots at board 2
-4. Player 2 checks their board for a HIT or MISS
-5. Player 2 shoots at board 1
-6. Player 1 checks their board for HIT or MISS
-7. Steps 3-6 continue until `board1Hits == 2 || board2Hits == 2`
-8. Assign a winner
+1. 컨트랙트를 배포하고 player 1이 보드를 설정
+2. Player 2가 게임에 참여하고 보드를 설정
+3. Player 1이 board 2를 향해 사격
+4. Player 2가 자신의 보드에서 HIT 또는 MISS 확인
+5. Player 2가 board 1을 향해 사격
+6. Player 1이 자신의 보드에서 HIT 또는 MISS 확인
+7. `board1Hits == 2 || board2Hits == 2`가 될 때까지 3~6단계 반복
+8. 승자 결정
 
 ### Data: public vs private
 
-One of the more challenging ideas in developing Midnight DApps is the mix of private and public data. Adhering to best-practice strategies is recommended to ensure that data is handled as intended and only made public when necessary. In this game, both players have the same needs in reference to their data:
+Midnight DApp 개발에서 가장 까다로운 부분 중 하나는 공개 데이터와 비공개 데이터의 혼합입니다. 데이터가 의도대로 처리되고 필요한 경우에만 공개되려면 모범 사례를 따르는 것이 좋습니다. 이 게임에서 두 플레이어의 데이터 요구사항은 동일합니다:
 
-| Public data | Private data |
+| 공개 데이터  | 비공개 데이터 |
 | ---------- | ------------ |
 | DApp ID    | Address      |
 | Hits       | Ships        |
 | Shots      | Password     |
 | States     | HIT/MISS     |
 
-In order to enforce the rules of the game and ensure that neither player cheats, they provide a commitment to their ship locations and publish a hash of that commitment to the ledger. *All ledger data is public*, so care must be taken to manage private state data (ships) on-chain so that it can later be verified as unchanged.
+게임 규칙을 강제하고 부정행위를 방지하기 위해, 각 플레이어는 함선 위치에 대한 commitment을 생성하고 해당 해시를 원장에 게시합니다. *모든 원장 데이터는 공개*되므로, 나중에 변경 여부를 검증할 수 있도록 비공개 상태 데이터(함선)를 온체인에서 신중하게 관리해야 합니다.
 
 ### Cheating assertions
 
-The most common way that players cheat in Battleship is to claim a MISS when a particular "shot" was in fact a HIT. In this DApp, this means that a player attempts to maliciously manipulate their private state data. 
+Battleship에서 가장 흔한 부정행위는 실제로 HIT인 "사격"을 MISS라고 주장하는 것입니다. 이 DApp에서는 플레이어가 비공개 상태 데이터를 악의적으로 조작하려는 시도에 해당합니다.
 
-Verifcation checks can ensure the validity of a `ShotState` to check that a MISS was in fact a MISS. There is no need to trust Alice or Bob, that trust can be enforced through Compact code. Specific tests in the frontend test suite will attempt to exploit the contract in this way and verify that these will be rejected by the verification checks.
+검증 로직으로 `ShotState`의 유효성을 확인하여 MISS가 실제로 MISS인지 검사할 수 있습니다. Alice나 Bob을 신뢰할 필요가 없으며, Compact 코드로 이를 강제합니다. 프론트엔드 테스트 스위트에서 이러한 방식으로 컨트랙트를 공격하는 테스트를 작성하고, 검증 로직이 이를 올바르게 거부하는지 확인합니다.
 
-The contract will handle several cheating vectors such as:
-- Double shots
-- Repeating a previous HIT to increment `hitCount`
-- Claiming a MISS when it was in fact a HIT
-- Changing ship locations mid-game
+컨트랙트는 다음과 같은 부정행위를 처리합니다:
+- 이중 사격
+- 이전 HIT를 반복하여 `hitCount` 증가 시도
+- HIT인데 MISS라고 주장
+- 게임 중 함선 위치 변경
 
-Smart contract developers *must be diligent in writing defensive programs.* The public and permissionless nature of blockchain means that contracts are accessible to anyone with a node command line. Intentionally guarding circuits through access control, input validation and explicit state management will create more secure programs than those without these considerations.
+스마트 컨트랙트 개발자는 *방어적 프로그래밍에 항상 주의를 기울여야 합니다.* 블록체인의 공개적이고 비허가적인 특성상, 노드 커맨드라인만 있으면 누구든 컨트랙트에 접근할 수 있습니다. 접근 제어, 입력 검증, 명시적 상태 관리를 통해 회로를 의도적으로 보호하면 이러한 고려 없이 작성한 프로그램보다 훨씬 안전한 결과물을 만들 수 있습니다.
 
 ### State machines
 
-Compact contracts are best thought of as state machines, so the next consideration is for the states of the contract. Custom states are needed for the following:
+Compact 컨트랙트는 상태 머신으로 생각하는 것이 가장 적절합니다. 다음으로 고려할 것은 컨트랙트의 상태 설계입니다. 다음 항목에 대해 커스텀 상태가 필요합니다:
 - BoardState
 - ShotState
 - WinState
 - TurnState
 
-By managing each of these states explicitly and pairing them with `assert` statements, access can be restricted to only the specific function needing to be available at any given state. For example, using `TurnState`, the contract can ensure that a player shoots only when it is their turn.
+이러한 상태를 명시적으로 관리하고 `assert` 문과 결합하면, 특정 시점에 사용 가능한 함수에만 접근을 제한할 수 있습니다. 예를 들어 `TurnState`를 활용하면 자신의 턴에만 사격할 수 있도록 보장합니다.
 
-Turn order:  
-`PLAYER_1_SHOOT` → `PLAYER_2_CHECK` → `PLAYER_2_SHOOT` → `PLAYER_1_CHECK` → repeat
+턴 순서:  
+`PLAYER_1_SHOOT` → `PLAYER_2_CHECK` → `PLAYER_2_SHOOT` → `PLAYER_1_CHECK` → 반복
 
-The `PLAYER_1_SHOOT` circuit will be available first, and access to others will be blocked. After a successful state transition, `PLAYER_2_CHECK` will be "unlocked" and access to `PLAYER_1_SHOOT` will be unavailable.
+`PLAYER_1_SHOOT` 회로가 먼저 활성화되고, 나머지 회로는 차단됩니다. 상태 전이가 성공하면 `PLAYER_2_CHECK`가 "잠금 해제"되고 `PLAYER_1_SHOOT`는 비활성화됩니다.
 
 ## Compact tutorial
 
-Compact provides the right mix of public and private data management to enable the Battleship implementation elegantly.  
+Compact는 공개/비공개 데이터 관리를 적절히 조합하여 Battleship 구현을 깔끔하게 처리합니다.
 
 ### Setup
 
-Start with Compact code setup:
+Compact 코드 셋업부터 시작합니다:
 ```bash
 mkdir example-battleship && cd example-battleship
 mkdir contract && cd contract
 touch battleship.compact
 ```
 
-Open the project in your text editor and open `battleship.compact`.
+텍스트 에디터에서 프로젝트를 열고 `battleship.compact` 파일을 엽니다.
 
-The first thing to do is declare the language version and imports:
+먼저 언어 버전과 import를 선언합니다:
 ```compact
 pragma language_version >= 0.22;
 import CompactStandardLibrary;
 ```
 
-Then declare the custom states:
+그런 다음 커스텀 상태를 선언합니다:
 ```compact
 export enum BoardState { UNSET, SET }
 export enum ShotState { MISS, HIT }
@@ -140,7 +139,7 @@ export enum WinState {
 }
 ```
 
-Next, declare the *public* ledger fields:
+다음으로 *공개* 원장 필드를 선언합니다:
 ```compact
 export ledger player1: Bytes<32>;
 export ledger player2: Bytes<32>;
@@ -158,24 +157,24 @@ export ledger board1HitCount: Counter;
 export ledger board2HitCount: Counter;
 ```
 
-All ledger fields are publicly visible. In order to hide private data in these fields, Compact provides hashing functions. Implementation of this circuit will come later, for now, just be aware of the strategy needed to hide this data publicly.
+모든 원장 필드는 공개적으로 볼 수 있습니다. 비공개 데이터를 이러한 필드에 숨기기 위해 Compact는 해싱 함수를 제공합니다. 구체적인 회로 구현은 나중에 다루겠지만, 우선 이 데이터를 숨기는 전략이 필요하다는 점을 알아두세요.
 
 ### Witness declaration
 
-To set and access private state data, declare the `witness` functions:
+비공개 상태 데이터를 설정하고 접근하려면 `witness` 함수를 선언합니다:
 ```compact
 witness localSk(): Bytes<32>;
 witness localSetBoard(_x1: Uint<8>, _x2: Uint<8>): BoardState;
 witness localCheckBoard(x: Uint<8>): ShotState;
 ```
 
-Witness functions are declared in Compact, but their implementation is left to the Typescript frontend. *Never trust data from a witness* function without strictly verifying it first. Each Typescript instance has the ability to manipulate these functions and therefore a Compact contract can never assume that a witness function was implemented as expected. Verify this data rigorously through `assert` statements.
+Witness 함수는 Compact에서 선언하지만, 실제 구현은 TypeScript 프론트엔드에서 합니다. *Witness 함수에서 오는 데이터를 절대 신뢰하지 마세요.* 반드시 엄격하게 검증해야 합니다. 각 TypeScript 인스턴스에서 이 함수를 조작할 수 있으므로, Compact 컨트랙트는 witness 함수가 기대대로 구현되었다고 가정해서는 안 됩니다. `assert` 문을 통해 데이터를 철저히 검증하세요.
 
 ### Constructor
 
-Next, set up the contructor that executes on contract deployment. For simplicity, assume that `player1` (Alice) is deploying the contract so that a few operations can be bundled together.
+다음으로 컨트랙트 배포 시 실행되는 constructor를 작성합니다. 편의상 `player1`(Alice)이 컨트랙트를 배포한다고 가정하여 몇 가지 작업을 묶어서 처리합니다.
 
-First validate the inputs are within the boundaries of the game:
+먼저 입력값이 게임 범위 내에 있는지 검증합니다:
 ```compact
 constructor(_x1: Uint<8>, _x2: Uint<8>) {
     // input verification checks
@@ -186,9 +185,9 @@ constructor(_x1: Uint<8>, _x2: Uint<8>) {
 }// end of constructor
 ```
 
-The use of an underscore(_x1) prefixing an identifier is a good practice in cryptography to track management of private data. This does nothing for the compiler, but it helps you as a developer better track information needing to remain private. 
+식별자에 밑줄 접두사를 사용하는 것(`_x1`)은 암호학에서 비공개 데이터 관리를 추적하는 좋은 습관입니다. 컴파일러에는 영향을 주지 않지만, 비공개로 유지해야 하는 정보를 개발자가 파악하는 데 도움이 됩니다.
 
-Then assign a DApp specific public key for `player1`:
+그런 다음 `player1`에게 DApp 전용 공개 키를 할당합니다:
 ```compact
     // user id and assignment
     const _sk = localSk();
@@ -198,9 +197,9 @@ Then assign a DApp specific public key for `player1`:
 }// end of constructor
 ```
 
-This pattern accesses a secret key from the player's private state, hashing that with a domain seperator so that user interactions can be traced inside this DApp, but not outside of it. The `getDappPublicKey` circuit will be written later.
+이 패턴은 플레이어의 비공개 상태에서 비밀 키를 가져와 도메인 구분자와 함께 해싱하여, 이 DApp 내에서는 사용자 상호작용을 추적하되 다른 DApp에서는 추적할 수 없도록 합니다. `getDappPublicKey` 회로는 나중에 작성합니다.
 
-In order to store private state data (_x1, _x2) publicly, that data needs to be hashed:
+비공개 상태 데이터(_x1, _x2)를 공개적으로 저장하려면 해싱이 필요합니다:
 ```compact
     // hash the inputs to verify them later, user needs to provide the same value and _sk
     const hash1 = commitBoardSpace(_x1 as Bytes<32>, _sk);
@@ -211,9 +210,9 @@ In order to store private state data (_x1, _x2) publicly, that data needs to be 
 }// end of constructor
 ```
 
-Storing hashes computed in this way makes it impossible to derive the private state data underneath, unless an attacker also gains access to a players private state. These are one-way, deterministic functions, so they can never be revealed. To verify the ship locations have not changed, the player is asked to present the same data later in the program. The data is hashed again and the hashes compared. If the hashes don't match, the player provided different data.
+이렇게 저장된 해시로는 공격자가 플레이어의 비공개 상태에 접근하지 않는 한 원본 비공개 데이터를 도출할 수 없습니다. 단방향 결정적 함수이므로 역추적이 불가능합니다. 함선 위치가 변경되지 않았는지 검증하려면 프로그램 후반에 같은 데이터를 다시 제출하도록 요청하고, 다시 해싱하여 해시값을 비교합니다. 해시가 일치하지 않으면 플레이어가 다른 데이터를 제공한 것입니다.
 
-Now, ask the player to set these ship locations on their local board:
+이제 플레이어에게 로컬 보드에 함선 위치를 설정하도록 요청합니다:
 ```compact
     // disclose only what you need (localBoardState);
     const localBoardState = localSetBoard(_x1, _x2);
@@ -223,9 +222,9 @@ Now, ask the player to set these ship locations on their local board:
 }// end of constructor
 ```
 
-`localSetBoardState` is a witness function, so do not trust its return value is as expected, this must be enforced through an `assert`. The assumption is that the board will be set when this off-chain function completes, so `assert` this specifically. Ship locations can be verified against the original when the player is asked to check their board.
+`localSetBoardState`는 witness 함수이므로 반환값을 신뢰하면 안 되고, `assert`로 강제해야 합니다. 이 오프체인 함수가 완료되면 보드가 설정되었다고 가정하므로, 이를 명시적으로 `assert`합니다. 함선 위치는 플레이어가 보드를 확인할 때 원본과 대조하여 검증합니다.
 
-The final operations of the constructor are public state assignments:
+Constructor의 마지막 작업은 공개 상태 할당입니다:
 ```compact
     // setting initial states
     board2State = BoardState.UNSET;
@@ -233,11 +232,11 @@ The final operations of the constructor are public state assignments:
 }// end of constructor
 ```
 
-Setting these publicly enables their use in `assert`s to verify the states are as expected before allowing access to specific functions.
+이러한 공개 상태 값을 통해 특정 함수에 대한 접근을 허용하기 전 `assert`로 상태가 기대한 대로인지 검증할 수 있습니다.
 
 ### Bob joins the game
 
-The next thing that needs to happen to advance the game, according to the program design, is `player2` (Bob) accepts the game and sets their ship locations. The `acceptGame` circuit takes in the two ships as arguments (privately) and assigns an ID for Bob that is specific to this DApp. A verification check is also added to verify that `player1` is not attempting to play against themselves:
+프로그램 설계에 따르면, 다음으로 `player2`(Bob)가 게임을 수락하고 함선 위치를 설정해야 합니다. `acceptGame` 회로는 두 함선을 인자(비공개)로 받아 Bob에게 이 DApp 전용 ID를 할당합니다. `player1`이 자신과 대전하려는 것은 아닌지도 검증합니다:
 ```compact 
 export circuit acceptGame(_x1: Uint<8>, _x2: Uint<8>): [] {
     // caller verification checks
@@ -248,7 +247,7 @@ export circuit acceptGame(_x1: Uint<8>, _x2: Uint<8>): [] {
 }// end of acceptGame
 ```
 
-Add an explicit state management check to ensure the game state is as expected before allowing further access:
+명시적 상태 관리를 위해 게임 상태가 기대한 대로인지 확인하는 검사를 추가합니다:
 ```compact
     // state verification check
     assert(board2State == BoardState.UNSET, "There is already a player2");
@@ -256,9 +255,9 @@ Add an explicit state management check to ensure the game state is as expected b
 }// end of acceptGame
 ```
 
-This state is updated at the end of this circuit, rendering the circuit inaccessible for the remainer of the contract lifecycle.
+이 상태는 회로 끝에서 갱신되므로, 컨트랙트 생명주기 동안 이 회로에 다시 접근할 수 없게 됩니다.
 
-Now verify the inputs are within bounds:
+입력값이 범위 내에 있는지 검증합니다:
 ```compact
     // input verification checks
     assert(_x1 != _x2, "Cannot use the same number twice");
@@ -268,7 +267,7 @@ Now verify the inputs are within bounds:
 }// end of acceptGame
 ```
 
-All checks have now passed, the caller is assigned as `player2`:
+모든 검사를 통과했으므로 호출자를 `player2`로 할당합니다:
 ```compact
     // user assignment
     player2 = disclose(pubKey);
@@ -276,7 +275,7 @@ All checks have now passed, the caller is assigned as `player2`:
 }// end of acceptGame
 ```
 
-`player2` also needs to hide their private data publicly:
+`player2`도 비공개 데이터를 공개적으로 숨겨야 합니다:
 ```compact
     // hash inputs and store them to the ledger for comparison later
     const hash1 = commitBoardSpace(_x1 as Bytes<32>, _sk);
@@ -287,7 +286,7 @@ All checks have now passed, the caller is assigned as `player2`:
 }// end of acceptGame
 ```
 
-Now that they have committed to these values publicly, ask the player to set their board locally:
+값을 공개적으로 commit했으므로, 플레이어에게 로컬 보드를 설정하도록 요청합니다:
 ```compact
     // setting the state locally and verifying
     const localBoardState = localSetBoard(_x1, _x2);
@@ -297,7 +296,7 @@ Now that they have committed to these values publicly, ask the player to set the
 }// end of acceptGame
 ```
 
-Finally, on-chain state is updated to transition to the next game state:
+마지막으로 온체인 상태를 갱신하여 다음 게임 상태로 전이합니다:
 ```compact
     // setting on-chain state
     board2State = disclose(localBoardState);
@@ -308,11 +307,11 @@ Finally, on-chain state is updated to transition to the next game state:
 }// end of acceptGame
 ```
 
-Now both players are set up with public commitments to their private data. The program will catch any attempt to present different data for ship locations in later `checkBoard` circuits.
+이제 두 플레이어 모두 비공개 데이터에 대한 공개 commitment을 갖추었습니다. 이후 `checkBoard` 회로에서 함선 위치에 대해 다른 데이터를 제시하면 프로그램이 이를 감지합니다.
 
 ### Hashing circuits
 
-Before going any further in the game flow, implement the necessary hashing functions:
+게임 흐름을 더 진행하기 전에 필요한 해싱 함수를 구현합니다:
 ```compact
 // hashing a commitment to a board space
 circuit commitBoardSpace(_x: Bytes<32>, _sk: Bytes<32>): Bytes<32> {
@@ -326,13 +325,13 @@ circuit getDappPubKey(_sk: Bytes<32>): Bytes<32> {
 }
 ```
 
-`commitBoardSpace` takes in a single ship location `_x` and hashes it using `persistentHash` and a `_sk`. This pattern ensures that the data in `_x` cannot be guessed. Given the small board size (20), it would be relatively easy for a malicious actor to brute-force hash all of the possible numbers and compare the hashes with the on-chain ship locations. Hashing with complex binary data, like a `_sk`, makes a brute-force attack nearly impossible.
+`commitBoardSpace`는 단일 함선 위치 `_x`를 받아 `persistentHash`와 `_sk`로 해싱합니다. 이 패턴은 `_x`의 데이터를 추측할 수 없도록 보장합니다. 보드 크기가 작으므로(20칸) 악의적 행위자가 가능한 모든 숫자를 브루트포스 해싱하여 온체인 함선 위치와 비교하기가 비교적 쉽습니다. `_sk`와 같은 복잡한 바이너리 데이터와 함께 해싱하면 브루트포스 공격이 사실상 불가능해집니다.
 
-A similar pattern is used for `getDappPubKey`, though it only combines the `_sk` with a domain seperator ("battleship:pk:") to reduce hash collision from other DApps using similar patterns. `persistentCommit` offers similar functionality with different input requirements.
+`getDappPubKey`도 비슷한 패턴이지만, `_sk`를 도메인 구분자("battleship:pk:")와만 결합하여 유사한 패턴을 사용하는 다른 DApp과의 해시 충돌을 줄입니다. `persistentCommit`도 입력 요구사항은 다르지만 유사한 기능을 제공합니다.
 
 ### Shoot circuits
 
-Back to the game operation, it is now `player1`'s turn to shoot:
+게임 운영으로 돌아가면, 이제 `player1`의 사격 차례입니다:
 ```compact
 export circuit player1Shoot (x: Uint<8>): [] {
 
@@ -343,9 +342,9 @@ export circuit player1Shoot (x: Uint<8>): [] {
 
 }// end of player1Shoot
 ```
-Use the same pattern of hashing the `_sk` through `getDappPubKey` to identify the user calling is the same that has already been assigned as `player1`. Any difference in the hashes indicates a different player is calling this circuit.
+`_sk`를 `getDappPubKey`로 해싱하여 호출자가 `player1`으로 할당된 사용자와 동일한지 확인하는 같은 패턴을 사용합니다. 해시가 다르면 다른 플레이어가 이 회로를 호출한 것입니다.
 
-After verifying the caller is `player1`, verify state is as expected and inputs are valid:
+호출자가 `player1`임을 확인한 후 상태와 입력값을 검증합니다:
 ```compact
 
     // state verification checks
@@ -360,10 +359,10 @@ After verifying the caller is `player1`, verify state is as expected and inputs 
 ```
 
 :::warning
-Be aware of leaking sensitive state data through `assert` checks. The message displayed is what will be returned from the blockchain in response to a failed call due to a given assertion. This tutorial is explicit in these messages for learning purposes, but a malicious actor could identify sensitive data through these messages.
+`assert` 검사를 통해 민감한 상태 데이터가 유출되지 않도록 주의하세요. 표시되는 메시지는 해당 assertion 실패 시 블록체인에서 반환하는 내용입니다. 이 튜토리얼에서는 학습 목적으로 명시적인 메시지를 사용하지만, 악의적 행위자가 이러한 메시지를 통해 민감한 정보를 파악할 수 있습니다.
 :::
 
-Now that the input has been verified, `disclose` the shot in preparation for public storage and verify that it is not a previously HIT location:
+입력값 검증이 완료되었으므로 사격을 `disclose`하여 공개 저장을 준비하고, 이전에 HIT된 위치가 아닌지 확인합니다:
 ```compact
 
     // shots are public knowledge
@@ -374,9 +373,9 @@ Now that the input has been verified, `disclose` the shot in preparation for pub
 }// end of player1Shoot
 ```
 
-The `disclose` keyword itself does not make a value public, it is an explicit,  manual  requirement in Compact for the programmer to notify the compiler that a piece of data, which is currently private, is intending to be made public. This is typically done through a ledger value assignment.
+`disclose` 키워드 자체가 값을 공개하는 것은 아닙니다. 현재 비공개인 데이터를 공개할 의도가 있음을 프로그래머가 컴파일러에 명시적으로 알리는 수동 요구사항입니다. 일반적으로 원장 값 할당을 통해 공개됩니다.
 
-Update on-chain state and data:
+온체인 상태와 데이터를 갱신합니다:
 ```compact
 
     // on-chain state updates
@@ -386,9 +385,9 @@ Update on-chain state and data:
 }// end of player1Shoot
 ```
 
-`player1Shot` is a `List`, allowing ordered access to elements. This program takes the front element from the `List` as the current shot. 
+`player1Shot`은 `List`로, 요소에 순서대로 접근할 수 있습니다. 이 프로그램에서는 `List`의 앞쪽 요소를 현재 사격으로 사용합니다.
 
-`player2` has the same needs as `player1` in this context, the same circuit is implemented for them with differences in identifiers specific to the appropriate player:
+`player2`도 `player1`과 같은 기능이 필요하므로, 해당 플레이어에 맞는 식별자만 변경하여 동일한 회로를 구현합니다:
 ```compact
 export circuit player2Shoot(x: Uint<8>): [] {
     // caller verification checks
@@ -415,15 +414,15 @@ export circuit player2Shoot(x: Uint<8>): [] {
 }// end of player2Shoot
 ```
 
-Inspect this circuit now that you have the code complete in front of you. What is the most noticeable pattern in "shoot" circuits? There are as many `assert` statements as code operations! This is a sign of a safe and secure smart contract. 
+코드가 완성된 상태에서 이 회로를 살펴보세요. "shoot" 회로에서 가장 눈에 띄는 패턴이 무엇인가요? `assert` 문이 코드 연산만큼이나 많습니다! 이것이 안전한 스마트 컨트랙트의 징표입니다.
 
-Always `assert` *everything you assume* about a particular piece of data, state or identity. This most commonly equates to: state verification checks, authorization checks and input validation assertions. Only after rigorously verifying the data is as expected should you feel comfortable in using it in your intended functions.
+특정 데이터, 상태, 신원에 대해 *가정하는 모든 것을 항상 `assert`하세요.* 가장 일반적으로는 상태 검증, 권한 검사, 입력 검증 assertion이 이에 해당합니다. 데이터가 기대한 대로인지 철저히 검증한 후에야 해당 데이터를 의도한 함수에서 안심하고 사용할 수 있습니다.
 
 ### Check boards locally
 
-The last interesting thing the contract needs to do is allow a player to check their board for a HIT or MISS. They do this locally (private) and return their desired response publicly. The contract needs to enforce the correct response. 
+컨트랙트가 수행해야 할 마지막 핵심 작업은 플레이어가 자신의 보드에서 HIT 또는 MISS를 확인하는 것입니다. 로컬(비공개)에서 확인하고 원하는 응답을 공개적으로 반환하는데, 컨트랙트가 올바른 응답을 강제해야 합니다.
 
-Start with some detailed `asserts` before processing any data:
+데이터를 처리하기 전에 상세한 `assert`부터 시작합니다:
 ```compact
 export circuit checkBoard1(): [] {
 
@@ -446,9 +445,9 @@ export circuit checkBoard1(): [] {
 }// end of checkBoard1
 ```
 
-First the caller is verified to be `player2`, then the various state expectations are verified before moving on to storing `currentShot` for processing and clearing `player1Shot` with `popFront()`.
+먼저 호출자가 `player2`인지 검증하고, 각종 상태 기대값을 확인한 후 `currentShot`을 저장하여 처리하며 `popFront()`로 `player1Shot`을 정리합니다.
 
-Now, an honesty check. Remember that claiming a MISS when a shot was in fact a HIT is the most common cheating vector. So the `honestyCheckHash` is created and state is verified to be valid:
+이제 정직성 검사를 수행합니다. 실제로 HIT인 사격을 MISS라고 주장하는 것이 가장 흔한 부정행위라는 점을 기억하세요. `honestyCheckHash`를 생성하고 상태가 유효한지 검증합니다:
 ```compact
 
     // hash for comparision with on-chain hash
@@ -462,7 +461,7 @@ Now, an honesty check. Remember that claiming a MISS when a shot was in fact a H
 }// end of checkBoard1
 ```
 
-Now that `shotState` is verified to be one of two possible valid states, each can be conditionally handled. First if a MISS is claimed -- don't trust, verify:
+`shotState`가 두 가지 유효한 상태 중 하나임을 확인했으므로 각 경우를 조건부로 처리합니다. 먼저 MISS가 주장된 경우 -- 신뢰하지 말고 검증합니다:
 ```compact
 
     // conditional handling
@@ -478,9 +477,9 @@ Now that `shotState` is verified to be one of two possible valid states, each ca
 }// end of checkBoard1
 ```
 
-The `assert` here is what keeps players honest. It is not possible for this data to be changed or falsified. If `player1` attempts to cheat, the contract detects this and rejects the interaction.
+이 `assert`가 플레이어의 정직성을 보장하는 핵심입니다. 이 데이터는 변경하거나 위조할 수 없습니다. `player1`이 부정행위를 시도하면 컨트랙트가 이를 감지하고 상호작용을 거부합니다.
 
-If the shot is HIT, that condition is handled:
+HIT인 경우를 처리합니다:
 ```compact
 
         // don't trust, verify
@@ -500,11 +499,11 @@ If the shot is HIT, that condition is handled:
 }// end of checkBoard1
 ```
 
-Always verify the input is what is expected. `player1` could claim a HIT when it was a MISS, but why would they do that?
+입력이 기대한 대로인지 항상 검증하세요. `player1`이 MISS인데 HIT라고 주장할 수도 있지만, 왜 그러겠습니까?
 
-The `board1HitCount` is icremented and the shot added to the successful hits. `turn` state is then updated before checking if this is the HIT that wins the game.
+`board1HitCount`를 증가시키고 성공한 사격을 hits에 추가합니다. 그런 다음 `turn` 상태를 갱신하고 이번 HIT가 게임을 종료하는 것인지 확인합니다.
 
-`player2` has the same needs as `player1` here, so the same circuit is implemented  with different identifier names specific to the appropriate player:
+`player2`도 동일한 기능이 필요하므로, 해당 플레이어에 맞는 식별자로 동일한 회로를 구현합니다:
 ```compact
 export circuit checkBoard2(): [] {
     // caller verification
@@ -555,16 +554,16 @@ export circuit checkBoard2(): [] {
 }// end of checkBoard2
 ```
 
-That is all of the Compact code needed to build a safe and secure Battleship game!
+안전하고 보안이 갖춰진 Battleship 게임에 필요한 Compact 코드가 모두 완성되었습니다!
 
 ### Compact compile
 
-To compile this code, run the Compact compiler. From the `/contract` folder:
+이 코드를 컴파일하려면 Compact 컴파일러를 실행하세요. `/contract` 폴더에서:
 ```bash
 compact compile battleship.compact managed/battleship
 ```
 
-Successful output:
+성공 시 출력:
 ```
 Compiling 5 circuits:
   circuit "acceptGame" (k=14, rows=12767)  
@@ -575,12 +574,12 @@ Compiling 5 circuits:
 Overall progress [====================] 5/5 
 ```
 
-To further inspect circuit data run the zkir linter (optional):
+회로 데이터를 더 자세히 검사하려면 zkir linter를 실행하세요(선택사항):
 ```bash
 npx compact-zkir-lint -r managed/battleship/zkir
 ```
 
-Successful output:
+성공 시 출력:
 ```
 zkir-lint: scanned 5 file(s)
 
@@ -609,15 +608,15 @@ zkir-lint: scanned 5 file(s)
 
 ## Witnesses
 
-If you recall from the Compact section of this tutorial, witnesses are only declared in Compact, they are actually implemented in the Typescript frontend. This allows a developer to delegate expensive compute operations off-chain and to isolate private state functions. 
+Compact 섹션에서 언급했듯이 witness는 Compact에서 선언만 하고, 실제 구현은 TypeScript 프론트엔드에서 합니다. 이를 통해 비용이 많이 드는 연산을 오프체인으로 위임하고 비공개 상태 함수를 격리할 수 있습니다.
 
-Before writing any Typescript, create a config file:
+TypeScript를 작성하기 전에 설정 파일을 생성합니다:
 ```bash
 cd ..
 touch tsconfig.json
 ```
 
-Populate it:
+다음 내용으로 채웁니다:
 ```json
 {
   "compilerOptions": {
@@ -640,19 +639,19 @@ Populate it:
 }
 ```
 
-Before moving on to testing the contract, the necessary witness functionality needs to be implemented. From inside the `/contract` directory:
+컨트랙트를 테스트하기 전에 필요한 witness 기능을 구현해야 합니다. `/contract` 디렉토리 안에서:
 ```bash
 cd contract
 touch witnesses.ts
 ```
 
-Start with imports:
+import부터 시작합니다:
 ```typescript
 import { type Ledger, BoardState, ShotState } from './managed/battleship/contract/index.js';
 import { type WitnessContext } from '@midnight-ntwrk/compact-runtime';
 ```
 
-Now the private state data relative to the program needs a custom type:
+프로그램에 필요한 비공개 상태 데이터의 커스텀 타입을 정의합니다:
 ```typescript
 export type BattlePrivateState = {
     x1: bigint,
@@ -663,9 +662,9 @@ export type BattlePrivateState = {
 };
 ```
 
-`x1` and `x2` are the private locations of a player's ships. The `boardState` starts as a private state piece of data and becomes public to allow the game to start. `shotState` is a shot-by-shot decision made by each player to either present the correct response or to cheat and provide the incorrect response, which the Compact code guards against and this behavior will be verified with the frontend test script.
+`x1`과 `x2`는 플레이어 함선의 비공개 위치입니다. `boardState`는 처음에 비공개 데이터로 시작하여 게임 시작을 위해 공개됩니다. `shotState`는 각 플레이어가 매 사격마다 올바른 응답을 제출할지 부정행위를 할지 결정하는 값인데, Compact 코드가 이를 방어하며 프론트엔드 테스트 스크립트에서 이 동작을 검증합니다.
 
-Write a helper function to create an object of our `BattlePrivateState` type:
+`BattlePrivateState` 타입의 객체를 생성하는 헬퍼 함수를 작성합니다:
 ```typescript
 export const createBattlePrivateState = (
     x1: bigint,
@@ -682,9 +681,9 @@ export const createBattlePrivateState = (
 });
 ```
 
-This will be used in the tests to create private state for each of the players, as well as simulating the manipulation of their private state.
+이 함수는 테스트에서 각 플레이어의 비공개 상태를 생성하거나 비공개 상태 조작을 시뮬레이션하는 데 사용됩니다.
 
-Now the `witnesses` declared by the Compact code can be implemented, starting with a simple "getter" of private state data:
+이제 Compact 코드에서 선언한 `witnesses`를 구현합니다. 먼저 비공개 상태 데이터를 가져오는 간단한 "getter"부터:
 ```typescript
 export const witnesses = {
     localSk: ({
@@ -698,11 +697,11 @@ export const witnesses = {
 };// end of witnesses
 ```
 
-Witness function signatures must match exactly with the corresponding Compact declaration and they *always* take the `privateState` object as an argument, followed by the `WitnessContext` type with `<Ledger, PrivateState>`. 
+Witness 함수의 시그니처는 대응하는 Compact 선언과 정확히 일치해야 하며, *항상* `privateState` 객체를 인자로 받고, `<Ledger, PrivateState>` 타입의 `WitnessContext`가 뒤따릅니다.
 
-The next two lines denote the return type(s) of the function. Witness functions always require passing the `privateState` as the first return value, followed by any returns specified by the function signature.
+다음 두 줄은 함수의 반환 타입을 나타냅니다. Witness 함수는 항상 첫 번째 반환값으로 `privateState`를 전달해야 하고, 그 뒤에 함수 시그니처에 명시된 반환값이 옵니다.
 
-Implement a "setter" of private state data:
+비공개 상태 데이터를 설정하는 "setter"를 구현합니다:
 ```typescript
     localSetBoard: ({
         privateState
@@ -718,9 +717,9 @@ Implement a "setter" of private state data:
 };// end of witnesses
 ```
 
-The shape of this function is similar to `localSk()` in its requirements, this time `x1` and `x2` have been added as inputs followed by setting these in the actual `privateState` object. Finally, update `privateState.boardState` before returning this value to the contract.
+이 함수의 형태는 `localSk()`와 요구사항이 비슷하지만, `x1`과 `x2`가 입력으로 추가되어 `privateState` 객체에 설정됩니다. 마지막으로 `privateState.boardState`를 갱신한 후 컨트랙트에 반환합니다.
 
-The final witness function needs to perform a check of a players private state data:
+마지막 witness 함수는 플레이어의 비공개 상태 데이터를 확인하는 역할입니다:
 ```typescript
     localCheckBoard: ({
         privateState
@@ -738,18 +737,18 @@ The final witness function needs to perform a check of a players private state d
 };//end of witnesses
 ```
 
-It is important to note that operations on private state data in witness functions are not verified in any way. It is imperative that DApp developers always verify that computations in witness functions were performed to expectations through `assert` statements. There are rigorous checks built into the `.compact` code and the frontend test suite will verify their correct operation.
+Witness 함수 내의 비공개 상태 데이터 연산은 어떤 방식으로도 검증되지 않는다는 점이 중요합니다. DApp 개발자는 witness 함수의 연산이 기대대로 수행되었는지 반드시 `assert` 문으로 검증해야 합니다. `.compact` 코드에 엄격한 검사가 내장되어 있으며, 프론트엔드 테스트 스위트에서 정상 동작을 확인합니다.
 
-That is everything needed for off-chain witnesses. You can now export the compiled contract.
+오프체인 witness 구현이 모두 완료되었습니다. 이제 컴파일된 컨트랙트를 export 할 수 있습니다.
 
 ### Exports
 
-From the `/contract` directory:
+`/contract` 디렉토리에서:
 ```bash
 touch index.ts
 ```
 
-Use the `index.ts` file to export the compiled contract and necessary types:
+`index.ts` 파일로 컴파일된 컨트랙트와 필요한 타입을 export합니다:
 ```typescript
 import { CompiledContract } from '@midnight-ntwrk/compact-js';
 import path from 'node:path';
@@ -778,7 +777,7 @@ export const CompiledBattleshipContract = CompiledContract.make(
 )
 ```
 
-That completes the code needed for Compact and its supporting files. To recap, the directory structure should look like this:
+Compact와 관련 파일에 필요한 코드가 모두 완성되었습니다. 지금까지의 디렉토리 구조는 다음과 같습니다:
 ```
 contract/
 ├── managed/
@@ -794,4 +793,4 @@ contract/
 
 ## Next steps
 
-The next steps will be covered in the [test-suite](./test-suite.mdx).
+다음 단계는 [테스트 스위트](./test-suite.mdx)에서 다룹니다.

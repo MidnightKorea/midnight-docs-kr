@@ -1,7 +1,7 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-title: Midnight.js v4.0.1 release notes
+title: Midnight.js v4.0.1 릴리스 노트
 description: Midnight.js is a client library designed to facilitate the development of decentralized applications on the Midnight blockchain.
 displayed_sidebar: sidebar
 ---
@@ -12,44 +12,44 @@ displayed_sidebar: sidebar
 
 ---
 
-## High-level summary
+## 주요 변경 사항 요약
 
-This release introduces the v4 generation of Midnight.js, including ledger v8 support and key contract execution updates. It also includes important API adjustments required for call option construction and state queries.
+이번 릴리스는 ledger v8 지원과 주요 contract 실행 업데이트를 포함한 Midnight.js v4 세대를 도입합니다. call option 구성 및 state 쿼리에 필요한 중요 API 변경 사항도 포함되어 있습니다.
 
-## Audience
+## 대상 독자
 
-This release note is critical for developers who:
+이 릴리스 노트는 다음과 같은 개발자에게 필수적입니다:
 
-- Migrate from v3.2.0 to v4.0.x.
-- Integrate directly with ledger types and circuit identifiers.
-- Build custom call options for contract execution.
-- Maintain transaction construction logic for unproven calls.
+- v3.2.0에서 v4.0.x로 마이그레이션하는 경우
+- ledger 타입 및 circuit 식별자를 직접 다루는 경우
+- contract 실행을 위한 커스텀 call option을 구성하는 경우
+- unproven call에 대한 트랜잭션 구성 로직을 유지보수하는 경우
 
-## Summary of updates
+## 업데이트 요약
 
-- Migrated from ledger v7 to ledger v8 with provable-circuit naming updates.
-- Added `LedgerParameters` to `queryZSwapAndContractState` responses.
-- Made `ledgerParameters` mandatory in `CallOptionsProviderDataDependencies`.
-- Refactored internal call transaction construction (`addCalls` path in v4.0.1).
-- Added `createProofProvider` helper and improved binary query-context handling.
+- ledger v7에서 ledger v8로 마이그레이션하고, provable-circuit 네이밍이 업데이트되었습니다.
+- `queryZSwapAndContractState` 응답에 `LedgerParameters`가 추가되었습니다.
+- `CallOptionsProviderDataDependencies`에서 `ledgerParameters`가 필수 항목이 되었습니다.
+- 내부 call 트랜잭션 구성이 리팩토링되었습니다(v4.0.1의 `addCalls` 경로).
+- `createProofProvider` 헬퍼 추가 및 바이너리 query-context 처리가 개선되었습니다.
 
 ---
 
-## New features
+## 신규 기능
 
-This release expands v4 capabilities around ledger-parameter flow and proof-provider composition.
+이번 릴리스는 ledger-parameter 흐름과 proof-provider 구성에 관한 v4 기능을 확장합니다.
 
-### LedgerParameters flow through circuit execution
-Ledger parameters are now automatically fetched alongside contract state from the indexer and passed through to circuit execution. This ensures circuits have access to the correct ledger parameters for the block they are executing against.
+### LedgerParameters의 circuit 실행 흐름 통합
+Ledger parameter가 indexer에서 contract state와 함께 자동으로 가져와져 circuit 실행에 전달됩니다. 이를 통해 circuit이 실행 대상 블록에 맞는 올바른 ledger parameter에 접근할 수 있습니다.
 
-The `PublicDataProvider` and `IndexerPublicDataProvider` now fetch `ledgerParameters` from the block associated with the contract state. When ledger parameters are not available from the indexer (e.g., for older blocks), `LedgerParameters.initialParameters()` is used as a fallback.
+`PublicDataProvider`와 `IndexerPublicDataProvider`는 contract state가 연결된 블록에서 `ledgerParameters`를 가져옵니다. indexer에서 ledger parameter를 가져올 수 없는 경우(예: 오래된 블록), `LedgerParameters.initialParameters()`가 fallback으로 사용됩니다.
 
 ```typescript
-// LedgerParameters are automatically included when using createUnprovenCallTx
+// createUnprovenCallTx 사용 시 LedgerParameters가 자동으로 포함됩니다
 const result = await createUnprovenCallTx(providers, options);
 
-// Or when using createUnprovenCallTxFromInitialStates directly,
-// include ledgerParameters in the options
+// createUnprovenCallTxFromInitialStates를 직접 사용하는 경우
+// 옵션에 ledgerParameters를 포함하세요
 const result = await createUnprovenCallTxFromInitialStates(
   zkConfigProvider,
   {
@@ -59,43 +59,43 @@ const result = await createUnprovenCallTxFromInitialStates(
     coinPublicKey,
     initialContractState,
     initialZswapChainState,
-    ledgerParameters // Required
+    ledgerParameters // 필수
   },
   walletEncryptionPublicKey
 );
 ```
 
-### Ledger v8 support
-The framework now targets ledger v8, bringing support for provable circuits (renamed from impure circuits) and updated indexer v4 compatibility. All contract compilation outputs have been regenerated for ledger v8 compatibility.
+### Ledger v8 지원
+프레임워크가 ledger v8을 대상으로 하며, provable circuit(기존 impure circuit에서 이름 변경) 지원과 indexer v4 호환성이 업데이트되었습니다. 모든 contract 컴파일 출력이 ledger v8 호환으로 재생성되었습니다.
 
-### `createProofProvider` factory function
-A new `createProofProvider` utility is exported from `@midnight-ntwrk/midnight-js-types` that creates a `ProofProvider` from a `ProvingProvider`. This simplifies proof provider setup by wrapping the underlying proving provider with an optional cost model.
+### `createProofProvider` 팩토리 함수
+`@midnight-ntwrk/midnight-js-types`에서 새로운 `createProofProvider` 유틸리티가 export됩니다. `ProvingProvider`로부터 `ProofProvider`를 생성하여 proof provider 설정을 간소화하며, 선택적으로 cost model을 적용할 수 있습니다.
 
 ```typescript
 import { createProofProvider } from '@midnight-ntwrk/midnight-js-types';
 
-// Uses initial cost model by default
+// 기본적으로 initial cost model 사용
 const proofProvider = createProofProvider(provingProvider);
 
-// Or with a custom cost model
+// 또는 커스텀 cost model 적용
 const proofProvider = createProofProvider(provingProvider, customCostModel);
 ```
 
 ---
 
-## Breaking changes
+## 호환성 주의 사항 (Breaking changes)
 
-The following changes are critical and may break existing integrations.
+다음 변경 사항은 기존 연동에 영향을 줄 수 있습니다.
 
-### Ledger v7 to v8 migration
+### Ledger v7에서 v8로 마이그레이션
 
-**What changed**: Ledger imports were upgraded from `@midnight-ntwrk/ledger-v7` to `@midnight-ntwrk/ledger-v8`, and "impure circuits" were renamed to "provable circuits".
+**변경 내용**: Ledger import가 `@midnight-ntwrk/ledger-v7`에서 `@midnight-ntwrk/ledger-v8`로 업그레이드되었고, "impure circuit"이 "provable circuit"으로 이름이 변경되었습니다.
 
-**What breaks**: Any code importing ledger-v7 types or referencing `ImpureCircuitId`.
+**영향 범위**: ledger-v7 타입을 import하거나 `ImpureCircuitId`를 참조하는 코드
 
-**Required actions**:
-- Replace all ledger-v7 imports with ledger-v8 equivalents.
-- Update circuit-id typings from `ImpureCircuitId` to `ProvableCircuitId`.
+**필요 조치**:
+- 모든 ledger-v7 import를 ledger-v8 동등 항목으로 교체하세요.
+- circuit-id 타입을 `ImpureCircuitId`에서 `ProvableCircuitId`로 업데이트하세요.
 
 ```typescript
 // v3.2.0
@@ -107,15 +107,15 @@ import { type ContractAddress } from '@midnight-ntwrk/ledger-v8';
 type CircuitId = Contract.ProvableCircuitId<MyContract>;
 ```
 
-### `queryZSwapAndContractState` returns `LedgerParameters`
+### `queryZSwapAndContractState`가 `LedgerParameters`를 반환
 
-**What changed**: The return type now includes `LedgerParameters` as a third tuple element.
+**변경 내용**: 반환 타입에 `LedgerParameters`가 세 번째 튜플 요소로 추가되었습니다.
 
-**What breaks**: Existing tuple destructuring that expects only two values.
+**영향 범위**: 두 개의 값만 기대하는 기존 튜플 구조 분해
 
-**Required actions**:
-- Update destructuring to include `ledgerParameters`.
-- Pass the additional value through downstream call-construction logic where needed.
+**필요 조치**:
+- 구조 분해에 `ledgerParameters`를 포함하세요.
+- 필요에 따라 하위 call 구성 로직에 추가 값을 전달하세요.
 
 ```typescript
 // v3.2.0
@@ -127,15 +127,15 @@ const result = await provider.queryZSwapAndContractState(address);
 const [zswapState, contractState, ledgerParameters] = result;
 ```
 
-### `CallOptionsProviderDataDependencies` requires `ledgerParameters`
+### `CallOptionsProviderDataDependencies`에 `ledgerParameters` 필수화
 
-**What changed**: `ledgerParameters` is now required when constructing call options for circuit execution.
+**변경 내용**: circuit 실행을 위한 call option 구성 시 `ledgerParameters`가 필수가 되었습니다.
 
-**What breaks**: Call option builders that omit `ledgerParameters`.
+**영향 범위**: `ledgerParameters`를 생략한 call option 빌더
 
-**Required actions**:
-- Add `ledgerParameters` to all `CallOptionsProviderDataDependencies` objects.
-- Ensure values come from the same queried block context as contract and Zswap state.
+**필요 조치**:
+- 모든 `CallOptionsProviderDataDependencies` 객체에 `ledgerParameters`를 추가하세요.
+- contract 및 Zswap state와 동일한 쿼리 블록 컨텍스트에서 가져온 값을 사용하세요.
 
 ```typescript
 // v4.0.1
@@ -143,71 +143,71 @@ const callOptions: CallOptionsProviderDataDependencies = {
   coinPublicKey,
   initialContractState,
   initialZswapChainState,
-  ledgerParameters // NEW - required
+  ledgerParameters // 신규 - 필수
 };
 ```
 
-### Transaction building refactored to use `addCalls` API
+### 트랜잭션 빌드가 `addCalls` API로 리팩토링
 
-**What changed**: Internal transaction construction in `createUnprovenLedgerCallTx` moved to the ledger v8 `addCalls` API with `PrePartitionContractCall`.
+**변경 내용**: `createUnprovenLedgerCallTx`의 내부 트랜잭션 구성이 ledger v8 `addCalls` API와 `PrePartitionContractCall`을 사용하도록 변경되었습니다.
 
-**What breaks**: Integrations relying on earlier transaction-builder signatures and helpers.
+**영향 범위**: 이전 트랜잭션 빌더 시그니처와 헬퍼에 의존하는 연동 코드
 
-**Required actions**:
-- Update integrations to the `publicTranscript`-based API shape.
-- Remove usages of `extractUserAddressedOutputs`.
-- Remove `coinPublicKey` from call sites using this path.
+**필요 조치**:
+- `publicTranscript` 기반 API 형태로 연동을 업데이트하세요.
+- `extractUserAddressedOutputs` 사용을 제거하세요.
+- 이 경로를 사용하는 호출부에서 `coinPublicKey`를 제거하세요.
 
-- `createUnprovenLedgerCallTx` signature now requires `ledgerParameters` parameter
-- `extractUserAddressedOutputs` has been removed
-- `partitionedTranscript` parameter replaced with `publicTranscript` (`Op<AlignedValue>[]`)
-- `coinPublicKey` parameter removed (QueryContext is now constructed using lossless binary serialization path instead of `createCircuitContext`)
+- `createUnprovenLedgerCallTx` 시그니처에 `ledgerParameters` 파라미터가 필요합니다
+- `extractUserAddressedOutputs`가 제거되었습니다
+- `partitionedTranscript` 파라미터가 `publicTranscript` (`Op<AlignedValue>[]`)로 교체되었습니다
+- `coinPublicKey` 파라미터가 제거되었습니다(QueryContext가 `createCircuitContext` 대신 무손실 바이너리 직렬화 경로로 구성됩니다)
 
-## Bug fixes
+## 버그 수정
 
-These fixes improve correctness in call-transaction construction and unshielded offer handling.
+call 트랜잭션 구성 및 unshielded offer 처리의 정확성이 개선되었습니다.
 
-### Lossless binary path for QueryContext in `createUnprovenLedgerCallTx`
-Fixed a lossy encode/decode cycle through `toLedgerQueryContext` that caused "expected a cell, received null" errors for contracts with non-trivial ledger state (bounded Merkle trees, complex cells). Replaced with the binary serialization path (`toLedgerContractState` + `LedgerQueryContext` constructor) which is proven lossless throughout the codebase. This also removed the `coinPublicKey` parameter from `createUnprovenLedgerCallTx`.
+### `createUnprovenLedgerCallTx`에서 QueryContext의 무손실 바이너리 경로
+`toLedgerQueryContext`를 통한 손실 있는 encode/decode 사이클로 인해, 비자명(non-trivial) ledger state(bounded Merkle tree, 복합 셀 등)를 가진 contract에서 "expected a cell, received null" 오류가 발생하던 문제가 수정되었습니다. 코드베이스 전체에서 무손실로 검증된 바이너리 직렬화 경로(`toLedgerContractState` + `LedgerQueryContext` 생성자)로 대체되었습니다. 이에 따라 `createUnprovenLedgerCallTx`에서 `coinPublicKey` 파라미터도 제거되었습니다.
 
-### Unshielded offers for user-addressed claim unshielded spends
-Fixed an issue where unshielded offers were not correctly attached for user-addressed claim unshielded spends. The `extractUserAddressedOutputs` function in ledger-utils was updated to properly handle the matching of unshielded outputs, ensuring correct transaction construction for claim operations. This function was later removed in #648 as unshielded offer handling is now managed by the ledger's `addCalls` API.
+### User-addressed claim unshielded spend의 unshielded offer
+user-addressed claim unshielded spend에서 unshielded offer가 올바르게 첨부되지 않는 문제가 수정되었습니다. ledger-utils의 `extractUserAddressedOutputs` 함수가 unshielded output 매칭을 올바르게 처리하도록 업데이트되어, claim 작업의 트랜잭션이 정확히 구성됩니다. 이 함수는 이후 #648에서 제거되었으며, unshielded offer 처리는 이제 ledger의 `addCalls` API가 담당합니다.
 
-## Testing
+## 테스트
 
-Regression coverage was expanded to validate wallet transfer behavior on unshielded flows.
+unshielded 흐름의 wallet 전송 동작 검증을 위한 회귀 테스트 범위가 확대되었습니다.
 
-### Night wallet transfer tests
-Added integration tests for night wallet unshielded transfers, including `balanceUnboundTransaction` usage validation.
+### Night wallet 전송 테스트
+night wallet unshielded 전송에 대한 통합 테스트가 추가되었으며, `balanceUnboundTransaction` 사용 검증이 포함됩니다.
 
-## Dependencies
+## 의존성
 
-Dependency updates align runtime and infrastructure with the ledger v8 rollout.
+의존성 업데이트로 런타임 및 인프라가 ledger v8 롤아웃에 맞춰 정렬되었습니다.
 
-### Runtime dependencies updated
-- `@midnight-ntwrk/ledger-v7` replaced with `@midnight-ntwrk/ledger-v8` 8.0.2
-- `@midnight-ntwrk/wallet-sdk-facade`: Updated to 3.0.0-rc.0
-- `@midnight-ntwrk/compact-js`: Updated to 2.5.0-rc.3
-- `@midnight-ntwrk/compact-runtime`: Updated to 0.15.0
-- `@midnight-ntwrk/platform-js`: Updated to 2.2.4
-- `compactc`: Updated to 0.30.0
+### 런타임 의존성 업데이트
+- `@midnight-ntwrk/ledger-v7`이 `@midnight-ntwrk/ledger-v8` 8.0.2로 교체
+- `@midnight-ntwrk/wallet-sdk-facade`: 3.0.0-rc.0으로 업데이트
+- `@midnight-ntwrk/compact-js`: 2.5.0-rc.3으로 업데이트
+- `@midnight-ntwrk/compact-runtime`: 0.15.0으로 업데이트
+- `@midnight-ntwrk/platform-js`: 2.2.4로 업데이트
+- `compactc`: 0.30.0으로 업데이트
 
-### Security patches
-- Patched `immutable` and `diff` packages
-- Security dependencies update
+### 보안 패치
+- `immutable` 및 `diff` 패키지 패치
+- 보안 의존성 업데이트
 
-### Infrastructure updated
-- Indexer updated to v4
-- Proof server images updated for ledger v8
-- Docker compose images updated to latest versions
+### 인프라 업데이트
+- Indexer가 v4로 업데이트
+- Proof server 이미지가 ledger v8용으로 업데이트
+- Docker compose 이미지가 최신 버전으로 업데이트
 
-## Known issues
+## 알려진 이슈
 
-Some transaction-building details documented in v4.0.1 were later revised in v4.0.2. If you are upgrading now, review the v4.0.2 notes for the corrected guidance around `createUnprovenLedgerCallTx`.
+v4.0.1에서 문서화된 일부 트랜잭션 빌드 세부 사항이 v4.0.2에서 수정되었습니다. 지금 업그레이드하는 경우, `createUnprovenLedgerCallTx` 관련 수정된 안내를 위해 v4.0.2 릴리스 노트를 함께 확인하세요.
 
 ---
 
-## Links and references
+## 링크 및 참고 자료
 
 - **GitHub**: [Midnight.js repository](https://github.com/midnightntwrk/midnight-js)
 - **API reference**: [Midnight.js API documentation](/api-reference/midnight-js/packages)

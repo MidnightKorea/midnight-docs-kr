@@ -1,19 +1,16 @@
-# Compact command-line tool usage page
+# Compact 커맨드라인 도구 사용법
 
-This is the usage page of the Compact command-line tool. This tool allows the
-user to run any of Compact toolchain's tools: the compiler, the formatter, and
-the fix up tool.
+Compact 커맨드라인 도구의 사용법 페이지입니다. 이 도구로 Compact 툴체인의 컴파일러, 포매터, fixup 도구를 실행할 수 있습니다.
 
 NAME
 ====
 
-Compact command-line tool
+Compact 커맨드라인 도구
 
 OVERVIEW
 ========
 
-The Compact command-line tool provides a set of utilities for Compact smart
-contract development.
+Compact 커맨드라인 도구는 Compact 스마트 컨트랙트 개발에 필요한 유틸리티 모음입니다.
 
 SYNOPSIS
 ========
@@ -25,201 +22,183 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-The _options_ flag are optional and is described under OPTIONS later in
-this document.
+_options_ 플래그는 선택 사항이며, 아래 OPTIONS 섹션에서 자세히 설명합니다.
 
-The Compact command-line tool takes a _command_. This command is the program
-that the tool runs. Supported commands are listed below and the more
-complicated ones are explained in detail under the command name:
+Compact 커맨드라인 도구는 _command_를 인자로 받습니다. 이 command는 도구가 실행할 프로그램입니다. 지원되는 command 목록은 아래와 같으며, 복잡한 것들은 해당 command 이름 아래에서 상세히 설명합니다:
 
 **check**
 
-Checks for updates with the remote server [aliases: ch] and exits.
+원격 서버에서 업데이트를 확인한 뒤 종료합니다 [aliases: ch].
 
 **update**
 
-Updates to the latest or a specific version of the Compact toolchain [aliases: u, up] and exits .
+Compact 툴체인을 최신 버전 또는 지정된 버전으로 업데이트한 뒤 종료합니다 [aliases: u, up].
 
 **format**
 
-Formats Compact files [aliases: f, fmt] and exits.
+Compact 파일을 포매팅한 뒤 종료합니다 [aliases: f, fmt].
 
 **fixup**
 
-Applies fixup transformations to Compact files [aliases: fx, fix] and exits.
+Compact 파일에 fixup 변환을 적용한 뒤 종료합니다 [aliases: fx, fix].
 
 **list**
 
-Lists available Compact versions [aliases: l] and exits.
+사용 가능한 Compact 버전을 나열한 뒤 종료합니다 [aliases: l].
 
 **clean**
 
-Removes all Compact versions [aliases: cl] and exits.
+설치된 모든 Compact 버전을 삭제한 뒤 종료합니다 [aliases: cl].
 
 **self**
 
-Commands for managing the Compact tool itself [aliases: s].
+Compact 도구 자체를 관리하는 명령어입니다 [aliases: s].
 
 **compile**
 
-Calls the compiler [aliases: c] and exits.
+컴파일러를 호출한 뒤 종료합니다 [aliases: c].
 
 **help**
 
-Prints the help of the command-line tool and exits.
+커맨드라인 도구의 도움말을 출력한 뒤 종료합니다.
 
 OPTIONS 
 =======
 
-The following options are available for all commands, and if present, they
-affect the tool's behavior as follows:
+아래 옵션은 모든 command에 적용되며, 지정 시 도구의 동작을 다음과 같이 변경합니다:
 
 **--directory _directorypath_**
 
-Sets the Compact artifact directory and exits.
+Compact 아티팩트 디렉토리를 설정한 뒤 종료합니다.
 
-By default this will be `$HOME/.compact`. The directory will be created if it
-does not exist. This can also be configured via an environment variable.
+기본값은 `$HOME/.compact`입니다. 디렉토리가 없으면 자동으로 생성됩니다. 환경 변수로도 설정할 수 있습니다.
           
 [env: COMPACT_DIRECTORY=]
 [default: /Users/username/.compact]
 
 **--help**
 
-Prints help for this tool or of _command_ provided by the tool and exits.
+도구의 도움말 또는 지정된 _command_의 도움말을 출력한 뒤 종료합니다.
 
 **--version**
 
-Prints the version of this tool or of _command_ and exits.
+도구의 버전 또는 _command_의 버전을 출력한 뒤 종료합니다.
 
 CHECK
 =====
 
 Synopsis: **compact** **check** _options_
 
-This command checks for updates of the Compact toolchain on the remote server. 
+원격 서버에서 Compact 툴체인의 업데이트를 확인합니다.
 
-Assuming there are not versions of the Compact toolchain installed, running:
+Compact 툴체인이 설치되지 않은 상태에서 다음을 실행하면:
 
 ```bash
 compact check
 ```
 
-results in:
+결과는 다음과 같습니다:
 
 ```
 compact: no version installed.
 compact: Latest version available: 0.28.0.
 ```
 
-where **0.28.0** is the latest available Compact toolchain version on the remote
-server. 
+여기서 **0.28.0**은 원격 서버에서 사용 가능한 최신 Compact 툴체인 버전입니다.
 
-However, assuming that the previous version of the Compact toolchain is
-installed, running:
+이전 버전의 Compact 툴체인이 설치된 상태에서 다음을 실행하면:
 
 ```bash
 compact check
 ```
 
-results in:
+결과는 다음과 같습니다:
 
 ```
 compact: aarch64-darwin -- Update Available -- 0.26.0
 compact: Latest version available: 0.28.0.
 ```
 
-where **0.26.0** is the installed version and **0.28.0** is the latest available
-version of the Compact toolchain. The command **update** can be used to update
-to this version. **aarch64-darwin** displays the chosen binary of the Compact
-toolchain for your machine's architecture.
+여기서 **0.26.0**은 설치된 버전이고 **0.28.0**은 최신 버전입니다. **update** 명령어로 이 버전으로 업데이트할 수 있습니다. **aarch64-darwin**은 사용자 머신 아키텍처에 맞게 선택된 Compact 툴체인 바이너리를 나타냅니다.
 
 UPDATE
 ======
 
 Synopsis: **compact** **update** _options_ _compactversion_
 
-This command updates to the latest version of the Compact toolchain if no
-version is specified, otherwise, it updates to the specified version of the
-Compact toolchain _compactversion_.
+버전을 지정하지 않으면 Compact 툴체인을 최신 버전으로 업데이트하고, 버전을 지정하면 해당 _compactversion_으로 업데이트합니다.
 
-_compactversion_ can be specified as a full version such as **0.30.1**, as a
-major.minor prefix such as **0.30** which resolves to the latest patch release
-for that minor version, or as a major prefix only such as **0** which resolves
-to the latest minor and patch release for that major version.
+_compactversion_은 **0.30.1** 같은 전체 버전이나, **0.30** 같은 major.minor 접두사(해당 minor 버전의 최신 patch 릴리스로 해석), 또는 **0** 같은 major 접두사(해당 major 버전의 최신 minor/patch 릴리스로 해석)로 지정할 수 있습니다.
 
-Upon switching from one version to another, by default this command switches the
-default compiler version to the installed one. This can be overwritten by
-**--no-set-default** option.
+한 버전에서 다른 버전으로 전환할 때, 기본적으로 새로 설치된 컴파일러 버전이 default로 설정됩니다. **--no-set-default** 옵션으로 이 동작을 변경할 수 있습니다.
 
-If the compiler has already been downloaded, then it will not be downloaded again.
+컴파일러가 이미 다운로드되어 있으면 다시 다운로드하지 않습니다.
 
-The following options are specific to this command:
+이 command에만 적용되는 옵션은 다음과 같습니다:
 
 **--no-set-default**
 
-Doesn't set the newly installed compiler as the default one.
+새로 설치한 컴파일러를 default로 설정하지 않습니다.
 
-We now present some simple examples of using this command.
-Assuming the latest Compact toolchain on the remote server is **0.28.0** and
-the last time you updated your Compact toolchain was to **0.26.0**, running:
+아래에 간단한 사용 예시를 소개합니다.
+원격 서버의 최신 Compact 툴체인이 **0.28.0**이고 마지막으로 업데이트한 버전이 **0.26.0**인 상태에서 다음을 실행하면:
 
 ```bash
 compact update
 ```
 
-results in:
+결과는 다음과 같습니다:
 
 ```
 compact: aarch64-darwin -- 0.28.0 -- installed
 compact: aarch64-darwin -- 0.28.0 -- default.
 ```
 
-Now after updating to the latest version, running:
+최신 버전으로 업데이트한 후 다시 실행하면:
 
 ```bash
 compact update
 ```
 
-results in:
+결과는 다음과 같습니다:
 
 ```
 compact: aarch64-darwin -- 0.28.0 -- already installed
 compact: aarch64-darwin -- 0.28.0 -- default.
 ```
 
-However, running:
+다음과 같이 실행하면:
 
 ```bash
 compact update --no-set-default 
 ```
 
-results in:
+결과는 다음과 같습니다:
 
 ```
 compact: aarch64-darwin -- 0.28.0 -- already installed
 ```
 
-To switch to an older version, run:
+이전 버전으로 전환하려면 다음을 실행합니다:
 
 ```bash
 compact update 0.26.0
 ```
 
-which results in:
+결과는 다음과 같습니다:
 
 ```
 compact: aarch64-darwin -- 0.26.0 -- already installed
 compact: aarch64-darwin -- 0.26.0 -- default.
 ```
 
-To keep the default unchanged, run:
+default를 변경하지 않으려면 다음을 실행합니다:
 
 ```bash
 compact update --no-set-default 0.26.0
 ```
 
-which results in:
+결과는 다음과 같습니다:
 
 ```
 compact: aarch64-darwin -- 0.26.0 -- already installed
@@ -230,32 +209,20 @@ COMPILE
 
 Synopsis: **compact** **compile** _+version_ _options_ _sourcepath_ _targetpath_
 
-This command compiles the Compact source program in _sourcepath_ using the
-specified Compact toolchain version _version_ if it exists. If no version is
-specified, then the default version of the Compact toolchain installed is picked. The
-_options_ are optional. If _version_ does not exist, then both the compiler and
-the command-line tool _options_ can be used. Otherwise, only the compiler _options_
-can be used.
-The _targetpath_ specifies the target directory for the outputs of the compiler.
-Visit [the compiler usage page](compiler-usage.mdx) for a more detailed explanation
-of how to use it.
+_sourcepath_에 있는 Compact 소스 프로그램을 지정된 Compact 툴체인 버전 _version_으로 컴파일합니다. 버전을 지정하지 않으면 설치된 Compact 툴체인의 default 버전이 사용됩니다. _options_는 선택 사항입니다. _version_이 존재하지 않으면 컴파일러와 커맨드라인 도구 _options_를 모두 사용할 수 있고, 존재하면 컴파일러 _options_만 사용할 수 있습니다.
+_targetpath_는 컴파일러 출력의 대상 디렉토리입니다.
+자세한 사용법은 [컴파일러 사용법 페이지](compiler-usage.mdx)를 참고하세요.
 
-If **+version** is specified such as **+0.30.0**, `compact compile` uses that
-exact version of the toolchain to compile the program. If no version
-is specified, the default toolchain version (as set by `compact update`) is
-used. Partial version specifiers are not supported here; the version must be
-fully qualified, that is, **+0.30.0** is supported but **+0.30** is not.
-If the requested toolchain version is not installed, `compact compile` will
-fail with an error.  Run `compact update _version_` first to install it.
+**+version**을 **+0.30.0**처럼 지정하면 `compact compile`은 해당 버전의 툴체인으로 프로그램을 컴파일합니다. 버전을 지정하지 않으면 `compact update`로 설정된 default 툴체인 버전이 사용됩니다. 부분 버전 지정은 지원되지 않으며, **+0.30.0**은 가능하지만 **+0.30**은 불가능합니다.
+요청한 툴체인 버전이 설치되지 않았으면 `compact compile`이 오류와 함께 실패합니다. 먼저 `compact update _version_`을 실행하여 설치하세요.
 
-Assuming that Compact toolchain **0.26.0** and **0.30.0** are installed and 
-**0.26.0** is the default, running:
+Compact 툴체인 **0.26.0**과 **0.30.0**이 설치되어 있고 **0.26.0**이 default인 상태에서 다음을 실행하면:
 
 ```bash
 compact compile +0.27.0 --language-version
 ```
 
-results in:
+결과는 다음과 같습니다:
 
 ```
 Error: Failed to run compactc
@@ -265,168 +232,143 @@ Caused by:
     1: Directory does not exist
 ```
 
-whereas running:
+다음을 실행하면:
 
 ```bash
 compact compile --language-version
 ```
 
-results in `0.18.0` (which is the corresponding language version for the 
-toolchain **0.26.0**) and running:
+결과는 `0.18.0`입니다(툴체인 **0.26.0**에 해당하는 언어 버전). 그리고 다음을 실행하면:
 
 ```
 compact compile +0.30.0 --language-version
 ```
 
-results in `0.22.0` (which is the corresponding language version for the 
-toolchain **0.30.0**).
+결과는 `0.22.0`입니다(툴체인 **0.30.0**에 해당하는 언어 버전).
 
-Running:
+다음을 실행하면:
 
 ```bash
 compact compile +version --help
 ```
 
-returns the help text of the compiler for a specific version **+version**, whereas running:
+특정 버전 **+version**의 컴파일러 도움말을 출력합니다. 반면:
 
 ```bash
 compact compile --help
 ```
 
-returns the help text specified in the Compact command-line tool for the compiler.
+Compact 커맨드라인 도구에 지정된 컴파일러 도움말을 출력합니다.
 
 FORMAT
 ======
 
 Synopsis: **compact** **format** _options_ _files_
 
-This command formats one or more Compact source files using the installed
-format-compact tool.  _files_ can be individual `.compact` files or
-directories; when a directory is given, all `.compact` files within it are
-discovered recursively, respecting `.gitignore` rules.  If no _files_ are
-specified, then the current directory (`.`) is used.
+설치된 format-compact 도구를 사용하여 하나 이상의 Compact 소스 파일을 포매팅합니다. _files_에는 개별 `.compact` 파일이나 디렉토리를 지정할 수 있습니다. 디렉토리를 지정하면 그 안의 모든 `.compact` 파일을 `.gitignore` 규칙을 준수하며 재귀적으로 탐색합니다. _files_를 지정하지 않으면 현재 디렉토리(`.`)가 사용됩니다.
 
-The following options are specific to this command:
+이 command에만 적용되는 옵션은 다음과 같습니다:
 
 **--check**
 
-Checks whether files are already formatted without modifying them.  Exits
-with a non-zero status and prints a diff for any file that would be changed.
-This is useful in CI pipelines to enforce formatting without altering source files.
+파일을 수정하지 않고 이미 포매팅되었는지 확인합니다. 변경이 필요한 파일에 대해 diff를 출력하고 0이 아닌 상태 코드로 종료합니다. CI 파이프라인에서 소스 파일을 변경하지 않고 포매팅을 검증할 때 유용합니다.
 
 **--verbose**
 
-Prints each file processed along with its outcome (**formatted**, **unchanged**,
-or an error).  Without this flag only failures are reported.
+처리된 각 파일과 결과(**formatted**, **unchanged** 또는 오류)를 출력합니다. 이 플래그가 없으면 실패만 보고됩니다.
 
-Additionally, the formatter tool itself provides extra flags. Visit [the format usage
-page](formatter-usage.mdx) for a more detailed explanation of this tool.
+포매터 도구 자체에도 추가 플래그가 있습니다. 자세한 내용은 [포매터 사용법 페이지](formatter-usage.mdx)를 참고하세요.
 
-We now present some simple examples of using this command.
-Assuming **src/** contains a well-formed Compact source files, format all of them in place:
+아래에 간단한 사용 예시를 소개합니다.
+**src/**에 올바른 Compact 소스 파일이 있다고 가정하고, 모든 파일을 in-place로 포매팅합니다:
 
 ```bash
 compact format src/
 ```
 
-Check formatting without modifying files (suitable for CI):
+파일을 수정하지 않고 포매팅을 확인합니다(CI에 적합):
 
 ```bash
 compact format --check src/
 ```
 
-Format a single file verbosely:
+단일 파일을 상세 모드로 포매팅합니다:
 
 ```bash
 compact format --verbose src/counter.compact
 ```
 
-Assuming **src/test.compact** contains an ill-formed Compact program, running:
+**src/test.compact**에 잘못된 Compact 프로그램이 있는 경우, 다음을 실행하면:
 
 ```bash
 compact format src/test.compact
 ```
 
-exits with an error message describing the problem that prevents the
-Compact program in **src/test.compact** from compiling.
+**src/test.compact**의 Compact 프로그램이 컴파일되지 못하는 원인을 설명하는 오류 메시지와 함께 종료됩니다.
 
 FIXUP
 =====
 
 Synopsis: **compact** **fixup** _options_ _files_
 
-This command applies fixup transformations to one or more Compact source files
-using the installed fixup-compact tool.  Unlike **format**, which only
-reformats whitespace and style, **fixup** also updates source programs to
-reflect recent language changes.  _files_ can be individual `.compact`
-files or directories; when a directory is given, all `.compact` files within it
-are discovered recursively, respecting `.gitignore` rules.  If no _files_ are
-specified, the current directory (`.`) is used.
+설치된 fixup-compact 도구를 사용하여 하나 이상의 Compact 소스 파일에 fixup 변환을 적용합니다. 공백과 스타일만 변경하는 **format**과 달리, **fixup**은 최근 언어 변경 사항을 반영하여 소스 프로그램을 업데이트합니다. _files_에는 개별 `.compact` 파일이나 디렉토리를 지정할 수 있습니다. 디렉토리를 지정하면 그 안의 모든 `.compact` 파일을 `.gitignore` 규칙을 준수하며 재귀적으로 탐색합니다. _files_를 지정하지 않으면 현재 디렉토리(`.`)가 사용됩니다.
 
-The following options are specific to this command:
+이 command에만 적용되는 옵션은 다음과 같습니다:
 
 **--check**
 
-Checks whether files need fixup without modifying them.  Exits with a non-zero
-status and prints a diff for any file that would be changed.  Useful in CI
-pipelines to verify that source files are up to date.
+파일을 수정하지 않고 fixup이 필요한지 확인합니다. 변경이 필요한 파일에 대해 diff를 출력하고 0이 아닌 상태 코드로 종료합니다. CI 파이프라인에서 소스 파일이 최신 상태인지 검증할 때 유용합니다.
 
-Additionally, the fixup tool itself provides extra flags. Visit [the fixup usage
-page](fixup-usage.mdx) for a more detailed explanation of this tool.
+fixup 도구 자체에도 추가 플래그가 있습니다. 자세한 내용은 [fixup 사용법 페이지](fixup-usage.mdx)를 참고하세요.
 
-We now present some simple examples of using this command.
-Assuming **src/** contains a well-formed Compact source files, apply fixup to all files in 
-**src/** in place:
+아래에 간단한 사용 예시를 소개합니다.
+**src/**에 올바른 Compact 소스 파일이 있다고 가정하고, **src/**의 모든 파일에 fixup을 in-place로 적용합니다:
 
 ```bash
 compact fixup src/
 ```
 
-Check whether any files need fixup without modifying them (suitable for CI):
+파일을 수정하지 않고 fixup이 필요한지 확인합니다(CI에 적합):
 
 ```bash
 compact fixup --check src/
 ```
 
-Apply fixup including `Uint` range endpoint adjustment:
+`Uint` 범위 끝점 조정을 포함하여 fixup을 적용합니다:
 
 ```bash
 compact fixup --update-Uint-ranges src/
 ```
 
-Assuming **src/test.compact** contains an ill-formed Compact program, running
+**src/test.compact**에 잘못된 Compact 프로그램이 있는 경우, 다음을 실행하면:
 
 ```bash
 compact fixup src/test.compact
 ```
 
-exits with an error message describing the problem that prevents the
-Compact program in **src/test.compact** from compiling.
+**src/test.compact**의 Compact 프로그램이 컴파일되지 못하는 원인을 설명하는 오류 메시지와 함께 종료됩니다.
 
 LIST
 ====
 
 Synopsis: **compact** **list** _options_
 
-This command lists available Compact toolchain versions on the remote server if
-no option is set. When the **--installed** option is set,
-it lists the locally installed versions of the Compact toolchain.
+옵션을 지정하지 않으면 원격 서버에서 사용 가능한 Compact 툴체인 버전을 나열합니다. **--installed** 옵션을 지정하면 로컬에 설치된 Compact 툴체인 버전을 나열합니다.
 
-The following options are specific to this command:
+이 command에만 적용되는 옵션은 다음과 같습니다:
 
 **--installed**
 
-Shows installed versions and exits.
+설치된 버전을 표시한 뒤 종료합니다.
 
-We now present some simple examples of using this command.
-Assuming that the latest available Compact toolchain version is **0.28.0** on
-the remote server, running:
+아래에 간단한 사용 예시를 소개합니다.
+원격 서버의 최신 Compact 툴체인 버전이 **0.28.0**인 상태에서 다음을 실행하면:
 
 ```bash
 compact list
 ```
 
-results in:
+결과는 다음과 같습니다:
 
 ```
 compact: available versions
@@ -439,14 +381,13 @@ compact: available versions
   0.22.0 - x86_macos, x86_linux
 ```
 
-Assuming that locally versions **0.26.0** and **0.28.0** have been installed,
-running:
+로컬에 **0.26.0**과 **0.28.0**이 설치된 상태에서 다음을 실행하면:
 
 ```bash
 compact list --installed
 ```
 
-results in:
+결과는 다음과 같습니다:
 
 ```
 compact: installed versions
@@ -455,44 +396,35 @@ compact: installed versions
   0.26.0
 ```
 
-The right arrow indicates the version to be used by the Compact command-line
-tool when no version is specified.
+오른쪽 화살표는 버전을 지정하지 않았을 때 Compact 커맨드라인 도구가 사용할 버전을 나타냅니다.
 
 CLEAN
 =====
 
 Synopsis: **compact** **clean** _options_
 
-This command removes all local versions of the Compact toolchain if no option is
-set. When **--cache** is set, it also removes the cache directory. When
-**--keep-current** is set, the version currently set as the default is kept.
+옵션을 지정하지 않으면 로컬에 설치된 모든 Compact 툴체인 버전을 삭제합니다. **--cache**를 지정하면 캐시 디렉토리도 함께 삭제합니다. **--keep-current**를 지정하면 현재 default로 설정된 버전을 유지합니다.
 
-In addition to removing version directories, `compact clean` removes the
-compactc, format-compact, and fixup-compact symlinks from the bin
-directory.  After running `compact clean` without **--keep-current**, the
-toolchain is unusable until `compact update`` is run again to reinstall a
-version.  With **--keep-current**, the symlinks are preserved alongside the
-kept version.
+버전 디렉토리 삭제 외에도, `compact clean`은 bin 디렉토리에서 compactc, format-compact, fixup-compact 심볼릭 링크를 제거합니다. **--keep-current** 없이 `compact clean`을 실행하면 `compact update`로 버전을 다시 설치하기 전까지 툴체인을 사용할 수 없습니다. **--keep-current**를 사용하면 유지되는 버전과 함께 심볼릭 링크도 보존됩니다.
 
-The following options are specific to this command:
+이 command에만 적용되는 옵션은 다음과 같습니다:
 
 **--cache**
 
-removes the cache directory as well.
+캐시 디렉토리도 함께 삭제합니다.
 
 **--keep-current**
 
-keeps the version currently in use.
+현재 사용 중인 버전을 유지합니다.
 
-We now present some simple examples of using this command.
-Assuming that versions **0.26.0** and **0.28.00** of the Compact toolchain are
-locally installed, running:
+아래에 간단한 사용 예시를 소개합니다.
+Compact 툴체인 **0.26.0**과 **0.28.00**이 로컬에 설치된 상태에서 다음을 실행하면:
 
 ```bash
 compact clean --cache
 ```
 
-results in:
+결과는 다음과 같습니다:
 
 ```
 compact: removed /Users/username/Library/Caches/compactc/github_cache.json
@@ -501,13 +433,13 @@ compact: removed 0.28.0
 compact: removed 0.26.0
 ```
 
-Now running:
+이제 다음을 실행하면:
 
 ```bash
 compact list --installed
 ```
 
-results in:
+결과는 다음과 같습니다:
 
 ```
 compact: installed versions
@@ -516,7 +448,7 @@ no versions available on this machine
 try: compact update
 ```
 
-Now running:
+이제 다음을 실행하면:
 
 ```bash
 compact update
@@ -524,7 +456,7 @@ compact update 0.26.0
 compact clean --keep-current
 ```
 
-results in:
+결과는 다음과 같습니다:
 
 ```
 compact: removing versions
@@ -537,39 +469,35 @@ SELF
 
 Synopsis: **compact** **self** _options_ _subcommand_
 
-Manages the Compact command-line tool itself.
+Compact 커맨드라인 도구 자체를 관리합니다.
 
-Running:
+다음을 실행하면:
 
 ```bash
 compact self check
 ```
 
-checks if a newer version of the Compact command-line tool is available or not.
-Assuming the latest version of the Compact command-line tool is **0.4.0** and it
-is already installed this results in:
+Compact 커맨드라인 도구의 새 버전이 있는지 확인합니다. 최신 버전이 **0.4.0**이고 이미 설치된 상태라면 결과는 다음과 같습니다:
 
 ```
 compact: compact -- 0.4.0 -- Up to date
 ```
 
-However, if the latest version of the Compact command-line tool is not installed
-the command above results in:
+최신 버전이 설치되지 않은 경우 결과는 다음과 같습니다:
 
 ```
 compact: compact -- Update available -- 0.5.0
 ```
 
-Running:
+다음을 실행하면:
 
 ```bash
 compact self update
 ```
 
-updates the Compact command-line tool to the latest version.
+Compact 커맨드라인 도구를 최신 버전으로 업데이트합니다.
 
-If the tool is already at the latest version, running `compact self update`
-results in (assuming the latest version is **0.5.0**):
+이미 최신 버전인 경우 `compact self update`를 실행하면(최신 버전이 **0.5.0**이라면) 결과는 다음과 같습니다:
 
 ```
 compact: compact -- 0.5.0 -- Up to date

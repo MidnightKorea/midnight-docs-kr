@@ -1,12 +1,12 @@
 # Midnight JS API
 
-**Midnight.js API Reference v4.0.2**
+**Midnight.js API Reference v4.0.4**
 
 ***
 
 # Midnight.js
 
-Midnight 블록체인에서 프라이버시 보호 dApp을 구축하기 위한 TypeScript SDK입니다.
+Midnight 블록체인에서 프라이버시 보호 dApp을 구축하기 위한 TypeScript 프레임워크입니다.
 
 Midnight.js는 스마트 컨트랙트 배포 및 상호작용, 암호화된 프라이빗 상태 관리, 영지식 증명 생성, Midnight 네트워크로의 트랜잭션 제출을 위한 도구를 제공합니다.
 

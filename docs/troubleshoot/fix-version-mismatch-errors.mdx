@@ -15,7 +15,7 @@ import Step, { StepsProvider } from "@site/src/components/Step/Step";
 
 Midnight 컴포넌트 간 버전 불일치로 인한 빌드 실패 및 런타임 에러를 해결하는 방법입니다.
 
-## Understand the cause of version mismatches
+## What causes version mismatches?
 
 Midnight은 호환되는 버전으로 함께 동작해야 하는 여러 컴포넌트로 구성됩니다:
 
@@ -28,7 +28,7 @@ Midnight은 호환되는 버전으로 함께 동작해야 하는 여러 컴포�
 이 컴포넌트들의 버전이 맞지 않으면 빌드 에러, 배포 실패, 런타임 문제가 발생할 수 있습니다.
 
 :::info 호환성 매트릭스 확인
-어떤 버전이 서로 호환되는지 반드시 공식 [릴리스 호환성 매트릭스](/relnotes/support-matrix)를 확인하세요.
+어떤 버전이 서로 호환되는지 반드시 공식 [릴리스 호환성 매트릭스](../relnotes/support-matrix)를 확인하세요.
 :::
 
 ## Check your current versions
@@ -45,7 +45,7 @@ Midnight은 호환되는 버전으로 함께 동작해야 하는 여러 컴포�
 compact --version
 ```
 
-출력을 [호환성 매트릭스](/relnotes/support-matrix)와 비교합니다.
+출력을 [호환성 매트릭스](../relnotes/support-matrix)와 비교합니다.
 
 </Step>
 
@@ -84,7 +84,7 @@ docker logs [proof-server-container-id] | head -20
 
 ### Compare versions with the compatibility matrix
 
-[릴리스 호환성 매트릭스](/relnotes/support-matrix)를 확인하고 버전이 호환되는지 검증합니다. 권장 버전과 맞지 않는 컴포넌트를 기록해 두세요.
+[릴리스 호환성 매트릭스](../relnotes/support-matrix)를 확인하고 버전이 호환되는지 검증합니다. 권장 버전과 맞지 않는 컴포넌트를 기록해 두세요.
 
 </Step>
 
@@ -100,7 +100,7 @@ docker logs [proof-server-container-id] | head -20
 
 ### Consult the compatibility matrix
 
-[릴리스 호환성 매트릭스](/relnotes/support-matrix)에서 각 컴포넌트의 올바른 버전을 확인합니다:
+[릴리스 호환성 매트릭스](../relnotes/support-matrix)에서 각 컴포넌트의 올바른 버전을 확인합니다:
 
 - Compact toolchain
 - Runtime libraries

@@ -3,174 +3,174 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Wallet SDK v2.0.0 release notes
 displayed_sidebar: sidebar
-description: Release notes for the Midnight Wallet SDK 2.0.0
+description: Midnight Wallet SDK 2.0.0 릴리스 노트
 ---
 
 * **Version**: v2.0.0
-* **Date**: 10 March, 2026
+* **Date**: 2026년 3월 10일
 * **Environment**: Preprod, Preview
 
 ---
 
 ## High-level summary
 
-This release focuses on architectural decoupling in the Wallet SDK. Proving, submission, and pending-transaction tracking are now standalone services owned by `WalletFacade`. 
-Wallet APIs are standardized across shielded, unshielded, and DUST wallets, and `WalletFacade` now automatically reverts transactions when proving or submission fails.
-The release also introduces WASM-based proving as an alternative to HTTP prover server mode.
+이번 릴리스는 Wallet SDK의 아키텍처 분리에 초점을 맞추었습니다. proving, submission, 대기 트랜잭션 추적은 이제 `WalletFacade`가 소유하는 독립 서비스로 분리되었습니다.
+shielded, unshielded, DUST 지갑 전반에 걸쳐 Wallet API가 표준화되었고, `WalletFacade`는 이제 proving이나 submission 실패 시 트랜잭션을 자동으로 되돌립니다.
+HTTP prover server 모드의 대안으로 WASM 기반 proving도 새로 도입되었습니다.
 
 ---
 
 ## Audience
 
-This release is relevant for developers who:
+이번 릴리스는 다음 개발자에게 해당됩니다.
 
-- Build wallets for the Midnight network
-- Integrate Midnight token transfers into their DApps
-- Need to manage shielded (private) and unshielded token balances
-- Implement atomic swaps between parties
+- Midnight 네트워크용 지갑을 구축하는 개발자
+- DApp에 Midnight 토큰 전송을 통합하는 개발자
+- 차폐(프라이빗) 및 비차폐 토큰 잔액을 관리해야 하는 개발자
+- 당사자 간 원자적 스왑을 구현하는 개발자
 
 ---
 
 ## What changed (Summary of updates)
 
-The summary below highlights the key structural and developer-facing changes.
+아래 요약은 구조적 변경과 개발자 대상 변경의 핵심을 정리합니다.
 
-- Proving extracted into standalone `ProvingService` supporting server (HTTP), WASM, and simulator modes
-- Transaction submission extracted into standalone `SubmissionService`
-- New `PendingTransactionsService` monitors TTL/status and automatically reverts failed transactions
-- `WalletFacade` initialization changed to static async `WalletFacade.init()`
-- `WalletFacade` reverts transactions automatically on proving or submission failure
-- Wallet APIs standardized across shielded, unshielded, and DUST wallets (renames and new methods)
-- `SyncProgress` moved to `wallet-sdk-abstractions` for shared use across wallet types
-- Unshielded transaction history now includes created and spent UTXOs per entry
-- Optional `keepAlive` config added to `IndexerClientConnection`
-- WASM proving provider available via Web Worker
-- Node client connects WebSocket on-demand to prevent service worker timer leaks
+- proving을 독립 `ProvingService`로 분리하여 server(HTTP), WASM, simulator 모드를 지원
+- 트랜잭션 submission을 독립 `SubmissionService`로 분리
+- TTL/상태를 모니터링하고 실패한 트랜잭션을 자동으로 되돌리는 신규 `PendingTransactionsService`
+- `WalletFacade` 초기화가 정적 async `WalletFacade.init()`으로 변경
+- `WalletFacade`가 proving 또는 submission 실패 시 자동으로 트랜잭션 revert
+- shielded, unshielded, DUST 지갑 전반에 걸쳐 Wallet API 표준화 (이름 변경 및 신규 메서드)
+- 지갑 유형 간 공유 사용을 위해 `SyncProgress`를 `wallet-sdk-abstractions`로 이동
+- 비차폐 트랜잭션 이력에 각 항목마다 생성/지출된 UTXO 포함
+- `IndexerClientConnection`에 선택적 `keepAlive` 설정 추가
+- Web Worker 기반 WASM proving provider 제공
+- Node 클라이언트가 WebSocket을 on-demand로 연결하여 service worker 타이머 누수 방지
 
 ---
 
 ## New features
 
-Below is a detailed breakdown of the new features added in this release.
+이번 릴리스에 도입된 새로운 기능의 상세 내역입니다.
 
 ### Standalone proving service
 
-Proving is extracted from individual wallet builders into a standalone `ProvingService` in `@midnight-ntwrk/wallet-sdk-capabilities`. 
-It supports server (HTTP prover), WASM, and simulator modes through a unified configuration. 
-`WalletFacade` now owns proving and reverts transactions across all three wallet types on failure.
+proving이 개별 지갑 빌더에서 분리되어 `@midnight-ntwrk/wallet-sdk-capabilities`의 독립 `ProvingService`가 되었습니다.
+통합 설정을 통해 server(HTTP prover), WASM, simulator 모드를 지원합니다.
+이제 `WalletFacade`가 proving을 소유하고, 실패 시 세 가지 지갑 유형 모두에서 트랜잭션을 revert 합니다.
 
-**Example**: [wasm-prover.ts](https://github.com/midnightntwrk/midnight-wallet/blob/main/packages/docs-snippets/src/snippets/wasm-prover.ts)
+**예시**: [wasm-prover.ts](https://github.com/midnightntwrk/midnight-wallet/blob/main/packages/docs-snippets/src/snippets/wasm-prover.ts)
 
 ### Standalone submission service
 
-Transaction submission is extracted into a standalone `SubmissionService` in `@midnight-ntwrk/wallet-sdk-capabilities` and integrated into `WalletFacade`. The facade reverts transactions when submission fails.
+트랜잭션 submission이 `@midnight-ntwrk/wallet-sdk-capabilities`의 독립 `SubmissionService`로 분리되어 `WalletFacade`에 통합되었습니다. submission 실패 시 facade가 트랜잭션을 revert 합니다.
 
 ### Pending transactions service
 
-This new service in `@midnight-ntwrk/wallet-sdk-capabilities` monitors TTL and indexer status of submitted transactions. It automatically reverts wallet state when a pending transaction is reported as failed. Service state is serializable so pending transactions survive wallet restarts.
+`@midnight-ntwrk/wallet-sdk-capabilities`의 이 신규 서비스는 제출된 트랜잭션의 TTL과 인덱서 상태를 모니터링합니다. 대기 중인 트랜잭션이 실패로 보고되면 지갑 상태를 자동으로 되돌립니다. 서비스 상태는 직렬화 가능하므로, 지갑을 재시작해도 대기 트랜잭션 정보가 유지됩니다.
 
 ### WASM proving provider
 
-This feature adds Web Worker-based proof generation as an alternative to a remote prover server. Configure it via `ProverClient.WasmConfig`. Midnight-specific key material is used instead of Filecoin keys.
+원격 prover server의 대안으로 Web Worker 기반 proof 생성이 추가되었습니다. `ProverClient.WasmConfig`로 설정합니다. Filecoin 키 대신 Midnight 전용 키 자료를 사용합니다.
 
-**Example**: [wasm-prover.ts](https://github.com/midnightntwrk/midnight-wallet/blob/main/packages/docs-snippets/src/snippets/wasm-prover.ts)
+**예시**: [wasm-prover.ts](https://github.com/midnightntwrk/midnight-wallet/blob/main/packages/docs-snippets/src/snippets/wasm-prover.ts)
 
-### Custom prover integration
+### 커스텀 prover 통합
 
-`asProvingProvider()` was added to `HttpProverClient` and `WasmProver` to expose the underlying proving provider. `create()` factory functions allow direct instantiation without Effect layers. `fromProvingProvider()` and `fromProvingProviderEffect()` helpers on the `Proving` module enable custom prover workflows.
+`HttpProverClient`와 `WasmProver`에 기저 proving provider를 노출하는 `asProvingProvider()`가 추가되었습니다. `create()` 팩토리 함수는 Effect 레이어 없이 직접 인스턴스화할 수 있게 합니다. `Proving` 모듈의 `fromProvingProvider()`와 `fromProvingProviderEffect()` 헬퍼는 커스텀 prover 워크플로를 가능하게 합니다.
 
-### DUST registration fee payment and deregistration
+### DUST 등록 수수료 결제와 등록 해제
 
-Fee payment is now an optional parameter for DUST registration transactions. Deregistration and redesignation flows are now supported. A `registeredForDustGeneration` flag was added to `UtxoWithMeta`.
+DUST 등록 트랜잭션에서 수수료 결제가 이제 선택 파라미터입니다. 등록 해제와 재지정 플로우가 지원됩니다. `UtxoWithMeta`에 `registeredForDustGeneration` 플래그가 추가되었습니다.
 
-**Example**: [deregistration.ts](https://github.com/midnightntwrk/midnight-wallet/blob/main/packages/docs-snippets/src/snippets/deregistration.ts)
+**예시**: [deregistration.ts](https://github.com/midnightntwrk/midnight-wallet/blob/main/packages/docs-snippets/src/snippets/deregistration.ts)
 
-### Unshielded transaction history with UTXOs
+### UTXO가 포함된 비차폐 트랜잭션 이력
 
-Each `TransactionHistoryEntry` in the unshielded wallet now carries `createdUtxos` and `spentUtxos` arrays. Each UTXO exposes its `value`, `owner`, `tokenType`, `intentHash`, and `outputIndex`.
+비차폐 지갑의 각 `TransactionHistoryEntry`에 이제 `createdUtxos`와 `spentUtxos` 배열이 포함됩니다. 각 UTXO는 `value`, `owner`, `tokenType`, `intentHash`, `outputIndex`를 노출합니다.
 
-### Shared sync progress
+### 공유 sync progress
 
-`SyncProgress` is moved from `wallet-sdk-shielded/v1` into `wallet-sdk-abstractions` so it can be used across wallet implementations without importing from the shielded package.
+`SyncProgress`가 `wallet-sdk-shielded/v1`에서 `wallet-sdk-abstractions`로 이동하여, 차폐 패키지를 import하지 않고도 지갑 구현 전반에 걸쳐 사용할 수 있습니다.
 
-### Promise-based query runner
+### Promise 기반 쿼리 러너
 
-This release adds a utility in `@midnight-ntwrk/wallet-sdk-indexer-client` for executing GraphQL queries without Effect boilerplate.
+이번 릴리스는 `@midnight-ntwrk/wallet-sdk-indexer-client`에 Effect 보일러플레이트 없이 GraphQL 쿼리를 실행하는 유틸리티를 추가합니다.
 
 ---
 
 ## New features requiring configuration updates
 
-The following update is required to configure the wallet to use the new architecture.
+지갑이 새로운 아키텍처를 사용하도록 설정하려면 다음 업데이트가 필요합니다.
 
-### Proving service now required in wallet facade
+### Wallet facade에서 proving service 필수
 
-`WalletFacade.init()` now expects a `ProvingService`, either explicitly or through `DefaultConfiguration`.
+이제 `WalletFacade.init()`은 `ProvingService`를 명시적으로 또는 `DefaultConfiguration`을 통해 받아야 합니다.
 
-**Required updates**: Pass a `ProvingService` when calling `WalletFacade.init()`, or rely on `DefaultConfiguration` which includes `DefaultProvingConfiguration` (requires `provingServerUrl` in config).
+**필요한 업데이트**: `WalletFacade.init()` 호출 시 `ProvingService`를 전달하거나, `DefaultProvingConfiguration`(설정에 `provingServerUrl` 필요)을 포함하는 `DefaultConfiguration`을 사용하세요.
 
-**Impact**: `WalletFacade` no longer accepts wallet builders that carry their own proving service. Proving is now a facade-level concern. The `provingServerUrl` field in `DefaultConfiguration` continues to work for the default HTTP proving mode.
+**영향**: `WalletFacade`는 더 이상 자체 proving service를 수반하는 지갑 빌더를 받지 않습니다. proving은 이제 facade 레벨의 관심사입니다. `DefaultConfiguration`의 `provingServerUrl` 필드는 기본 HTTP proving 모드에서 계속 동작합니다.
 
 ---
 
 ## Improvements
 
-This release also includes quality-of-life and reliability improvements across SDK components.
+이번 릴리스에는 SDK 컴포넌트 전반에 걸친 편의성과 안정성 개선도 포함되어 있습니다.
 
-- `WalletFacade.init()` now accepts a configuration object, which supports future initialization changes without breaking existing integrations.
-- `IndexerClientConnection` and `SubscriptionClient.ServerConfig` now include an optional `keepAlive` parameter (default: 15,000 ms), which is forwarded to the underlying `graphql-ws` client.
-- Node client (`@midnight-ntwrk/wallet-sdk-node-client`) now connects WebSocket on demand and disconnects after each operation, which prevents `@polkadot/api` health-check timers from keeping service workers alive.
-- `CoreWallet` in the DUST wallet is refactored from a class to a plain object type plus namespace, which improves composability.
-- DUST wallet now includes a `WalletError` type for structured error handling.
+- `WalletFacade.init()`이 이제 설정 객체를 받습니다. 이를 통해 향후 초기화 변경이 기존 통합을 깨지 않도록 할 수 있습니다.
+- `IndexerClientConnection`과 `SubscriptionClient.ServerConfig`에 선택적 `keepAlive` 파라미터(기본 15,000 ms)가 추가되었고, 이는 기저 `graphql-ws` 클라이언트로 전달됩니다.
+- Node 클라이언트(`@midnight-ntwrk/wallet-sdk-node-client`)가 이제 WebSocket을 on-demand로 연결하고 각 작업 후 끊어, `@polkadot/api` 헬스체크 타이머가 service worker를 살려두지 못하게 합니다.
+- DUST 지갑의 `CoreWallet`이 class에서 plain object 타입과 namespace 조합으로 리팩터링되어 조합성이 향상되었습니다.
+- DUST 지갑에 구조적 오류 처리용 `WalletError` 타입이 추가되었습니다.
 
 ---
 
 ## Deprecations
 
-No deprecations are introduced in this release.
+이번 릴리스에는 deprecation이 없습니다.
 
 ---
 
 ## Breaking changes
 
-This release includes several API and type-level changes that require migration.
+이번 릴리스에는 마이그레이션이 필요한 API와 타입 수준의 변경이 다수 포함됩니다.
 
-### `SerializedUnprovenTransaction` replaced by `SerializedTransaction`
+### `SerializedUnprovenTransaction`이 `SerializedTransaction`으로 대체
 
-`SerializedUnprovenTransaction` is removed from `@midnight-ntwrk/wallet-sdk-abstractions`. Use `SerializedTransaction` instead, which is a simplified type holding serialized transaction bytes.
+`SerializedUnprovenTransaction`이 `@midnight-ntwrk/wallet-sdk-abstractions`에서 제거되었습니다. 대신 직렬화된 트랜잭션 바이트를 담는 단순화된 타입인 `SerializedTransaction`을 사용하세요.
 
-### Shielded wallet (`@midnight-ntwrk/wallet-sdk-shielded`)
+### 차폐 지갑 (`@midnight-ntwrk/wallet-sdk-shielded`)
 
-- `finalizeTransaction` removed from `ShieldedWalletAPI` (handled by `WalletFacade`)
-- `Proving` export removed from `@midnight-ntwrk/wallet-sdk-shielded/v1`
-- `provingService` removed from V1 builder and `RunningV1Variant.Context`
-- `withProving` / `withProvingDefaults` removed from `V1Builder`
-- `DefaultV1Configuration` no longer includes `DefaultProvingConfiguration`
-- `startWithShieldedSeed()` renamed to `startWithSeed()`
-- `receiverAddress` parameter type changed from `string` to `ShieldedAddress` in transfer methods
-- `getAddress(): Promise<ShieldedAddress>` added to `ShieldedWalletAPI`
+- `ShieldedWalletAPI`에서 `finalizeTransaction` 제거 (`WalletFacade`가 처리)
+- `@midnight-ntwrk/wallet-sdk-shielded/v1`에서 `Proving` export 제거
+- V1 빌더와 `RunningV1Variant.Context`에서 `provingService` 제거
+- `V1Builder`에서 `withProving` / `withProvingDefaults` 제거
+- `DefaultV1Configuration`에 더 이상 `DefaultProvingConfiguration` 미포함
+- `startWithShieldedSeed()`가 `startWithSeed()`로 이름 변경
+- 전송 메서드의 `receiverAddress` 파라미터 타입이 `string`에서 `ShieldedAddress`로 변경
+- `ShieldedWalletAPI`에 `getAddress(): Promise<ShieldedAddress>` 추가
 
-### DUST wallet (`@midnight-ntwrk/wallet-sdk-dust-wallet`)
+### DUST 지갑 (`@midnight-ntwrk/wallet-sdk-dust-wallet`)
 
-- `DustCoreWallet` renamed to `CoreWallet`
-- `walletBalance()` renamed to `balance()` on `DustWalletState`
-- `dustPublicKey` to `publicKey`, and `dustAddress` to `address`, on state objects
-- `getDustPublicKey()` to `getPublicKey()`, and `getDustAddress()` to `getAddress()`, on `KeysCapability`
-- `getAddress(): Promise<DustAddress>` added to `DustWalletAPI`
-- `dustReceiverAddress` parameter type changed from `string` to `DustAddress` in transaction methods
-- `proveTransaction` removed from `DustWalletAPI`
-- `provingService` removed from V1 builder and `RunningV1Variant.Context`
-- `withProving` / `withProvingDefaults` removed from `V1Builder`
+- `DustCoreWallet`이 `CoreWallet`으로 이름 변경
+- `DustWalletState`에서 `walletBalance()`가 `balance()`로 이름 변경
+- 상태 객체에서 `dustPublicKey`→`publicKey`, `dustAddress`→`address`로 변경
+- `KeysCapability`에서 `getDustPublicKey()`→`getPublicKey()`, `getDustAddress()`→`getAddress()`로 변경
+- `DustWalletAPI`에 `getAddress(): Promise<DustAddress>` 추가
+- 트랜잭션 메서드의 `dustReceiverAddress` 파라미터 타입이 `string`에서 `DustAddress`로 변경
+- `DustWalletAPI`에서 `proveTransaction` 제거
+- V1 빌더와 `RunningV1Variant.Context`에서 `provingService` 제거
+- `V1Builder`에서 `withProving` / `withProvingDefaults` 제거
 
 ### Facade (`@midnight-ntwrk/wallet-sdk-facade`)
 
-- `UnboundTransaction` is no longer exported from the facade package; import it from `@midnight-ntwrk/wallet-sdk-capabilities/proving`
-- `CombinedTokenTransfer` is split into `ShieldedTokenTransfer` and `UnshieldedTokenTransfer`; the union type `CombinedTokenTransfer` remains available
-- `TokenTransfer` now requires typed addresses (`ShieldedAddress` or `UnshieldedAddress`) instead of `string`; address encoding is handled internally
-- `WalletFacade` constructor replaced by `WalletFacade.init()` static async method
-- `WalletFacade` now requires a `ProvingService`; `DefaultConfiguration` includes `DefaultProvingConfiguration`
+- `UnboundTransaction`은 더 이상 facade 패키지에서 export되지 않습니다. `@midnight-ntwrk/wallet-sdk-capabilities/proving`에서 import하세요.
+- `CombinedTokenTransfer`가 `ShieldedTokenTransfer`와 `UnshieldedTokenTransfer`로 분리되었으며, union 타입 `CombinedTokenTransfer`는 그대로 남습니다.
+- `TokenTransfer`는 이제 `string` 대신 타입이 지정된 주소(`ShieldedAddress` 또는 `UnshieldedAddress`)를 요구합니다. 주소 인코딩은 내부에서 처리됩니다.
+- `WalletFacade` 생성자가 정적 async 메서드 `WalletFacade.init()`으로 대체
+- `WalletFacade`가 이제 `ProvingService`를 필수로 요구하며, `DefaultConfiguration`에는 `DefaultProvingConfiguration`이 포함됩니다.
 
-Migration example:
+마이그레이션 예시:
 
 ```ts
 // Before
@@ -186,50 +186,50 @@ wallet.transferTransaction([{ type: 'shielded', outputs: [{ receiverAddress: add
 
 ## Known issues
 
-This section lists known issues with this release of the Wallet SDK.
+이 섹션은 이번 Wallet SDK 릴리스의 알려진 이슈를 나열합니다.
 
-### Transaction history not implemented for shielded and DUST wallets
+### 차폐와 DUST 지갑에 대한 트랜잭션 이력 미구현
 
-The shielded and DUST wallets do not track transaction history. The shielded wallet transaction history getter throws "not yet implemented". Only the unshielded wallet maintains transaction records.
+차폐 지갑과 DUST 지갑은 트랜잭션 이력을 추적하지 않습니다. 차폐 지갑의 트랜잭션 이력 getter는 "not yet implemented"를 던집니다. 비차폐 지갑만 트랜잭션 기록을 유지합니다.
 
-### Pending coins not cleared after failed shielded transaction submission
+### 차폐 트랜잭션 제출 실패 후 대기 코인이 해제되지 않음
 
-When shielded transaction submission fails, coins marked as pending in the shielded wallet may not be automatically released.
+차폐 트랜잭션 제출이 실패할 때, 차폐 지갑에서 대기 중으로 표시된 코인이 자동으로 해제되지 않을 수 있습니다.
 
-**Workaround**: Restart the wallet or re-sync to clear stale pending state.
+**해결 방법**: 지갑을 재시작하거나 재동기화하여 남아있는 대기 상태를 해제하세요.
 
 ---
 
 ## Packages
 
-| Package                                        | Version | Description                                                                                                                                       |
-| ---------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@midnight-ntwrk/wallet-sdk-facade`            | 2.0.0   | Unified API orchestrating shielded, unshielded, and DUST wallets. Owns proving, submission, and pending transaction tracking. Reverts on failure. |
-| `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | 2.0.0   | Manages NIGHT and other unshielded tokens. Transaction history now includes created and spent UTXOs per entry.                                  |
-| `@midnight-ntwrk/wallet-sdk-shielded`          | 2.0.0   | Manages privacy-preserving shielded tokens. Proving is decoupled from the wallet builder.                                                       |
-| `@midnight-ntwrk/wallet-sdk-dust-wallet`       | 2.0.0   | Manages DUST for transaction fees. Includes standardized APIs, deregistration support, and fee-payment options for registration.                |
-| `@midnight-ntwrk/wallet-sdk-capabilities`      | 2.0.0   | Shared wallet features. Includes standalone ProvingService, SubmissionService, and PendingTransactionsService.                                  |
-| `@midnight-ntwrk/wallet-sdk-abstractions`      | 2.0.0   | Core interfaces and domain types. Includes shared SyncProgress and SerializedTransaction.                                                       |
-| `@midnight-ntwrk/wallet-sdk-prover-client`     | 1.1.0   | Interfaces with the prover service. Supports WASM proving via Web Worker and exposes proving providers for custom integrations.                 |
-| `@midnight-ntwrk/wallet-sdk-indexer-client`    | 1.1.0   | Queries the Midnight indexer via GraphQL. Adds QueryRunner utility and keepAlive configuration.                                                 |
-| `@midnight-ntwrk/wallet-sdk-address-format`    | 3.0.1   | Encodes and decodes Midnight addresses using Bech32m format.                                                                                     |
-| `@midnight-ntwrk/wallet-sdk-hd`                | 3.0.1   | Derives cryptographic keys from a seed following BIP-32/BIP-44/CIP-1852.                                                                        |
-| `@midnight-ntwrk/wallet-sdk-node-client`       | 1.0.1   | Communicates with Midnight nodes. Connects WebSocket on-demand to prevent service worker timer leaks.                                           |
-| `@midnight-ntwrk/wallet-sdk-utilities`         | 1.0.1   | Common utilities. Adds safe bigint schema and fixes dangling subscriber behavior in `fromStream`.                                               |
-| `@midnight-ntwrk/wallet-sdk-runtime`           | 1.0.1   | Orchestrates wallet lifecycle and state management.                                                                                               |
+| 패키지 | 버전 | 설명 |
+| --- | --- | --- |
+| `@midnight-ntwrk/wallet-sdk-facade`            | 2.0.0   | 차폐, 비차폐, DUST 지갑을 조율하는 통합 API. proving, submission, 대기 트랜잭션 추적을 소유하며 실패 시 자동 revert. |
+| `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | 2.0.0   | NIGHT 및 기타 비차폐 토큰 관리. 트랜잭션 이력에 이제 생성/지출 UTXO가 포함됨. |
+| `@midnight-ntwrk/wallet-sdk-shielded`          | 2.0.0   | 프라이버시 보존 차폐 토큰 관리. proving이 지갑 빌더에서 분리됨. |
+| `@midnight-ntwrk/wallet-sdk-dust-wallet`       | 2.0.0   | 트랜잭션 수수료용 DUST 관리. 표준화된 API, 등록 해제 지원, 등록 수수료 결제 옵션 포함. |
+| `@midnight-ntwrk/wallet-sdk-capabilities`      | 2.0.0   | 공유 지갑 기능. 독립 ProvingService, SubmissionService, PendingTransactionsService 포함. |
+| `@midnight-ntwrk/wallet-sdk-abstractions`      | 2.0.0   | 코어 인터페이스와 도메인 타입. 공유 SyncProgress, SerializedTransaction 포함. |
+| `@midnight-ntwrk/wallet-sdk-prover-client`     | 1.1.0   | prover 서비스와의 인터페이스. Web Worker 기반 WASM proving 지원, 커스텀 통합을 위한 proving provider 노출. |
+| `@midnight-ntwrk/wallet-sdk-indexer-client`    | 1.1.0   | GraphQL로 Midnight 인덱서 조회. QueryRunner 유틸리티와 keepAlive 설정 추가. |
+| `@midnight-ntwrk/wallet-sdk-address-format`    | 3.0.1   | Bech32m 형식으로 Midnight 주소 인코딩/디코딩. |
+| `@midnight-ntwrk/wallet-sdk-hd`                | 3.0.1   | BIP-32/BIP-44/CIP-1852에 따라 시드에서 암호화 키 파생. |
+| `@midnight-ntwrk/wallet-sdk-node-client`       | 1.0.1   | Midnight 노드와 통신. service worker 타이머 누수 방지를 위해 WebSocket을 on-demand로 연결. |
+| `@midnight-ntwrk/wallet-sdk-utilities`         | 1.0.1   | 공통 유틸리티. 안전한 bigint 스키마 추가, `fromStream`의 dangling subscriber 문제 수정. |
+| `@midnight-ntwrk/wallet-sdk-runtime`           | 1.0.1   | 지갑 라이프사이클과 상태 관리 조율. |
 
 ---
 
 ## Fixed defect list
 
-This release includes the following defect fixes:
+이번 릴리스에 포함된 결함 수정은 다음과 같습니다.
 
-- `rollbackSpendByUtxo` no longer throws on missing UTXOs, resolving a race condition between sync and revert operations; the function now returns state unchanged when a UTXO is not found
-- `addSignature` now preserves the input transaction type via a generic parameter (previously always returned `UnprovenTransaction`)
-- Intent cloning via serialization/deserialization removed from `addSignature`
-- Pending DUST accumulation fixed across multiple coin spends
-- Intent spend time (not pending spend ctime) is now used when processing TTLs during DUST wallet reversion
-- `fromStream` no longer leaves a dangling hub subscriber on early unsubscribe
+- `rollbackSpendByUtxo`가 UTXO가 없을 때 더 이상 throw하지 않아 sync와 revert 작업 간 경쟁 조건을 해소 — UTXO를 찾지 못한 경우 상태를 변경하지 않고 그대로 반환합니다.
+- `addSignature`가 generic 파라미터를 통해 입력 트랜잭션 타입을 보존합니다(이전에는 항상 `UnprovenTransaction`을 반환).
+- `addSignature`에서 직렬화/역직렬화를 통한 Intent 복제를 제거했습니다.
+- 여러 코인 지출에 걸친 대기 DUST 누적 문제를 수정했습니다.
+- DUST 지갑 revert 시 TTL 처리에 대기 지출 ctime이 아닌 intent 지출 시각을 사용합니다.
+- `fromStream`이 조기 unsubscribe 시 hub subscriber를 남기지 않도록 수정했습니다.
 
 ---
 

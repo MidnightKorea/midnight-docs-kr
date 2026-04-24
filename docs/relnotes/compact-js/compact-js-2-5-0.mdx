@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Compact.js 2.5.0 release notes
-description: Provides a TypeScript-based runtime for compiled Compact smart contracts.
+description: 컴파일된 Compact 스마트 컨트랙트용 TypeScript 기반 런타임을 제공합니다.
 displayed_sidebar: sidebar
 toc_max_heading_level: 2
 ---
@@ -15,49 +15,49 @@ toc_max_heading_level: 2
 
 ## High-level summary
 
-Compact.js provides a TypeScript-based execution environment for smart contracts compiled with the [Compact](../../compact) language.
+Compact.js은 [Compact](../../compact) 언어로 컴파일된 스마트 컨트랙트용 TypeScript 기반 실행 환경을 제공합니다.
 
-This release keeps the same core architecture as previous versions and introduces targeted improvements in command behavior and runtime compatibility.
+이번 릴리스는 이전 버전과 동일한 코어 아키텍처를 유지하면서, 커맨드 동작과 런타임 호환성에 관한 개선 사항을 선별적으로 도입했습니다.
 
 ---
 
 ## Audience
 
-This release is relevant for developers who build tools or frameworks that deploy and interact with contracts on the Midnight blockchain.
+이번 릴리스는 Midnight 블록체인에서 컨트랙트를 배포하고 상호작용하는 도구나 프레임워크를 구축하는 개발자에게 해당됩니다.
 
 ---
 
 ## New features
 
-This release introduces no new features.
+이번 릴리스에는 새로운 기능이 없습니다.
 
 ---
 
 ## Improvements
 
-The `circuit` command in `@midnight-ntwrk/compact-js-command` now accepts an optional `--input-ledger-params` flag.
+`@midnight-ntwrk/compact-js-command`의 `circuit` 커맨드가 이제 선택 플래그 `--input-ledger-params`를 받습니다.
 
-This flag accepts a file path to a binary-serialized `LedgerParameters` value. When omitted, Compact.js defaults to initial ledger parameters provided by the network.
+이 플래그는 바이너리로 직렬화된 `LedgerParameters` 값의 파일 경로를 인자로 받습니다. 생략할 경우 Compact.js는 네트워크가 제공하는 초기 ledger 파라미터를 기본값으로 사용합니다.
 
 ---
 
 ## Deprecations
 
-No deprecations in this release.
+이번 릴리스에는 deprecation이 없습니다.
 
 ---
 
 ## Breaking changes
 
-This version of Compact.js is built against `@midnight-ntwrk/compact-runtime` `0.15.0`, which requires Compact Toolchain v0.30.0.
+이번 버전의 Compact.js은 `@midnight-ntwrk/compact-runtime` `0.15.0`을 기반으로 빌드되며, Compact Toolchain v0.30.0이 필요합니다.
 
-**Required action**: Recompile contracts against these dependency versions.
+**필요한 조치**: 해당 의존성 버전에 맞춰 컨트랙트를 재컴파일하세요.
 
 ---
 
 ## Important notes
 
-This release is primarily a compatibility and tooling update. If your build or deployment workflows pin older `compact-runtime` or `compact-compiler` versions, plan a coordinated upgrade to avoid runtime mismatches.
+이번 릴리스는 주로 호환성과 툴링 업데이트입니다. 빌드 또는 배포 워크플로가 구 버전의 `compact-runtime`이나 `compact-compiler`에 고정되어 있다면, 런타임 불일치를 방지하기 위해 일괄 업그레이드를 계획하세요.
 
 ---
 

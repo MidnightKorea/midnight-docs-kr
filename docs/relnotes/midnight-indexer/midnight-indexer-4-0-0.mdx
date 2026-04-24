@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Midnight Indexer v4.0.0 release notes
 displayed_sidebar: sidebar
-description: Release notes for Midnight Indexer v4.0.0
+description: Midnight Indexer v4.0.0 릴리스 노트
 toc_max_heading_level: 2
 ---
 
@@ -14,78 +14,78 @@ toc_max_heading_level: 2
 
 ## High-level summary
 
-This release upgrades the Indexer API to v4 and adds support for Node 0.22 and Ledger 8. It also includes performance, reliability, and internal storage updates.
+이번 릴리스는 Indexer API를 v4로 업그레이드하고 Node 0.22와 Ledger 8에 대한 지원을 추가합니다. 성능, 안정성, 내부 스토리지 업데이트도 포함되어 있습니다.
 
-For compatibility, `/api/v3` is currently available as an alias to `/api/v4`, but v4 should be treated as the target API version.
+호환성을 위해 `/api/v3`는 현재 `/api/v4`의 별칭으로 사용할 수 있지만, 타깃 API 버전은 v4로 간주해야 합니다.
 
 ---
 
 ## Audience
 
-This release note is relevant for developers who:
+이번 릴리스 노트는 다음 개발자에게 해당됩니다.
 
-- Use the Midnight Indexer via the Indexer API
-- Run and operate the Midnight Indexer
+- Indexer API를 통해 Midnight Indexer를 사용하는 개발자
+- Midnight Indexer를 운영·배포하는 개발자
 
 ---
 
 ## What changed (Summary of updates)
 
-The updates below summarize the core changes for client integrators and Indexer operators.
+아래 업데이트는 클라이언트 통합 담당자와 Indexer 운영자를 위한 핵심 변경 사항을 요약합니다.
 
-- Upgraded Indexer API from v3 to v4
-- Added `/api/v3` alias for `/api/v4` for short-term backward compatibility
-- Added support for Node 0.22 and Ledger 8
-- Replaced deterministic session IDs with random per-session tokens (`indexer-api`)
-- Updated to `storage-core` v1.1 with layout v2
-- Replaced a window function with a scalar subquery in ledger events query paths
-- Batched `ledger_db_nodes` inserts to reduce SQL round trips
-- Added lazy loading for ledger state deserialization to avoid recursion depth limit issues
+- Indexer API를 v3에서 v4로 업그레이드
+- 단기 하위 호환성을 위해 `/api/v3`를 `/api/v4`의 별칭으로 추가
+- Node 0.22와 Ledger 8에 대한 지원 추가
+- 결정론적 세션 ID를 세션마다 생성되는 랜덤 토큰(`indexer-api`)으로 교체
+- `storage-core` v1.1 (layout v2)으로 업데이트
+- ledger 이벤트 쿼리 경로에서 윈도우 함수를 스칼라 서브쿼리로 교체
+- SQL 왕복 횟수를 줄이기 위해 `ledger_db_nodes` 삽입을 배치 처리
+- 재귀 깊이 제한 문제를 방지하기 위해 ledger 상태 역직렬화에 지연 로딩 도입
 
 ---
 
 ## New features
 
-Below are the new features introduced in this release.
+이번 릴리스에서 도입된 새로운 기능은 다음과 같습니다.
 
 ### Indexer API v4
 
-The Indexer API is now v4. This is the recommended API version for all new integrations.
+Indexer API가 이제 v4입니다. 모든 신규 통합에 권장되는 API 버전입니다.
 
-### Temporary v3 compatibility alias
+### v3 임시 호환성 별칭
 
-`/api/v3` is available as an alias of `/api/v4` to support migration windows for existing clients.
+`/api/v3`가 `/api/v4`의 별칭으로 제공되어, 기존 클라이언트의 마이그레이션 기간을 지원합니다.
 
 ---
 
 ## Improvements
 
-- Replaced deterministic session IDs with random per-session tokens (`indexer-api`)
-- Batched `ledger_db_nodes` inserts to reduce SQL round trips
-- Replaced a window function with a scalar subquery in ledger event query logic
-- Added lazy loading for ledger state deserialization to avoid recursion depth limits
+- 결정론적 세션 ID를 세션마다 생성되는 랜덤 토큰(`indexer-api`)으로 교체
+- SQL 왕복 횟수를 줄이기 위해 `ledger_db_nodes` 삽입을 배치 처리
+- ledger 이벤트 쿼리 로직에서 윈도우 함수를 스칼라 서브쿼리로 교체
+- 재귀 깊이 제한을 피하기 위해 ledger 상태 역직렬화에 지연 로딩 도입
 
 ---
 
 ## Breaking changes
 
-Below are the breaking changes and required actions for developers.
+개발자가 알아둬야 할 breaking change와 필요한 조치는 다음과 같습니다.
 
-### API version update to v4
+### API 버전 v4로 업데이트
 
-**What changed**: The primary Indexer API version is now v4.
+**변경 내용**: 주 Indexer API 버전이 v4가 되었습니다.
 
-**What breaks**: Clients pinned to older API assumptions may fail when they do not align with v4 schema and behavior.
+**영향**: 구 API 가정에 고정된 클라이언트는 v4 스키마와 동작에 맞지 않으면 실패할 수 있습니다.
 
-**Required actions**: Update clients to API v4 and validate schema compatibility. Treat `/api/v3` as transitional.
+**필요한 조치**: 클라이언트를 API v4로 업데이트하고 스키마 호환성을 검증하세요. `/api/v3`는 과도기용으로 취급하세요.
 
-### Internal database storage format update
+### 내부 데이터베이스 스토리지 포맷 업데이트
 
-**What changed**: Internal database format moved to `storage-core` v1.1 with layout v2.
+**변경 내용**: 내부 데이터베이스 포맷이 `storage-core` v1.1 (layout v2)으로 이동했습니다.
 
-**What breaks**: Existing database state from earlier layout versions is not compatible for in-place reuse.
+**영향**: 이전 레이아웃 버전의 기존 데이터베이스 상태는 그대로 재사용할 수 없습니다.
 
-**Required actions**: Start from a fresh or empty database when deploying this release.
+**필요한 조치**: 이번 릴리스를 배포할 때는 새로운 또는 빈 데이터베이스에서 시작하세요.
 
 ---
 

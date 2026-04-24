@@ -6,107 +6,85 @@ sidebar_label: "Proof server"
 
 # Proof server
 
-Midnight uses zero-knowledge (ZK) cryptography to enable shielded
-transactions and data protection. An essential element of this
-architecture is ZK functionality provided by a Midnight *proof
-server*, which generates proofs locally that will be verified on-chain. The information that a DApp sends to the proof server includes
-private data, such as details of token ownership or a DApp's
-private state. To protect your data, you should access only a local
-proof server, or perhaps one on a remote machine that you control,
-over an encrypted channel.
+Midnight은 zero-knowledge(ZK) 암호화를 사용하여 shielded transaction과 데이터 보호를 구현합니다. 이 아키텍처의 핵심 요소가 바로 Midnight *proof server* 로, 로컬에서 proof를 생성하여 on-chain에서 검증합니다. DApp이 proof server에 전송하는 정보에는 토큰 소유권 세부 사항이나 DApp의 private state 같은 개인 데이터가 포함됩니다. 데이터를 보호하려면 로컬 proof server만 사용하거나, 직접 관리하는 원격 머신의 proof server에 암호화된 채널로 접속해야 합니다.
 
-Run a Midnight proof server on your system in a Docker container. The Lace wallet
-Chrome extension (including the wallet) communicates with the proof
-server to invoke ZK functionality and generate ZK proofs for your
-transactions.
+Docker 컨테이너로 시스템에 Midnight proof server를 실행하세요. Lace 지갑 Chrome 확장 프로그램(지갑 포함)이 proof server와 통신하여 ZK 기능을 호출하고 transaction에 대한 ZK proof를 생성합니다.
 
 ## Install the proof server
 
-1. In the prerequisites from the installation guide, you
-installed Docker and verified your access to the [Midnight Testnet docker repo](https://hub.docker.com/u/midnightnetwork).
+1. 설치 가이드의 사전 요구 사항에서 Docker를 설치하고 [Midnight Testnet docker repo](https://hub.docker.com/u/midnightnetwork)에 대한 접근을 확인했습니다.
 
-   - Using the terminal:
+   - 터미널 사용:
 
       ```shell
       docker search midnightnetwork
       ```
 
-   - Or by searching `midnightnetwork` in the Docker Desktop search bar.
+   - 또는 Docker Desktop 검색 창에서 `midnightnetwork`을 검색합니다.
 
-2. To download the Docker image for the Midnight proof server:
+2. Midnight proof server용 Docker 이미지를 다운로드하려면:
 
-   - Via the terminal:
+   - 터미널에서:
 
       ```shell
       docker pull midnightnetwork/proof-server:latest
       ```
 
-      If you need to run an older version of the proof-server, Replace `latest` with the required version of the proof server according to the [release compatibility matrix](../../../relnotes/support-matrix).
+      이전 버전의 proof server를 실행해야 하는 경우, `latest` 대신 [release compatibility matrix](../../../relnotes/support-matrix)에 따른 필요한 버전을 지정하세요.
 
-   - Or by clicking **pull** in the search results of the Docker Desktop.
+   - 또는 Docker Desktop 검색 결과에서 **pull** 을 클릭합니다.
 
 
-3. You can verify the download's success by checking that the following
-command lists a proof server image.
+3. 아래 명령어로 proof server 이미지가 목록에 있는지 확인하여 다운로드가 성공했는지 검증할 수 있습니다.
 
-   - Via the terminal:
+   - 터미널에서:
 
       ```shell
       docker images | grep proof-server
       ```
     
-   - Or by clicking **>_ Terminal**, clicking **Enable Docker terminal** and running the same command as above.
+   - 또는 **>_ Terminal** 을 클릭하고 **Enable Docker terminal** 을 클릭한 후 위와 같은 명령어를 실행합니다.
 
 
 ## Start the proof server
 
-In the terminal, run the proof server with the following command:
+터미널에서 다음 명령어로 proof server를 실행하세요:
 
 ```shell
 docker run -p 6300:6300 midnightnetwork/proof-server -- midnight-proof-server --network testnet
 ```
 
-You should see some output indicating that the server has started.
+서버가 시작되었음을 알리는 출력이 표시됩니다.
 
 ## Stop the proof server
 
-To stop the proof server, simply exit the process you launched with
-`docker run`. For example, on most systems, you can type `Ctrl-C` to
-stop the process.
+proof server를 중지하려면 `docker run`으로 실행한 프로세스를 종료하면 됩니다. 대부분의 시스템에서 `Ctrl-C`를 입력하면 프로세스가 중지됩니다.
 
-**For the next step in this tutorial, the proof server must be
-running**, so if you have stopped it, start it again now.
+**이 튜토리얼의 다음 단계를 진행하려면 proof server가 실행 중이어야 합니다.** 중지했다면 지금 다시 시작하세요.
 
 ## Your privacy
 
-The proof server exists to protect your privacy.  It does not open any
-network connections; it simply listens on its assigned port for
-requests from your Chrome extension. One of the lines of output you
-may see from the proof server includes this text:
+proof server는 개인정보 보호를 위해 존재합니다. proof server는 네트워크 연결을 열지 않으며, 할당된 포트에서 Chrome 확장 프로그램의 요청만 수신합니다. proof server 출력에서 다음과 같은 텍스트가 나타날 수 있습니다:
 
 ```
 Targeting network: TestNet
 ```
 
-This indicates that the instance you are running is configured
-appropriately to generate proofs that are valid on the Midnight
-Testnet. It does not indicate a network connection from the proof
-server to Testnet.
+이 메시지는 실행 중인 인스턴스가 Midnight Testnet에서 유효한 proof를 생성하도록 올바르게 구성되었음을 의미합니다. proof server에서 Testnet으로의 네트워크 연결을 뜻하지 않습니다.
 
-Please let the DevRel support team know if you have any privacy
-concerns regarding the proof server.
+proof server와 관련된 개인정보 보호 우려 사항이 있으면 DevRel 지원 팀에 알려 주세요.
 
 ## Set up proof server as a systemd service
 
-Optionally for Linux users, you might consider running the proof server as an automatic background process anytime you boot your machine.
+Linux 사용자의 경우, 부팅 시 proof server를 자동 백그라운드 프로세스로 실행하도록 설정할 수 있습니다(선택 사항).
 
-1. Create a new file for your systemd service, typically in the `/etc/systemd/system/` directory. For example:
+1. systemd 서비스용 새 파일을 만드세요. 일반적으로 `/etc/systemd/system/` 디렉토리에 생성합니다. 예를 들면:
 
 ```shell
 sudo nano /etc/systemd/system/midnight-proof-server.service
 ```
 
-2. Add the following contents.
+2. 다음 내용을 추가하세요.
 
 ```
 [Unit]
@@ -123,20 +101,20 @@ RestartSec=5
 WantedBy=default.target
 ```
 
-Adjust the `Description`, `ExecStart`, and other parameters as needed.
+`Description`, `ExecStart` 등의 매개변수를 필요에 따라 조정하세요.
 
-3. Reload systemd manager to apply changes.
+3. systemd 관리자를 다시 로드하여 변경 사항을 적용하세요.
 
 ```shell
 sudo systemctl daemon-reload
 ```
 
-4. **Start** service.
+4. 서비스를 **시작** 합니다.
 ```
 sudo systemctl start midnight-proof-server # start service
 ```
 
-5. How to **stop** and get **status** of service.
+5. 서비스를 **중지** 하거나 **상태를 확인** 하는 방법입니다.
 
 ```shell
 sudo systemctl enable midnight-proof-server # stop service

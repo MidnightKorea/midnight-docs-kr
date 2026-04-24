@@ -5,91 +5,47 @@ copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Found
 
 # Midnight architecture
 
-Midnight's architecture allows decentralized applications to be
-deployed on any device, from a massive server to a mobile phone. If
-the device can run a web browser, it can run a Midnight DApp. Some of
-Midnight's privacy-preserving capabilities, however, can be
-computationally intensive. 
+Midnight의 아키텍처는 대규모 서버부터 모바일까지 모든 디바이스에서 탈중앙화 애플리케이션을 배포할 수 있도록 합니다. 웹 브라우저를 실행할 수 있는 디바이스라면 Midnight DApp을 실행할 수 있습니다. 다만 Midnight의 일부 프라이버시 보호 기능은 연산 집약적일 수 있습니다.
 
-Midnight's contracts are described in a
-domain-specific language: _Compact_, as in making a _compact_ with
-someone.
+Midnight의 컨트랙트는 도메인 특화 언어인 _Compact_로 작성합니다. Compact는 '약속을 맺다(make a compact)'에서 따온 이름입니다.
 
-One of the outputs of the Compact compiler is collection of
-JavaScript/TypeScript definitions that provide a custom API for a
-smart contract. The compiler also produces the cryptographic
-materials and 'circuit' descriptions needed by the _proof server_ to
-create zero-knowledge proofs, which enforce the terms of a smart
-contract while shielding your private data.
+Compact 컴파일러의 출력물 중 하나는 smart contract를 위한 커스텀 API를 제공하는 JavaScript/TypeScript 정의 모음입니다. 컴파일러는 또한 _proof server_가 zero-knowledge proof를 생성하는 데 필요한 암호화 자료와 'circuit' 기술을 생성합니다. 이 proof는 smart contract의 조건을 강제하면서도 비공개 데이터를 보호합니다.
 
-The compiler runs only on the DApp developer's system, not in the
-deployed Midnight DApp.
+컴파일러는 DApp 개발자의 시스템에서만 실행되며, 배포된 Midnight DApp에서는 실행되지 않습니다.
 
-Midnight DApps rely on the services provided by a browser extension
-integrated into the Lace wallet. In addition to
-providing a faster implementation of certain functions than
-would be possible in JavaScript, the extension serves as the wallet
-to which Midnight's tokens are assigned.
+Midnight DApp은 Lace 지갑에 통합된 브라우저 확장 프로그램이 제공하는 서비스에 의존합니다. JavaScript보다 빠른 특정 함수 구현을 제공할 뿐만 아니라, Midnight 토큰이 할당되는 지갑 역할도 합니다.
 
 :::note ⚠️ Wallet SDK v4.0.0 Notice
 
-As of SDK v4.0.0, Midnight wallets and DApp connector APIs now use the Bech32m address format by default. If you're developing a DApp or working with the Lace browser extension, ensure that:
+SDK v4.0.0부터 Midnight 지갑과 DApp connector API는 기본적으로 Bech32m 주소 형식을 사용합니다. DApp을 개발하거나 Lace 브라우저 확장 프로그램을 사용하는 경우:
 
-You're using @midnight-ntwrk/wallet@4.0.0 or later.
+@midnight-ntwrk/wallet@4.0.0 이상을 사용하세요.
 
-Your DApp connector is updated to @midnight-ntwrk/dapp-connector-api@2.0.0.
+DApp connector를 @midnight-ntwrk/dapp-connector-api@2.0.0으로 업데이트하세요.
 
-You handle Bech32m and legacy address formats correctly (see the wallet-sdk-address-format package for utilities).
+Bech32m과 레거시 주소 형식을 올바르게 처리하세요 (유틸리티는 wallet-sdk-address-format 패키지를 참고).
 
-Failure to update your tooling may result in incompatibilities or unreadable addresses during testing or integration.
+도구를 업데이트하지 않으면 테스트나 통합 과정에서 호환성 문제나 읽을 수 없는 주소가 발생할 수 있습니다.
 :::
 
-In the testnet, the primary function of
-tDUST is to pay for transactions. tDUST is used for testnet testing purposes only. It has no monetary value or price 
-and is not yet calibrated to the computational expense of
-transactions.
+Testnet에서 tDUST의 주요 기능은 transaction 수수료 지불입니다. tDUST는 testnet 테스트 전용이며 금전적 가치가 없고, 아직 transaction의 연산 비용에 맞게 보정되지 않았습니다.
 
-The details of a user's transaction, possibly including private data,
-must be communicated between the DApp and the proof server to
-generate a proof of the transaction's correctness, but private data
-is never sent to any of the other services.
+Transaction의 세부 정보(비공개 데이터 포함 가능)는 proof의 정확성을 생성하기 위해 DApp과 proof server 간에 전달되어야 하지만, 비공개 데이터는 다른 서비스로 절대 전송되지 않습니다.
 
-Keeping in mind the desirability of shielding private information, the
-Midnight architecture supports a variety of deployment options. For
-example:
+비공개 정보 보호의 중요성을 감안하여, Midnight 아키텍처는 다양한 배포 옵션을 지원합니다:
 
-- A DApp user could run the browser-hosted DApps, the proof server,
-  and the client service elements on their laptop so that
-  nothing other than Midnight inter-node traffic leaves that machine.
-- Another user could run both the proof server and the client services on
-  their own server in an office or lab and access it over an
-  encrypted channel from a mobile device.
-- Another user could host the proof server and the client services in the cloud
-  (or pay a trusted third party to do it) and access them from a
-  mobile device.
-- A user could even run the proof server on their local machine
-  (to keep private data entirely local) while relying on always-on
-  instances of a Midnight Indexer and a Midnight node in the cloud.
+- DApp 사용자가 브라우저 호스팅 DApp, proof server, 클라이언트 서비스 요소를 모두 노트북에서 실행하여, Midnight 노드 간 트래픽 외에는 아무것도 외부로 나가지 않게 할 수 있습니다.
+- 사무실이나 연구실의 자체 서버에서 proof server와 클라이언트 서비스를 실행하고, 모바일 디바이스에서 암호화된 채널을 통해 접근할 수 있습니다.
+- 클라우드에 proof server와 클라이언트 서비스를 호스팅하거나 (또는 신뢰할 수 있는 제3자에게 위탁) 모바일 디바이스에서 접근할 수 있습니다.
+- 비공개 데이터를 완전히 로컬에 유지하기 위해 proof server만 로컬 머신에서 실행하면서, 클라우드의 Midnight Indexer와 Midnight 노드 인스턴스에 연결할 수도 있습니다.
 
-This tutorial will begin by exercising that last option, giving you
-instructions to run only the proof server on your system, while
-connecting to a Midnight Indexer and Midnight network node that
-Midnight has provisioned in the cloud. Later in the tutorial,
-instructions are provided for the first option, in which you will
-deploy all the client services on your system, with your own Midnight node connecting to the Midnight devnet.
+이 튜토리얼은 마지막 옵션부터 시작하여, proof server만 로컬 시스템에서 실행하면서 Midnight이 클라우드에 프로비저닝한 Midnight Indexer와 Midnight 네트워크 노드에 연결하는 방법을 안내합니다. 이후에는 첫 번째 옵션, 즉 모든 클라이언트 서비스를 로컬 시스템에 배포하고 자체 Midnight 노드를 Midnight devnet에 연결하는 방법을 안내합니다.
 
 ## Tutorial overview
 
-In this tutorial, you will begin by learning to _use_ Midnight DApps,
-then learn to _compile and run_ them, and then have an
-opportunity to _write_ a contract and parts of the code yourself. At
-the end of the tutorial, you should have a deeper appreciation for
-what Midnight has to offer and enough knowledge to be able to
-experiment with your own Midnight contracts and DApps.
+이 튜토리얼에서는 먼저 Midnight DApp을 _사용_하는 방법을 배우고, 다음으로 _컴파일하고 실행_하는 방법을 배운 뒤, 직접 컨트랙트와 코드 일부를 _작성_해 볼 기회를 갖게 됩니다. 튜토리얼을 마치면 Midnight이 제공하는 가치를 깊이 이해하고, 자체 Midnight 컨트랙트와 DApp을 실험할 수 있는 충분한 지식을 갖추게 됩니다.
 
-The Compact compiler, the Docker images for the proof server and other
-client services, and all the TypeScript libraries you need are
-available at:
+Compact 컴파일러, proof server 및 기타 클라이언트 서비스의 Docker 이미지, 필요한 모든 TypeScript 라이브러리는 다음에서 제공됩니다:
 
 | Artifact               | Location                                            |
 |------------------------|-----------------------------------------------------|
@@ -102,5 +58,4 @@ available at:
 | Node libraries         | [https://www.npmjs.com/search?q=midnight-ntwrk](https://www.npmjs.com/search?q=midnight-ntwrk) |
 
 
-The tutorial will guide you through the process of accessing them at
-appropriate points in the lessons.
+튜토리얼 과정에서 적절한 시점에 이 리소스에 접근하는 방법을 안내합니다.

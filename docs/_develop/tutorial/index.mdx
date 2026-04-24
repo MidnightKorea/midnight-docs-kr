@@ -6,42 +6,26 @@ slug: /develop/tutorial/
 
 # Midnight developer tutorial
 
-The purpose of this tutorial is to introduce you to the experience of
-using and creating Midnight decentralized applications (DApps).
+이 튜토리얼에서는 Midnight 탈중앙화 애플리케이션(DApp)을 사용하고 직접 만드는 과정을 안내합니다.
 
-All the content on this site is specific to Midnight testnet. Both the documentation and the Midnight
-network itself are subject to change prior to any wider public
-release.
+이 사이트의 모든 콘텐츠는 Midnight Testnet 전용입니다. 문서와 Midnight 네트워크 모두 정식 출시 전까지 변경될 수 있습니다.
 
 :::important
 
-Testnet is a sandboxed development environment, so there are NO guarantees that the environment will persist data.
+Testnet은 격리된 개발 환경이므로, 데이터가 영구적으로 보존된다는 보장이 없습니다.
 
 :::
 
 ## Audience
 
-This tutorial is about being a Midnight DApp _developer_, who creates
-Midnight DApps. Midnight DApp _users_ will not need to know anything
-about how to author smart contracts or how to write DApp software.
+이 튜토리얼은 Midnight DApp을 만드는 _개발자_ 를 대상으로 합니다. Midnight DApp _사용자_ 는 smart contract 작성법이나 DApp 소프트웨어 개발 방법을 알 필요가 없습니다.
 
-The tutorial assumes you want to test drive the Midnight developer
-experience without reconfiguring your own computer as a Midnight
-developer system. Therefore, Midnight provides
-directory-local configuration files and Docker images that should
-minimize the changes to your system. If you don't already have Docker
-installed on your system, the tutorial will point you in the right
-direction to get it.
+이 튜토리얼은 개발 환경을 처음부터 구성하지 않고도 Midnight 개발 경험을 빠르게 체험해 볼 수 있도록 구성되어 있습니다. Midnight은 디렉토리 로컬 설정 파일과 Docker 이미지를 제공하여 시스템 변경을 최소화합니다. Docker가 아직 설치되어 있지 않다면, 튜토리얼에서 설치 방법을 안내합니다.
 
-Midnight contracts are described in their own domain-specific
-language, but Midnight DApps are written in TypeScript (or
-JavaScript). This tutorial does not assume you are a TypeScript
-programmer, but it does assume:
+Midnight contract는 자체 도메인 특화 언어로 작성하지만, Midnight DApp은 TypeScript(또는 JavaScript)로 작성합니다. 이 튜토리얼은 TypeScript 프로그래머가 아니어도 진행할 수 있지만, 다음 사항은 필요합니다:
 
-- You are willing to read some TypeScript code.
-- You are familiar with using a text editor to edit code.
-- You are comfortable interacting with your system in a terminal
-  window, typing (and pasting in) commands at a shell prompt.
+- TypeScript 코드를 읽을 의향이 있어야 합니다.
+- 텍스트 편집기로 코드를 편집하는 데 익숙해야 합니다.
+- 터미널 창에서 shell 명령어를 입력하고 붙여넣는 작업에 불편함이 없어야 합니다.
 
-If those assumptions do not describe you, you might like to review the [learn](../../learn/what-is-midnight/) section
-to explore the features and benefits Midnight provides without getting into the technical details of coding.
+위 조건에 해당하지 않는다면, [learn](../../learn/what-is-midnight/) 섹션에서 기술적인 코딩 없이도 Midnight의 기능과 장점을 살펴볼 수 있습니다.

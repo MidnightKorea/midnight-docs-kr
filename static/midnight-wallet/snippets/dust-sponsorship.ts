@@ -16,7 +16,6 @@ import { Buffer } from 'buffer';
 import * as rx from 'rxjs';
 import { type UnboundTransaction } from '@midnight-ntwrk/wallet-sdk-capabilities/proving';
 import { aFakeProvingProvider, initWalletWithSeed } from '../utils.ts';
-
 /*
  * This file demonstrates the flow for "Dust sponsorship" - where the user's wallet is only used
  * for shielded or unshielded tokens (if at all), and a separate service does pay fees

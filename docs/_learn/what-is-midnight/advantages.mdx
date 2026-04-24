@@ -5,61 +5,24 @@ copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Found
 
 # Benefits of the Midnight model
 
-A reasonable question might be why Midnight needs any notion of public state at
-all. Wouldn't a smart contract with no publicly visible data also achieve
-better confidentiality?
+Midnight에 public state가 왜 필요한지 의문을 가질 수 있습니다. 공개 데이터가 전혀 없는 smart contract가 더 나은 기밀성을 제공하지 않을까요?
 
 ## The need for public states
 
-This is appealing, and in certain cases, better privacy can be achieved using
-additional cryptography, such as secure multi-party computation (MPC) or
-fully-homomorphic encryption (FHE). These approaches generally come with their 
-own drawbacks, however, and there is one central reason that publicly visible
-data _is_ a core part of Midnight's model: _it is often desirable._
+매력적인 생각이며, 실제로 secure multi-party computation(MPC)이나 fully-homomorphic encryption(FHE) 같은 추가 암호 기술로 더 높은 프라이버시를 달성할 수 있는 경우도 있습니다. 하지만 이런 접근 방식에는 고유한 단점이 있으며, 공개 데이터가 Midnight 모델의 핵심인 이유가 하나 있습니다: _공개 데이터가 바람직한 경우가 많기 때문입니다._
 
-In particular, public data is essential in a decentralized system. Users of a
-decentralized system want to be able to join smart contracts freely, and
-contracts are often designed without knowing who will use them ahead of time.
-This _requires_ some sharing of data – how do you know if you want to interact
-with a contract if you don't know what it is or _how_ to interact with it?
+특히 탈중앙화 시스템에서 public data는 필수적입니다. 탈중앙화 시스템의 사용자는 smart contract에 자유롭게 참여하길 원하며, 컨트랙트는 보통 누가 사용할지 사전에 알지 못한 채 설계됩니다. 이를 위해서는 어느 정도의 데이터 공유가 _필수적_입니다 — 컨트랙트가 무엇인지, _어떻게_ 상호작용하는지 모르면서 참여 여부를 어떻게 결정하겠습니까?
 
-The premise of Midnight is to enable seamless interaction between the shared public
-data of a contract and confidential data that you do not wish to share. For
-instance, an auctioneer wants to show off _what_ is being auctioned and
-perhaps (depending on the auction) the current highest bid, while a
-winning buyer wants to keep their identity secret. Or, an insurance
-company may wish to list its policies publicly, while clients do not wish the
-details of their policies to be listed.
+Midnight의 전제는 컨트랙트의 공유 public data와 공유하고 싶지 않은 기밀 데이터 간의 원활한 상호작용을 가능하게 하는 것입니다. 예를 들어, 경매인은 _무엇이_ 경매되는지와 (경매 유형에 따라) 현재 최고 입찰가를 공개하고 싶지만, 낙찰자는 신원을 비공개로 유지하고 싶습니다. 또는 보험 회사는 상품을 공개적으로 등록하고 싶지만, 고객은 보험 상세 내용이 공개되길 원하지 않습니다.
 
 ## Contention
 
-One problem that can arise with public states is _contention_. If multiple
-users interact with a contract, naive designs can lead to the users stepping
-on each other's toes. Consider a simple counter contract, where users increment
-a publicly stored counter. A naive implementation may a) read the current
-value, and b) set the new value to the read value + 1. This can be a problem if
-the steps are recorded separately in the transaction, say as `[read 1, write 2]`.
-If two of these transactions get submitted simultaneously, they will conflict,
-and only the first will succeed. For the others, the value read is no longer
-`1`, so the transaction will fail. If instead the transaction is structured to
-contain a single-step increment – for instance `[incr 1]` – then all
-transactions can succeed.
+Public state에서 발생할 수 있는 문제 중 하나가 _contention_(경합)입니다. 여러 사용자가 하나의 컨트랙트와 상호작용하면, 단순한 설계에서는 사용자 간 충돌이 발생할 수 있습니다. 단순한 카운터 컨트랙트를 생각해 보세요. 사용자들이 공개 저장된 카운터를 증가시키는 경우, 단순한 구현은 a) 현재 값을 읽고 b) 읽은 값 + 1을 새 값으로 설정합니다. 이런 단계가 transaction에 `[read 1, write 2]`처럼 별도로 기록되면 문제가 됩니다. 두 개의 transaction이 동시에 제출되면 충돌이 발생하고 첫 번째만 성공합니다. 나머지 transaction은 읽은 값이 더 이상 `1`이 아니므로 실패합니다. 대신 transaction을 단일 단계 증가 — 예를 들어 `[incr 1]` — 로 구조화하면 모든 transaction이 성공할 수 있습니다.
 
-Midnight is designed to help contract authors structure their
-interactions in a non-conflicting way, so that contracts do not need
-to deal with contention in most cases. In some cases, contention is
-unavoidable: If I put $10 in a pot, only the first person can claim it, by
-design.
+Midnight은 컨트랙트 개발자가 충돌이 발생하지 않는 방식으로 상호작용을 구조화할 수 있도록 설계되어, 대부분의 경우 contention을 처리할 필요가 없습니다. 일부 경우에는 contention이 불가피합니다: 10달러를 pot에 넣으면 설계상 첫 번째 사람만 가져갈 수 있습니다.
 
 ## Transaction fee predictability
 
-One aspect still under revision in Midnight is the *predictability* of
-transaction fees.  The design goals are both that users don't overpay
-for transactions and also that users don't pay fees for transactions
-that fail.
+현재 Midnight에서 수정 중인 부분 중 하나가 transaction 수수료의 *예측 가능성*입니다. 설계 목표는 사용자가 transaction에 과다 지불하지 않으면서도, 실패한 transaction에 대해서는 수수료를 내지 않는 것입니다.
 
-Midnight's on-chain language, Impact is designed so that users
-can reliably predict fees in many cases, and our approach to 
-transaction fallibility enables smart contract
-authors to structure contracts so that failed transactions fail
-early, before fees are taken.
+Midnight의 온체인 언어인 Impact는 많은 경우에 사용자가 수수료를 안정적으로 예측할 수 있도록 설계되었으며, transaction fallibility에 대한 접근 방식 덕분에 smart contract 개발자는 실패하는 transaction이 수수료 차감 전에 조기 실패하도록 컨트랙트를 구조화할 수 있습니다.

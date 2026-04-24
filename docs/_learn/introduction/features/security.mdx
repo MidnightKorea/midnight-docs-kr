@@ -4,17 +4,17 @@ slug: /features/security
 
 # Security
 
-Midnight uses technology that allows DApps to validate user data without sharing it, which protects users’ identities, ensuring integrity – the assurance that data has not been tampered with. 
+Midnight은 DApp이 사용자 데이터를 공유하지 않고도 검증할 수 있는 기술을 사용하여, 사용자의 신원을 보호하고 데이터가 변조되지 않았음을 보장하는 무결성을 확보합니다.
 
-For this, Midnight uses zero-knowledge (ZK) technology, a method that ensures privacy and security in digital interactions. Zero-knowledge proofs (ZKPs), a key application of ZK technology, enable one party to prove to another that a specific statement or claim is true without revealing any additional information beyond the claim itself.
+이를 위해 Midnight은 디지털 상호작용에서 프라이버시와 보안을 보장하는 zero-knowledge(ZK) 기술을 활용합니다. ZK 기술의 핵심 응용인 zero-knowledge proof(ZKP)를 사용하면, 한 당사자가 주장 자체 외에 어떤 추가 정보도 공개하지 않고 특정 주장이 참임을 상대방에게 증명할 수 있습니다.
 
-ZKPs are instrumental in addressing two core challenges:
+ZKP는 두 가지 핵심 과제를 해결합니다:
 
-- Ensuring that sensitive information remains private while proving necessary facts.
-- Enabling trust and compatibility across systems without exposing underlying data.
+- 필요한 사실을 증명하면서도 민감한 정보의 프라이버시를 유지합니다.
+- 기반 데이터를 노출하지 않으면서 시스템 간 신뢰와 호환성을 구현합니다.
 
-Additionally, Midnight employs ZK Snarks, a highly efficient form of ZKP, to facilitate secure transactions without revealing the identities of the transacting parties or transaction details.
+또한 Midnight은 ZKP의 고효율 형태인 ZK Snark를 활용하여, 거래 당사자의 신원이나 transaction 세부 정보를 공개하지 않고 안전한 transaction을 처리합니다.
 
-It is important to note that there are different types of ZKPs. Midnight chose ZK Snarks as this is currently the most attractive proving system from the verifier’s perspective. By ensuring both efficiency and strong security guarantees, ZK Snarks are a ‘Swiss army knife’ for blockchains and distributed ledgers, with applications in data protection, and interoperability. 
+ZKP에는 여러 유형이 있다는 점을 알아 두어야 합니다. Midnight이 ZK Snark를 선택한 이유는 현재 검증자 관점에서 가장 매력적인 증명 시스템이기 때문입니다. ZK Snark는 효율성과 강력한 보안 보장을 모두 갖추고 있어 blockchain 및 분산 원장에서 데이터 보호와 상호운용성 등 다양한 용도로 활용할 수 있는 '만능 도구'입니다.
 
-ZK Snarks are implemented in the Zswap transaction protocol and Midnight smart contracts. These protocols preserve confidential data and enable smart contract development methods that facilitate concurrency and security for transactions involving assets and the exchange of value. 
+ZK Snark는 Zswap transaction 프로토콜과 Midnight smart contract에 구현되어 있습니다. 이 프로토콜은 기밀 데이터를 보호하며, 자산 및 가치 교환과 관련된 transaction에 대해 동시성과 보안을 갖춘 smart contract 개발 방식을 지원합니다.

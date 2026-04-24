@@ -6,90 +6,60 @@ sidebar_label: "Lace wallet"
 
 # Lace wallet
 
-The Lace wallet is a Chrome extension.
+Lace 지갑은 Chrome 확장 프로그램입니다.
 
 :::important Chrome browser
 
-You must use the Chrome web browser or its derivatives to complete
-web-based transactions on the Midnight testnet.
+Midnight Testnet에서 웹 기반 transaction을 완료하려면 Chrome 웹 브라우저 또는 그 파생 브라우저를 사용해야 합니다.
 
-Only the Chrome browser itself is fully supported. The Lace
-wallet may not be able to connect to your local proof server from
-Chrome derivatives. If you choose to use Brave, for example, it will
-be necessary to disable Brave shields when running this tutorial's
-welcome DApp, so that the DApp (hosted at one address) can contact
-your local proof server (hosted on your system, at a different
-address) through the Lace extension.
+공식적으로는 Chrome 브라우저만 완전히 지원됩니다. Lace 지갑은 Chrome 파생 브라우저에서 로컬 proof server에 연결하지 못할 수 있습니다. 예를 들어 Brave를 사용하는 경우, 이 튜토리얼의 welcome DApp을 실행할 때 Brave shields를 비활성화해야 합니다. DApp(특정 주소에서 호스팅됨)이 Lace 확장 프로그램을 통해 로컬 proof server(시스템의 다른 주소에서 호스팅됨)에 접근해야 하기 때문입니다.
 
-Supported Chromium version: 119 or later.
+지원 Chromium 버전: 119 이상.
 
 :::
 
 ## Install Lace wallet
 
-1. Go to the [Lace wallet](https://chromewebstore.google.com/detail/lace-beta/hgeekaiplokcnmakghbdfbgnlfheichg).
-2. Install the extension.
+1. [Lace wallet](https://chromewebstore.google.com/detail/lace-beta/hgeekaiplokcnmakghbdfbgnlfheichg) 페이지로 이동합니다.
+2. 확장 프로그램을 설치합니다.
 
-You may want to go to the Lace wallet extension's detailed settings
-and enable the toggle-switch labeled **Pin to toolbar**, so that the
-wallet is easily accessible.
+Lace 지갑 확장 프로그램의 상세 설정에서 **Pin to toolbar** 토글 스위치를 활성화하면 지갑에 쉽게 접근할 수 있습니다.
 
 ## Set up Lace wallet
 
-1. Start the extension, either by clicking its icon on the web
-   browser's toolbar (if you pinned it there after the preceding
-   steps) or by clicking on it in the list of extensions under the
-   extensions icon in your browser's toolbar.
-2. The first page you see presents the options of creating a new
-   wallet or restoring an existing one.
+1. 확장 프로그램을 실행하세요. 웹 브라우저 도구 모음의 아이콘(앞 단계에서 고정한 경우)을 클릭하거나, 브라우저 도구 모음의 확장 프로그램 아이콘 아래 목록에서 클릭하면 됩니다.
+2. 첫 페이지에서 새 지갑 만들기 또는 기존 지갑 복원 옵션이 표시됩니다.
    ![new Lace wallet](/img/midnight-lace/lace-create-restore.png)
-   At this point, create a new wallet.
-3. Read and accept the 'Lace Terms of Use'.
+   여기서는 새 지갑을 만드세요.
+3. 'Lace Terms of Use'를 읽고 동의하세요.
    ![Lace Terms of Use](/img/midnight-lace/lace-terms.png)
-4. Give your wallet a name to help you identify it later, maybe a name
-   like _Midnight testnet_.
+4. 나중에 식별할 수 있도록 지갑 이름을 지정하세요. _Midnight testnet_ 같은 이름을 추천합니다.
    ![Lace wallet name](/img/midnight-lace/lace-wallet-name.png)
-5. Choose and save a strong password for your wallet. Please make sure to keep your password in a safe place. No one will have
-access to or the ability to retrieve or recover your password.
-If you lose your password, you will need to restore your wallet with your secret passphrase.
-6. In the next step, the wallet asks for the network addresses and
-   ports of the three client service components it needs:
+5. 강력한 비밀번호를 설정하고 안전한 곳에 보관하세요. 비밀번호를 분실하면 아무도 조회하거나 복구할 수 없습니다. 비밀번호를 잃어버리면 비밀 복구 문구로 지갑을 복원해야 합니다.
+6. 다음 단계에서 지갑이 필요로 하는 세 가지 클라이언트 서비스 구성 요소의 네트워크 주소와 포트를 입력합니다:
 
-   - the Midnight network you are going to connect to. If you're connecting to our testnet, choose the "Testnet" option. If you're running a local version of midnight testnet, choose the "Undeployed" option.
-   - the Midnight network node through which transactions are to be
-     submitted
-   - the Midnight Indexer of the blockchain, which
-     transmits ledger updates to the wallet
-   - the proof server, which generates zero-knowledge proofs of the
-     validity of your Midnight transactions
+   - 연결할 Midnight 네트워크. 공식 Testnet에 연결하려면 "Testnet" 옵션을, 로컬에서 Midnight Testnet을 실행 중이라면 "Undeployed" 옵션을 선택하세요.
+   - transaction을 제출할 Midnight 네트워크 노드
+   - 지갑에 원장 업데이트를 전송하는 Midnight Indexer
+   - Midnight transaction의 zero-knowledge proof를 생성하는 proof server
 
 
    ![Lace server configuration](/img/midnight-lace/lace-server-config.png)
 
 :::important
-   Notice that the default proof server address points to a local instance
-   that you have installed. This is because the proof server requires
-   private data as inputs, and using a remote instance could compromise
-   users' private data.
+   기본 proof server 주소가 로컬에 설치된 인스턴스를 가리키는 점에 주의하세요. proof server는 개인 데이터를 입력값으로 사용하기 때문에, 원격 인스턴스를 사용하면 개인 데이터가 노출될 수 있습니다.
 :::
 
-7. Finally, fill in all the words for a secret passphrase, which may
-   be needed to restore your wallet in the future.
-   _Do not lose this passphrase! Please write down and keep your passphrase in a safe place. No one will have access to or the ability to retrieve or recover your passphrase. If you lose your passphrase, you will not be able to restore your wallet._
+7. 마지막으로 비밀 복구 문구의 모든 단어를 입력하세요. 이 문구는 나중에 지갑을 복원할 때 필요합니다.
+   _이 복구 문구를 절대 잃어버리지 마세요! 복구 문구를 안전한 곳에 적어서 보관하세요. 아무도 복구 문구를 조회하거나 되찾아 줄 수 없습니다. 복구 문구를 분실하면 지갑을 복원할 수 없습니다._
    ![Lace secret passphrase](/img/midnight-lace/lace-passphrase.png)
 
-8. After you have verified your passphrase, a page confirming that you
-   have completed the setup is displayed.
+8. 복구 문구 확인이 완료되면 설정 완료 확인 페이지가 표시됩니다.
    ![Lace setup complete](/img/midnight-lace/lace-done.png)
 
-Then the main page for your new wallet appears, with 0.00 tDUST as its
-initial balance. You can access this view at any time by clicking on the Lace wallet extension icon again.
+그러면 새 지갑의 메인 페이지가 나타나며, 초기 잔액은 0.00 tDUST입니다. Lace 지갑 확장 프로그램 아이콘을 다시 클릭하면 언제든 이 화면을 확인할 수 있습니다.
 
-Before your wallet has received any tDUST, the main page displays the
-wallet address, so that you can copy it into some place that will
-transfer funds to the wallet.
-Visit the [token acquisition page](/docs/develop/tutorial/1-using/faucet.mdx) to find out more.
-Later, you can access the wallet address
-at any time by clicking on the **Receive** button at the top of the
-page.
+지갑에 tDUST가 들어오기 전에는 메인 페이지에 지갑 주소가 표시되어, 해당 주소로 자금을 보낼 수 있습니다.
+[token acquisition page](/docs/develop/tutorial/1-using/faucet.mdx)에서 자세한 내용을 확인하세요.
+이후에는 페이지 상단의 **Receive** 버튼을 클릭하면 언제든 지갑 주소를 확인할 수 있습니다.
 ![Lace receive](/img/midnight-lace/lace-receive.png)

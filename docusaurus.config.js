@@ -324,8 +324,8 @@ const config = {
     ],
 
     algolia: {
-      appId: process.env.ALGOLIA_APP_ID,
-      apiKey: process.env.ALGOLIA_SEARCH_KEY,
+      appId: process.env.ALGOLIA_APP_ID || "PLACEHOLDER_APP_ID",
+      apiKey: process.env.ALGOLIA_SEARCH_KEY || "placeholder_search_key",
       indexName: "Midnight Docs",
       contextualSearch: true,
       searchPagePath: "search",

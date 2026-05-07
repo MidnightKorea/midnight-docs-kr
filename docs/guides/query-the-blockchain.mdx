@@ -1,9 +1,9 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-title: How to query the blockchain
-sidebar_label: How to query the blockchain
-description: A guide on how to query the Midnight blockchain.
+title: 블록체인 데이터를 조회하는 방법
+sidebar_label: 블록체인 데이터를 조회하는 방법
+description: Midnight 블록체인을 조회하는 방법을 설명하는 가이드입니다.
 keywords: [midnight, blockchain, query]
 sidebar_position: 47
 tags: [midnight, javascript]
@@ -12,23 +12,22 @@ tags: [midnight, javascript]
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-This guide walks you through connecting to the Midnight blockchain and listening for new blocks.
-It also covers extracting data from these blocks using the Polkadot API and the various methods it provides to connect to Substrate-based blockchain networks.
+이 가이드에서는 Midnight 블록체인에 연결하고 새 블록을 실시간으로 수신하는 방법을 다룹니다. Polkadot API와 Substrate 기반 블록체인 네트워크에 연결하기 위해 제공되는 다양한 메서드를 사용해 블록에서 데이터를 추출하는 방법도 함께 살펴봅니다.
 
 ## Prerequisites
 
-Before you start, make sure you have the following:
+시작하기 전에 다음 사항을 준비하세요.
 
-- [Node.js](https://nodejs.org/en/download/) installed on your machine.
-- Basic knowledge of TypeScript.
+- 머신에 [Node.js](https://nodejs.org/en/download/)가 설치되어 있어야 합니다.
+- TypeScript에 대한 기본적인 이해가 필요합니다.
 
 ## Connect to the Midnight blockchain
 
-The [`@polkadot/api`](https://polkadot.js.org/docs/api/) library includes a WebSocket provider (`WsProvider`) to connect to Substrate-based blockchain networks, including Midnight.
+[`@polkadot/api`](https://polkadot.js.org/docs/api/) 라이브러리는 Midnight을 포함한 Substrate 기반 블록체인 네트워크에 연결하기 위한 WebSocket 프로바이더(`WsProvider`)를 지원합니다.
 
 ### Installation
 
-Install the dependencies:
+의존성을 설치합니다.
 
 <Tabs>
   <TabItem value="npm">
@@ -45,33 +44,32 @@ Install the dependencies:
 
 ### Connect to the Midnight node
 
-Use the `WsProvider` to connect to a Midnight node using the RPC endpoint:
+`WsProvider`로 RPC 엔드포인트를 통해 Midnight 노드에 연결합니다.
 
 ```typescript  
 import { ApiPromise, WsProvider } from '@polkadot/api';
 
-// Define the WebSocket endpoint for the Midnight node  
+// Midnight 노드의 WebSocket 엔드포인트 정의
 const wsProvider = new WsProvider('wss://rpc.preview.midnight.network');
 
-// Create the API instance  
+// API 인스턴스 생성
 const api = await ApiPromise.create({ provider: wsProvider });  
 ```
 
 :::note
 
-The PRC endpoint in the example above is for the preview network. However, you can use the same code and update the endpoint to match the 
-environment you intend to connect to. Supported environments are:
+위 예제의 RPC 엔드포인트는 preview 네트워크용입니다. 동일한 코드에서 엔드포인트만 바꿔 다른 환경에 연결할 수 있습니다. 지원되는 환경은 다음과 같습니다.
 - **Preview**: `wss://rpc.preview.midnight.network`
 - **Preprod**: `wss://rpc.preprod.midnight.network`
 - **Mainnet**: `wss://rpc.mainnet.midnight.network`
 
-For more information on the supported environments, see the [Environments and endpoints](../relnotes/network) reference.
+지원 환경에 대한 자세한 내용은 [Environments and endpoints](../relnotes/network) 문서를 참고하세요.
 
 :::
 
 ## Listen for new blocks
 
-Once connected, you can subscribe to new block headers to listen for new blocks:
+연결이 완료되면 새 블록 헤더를 구독하여 새 블록을 수신할 수 있습니다.
 
 ```typescript  
 api.rpc.chain.subscribeNewHeads((lastHeader) => {  
@@ -79,11 +77,11 @@ api.rpc.chain.subscribeNewHeads((lastHeader) => {
 });  
 ```
 
-This function logs the block number each time a new block is added to the chain.
+이 함수는 새 블록이 체인에 추가될 때마다 블록 번호를 출력합니다.
 
 ## Extract data from blocks
 
-To extract detailed information from each new block, such as transactions and events, use the snippet below:
+새 블록에서 트랜잭션이나 이벤트 같은 상세 정보를 추출하려면 다음 코드를 사용하세요.
 
 ```typescript  
 api.rpc.chain.subscribeNewHeads(async (lastHeader) => {  
@@ -106,22 +104,21 @@ api.rpc.chain.subscribeNewHeads(async (lastHeader) => {
 });  
 ```
 
-The code above performs the following:
-- Subscribes to new block headers
-- Retrieves the full block and its associated events
-- Logs detailed information about each extrinsic (transaction) and event
+위 코드가 수행하는 작업은 다음과 같습니다.
+- 새 블록 헤더 구독
+- 전체 블록과 관련 이벤트 조회
+- 각 extrinsic(트랜잭션)과 이벤트의 상세 정보 출력
 
 ## What is an extrinsic?
 
-An extrinsic is a piece of data sent from outside the blockchain into it, asking the network to perform an action. 
-The term is often used in Substrate-based blockchains to refer to transactions.
+Extrinsic은 블록체인 외부에서 네트워크에 특정 동작을 요청하기 위해 전달되는 데이터 조각을 말합니다. Substrate 기반 블록체인에서는 일반적으로 트랜잭션을 가리키는 용어로 사용됩니다.
 
-There are three main types of extrinsics:
+Extrinsic에는 크게 세 가지 종류가 있습니다.
 
-- **Signed extrinsics**: These are transactions submitted by users that include a digital signature such as transferring tokens or interacting with smart contracts.
-- **Unsigned extrinsics**: These are submitted without a signature and are typically used for operations that don't require user authentication.
-- **Inherent extrinsics**: These are used for system-level operations, such as setting the timestamp for a new block. The blockchain usually generates them itself.
+- **Signed extrinsics**: 사용자가 디지털 서명을 포함해 제출하는 트랜잭션입니다. 토큰 전송이나 스마트 컨트랙트 호출 등이 해당합니다.
+- **Unsigned extrinsics**: 서명 없이 제출되며, 사용자 인증이 필요 없는 작업에 주로 사용됩니다.
+- **Inherent extrinsics**: 새 블록의 타임스탬프 설정 같은 시스템 수준 작업에 사용되며, 보통 블록체인이 직접 생성합니다.
 
 ## Next steps
 
-You now know how to connect to the Midnight blockchain and listen for new blocks. For more information on running a node, see the [Node RPC](../nodes/rpc-node) guide.
+이제 Midnight 블록체인에 연결하고 새 블록을 수신하는 방법을 익혔습니다. 노드 운영에 대해 더 알아보려면 [Node RPC](../nodes/rpc-node) 가이드를 참고하세요.

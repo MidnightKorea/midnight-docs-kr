@@ -1,4 +1,4 @@
-[**@midnight-ntwrk/compact-runtime v0.15.0**](../README.md)
+[**@midnight-ntwrk/compact-runtime v0.16.0**](../README.md)
 
 ***
 
@@ -10,10 +10,10 @@
 function ecMul(a, b): JubjubPoint;
 ```
 
-Compact 내장 `ec_mul` 함수
+The Compact builtin `ecMul` function
 
-타원 곡선 점에 스칼라를 곱합니다
-(곱셈 표기법)
+This function multiplies an elliptic curve point by a scalar (in
+multiplicative notation)
 
 ## Parameters
 

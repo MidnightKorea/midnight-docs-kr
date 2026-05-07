@@ -1,4 +1,4 @@
-[**@midnight-ntwrk/compact-runtime v0.15.0**](../README.md)
+[**@midnight-ntwrk/compact-runtime v0.16.0**](../README.md)
 
 ***
 
@@ -10,9 +10,9 @@
 function ecAdd(a, b): JubjubPoint;
 ```
 
-Compact 내장 `ec_add` 함수
+The Compact builtin `ecAdd` function
 
-두 타원 곡선 점을 더합니다(곱셈 표기법)
+This function add two elliptic curve points (in multiplicative notation)
 
 ## Parameters
 

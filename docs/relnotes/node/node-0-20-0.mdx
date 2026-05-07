@@ -1,0 +1,150 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Node v0.20.0 release notes
+description: Node is a core component of the Midnight Network, responsible for syncing, validating transactions, and maintaining the chain state.
+displayed_sidebar: sidebar
+---
+
+- **Version**: v0.20.0
+- **Date**: January 28, 2026
+- **Environment**: Preview, Preprod
+
+---
+
+## High-level summary
+
+Node v0.20.0은 거버넌스 탈중앙화, 보안 강화, 성능 개선에 초점을 맞춘 메이저 릴리스입니다.
+런타임 sudo 접근을 제거하고, 거버넌스 및 시스템 매개변수 업그레이드를 도입하며, Midnight SRS와 `midnight-zk` 1.0이 포함된 Ledger 7.0.0으로 업데이트됩니다.
+
+또한 이번 릴리스는 Prometheus Remote Write 지원과 툴킷 안정성 개선을 통해 운영 측면도 향상시킵니다.
+
+---
+
+## Audience
+
+이 릴리스 노트는 다음에 해당하는 사용자를 대상으로 합니다.
+
+- Preview 또는 Preprod에서 Midnight 노드 인프라를 운영하는 사용자
+- 거버넌스 또는 검증자 워크플로를 담당하는 사용자
+- Node RPC API와 통합하는 사용자
+- 운영 작업에 Midnight toolkit을 사용하는 사용자
+
+---
+
+## Summary of updates
+
+이번 릴리스의 주요 변경 사항은 다음과 같습니다.
+
+- 런타임에서 `pallet_sudo`를 제거하고 거버넌스 기반 root-call 워크플로 도입
+- permissioned candidates 컨트랙트를 갱신된 policy ID를 가진 Aiken 기반 버전으로 마이그레이션
+- `systemParameters_getAriadneParameters` 추가, `sidechain_getAriadneParameters`는 deprecated 처리
+- Ledger 7.0.0으로 업그레이드 (Midnight SRS와 `midnight-zk` 1.0 포함)
+- 푸시 기반 메트릭 수집을 위한 Prometheus Remote Write 지원 추가
+- 런타임과 거버넌스 안전성 검사 강화
+- cNIGHT 쿼리 성능을 대폭 향상
+- 네트워크 안정성을 위해 최대 블록 크기를 5 MB에서 1 MB로 축소
+
+---
+
+## New features
+
+이번 릴리스에서 새롭게 도입된 기능은 다음과 같습니다.
+
+### Governance and system parameters
+
+Node v0.20.0은 system parameters pallet과 거버넌스 정렬형 root 실행 경로를 추가하여, 런타임 sudo 없이도 약관, D-parameter 값, 관련 네트워크 매개변수를 관리형으로 갱신할 수 있게 합니다.
+
+### Prometheus Remote Write support
+
+이제 노드는 풀(pull) 기반 스크래핑이 적합하지 않은 환경을 위해 Prometheus Remote Write를 사용한 푸시(push) 기반 메트릭을 지원합니다.
+
+### Ledger 7.0.0 integration
+
+이제 노드는 Ledger 7.0.0과 통합되며, 다음 내용이 포함됩니다.
+
+- Midnight 자체 SRS 매개변수
+- `midnight-zk` 1.0 증명 스택
+- 원장 업그레이드로부터 비롯된 보안 및 결정론적(determinism) 개선
+
+---
+
+## Improvements
+
+이번 릴리스에서 개선된 사항은 다음과 같습니다.
+
+- 중복 멤버를 거부하도록 federated authority observation을 개선했습니다.
+- 보장(guaranteed) 단계의 실패 트랜잭션 악용을 줄이기 위해 런타임 사전 디스패치 검사를 강화했습니다.
+- PostgreSQL 경로에서 cNIGHT observation 쿼리 성능을 개선했습니다.
+- 거버넌스 래핑 트랜잭션과 ledger root-hash 처리에 대한 툴킷 안정성을 강화했습니다.
+- `--no-watch-progress` 같은 툴킷 옵션을 추가하여 운영 유연성을 높였습니다.
+
+---
+
+## Breaking changes
+
+운영자와 통합 담당자가 알아야 할 호환성을 깨는 변경과 필요한 조치는 다음과 같습니다.
+
+### Runtime sudo removed
+
+**변경 사항**: 런타임 제어 경로에서 `pallet_sudo`가 제거되었습니다.
+
+**영향**: 직접적인 sudo 접근에 의존하던 운영 흐름이 동작하지 않습니다.
+
+**필요한 조치**:
+
+- 관리 작업 흐름을 거버넌스 승인 방식으로 옮기세요.
+- 지원되는 거버넌스 및 root-call 워크플로를 사용하도록 운영 매뉴얼(runbook)을 갱신하세요.
+
+### Aiken migration for permissioned candidates contracts
+
+**변경 사항**: permissioned candidates 컨트랙트와 데이터 형식이 갱신된 policy ID를 가진 Aiken 기반 버전으로 이전되었습니다.
+
+**영향**: 이전 policy ID를 사용하거나 기존 컨트랙트 가정에 의존하던 노드와 통합 코드가 영향을 받습니다.
+
+**필요한 조치**:
+
+- 대상 네트워크에 맞춰 policy ID를 갱신하세요.
+- permissioned candidate 데이터를 파싱하거나 사용하는 통합 코드를 검증하세요.
+
+### API and extrinsic compatibility updates
+
+**변경 사항**: 새로운 RPC 엔드포인트 `systemParameters_getAriadneParameters`가 추가되었으며, `sidechain_getAriadneParameters`는 deprecated 처리되었습니다. `set_tx_size_weight`의 호출 인덱스가 `2`에서 `1`로 변경되었습니다.
+
+**영향**: deprecated 엔드포인트 가정에 의존하는 하드코딩된 통합 코드, 또는 이전 호출 인덱스로 사전 인코딩된 extrinsic이 영향을 받습니다.
+
+**필요한 조치**:
+
+- API 클라이언트를 새 RPC 엔드포인트로 마이그레이션하세요.
+- 이전 호출 인덱스를 참조하는 사전 인코딩 extrinsic을 다시 생성하고 검증하세요.
+
+### Block size limit reduced
+
+**변경 사항**: 최대 블록 크기가 5 MB에서 1 MB로 축소되었습니다.
+
+**영향**: 이전 한도를 기준으로 설계된 처리량 가정이나 부하 프로파일이 영향을 받습니다.
+
+**필요한 조치**:
+
+- 트랜잭션 처리량을 다시 벤치마크하고 부하 테스트 기준을 갱신하세요.
+- 필요하면 배치(batching) 전략을 재검토하세요.
+
+---
+
+## Upgrade notes
+
+- 이번 릴리스는 0.18.x에서 직접 업그레이드할 수 있는 경로를 지원합니다(0.19.0은 건너뜀).
+- 업그레이드 후 툴킷 상태 불일치가 보이면 로컬 툴킷 캐시를 비우고 다시 동기화하세요.
+- 푸시 메트릭의 경우 다음 항목을 설정하세요.
+  - `PROMETHEUS_PUSH_ENDPOINT`
+  - `PROMETHEUS_PUSH_INTERVAL_SECS`
+  - `PROMETHEUS_PUSH_JOB_NAME`
+
+---
+
+## Links and references
+
+- **GitHub release**: [Midnight Node v0.20.0](https://github.com/midnightntwrk/midnight-node/releases/tag/node-0.20.0)
+- **Node operator guide**: [Run a node](../../nodes/)
+- **Ledger changelog**: [Ledger v7.0.0 changelog](https://github.com/midnightntwrk/midnight-ledger/blob/ledger-7.0.0/CHANGELOG.md)
+- **Partner Chains**: [Partner Chains v1.8.1](https://github.com/input-output-hk/partner-chains/releases/tag/v1.8.1)

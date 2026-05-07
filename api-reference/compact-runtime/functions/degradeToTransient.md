@@ -1,4 +1,4 @@
-[**@midnight-ntwrk/compact-runtime v0.15.0**](../README.md)
+[**@midnight-ntwrk/compact-runtime v0.16.0**](../README.md)
 
 ***
 
@@ -10,11 +10,11 @@
 function degradeToTransient(x): bigint;
 ```
 
-Compact 내장 `degrade_to_transient` 함수
+The Compact builtin `degradeToTransient` function
 
-[persistentHash](persistentHash.md) 또는 [persistentCommit](persistentCommit.md)의 출력을
-필드 요소로 "다운그레이드"하며, 그 결과를 [transientHash](transientHash.md) 또는
-[transientCommit](transientCommit.md)에서 사용할 수 있습니다.
+This function "degrades" the output of a [persistentHash](persistentHash.md) or
+[persistentCommit](persistentCommit.md) to a field element, which can then be used in
+[transientHash](transientHash.md) or [transientCommit](transientCommit.md).
 
 ## Parameters
 
@@ -28,4 +28,4 @@ Compact 내장 `degrade_to_transient` 함수
 
 ## Throws
 
-`x`가 32바이트가 아닌 경우
+If `x` is not 32 bytes long

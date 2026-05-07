@@ -1,6 +1,6 @@
 # Compact 커맨드라인 도구 사용법
 
-Compact 커맨드라인 도구로 Compact 툴체인의 컴파일러, 포매터, fixup 도구를 실행할 수 있습니다.
+Compact 커맨드라인 도구로 Compact 툴체인의 컴파일러, 포매터, fixup 도구를 실행할 수 있습니다. 또한 툴체인 자체나 커맨드라인 도구 자체를 업데이트할 수도 있습니다.
 
 NAME
 ====
@@ -209,7 +209,7 @@ COMPILE
 
 Synopsis: **compact** **compile** _+version_ _options_ _sourcepath_ _targetpath_
 
-_sourcepath_에 있는 Compact 소스 프로그램을 지정된 Compact 툴체인 버전 _version_으로 컴파일합니다. 버전을 지정하지 않으면 설치된 Compact 툴체인의 default 버전이 사용됩니다. _options_는 선택 사항입니다. _version_이 존재하지 않으면 컴파일러와 커맨드라인 도구 _options_를 모두 사용할 수 있고, 존재하면 컴파일러 _options_만 사용할 수 있습니다.
+_sourcepath_에 있는 Compact 소스 프로그램을 지정된 Compact 툴체인 버전 _version_으로 컴파일합니다. 버전을 지정하지 않으면 설치된 Compact 툴체인의 default 버전이 사용됩니다. _options_는 선택 사항입니다. _+version_이 존재하지 않으면 설치된 default 컴파일러와 커맨드라인 도구 _options_를 모두 사용할 수 있고, 존재하면 지정한 컴파일러의 _options_만 사용할 수 있습니다.
 _targetpath_는 컴파일러 출력의 대상 디렉토리입니다.
 자세한 사용법은 [컴파일러 사용법 페이지](compiler-usage.mdx)를 참고하세요.
 

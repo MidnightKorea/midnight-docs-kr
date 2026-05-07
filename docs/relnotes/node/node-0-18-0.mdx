@@ -1,0 +1,164 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Node v0.18.0 release notes
+description: Node is a core component of the Midnight Network, responsible for syncing, validating transactions, and maintaining the chain state.
+displayed_sidebar: sidebar
+---
+
+ - **Version**: v0.18.0  
+ - **Date**: December 15, 2025  
+ - **Environment**: Preview
+
+---
+
+## High-level summary
+
+이번 릴리스는 기존의 차폐(shielded) 트랜잭션과 더불어 비차폐(unshielded) 트랜잭션을 지원하고, tDUST 대신 DUST 기반 수수료를 도입한 새로운 토크노믹스 모델을 적용합니다.
+Midnight generator는 Midnight toolkit으로 재설계되어 기능이 대폭 확장되었습니다.
+또한 Partner Chains v1.8.0으로 업그레이드됩니다.
+이번 릴리스에 포함된 호환성을 깨는 변경 때문에 체인 리셋이 필요하며, Preview 개발자와 스테이크 풀 운영자에게 영향이 있습니다.
+
+## Audience
+
+이 릴리스 노트는 다음에 해당하는 사용자에게 매우 중요합니다.
+
+- Preview에서 노드를 운영하는 사용자
+- Midnight generator(현재의 Midnight toolkit)를 사용하는 사용자
+- 스테이크 풀을 운영하거나 인프라를 유지보수하는 사용자
+- NIGHT 토큰을 다루거나 컨트랙트를 배포하는 사용자
+
+## Summary of updates
+
+이번 릴리스의 주요 변경 사항은 다음과 같습니다.
+
+- 기존 차폐 트랜잭션과 함께 비차폐 트랜잭션 도입
+- NIGHT 토큰에서 생성되는 새로운 DUST 수수료 메커니즘 적용
+- Partner Chains v1.8.0으로 업그레이드
+- Federated Authority Observation 기능 추가
+- 안정성 향상을 위해 세션 길이를 2시간에서 30분으로 단축(1200 슬롯 → 300 슬롯)
+- 임시 환경을 위한 상태 포크(state forking) 구현
+- Docker 컨테이너에서 비루트(non-root) 사용자를 적용해 보안 강화
+- DUST 생성 및 등록과 관련된 다수의 핵심 버그 수정
+
+---
+
+## New features
+
+이번 릴리스에서 새롭게 도입된 기능은 다음과 같습니다.
+
+### Unshielded transactions
+
+이제 Midnight은 기존 차폐 트랜잭션에 더해 비차폐 트랜잭션도 지원합니다. 이로써 개발자는 자신의 사용 사례에 맞는 트랜잭션 유형을 선택할 수 있습니다.
+
+### DUST fee mechanism
+
+이제 트랜잭션 수수료는 DUST로 지불하며, DUST는 cNIGHT observation 시스템을 통해 NIGHT 토큰에서 생성됩니다. 이 토크노믹스 모델은 NIGHT 보유자가 DUST를 생성해 트랜잭션 비용을 지불할 수 있는 지속 가능한 수수료 경제를 만들어 냅니다.
+
+### Midnight toolkit
+
+Midnight generator는 개발자를 위한 커맨드라인 도구인 Midnight toolkit으로 재설계되었습니다. 이 새로운 툴킷으로 다음 작업을 수행할 수 있습니다.
+
+- 비차폐 토큰 전송
+- 컨트랙트 호출 사이에서 차폐 + 비차폐 토큰 전송
+- 로컬 및 원격 네트워크와 동기화
+- DUST 수수료 계산
+- 컴파일된 컨트랙트 실행
+- 수백 건의 트랜잭션을 사전 생성하여 전송(성능 테스트)
+- 노드 런타임 포크 지원
+- 지갑 상태와 DUST 잔액 조회 및 출력
+- 컨트랙트 유지 관리(authority + verifier 키 갱신)
+
+### Federated Authority Observation
+
+Midnight 블록 생산이 허용된 페더레이션의 관찰 가능성(observability)을 도입합니다.
+
+### State forking for ephemeral environments
+
+노드 상태에 대한 스냅샷과 복원 기능을 사용할 수 있습니다. 이를 통해 개발자는 특정 체인 상태에서 빠르게 띄울 수 있는 임시 테스트 환경을 구성할 수 있습니다.
+
+---
+
+## New features requiring configuration updates
+
+다음 기능은 사용자의 별도 조치가 필요합니다.
+
+### Session length reduction
+
+세션 길이가 2시간(1200 슬롯)에서 30분(300 슬롯)으로 단축되었습니다.
+
+**Required updates**:
+
+- 세션 타이밍에 의존하는 모니터링 및 자동화 스크립트를 갱신하세요.
+- 짧아진 세션 주기에 맞춰 스테이크 풀 운영 워크플로를 조정하세요.
+
+### Network ID convention change
+
+네트워크 ID는 이제 Polkadot 표준에 따라 `midnight_` 접두사를 사용합니다.
+
+**Required updates**:
+
+- 새 형식을 사용하도록 체인 스펙과 설정 파일을 갱신하세요.
+- 체인 스펙은 이제 네트워크 식별에 `id` 필드를 사용합니다.
+
+---
+
+## Improvements
+
+이번 릴리스에서 개선된 사항은 다음과 같습니다.
+
+- DUST 등록 시 오류 처리를 강화했습니다.
+- UTXO 정렬과 용량 관리를 개선했습니다.
+- 지갑 상태에 대한 JSON 출력을 추가했습니다.
+- 트랜잭션 명령에 유연한 플래그를 추가했습니다.
+- 동기화 중 인덱싱 상태를 `stderr`로 출력하여, `stdout`의 데이터 출력과 분리합니다.
+
+---
+
+## Breaking changes
+
+다음 변경 사항은 매우 중요하며 기존 동작과 호환되지 않습니다.
+
+### Non-root Docker containers
+
+**변경 사항**: Docker 이미지가 이제 root 대신 비루트 `appuser`로 실행됩니다.
+
+**영향**: 적절한 권한이 설정되지 않은 볼륨 마운트는 실패하고, root 권한을 전제로 작성된 스크립트는 동작하지 않습니다.
+
+**필요한 조치**:
+
+- 비루트 컨테이너 요구 사항에 맞춰 보안 설정을 점검하세요.
+- 자동화된 소유권 보정이 필요하면 `RESTORE_OWNER` 환경 변수를 설정하세요.
+
+### NetworkId type change
+
+**변경 사항**: `NetworkId` 타입이 `enum`에서 `String`으로 변경되었습니다.
+
+**영향**: NetworkId enum 변형(variant)에 대해 패턴 매칭하는 코드는 컴파일에 실패합니다.
+
+**필요한 조치**:
+
+- `NetworkId` 참조를 모두 `String`으로 다루도록 갱신하세요.
+- `enum` 패턴 매칭을 문자열 비교로 변경하세요.
+
+---
+
+## Known issues
+
+비용 모델 통합이 아직 완성되지 않았습니다.
+
+**설명**: 비용 모델 통합은 아직 초기 단계이며, 상당한 미세 조정이 필요합니다. 적절한 비용 제한이 없으면 블록이 너무 가득 차서 네트워크가 불안정해질 수 있습니다.
+
+**Workaround**: 다음 버전이 나올 때까지 블록당 트랜잭션을 1건으로 제한하세요. 이는 거버넌스를 통해 Midnight pallet의 `setMnTxWeight` extrinsic을 1,000,000,000,000으로 보내 설정할 수 있습니다. 이 임시 제한을 통해 비용 모델 최적화가 진행되는 동안 네트워크 안정성을 유지할 수 있습니다.
+
+---
+
+## Links and references
+
+- **Artifacts**: [Midnight node](https://hub.docker.com/r/midnightnetwork/midnight-node).
+- **Midnight toolkit**: [CLI toolkit usage guide](https://github.com/midnightntwrk/midnight-node/blob/main/util/toolkit/README.md).
+- **Midnight Node**: [Node operator guide](../../nodes/).
+- **GitHub release**: [Midnight Node-0.18.0 release](https://github.com/midnightntwrk/midnight-node/releases/tag/node-0.18.0).
+- **DUST**: [DUST architecture overview](https://docs.midnight.network/blog/dust-architecture).
+- **Community support**: [Discord](https://discord.com/invite/midnightnetwork)에서 토론에 참여하세요.
+- **Known issues board**: Midnight Node [GitHub issues](https://github.com/midnightntwrk/midnight-node/issues).

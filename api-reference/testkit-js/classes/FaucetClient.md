@@ -1,4 +1,4 @@
-[**@midnight-ntwrk/testkit-js v4.0.2**](../README.md)
+[**@midnight-ntwrk/testkit-js v4.0.4**](../README.md)
 
 ***
 
@@ -41,14 +41,14 @@ Midnight 파우셋 서비스와 상호작용하기 위한 클라이언트입니�
 
 ### health()
 
-> **health**(): `Promise`\<`void` \| `AxiosResponse`\<`any`, `any`, \{ \}\>\>
+> **health**(): `Promise`\<`AxiosResponse`\<`any`, `any`, \{ \}\>\>
 
 파우셋 서비스의 상태를 확인합니다.
 파우셋 서비스의 health 엔드포인트에 GET 요청을 보냅니다.
 
 #### Returns
 
-`Promise`\<`void` \| `AxiosResponse`\<`any`, `any`, \{ \}\>\>
+`Promise`\<`AxiosResponse`\<`any`, `any`, \{ \}\>\>
 
 상태 확인 응답으로 이행되는 프로미스를 반환하며, 요청 실패 시 오류를 로깅합니다
 

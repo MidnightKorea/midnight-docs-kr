@@ -10,6 +10,37 @@ id: authentication
 
 # Authentication
 
+Midnight Network는 전통적인 인증 방식을 사용하지 않습니다. 대신 트랜잭션을 제출하고 컨트랙트와 상호작용하려면 프로바이더를 설정하고 지갑 주소로 트랜잭션 인텐트에 서명해야 합니다.
+
+## 프로바이더 설정
+
+[Midnight.js](../official/midnight-js) 패키지로 컨트랙트를 배포하고 상호작용할 수 있습니다. 프로바이더를 설정하려면 `MidnightProviders` 객체를 만들어야 합니다. 이 객체는 트랜잭션 제출과 컨트랙트 상호작용에 사용할 프로바이더를 정의합니다.
+
+```typescript
+const providers: MidnightProviders = {
+  privateStateProvider: levelPrivateStateProvider({
+    privateStoragePasswordProvider: () => password,
+    accountId: walletAddress,
+  }),
+}
+```
+
+`privateStateProvider`는 네트워크의 프라이빗 상태를 저장하고 조회하는 역할을 합니다. 다음 속성이 필요합니다.
+
+- `privateStoragePasswordProvider`: 프라이빗 상태 프로바이더의 비밀번호를 반환하는 함수
+- `accountId`: 트랜잭션 서명에 사용할 지갑 주소
+
 :::note
-준비 중입니다...
+
+위 프로바이더 구현은 예시용이며, 일부 설정을 의도적으로 생략했습니다. 전체 프로바이더 설정은 [Midnight.js](../official/midnight-js) 문서를 참고하세요.
+
 :::
+
+## 트랜잭션 제출
+
+네트워크 상태를 변경하는 모든 작업은 지갑 주소의 서명과 트랜잭션을 요구합니다. 각 트랜잭션에는 가스 비용이 들고, 지갑의 DUST 잔액으로 결제합니다.
+
+DUST는 Midnight Network에서 트랜잭션을 작동시키는 네트워크 자원입니다. 지갑은 NIGHT 토큰으로 DUST를 생성하므로, 먼저 지갑의 NIGHT 토큰을 위임해 DUST를 생성해야 합니다.
+
+DUST 잔액이 없으면 트랜잭션을 제출하거나 컨트랙트를 배포할 수 없습니다.
+

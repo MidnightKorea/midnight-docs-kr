@@ -1,0 +1,157 @@
+---
+title: Error reference
+description: Midnight SDK 및 클라이언트 라이브러리의 오류 레퍼런스입니다.
+sidebar_position: 20
+sidebar_label: Error reference
+tags: [error reference]
+toc_max_heading_level: 3
+---
+
+# Error reference
+
+Midnight.js는 컨트랙트와 트랜잭션 작업 중 발생하는 실패를 분류할 수 있도록 구조화된 오류 클래스를 제공합니다.
+
+이 문서는 오류 클래스와 속성을 정리한 레퍼런스입니다.
+
+## 한눈에 보기
+
+| 클래스 | 종류 | 발생 시점 |
+| --- | --- | --- |
+| `TxFailedError` | 트랜잭션 | 합의 노드가 트랜잭션을 거부했거나 적용에 실패한 경우 |
+| `DeployTxFailedError` | 트랜잭션 | 배포 트랜잭션이 실패한 경우 |
+| `CallTxFailedError` | 트랜잭션 | 호출 트랜잭션이 실패한 경우 |
+| `ReplaceMaintenanceAuthorityTxFailedError` | 트랜잭션 | 유지보수 권한 교체에 실패한 경우 |
+| `RemoveVerifierKeyTxFailedError` | 트랜잭션 | 검증자 키 제거에 실패한 경우 |
+| `InsertVerifierKeyTxFailedError` | 트랜잭션 | 검증자 키 삽입에 실패한 경우 |
+| `ContractTypeError` | 컨트랙트 | 배포된 컨트랙트의 타입이나 검증자 키가 예상과 다른 경우 |
+| `IncompleteCallTxPrivateStateConfig` | 설정 | 호출 시 `privateStateId`만 지정하고 `privateStateProvider`를 누락한 경우 |
+| `IncompleteFindContractPrivateStateConfig` | 설정 | 조회 시 `initialPrivateState`만 지정하고 `privateStateId`를 누락한 경우 |
+| `ScopedTransactionIdentityMismatchError` | 상태 / 식별자 | 스코프드 배치가 다른 컨트랙트나 프라이빗 상태의 캐시를 재사용하려는 경우 |
+
+## 트랜잭션 오류
+
+제출한 트랜잭션이 실행 또는 검증 단계에서 실패할 때 발생하는 오류입니다.
+
+### 트랜잭션 실패 (`TxFailedError`)
+
+합의 노드에 제출한 트랜잭션이 실패했음을 나타내는 오류입니다.
+
+#### 속성
+
+- `finalizedTxData`: 실패한 트랜잭션의 최종 데이터
+- `circuitId` (선택): 트랜잭션 구성에 사용된 회로
+
+### 배포 트랜잭션 실패 (`DeployTxFailedError`)
+
+컨트랙트 배포 트랜잭션이 실패했음을 나타내는 오류입니다.
+
+#### 속성
+
+`finalizedTxData`: 실패한 배포 트랜잭션의 최종 데이터
+
+### 호출 트랜잭션 실패 (`CallTxFailedError`)
+
+컨트랙트 호출 트랜잭션이 실패했음을 나타내는 오류입니다.
+
+#### 속성
+
+- `finalizedTxData`: 실패한 호출 트랜잭션의 최종 데이터
+- `circuitId`: 트랜잭션 구성에 사용된 회로
+
+### 유지보수 권한 교체 실패 (`ReplaceMaintenanceAuthorityTxFailedError`)
+
+유지보수 권한 교체 트랜잭션이 실패했음을 나타내는 오류입니다.
+
+#### 속성
+
+`finalizedTxData`: 실패한 유지보수 권한 교체 트랜잭션의 최종 데이터
+
+### 검증자 키 제거 실패 (`RemoveVerifierKeyTxFailedError`)
+
+검증자 키 제거 트랜잭션이 실패했음을 나타내는 오류입니다.
+
+#### 속성
+
+`finalizedTxData`: 실패한 검증자 키 제거 트랜잭션의 최종 데이터
+
+### 검증자 키 삽입 실패 (`InsertVerifierKeyTxFailedError`)
+
+검증자 키 삽입 트랜잭션이 실패했음을 나타내는 오류입니다.
+
+#### 속성
+
+`finalizedTxData`: 실패한 검증자 키 삽입 트랜잭션의 최종 데이터
+
+## 컨트랙트 오류
+
+배포된 컨트랙트와 상호작용할 때 발생하는 오류입니다.
+
+### 컨트랙트 타입 오류 (`ContractTypeError`)
+
+기대한 컨트랙트 타입이 실제 배포된 상태와 일치하지 않음을 나타내는 오류입니다.
+
+#### 속성
+
+- `contractState`: 배포된 컨트랙트 상태
+- `circuitIds`: 정의되지 않았거나 검증자 키가 일치하지 않는 회로
+
+## 설정 오류
+
+트랜잭션을 만들거나 컨트랙트를 조회할 때 설정이 잘못되었거나 누락되었음을 나타내는 오류입니다.
+
+### 호출 트랜잭션 프라이빗 상태 설정 누락 (`IncompleteCallTxPrivateStateConfig`)
+
+호출 트랜잭션이 `privateStateId`는 지정했지만 `privateStateProvider`를 제공하지 않았음을 나타내는 오류입니다.
+
+#### 속성
+
+- `privateStateId`: 호출 트랜잭션에 지정된 프라이빗 상태 ID
+- `privateStateProvider`: 호출 트랜잭션에 지정된 프라이빗 상태 프로바이더
+
+### 컨트랙트 조회 프라이빗 상태 설정 누락 (`IncompleteFindContractPrivateStateConfig`)
+
+컨트랙트 조회가 `initialPrivateState`는 지정했지만 `privateStateId`를 포함하지 않았음을 나타내는 오류입니다.
+
+#### 속성
+
+- `initialPrivateState`: 컨트랙트 조회에 지정된 초기 프라이빗 상태
+- `privateStateId`: 컨트랙트 조회에 지정된 프라이빗 상태 ID
+
+#### 메시지
+
+이 오류가 발생할 때 클라이언트가 던지는 실제 런타임 메시지는 다음과 같습니다.
+
+```
+'initialPrivateState' was defined for contract find while 'privateStateId' was undefined
+```
+
+## 상태 및 식별자 오류
+
+컨트랙트 식별자와 캐시된 상태와 관련된 미묘한 버그를 막기 위한 오류입니다.
+
+### 스코프드 트랜잭션 식별자 불일치 (`ScopedTransactionIdentityMismatchError`)
+
+스코프드 트랜잭션이 다른 컨트랙트 주소나 프라이빗 상태 ID로 캐시된 상태를 재사용하려고 했음을 나타내는 오류입니다.
+
+#### 속성
+
+- `cached`: 캐시에 저장된 컨트랙트 주소와 프라이빗 상태 ID
+- `requested`: 요청된 컨트랙트 주소와 프라이빗 상태 ID
+
+## 오류 처리
+
+JavaScript의 `try/catch` 구문과 `instanceof` 연산자로 오류를 처리할 수 있습니다.
+
+```typescript
+import { CallTxFailedError } from '@midnight-ntwrk/midnight-js-contracts';
+
+try {
+  await client.call(/* ... */);
+} catch (error) {
+  if (error instanceof CallTxFailedError) {
+    console.error('Transaction failed:', error.message);
+  } else {
+    console.error('Unexpected error:', error);
+  }
+}
+```

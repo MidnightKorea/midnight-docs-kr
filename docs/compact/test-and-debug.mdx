@@ -1,35 +1,35 @@
 ---
-title: Test and debug
-sidebar_label: Test and debug
+title: 테스트와 디버깅
+sidebar_label: 테스트와 디버깅
 sidebar_position: 30
-description: Learn how to test and debug Compact smart contracts.
+description: Compact 스마트 컨트랙트를 테스트하고 디버깅하는 방법을 익힙니다.
 tags: [testing, debugging]
 ---
 
 # Test and debug
 
-Testing Compact smart contracts requires a comprehensive approach that validates both functional correctness and security properties. 
+Compact 스마트 컨트랙트를 테스트할 때는 기능적 정합성과 보안 속성을 모두 검증해야 합니다.
 
 ## Why test smart contracts?
 
-Compact smart contracts execute across multiple contexts (on-chain ledger, zero-knowledge circuits, and local witnesses), requiring different testing strategies for each layer. 
-Proper testing ensures your contract behaves correctly, maintains privacy guarantees, and handles edge cases appropriately.
+Compact 스마트 컨트랙트는 여러 컨텍스트(온체인 ledger, 영지식 circuit, 로컬 witness)에서 실행되므로 각 레이어마다 다른 테스트 전략이 필요합니다.
+적절한 테스트를 통해 컨트랙트가 올바르게 동작하고, 프라이버시 보장이 유지되며, 엣지 케이스가 제대로 처리되는지 확인할 수 있습니다.
 
-This guide covers the following testing strategies:
+이 문서에서는 다음과 같은 테스트 전략을 다룹니다.
 
-* **Circuit logic testing**: Validate that individual circuits produce correct outputs and state transitions.
-* **Privacy verification**: Confirm that private data does not leak through public outputs.
-* **Authorization testing**: Ensure access control mechanisms prevent unauthorized operations.
-* **Integration testing**: Test complete transaction flows on test networks.
-* **Performance testing**: Verify proof generation completes within acceptable timeframes.
+* **Circuit logic testing**: 개별 circuit가 올바른 출력과 상태 전이를 만들어내는지 검증합니다.
+* **Privacy verification**: 비공개 데이터가 공개 출력으로 새어나가지 않는지 확인합니다.
+* **Authorization testing**: 접근 제어 메커니즘이 권한 없는 작업을 막는지 확인합니다.
+* **Integration testing**: 테스트 네트워크에서 전체 트랜잭션 흐름을 테스트합니다.
+* **Performance testing**: proof 생성이 허용 가능한 시간 안에 완료되는지 확인합니다.
 
 ## Input validation patterns
 
-Validate all inputs at circuit boundaries to prevent invalid state transitions and security vulnerabilities. Proper input validation ensures your contract behaves correctly and rejects malicious or malformed inputs.
+circuit 경계에서 모든 입력을 검증해 잘못된 상태 전이와 보안 취약점을 막습니다. 입력을 제대로 검증해야 컨트랙트가 올바르게 동작하고 악의적이거나 형식이 어긋난 입력을 거부할 수 있습니다.
 
 ### Comprehensive validation example
 
-This example demonstrates multiple validation techniques applied to a transfer circuit:
+다음은 transfer circuit에 여러 검증 기법을 적용한 예시입니다.
 
 ```compact
 const MAX_AMOUNT: Uint<64> = 1000000;
@@ -55,11 +55,11 @@ export circuit transfer(recipient: Bytes<32>, amount: Uint<64>): [] {
 
 ## Unit test circuits
 
-Unit tests validate individual circuit behavior in isolation. Test both success paths and failure conditions to ensure your contract handles all scenarios correctly.
+유닛 테스트는 개별 circuit 동작을 격리된 상태에서 검증합니다. 컨트랙트가 모든 시나리오를 제대로 처리하는지 확인하려면 성공 경로와 실패 조건을 모두 테스트해야 합니다.
 
 ### Test circuit execution
 
-The following example tests the basic increment operation for the [Counter contract](../tutorials/counter/smart-contract). This demonstrates unit testing at the circuit level without requiring a full blockchain deployment:
+다음 예시는 [Counter contract](../tutorials/counter/smart-contract)의 기본 increment 동작을 테스트합니다. 전체 블록체인 배포 없이 circuit 단위에서 유닛 테스트를 수행하는 방법입니다.
 
 ```typescript
 import { describe, it, expect } from '@jest/globals';
@@ -88,7 +88,7 @@ describe('Counter circuit', () => {
 
 ### Test state transitions
 
-Test that your contract enforces valid state machine transitions and rejects invalid ones. The [bulletin board](../tutorials/bboard/smart-contract) contract demonstrates two-state validation:
+컨트랙트가 유효한 상태 머신 전이를 강제하고 잘못된 전이를 거부하는지 테스트합니다. [bulletin board](../tutorials/bboard/smart-contract) 컨트랙트는 두 상태 간 검증 예시를 보여줍니다.
 
 ```typescript
 import { Contract } from '../managed/bboard/contract/index.js';
@@ -128,7 +128,7 @@ describe('Bulletin board state transitions', () => {
 
 ### Test boundary conditions
 
-Test edge cases and boundary values to ensure your contract handles limits correctly:
+엣지 케이스와 경계값을 테스트해 컨트랙트가 한계 조건을 제대로 처리하는지 확인합니다.
 
 ```typescript
 import { Contract } from '../managed/counter/contract/index.js';
@@ -174,11 +174,11 @@ describe('Boundary conditions', () => {
 
 ## Integration test
 
-Integration tests validate complete transaction flows on test networks (Preview or Preprod). These tests ensure your contract interacts correctly with the Midnight blockchain, proof servers, and other system components.
+통합 테스트는 테스트 네트워크(Preview 또는 Preprod)에서 전체 트랜잭션 흐름을 검증합니다. Midnight 블록체인, proof 서버, 그 외 시스템 구성 요소와 컨트랙트가 올바르게 상호작용하는지 확인합니다.
 
 ### Transaction finalization test
 
-Test that transactions complete successfully and update on-chain state. This verifies the full transaction lifecycle from submission to confirmation:
+트랜잭션이 정상적으로 완료되어 온체인 상태를 갱신하는지 테스트합니다. 제출부터 확정까지 트랜잭션 전체 라이프사이클을 검증합니다.
 
 ```typescript
 it('should handle transaction finalization correctly', async () => {
@@ -203,11 +203,11 @@ it('should handle transaction finalization correctly', async () => {
 
 ## Privacy verification
 
-Privacy tests ensure that private witness data does not appear in public transaction outputs or blockchain state. These tests are critical for verifying that zero-knowledge proofs properly protect sensitive information.
+프라이버시 테스트는 비공개 witness 데이터가 공개 트랜잭션 출력이나 블록체인 상태에 노출되지 않는지 확인합니다. 영지식 proof가 민감한 정보를 제대로 보호하는지 검증하는 핵심 단계입니다.
 
 ### Test disclosure behavior
 
-Verify that only explicitly disclosed values appear in public state. The `disclose()` function in Compact marks witness values for public inclusion:
+명시적으로 공개된 값만 공개 상태에 노출되는지 검증합니다. Compact의 `disclose()` 함수는 witness 값을 공개 대상으로 표시합니다.
 
 ```typescript
 import { Contract } from '../managed/bboard/contract/index.js';
@@ -247,11 +247,11 @@ it('should only disclose explicitly disclosed values', async () => {
 
 ## Negative test
 
-Negative tests verify that contracts correctly reject invalid operations and unauthorized access. These tests are essential for ensuring your contract's security properties.
+Negative test는 컨트랙트가 잘못된 작업과 권한 없는 접근을 제대로 거부하는지 검증합니다. 컨트랙트의 보안 속성을 보장하기 위해 꼭 필요한 단계입니다.
 
 ### Test assertion failures
 
-Test that circuits reject operations when preconditions are not met. Assert statements in Compact enforce invariants at runtime:
+전제 조건이 충족되지 않은 상황에서 circuit가 작업을 거부하는지 테스트합니다. Compact의 assert 구문은 런타임에 불변 조건을 강제합니다.
 
 ```typescript
 import { Contract } from '../managed/bboard/contract/index.js';
@@ -315,7 +315,7 @@ describe('Assertion handling', () => {
 
 ### Test double-spend prevention
 
-Test that nullifiers prevent reusing the same resource. Nullifiers are one-time identifiers derived from private data that prevent double-spending:
+nullifier가 동일 리소스의 재사용을 막는지 테스트합니다. nullifier는 비공개 데이터에서 파생되는 일회용 식별자로, 이중 지불을 방지합니다.
 
 ```typescript
 it('should prevent double-spend with sequence tracking', async () => {
@@ -355,11 +355,11 @@ it('should prevent double-spend with sequence tracking', async () => {
 
 ## Debug strategies
 
-When your contract behaves unexpectedly, systematic debugging helps identify the root cause. These strategies help you trace circuit execution, inspect state changes, and diagnose common issues.
+컨트랙트가 의도와 다르게 동작할 때는 체계적인 디버깅으로 근본 원인을 찾아야 합니다. 다음 전략은 circuit 실행을 추적하고, 상태 변화를 들여다보고, 자주 발생하는 문제를 진단하는 데 도움이 됩니다.
 
 ### Enable verbose logging
 
-Use logging to trace contract execution and understand circuit behavior:
+로깅을 활용해 컨트랙트 실행을 추적하고 circuit 동작을 파악합니다.
 
 ```typescript
 import pino from 'pino';
@@ -384,7 +384,7 @@ logger.debug({
 
 ### Inspect circuit execution
 
-Add detailed logging to understand state transitions during testing:
+테스트 중 상태 전이를 파악할 수 있도록 상세한 로깅을 추가합니다.
 
 ```typescript
 it('should debug circuit state changes', async () => {
@@ -423,37 +423,37 @@ it('should debug circuit state changes', async () => {
 
 ## Common debug scenarios
 
-The following scenarios cover typical issues encountered during Compact contract development and how to diagnose them.
+다음은 Compact 컨트랙트 개발에서 자주 마주치는 문제 유형과 진단 방법입니다.
 
 ### Circuit execution failures
 
-When a circuit fails during execution, check these common causes:
+circuit 실행이 실패할 때는 다음 원인을 점검합니다.
 
-- **Witness function return types**: Ensure witness functions return tuples matching the `witness` declaration, for example `[PrivateState, ReturnValue]`.
-- **Assert conditions**: Verify all `assert` statements pass with your test inputs. Log the values you are comparing to identify which assertion is failing.
-- **Variable initialization**: Confirm you initialize all variables before use. Compact does not allow reading uninitialized variables.
-- **Bounded integer types**: Review bounds on types like `Uint<8>` and `Uint<64>`. Ensure values fit within declared ranges.
+- **Witness function return types**: witness 함수가 `witness` 선언과 맞는 튜플(예: `[PrivateState, ReturnValue]`)을 반환하는지 확인합니다.
+- **Assert conditions**: 테스트 입력에 대해 모든 `assert` 구문이 통과하는지 점검합니다. 어떤 assert에서 실패하는지 파악할 수 있도록 비교 대상 값을 로그로 남깁니다.
+- **Variable initialization**: 모든 변수를 사용 전에 초기화했는지 확인합니다. Compact는 초기화되지 않은 변수의 읽기를 허용하지 않습니다.
+- **Bounded integer types**: `Uint<8>`, `Uint<64>` 같은 타입의 범위를 다시 확인합니다. 값이 선언된 범위 안에 들어오는지 점검합니다.
 
 ### Proof generation failures
 
-When proof generation fails or times out, investigate these potential issues:
+proof 생성이 실패하거나 시간 초과가 발생할 때는 다음 항목을 살펴봅니다.
 
-- **Circuit complexity**: Verify circuit computational bounds are reasonable. Extremely complex circuits may exceed proof server capacity limits.
-- **Infinite loops**: Check for loops that may not terminate. Use bounded loop counters to guarantee termination.
-- **Witness data types**: Confirm witness functions return data matching circuit expectations. Verify correct sizes for `Uint8Array` values and valid ranges for `bigint` values.
-- **Memory constraints**: Review large data structures that may exceed memory limits. Consider chunking or pagination for large collections.
+- **Circuit complexity**: circuit 연산 한도가 합리적인지 확인합니다. 지나치게 복잡한 circuit는 proof 서버 용량 한계를 넘을 수 있습니다.
+- **Infinite loops**: 종료되지 않을 가능성이 있는 루프를 확인합니다. 종료를 보장하려면 루프 카운터에 한도를 두세요.
+- **Witness data types**: witness 함수가 circuit가 기대하는 형식의 데이터를 반환하는지 확인합니다. `Uint8Array` 값의 크기와 `bigint` 값의 유효 범위를 점검합니다.
+- **Memory constraints**: 메모리 한도를 넘길 수 있는 큰 데이터 구조를 점검합니다. 큰 컬렉션이라면 청크 분할이나 페이지네이션을 검토합니다.
 
 ### State synchronization issues
 
-When ledger state does not update as expected, verify these aspects:
+ledger 상태가 기대대로 갱신되지 않을 때는 다음 사항을 확인합니다.
 
-- **Transaction finalization**: Verify transactions complete with `await tx.wait()` before querying state. Premature queries might return stale data.
-- **Witness consistency**: Confirm witness functions return consistent values across calls. Avoid external dependencies that might change between invocations.
-- **Ledger field operations**: Review how you modify ledger fields. Ensure operations are valid for the field type (for example, `Counter.increment()` vs direct assignment).
+- **Transaction finalization**: 상태를 조회하기 전에 `await tx.wait()`로 트랜잭션이 완료됐는지 확인합니다. 너무 일찍 조회하면 오래된 데이터가 돌아올 수 있습니다.
+- **Witness consistency**: witness 함수가 호출마다 일관된 값을 반환하는지 확인합니다. 호출 사이에 값이 바뀔 수 있는 외부 의존성은 피합니다.
+- **Ledger field operations**: ledger 필드를 어떻게 수정하는지 다시 살펴봅니다. 필드 타입에 적합한 연산인지(예: `Counter.increment()`와 직접 대입의 차이) 확인합니다.
 
 ## Next steps
 
-Now that you understand testing strategies for Compact smart contracts:
+Compact 스마트 컨트랙트 테스트 전략을 살펴봤다면 다음 문서를 이어서 확인해 보세요.
 
-- Review the [smart contract security](./smart-contract-security) guide for security best practices
-- Review the [Compact JavaScript implementation](../guides/compact-javascript-runtime) guide for more information on how to use the JavaScript implementation to test your contracts.
+- 보안 모범 사례는 [smart contract security](./smart-contract-security) 가이드를 참고합니다.
+- JavaScript 구현으로 컨트랙트를 테스트하는 방법은 [Compact JavaScript implementation](../guides/compact-javascript-runtime) 가이드를 참고합니다.

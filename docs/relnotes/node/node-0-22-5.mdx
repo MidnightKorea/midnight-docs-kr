@@ -14,75 +14,75 @@ displayed_sidebar: sidebar
 
 ## High-level summary
 
-Node v0.22.5 is a node-only patch release. It adds an optional transaction-pool filter so operators can cap the per-transaction gas cost their node accepts, and includes two cNIGHT observation query optimisations that materially reduce db-sync load. The devnet bundled chain spec is reset to runtime version 0.22.0 to match Mainnet.
+Node v0.22.5는 노드 바이너리만 갱신되는 패치 릴리스입니다. 운영자가 노드에서 받아들이는 트랜잭션의 가스 비용 상한을 설정할 수 있는 트랜잭션 풀 필터가 추가되었고, db-sync 부하를 큰 폭으로 줄이는 cNIGHT 관측 쿼리 최적화 두 가지가 포함됐습니다. devnet 번들 체인 스펙은 Mainnet과 맞추기 위해 런타임 0.22.0으로 리셋되었습니다.
 
-There is no runtime upgrade in this release. Operators only need to update the node binary.
+이번 릴리스에는 런타임 업그레이드가 없습니다. 운영자는 노드 바이너리만 업데이트하면 됩니다.
 
 ---
 
 ## Audience
 
-This release note is relevant for users who:
+이 릴리스 노트는 다음 사용자를 대상으로 합니다.
 
-- Run Midnight node infrastructure on any public network and want the cNIGHT observation performance improvements
-- Run devnet nodes that rely on the bundled chain spec, which now targets runtime 0.22.0 to align with Mainnet
+- Public 네트워크에서 Midnight 노드 인프라를 운영하면서 cNIGHT 관측 성능 개선이 필요한 사용자
+- Mainnet과 정렬된 런타임 0.22.0을 타겟으로 하는 번들 체인 스펙을 사용하는 devnet 노드 운영자
 
-DApp developers and toolkit users do not need to take any action for this release.
+DApp 개발자나 툴킷 사용자는 이번 릴리스에서 별도로 조치할 사항이 없습니다.
 
 ---
 
 ## What changed (Summary of updates)
 
-The updates below describe the key changes introduced in this release.
+이번 릴리스의 주요 변경 사항은 다음과 같습니다.
 
-- Added transaction pool gas cost filtering via `--max-tx-gas-cost` CLI argument and `MAX_TX_GAS_COST` environment variable.
-- Cached `multi_asset.id` lookups for cNIGHT observation queries to reduce db-sync join complexity.
-- Added primary-key range bounding for cNIGHT observation queries to allow PostgreSQL to prune rows before running expensive joins.
-- Reset the devnet bundled chain spec to target runtime version 0.22.0 to match Mainnet.
+- `--max-tx-gas-cost` CLI 인자와 `MAX_TX_GAS_COST` 환경 변수로 트랜잭션 풀의 가스 비용 필터링 기능 추가
+- cNIGHT 관측 쿼리에서 `multi_asset.id` 조회 결과를 캐시하여 db-sync join 복잡도 감소
+- cNIGHT 관측 쿼리에 primary key 범위 제한을 추가해 PostgreSQL이 비싼 join 전에 행을 미리 솎아낼 수 있도록 개선
+- devnet 번들 체인 스펙을 런타임 0.22.0 기준으로 리셋해 Mainnet과 정렬
 
 ---
 
 ## New features
 
-Below are the new features introduced in this release.
+이번 릴리스에서 새로 도입된 기능은 다음과 같습니다.
 
 ### Transaction pool gas cost filtering
 
-Node v0.22.5 adds a `--max-tx-gas-cost` CLI argument and a `MAX_TX_GAS_COST` environment variable. The node rejects Midnight transactions whose estimated gas cost exceeds the configured limit at the pool gateway level, before they enter the transaction pool. The CLI argument takes precedence over the environment variable when both are set.
+Node v0.22.5는 `--max-tx-gas-cost` CLI 인자와 `MAX_TX_GAS_COST` 환경 변수를 추가합니다. 노드는 추정 가스 비용이 설정된 한도를 초과하는 Midnight 트랜잭션을 풀 게이트웨이 단계에서, 트랜잭션 풀에 진입하기 전에 거부합니다. CLI 인자와 환경 변수가 모두 설정된 경우 CLI 인자가 우선합니다.
 
-Leaving the flag unset preserves the previous unbounded behavior, so this change is non-breaking for existing deployments.
+플래그를 설정하지 않으면 이전과 동일하게 상한 없이 동작하므로, 기존 배포에 호환성을 깨는 변경은 아닙니다.
 
 ---
 
 ## New features requiring configuration updates
 
-No new features require configuration updates.
+설정 갱신이 필요한 신규 기능은 없습니다.
 
 ---
 
 ## Improvements
 
-This release includes two targeted performance improvements for cNIGHT observation queries and a devnet chain spec alignment fix.
+이번 릴리스에는 cNIGHT 관측 쿼리 성능 개선 두 가지와 devnet 체인 스펙 정렬 수정이 포함됩니다.
 
-- Cached `multi_asset.id` lookups for cNIGHT observation queries, eliminating repeated `JOIN multi_asset` clauses across registration, deregistration, asset create/spend, and candidate token paths. This materially reduces query complexity on busy db-sync deployments.
-- Added primary-key range bounding for cNIGHT observation queries. Coarse `tx`, `tx_out`, and `ma_tx_out` id bounds are pre-queried for the requested block range, enabling PostgreSQL to prune rows before doing expensive joins. The same `tx.id` bounding also covers `tx_in`-keyed spend and deregistration queries.
-- Reset the devnet bundled chain spec to target runtime version 0.22.0, matching Mainnet.
+- cNIGHT 관측 쿼리의 `multi_asset.id` 조회 결과를 캐시하여 등록, 등록 해제, 자산 생성/소각, 후보 토큰 경로에서 반복되던 `JOIN multi_asset` 절을 제거했습니다. 트래픽이 많은 db-sync 배포의 쿼리 복잡도가 큰 폭으로 줄어듭니다.
+- cNIGHT 관측 쿼리에 primary key 범위 제한을 추가했습니다. 요청된 블록 범위에 대해 `tx`, `tx_out`, `ma_tx_out`의 대략적인 id 경계를 미리 조회하여 PostgreSQL이 비싼 join을 수행하기 전에 행을 솎아낼 수 있게 합니다. 동일한 `tx.id` 경계는 `tx_in` 키 기반의 소비 및 등록 해제 쿼리에도 적용됩니다.
+- devnet 번들 체인 스펙을 런타임 0.22.0 기준으로 리셋해 Mainnet과 정렬했습니다.
 
 ---
 
 ## Breaking changes
 
-This release includes no breaking changes.
+이번 릴리스에는 호환성을 깨는 변경이 없습니다.
 
 ---
 
 ## Known issues
 
-**Issue**: Initial sync performance
+**Issue**: 초기 동기화 성능
 
-**Description**: Initial sync from genesis can still be slower than desired on some operator setups. The cNIGHT db-sync query optimisations in this release improve sync times, but the team plans further sync performance work for a later release. 
+**Description**: 일부 운영자 환경에서 제네시스부터의 초기 동기화가 여전히 기대보다 느릴 수 있습니다. 이번 릴리스의 cNIGHT db-sync 쿼리 최적화로 동기화 시간이 개선됐지만, 추가 동기화 성능 작업은 다음 릴리스에 계획되어 있습니다.
 
-**Workaround**: No workaround is available at this time. Track [issue #1298](https://github.com/midnightntwrk/midnight-node/issues/1298) for progress.
+**Workaround**: 현재 우회 방법은 없습니다. 진행 상황은 [issue #1298](https://github.com/midnightntwrk/midnight-node/issues/1298)에서 확인할 수 있습니다.
 
 ---
 

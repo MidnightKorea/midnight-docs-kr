@@ -74,7 +74,7 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.8.1",
     "@docusaurus/tsconfig": "3.8.1",
-    "@playwright/test": "1.58.2",
+    "@playwright/test": "1.59.1",
     "@tailwindcss/postcss": "4.2.2",
     "@types/node": "25.5.2",
     "@types/prismjs": "1.26.6",

@@ -96,6 +96,12 @@ Compact에서 진입점은 **서킷**(Solidity 함수와 유사)으로 정의되
 * **`_unsafeTransfer(to, value)` -> `Boolean`**
    소유자가 호출자(`left(ownPublicKey())`)입니다. 검사 없는 내부 이동 함수를 사용하여 값을 이동한 뒤 `true`를 반환합니다.
 
+:::warning[프로덕션 환경에서의 ownPublicKey()]
+
+`ownPublicKey()`는 witness 함수이므로 각 사용자의 프론트엔드가 임의의 값을 반환할 수 있습니다. 따라서 호출자 검증에 직접 사용해서는 안 됩니다. 올바른 인증 패턴은 [smart contract security 가이드](/compact/smart-contract-security#ownpublickey-is-a-witness-function)를 참고하세요.
+
+:::
+
 * **`_transfer(from, to, value)` -> `[]`**
    관리자/확장 훅으로, 임의의 `from`에서 토큰을 이동합니다(반드시 호출자일 필요 없음). "컨트랙트를 `to`로 사용할 수 없음" 규칙은 여전히 강제되며, 내부적으로 동일한 이동 함수를 사용합니다.
 

@@ -1,91 +1,91 @@
 ---
 title: Dual-component tokenomics
-description: Learn why Midnight uses a dual-component tokenomics model with NIGHT and DUST, and how it solves the limitations of single-token proof-of-stake systems.
+description: Midnight이 NIGHT과 DUST로 구성된 이중 구성 요소 토크노믹스 모델을 사용하는 이유와, 이 모델이 단일 토큰 proof-of-stake 시스템의 한계를 어떻게 해결하는지 설명합니다.
 sidebar_position: 9
 tags: [night, dust, tokenomics, staking, proof-of-stake, validators, governance, fees]
 ---
 
 # Dual-component tokenomics in Midnight
-Imagine a city where the same currency pays both civil servants and bus fares. When everyone rides the bus at rush hour, ticket prices spike, and suddenly the city can't afford its workers. Midnight avoids this by splitting the roles: NIGHT pays the civil servants (validators), and DUST buys the bus tickets (transaction fees). 
+같은 화폐로 공무원 급여와 버스 요금을 모두 지불하는 도시를 생각해 보겠습니다. 출퇴근 시간에 모두가 버스를 타면 요금이 치솟고, 도시는 갑자기 공무원에게 줄 돈이 부족해집니다. Midnight은 역할을 나누어 이 문제를 피합니다. NIGHT은 공무원(validator) 급여를 담당하고, DUST는 버스 요금(거래 수수료)을 담당합니다.
 
-Midnight uses a dual-component tokenomics model: NIGHT, a transferable token for staking and governance, and DUST, a non-transferable resource for paying transaction fees. This separation keeps transaction costs predictable regardless of token market price and insulates validator rewards from demand-driven volatility. This page explains the economic rationale behind this design and the peer-reviewed research that supports it.
+Midnight은 이중 구성 요소 토크노믹스 모델을 사용합니다. NIGHT은 staking과 거버넌스에 쓰이는 양도 가능한 토큰이고, DUST는 거래 수수료를 내는 데 쓰이는 양도 불가능한 리소스입니다. 이러한 분리 덕분에 거래 비용은 토큰 시장 가격과 무관하게 예측 가능하게 유지되며, validator 보상은 수요로 인한 변동성에서 차단됩니다. 이 페이지에서는 이러한 설계의 경제적 근거와 이를 뒷받침하는 동료 심사(peer-reviewed) 연구를 설명합니다.
 
-Most blockchains use a single-token design, where the single token must be used for both staking purposes and paying fees. Midnight moves beyond the limitations of traditional blockchain economics with a strategic dual-component tokenomics model that decouples network security from user utility.
+대부분의 블록체인은 단일 토큰 설계를 사용하며, 이 경우 하나의 토큰이 staking과 수수료 지불에 모두 쓰여야 합니다. Midnight은 네트워크 보안과 사용자 유틸리티를 분리하는 전략적 이중 구성 요소 토크노믹스 모델로 기존 블록체인 경제의 한계를 넘어섭니다.
 
-This dual‑component tokenomics architecture offers structural advantages over classical single‑token Proof of Stake (PoS) systems, where the protocol can struggle with system viability, price stability, and long‑term sustainability, what can be described as a 'single-token trilemma,' a tension identified in the Single-token versus Two-token Blockchain tokenomics paper by Input Output Research (IOR).
+이 이중 구성 요소 토크노믹스 아키텍처는 고전적인 단일 토큰 Proof of Stake(PoS) 시스템보다 구조적 이점을 제공합니다. 단일 토큰 시스템에서는 프로토콜이 시스템 존립 가능성, 가격 안정성, 장기 지속 가능성 면에서 어려움을 겪을 수 있는데, 이는 '단일 토큰 트릴레마'라고 부를 수 있습니다. 이는 Input Output Research(IOR)의 Single-token versus Two-token Blockchain tokenomics 논문에서 규명한 긴장 관계입니다.
 
 ## The research foundation of Midnight tokenomics
 
-Midnight's token-resource model takes a novel approach by separating two distinct elements to decouple network value from network usage. Professor Aggelos Kiayias, Philip Lazos, and Paolo Penna formalized this concept in the peer-reviewed paper Single-token vs Two-token Blockchain Tokenomics, published at AFT 2025. Their research introduced a monetary policy built around a utility token and a network resource.
+Midnight의 토큰-리소스 모델은 두 개의 서로 다른 요소를 분리해 네트워크 가치와 네트워크 사용을 분리하는 새로운 접근을 취합니다. Aggelos Kiayias 교수, Philip Lazos, Paolo Penna는 AFT 2025에 발표된 동료 심사 논문 Single-token vs Two-token Blockchain Tokenomics에서 이 개념을 정식화했습니다. 이들의 연구는 유틸리티 토큰과 네트워크 리소스를 중심으로 하는 통화 정책을 제시했습니다.
 
-In Midnight's case, this is realized through a dual-component tokenomics model:
+Midnight의 경우, 이는 이중 구성 요소 토크노믹스 모델로 구현됩니다.
 
-- **NIGHT** – the unshielded utility token used for staking, securing the network, and governance
-- **DUST** – a non-tradable, shielded resource that holding NIGHT generates automatically and is used for fees and utility purposes
+- **NIGHT** – staking, 네트워크 보안, 거버넌스에 쓰이는 unshielded 유틸리티 토큰
+- **DUST** – NIGHT을 보유하면 자동으로 생성되는 거래 불가능한 shielded 리소스로, 수수료와 유틸리티 용도로 쓰임
 
-This separation ensures predictability. By treating blockchain capacity as a tokenized resource, users can plan their future service needs without being at the mercy of fluctuating market prices. NIGHT rewards remain predictable even when DUST activity fluctuates. This supports long-term participation by users and validators, and decentralization with controlled issuance, [burn-and-mint cycles](./concepts/dust-architecture#lifecycle-night-generates-dust), and reward schedules that maintain equilibrium.
+이러한 분리는 예측 가능성을 보장합니다. 블록체인 용량을 토큰화된 리소스로 다루면, 사용자는 변동하는 시장 가격에 휘둘리지 않고 미래의 서비스 수요를 계획할 수 있습니다. DUST 활동이 변동해도 NIGHT 보상은 예측 가능하게 유지됩니다. 이는 사용자와 validator의 장기 참여를 뒷받침하고, 통제된 발행, [burn-and-mint 주기](/concepts/dust-architecture#lifecycle-night-generates-dust), 균형을 유지하는 보상 일정을 통해 탈중앙화를 뒷받침합니다.
 
-This paper by Kiayias et al presents a theoretical foundation showing why dual-component tokenomics models can outperform single‑token ones in terms of stability, incentive alignment, and long‑term viability. The research provides a useful lens through which to understand the economic rationale behind Midnight’s approach.
+Kiayias 등의 이 논문은 이중 구성 요소 토크노믹스 모델이 안정성, 인센티브 정렬, 장기 존립 가능성 면에서 단일 토큰 모델보다 우수할 수 있는 이유를 보여 주는 이론적 토대를 제시합니다. 이 연구는 Midnight 접근법의 경제적 근거를 이해하는 데 유용한 관점을 제공합니다.
 
-While this structure is motivated by Midnight's own privacy‑preserving goals and operational requirements, it also aligns with a broader body of economic research that highlights the limitations of classical single‑token proof‑of‑stake systems.
+이 구조는 Midnight 고유의 프라이버시 보존 목표와 운영 요구에서 비롯되었지만, 고전적인 단일 토큰 proof-of-stake 시스템의 한계를 짚어 온 더 넓은 경제 연구 흐름과도 일치합니다.
 
 ## Comparing dual‑token and single‑token designs
 
-The research paper examines how users and validators behave in a proof‑of‑stake economy. In a traditional single‑token model, the same asset must simultaneously serve as:
+이 연구 논문은 proof-of-stake 경제에서 사용자와 validator가 어떻게 행동하는지 살펴봅니다. 기존의 단일 토큰 모델에서는 동일한 자산이 다음 두 역할을 동시에 수행해야 합니다.
 
-- the capital asset securing the network, and
-- the medium of payment for users consuming services, in particular block space and smart contract executions.
+- 네트워크를 보호하는 자본 자산
+- 서비스, 특히 블록 공간과 스마트 컨트랙트 실행을 소비하는 사용자의 결제 수단
 
-This coupling creates feedback loops, especially when demand for transactions fluctuates, that can impact viability, decentralization, and potentially destabilize the token value.
+이러한 결합은, 특히 거래 수요가 변동할 때 피드백 루프를 만들어 내며, 이는 존립 가능성과 탈중앙화에 영향을 주고 토큰 가치를 불안정하게 만들 수 있습니다.
 
-The research paper helps explain why such a separation is economically advantageous and demonstrates that single-token models face inherent limitations in satisfying all three simultaneously, however, a dual‑token architecture, by contrast, decouples these roles. This separation allows the protocol to control validator incentives while keeping the value of the token for transactions stable.
+이 연구 논문은 그러한 분리가 경제적으로 유리한 이유를 설명하는 데 도움을 주며, 단일 토큰 모델이 세 가지를 동시에 충족하는 데 본질적 한계를 갖는다는 점을 입증합니다. 반면 이중 토큰 아키텍처는 이 역할들을 분리합니다. 이러한 분리를 통해 프로토콜은 거래용 토큰의 가치를 안정적으로 유지하면서 validator 인센티브를 통제할 수 있습니다.
 
 ## Stable validator rewards without distorted fees
 
-**Research insight**: Single‑token models tie validator rewards directly to user demand, which is subject to volatility that directly impacts the token price.
+**Research insight**: 단일 토큰 모델은 validator 보상을 사용자 수요에 직접 연결하는데, 이 수요는 토큰 가격에 직접 영향을 주는 변동성에 노출됩니다.
 
-**Midnight's structure**: NIGHT rewards remain predictable even when DUST‑denominated activity fluctuates.
+**Midnight's structure**: DUST 표시 활동이 변동해도 NIGHT 보상은 예측 가능하게 유지됩니다.
 
 ## Monetary‑policy‑like adjustments
 
-**Research insight**: The paper introduces Quantitative Rewarding (QR) – a mechanism for adjusting validator rewards to maintain system viability. QR is far easier to implement when the reward token is distinct from the fee token.
+**Research insight**: 이 논문은 시스템 존립 가능성을 유지하기 위해 validator 보상을 조정하는 메커니즘인 Quantitative Rewarding(QR)을 제시합니다. QR은 보상 토큰이 수수료 토큰과 구분될 때 구현하기가 훨씬 쉽습니다.
 
-**Midnight's structure**: NIGHT issuance and staking rewards can be tuned independently of DUST's burn‑and‑mint dynamics. This mirrors the flexibility QR is designed to provide.
+**Midnight's structure**: NIGHT 발행과 staking 보상은 DUST의 burn-and-mint 동학과 독립적으로 조정할 수 있습니다. 이는 QR이 제공하도록 설계된 유연성과 같은 양상을 보입니다.
 
 ## The single‑token trilemma
 
-**Research insight**: A single‑token PoS system cannot simultaneously maintain viability, decentralization, and a stable token price path.
+**Research insight**: 단일 토큰 PoS 시스템은 존립 가능성, 탈중앙화, 안정적인 토큰 가격 경로를 동시에 유지할 수 없습니다.
 
-**Midnight's structure**: By separating NIGHT and DUST, Midnight avoids this structural limitation. Each token absorbs volatility in the domain where it is most appropriate.
+**Midnight's structure**: NIGHT과 DUST를 분리함으로써 Midnight은 이러한 구조적 한계를 피합니다. 각 토큰은 자신에게 가장 적합한 영역에서 변동성을 흡수합니다.
 
 ## Decentralization through predictable economics
 
-**Research insight**: Validator decentralization is more robust when reward flows are insulated from user‑driven shocks.
+**Research insight**: 보상 흐름이 사용자발 충격에서 차단될 때 validator 탈중앙화는 더 견고해집니다.
 
-**Midnight's structure**: NIGHT's reward schedule provides a stable environment for validators of all sizes, aligning with the research's findings.
+**Midnight's structure**: NIGHT의 보상 일정은 규모와 관계없이 모든 validator에게 안정적인 환경을 제공하며, 이는 연구 결과와 일치합니다.
 
 ## Practical feasibility
 
-**Research insight**: A viable token‑economic policy must be implementable on‑chain without relying on complex external mechanisms.
+**Research insight**: 실행 가능한 토큰 경제 정책은 복잡한 외부 메커니즘에 의존하지 않고 온체인에서 구현될 수 있어야 합니다.
 
-**Midnight's structure**: Rule‑based issuance and transparent burn‑and‑mint cycles satisfy this requirement.
+**Midnight's structure**: 규칙 기반 발행과 투명한 burn-and-mint 주기가 이 요건을 충족합니다.
 
 ## Why DUST expiration makes economic sense
 
-The economic model in *Single‑token vs Two‑token Blockchain Tokenomics* also highlights another subtle but important insight: in equilibrium, users have no incentive to accumulate utility tokens for future use. Rational users prefer to acquire tokens only when they need to consume services, because holding them over time does not yield a positive expected return.
+*Single-token vs Two-token Blockchain Tokenomics*의 경제 모델은 미묘하지만 중요한 또 다른 통찰을 제시합니다. 균형 상태에서 사용자는 미래에 쓰려고 유틸리티 토큰을 쌓아 둘 유인이 없다는 것입니다. 합리적인 사용자는 토큰을 시간이 지나도록 보유해도 양(+)의 기대 수익이 생기지 않으므로, 서비스를 소비해야 할 때만 토큰을 확보하는 쪽을 선호합니다.
 
-This observation is directly relevant for Midnight. It means that DUST's expiration mechanism does not impose an economic disadvantage. Even in a hypothetical model where DUST never expired, long‑term hoarding would not be economically sensible. Midnight's design formalizes a behavior that equilibrium theory already predicts.
+이 관찰은 Midnight에 직접적으로 관련됩니다. 즉, DUST의 만료 메커니즘은 경제적 불이익을 주지 않습니다. DUST가 결코 만료되지 않는 가상의 모델에서도 장기 비축은 경제적으로 합리적이지 않습니다. Midnight의 설계는 균형 이론이 이미 예측하는 행동을 정식화한 것입니다.
 
-The same analysis also shows that validators, at equilibrium, hold the staking token and receive their compensation in the utility token, mirroring Midnight's NIGHT‑for‑security and DUST‑for‑rewards structure. In effect, the theoretical model reproduces the same pattern Midnight implements: validators maintain their NIGHT positions while DUST flows to them as part of the system's operational cycle.
+같은 분석은 또한 균형 상태에서 validator가 staking 토큰을 보유하고 보상은 유틸리티 토큰으로 받는다는 점을 보여 주며, 이는 보안용 NIGHT과 보상용 DUST라는 Midnight의 구조와 같은 양상을 보입니다. 결과적으로 이 이론 모델은 Midnight이 구현한 것과 같은 패턴을 재현합니다. validator는 NIGHT 보유 포지션을 유지하고, DUST는 시스템 운영 주기의 일부로서 이들에게 흘러갑니다.
 
 ## Theory meets practice
 
-The Midnight tokenomics white paper stands on its own as a model tailored to privacy‑preserving smart contracts and real‑world deployment. Its dual-component design, with NIGHT for security and governance, and DUST for fees and utility, was shaped by Midnight's requirements.
+Midnight 토크노믹스 백서는 프라이버시 보존 스마트 컨트랙트와 실제 배포에 맞춰진 모델로서 그 자체로 완결성을 갖습니다. 보안과 거버넌스를 위한 NIGHT, 수수료와 유틸리티를 위한 DUST로 이루어진 이중 구성 요소 설계는 Midnight의 요구에 따라 형성되었습니다.
 
-What the Single‑token vs Two‑token research contributes is a theoretical justification for why separating staking and utility tokens is not just convenient, but economically sound. The paper shows that this separation resolves structural tensions that no single-token system can avoid. It supports stable validator incentives, and produces user behavior – such as not hoarding utility tokens – that aligns naturally with how Midnight is designed to operate. 
+Single-token vs Two-token 연구가 기여하는 바는, staking 토큰과 유틸리티 토큰을 분리하는 것이 단지 편리할 뿐 아니라 경제적으로 타당한 이유에 대한 이론적 정당화입니다. 이 논문은 그러한 분리가 어떤 단일 토큰 시스템도 피할 수 없는 구조적 긴장을 해소한다는 점을 보여 줍니다. 또한 이는 안정적인 validator 인센티브를 뒷받침하고, 유틸리티 토큰을 비축하지 않는 것과 같은 사용자 행동을 만들어 내는데, 이는 Midnight이 동작하도록 설계된 방식과 자연스럽게 맞아떨어집니다.
 
-Midnight's tokenomics white paper builds the model from the ground up to meet real-world needs; the Kiayias et al. research arrives at the architecture from first principles.
+Midnight의 토크노믹스 백서는 실제 요구를 충족하기 위해 모델을 바닥부터 쌓아 올린 것이며, Kiayias 등의 연구는 제1원리에서 출발해 같은 아키텍처에 도달합니다.
 
 ## Learn more
 
-For a deep dive into the specifics and design of Midnight's dual‑component tokenomics model, read the [Single-token versus Two-token Blockchain tokenomics](https://www.iog.io/papers/single-token-vs-two-token-blockchain-tokenomics) paper. Also refer to [DUST architecture](/concepts/dust-architecture) for the technical details of how DUST is generated, capped, and consumed, and [Midnight's hybrid architecture](/concepts/how-midnight-works/midnight-combined-model) for how NIGHT and DUST fit into Midnight's broader token ecosystem.
+Midnight의 이중 구성 요소 토크노믹스 모델의 세부 사항과 설계를 깊이 살펴보려면 [Single-token versus Two-token Blockchain tokenomics](https://www.iog.io/papers/single-token-vs-two-token-blockchain-tokenomics) 논문을 읽어 보세요. DUST가 생성, 상한 설정, 소비되는 방식의 기술적 세부 사항은 [DUST architecture](/concepts/dust-architecture)를, NIGHT과 DUST가 Midnight의 더 넓은 토큰 생태계에 어떻게 자리 잡는지는 [Midnight's hybrid architecture](/concepts/how-midnight-works/midnight-combined-model)를 참고하세요.

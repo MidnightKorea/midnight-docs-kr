@@ -1,6 +1,6 @@
 position: 40
-label: 'Leaderboard'
-description: "Intermediate: build a multi-page leaderboard DApp with a browser UI and deployment."
+label: 'Leaderboard (리더보드)'
+description: "중급: 브라우저 UI와 배포까지 포함하는 멀티 페이지 leaderboard DApp을 만들어 봅니다."
 collapsible: true # make the category collapsible
 collapsed: true # keep the category closed by default
 link:

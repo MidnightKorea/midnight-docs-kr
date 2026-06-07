@@ -4,7 +4,7 @@ copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation
 title: Community SDKs
 sidebar_label: Community
 sidebar_position: 40
-description: Third-party libraries and tools built on Midnight by the wider community.
+description: 더 넓은 커뮤니티가 Midnight 위에 만든 서드파티 라이브러리와 도구입니다.
 id: community-overview
 hide_table_of_contents: true
 tags: [sdk, community, third-party]
@@ -15,11 +15,11 @@ import SDKCard from '@site/src/components/SDK/SDKCard';
 
 # Community SDKs
 
-Extend your Midnight DApp with libraries built by the wider community. These projects fill gaps that mainstream contract development hits early - token standards, access control, security primitives - and their respective authors maintain them outside the Midnight Foundation.
+더 넓은 커뮤니티가 만든 라이브러리로 Midnight DApp을 확장하세요. 이 프로젝트들은 컨트랙트 개발 초기에 마주치는 빈틈, 즉 토큰 표준, 접근 제어, 보안 기본 요소를 채워 줍니다. 각 프로젝트는 Midnight Foundation이 아니라 해당 제작자가 직접 유지보수합니다.
 
 :::warning[Community-maintained - not officially supported]
 
-Their respective authors maintain the projects listed here, not the Midnight Foundation. These projects might not have undergone auditing and may target compiler or runtime versions that differ from the latest Midnight release. Verify compatibility against the [compatibility matrix](/relnotes/support-matrix) before integrating. File issues with each project's maintainers directly.
+여기 소개된 프로젝트는 Midnight Foundation이 아니라 각 제작자가 유지보수합니다. 감사를 거치지 않았을 수 있고, 최신 Midnight 릴리스와 다른 컴파일러나 런타임 버전을 대상으로 할 수도 있습니다. 통합하기 전에 [호환성 매트릭스](/relnotes/support-matrix)에서 호환 여부를 확인하세요. 문제는 각 프로젝트의 유지보수자에게 직접 제보하세요.
 
 :::
 
@@ -30,13 +30,13 @@ Their respective authors maintain the projects listed here, not the Midnight Fou
 <SDKGrid>
   <SDKCard
     title="OpenZeppelin Contracts for Compact"
-    description="Token standards, access control, and security primitives written in Compact. Modeled on OpenZeppelin's Solidity library. Currently experimental and unaudited."
+    description="Compact으로 작성한 토큰 표준, 접근 제어, 보안 기본 요소. OpenZeppelin의 Solidity 라이브러리를 본떴습니다. 현재 실험 단계이며 감사를 거치지 않았습니다."
     repo="https://github.com/OpenZeppelin/compact-contracts"
     docs="/sdks/community/openzeppelin-compact-contracts"
   />
   <SDKCard
     title="Midnight Live View"
-    description="Real-time terminal dashboard and persistent block monitor for Midnight validator nodes. Displays node health, block production, peers, and system metrics."
+    description="Midnight validator 노드를 위한 실시간 터미널 대시보드이자 영구 블록 모니터. 노드 상태, 블록 생성, 피어, 시스템 지표를 보여줍니다."
     repo="https://github.com/Midnight-Scripts/Midnight-Live-View"
     docs="/sdks/community/midnight-live-view"
   />
@@ -46,8 +46,8 @@ Their respective authors maintain the projects listed here, not the Midnight Fou
 
 ## Eligibility
 
-To qualify for listing, a project should be open source under a recognizable license, actively maintained, and have a public issue tracker. It should also target a documented Compact compiler or runtime version range. Audit status is not required, but each project page surfaces it prominently.
+목록에 오르려면 프로젝트가 잘 알려진 라이선스로 오픈소스여야 하고, 활발히 유지보수되어야 하며, 공개 이슈 트래커를 갖춰야 합니다. 또한 문서화된 Compact 컴파일러나 런타임 버전 범위를 대상으로 해야 합니다. 감사 여부는 필수가 아니지만, 각 프로젝트 페이지에서 그 상태를 눈에 띄게 표시합니다.
 
 ## Suggest a project
 
-Maintain or use a project that fits? [Open an issue](https://github.com/midnightntwrk/midnight-docs/issues/new?template=new-feature.yml) on the docs repository with the project name, repository link, brief description, and current Compact / runtime compatibility.
+조건에 맞는 프로젝트를 만들거나 사용하고 있나요? docs 저장소에 [이슈를 열어](https://github.com/midnightntwrk/midnight-docs/issues/new?template=new-feature.yml) 프로젝트 이름, 저장소 링크, 간단한 설명, 현재 Compact·런타임 호환성을 알려 주세요.

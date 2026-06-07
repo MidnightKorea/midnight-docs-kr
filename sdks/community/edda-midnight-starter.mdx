@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 sidebar_position: 20
 sidebar_label: Edda Midnight starter
-description: "A full-stack starter template for building DApps on Midnight with a React frontend, Compact smart contract, CLI tooling, and educational materials."
+description: "React 프론트엔드, Compact 스마트 컨트랙트, CLI 도구, 학습 자료를 갖춘, Midnight에서 DApp을 만들기 위한 풀스택 스타터 템플릿입니다."
 title: Edda Midnight starter template
 tags: [community, starter, template, react, dapp, counter]
 toc_max_heading_level: 2
@@ -12,110 +12,110 @@ id: edda-midnight-starter
 
 # Edda Midnight starter template
 
-[Edda Midnight Starter Template](https://github.com/eddalabs/midnight-starter-template) is a full-stack monorepo for building DApps on the Midnight Network. It ships a working counter application with a Compact smart contract, a React (Vite) frontend, and a CLI - ready to clone, build, and deploy to Vercel. A live demo runs at [counter.nebula.builders](https://counter.nebula.builders).
+[Edda Midnight Starter Template](https://github.com/eddalabs/midnight-starter-template)은 Midnight Network에서 DApp을 만들기 위한 풀스택 모노레포입니다. Compact 스마트 컨트랙트, React(Vite) 프론트엔드, CLI를 갖춘 동작하는 카운터 애플리케이션을 제공하며, 클론하고 빌드해 Vercel에 바로 배포할 수 있습니다. 라이브 데모는 [counter.nebula.builders](https://counter.nebula.builders)에서 확인할 수 있습니다.
 
-The project includes educational materials with video walkthroughs in English, Spanish, and Portuguese, making it a practical entry point for developers new to Midnight.
+이 프로젝트에는 영어, 스페인어, 포르투갈어 영상 가이드가 담긴 학습 자료가 포함되어 있어, Midnight을 처음 접하는 개발자에게 실용적인 출발점이 됩니다.
 
-The Edda Labs maintainers built this as a fork of [MeshJS/midnight-starter-template](https://github.com/MeshJS/midnight-starter-template), adding the Apache-2.0 license, deployment automation, and the educational-material directory.
+Edda Labs 유지보수자들은 [MeshJS/midnight-starter-template](https://github.com/MeshJS/midnight-starter-template)을 포크해 이 템플릿을 만들었고, 여기에 Apache-2.0 라이선스, 배포 자동화, 학습 자료 디렉터리를 더했습니다.
 
 :::warning[Community-maintained - not audited]
 
-[Edda Labs](https://github.com/eddalabs) maintains this template, not the Midnight Foundation. It has not been audited. The smart contract is a minimal counter example intended for learning - evaluate any production use independently.
+이 템플릿은 Midnight Foundation이 아니라 [Edda Labs](https://github.com/eddalabs)가 유지보수합니다. 감사를 거치지 않았습니다. 스마트 컨트랙트는 학습용으로 만든 최소한의 카운터 예제이므로, 프로덕션에 사용할 때는 별도로 직접 검증하세요.
 
 :::
 
 ## Prerequisites
 
-Before using the template, ensure that you have:
+템플릿을 사용하기 전에 다음을 갖췄는지 확인하세요.
 
-- [Node.js v22+](https://nodejs.org/) installed.
-- [pnpm v10+](https://pnpm.io/installation) installed.
-- [Docker](https://docs.docker.com/desktop/) running (for the proof server and standalone network).
-- [Git Large File Storage (LFS)](https://git-lfs.com/) installed - required for zero-knowledge proof artifacts (`.prover`, `.verifier`, `.bzkir`, `.zkir` files).
-- The [Compact developer tools](/getting-started/installation) installed and updated to `0.30.0`.
-- The [Lace wallet](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) browser extension configured for the Preview network.
+- [Node.js v22+](https://nodejs.org/) 설치.
+- [pnpm v10+](https://pnpm.io/installation) 설치.
+- [Docker](https://docs.docker.com/desktop/) 실행(proof server와 standalone 네트워크용).
+- [Git Large File Storage (LFS)](https://git-lfs.com/) 설치 - zero-knowledge proof 아티팩트(`.prover`, `.verifier`, `.bzkir`, `.zkir` 파일)에 필요합니다.
+- [Compact developer tools](/getting-started/installation) 설치 후 `0.30.0`으로 업데이트.
+- Preview 네트워크에 맞게 설정한 [Lace wallet](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) 브라우저 확장.
 
 ## Compatibility
 
-This template targets specific Compact compiler, runtime, and tooling versions. Verify these against your local environment before building.
+이 템플릿은 특정 Compact 컴파일러, 런타임, 도구 버전을 대상으로 합니다. 빌드하기 전에 로컬 환경과 대조해 확인하세요.
 
 | Component | Version | Notes |
 |---|---|---|
-| Compact compiler | `0.31.0` | Set via `compact update +0.31.0` |
-| Compact language | `>= 0.23` | Per `pragma` in the contract source |
-| Node.js | 22+ | Pinned in `.node-version` and `engines.node` |
-| pnpm | `10.14.0` | Pinned via `packageManager` in `package.json` |
-| Build orchestrator | Turborepo | Top-level scripts dispatch through `turbo run` |
-| Networks | undeployed, Preview, Preprod, Mainnet | Standalone undeployed network runs via Docker |
-| License | Apache-2.0 | (Upstream Mesh template carries no license; Edda's fork added Apache-2.0.) |
+| Compact compiler | `0.31.0` | `compact update +0.31.0`로 설정 |
+| Compact language | `>= 0.23` | 컨트랙트 소스의 `pragma` 기준 |
+| Node.js | 22+ | `.node-version`과 `engines.node`에 고정 |
+| pnpm | `10.14.0` | `package.json`의 `packageManager`로 고정 |
+| Build orchestrator | Turborepo | 최상위 스크립트가 `turbo run`을 통해 실행 |
+| Networks | undeployed, Preview, Preprod, Mainnet | standalone undeployed 네트워크는 Docker로 실행 |
+| License | Apache-2.0 | (상위 Mesh 템플릿에는 라이선스가 없으며, Edda의 포크가 Apache-2.0을 추가함) |
 
 ## Monorepo structure
 
-The template organizes code into three workspace packages:
+이 템플릿은 코드를 세 개의 워크스페이스 패키지로 나눕니다.
 
 | Package | Purpose |
 |---|---|
-| `counter-contract` | Compact smart contract with a single `increment` circuit that advances a public `round` counter. Compiles to TypeScript bindings and ZK proof artifacts. |
-| `counter-cli` | CLI tool for deploying and interacting with the contract from the terminal. Supports all three networks. |
-| `frontend-vite-react` | React 19 + Vite frontend with Lace wallet integration, TailwindCSS styling, and TanStack Router. Connects to the deployed contract and displays counter state. |
+| `counter-contract` | 공개 `round` 카운터를 증가시키는 단일 `increment` circuit을 가진 Compact 스마트 컨트랙트. TypeScript 바인딩과 ZK proof 아티팩트로 컴파일됩니다. |
+| `counter-cli` | 터미널에서 컨트랙트를 배포하고 상호작용하는 CLI 도구. 세 네트워크를 모두 지원합니다. |
+| `frontend-vite-react` | Lace wallet 연동, TailwindCSS 스타일, TanStack Router를 갖춘 React 19 + Vite 프론트엔드. 배포된 컨트랙트에 연결해 카운터 상태를 표시합니다. |
 
 ## Installation
 
-Clone the repository:
+저장소를 클론합니다.
 
 ```bash
 git clone https://github.com/eddalabs/midnight-starter-template.git
 cd midnight-starter-template
 ```
 
-Download the zero-knowledge proof artifacts via Git Large File Storage (LFS):
+Git Large File Storage(LFS)로 zero-knowledge proof 아티팩트를 내려받습니다.
 
 ```bash
 git lfs install
 git lfs pull
 ```
 
-Update the Compact Toolchain to the version the template targets:
+Compact Toolchain을 템플릿이 대상으로 하는 버전으로 업데이트합니다.
 
 ```bash
 compact update +0.31.0
 ```
 
-Install dependencies and build all workspace packages:
+의존성을 설치하고 모든 워크스페이스 패키지를 빌드합니다.
 
 ```bash
 pnpm install
 pnpm build
 ```
 
-Both `counter-cli/` and `frontend-vite-react/` ship a `.env_template` file. Copy each to `.env` and fill in the values before running locally.
+`counter-cli/`와 `frontend-vite-react/`에는 모두 `.env_template` 파일이 들어 있습니다. 로컬에서 실행하기 전에 각각 `.env`로 복사하고 값을 채워 넣으세요.
 
 :::warning[Git LFS required]
 
-The repository stores zero-knowledge proof artifacts (prover keys, verifier keys, ZKIR files) via Git LFS. Without `git lfs install` and `git lfs pull`, these files appear as text pointers instead of binary data, and contract deployment fails with "mismatched verifier keys" errors.
+저장소는 zero-knowledge proof 아티팩트(prover key, verifier key, ZKIR 파일)를 Git LFS로 저장합니다. `git lfs install`과 `git lfs pull`을 거치지 않으면 이 파일들이 바이너리 데이터가 아니라 텍스트 포인터로 나타나, 컨트랙트 배포가 "mismatched verifier keys" 오류로 실패합니다.
 
 :::
 
 ## Run locally
 
-Start the frontend against the Preview network:
+Preview 네트워크를 대상으로 프론트엔드를 실행합니다.
 
 ```bash
 pnpm dev:frontend
 ```
 
-For a fully local setup with no external network dependency, start the standalone network first:
+외부 네트워크에 의존하지 않는 완전한 로컬 환경을 원하면, standalone 네트워크를 먼저 실행하세요.
 
 ```bash
 pnpm setup-standalone
 pnpm dev:frontend
 ```
 
-The standalone network runs Midnight node, indexer, and proof server containers in Docker.
+standalone 네트워크는 Midnight node, indexer, proof server 컨테이너를 Docker에서 실행합니다.
 
 ## Testing
 
-The CLI ships Vitest-based test suites that run the contract end-to-end on each network:
+CLI에는 각 네트워크에서 컨트랙트를 엔드투엔드로 실행하는 Vitest 기반 테스트 스위트가 들어 있습니다.
 
 ```bash
 pnpm --filter @eddalabs/counter-cli test-undeployed
@@ -123,11 +123,11 @@ pnpm --filter @eddalabs/counter-cli test-preview
 pnpm --filter @eddalabs/counter-cli test-preprod
 ```
 
-These scripts spin up the relevant infrastructure (containers for `undeployed`, faucet calls for `preview` / `preprod`), deploy the contract, and assert on circuit behavior. They serve as a useful reference for setting up your own contract test harness.
+이 스크립트들은 필요한 인프라(`undeployed`용 컨테이너, `preview`·`preprod`용 faucet 호출)를 띄우고, 컨트랙트를 배포한 뒤 circuit 동작을 검증합니다. 직접 컨트랙트 테스트 하네스를 구성할 때 유용한 참고 자료가 됩니다.
 
 ## The smart contract
 
-The contract is a minimal counter with a single exported circuit:
+컨트랙트는 export된 circuit 하나만 가진 최소한의 카운터입니다.
 
 ```compact
 pragma language_version >= 0.23;
@@ -141,43 +141,43 @@ export circuit increment(): [] {
 }
 ```
 
-The contract is deliberately minimal - the template's value is the full-stack scaffolding around it (wallet connection, provider wiring, deployment pipeline), not the contract logic. Replace it with your own contract and the surrounding infrastructure adapts.
+컨트랙트는 의도적으로 최소한으로 만들어졌습니다. 이 템플릿의 가치는 컨트랙트 로직이 아니라 그 주변을 둘러싼 풀스택 스캐폴딩(지갑 연결, provider 연동, 배포 파이프라인)에 있습니다. 컨트랙트를 직접 만든 것으로 교체하면 주변 인프라가 그에 맞춰 동작합니다.
 
 ## Deploy to Vercel
 
-The Edda Labs team documents the full deployment procedure in their [DEPLOYMENT_PROCEDURE.md](https://github.com/eddalabs/midnight-starter-template/blob/main/DEPLOYMENT_PROCEDURE.md). The key steps:
+Edda Labs 팀은 전체 배포 절차를 [DEPLOYMENT_PROCEDURE.md](https://github.com/eddalabs/midnight-starter-template/blob/main/DEPLOYMENT_PROCEDURE.md)에 정리해 두었습니다. 핵심 단계는 다음과 같습니다.
 
-1. Enable **Git LFS** in your Vercel project settings before the first build.
-2. Set the build command to `npm run build-production` (the script is workspace-aware and pulls LFS artifacts before building).
-3. Set the output directory to `frontend-vite-react/dist`.
-4. Add `VITE_CONTRACT_ADDRESS` as an environment variable with your deployed contract address.
+1. 첫 빌드 전에 Vercel 프로젝트 설정에서 <strong>Git LFS</strong>를 활성화하세요.
+2. 빌드 명령을 `npm run build-production`으로 설정하세요(이 스크립트는 워크스페이스를 인식하며, 빌드 전에 LFS 아티팩트를 가져옵니다).
+3. 출력 디렉터리를 `frontend-vite-react/dist`로 설정하세요.
+4. 배포한 컨트랙트 주소를 담아 `VITE_CONTRACT_ADDRESS` 환경 변수를 추가하세요.
 
 :::note[Git LFS in Vercel]
 
-If you deploy without enabling Git LFS in Vercel's settings, then the build completes but the DApp fails at runtime. The proof artifacts are LFS pointers instead of binary files. Enable LFS first, then redeploy without cache.
+Vercel 설정에서 Git LFS를 활성화하지 않고 배포하면 빌드는 끝나지만 DApp이 런타임에 실패합니다. proof 아티팩트가 바이너리 파일이 아니라 LFS 포인터이기 때문입니다. 먼저 LFS를 활성화한 뒤, 캐시 없이 다시 배포하세요.
 
 :::
 
 ## Educational materials
 
-The repository includes an `educational-material/` directory with structured session guides covering:
+저장소에는 다음 내용을 다루는 체계적인 세션 가이드가 담긴 `educational-material/` 디렉터리가 들어 있습니다.
 
-- zero-knowledge proofs and privacy-enhanced DApps
-- devnet, Preview, and Testnet environments
-- Video walkthroughs on the [Edda Labs YouTube channel](https://www.youtube.com/@eddalabs)
-- Available in English, Spanish, and Portuguese
+- zero-knowledge proof와 프라이버시를 강화한 DApp
+- devnet, Preview, Testnet 환경
+- [Edda Labs YouTube 채널](https://www.youtube.com/@eddalabs)의 영상 가이드
+- 영어, 스페인어, 포르투갈어로 제공
 
 ## Resources
 
-- **[Project repository](https://github.com/eddalabs/midnight-starter-template)**: Source, README, and contributor guide.
-- **[Live demo](https://counter.nebula.builders)**: The deployed counter DApp running on the Preview environment.
-- **[Deployment procedure](https://github.com/eddalabs/midnight-starter-template/blob/main/DEPLOYMENT_PROCEDURE.md)**: Step-by-step Vercel deployment, including the Git LFS toggle.
-- **[Educational material](https://github.com/eddalabs/midnight-starter-template/tree/main/educational-material)**: Session guides for devnet, Preview, and Testnet workflows.
-- **[Edda Labs](https://www.eddalabs.io)**: The maintainer organization. Sibling repo: [`eddalabs/midnight-contracts`](https://github.com/eddalabs/midnight-contracts).
-- **[Upstream template (MeshJS)](https://github.com/MeshJS/midnight-starter-template)**: The original starter that Edda's fork builds on.
+- <strong>[Project repository](https://github.com/eddalabs/midnight-starter-template)</strong>: 소스, README, 기여자 가이드.
+- <strong>[Live demo](https://counter.nebula.builders)</strong>: Preview 환경에서 동작하는 배포된 카운터 DApp.
+- <strong>[Deployment procedure](https://github.com/eddalabs/midnight-starter-template/blob/main/DEPLOYMENT_PROCEDURE.md)</strong>: Git LFS 토글을 포함한 단계별 Vercel 배포.
+- <strong>[Educational material](https://github.com/eddalabs/midnight-starter-template/tree/main/educational-material)</strong>: devnet, Preview, Testnet 워크플로 세션 가이드.
+- <strong>[Edda Labs](https://www.eddalabs.io)</strong>: 유지보수 조직. 형제 저장소: [`eddalabs/midnight-contracts`](https://github.com/eddalabs/midnight-contracts).
+- <strong>[Upstream template (MeshJS)](https://github.com/MeshJS/midnight-starter-template)</strong>: Edda의 포크가 기반으로 삼은 원본 스타터.
 
 ## Report issues
 
-For issues with the template, file on [Edda Labs' tracker](https://github.com/eddalabs/midnight-starter-template/issues).
+템플릿 관련 문제는 [Edda Labs 트래커](https://github.com/eddalabs/midnight-starter-template/issues)에 제보하세요.
 
-For issues with this documentation page, file on the [Midnight docs repository](https://github.com/midnightntwrk/midnight-docs/issues).
+이 문서 페이지 관련 문제는 [Midnight docs 저장소](https://github.com/midnightntwrk/midnight-docs/issues)에 제보하세요.

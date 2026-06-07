@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Battleship
-description: Write a Battleship contract that mixes public and private state as a state machine, then verify it with MidnightJS tests.
+description: 공개 상태와 비공개 상태를 상태 머신으로 엮은 Battleship 컨트랙트를 작성하고, MidnightJS 테스트로 검증합니다.
 sidebar_position: 30
 tags:
   - tutorials
@@ -16,18 +16,18 @@ import PersonaTiles from '@site/src/components/PersonaTiles';
 
 # Battleship tutorial
 
-Write a Compact contract that models a game as a state machine with public and private data, then build a test suite to verify it on a local devnet.
+게임을 공개 데이터와 비공개 데이터를 가진 상태 머신으로 모델링하는 Compact 컨트랙트를 작성한 뒤, 로컬 devnet에서 검증할 테스트 모음을 만듭니다.
 
 <PersonaTiles tiles={[
   {
     title: "Battleship contract",
-    body: "Build a state-machine contract with explicit state management, private data verification, List operations, and intermediate witnesses.",
+    body: "명시적 상태 관리, 비공개 데이터 검증, List 연산, 중간 witness를 갖춘 상태 머신 컨트랙트를 만듭니다.",
     to: "/tutorials/bship/smart-contract",
     cta: "Write the contract",
   },
   {
     title: "Battleship tests",
-    body: "Write MidnightJS tests that verify contract behavior on a local devnet, covering both valid and adversarial interactions.",
+    body: "로컬 devnet에서 컨트랙트 동작을 검증하는 MidnightJS 테스트를 작성합니다. 정상적인 상호작용과 악의적인 상호작용을 모두 다룹니다.",
     to: "/tutorials/bship/test-suite",
     cta: "Write the tests",
   },

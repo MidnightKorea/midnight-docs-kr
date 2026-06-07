@@ -1,6 +1,6 @@
 ---
 title: Indexer error codes
-description: Error codes and messages returned by the Midnight Indexer API and infrastructure services.
+description: Midnight Indexer API 및 인프라 서비스가 반환하는 오류 코드와 메시지입니다.
 sidebar_position: 10
 sidebar_label: Indexer errors
 tags: [error reference, api reference, indexer]
@@ -9,142 +9,142 @@ toc_max_heading_level: 3
 
 # Midnight indexer error codes
 
-The Midnight indexer is a Rust service built on Axum that serves a GraphQL API via `async-graphql`, typically on port 8088. All errors use `thiserror` derives.
+Midnight indexer는 Axum 기반의 Rust 서비스로, `async-graphql`을 통해 GraphQL API를 제공하며 일반적으로 8088 포트에서 실행됩니다. 모든 오류는 `thiserror` derive를 사용합니다.
 
-Errors fall into two categories:
+오류는 두 가지로 나뉩니다.
 
-- **Client errors**: Appear verbatim in GraphQL error responses and indicate invalid caller input.
-- **Server errors**: Logged internally by the indexer. Callers receive a generic `"Internal Server Error"` message.
+- **Client errors**: GraphQL 오류 응답에 그대로 나타나며, 호출자의 입력이 잘못됐음을 나타냅니다.
+- **Server errors**: 인덱서가 내부적으로 로깅합니다. 호출자는 일반적인 `"Internal Server Error"` 메시지만 받습니다.
 
-You encounter these errors when:
+다음과 같은 상황에서 이 오류들을 만날 수 있습니다.
 
-- The node rejects a GraphQL query or mutation due to invalid input
-- The `/ready` health endpoint returns non-200 during startup or when the indexer lags behind the node
-- Infrastructure failures occur (database, messaging, cipher)
+- 입력이 잘못되어 노드가 GraphQL 쿼리나 뮤테이션을 거부하는 경우
+- 시작 중이거나 인덱서가 노드보다 뒤처져서 `/ready` 헬스 엔드포인트가 200이 아닌 값을 반환하는 경우
+- 인프라 장애(데이터베이스, 메시징, cipher)가 발생하는 경우
 
 ## HTTP status codes
 
-The Axum HTTP layer returns these codes before any GraphQL processing occurs.
+Axum HTTP 레이어는 GraphQL 처리가 시작되기 전에 다음 코드를 반환합니다.
 
 | Code | Endpoint / context | Description | Fix |
 |------|--------------------|---------|-----|
-| 200 OK | `GET /ready` | Indexer is caught up with the node. | Service is healthy. |
-| 400 Bad Request | GraphQL body | Invalid request body (malformed JSON or missing required fields). | Check GraphQL query syntax and ensure `Content-Type: application/json` is set. |
-| 413 Payload Too Large | GraphQL body | Request body exceeds the configured size limit. | Reduce query complexity, paginate results, or split into multiple smaller queries. |
-| 503 Service Unavailable | `GET /ready` | Indexer has not caught up with the node. | Wait for the indexer to finish syncing, check node connectivity, and indexer logs. |
+| 200 OK | `GET /ready` | 인덱서가 노드를 따라잡은 상태 | 서비스가 정상입니다 |
+| 400 Bad Request | GraphQL body | 요청 본문이 잘못된 경우(JSON 형식 오류 또는 필수 필드 누락) | GraphQL 쿼리 구문을 확인하고 `Content-Type: application/json`이 설정됐는지 확인하세요 |
+| 413 Payload Too Large | GraphQL body | 요청 본문이 설정된 크기 한도를 초과한 경우 | 쿼리 복잡도를 줄이거나, 결과를 페이지네이션하거나, 여러 개의 작은 쿼리로 분할하세요 |
+| 503 Service Unavailable | `GET /ready` | 인덱서가 아직 노드를 따라잡지 못한 경우 | 인덱서 동기화가 끝날 때까지 기다리고, 노드 연결 상태와 인덱서 로그를 확인하세요 |
 
 ## GraphQL client error messages
 
-These strings appear verbatim in GraphQL error responses (`errors[].message`). They indicate invalid input from the caller.
+다음 문자열은 GraphQL 오류 응답(`errors[].message`)에 그대로 나타납니다. 호출자의 입력이 잘못됐음을 나타냅니다.
 
 ### Block errors
 
-These errors occur when the indexer cannot resolve a block reference in a query.
+인덱서가 쿼리의 블록 참조를 해석하지 못할 때 발생하는 오류입니다.
 
 | Message | Description | Fix |
 |---------|---------|-----|
-| `"block with hash {hash} not found"` | No block with the given hash exists in the indexed chain. | The block might not be final yet, or the hash is incorrect; verify the hash and try again. |
-| `"block with height {height} not found"` | The indexer has not yet indexed a block at that height. | The indexer might not have reached that height yet; check sync status via `GET /ready`. |
-| `"invalid block hash"` | The supplied block hash is not valid hex or has the wrong length. | Verify the block hash format; it must be a valid 32-byte hex-encoded string. |
+| `"block with hash {hash} not found"` | 인덱싱된 체인에 해당 해시의 블록이 없는 경우 | 블록이 아직 확정되지 않았거나 해시가 잘못된 경우입니다. 해시를 확인하고 다시 시도하세요 |
+| `"block with height {height} not found"` | 인덱서가 아직 해당 높이의 블록을 인덱싱하지 않은 경우 | 인덱서가 아직 해당 높이에 도달하지 않았을 수 있습니다. `GET /ready`로 동기화 상태를 확인하세요 |
+| `"invalid block hash"` | 제공된 블록 해시가 유효한 hex가 아니거나 길이가 잘못된 경우 | 블록 해시 형식을 확인하세요. 유효한 32바이트 hex 인코딩 문자열이어야 합니다 |
 
 ### Viewing key and session errors
 
-These errors occur when wallet credentials or session tokens fail validation.
+지갑 자격 증명이나 세션 토큰이 검증에 실패할 때 발생하는 오류입니다.
 
 | Message | Description | Fix |
 |---------|---------|-----|
-| `"invalid session ID"` | The session ID has an invalid format (not a valid UUID). | Use the session ID exactly as returned during session creation. |
-| `"invalid viewing key"` | The supplied viewing key failed to decode or validate. | Ensure a compatible SDK version generated the viewing key and that it is correctly encoded. |
-| `"unknown or expired session ID"` | The session ID does not exist or has timed out. | Re-authenticate to obtain a fresh session ID. |
+| `"invalid session ID"` | 세션 ID 형식이 잘못된 경우(유효한 UUID가 아님) | 세션 생성 시 반환된 세션 ID를 그대로 사용하세요 |
+| `"invalid viewing key"` | 제공된 viewing key의 디코드 또는 검증에 실패한 경우 | 호환되는 SDK 버전으로 viewing key를 생성했는지, 인코딩이 올바른지 확인하세요 |
+| `"unknown or expired session ID"` | 세션 ID가 존재하지 않거나 만료된 경우 | 다시 인증하여 새 세션 ID를 발급받으세요 |
 
 ### Transaction errors
 
-These errors occur when a transaction reference or identifier supplied in a query is invalid.
+쿼리에 제공된 트랜잭션 참조나 식별자가 유효하지 않을 때 발생하는 오류입니다.
 
 | Message | Description | Fix |
 |---------|---------|-----|
-| `"invalid transaction hash"` | The transaction hash is not a valid hex-encoded hash. | Verify the hash format; it must be a valid 32-byte hex string. |
-| `"invalid transaction identifier"` | The transaction identifier failed validation. | Check the identifier format; it may be base58 or hex depending on context. |
+| `"invalid transaction hash"` | 트랜잭션 해시가 유효한 hex 인코딩 해시가 아닌 경우 | 해시 형식을 확인하세요. 유효한 32바이트 hex 문자열이어야 합니다 |
+| `"invalid transaction identifier"` | 트랜잭션 식별자가 검증에 실패한 경우 | 식별자 형식을 확인하세요. 맥락에 따라 base58 또는 hex일 수 있습니다 |
 
 ### Address errors
 
-These errors occur when an address supplied in a query fails format or checksum validation.
+쿼리에 제공된 주소가 형식 또는 체크섬 검증에 실패할 때 발생하는 오류입니다.
 
 | Message | Description | Fix |
 |---------|---------|-----|
-| `"invalid address"` | The supplied address (unshielded, shielded, or DUST) failed Bech32m decode or HRP validation. | Verify the address format. For expected HRP prefixes, see the [Address format errors](#address-format-errors) section. |
-| `"invalid Cardano reward address"` | The Cardano stake address failed validation. | Use a valid Bech32-encoded Cardano stake address with HRP `stake` for Mainnet or `stake_test` for Testnet and ensure it is 29 bytes. |
-| `"invalid hex-encoded DUST address"` | The DUST address hex encoding is invalid. | Supply a correctly hex-encoded DUST address. |
-| `"invalid hex-encoded nullifier prefix"` | The nullifier prefix is not valid hex. | Supply a correctly hex-encoded nullifier prefix. |
+| `"invalid address"` | 제공된 주소(unshielded, shielded, DUST)가 Bech32m 디코드 또는 HRP 검증에 실패한 경우 | 주소 형식을 확인하세요. 예상되는 HRP 접두사는 [Address format errors](#address-format-errors) 섹션을 참조하세요 |
+| `"invalid Cardano reward address"` | Cardano stake 주소가 검증에 실패한 경우 | Mainnet은 HRP `stake`, Testnet은 `stake_test`를 사용한 유효한 Bech32 인코딩 Cardano stake 주소를 사용하고, 길이가 29바이트인지 확인하세요 |
+| `"invalid hex-encoded DUST address"` | DUST 주소의 hex 인코딩이 유효하지 않은 경우 | hex 인코딩이 올바른 DUST 주소를 제공하세요 |
+| `"invalid hex-encoded nullifier prefix"` | 널리파이어 접두사가 유효한 hex가 아닌 경우 | hex 인코딩이 올바른 널리파이어 접두사를 제공하세요 |
 
 ### Pagination and identifier errors
 
-These errors occur when pagination parameters or generic identifiers fail validation.
+페이지네이션 파라미터나 일반 식별자가 검증에 실패할 때 발생하는 오류입니다.
 
 | Message | Description | Fix |
 |---------|---------|-----|
-| `"invalid identifier"` | A generic identifier (for example, contract address or key) failed validation. | Verify the format of the identifier you are passing. |
-| `"invalid offset"` | The pagination offset value is not a valid non-negative integer. | Use a non-negative integer for the offset parameter. |
-| `"maximum of ten reward addresses allowed"` | You supplied more than 10 Cardano reward addresses in a single query. | Split the request into batches of 10 or fewer addresses. |
+| `"invalid identifier"` | 일반 식별자(예: 컨트랙트 주소 또는 키)가 검증에 실패한 경우 | 전달하는 식별자의 형식을 확인하세요 |
+| `"invalid offset"` | 페이지네이션 offset 값이 유효한 음이 아닌 정수가 아닌 경우 | offset 파라미터에는 음이 아닌 정수를 사용하세요 |
+| `"maximum of ten reward addresses allowed"` | 단일 쿼리에 Cardano reward 주소를 10개 넘게 제공한 경우 | 요청을 주소 10개 이하의 배치로 분할하세요 |
 
 ## Domain errors
 
-Domain errors arise from validation of structured values such as network IDs and protocol versions.
+도메인 오류는 네트워크 ID, 프로토콜 버전 같은 구조화된 값의 검증에서 발생합니다.
 
 ### `InvalidNetworkIdError`
 
-Returned when a network ID value fails validation.
+네트워크 ID 값이 검증에 실패할 때 반환됩니다.
 
 | Variant | Description | Fix |
 |---------|---------|-----|
-| `Empty` | Network ID must not be empty | Provide a non-empty network ID string. |
-| `NotLowercase` | Network ID must be all lowercase | Convert the network ID to lowercase before use. |
+| `Empty` | 네트워크 ID는 비어 있으면 안 되는 경우 | 비어 있지 않은 네트워크 ID 문자열을 제공하세요 |
+| `NotLowercase` | 네트워크 ID는 모두 소문자여야 하는 경우 | 사용 전에 네트워크 ID를 소문자로 변환하세요 |
 
 ### `ProtocolVersionError`
 
-Returned when the system cannot resolve a protocol version value to a known version.
+프로토콜 버전 값을 알려진 버전으로 해석하지 못할 때 반환됩니다.
 
 | Variant | Description | Fix |
 |---------|---------|-----|
-| `ScaleDecode` | SCALE decoding of the protocol version failed. | The raw bytes are invalid; this typically indicates a node/indexer version mismatch. |
-| `TryFromI64` | The system cannot convert the version value from i64. | The raw version value is negative or out of i64 representable range; internal error. |
-| `Unsupported(u32)` | Protocol version number is not in a recognized range. | Valid ranges: 22000-23000 (maps to `V0_22`), 1000000-1001000 (maps to `V1_0`); update the indexer if a newer version is available. |
+| `ScaleDecode` | 프로토콜 버전의 SCALE 디코딩에 실패한 경우 | 원시 바이트가 유효하지 않습니다. 대개 노드/인덱서 버전 불일치를 나타냅니다 |
+| `TryFromI64` | 버전 값을 i64에서 변환하지 못한 경우 | 원시 버전 값이 음수이거나 i64 표현 가능 범위를 벗어난 경우입니다. 내부 오류입니다 |
+| `Unsupported(u32)` | 프로토콜 버전 번호가 인식 가능한 범위에 없는 경우 | 유효 범위: 22000-23000(`V0_22`에 매핑), 1000000-1001000(`V1_0`에 매핑). 새 버전이 있으면 인덱서를 업데이트하세요 |
 
 ### `ledger::Error`
 
-Internal ledger errors (13 variants). These are server errors. Callers see only "Internal Server Error". Check indexer logs for details.
+내부 레저 오류입니다(13개 변형). 서버 오류이며, 호출자는 "Internal Server Error"만 보게 됩니다. 자세한 내용은 인덱서 로그를 확인하세요.
 
 | Variant | Description |
 |---------|-------------|
-| `BackwardsLedgerStateTranslation` | Ledger state translation went backwards (version regression). |
-| `BlockLimitExceeded` | Operation exceeds block-level limits. |
-| `ByteArrayLen` | Byte array has unexpected length. |
-| `Deserialize` | Failed to deserialize ledger data. |
-| `FromUtf8` | Failed to convert bytes to UTF-8 string. |
-| `GetContractState` | Failed to retrieve contract state. |
-| `InvalidUpdate` | The node rejected the ledger state update as invalid. |
-| `LedgerStateTranslation` | Generic ledger state translation failure. |
-| `LoadLedgerState` | Failed to load ledger state from storage. |
-| `MalformedTransaction` | Transaction data is structurally malformed. |
-| `Serialize` | Failed to serialize ledger data. |
-| `SystemTransaction` | Error processing a system transaction. |
-| `TransactionCost` | Failed to calculate transaction cost. |
-| `UnsupportedLedgerStateTranslation` | No translation path available for this ledger state version. |
+| `BackwardsLedgerStateTranslation` | 레저 상태 변환이 역방향으로 진행된 경우(버전 역행) |
+| `BlockLimitExceeded` | 작업이 블록 수준 한도를 초과한 경우 |
+| `ByteArrayLen` | 바이트 배열의 길이가 예상과 다른 경우 |
+| `Deserialize` | 레저 데이터 역직렬화에 실패한 경우 |
+| `FromUtf8` | 바이트를 UTF-8 문자열로 변환하지 못한 경우 |
+| `GetContractState` | 컨트랙트 상태 조회에 실패한 경우 |
+| `InvalidUpdate` | 노드가 레저 상태 업데이트를 유효하지 않다고 거부한 경우 |
+| `LedgerStateTranslation` | 일반 레저 상태 변환 실패 |
+| `LoadLedgerState` | 저장소에서 레저 상태를 로드하지 못한 경우 |
+| `MalformedTransaction` | 트랜잭션 데이터의 구조가 잘못된 경우 |
+| `Serialize` | 레저 데이터 직렬화에 실패한 경우 |
+| `SystemTransaction` | 시스템 트랜잭션 처리 중 오류가 발생한 경우 |
+| `TransactionCost` | 트랜잭션 비용 계산에 실패한 경우 |
+| `UnsupportedLedgerStateTranslation` | 해당 레저 상태 버전에 사용 가능한 변환 경로가 없는 경우 |
 
 ## Address format errors
 
-These errors surface when a Midnight or Cardano address supplied to the indexer fails to decode.
+인덱서에 제공된 Midnight 또는 Cardano 주소의 디코드에 실패할 때 표면화되는 오류입니다.
 
 ### `DecodeAddressError`
 
-Returned when a Midnight address fails to decode.
+Midnight 주소의 디코드에 실패할 때 반환됩니다.
 
 | Variant | Description | Fix |
 |---------|---------|-----|
-| `Decode` | Bech32m decode failed (invalid characters, bad checksum, or truncated). | Ensure the address is a valid Bech32m string. |
-| `InvalidHrp` | Human-readable part (HRP) does not match the expected prefix. | Use the correct address type for the operation; see expected HRP prefixes below. |
+| `Decode` | Bech32m 디코드에 실패한 경우(잘못된 문자, 체크섬 오류, 또는 잘림) | 주소가 유효한 Bech32m 문자열인지 확인하세요 |
+| `InvalidHrp` | HRP(human-readable part)가 예상 접두사와 일치하지 않는 경우 | 작업에 맞는 주소 타입을 사용하세요. 예상되는 HRP 접두사는 아래를 참조하세요 |
 
-Expected HRP prefixes:
+예상되는 HRP 접두사:
 
 | Address type | Mainnet HRP | Non-Mainnet HRP |
 |-------------|-------------|-----------------|
@@ -154,58 +154,58 @@ Expected HRP prefixes:
 
 ### `DecodeCardanoRewardAddressError`
 
-Returned when a Cardano stake (reward) address fails to decode.
+Cardano stake(reward) 주소의 디코드에 실패할 때 반환됩니다.
 
 | Variant | Description | Fix |
 |---------|---------|-----|
-| `Decode` | Bech32 decode failed. | Ensure the address is a valid Bech32-encoded Cardano stake address. |
-| `InvalidHrp` | HRP is not `stake` or `stake_test`. | Use a Cardano Mainnet (`stake`) or Testnet (`stake_test`) reward address. |
-| `InvalidLength` | Decoded bytes are not 29 bytes. | The address payload must be exactly 29 bytes; verify the address is not truncated or padded. |
-| `WrongNetwork` | Address network byte does not match the expected network. | Ensure the Cardano address is for the correct network (Mainnet vs. Testnet). |
+| `Decode` | Bech32 디코드에 실패한 경우 | 주소가 유효한 Bech32 인코딩 Cardano stake 주소인지 확인하세요 |
+| `InvalidHrp` | HRP가 `stake`나 `stake_test`가 아닌 경우 | Cardano Mainnet(`stake`) 또는 Testnet(`stake_test`) reward 주소를 사용하세요 |
+| `InvalidLength` | 디코드된 바이트가 29바이트가 아닌 경우 | 주소 페이로드는 정확히 29바이트여야 합니다. 주소가 잘리거나 패딩되지 않았는지 확인하세요 |
+| `WrongNetwork` | 주소의 네트워크 바이트가 예상 네트워크와 일치하지 않는 경우 | Cardano 주소가 올바른 네트워크(Mainnet 또는 Testnet)용인지 확인하세요 |
 
 ## Chain indexer errors (`SubxtNodeError`)
 
-These errors arise from the streaming layer that connects the indexer to the Midnight node via Subxt. Most variants trigger automatic reconnection; persistent errors indicate node connectivity or compatibility issues.
+Subxt를 통해 인덱서를 Midnight 노드에 연결하는 스트리밍 레이어에서 발생하는 오류입니다. 대부분의 변형은 자동 재연결을 유발하며, 지속되는 오류는 노드 연결 또는 호환성 문제를 나타냅니다.
 
-There are 22 variants in total. The following table lists the most common ones.
+전체 변형은 22개이며, 다음 표에는 가장 흔한 것들을 정리했습니다.
 
 | Variant | Description | Action |
 |---------|-------------|--------|
-| `GenesisLedgerStateNotFound` | No genesis ledger state found in system parameters. | Node system parameters storage is missing genesis data; might indicate a misconfigured or corrupted node. |
-| `GetContractState` | The indexer cannot fetch contract state from the node. | Node RPC failure; check node logs and connectivity. |
-| `ProtocolVersion` | The indexer encountered an unsupported protocol version during sync. | The indexer does not recognize this protocol version; upgrade the indexer. |
-| `ReceiveBlock` | Node disconnected mid-stream. | The indexer auto-reconnects. If persistent, check node stability. |
-| `ScaleDecode` | SCALE decode failure when processing a block or event. | The indexer could not decode data from the node; likely a version mismatch. |
-| `SubscribeFinalizedBlocks` | The indexer cannot subscribe to the finalized block stream from the node. | Verify the node's WebSocket endpoint is reachable; check node logs. |
+| `GenesisLedgerStateNotFound` | 시스템 파라미터에서 제네시스 레저 상태를 찾을 수 없는 경우 | 노드 시스템 파라미터 저장소에 제네시스 데이터가 없습니다. 노드 설정 오류나 손상을 나타낼 수 있습니다 |
+| `GetContractState` | 인덱서가 노드에서 컨트랙트 상태를 가져오지 못하는 경우 | 노드 RPC 장애입니다. 노드 로그와 연결 상태를 확인하세요 |
+| `ProtocolVersion` | 동기화 중 인덱서가 지원되지 않는 프로토콜 버전을 만난 경우 | 인덱서가 이 프로토콜 버전을 인식하지 못합니다. 인덱서를 업그레이드하세요 |
+| `ReceiveBlock` | 스트리밍 도중 노드 연결이 끊긴 경우 | 인덱서가 자동으로 재연결합니다. 계속되면 노드 안정성을 확인하세요 |
+| `ScaleDecode` | 블록이나 이벤트 처리 중 SCALE 디코드에 실패한 경우 | 인덱서가 노드의 데이터를 디코드하지 못했습니다. 버전 불일치일 가능성이 높습니다 |
+| `SubscribeFinalizedBlocks` | 인덱서가 노드의 확정 블록 스트림을 구독하지 못하는 경우 | 노드의 WebSocket 엔드포인트에 도달 가능한지 확인하고 노드 로그를 점검하세요 |
 
 ## Infrastructure errors
 
-These are server errors. The indexer logs them internally and returns "Internal Server Error" to callers. Investigate via indexer logs.
+서버 오류입니다. 인덱서가 내부적으로 로깅하고 호출자에게는 "Internal Server Error"를 반환합니다. 인덱서 로그로 원인을 조사하세요.
 
 ### Database
 
-Database errors occur when the indexer cannot connect to or query its storage backend.
+인덱서가 저장소 백엔드에 연결하거나 쿼리하지 못할 때 발생하는 오류입니다.
 
 | Category | Examples | Common causes |
 |----------|---------|---------------|
-| `PostgresPool` | Connection pool exhaustion, failed to acquire connection. | PostgreSQL unreachable, connection limit exceeded, or credentials wrong. |
-| `SqlitePool` | SQLite pool failure. | SQLite file locked, disk full, or permissions issue. |
-| Migration errors | Schema migration failed on startup. | Database schema out of date or incompatible; run pending migrations. |
+| `PostgresPool` | 연결 풀 고갈, 연결 획득 실패 | PostgreSQL에 도달 불가, 연결 한도 초과, 또는 자격 증명 오류 |
+| `SqlitePool` | SQLite 풀 장애 | SQLite 파일 잠김, 디스크 가득 참, 또는 권한 문제 |
+| Migration errors | 시작 시 스키마 마이그레이션 실패 | 데이터베이스 스키마가 오래됐거나 호환되지 않는 경우. 대기 중인 마이그레이션을 실행하세요 |
 
 ### Messaging (NATS)
 
-Messaging errors occur when the indexer cannot publish or receive events through the NATS message broker.
+인덱서가 NATS 메시지 브로커를 통해 이벤트를 게시하거나 수신하지 못할 때 발생하는 오류입니다.
 
 | Category | Description | Common causes |
 |----------|-------------|---------------|
-| NATS publisher errors | Failed to publish a message to NATS. | NATS server unreachable or subject permissions denied. |
-| NATS subscriber errors | Failed to subscribe to or receive from a NATS subject. | NATS server connectivity issue or subject not found. |
+| NATS publisher errors | NATS에 메시지 게시 실패 | NATS 서버에 도달 불가, 또는 subject 권한 거부 |
+| NATS subscriber errors | NATS subject 구독 또는 수신 실패 | NATS 서버 연결 문제, 또는 subject를 찾을 수 없음 |
 
 ### Cipher
 
-Cipher errors occur when the indexer cannot initialize its encryption key from configuration.
+인덱서가 설정에서 암호화 키를 초기화하지 못할 때 발생하는 오류입니다.
 
 | Variant | Description | Fix |
 |-------|---------|-----|
-| Hex decode failure | Cipher key or encrypted value is not valid hex. | Verify the cipher key configuration is correctly hex-encoded. |
-| Key too short | Cipher key is below the minimum required length. | Provide a key of at least 32 bytes (64 hex characters). |
+| Hex decode failure | cipher 키 또는 암호화된 값이 유효한 hex가 아닌 경우 | cipher 키 설정의 hex 인코딩이 올바른지 확인하세요 |
+| Key too short | cipher 키가 최소 요구 길이보다 짧은 경우 | 최소 32바이트(64 hex 문자) 길이의 키를 제공하세요 |

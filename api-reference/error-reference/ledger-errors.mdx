@@ -1,6 +1,6 @@
 ---
 title: Ledger error reference
-description: Rust-level error types from the Midnight ledger crate covering transaction validation, execution, and state management failures.
+description: 트랜잭션 검증, 실행, 상태 관리 실패를 다루는 Midnight 레저 크레이트의 Rust 수준 오류 타입입니다.
 sidebar_position: 5
 sidebar_label: Ledger errors
 tags: [error reference, api reference, ledger]
@@ -9,11 +9,11 @@ toc_max_heading_level: 3
 
 # Ledger error reference
 
-The `midnight-ledger` crate defines the full taxonomy of transaction validation, execution, and state management errors. These are the Rust-level error types behind the numeric `LedgerApiError` codes that the node surfaces.
+`midnight-ledger` 크레이트는 트랜잭션 검증, 실행, 상태 관리 오류의 전체 분류 체계를 정의합니다. 노드가 표면화하는 숫자형 `LedgerApiError` 코드 뒤에 있는 Rust 수준 오류 타입입니다.
 
 ## Error hierarchy
 
-Understanding the chain from top-level to low-level is essential when reading nested error output. A `MalformedTransaction::InvalidProof` near the top of a chain might trace back to a deep `OnchainProgramError::Decode` inside a contract transcript execution.
+중첩된 오류 출력을 읽을 때는 상위 수준부터 하위 수준까지 이어지는 연결 고리를 이해하는 것이 중요합니다. 연결 고리 상단의 `MalformedTransaction::InvalidProof`가 컨트랙트 트랜스크립트 실행 내부 깊숙한 곳의 `OnchainProgramError::Decode`까지 거슬러 올라갈 수 있습니다.
 
 ```
 MalformedTransaction
@@ -26,348 +26,348 @@ MalformedTransaction
 
 ## Error types
 
-The following sections describe each error type in the chain, from the top-level transaction envelope down to low-level tree and VM operations.
+다음 섹션에서는 연결 고리에 속한 각 오류 타입을 상위 수준의 트랜잭션 엔벨로프부터 하위 수준의 트리 및 VM 작업까지 설명합니다.
 
 ### `MalformedTransaction`
 
-Over 50 variants, parameterized as `MalformedTransaction<D>`. These are structural validity errors the ledger checks before any state application. The ledger rejects malformed transactions without modifying state.
+50개가 넘는 변형이 있으며 `MalformedTransaction<D>`로 매개변수화됩니다. 레저가 상태를 적용하기 전에 검사하는 구조적 유효성 오류입니다. 레저는 잘못된 형식의 트랜잭션을 상태 변경 없이 거부합니다.
 
 #### Proof and cryptographic errors
 
-These errors indicate failures in zero-knowledge proof verification or cryptographic consistency checks.
+영지식 증명 검증 또는 암호학적 일관성 검사의 실패를 나타내는 오류입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `BindingCommitmentOpeningInvalid` | The binding commitment opening does not match the committed value. | Indicates a bug in transaction construction; recheck commitment generation. |
-| `InvalidNetworkId` | The transaction targets a different network (for example, Mainnet vs. Devnet). | Rebuild the transaction targeting the correct network ID. |
-| `InvalidProof` | A zero-knowledge proof failed verification. | Reproving required; check that the witness and public inputs match. |
-| `InvalidSchnorrProof` | A Schnorr signature proof failed verification. | Key mismatch or corrupted signing data; re-sign. |
-| `PedersenCheckFailure` | A Pedersen commitment consistency check failed. | Balance or value encoding error; recheck transaction values. |
+| `BindingCommitmentOpeningInvalid` | 바인딩 커밋먼트 opening이 커밋된 값과 일치하지 않는 경우 | 트랜잭션 구성 버그를 나타냅니다. 커밋먼트 생성 과정을 다시 확인하세요 |
+| `InvalidNetworkId` | 트랜잭션이 다른 네트워크를 대상으로 하는 경우(예: Mainnet vs. Devnet) | 올바른 네트워크 ID를 대상으로 트랜잭션을 다시 빌드하세요 |
+| `InvalidProof` | 영지식 증명이 검증에 실패한 경우 | 다시 증명해야 합니다. witness와 public input이 일치하는지 확인하세요 |
+| `InvalidSchnorrProof` | Schnorr 서명 증명이 검증에 실패한 경우 | 키 불일치 또는 서명 데이터 손상입니다. 다시 서명하세요 |
+| `PedersenCheckFailure` | Pedersen 커밋먼트 일관성 검사에 실패한 경우 | 잔액 또는 값 인코딩 오류입니다. 트랜잭션 값을 다시 확인하세요 |
 
 #### Structural errors
 
-These errors indicate violations of canonical form or transaction structure rules.
+정규 형식이나 트랜잭션 구조 규칙의 위반을 나타내는 오류입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `FallibleWithoutCheckpoint` | A fallible transaction segment lacks the required checkpoint. | Add a checkpoint to the fallible segment. |
-| `NotNormalized` | Transaction fields are not in the required canonical sort order. | Sort and normalize transaction fields per the ledger spec before submitting. |
-| `TooManyZswapEntries` | The transaction contains more Zswap entries than the protocol allows. | Split Zswap operations across multiple transactions. |
-| `TransactionTooLarge` | The serialized transaction exceeds the maximum allowed byte size. | Split into smaller transactions or reduce payload size. |
-| `VerifierKeyTooLarge` | A verifier key in the transaction exceeds the size limit. | Check that the correct (non-debug) verifier key is in use. |
+| `FallibleWithoutCheckpoint` | 폴러블 트랜잭션 세그먼트에 필수 체크포인트가 없는 경우 | 폴러블 세그먼트에 체크포인트를 추가하세요 |
+| `NotNormalized` | 트랜잭션 필드가 필수 정규 정렬 순서가 아닌 경우 | 제출 전에 레저 사양에 따라 트랜잭션 필드를 정렬하고 정규화하세요 |
+| `TooManyZswapEntries` | 트랜잭션에 프로토콜이 허용하는 것보다 많은 Zswap 항목이 포함된 경우 | Zswap 작업을 여러 트랜잭션으로 분할하세요 |
+| `TransactionTooLarge` | 직렬화된 트랜잭션이 최대 허용 바이트 크기를 초과한 경우 | 더 작은 트랜잭션으로 분할하거나 페이로드 크기를 줄이세요 |
+| `VerifierKeyTooLarge` | 트랜잭션의 검증자 키가 크기 한도를 초과한 경우 | 올바른(디버그가 아닌) 검증자 키를 사용하고 있는지 확인하세요 |
 
 #### Claims errors
 
-These errors occur when coin claim data is inconsistent or fails verification.
+코인 클레임 데이터가 일관되지 않거나 검증에 실패할 때 발생하는 오류입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `ClaimCoinMismatch` | The coin referenced in a claim does not match the expected coin. | Ensure the claim targets the correct coin data. |
-| `ClaimNullifierFailed` | The nullifier in a claim is invalid or does not match. | Regenerate the nullifier from the correct key and coin data. |
-| `ClaimOverflow` | Arithmetic overflow occurred while summing claim values. | Reduce individual claim values; the total may exceed `u64::MAX`. |
-| `ClaimReceiveFailed` | A coin receive claim is invalid or the ledger cannot verify it. | Check that the claim data matches the target coin. |
-| `ClaimSpendFailed` | A coin spend claim failed verification. | Verify the spend authorization and nullifier data. |
-| `UnclaimedCoinCom` | A coin commitment is present but has no corresponding claim. | Ensure every coin commitment has a valid associated claim. |
-| `UnclaimedNullifier` | A nullifier is present but has no corresponding coin claim. | Ensure every nullifier has a corresponding spend claim. |
-| `Unbalanced` | The transaction inputs and outputs do not balance; value is not conserved. | Recheck token amounts across all inputs and outputs. |
+| `ClaimCoinMismatch` | 클레임에서 참조한 코인이 예상 코인과 일치하지 않는 경우 | 클레임이 올바른 코인 데이터를 대상으로 하는지 확인하세요 |
+| `ClaimNullifierFailed` | 클레임의 널리파이어가 유효하지 않거나 일치하지 않는 경우 | 올바른 키와 코인 데이터로 널리파이어를 다시 생성하세요 |
+| `ClaimOverflow` | 클레임 값을 합산하는 중 산술 오버플로우가 발생한 경우 | 개별 클레임 값을 줄이세요. 합계가 `u64::MAX`를 초과할 수 있습니다 |
+| `ClaimReceiveFailed` | 코인 수신 클레임이 유효하지 않거나 레저가 검증하지 못하는 경우 | 클레임 데이터가 대상 코인과 일치하는지 확인하세요 |
+| `ClaimSpendFailed` | 코인 지출 클레임이 검증에 실패한 경우 | 지출 권한과 널리파이어 데이터를 확인하세요 |
+| `UnclaimedCoinCom` | 코인 커밋먼트가 존재하지만 대응하는 클레임이 없는 경우 | 모든 코인 커밋먼트에 유효한 클레임이 연결되어 있는지 확인하세요 |
+| `UnclaimedNullifier` | 널리파이어가 존재하지만 대응하는 코인 클레임이 없는 경우 | 모든 널리파이어에 대응하는 지출 클레임이 있는지 확인하세요 |
+| `Unbalanced` | 트랜잭션 입력과 출력의 잔액이 맞지 않는 경우(값이 보존되지 않음) | 모든 입력과 출력의 토큰 수량을 다시 확인하세요 |
 
 #### Committee errors
 
-These errors arise when a transaction's committee signatures are missing, insufficient, or invalid.
+트랜잭션의 위원회 서명이 누락되거나, 부족하거나, 유효하지 않을 때 발생하는 오류입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `InvalidCommitteeSignature` | A committee signature has an invalid format or does not verify. | Re-collect signatures from valid committee members. |
-| `KeyNotInCommittee` | A key used for signing is not a member of the expected committee. | Use a key registered as a committee member for this epoch. |
-| `ThresholdMissed` | The required threshold of committee signatures was not reached. | Gather signatures from more committee members before submitting. |
+| `InvalidCommitteeSignature` | 위원회 서명의 형식이 잘못됐거나 검증되지 않는 경우 | 유효한 위원회 구성원으로부터 서명을 다시 수집하세요 |
+| `KeyNotInCommittee` | 서명에 사용된 키가 예상 위원회의 구성원이 아닌 경우 | 해당 에포크의 위원회 구성원으로 등록된 키를 사용하세요 |
+| `ThresholdMissed` | 필요한 위원회 서명 임계값에 도달하지 못한 경우 | 제출 전에 더 많은 위원회 구성원의 서명을 수집하세요 |
 
 #### Intents errors
 
-These errors occur when transaction intents carry invalid signatures or conflicting segment identifiers.
+트랜잭션 인텐트의 서명이 유효하지 않거나 세그먼트 식별자가 충돌할 때 발생하는 오류입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `IntentAtGuaranteedSegmentId` | An intent targets a guaranteed segment ID, which is not permitted. | Move the intent to a non-guaranteed segment. |
-| `IntentSegmentIdCollision` | Two intents reference the same segment ID. | Assign unique segment IDs to each intent. |
-| `IntentSignatureVerificationFailure` | An intent's signature failed verification. | Re-sign the intent with the correct key. |
-| `IntentSignatureKeyMismatch` | The signing key does not match the key declared in the intent. | Ensure the intent uses the key it references. |
+| `IntentAtGuaranteedSegmentId` | 인텐트가 허용되지 않는 보장 세그먼트 ID를 대상으로 하는 경우 | 인텐트를 보장 세그먼트가 아닌 곳으로 옮기세요 |
+| `IntentSegmentIdCollision` | 두 인텐트가 동일한 세그먼트 ID를 참조하는 경우 | 각 인텐트에 고유한 세그먼트 ID를 할당하세요 |
+| `IntentSignatureVerificationFailure` | 인텐트의 서명이 검증에 실패한 경우 | 올바른 키로 인텐트에 다시 서명하세요 |
+| `IntentSignatureKeyMismatch` | 서명 키가 인텐트에 선언된 키와 일치하지 않는 경우 | 인텐트가 참조하는 키를 사용하는지 확인하세요 |
 
 #### Balance check errors
 
-These errors occur when token balance verification fails during transaction validation.
+트랜잭션 검증 중 토큰 잔액 검증이 실패할 때 발생하는 오류입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `BalanceCheckConversionFailure` | Type conversion failed during balance verification. | Indicates a bug in value encoding; check token type consistency. |
-| `BalanceCheckOutOfBounds` | A balance value is outside the valid numeric range for the check. | Verify that all token amounts are within protocol-defined bounds. |
-| `BalanceCheckOverspend` | The transaction attempts to spend more than is available. | Reduce spend amounts or add sufficient inputs. |
+| `BalanceCheckConversionFailure` | 잔액 검증 중 타입 변환에 실패한 경우 | 값 인코딩 버그를 나타냅니다. 토큰 타입 일관성을 확인하세요 |
+| `BalanceCheckOutOfBounds` | 잔액 값이 검사에 유효한 숫자 범위를 벗어난 경우 | 모든 토큰 수량이 프로토콜이 정의한 범위 내에 있는지 확인하세요 |
+| `BalanceCheckOverspend` | 트랜잭션이 가용 금액보다 많이 지출하려는 경우 | 지출 금액을 줄이거나 충분한 입력을 추가하세요 |
 
 #### DUST errors
 
-These errors occur when DUST registration or spend operations fail validation.
+DUST 등록 또는 지출 작업이 검증에 실패할 때 발생하는 오류입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `InsufficientDustForRegistrationFee` | The DUST amount is below the minimum required to cover the registration fee. | Increase the DUST amount to meet the minimum fee threshold. |
-| `InvalidDustRegistrationSignature` | The DUST registration signature is invalid. | Re-sign the DUST registration with the correct key. |
-| `InvalidDustSpendProof` | The proof for a DUST spend is invalid. | Regenerate the spend proof with correct witness data. |
-| `MultipleDustRegistrationsForKey` | The same key appears in multiple DUST registrations in one transaction. | Use each DUST key at most once per transaction. |
-| `OutOfDustValidityWindow` | The DUST registration or spend is outside the allowed validity window. | Check block height and resubmit within the validity window. |
+| `InsufficientDustForRegistrationFee` | DUST 수량이 등록 수수료를 충당하는 데 필요한 최소치보다 적은 경우 | 최소 수수료 기준을 충족하도록 DUST 수량을 늘리세요 |
+| `InvalidDustRegistrationSignature` | DUST 등록 서명이 유효하지 않은 경우 | 올바른 키로 DUST 등록에 다시 서명하세요 |
+| `InvalidDustSpendProof` | DUST 지출 증명이 유효하지 않은 경우 | 올바른 witness 데이터로 지출 증명을 다시 생성하세요 |
+| `MultipleDustRegistrationsForKey` | 하나의 트랜잭션에서 동일한 키가 여러 DUST 등록에 나타나는 경우 | 트랜잭션당 각 DUST 키를 한 번만 사용하세요 |
+| `OutOfDustValidityWindow` | DUST 등록 또는 지출이 허용된 유효 시간 창을 벗어난 경우 | 블록 높이를 확인하고 유효 시간 창 안에서 재제출하세요 |
 
 #### Version errors
 
-These errors occur when a proof or transcript uses a version the node does not recognize.
+증명이나 트랜스크립트가 노드가 인식하지 못하는 버전을 사용할 때 발생하는 오류입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `FallibleTranscriptVersion` | The transcript version is invalid for a fallible segment. | Ensure fallible segments use the correct transcript version format. |
-| `GuaranteedTranscriptVersion` | The transcript version is invalid for a guaranteed segment. | Ensure guaranteed segments use the correct transcript version format. |
-| `UnsupportedProofVersion` | The proof uses a version the node does not support. | Upgrade the SDK or reproduce the proof with a supported version. |
+| `FallibleTranscriptVersion` | 폴러블 세그먼트에 트랜스크립트 버전이 유효하지 않은 경우 | 폴러블 세그먼트가 올바른 트랜스크립트 버전 형식을 사용하는지 확인하세요 |
+| `GuaranteedTranscriptVersion` | 보장 세그먼트에 트랜스크립트 버전이 유효하지 않은 경우 | 보장 세그먼트가 올바른 트랜스크립트 버전 형식을 사용하는지 확인하세요 |
+| `UnsupportedProofVersion` | 증명이 노드가 지원하지 않는 버전을 사용하는 경우 | SDK를 업그레이드하거나 지원되는 버전으로 증명을 다시 생성하세요 |
 
 #### Check errors
 
-These errors occur when static consistency checks on transaction effects or segment ordering fail.
+트랜잭션 이펙트나 세그먼트 순서에 대한 정적 일관성 검사가 실패할 때 발생하는 오류입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `DisjointCheckFailure` | Segments that should be disjoint share resources or state. | Ensure segments operate on non-overlapping state. |
-| `EffectsCheckFailure` | The declared effects of the transaction failed static consistency checks. | Verify that declared effects match what contract execution would produce. |
-| `SequencingCheckFailure` | The transaction violated segment ordering constraints. | Reorder segments to satisfy sequencing requirements. |
+| `DisjointCheckFailure` | 서로 분리되어야 할 세그먼트가 리소스나 상태를 공유하는 경우 | 세그먼트가 서로 겹치지 않는 상태에서 동작하도록 하세요 |
+| `EffectsCheckFailure` | 트랜잭션의 선언된 이펙트가 정적 일관성 검사에 실패한 경우 | 선언된 이펙트가 컨트랙트 실행 결과와 일치하는지 확인하세요 |
+| `SequencingCheckFailure` | 트랜잭션이 세그먼트 순서 제약을 위반한 경우 | 순서 요구사항을 충족하도록 세그먼트를 재정렬하세요 |
 
 #### Sorting and deduplication errors
 
-These errors occur when transaction inputs or outputs violate canonical ordering or uniqueness requirements.
+트랜잭션 입력 또는 출력이 정규 순서나 고유성 요구사항을 위반할 때 발생하는 오류입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `DuplicateInputs` | The same input appears more than once in the transaction. | Remove duplicate inputs. |
-| `InputsNotSorted` | Transaction inputs are not in the required canonical sort order. | Sort inputs according to the ledger's canonical ordering before building the transaction. |
-| `InputsSignaturesLengthMismatch` | The number of input signatures does not match the number of inputs. | Provide exactly one signature per input. |
-| `OutputsNotSorted` | Transaction outputs are not in the required canonical sort order. | Sort outputs canonically before building the transaction. |
+| `DuplicateInputs` | 동일한 입력이 트랜잭션에 두 번 이상 나타나는 경우 | 중복 입력을 제거하세요 |
+| `InputsNotSorted` | 트랜잭션 입력이 필수 정규 정렬 순서가 아닌 경우 | 트랜잭션을 빌드하기 전에 레저의 정규 순서에 따라 입력을 정렬하세요 |
+| `InputsSignaturesLengthMismatch` | 입력 서명 수가 입력 수와 일치하지 않는 경우 | 각 입력에 정확히 하나의 서명을 제공하세요 |
+| `OutputsNotSorted` | 트랜잭션 출력이 필수 정규 정렬 순서가 아닌 경우 | 트랜잭션을 빌드하기 전에 출력을 정규 순서로 정렬하세요 |
 
 ### `TransactionInvalid`
 
-These state-application errors occur when the ledger applies a structurally valid transaction to the current state but rejects it due to state inconsistencies. This enum is `#[non_exhaustive]` and defines 19 variants.
+레저가 구조적으로 유효한 트랜잭션을 현재 상태에 적용했지만 상태 불일치로 거부할 때 발생하는 상태 적용 오류입니다. 이 enum은 `#[non_exhaustive]`이며 19개의 변형을 정의합니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `BalanceCheckOutOfBounds` | A balance value is out of valid range during state application. | Verify token amounts are within bounds after accounting for current state. |
-| `ContractAlreadyDeployed` | A contract deployment targets an address that already has a contract. | Deploy to a different address or verify deployment uniqueness. |
-| `ContractNotPresent` | A transaction calls a contract that does not exist at the given address. | Verify the contract address and confirm the contract exists at that address. |
-| `DivideByZero` | A division by zero occurred during transaction processing. | Indicates a bug in transaction value computation. |
-| `DustDeregistrationNotRegistered` | The transaction attempts to deregister a DUST key that has no active registration. | Confirm the key has an active registration before deregistering it. |
-| `DustDoubleSpend` | A DUST coin the transaction attempts to spend is already spent. | Check current DUST UTXO state; the coin has already been spent. |
-| `EffectsMismatch` | The actual effects of applying the transaction differ from the declared effects. | Declared effects must exactly match what contract execution produces. |
-| `GenerationInfoAlreadyPresent` | Generation info for this epoch/key is already recorded on-chain. | You can only submit generation info once per epoch. |
-| `InputNotInUtxos` | A transaction input references a UTXO that does not exist in the current state. | The UTXO may already be spent; fetch fresh state before building the transaction. |
-| `InsufficientClaimable` | The transaction attempts to claim more than is available in the claimable pool. | Reduce the claim amount or wait for more claimable funds to become available. |
-| `InvariantViolation` | The ledger detected an internal invariant violation. | Report as a bug; this should not occur with a correctly implemented node or SDK. |
-| `MerkleTreeError` | A Merkle tree operation failed during state application. | For more details, see the [`merkle_tree::InvalidUpdate`](#merkle_treeinvalidupdate) section. |
-| `ReplayCounterMismatch` | The replay protection counter does not match the expected value. | Fetch the current replay counter from the node and use it in the transaction. |
-| `ReplayProtectionViolation` | The transaction violates replay protection constraints. | Ensure the transaction is not a duplicate or out-of-sequence. |
-| `RewardTooSmall` | The reward amount is below the minimum required. | Increase the reward amount to meet the protocol minimum. |
-| `Transcript` | The ledger rejected a contract transcript execution (wraps `TranscriptRejected`). | For more details, see the [TranscriptRejected errors section](#transcriptrejected). |
-| `VerifierKeyAlreadyPresent` | A verifier key registration targets a key that is already registered. | Do not re-register existing verifier keys. |
-| `VerifierKeyNotFound` | A verifier key referenced in the transaction is not registered on-chain. | Register the verifier key before submitting transactions that reference it. |
-| `Zswap` | A Zswap sub-operation failed (wraps `zswap::TransactionInvalid`). | For more details, see the [Zswap errors section](#zswap-errors). |
+| `BalanceCheckOutOfBounds` | 상태 적용 중 잔액 값이 유효 범위를 벗어난 경우 | 현재 상태를 반영한 후에도 토큰 수량이 범위 내에 있는지 확인하세요 |
+| `ContractAlreadyDeployed` | 컨트랙트 배포가 이미 컨트랙트가 있는 주소를 대상으로 하는 경우 | 다른 주소에 배포하거나 배포 고유성을 확인하세요 |
+| `ContractNotPresent` | 트랜잭션이 해당 주소에 존재하지 않는 컨트랙트를 호출하는 경우 | 컨트랙트 주소를 확인하고 해당 주소에 컨트랙트가 존재하는지 확인하세요 |
+| `DivideByZero` | 트랜잭션 처리 중 0으로 나누기가 발생한 경우 | 트랜잭션 값 계산 버그를 나타냅니다 |
+| `DustDeregistrationNotRegistered` | 활성 등록이 없는 DUST 키를 등록 해제하려는 경우 | 등록 해제 전에 해당 키에 활성 등록이 있는지 확인하세요 |
+| `DustDoubleSpend` | 트랜잭션이 지출하려는 DUST 코인이 이미 지출된 경우 | 현재 DUST UTXO 상태를 확인하세요. 해당 코인은 이미 지출됐습니다 |
+| `EffectsMismatch` | 트랜잭션을 적용한 실제 이펙트가 선언된 이펙트와 다른 경우 | 선언된 이펙트는 컨트랙트 실행 결과와 정확히 일치해야 합니다 |
+| `GenerationInfoAlreadyPresent` | 이 에포크/키에 대한 생성 정보가 이미 온체인에 기록된 경우 | 생성 정보는 에포크당 한 번만 제출할 수 있습니다 |
+| `InputNotInUtxos` | 트랜잭션 입력이 현재 상태에 존재하지 않는 UTXO를 참조하는 경우 | 해당 UTXO가 이미 지출됐을 수 있습니다. 트랜잭션을 빌드하기 전에 최신 상태를 가져오세요 |
+| `InsufficientClaimable` | 트랜잭션이 클레임 가능 풀의 가용량보다 많이 클레임하려는 경우 | 클레임 금액을 줄이거나 클레임 가능 자금이 더 쌓일 때까지 기다리세요 |
+| `InvariantViolation` | 레저가 내부 불변 조건 위반을 감지한 경우 | 버그로 신고하세요. 올바르게 구현된 노드나 SDK에서는 발생하지 않아야 합니다 |
+| `MerkleTreeError` | 상태 적용 중 머클 트리 작업이 실패한 경우 | 자세한 내용은 [`merkle_tree::InvalidUpdate`](#merkle_treeinvalidupdate) 섹션을 참조하세요 |
+| `ReplayCounterMismatch` | 리플레이 보호 카운터가 예상 값과 일치하지 않는 경우 | 노드에서 현재 리플레이 카운터를 가져와 트랜잭션에 사용하세요 |
+| `ReplayProtectionViolation` | 트랜잭션이 리플레이 보호 제약을 위반한 경우 | 트랜잭션이 중복되거나 순서를 벗어나지 않았는지 확인하세요 |
+| `RewardTooSmall` | 보상 금액이 필요한 최소치보다 적은 경우 | 프로토콜 최소치를 충족하도록 보상 금액을 늘리세요 |
+| `Transcript` | 레저가 컨트랙트 트랜스크립트 실행을 거부한 경우(`TranscriptRejected`를 래핑) | 자세한 내용은 [TranscriptRejected 오류 섹션](#transcriptrejected)을 참조하세요 |
+| `VerifierKeyAlreadyPresent` | 검증자 키 등록이 이미 등록된 키를 대상으로 하는 경우 | 기존 검증자 키를 다시 등록하지 마세요 |
+| `VerifierKeyNotFound` | 트랜잭션에서 참조한 검증자 키가 온체인에 등록되지 않은 경우 | 해당 키를 참조하는 트랜잭션을 제출하기 전에 검증자 키를 등록하세요 |
+| `Zswap` | Zswap 하위 작업이 실패한 경우(`zswap::TransactionInvalid`를 래핑) | 자세한 내용은 [Zswap 오류 섹션](#zswap-errors)을 참조하세요 |
 
 ### `OnchainProgramError`
 
-These errors surface when contract transcript execution fails inside the Impact VM on-chain execution engine. This enum defines 17 variants.
+Impact VM 온체인 실행 엔진 내부에서 컨트랙트 트랜스크립트 실행이 실패할 때 표면화되는 오류입니다. 이 enum은 17개의 변형을 정의합니다.
 
 | Variant | Description |
 |---------|-------------|
-| `ArithmeticOverflow` | An arithmetic operation overflowed the supported integer range. |
-| `AttemptedArrayDelete` | An attempt made to delete an array element, which is not supported. |
-| `BoundsExceeded` | An array or buffer access targeted an out-of-bounds position. |
-| `CacheMiss` | A cache lookup for a required value returned no result during execution. |
-| `CellBoundExceeded` | A cell value exceeded the maximum allowed size. |
-| `Decode` | Failed to decode a value from the stack or program data (wraps `InvalidBuiltinDecode`). |
-| `ExpectedCell` | The VM expected a cell value at a stack position but found a different type. |
-| `InvalidArgs` | A built-in function received invalid or wrong-count arguments. |
-| `LogBoundExceeded` | A logging operation exceeded the maximum allowed log size. |
-| `MerkleTreeError` | A Merkle tree built-in operation failed inside the VM. |
-| `MissingKey` | A required key was not found in the contract state map. |
-| `OutOfGas` | The transaction ran out of gas during contract execution. |
-| `RanOffStack` | The VM stack ran out of space; a pop or read targeted an empty stack. |
-| `RanPastProgramEnd` | The program counter advanced past the end of the bytecode. |
-| `ReadMismatch` | A read from contract state returned a value that does not match the value declared in the transcript. |
-| `StackOverflow` | The VM call stack grew too deep, exceeding the recursion limit. |
-| `TooLongForEqual` | An equality comparison targeted values exceeding the maximum comparable length. |
-| `TypeError(String)` | A type mismatch occurred during VM execution. The string describes the mismatch. |
+| `ArithmeticOverflow` | 산술 연산이 지원 정수 범위를 오버플로우한 경우 |
+| `AttemptedArrayDelete` | 지원되지 않는 배열 요소 삭제를 시도한 경우 |
+| `BoundsExceeded` | 배열 또는 버퍼 접근이 범위를 벗어난 위치를 대상으로 한 경우 |
+| `CacheMiss` | 실행 중 필요한 값의 캐시 조회가 결과를 반환하지 않은 경우 |
+| `CellBoundExceeded` | 셀 값이 최대 허용 크기를 초과한 경우 |
+| `Decode` | 스택 또는 프로그램 데이터에서 값 디코드에 실패한 경우(`InvalidBuiltinDecode`를 래핑) |
+| `ExpectedCell` | VM이 스택 위치에서 셀 값을 기대했으나 다른 타입을 발견한 경우 |
+| `InvalidArgs` | 내장 함수가 유효하지 않거나 개수가 잘못된 인자를 받은 경우 |
+| `LogBoundExceeded` | 로깅 작업이 최대 허용 로그 크기를 초과한 경우 |
+| `MerkleTreeError` | VM 내부에서 머클 트리 내장 작업이 실패한 경우 |
+| `MissingKey` | 컨트랙트 상태 맵에서 필요한 키를 찾을 수 없는 경우 |
+| `OutOfGas` | 컨트랙트 실행 중 트랜잭션의 가스가 소진된 경우 |
+| `RanOffStack` | VM 스택 공간이 부족한 경우. 빈 스택에서 pop 또는 read를 시도했습니다 |
+| `RanPastProgramEnd` | 프로그램 카운터가 바이트코드 끝을 넘어 진행한 경우 |
+| `ReadMismatch` | 컨트랙트 상태에서 읽은 값이 트랜스크립트에 선언된 값과 일치하지 않는 경우 |
+| `StackOverflow` | VM 호출 스택이 너무 깊어져 재귀 한도를 초과한 경우 |
+| `TooLongForEqual` | 동등성 비교가 최대 비교 가능 길이를 초과하는 값을 대상으로 한 경우 |
+| `TypeError(String)` | VM 실행 중 타입 불일치가 발생한 경우. 문자열이 불일치 내용을 설명합니다 |
 
 ### `TranscriptRejected`
 
-This type wraps `OnchainProgramError` and represents failures during on-chain contract execution. It defines five variants.
+이 타입은 `OnchainProgramError`를 래핑하며 온체인 컨트랙트 실행 중 발생하는 실패를 나타냅니다. 5개의 변형을 정의합니다.
 
 | Variant | Description |
 |---------|-------------|
-| `Decode` | Failed to decode the transcript input before execution could begin. |
-| `EffectDecodeError` | Failed to decode the effects emitted by the contract execution. |
-| `Execution` | Contract execution failed (wraps `OnchainProgramError`). The inner error contains the VM-level failure. |
-| `FinalStackWrongLength` | After execution completed, the stack did not have the expected number of elements. |
-| `WeakStateReturned` | The contract returned a weakened state when the protocol required a full state. |
+| `Decode` | 실행이 시작되기 전에 트랜스크립트 입력 디코드에 실패한 경우 |
+| `EffectDecodeError` | 컨트랙트 실행이 발생시킨 이펙트의 디코드에 실패한 경우 |
+| `Execution` | 컨트랙트 실행이 실패한 경우(`OnchainProgramError`를 래핑). 내부 오류에 VM 수준의 실패 내용이 담깁니다 |
+| `FinalStackWrongLength` | 실행이 완료된 후 스택의 요소 수가 예상과 다른 경우 |
+| `WeakStateReturned` | 프로토콜이 전체 상태를 요구했으나 컨트랙트가 약화된 상태를 반환한 경우 |
 
 ### Zswap errors
 
-Zswap manages private coin operations including shielded transfers, coin commitments, and double-spend prevention.
+Zswap은 실드 전송, 코인 커밋먼트, 이중 지출 방지를 포함한 프라이빗 코인 작업을 관리합니다.
 
 #### `zswap::TransactionInvalid`
 
-State-level Zswap failures that occur when the ledger applies a Zswap operation to the current state.
+레저가 Zswap 작업을 현재 상태에 적용할 때 발생하는 상태 수준 Zswap 실패입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `CommitmentAlreadyPresent` | A coin commitment already exists in the commitment tree. | Duplicate commitment; check for replay or construction error. |
-| `MerkleTreeError` | A Merkle tree update failed during Zswap state application. | For more details, see the [`merkle_tree::InvalidUpdate`](#merkle_treeinvalidupdate) section. |
-| `NullifierAlreadyPresent` | The nullifier has already been spent; this is a double-spend attempt. | The coin has been spent; do not attempt to spend it again. |
-| `UnknownMerkleRoot` | The Merkle root referenced in the proof is not known to the current state. | Fetch the current Merkle root from the node and rebuild the proof. |
+| `CommitmentAlreadyPresent` | 코인 커밋먼트가 커밋먼트 트리에 이미 존재하는 경우 | 중복 커밋먼트입니다. 리플레이 또는 구성 오류 여부를 확인하세요 |
+| `MerkleTreeError` | Zswap 상태 적용 중 머클 트리 업데이트가 실패한 경우 | 자세한 내용은 [`merkle_tree::InvalidUpdate`](#merkle_treeinvalidupdate) 섹션을 참조하세요 |
+| `NullifierAlreadyPresent` | 널리파이어가 이미 지출된 경우. 이는 이중 지출 시도입니다 | 해당 코인은 이미 지출됐습니다. 다시 지출하려 하지 마세요 |
+| `UnknownMerkleRoot` | 증명에서 참조한 머클 루트를 현재 상태가 알지 못하는 경우 | 노드에서 현재 머클 루트를 가져와 증명을 다시 빌드하세요 |
 
 #### `zswap::MalformedOffer`
 
-Structural Zswap errors checked before any state application.
+상태 적용 전에 검사하는 구조적 Zswap 오류입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `ContractSentCiphertext` | A contract attempted to send ciphertext, which is not permitted in this context. | Contracts must not produce ciphertext outputs directly. |
-| `InvalidProof` | A Zswap zero-knowledge proof failed verification. | Regenerate the proof with correct witness and public inputs. |
-| `NonDisjointCoinMerge` | A coin merge targeted non-disjoint coin sets. | Ensure merged coin sets are fully disjoint. |
-| `NotNormalized` | The offer is not in canonical normalized form. | Normalize the offer before including it in a transaction. |
+| `ContractSentCiphertext` | 이 맥락에서 허용되지 않는 ciphertext 전송을 컨트랙트가 시도한 경우 | 컨트랙트는 ciphertext 출력을 직접 생성해서는 안 됩니다 |
+| `InvalidProof` | Zswap 영지식 증명이 검증에 실패한 경우 | 올바른 witness와 public input으로 증명을 다시 생성하세요 |
+| `NonDisjointCoinMerge` | 코인 병합이 서로 분리되지 않은 코인 집합을 대상으로 한 경우 | 병합하는 코인 집합이 완전히 분리되어 있는지 확인하세요 |
+| `NotNormalized` | 오퍼가 정규 정규화 형식이 아닌 경우 | 트랜잭션에 포함하기 전에 오퍼를 정규화하세요 |
 
 #### `zswap::OfferCreationFailed`
 
-Client-side errors encountered while constructing a Zswap offer.
+Zswap 오퍼를 구성하는 중에 발생하는 클라이언트 측 오류입니다.
 
 | Variant | Description | Fix |
 |---------|-------------|-----|
-| `InvalidIndex` | The offer construction used an invalid index. | Verify the coin index is within the valid range for the Merkle tree. |
-| `MerkleTreeError` | A Merkle tree operation failed during offer construction. | For more details, see the [`merkle_tree::InvalidUpdate`](#merkle_treeinvalidupdate) section. |
-| `NotContractOwned` | The offer references a coin that is not owned by the expected contract. | Ensure you construct offers only for coins the correct contract owns. |
-| `Proving` | The zero-knowledge proving step failed during offer creation. | Check that all witnesses are valid; re-run proving with correct inputs. |
-| `TreeNotRehashed` | The Merkle tree requires a rehash after recent updates. | Call the tree rehash operation before constructing the offer. |
+| `InvalidIndex` | 오퍼 구성에 유효하지 않은 인덱스를 사용한 경우 | 코인 인덱스가 머클 트리의 유효 범위 내에 있는지 확인하세요 |
+| `MerkleTreeError` | 오퍼 구성 중 머클 트리 작업이 실패한 경우 | 자세한 내용은 [`merkle_tree::InvalidUpdate`](#merkle_treeinvalidupdate) 섹션을 참조하세요 |
+| `NotContractOwned` | 오퍼가 예상 컨트랙트가 소유하지 않은 코인을 참조하는 경우 | 올바른 컨트랙트가 소유한 코인에 대해서만 오퍼를 구성하세요 |
+| `Proving` | 오퍼 생성 중 영지식 증명 단계가 실패한 경우 | 모든 witness가 유효한지 확인하고 올바른 입력으로 증명을 다시 실행하세요 |
+| `TreeNotRehashed` | 최근 업데이트 후 머클 트리에 rehash가 필요한 경우 | 오퍼를 구성하기 전에 트리 rehash 작업을 호출하세요 |
 
 ### Merkle tree errors
 
-These errors surface when operations on the commitment Merkle tree fail.
+커밋먼트 머클 트리에 대한 작업이 실패할 때 표면화되는 오류입니다.
 
 #### `merkle_tree::InvalidIndex`
 
-Returned when a provided index is out of range for the current tree size.
+제공된 인덱스가 현재 트리 크기의 범위를 벗어날 때 반환됩니다.
 
 | Variant | Description |
 |---------|-------------|
-| `InvalidIndex(u64)` | The provided index is out of range for the current Merkle tree size. |
+| `InvalidIndex(u64)` | 제공된 인덱스가 현재 머클 트리 크기의 범위를 벗어난 경우 |
 
 #### `merkle_tree::InvalidUpdate`
 
-Six variants representing structural failures when updating the Merkle tree.
+머클 트리 업데이트 시 발생하는 구조적 실패를 나타내는 6개의 변형입니다.
 
 | Variant | Description |
 |---------|-------------|
-| `BadUpdatePath` | The Merkle path provided for the update is incorrect or inconsistent. |
-| `CollapsedIndex` | An update targeted a collapsed (pruned) subtree node. |
-| `EndBeforeStart` | The end index of an update range is before the start index. |
-| `EndOutOfTree` | The end index of an update range extends past the tree boundary. |
-| `NotFullyRehashed` | The tree has pending updates without a rehash; it is in an inconsistent state. |
-| `StubUpdate` | An update targeted a stub node that cannot accept updates. |
-| `WrongNumberOfSegments` | The update provides a different number of segments than expected. |
+| `BadUpdatePath` | 업데이트에 제공된 머클 경로가 잘못됐거나 일관되지 않은 경우 |
+| `CollapsedIndex` | 업데이트가 collapse(가지치기)된 서브트리 노드를 대상으로 한 경우 |
+| `EndBeforeStart` | 업데이트 범위의 끝 인덱스가 시작 인덱스보다 앞에 있는 경우 |
+| `EndOutOfTree` | 업데이트 범위의 끝 인덱스가 트리 경계를 넘어선 경우 |
+| `NotFullyRehashed` | 트리에 rehash되지 않은 대기 중 업데이트가 있는 경우. 일관되지 않은 상태입니다 |
+| `StubUpdate` | 업데이트가 업데이트를 받을 수 없는 stub 노드를 대상으로 한 경우 |
+| `WrongNumberOfSegments` | 업데이트가 예상과 다른 수의 세그먼트를 제공하는 경우 |
 
 ### Other error types
 
-The following types cover client-side construction, fee calculation, system transactions, and auxiliary operations.
+다음 타입들은 클라이언트 측 구성, 수수료 계산, 시스템 트랜잭션, 보조 작업을 다룹니다.
 
 #### `FeeCalculationError`
 
-Errors that occur during fee computation before transaction submission.
+트랜잭션 제출 전 수수료 계산 중에 발생하는 오류입니다.
 
 | Variant | Description |
 |---------|-------------|
-| `BlockLimitExceeded` | The transaction exceeded the block limit during fee computation. |
-| `OutsideTimeToDismiss` | The transaction exceeds the maximum allowed time-to-dismiss for its byte size. |
+| `BlockLimitExceeded` | 수수료 계산 중 트랜잭션이 블록 한도를 초과한 경우 |
+| `OutsideTimeToDismiss` | 트랜잭션이 해당 바이트 크기에 허용되는 최대 time-to-dismiss를 초과한 경우 |
 
 #### `MalformedContractDeploy`
 
-Errors specific to contract deployment transactions, checked before state application.
+컨트랙트 배포 트랜잭션에 특화된 오류로, 상태 적용 전에 검사합니다.
 
 | Variant | Description |
 |---------|-------------|
-| `IncorrectChargedState` | The contract deployment contains an incorrectly computed map of charged keys. |
-| `NonZeroBalance` | The contract deployment carries a non-zero token balance. Contract deployments must not include pre-existing balances. |
+| `IncorrectChargedState` | 컨트랙트 배포에 잘못 계산된 charged key 맵이 포함된 경우 |
+| `NonZeroBalance` | 컨트랙트 배포에 0이 아닌 토큰 잔액이 실린 경우. 컨트랙트 배포에는 기존 잔액이 포함되어서는 안 됩니다 |
 
 #### `SystemTransactionError`
 
-These errors arise in protocol-level system transactions, such as epoch transitions and committee updates. This type defines 10 variants.
+에포크 전환, 위원회 업데이트 같은 프로토콜 수준 시스템 트랜잭션에서 발생하는 오류입니다. 이 타입은 10개의 변형을 정의합니다.
 
 | Variant | Description |
 |---------|-------------|
-| `CommitmentAlreadyPresent` | A coin commitment already exists in the tree; this is a double-spend attempt. |
-| `GenerationInfoAlreadyPresent` | DUST generation info for this epoch already exists; the ledger rejects the duplicate insertion. |
-| `IllegalPayout` | The payout or bridge amount exceeds the remaining native token supply or bridge pool. |
-| `IllegalReserveDistribution` | The distribution amount exceeds the remaining reserve token supply. |
-| `InsufficientTreasuryFunds` | The treasury does not hold enough tokens of the requested type to fulfil the request. |
-| `InvalidBasisPoints` | The `cardano_to_midnight_bridge_fee_basis_points` value is 10,000 or greater, which is outside the valid range. |
-| `InvariantViolation` | The total NIGHT supply implied by the transaction exceeds `MAX_SUPPLY`. |
-| `MerkleTreeError` | A Merkle tree operation failed during the system transaction. See `merkle_tree::InvalidUpdate` for details. |
-| `ReplayProtectionFailure` | The system transaction violated replay protection constraints (wraps `TransactionApplicationError`). |
-| `TreasuryDisabled` | Governance has not yet enabled the treasury; the ledger rejects treasury access until stakeholders reach an agreement. |
+| `CommitmentAlreadyPresent` | 코인 커밋먼트가 트리에 이미 존재하는 경우. 이는 이중 지출 시도입니다 |
+| `GenerationInfoAlreadyPresent` | 이 에포크의 DUST 생성 정보가 이미 존재하는 경우. 레저가 중복 삽입을 거부합니다 |
+| `IllegalPayout` | 지급액 또는 브릿지 금액이 남은 네이티브 토큰 공급량이나 브릿지 풀을 초과하는 경우 |
+| `IllegalReserveDistribution` | 배분 금액이 남은 리저브 토큰 공급량을 초과하는 경우 |
+| `InsufficientTreasuryFunds` | 재무부가 요청을 충족할 만큼 요청한 타입의 토큰을 보유하지 못한 경우 |
+| `InvalidBasisPoints` | `cardano_to_midnight_bridge_fee_basis_points` 값이 10,000 이상으로 유효 범위를 벗어난 경우 |
+| `InvariantViolation` | 트랜잭션이 함의하는 총 NIGHT 공급량이 `MAX_SUPPLY`를 초과하는 경우 |
+| `MerkleTreeError` | 시스템 트랜잭션 중 머클 트리 작업이 실패한 경우. 자세한 내용은 `merkle_tree::InvalidUpdate`를 참조하세요 |
+| `ReplayProtectionFailure` | 시스템 트랜잭션이 리플레이 보호 제약을 위반한 경우(`TransactionApplicationError`를 래핑) |
+| `TreasuryDisabled` | 거버넌스가 아직 재무부를 활성화하지 않은 경우. 이해관계자가 합의에 이르기 전까지 레저는 재무부 접근을 거부합니다 |
 
 #### `TransactionConstructionError`
 
-Client-side errors encountered while building a transaction before submission.
+트랜잭션을 제출 전에 빌드하는 중에 발생하는 클라이언트 측 오류입니다.
 
 | Variant | Description |
 |---------|-------------|
-| `MissingVerifierKey` | The contract operation lacks a verifier key; the proving step cannot proceed. |
-| `ProofFailed` | Proof generation failed during transaction assembly (wraps `ProvingError`). |
-| `TransactionEmpty` | The transaction contains no operations; add at least one before submission. |
-| `UnfinishedCall` | The client started a contract call but did not complete it before building the transaction. |
+| `MissingVerifierKey` | 컨트랙트 작업에 검증자 키가 없는 경우. 증명 단계를 진행할 수 없습니다 |
+| `ProofFailed` | 트랜잭션 조립 중 증명 생성이 실패한 경우(`ProvingError`를 래핑) |
+| `TransactionEmpty` | 트랜잭션에 작업이 없는 경우. 제출 전에 최소 하나를 추가하세요 |
+| `UnfinishedCall` | 클라이언트가 컨트랙트 호출을 시작했으나 트랜잭션을 빌드하기 전에 완료하지 않은 경우 |
 
 #### `TransactionProvingError`
 
-The following errors occur during the proving phase.
+다음 오류들은 증명 단계에서 발생합니다.
 
 :::note
 
-The `Proving` variant wraps `ProvingError`, which is an opaque `anyhow::Error` alias. The `Tokio` variant wraps `std::io::Error` and surfaces I/O failures from the async runtime.
+`Proving` 변형은 불투명한 `anyhow::Error` 별칭인 `ProvingError`를 래핑합니다. `Tokio` 변형은 `std::io::Error`를 래핑하며 비동기 런타임의 I/O 실패를 표면화합니다.
 
 :::
 
 | Variant | Description |
 |---------|-------------|
-| `LeftoverEntries` | The transcript for a contract operation had more entries than the proof consumed. |
-| `MissingKeyset` | The proving keys for the required circuit location could not be found. |
-| `Proving` | The underlying proving backend returned an error (wraps `ProvingError`). |
-| `RanOutOfEntries` | The transcript for a contract operation ran out of entries before the proof completed. |
-| `Tokio` | An I/O error occurred during async proof generation (wraps `std::io::Error`). |
+| `LeftoverEntries` | 컨트랙트 작업의 트랜스크립트에 증명이 소비한 것보다 많은 항목이 있는 경우 |
+| `MissingKeyset` | 필요한 회로 위치의 증명 키를 찾을 수 없는 경우 |
+| `Proving` | 기반 증명 백엔드가 오류를 반환한 경우(`ProvingError`를 래핑) |
+| `RanOutOfEntries` | 증명이 완료되기 전에 컨트랙트 작업의 트랜스크립트 항목이 소진된 경우 |
+| `Tokio` | 비동기 증명 생성 중 I/O 오류가 발생한 경우(`std::io::Error`를 래핑) |
 
 #### `EventReplayError`
 
-Errors encountered during event log replay, used for syncing wallet state from on-chain events.
+온체인 이벤트에서 지갑 상태를 동기화하는 데 사용되는 이벤트 로그 리플레이 중에 발생하는 오류입니다.
 
 | Variant | Description |
 |---------|-------------|
-| `DtimeUpdateForUntracked` | An attempt targeted a DUST generation entry that the client does not track. |
-| `EventForPastTime` | An event carries a timestamp earlier than the time the client has already synced to. |
-| `MerkleTreeError` | A Merkle tree operation failed during event replay. For more details, see the [`merkle_tree::InvalidUpdate`](#merkle_treeinvalidupdate) section. |
-| `NonLinearInsertion` | The client inserted events into a Merkle tree non-linearly; the expected index and the received index do not match. |
+| `DtimeUpdateForUntracked` | 클라이언트가 추적하지 않는 DUST 생성 항목을 대상으로 한 경우 |
+| `EventForPastTime` | 이벤트의 타임스탬프가 클라이언트가 이미 동기화한 시점보다 이른 경우 |
+| `MerkleTreeError` | 이벤트 리플레이 중 머클 트리 작업이 실패한 경우. 자세한 내용은 [`merkle_tree::InvalidUpdate`](#merkle_treeinvalidupdate) 섹션을 참조하세요 |
+| `NonLinearInsertion` | 클라이언트가 머클 트리에 이벤트를 비선형적으로 삽입한 경우. 예상 인덱스와 수신 인덱스가 일치하지 않습니다 |
 
 #### `DustLocalStateError`
 
-The following errors occur in local DUST state management on the client side.
+다음 오류들은 클라이언트 측의 로컬 DUST 상태 관리에서 발생합니다.
 
 | Variant | Description |
 |---------|-------------|
-| `BackingNightNotFound` | No generation info exists for the given backing NIGHT nonce. |
-| `CommitmentIndexNotFound` | No commitment exists for the given commitment index. |
-| `GenerationIndexNotFound` | No generation info exists for the given generation index. |
-| `MerkleTreeError` | A Merkle tree operation failed during local state management. For more details, see the [`merkle_tree::InvalidUpdate`](#merkle_treeinvalidupdate) section. |
-| `NonLinearInsertion` | The client inserted values into a Merkle tree non-linearly; the expected and received indices do not match. |
-| `WrongGenerationInfo` | The generation info stored for the given index is invalid. |
+| `BackingNightNotFound` | 주어진 backing NIGHT 논스에 대한 생성 정보가 없는 경우 |
+| `CommitmentIndexNotFound` | 주어진 커밋먼트 인덱스에 대한 커밋먼트가 없는 경우 |
+| `GenerationIndexNotFound` | 주어진 생성 인덱스에 대한 생성 정보가 없는 경우 |
+| `MerkleTreeError` | 로컬 상태 관리 중 머클 트리 작업이 실패한 경우. 자세한 내용은 [`merkle_tree::InvalidUpdate`](#merkle_treeinvalidupdate) 섹션을 참조하세요 |
+| `NonLinearInsertion` | 클라이언트가 머클 트리에 값을 비선형적으로 삽입한 경우. 예상 인덱스와 수신 인덱스가 일치하지 않습니다 |
+| `WrongGenerationInfo` | 주어진 인덱스에 저장된 생성 정보가 유효하지 않은 경우 |
 
 ## Cross-reference: Rust error to node error code
 
-When debugging a node error code, find the underlying Rust error by:
+노드 오류 코드를 디버깅할 때는 다음 방법으로 기반 Rust 오류를 찾으세요.
 
-- Looking up the numeric `LedgerApiError` code in the node error codes reference to find the high-level category.
-- Checking the node's structured error response body. The Rust error type is often serialized as a string in the `detail` or `cause` field.
-- Matching the Rust type name against the tables in this reference.
+- 노드 오류 코드 레퍼런스에서 숫자형 `LedgerApiError` 코드를 조회해 상위 수준 범주를 파악합니다.
+- 노드의 구조화된 오류 응답 본문을 확인합니다. Rust 오류 타입은 대개 `detail` 또는 `cause` 필드에 문자열로 직렬화됩니다.
+- Rust 타입 이름을 이 레퍼런스의 표와 대조합니다.

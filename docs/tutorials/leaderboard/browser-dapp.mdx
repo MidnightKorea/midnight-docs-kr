@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 sidebar_label: "Browser DApp"
 title: "Browser DApp"
-description: "Build a React frontend that connects to the Lace wallet, reads leaderboard state from the Midnight indexer, and submits scores on-chain with privacy modes."
+description: "Lace wallet에 연결하고, Midnight indexer에서 리더보드 상태를 읽고, 프라이버시 모드로 점수를 온체인에 제출하는 React 프론트엔드를 만듭니다."
 sidebar_position: 4
 toc_max_heading_level: 2
 tags: ["react", "dapp", "lace", "wallet", "browser", "frontend", "midnight-js", "indexer", "tutorial"]
@@ -11,18 +11,18 @@ tags: ["react", "dapp", "lace", "wallet", "browser", "frontend", "midnight-js", 
 
 # Part 3: Browser DApp
 
-In this section, you build a React frontend that connects to the Lace wallet and reads leaderboard data from the indexer. The frontend also submits scores on-chain and lets you prove ownership of your entries.
+이 장에서는 Lace wallet에 연결하고 indexer에서 리더보드 데이터를 읽는 React 프론트엔드를 만듭니다. 이 프론트엔드는 점수를 온체인에 제출하고, 자신의 항목에 대한 소유권을 증명할 수 있게 해줍니다.
 
 ## Set up the UI package
 
-Create the UI workspace directory structure and its `package.json`.
+UI workspace 디렉터리 구조와 `package.json`을 생성합니다.
 
 ```bash
 mkdir -p leaderboard-ui/src/contexts leaderboard-ui/src/hooks
 touch leaderboard-ui/package.json
 ```
 
-The `leaderboard-contract` workspace dependency gives the UI access to the compiled contract bindings. The `dev` script copies circuit keys into `public/` so the browser can fetch them at runtime.
+`leaderboard-contract` workspace 의존성을 통해 UI는 컴파일된 contract 바인딩에 접근합니다. `dev` 스크립트는 circuit 키를 `public/`으로 복사해, 브라우저가 런타임에 가져올 수 있게 합니다.
 
 ```json
 {
@@ -71,13 +71,13 @@ The `leaderboard-contract` workspace dependency gives the UI access to the compi
 
 ## Vite configuration
 
-The Midnight SDK uses WebAssembly modules for cryptographic operations. Vite needs specific plugins to handle WASM imports in the browser.
+Midnight SDK는 암호화 연산에 WebAssembly 모듈을 사용합니다. 브라우저에서 WASM import를 처리하려면 Vite에 특정 플러그인이 필요합니다.
 
 ```bash
 touch leaderboard-ui/vite.config.ts
 ```
 
-The Vite configuration enables WebAssembly support, sets up the WASM module resolver for the Midnight runtime, and configures the development server on port 3000.
+이 Vite 설정은 WebAssembly 지원을 켜고, Midnight 런타임용 WASM 모듈 resolver를 구성하며, 개발 서버를 3000번 포트로 설정합니다.
 
 ```typescript
 import { defineConfig } from 'vite';
@@ -149,13 +149,13 @@ export default defineConfig({
 
 ## TypeScript config
 
-The TypeScript configuration needs `"types": ["vite/client"]` so that `import.meta.env` references compile correctly. Midnight SDK subpath imports require the `"bundler"` module resolution.
+`import.meta.env` 참조가 올바르게 컴파일되려면 TypeScript 설정에 `"types": ["vite/client"]`가 필요합니다. Midnight SDK의 subpath import에는 `"bundler"` 모듈 해석 방식이 필요합니다.
 
 ```bash
 touch leaderboard-ui/tsconfig.json
 ```
 
-This configuration targets ES2022 with React JSX transform enabled.
+이 설정은 ES2022를 타깃으로 하며 React JSX transform을 활성화합니다.
 
 ```json
 {
@@ -179,13 +179,13 @@ This configuration targets ES2022 with React JSX transform enabled.
 
 ## Environment variables
 
-Create the local development environment file. Leave `VITE_DEFAULT_CONTRACT` empty until you deploy a contract in a later step.
+로컬 개발용 환경 파일을 생성합니다. `VITE_DEFAULT_CONTRACT`는 이후 단계에서 contract를 배포하기 전까지 비워 두세요.
 
 ```bash
 touch leaderboard-ui/.env
 ```
 
-Vite loads these variables at build time. Any variable prefixed with `VITE_` is available in the browser via `import.meta.env`.
+Vite는 이 변수들을 빌드 시점에 읽어 들입니다. `VITE_` 접두어가 붙은 변수는 `import.meta.env`를 통해 브라우저에서 사용할 수 있습니다.
 
 ```bash
 VITE_NETWORK_ID=preprod
@@ -196,13 +196,13 @@ VITE_DEFAULT_CONTRACT=
 
 ## HTML entry point
 
-Create the HTML shell that Vite uses as the application entry point. The browser loads the `src/main.tsx` script as an ES module.
+Vite가 애플리케이션 진입점으로 사용하는 HTML 셸을 생성합니다. 브라우저는 `src/main.tsx` 스크립트를 ES 모듈로 로드합니다.
 
 ```bash
 touch leaderboard-ui/index.html
 ```
 
-Vite transforms this file during development, injecting hot module reload support and resolving the TypeScript entry point.
+개발 중에 Vite는 이 파일을 변환하여 hot module reload 지원을 주입하고 TypeScript 진입점을 해석합니다.
 
 ```html
 <!DOCTYPE html>
@@ -221,14 +221,14 @@ Vite transforms this file during development, injecting hot module reload suppor
 
 ## Application entry point
 
-Several Midnight SDK packages use Node.js `Buffer`, which does not exist in the browser. The entry point must polyfill it before any other imports.
+일부 Midnight SDK 패키지는 브라우저에 존재하지 않는 Node.js `Buffer`를 사용합니다. 진입점에서는 다른 import보다 먼저 이를 polyfill해야 합니다.
 
 ```bash
 touch leaderboard-ui/src/main.tsx
 touch leaderboard-ui/src/App.css
 ```
 
-The entry point polyfills `Buffer` into the global scope, then mounts the React application.
+진입점은 `Buffer`를 전역 스코프에 polyfill한 다음 React 애플리케이션을 마운트합니다.
 
 ```typescript
 import { Buffer } from 'buffer';
@@ -248,13 +248,13 @@ createRoot(document.getElementById('root')!).render(
 
 ## In-memory private state provider
 
-The `midnight-js-contracts` library requires a `PrivateStateProvider`. In the browser, an in-memory implementation is sufficient.
+`midnight-js-contracts` 라이브러리에는 `PrivateStateProvider`가 필요합니다. 브라우저에서는 in-memory 구현으로 충분합니다.
 
 ```bash
 touch leaderboard-ui/src/in-memory-private-state-provider.ts
 ```
 
-The provider stores private state and signing keys in memory, scoped by contract address. It implements the full `PrivateStateProvider` interface including import and export operations.
+이 provider는 private state와 signing 키를 contract 주소별로 구분해 메모리에 저장합니다. import와 export 동작을 포함한 `PrivateStateProvider` 인터페이스 전체를 구현합니다.
 
 ```typescript
 import type { ContractAddress, SigningKey } from '@midnight-ntwrk/compact-runtime';
@@ -380,13 +380,13 @@ export const inMemoryPrivateStateProvider = <PSI extends PrivateStateId, PS = un
 
 ## Read on-chain state
 
-This hook queries the Midnight indexer directly via GraphQL, deserializes the contract state, and parses it using the compiled contract's `ledger()` function. It imports `decodeDisplayName` from the API utils created in Part 2 to convert raw `Bytes<32>` into readable names. It auto-refreshes every 15 seconds and requires no wallet connection.
+이 hook은 GraphQL로 Midnight indexer에 직접 질의하고, contract state를 deserialize한 다음, 컴파일된 contract의 `ledger()` 함수로 파싱합니다. Part 2에서 만든 API utils의 `decodeDisplayName`을 import해 원시 `Bytes<32>`를 읽을 수 있는 이름으로 변환합니다. 15초마다 자동으로 새로고침하며 wallet 연결이 필요 없습니다.
 
 ```bash
 touch leaderboard-ui/src/hooks/useLeaderboard.ts
 ```
 
-The hook fetches contract state from the indexer, deserializes it using the compiled contract's `ledger()` function, and returns a sorted list of entries.
+이 hook은 indexer에서 contract state를 가져와 컴파일된 contract의 `ledger()` 함수로 deserialize한 뒤, 정렬된 항목 목록을 반환합니다.
 
 ```typescript
 import { useState, useEffect, useCallback } from 'react';
@@ -475,19 +475,19 @@ export function useLeaderboard(contractAddress: string | null, refreshInterval =
 
 ## Wallet bridge
 
-The `BrowserLeaderboardManager` connects to the Lace wallet via the DApp Connector API, initializes all providers, and delegates contract operations to the `LeaderboardAPI`.
+`BrowserLeaderboardManager`는 DApp Connector API를 통해 Lace wallet에 연결하고, 모든 provider를 초기화하며, contract 동작을 `LeaderboardAPI`에 위임합니다.
 
-The manager generates a random 32-byte secret key on first use and stores it in `localStorage`. On subsequent visits, it retrieves the same key. This ensures that ownership verification works even after the page is refreshed or the browser is restarted.
+이 manager는 처음 사용할 때 무작위 32바이트 secret 키를 생성해 `localStorage`에 저장합니다. 이후 방문할 때는 같은 키를 다시 가져옵니다. 덕분에 페이지를 새로고침하거나 브라우저를 재시작한 뒤에도 소유권 검증이 동작합니다.
 
-The `walletProvider.balanceTx` method bridges the DApp and your wallet. The DApp builds an unbalanced transaction with the contract circuit proof and sends it to Lace for balancing. Lace adds DUST fees and Zswap proofs, then returns a finalized transaction ready to submit.
+`walletProvider.balanceTx` 메서드는 DApp과 wallet을 이어 줍니다. DApp은 contract circuit proof가 담긴 미정산(unbalanced) 트랜잭션을 만들어 정산을 위해 Lace로 보냅니다. Lace는 DUST 수수료와 Zswap proof를 추가한 다음, 제출할 수 있는 완성된 트랜잭션을 돌려줍니다.
 
-Call `setNetworkId()` before initializing any providers.
+provider를 초기화하기 전에 `setNetworkId()`를 먼저 호출하세요.
 
 ```bash
 touch leaderboard-ui/src/contexts/BrowserLeaderboardManager.ts
 ```
 
-The manager class handles wallet connection, provider initialization, secret key persistence, and contract deployment or joining.
+이 manager 클래스는 wallet 연결, provider 초기화, secret 키 영속화, contract 배포 또는 합류를 처리합니다.
 
 ```typescript
 import { LeaderboardAPI, type LeaderboardCircuitKeys, type LeaderboardProviders } from '../../../api/src/index';
@@ -629,17 +629,17 @@ const connectToWallet = (logger: Logger, networkId: string): Promise<ConnectedAP
 
 ## Application component
 
-The `App.tsx` component ties everything together: wallet detection, the click challenge game, score submission with privacy mode selection, leaderboard display, and ownership verification.
+`App.tsx` 컴포넌트는 wallet 감지, 클릭 챌린지 게임, 프라이버시 모드 선택을 통한 점수 제출, 리더보드 표시, 소유권 검증을 모두 하나로 묶습니다.
 
-The three UI privacy modes map to two contract paths. Anonymous sends `undefined` as the custom name, triggering the contract's `else` branch which stores a hash as the display name. Public and Custom both send a string through the witness (the wallet address or a user-typed name), triggering the contract's `if` branch.
+UI의 세 가지 프라이버시 모드는 두 개의 contract 경로로 이어집니다. Anonymous는 custom 이름으로 `undefined`를 보내, 해시를 display 이름으로 저장하는 contract의 `else` 분기를 실행합니다. Public과 Custom은 모두 witness를 통해 문자열(wallet 주소 또는 사용자가 입력한 이름)을 보내, contract의 `if` 분기를 실행합니다.
 
-Ownership verification calls `verifyOwnership` on the API and tracks verified entries in local React state. If the caller is not the owner, then the contract's `assert` fails and the network rejects the transaction.
+소유권 검증은 API의 `verifyOwnership`을 호출하고, 검증된 항목을 로컬 React state에 기록합니다. 호출자가 소유자가 아니면 contract의 `assert`가 실패하고 네트워크가 트랜잭션을 거부합니다.
 
 ```bash
 touch leaderboard-ui/src/App.tsx
 ```
 
-The component uses a shared `BrowserLeaderboardManager` instance via `useRef` to ensure the same secret key and providers are used across all contract operations within a session.
+이 컴포넌트는 `useRef`로 공유된 `BrowserLeaderboardManager` 인스턴스를 사용해, 한 세션 안의 모든 contract 동작에서 동일한 secret 키와 provider를 쓰도록 보장합니다.
 
 ```tsx
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -726,7 +726,7 @@ export default function App() {
     rank: i + 1, id: e.id, displayName: e.displayName, score: BigInt(e.score),
   }));
 
-  // Wallet detection: poll for Lace extension
+  // Wallet 감지: Lace 확장 프로그램을 폴링
   useEffect(() => {
     const found = findWallet();
     if (found) { setWalletAPI(found); setWalletState('ready'); return; }
@@ -753,7 +753,7 @@ export default function App() {
     } catch (e) { setError(friendlyError(e)); setWalletState('ready'); }
   }, [walletAPI]);
 
-  // Helper to resolve a contract (deploy or join)
+  // Contract를 resolve(배포 또는 합류)하는 헬퍼
   const resolveContract = useCallback(async (addr?: any) => {
     const manager = getManager();
     const deployment$ = manager.resolve(addr);
@@ -784,7 +784,7 @@ export default function App() {
     setContractAddress(addr); setShowJoinPanel(false); setJoinInput('');
   }, [joinInput]);
 
-  // Game logic
+  // 게임 로직
   const startGame = useCallback(() => {
     setClicks(0); clickRef.current = 0;
     setTimeLeft(10); setIsPlaying(true); setShowResult(false);
@@ -809,7 +809,7 @@ export default function App() {
 
   useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
 
-  // Submit score
+  // 점수 제출
   const submitScore = useCallback(async () => {
     if (lastScore === 0 || !wallet) return;
     setSubmitting(true); setSubmitStatus('Joining contract...'); setError(null);
@@ -826,7 +826,7 @@ export default function App() {
     } catch (e: any) { setSubmitting(false); setSubmitStatus(null); setError(friendlyError(e)); }
   }, [wallet, lastScore, displayMode, customName, contractAddress, refreshLeaderboard, address, resolveContract]);
 
-  // Verify ownership
+  // 소유권 검증
   const verifyEntry = useCallback(async (entryId: number) => {
     if (!wallet) return;
     setVerifyingId(entryId); setError(null);
@@ -932,39 +932,39 @@ export default function App() {
 
 ## Install and run
 
-Reinstall dependencies to pick up the new workspace.
+새 workspace를 인식하도록 의존성을 다시 설치합니다.
 
 ```bash
 npm install
 ```
 
-Start the proof server.
+proof 서버를 시작합니다.
 
 ```bash
 docker run -d -p 6300:6300 midnightntwrk/proof-server:8.0.3 -- midnight-proof-server --network preprod
 ```
 
-Start the dev server.
+개발 서버를 시작합니다.
 
 ```bash
 cd leaderboard-ui
 npm run dev
 ```
 
-Open `http://localhost:3000` in Chrome with Lace installed. The leaderboard loads from the indexer immediately.
+Lace가 설치된 Chrome에서 `http://localhost:3000`을 엽니다. 리더보드는 indexer에서 곧바로 로드됩니다.
 
 ## Deploy a contract
 
-Before you can submit scores, you need a deployed contract. Connect your wallet, then click **Switch Contract** and **Deploy New**. This creates a new leaderboard contract on Preprod and copies the address to your clipboard.
+점수를 제출하려면 먼저 배포된 contract가 필요합니다. wallet을 연결한 다음 **Switch Contract**와 **Deploy New**를 차례로 클릭하세요. 그러면 Preprod에 새 리더보드 contract가 생성되고 주소가 클립보드에 복사됩니다.
 
-Update `VITE_DEFAULT_CONTRACT` in your `.env` file with the new contract address, then restart the dev server so it loads automatically on future visits.
+`.env` 파일의 `VITE_DEFAULT_CONTRACT`를 새 contract 주소로 업데이트한 뒤 개발 서버를 다시 시작하면, 다음 방문부터 자동으로 로드됩니다.
 
 :::warning[tDUST required]
-Deploying a contract requires tDUST in your wallet. If you see a transaction submission error, open Lace, go to the Tokens tab, and click **Generate tDUST**.
+contract를 배포하려면 wallet에 tDUST가 있어야 합니다. 트랜잭션 제출 오류가 보이면 Lace를 열고 Tokens 탭으로 이동한 뒤 **Generate tDUST**를 클릭하세요.
 :::
 
-Once deployed, play the click challenge, choose a privacy mode, and submit your score to the chain.
+배포가 끝나면 클릭 챌린지를 플레이하고, 프라이버시 모드를 고른 뒤, 점수를 체인에 제출하세요.
 
 ## Next steps
 
-With the DApp running locally, you can move on to [Production deployment](./deployment.mdx) to deploy the frontend to Vercel.
+DApp이 로컬에서 실행되면, [Production deployment](./deployment.mdx)로 넘어가 프론트엔드를 Vercel에 배포할 수 있습니다.

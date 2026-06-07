@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Bulletin board
-description: Build a privacy-preserving bulletin board DApp with ZK proofs for identity verification, a reusable API layer, and a CLI.
+description: 영지식 증명으로 신원을 검증하는 게시판 DApp을 만듭니다. 재사용 가능한 API 계층과 CLI까지 함께 다룹니다.
 sidebar_position: 20
 tags:
   - tutorials
@@ -16,30 +16,30 @@ import PersonaTiles from '@site/src/components/PersonaTiles';
 
 # Bulletin board tutorial
 
-Build a privacy-preserving bulletin board DApp. Users post and remove messages while ZK proofs protect poster identity on-chain.
+프라이버시를 지키는 게시판 DApp을 만듭니다. 사용자가 메시지를 올리고 지우는 동안 영지식 증명이 온체인에서 작성자 신원을 보호합니다.
 
 <PersonaTiles tiles={[
   {
     title: "Bulletin board contract",
-    body: "Write a Compact contract with private state, ZK identity proofs, and cryptographic access control for message management.",
+    body: "메시지 관리를 위한 private state, 영지식 신원 증명, 암호학적 접근 제어를 갖춘 Compact 컨트랙트를 작성합니다.",
     to: "/tutorials/bboard/smart-contract",
     cta: "Write the contract",
   },
   {
     title: "Bulletin board CLI",
-    body: "Build a CLI that deploys the contract, manages wallets, and lets users post and remove messages interactively.",
+    body: "컨트랙트를 배포하고 지갑을 관리하며, 사용자가 대화형으로 메시지를 올리고 지울 수 있는 CLI를 만듭니다.",
     to: "/tutorials/bboard/bboard-cli",
     cta: "Build the CLI",
   },
   {
     title: "API implementation",
-    body: "Create a reusable API layer for contract deployment, state management, and transaction submission.",
+    body: "컨트랙트 배포, 상태 관리, 트랜잭션 제출을 위한 재사용 가능한 API 계층을 만듭니다.",
     to: "/tutorials/bboard/bboard-api-implementation",
     cta: "Build the API",
   },
   {
     title: "CLI implementation",
-    body: "Implement wallet management, DUST generation, and the interactive command-line interface.",
+    body: "지갑 관리, DUST 생성, 대화형 커맨드 라인 인터페이스를 구현합니다.",
     to: "/tutorials/bboard/bboard-cli-implementation",
     cta: "Implement the CLI",
   },

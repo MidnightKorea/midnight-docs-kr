@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Leaderboard
-description: Build a full-stack leaderboard DApp with privacy controls, Lace wallet integration, a React frontend, and Vercel deployment.
+description: 프라이버시 제어, Lace 지갑 연동, React 프론트엔드, Vercel 배포까지 갖춘 풀스택 leaderboard DApp을 만듭니다.
 sidebar_position: 40
 tags:
   - tutorials
@@ -16,36 +16,36 @@ import PersonaTiles from '@site/src/components/PersonaTiles';
 
 # Leaderboard tutorial
 
-Build a full-stack DApp from Compact contract to production deployment. Players submit scores with privacy controls and prove ownership of entries using ZK proofs.
+Compact 컨트랙트부터 프로덕션 배포까지, 풀스택 DApp을 만듭니다. 플레이어는 프라이버시 제어와 함께 점수를 제출하고, ZK proof로 자신의 기록임을 증명합니다.
 
 <PersonaTiles tiles={[
   {
     title: "Overview",
-    body: "Architecture, prerequisites, and what you build across all four sections of the leaderboard tutorial.",
+    body: "리더보드 튜토리얼 네 개 섹션 전체의 아키텍처와 사전 준비물, 그리고 만들게 될 결과물을 소개합니다.",
     to: "/tutorials/leaderboard/overview",
     cta: "Read overview",
   },
   {
     title: "Smart contract",
-    body: "Define structured on-chain data with Map, Counter, and custom structs. Control privacy with disclose() and witness functions.",
+    body: "Map, Counter, 커스텀 struct로 구조화된 온체인 데이터를 정의합니다. disclose()와 witness 함수로 프라이버시를 제어합니다.",
     to: "/tutorials/leaderboard/smart-contract",
     cta: "Write the contract",
   },
   {
     title: "TypeScript integration",
-    body: "Set up the witness provider, contract exports, and a shared API class for deploying and interacting with the contract.",
+    body: "컨트랙트 배포와 상호작용을 위한 witness provider, 컨트랙트 export, 공용 API 클래스를 구성합니다.",
     to: "/tutorials/leaderboard/api-layer",
     cta: "Build the API",
   },
   {
     title: "Browser DApp",
-    body: "Build a React frontend that connects to Lace wallet, reads state from the indexer, and submits scores on-chain.",
+    body: "Lace 지갑에 연결하고, indexer에서 상태를 읽고, 점수를 온체인에 제출하는 React 프론트엔드를 만듭니다.",
     to: "/tutorials/leaderboard/browser-dapp",
     cta: "Build the frontend",
   },
   {
     title: "Production deployment",
-    body: "Deploy the leaderboard frontend to Vercel with compiled circuit keys and TypeScript bindings.",
+    body: "컴파일된 circuit 키와 TypeScript 바인딩을 포함해 리더보드 프론트엔드를 Vercel에 배포합니다.",
     to: "/tutorials/leaderboard/deployment",
     cta: "Deploy to production",
   },

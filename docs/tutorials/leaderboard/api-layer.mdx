@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 sidebar_label: "TypeScript integration"
 title: "TypeScript integration"
-description: "Set up the TypeScript witness provider, contract exports, and a shared API class for deploying and interacting with the leaderboard DApp on Midnight."
+description: "Midnight의 leaderboard DApp을 배포하고 상호작용하기 위해 TypeScript witness provider, 컨트랙트 export, 공용 API 클래스를 구성합니다."
 sidebar_position: 3
 toc_max_heading_level: 2
 tags: ["typescript", "api", "witnesses", "compact", "midnight-js", "leaderboard", "tutorial"]
@@ -11,21 +11,21 @@ tags: ["typescript", "api", "witnesses", "compact", "midnight-js", "leaderboard"
 
 # Part 2: TypeScript integration
 
-You create the TypeScript layer that connects the compiled Compact contract to your application. This includes the witness provider that feeds private data into the ZK circuit, the contract exports that bundle everything into a deployable unit, and a shared API class that wraps all contract interactions.
+컴파일된 Compact 컨트랙트를 애플리케이션에 연결하는 TypeScript 레이어를 만듭니다. 여기에는 비공개 데이터를 ZK circuit에 전달하는 witness provider, 모든 것을 배포 가능한 단위로 묶는 컨트랙트 export, 그리고 모든 컨트랙트 상호작용을 감싸는 공용 API 클래스가 포함됩니다.
 
 ## Contract package: witnesses and exports
 
-The contract package needs two TypeScript files that wire the compiled Compact bindings to your application code.
+컨트랙트 패키지에는 컴파일된 Compact 바인딩을 애플리케이션 코드에 연결하는 TypeScript 파일 두 개가 필요합니다.
 
 ### Witness provider
 
-Create the witness file that provides `localSecretKey` and `getCustomName` to the contract at runtime.
+런타임에 컨트랙트에 `localSecretKey`와 `getCustomName`을 제공하는 witness 파일을 만듭니다.
 
 ```bash
 touch contract/src/witnesses.ts
 ```
 
-The `localSecretKey` witness returns the user's secret key from private state. The `getCustomName` witness returns a custom display name. Both return a `[newPrivateState, value]` tuple.
+`localSecretKey` witness는 private state에서 사용자의 secret key를 반환합니다. `getCustomName` witness는 커스텀 표시 이름을 반환합니다. 둘 다 `[newPrivateState, value]` 튜플을 반환합니다.
 
 ```typescript
 export type LeaderboardPrivateState = {
@@ -59,13 +59,13 @@ export const createWitnesses = () => ({
 
 ### Contract exports
 
-Create the contract exports file that bundles the contract definition, witnesses, and compiled circuit assets into a single object.
+컨트랙트 정의, witness, 컴파일된 circuit 자산을 하나의 객체로 묶는 컨트랙트 export 파일을 만듭니다.
 
 ```bash
 touch contract/src/index.ts
 ```
 
-The key export is `CompiledLeaderboardContract`, which combines the contract definition with its witnesses and compiled circuit file assets.
+핵심 export는 `CompiledLeaderboardContract`로, 컨트랙트 정의를 그 witness 및 컴파일된 circuit 파일 자산과 결합합니다.
 
 ```typescript
 import { CompiledContract } from '@midnight-ntwrk/compact-js';
@@ -86,7 +86,7 @@ export const CompiledLeaderboardContract = CompiledContract.make(
 );
 ```
 
-Build the contract package.
+컨트랙트 패키지를 빌드합니다.
 
 ```bash
 cd contract && npm run build && cd ..
@@ -94,14 +94,14 @@ cd contract && npm run build && cd ..
 
 ## API package
 
-Create the API package directory and its `package.json`. This package wraps all contract interactions in a platform-agnostic `LeaderboardAPI` class.
+API 패키지 디렉터리와 `package.json`을 만듭니다. 이 패키지는 모든 컨트랙트 상호작용을 플랫폼에 독립적인 `LeaderboardAPI` 클래스로 감쌉니다.
 
 ```bash
 mkdir -p api/src/utils
 touch api/package.json
 ```
 
-The API package compiles to `dist/` and exposes its entry point for the UI to import.
+API 패키지는 `dist/`로 컴파일되며, UI가 import할 수 있도록 진입점을 노출합니다.
 
 ```json
 {
@@ -118,7 +118,7 @@ The API package compiles to `dist/` and exposes its entry point for the UI to im
 }
 ```
 
-Create the TypeScript configuration for the API package. It uses the same `"Bundler"` module resolution as the contract package.
+API 패키지의 TypeScript 설정을 만듭니다. 컨트랙트 패키지와 동일한 `"Bundler"` 모듈 resolution을 사용합니다.
 
 ```bash
 touch api/tsconfig.json
@@ -140,13 +140,13 @@ touch api/tsconfig.json
 }
 ```
 
-Create the build configuration for the API package.
+API 패키지의 빌드 설정을 만듭니다.
 
 ```bash
 touch api/tsconfig.build.json
 ```
 
-The build configuration extends the base and excludes test files from the production build.
+빌드 설정은 기본 설정을 확장하며, 프로덕션 빌드에서 테스트 파일을 제외합니다.
 
 ```json
 {
@@ -157,13 +157,13 @@ The build configuration extends the base and excludes test files from the produc
 
 ### Shared type definitions
 
-Create the shared type definitions. These define the provider interface that each platform must satisfy, along with the types for leaderboard entries and derived state.
+공용 타입 정의를 만듭니다. 각 플랫폼이 충족해야 하는 provider 인터페이스와 함께, 리더보드 entry 및 파생 상태(derived state)의 타입을 정의합니다.
 
 ```bash
 touch api/src/common-types.ts
 ```
 
-`MidnightProviders` represents all of the services a DApp needs: proof generation, state storage, indexer access, wallet operations, and ZK config. The `LeaderboardCircuitKeys` type lists the circuit names from the contract.
+`MidnightProviders`는 DApp에 필요한 모든 서비스를 나타냅니다. proof 생성, 상태 저장, indexer 접근, 지갑 작업, ZK config가 여기에 해당합니다. `LeaderboardCircuitKeys` 타입은 컨트랙트의 circuit 이름을 나열합니다.
 
 ```typescript
 import { type MidnightProviders } from '@midnight-ntwrk/midnight-js-types';
@@ -192,13 +192,13 @@ export interface LeaderboardDerivedState {
 
 ### Display name decoder
 
-Create the utility that converts raw ledger bytes into human-readable display names.
+원시 ledger 바이트를 사람이 읽을 수 있는 표시 이름으로 변환하는 유틸리티를 만듭니다.
 
 ```bash
 touch api/src/utils/index.ts
 ```
 
-This converts raw `Bytes<32>` from the ledger into display names. Printable ASCII (custom/public mode) is returned as-is. Non-ASCII (anonymous mode) is converted into a deterministic generated name.
+이 함수는 ledger의 원시 `Bytes<32>`를 표시 이름으로 변환합니다. 출력 가능한 ASCII(커스텀/공개 모드)는 그대로 반환합니다. ASCII가 아닌 경우(익명 모드)는 결정론적으로 생성된 이름으로 변환합니다.
 
 ```typescript
 const ADJECTIVES = [
@@ -227,13 +227,13 @@ export const decodeDisplayName = (bytes: Uint8Array, entryId: number, score: num
 
 ### LeaderboardAPI class
 
-Create the main API file. The `LeaderboardAPI` class wraps `deployContract` and `findDeployedContract` from `midnight-js-contracts` into a single entry point for all contract operations.
+메인 API 파일을 만듭니다. `LeaderboardAPI` 클래스는 `midnight-js-contracts`의 `deployContract`와 `findDeployedContract`를 모든 컨트랙트 작업을 위한 단일 진입점으로 감쌉니다.
 
 ```bash
 touch api/src/index.ts
 ```
 
-The `submitScore` method conditionally calls `setCustomName` before the transaction. The `!!customName` expression converts the presence of a name into the boolean the contract expects. The `deploy` and `join` methods accept a `secretKey` from the caller rather than generating their own. This lets the browser layer persist the secret across page refreshes.
+`submitScore` 메서드는 트랜잭션 전에 조건에 따라 `setCustomName`을 호출합니다. `!!customName` 표현식은 이름의 존재 여부를 컨트랙트가 기대하는 boolean으로 변환합니다. `deploy`와 `join` 메서드는 secret을 직접 생성하지 않고 호출자로부터 `secretKey`를 받습니다. 이렇게 하면 브라우저 레이어가 페이지를 새로고침해도 secret을 유지할 수 있습니다.
 
 ```typescript
 import * as Leaderboard from '../../contract/managed/leaderboard/contract/index.js';
@@ -317,10 +317,10 @@ export * as utils from './utils/index.js';
 export * from './common-types.js';
 ```
 
-Build both packages.
+두 패키지를 모두 빌드합니다.
 
 ```bash
 npm run build
 ```
 
-A successful build produces a `dist/` directory in both `contract/` and `api/`. In the next part, you build the React frontend that consumes this API.
+빌드에 성공하면 `contract/`와 `api/` 양쪽에 `dist/` 디렉터리가 생성됩니다. 다음 파트에서는 이 API를 사용하는 React 프론트엔드를 만듭니다.

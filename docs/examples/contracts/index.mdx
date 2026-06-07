@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Contracts
-description: Standalone Compact contract examples that isolate specific language features like witness functions, token operations, and private state.
+description: witness 함수, 토큰 연산, private state 같은 특정 언어 기능을 따로 떼어 보여주는 독립형 Compact 컨트랙트 예제입니다.
 sidebar_position: 1
 tags:
   - examples
@@ -16,42 +16,42 @@ import PersonaTiles from '@site/src/components/PersonaTiles';
 
 # Contract examples
 
-Standalone Compact contracts that each demonstrate a specific language feature. These are not production-ready implementations. Use them to learn a feature in isolation before combining patterns in your own contracts.
+각각 특정 언어 기능 하나를 보여주는 독립형 Compact 컨트랙트입니다. 프로덕션용 구현은 아닙니다. 직접 만들 컨트랙트에서 여러 패턴을 조합하기 전에, 기능 하나씩 따로 익히는 데 활용하세요.
 
 <PersonaTiles tiles={[
   {
     title: "Calculator",
-    body: "Witness functions and on-chain verification of off-chain computation with assert statements.",
+    body: "witness 함수, 그리고 assert 문으로 오프체인 연산을 온체인에서 검증하는 방법을 다룹니다.",
     to: "/examples/contracts/calculator",
     cta: "View calculator",
   },
   {
     title: "Token transfers",
-    body: "Mint, send, and receive shielded and unshielded tokens using NIGHT token operations in Compact.",
+    body: "Compact의 NIGHT 토큰 연산으로 shielded·unshielded 토큰을 발행하고 보내고 받습니다.",
     to: "/examples/contracts/token-transfers",
     cta: "View token transfers",
   },
   {
     title: "Private guest list",
-    body: "Set operations, native NIGHT token handling, and the privacy boundary in Midnight DApps.",
+    body: "Set 연산, 네이티브 NIGHT 토큰 처리, 그리고 Midnight DApp의 프라이버시 경계를 다룹니다.",
     to: "/examples/contracts/private-guest-list",
     cta: "View guest list",
   },
   {
     title: "Election",
-    body: "Commit to private state, use Set and Map operations, and generate DApp-specific public keys.",
+    body: "private state에 커밋하고, Set·Map 연산을 사용하며, DApp 전용 공개 키를 생성합니다.",
     to: "/examples/contracts/election",
     cta: "View election",
   },
   {
     title: "Private reserve auction",
-    body: "Hide reserve prices on the public ledger and reduce user trackability with DApp-specific keys.",
+    body: "공개 원장에서 최저 입찰가를 숨기고, DApp 전용 키로 사용자 추적 가능성을 낮춥니다.",
     to: "/examples/contracts/private-reserve-auction",
     cta: "View auction",
   },
   {
     title: "Battleship",
-    body: "Explicit state management, private state verification, access control, List operations, and intermediate witnesses.",
+    body: "명시적 상태 관리, private state 검증, 접근 제어, List 연산, 중간 witness를 다룹니다.",
     to: "/examples/contracts/battleship-simple",
     cta: "View Battleship",
   },

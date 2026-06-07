@@ -1,76 +1,81 @@
 ---
-title: Setting up RPC Nodes
-sidebar_label: Setting up RPC Nodes
+title: Set up RPC node
+sidebar_label: Set up RPC node
 description: Midnight RPC node 설정 가이드입니다.
 keywords: [node]
 sidebar_position: 40
 tags: [node]
 ---
 
-# Setting up RPC Nodes for Midnight
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-RPC node는 개발자가 blockchain과 프로그래밍 방식으로 상호작용할 수 있는 API를 제공하며, Midnight 네트워크에서 중요한 역할을 합니다. Transaction 제출, blockchain 데이터 조회 등을 지원하여, 네트워크와 DApp 인프라를 연결하는 브릿지 역할을 합니다.
+# Set up RPC node for Midnight
 
-## RPC Node
+RPC(Remote Procedure Call) 노드는 애플리케이션이 Midnight blockchain과 프로그래밍 방식으로 상호작용하는 주요 인터페이스 역할을 합니다. 이 노드는 WebSocket과 HTTP API를 노출해, 개발자가 transaction을 제출하고, blockchain 데이터를 조회하며, 이벤트를 구독하고, DApp을 네트워크와 통합할 수 있게 해 줍니다.
 
-**RPC node**는 HTTP 또는 WebSocket 기반 API를 노출하여 애플리케이션과 개발자가 Midnight blockchain과 상호작용할 수 있도록 하는 특수한 유형의 노드입니다. Full node나 archive node와 달리 외부 접근성과 API 성능에 중점을 둡니다.
+이 가이드는 Midnight blockchain에서 RPC node를 설정하는 단계별 방법을 안내합니다.
 
 ## Prerequisites
 
 Midnight RPC node 설정 전에 다음 사항을 준비하세요:
 
-* [Docker](https://docs.docker.com/engine/install/) 설치 및 설정 완료.
-* [Cardano-db-sync 인스턴스 설정](./cardano-db-sync) 완료 (PostgreSQL 포트 접근 가능).
-* 충분한 리소스 (CPU, 메모리, 스토리지).
+* PostgreSQL 포트에 접근할 수 있는 [Cardano-db-sync 인스턴스 설정](./cardano-db-sync) 완료.
+* 환경 변수가 설정된 [Midnight node 설정](./full-node#install-midnight-node) 완료.
 
-## Setting Up an RPC Node
+## Run the Midnight node in RPC mode
 
-### Step 1: Configure PostgreSQL Database
+다음 명령어로 Midnight node를 RPC 모드로 실행합니다. 대상 네트워크에 맞는 설정을 선택하세요.
 
-다음 파라미터로 Cardano-db-sync/ PostgreSQL 인스턴스를 설정합니다:
+기본적으로 노드는 RPC 인터페이스를 `127.0.0.1`(localhost)에 바인딩하고 `Safe` 메서드 세트만 노출합니다. 이 설정을 시작점으로 권장합니다. endpoint가 로컬 머신에서만 접근 가능하므로 인터넷에 직접 노출되지 않습니다. 외부 클라이언트가 사용하게 하려면, 노드 자체를 public 인터페이스에 바인딩하지 말고 그 앞에 보안을 강화한 reverse proxy를 두세요. [Exposing the RPC endpoint](#exposing-the-rpc-endpoint)를 참고하세요.
 
-* **Host:** PostgreSQL 서버 주소.
-* **Port:** 기본값 5432.
-* **Username:** 데이터베이스 사용자.
-* **Password:** 데이터베이스 비밀번호.
-* **Database Name:** 데이터베이스 이름 (예: cexplorer).
-
-### Step 2: Run the Docker Command for an RPC Node
-
-다음 Docker 명령어로 RPC node를 설정합니다:
+<Tabs>
+<TabItem value="preview" label="Preview">
 
 ```bash
-docker run \
-  --name midnight-rpc-node \
-  --platform linux/amd64 \
-  -p 9944:9944 \
-  -p 30333:30333 \
-  -v midnight-data:/node \
-  -e MIDNIGHT_NODE_IMAGE="midnightnetwork/midnight-node:<VERSION>" \
-  -e BASE_PATH="./node/chain/" \
-  -e CFG_PRESET="testnet-02" \
-  midnightnetwork/midnight-node:<VERSION> \
-  --chain=/res/testnet-02/testnetRaw.json \
-  --rpc-methods=Safe \
-  --rpc-cors=all \
-  --rpc-external \
-  --ws-external
+midnight-node \
+  --chain /home/midnight/res/preview/chain-spec-raw.json \
+  --base-path /home/midnight/data \
+  --rpc-port 9944 \
+  --rpc-methods Safe
 ```
 
-`<VERSION>`을 [릴리스 호환성 매트릭스](../../relnotes/support-matrix)에 따른 올바른 노드 버전으로 바꾸세요.
-
-
-## Verifying the Node
-
-### Check Logs
-
-노드 로그를 모니터링하여 네트워크와 정상 동기화되는지 확인합니다:
+</TabItem>
+<TabItem value="preprod" label="Preprod">
 
 ```bash
-docker logs -f <node-name>
+midnight-node \
+  --chain /home/midnight/res/preprod/chain-spec-raw.json \
+  --base-path /home/midnight/data \
+  --rpc-port 9944 \
+  --rpc-methods Safe
 ```
 
-### Test Connectivity
+</TabItem>
+</Tabs>
+
+### Configure RPC methods
+
+* `--rpc-port 9944`: RPC 서버가 수신할 TCP 포트입니다.
+* `--rpc-methods Safe`: 안전한 RPC 메서드 세트만 노출합니다. localhost 밖에서 접근 가능한 노드에서는 `Unsafe`/`Auto`를 사용하지 마세요. 노드를 제어할 수 있는 메서드까지 노출하기 때문입니다.
+
+## Exposing the RPC endpoint
+
+Public RPC 노드의 경우, 노드는 localhost에 바인딩한 상태(위 기본값)로 두고, TLS를 처리하고 허용 origin을 제한하며 rate limiting을 적용하는 reverse proxy(예: nginx, Caddy)를 앞단에 두는 방식을 권장합니다. 여기에 P2P 포트와 proxy 포트만 허용하는 방화벽을 함께 사용하세요.
+
+노드는 아래 플래그로 RPC를 직접 노출할 수도 있습니다. 이 플래그들은 localhost 기본값을 우회하므로, 신뢰할 수 있고 방화벽이 적용된 네트워크에서만 사용하고, 앞단에 proxy 없이 공개 인터넷에 노출해서는 안 됩니다.
+
+:::warning
+
+RPC 인터페이스를 public 주소에 바인딩하면서 CORS를 느슨하게 두면, 노드가 악용, 리소스 고갈, 데이터 스크래핑에 노출됩니다. 아래 옵션은 고급 설정으로 다루고, 방화벽, TLS, 범위를 제한한 origin으로 보호하세요.
+
+:::
+
+* `--rpc-external`: RPC 서버를 모든 인터페이스에 바인딩해 외부 네트워크에서 접근할 수 있게 합니다. 이 플래그가 없으면 RPC는 `127.0.0.1`에 머뭅니다. 통합 RPC 서버가 이 인터페이스에서 HTTP와 WebSocket 연결을 모두 처리합니다.
+* `--rpc-cors <origins>`: 허용할 CORS origin을 설정합니다. 모든 origin의 요청을 허용하는 `all`보다, 신뢰할 수 있는 도메인을 쉼표로 구분한 명시적 목록(예: `--rpc-cors https://app.example.com`)을 권장합니다.
+* `--no-private-ip`: private IP 대역에서 외부 바인딩을 거부하는 안전 검사를 비활성화합니다. 노드를 의도적으로 노출할 때만 해당됩니다.
+
+### Test connectivity
 
 노드의 P2P 포트(기본값: `30333`)가 열려 있고 네트워크 통신이 가능한지 확인하세요. `telnet`, `netcat`, `nmap` 같은 도구로 포트 상태를 점검하고, 노드가 네트워크에 올바르게 연결되어 있는지 검증합니다.
 
@@ -87,3 +92,7 @@ curl -H "Content-Type: application/json" \
          }' \
      http://127.0.0.1:9944
 ```
+
+## Next steps
+
+RPC node를 설정했다면, [Node endpoints](./node-endpoints)를 사용해 Midnight blockchain과 상호작용할 수 있습니다.

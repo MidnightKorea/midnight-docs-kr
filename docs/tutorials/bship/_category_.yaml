@@ -1,8 +1,8 @@
 position: 30
 label: 'Battleship (배틀쉽)'
+description: "중급: 테스트 스위트 설계에 초점을 맞춰 Battleship 컨트랙트를 만들어 봅니다."
 collapsible: true # make the category collapsible
 collapsed: true # keep the category closed by default
 link:
-  type: generated-index
-  title: Battleship (중급)
-  description: Midnight Network에서 Battleship 컨트랙트를 구축하는 중급 튜토리얼입니다.
+  type: doc
+  id: tutorials/bship/index

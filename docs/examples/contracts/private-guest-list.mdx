@@ -1,6 +1,6 @@
 ---
 SPDX-License-Identifier: Apache-2.0
-copyright: This file is part of midnight-docs. Copyright (C) 2026 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 sidebar_label: "비공개 게스트 리스트"
 sidebar_position: 3
 title: 비공개 게스트 리스트 컨트랙트
@@ -9,104 +9,139 @@ toc_max_heading_level: 2
 ---
 
 이 Compact 컨트랙트는 비공개 게스트 리스트가 있는 파티를 구현합니다. 다음 기능을 시연합니다:
-- 공개 ledger에서 정보 숨기기
-- 숨겨진 ledger 정보 검증
-- circuit 접근 제어
 - `Set` 연산
-- witness 함수 소개
+- 네이티브 토큰(NIGHT) 연산
+- Midnight DApp의 프라이버시 경계
 
 ```compact
-pragma language_version 0.22;
+pragma language_version 0.23;
 import CompactStandardLibrary;
 
 export enum PartyState {
-    NOT_READY,
-    READY
+    NOT_STARTED,
+    READY,
+    STARTED,
+    DOORS_CLOSED,
+    FEES_CLAIMED
 }
 
-export ledger organizers: Set<Bytes<32>>;// 주최자는 공개입니다
-export ledger hashedPartyGoers: Set<Bytes<32>>;// 참가자는 도착할 때까지 해시 처리됩니다
-export ledger checkedInParty: Set<Bytes<32>>;
+export sealed ledger organizer: Bytes<32>;
+export sealed ledger maxListSize: Uint<16>;
+export sealed ledger entryFee: Uint<16>;
 export ledger partyState: PartyState;
-export sealed ledger maxListSize: Uint<8>;
+export ledger hashedPartyGoers: Set<Bytes<32>>;
+export ledger checkedInParty: Set<UserAddress>;
 
-witness localStartParty(): PartyState;
-witness localSk(): Bytes<32>;
+witness localSecret(): Bytes<32>;
 
-constructor(){
-    const _sk = localSk();
-    const pubKey = publicKey(_sk);
-    organizers.insert(disclose(pubKey));
+constructor (partySize: Uint<16>, fee: Uint<16>) {
+    const _secret = localSecret();
+    const pubKey = getDappPublicKey(_secret);
+    organizer = disclose(pubKey);
 
-    partyState = PartyState.NOT_READY;
-    maxListSize = 99;
+    assert(partySize > 0, "The party size must be greater than zero");
+    assert(fee > 0, "Fee must be greater than zero");
+
+    entryFee = disclose(fee);
+    maxListSize = disclose(partySize);
+    partyState = PartyState.NOT_STARTED;
 }
 
-export circuit addOrganizer(_organizerSk: Bytes<32>): [] {
-    const _sk = localSk();
-    const pubKey = publicKey(_sk);
-    assert(organizers.member(disclose(pubKey)), "You are not an organizer");
+// 파티 참가자가 호출합니다
+export circuit rsvp(_address: UserAddress): [] {
+    const _secret = localSecret();
+    const pubKey = getDappPublicKey(_secret);
+    // 호출자 인증 확인
+    assert(pubKey != organizer, "Organizer cannot RSVP to the party");
 
-    const newOrgPubKey = publicKey(_organizerSk);
-    assert(!organizers.member(disclose(newOrgPubKey)), "You are already in the organizer list");
-    assert(partyState == PartyState.NOT_READY, "The party has already started");
-
-    organizers.insert(disclose(newOrgPubKey));
-}
-
-export circuit addParticipant(_participantPk: Bytes<32>): [] {
-    // 주최자만 파티 참가자를 추가할 수 있습니다
-    const _sk = localSk();
-    const pubKey = publicKey(_sk);
-    assert(organizers.member(disclose(pubKey)), "You are not an organizer");
-
-    assert(partyState == PartyState.NOT_READY, "The party has already started");
+    // 상태 검증 확인
+    assert(partyState == PartyState.NOT_STARTED, "The party has already started");
     assert(hashedPartyGoers.size() < maxListSize, "The list is full");
 
-    const participant = commitWithSk(_participantPk, _sk);
-    assert(!hashedPartyGoers.member(disclose(participant)), "You are already in the list");
-    hashedPartyGoers.insert(disclose(participant));
+    // 참가자 주소는 비공개로 유지됩니다
+    const commitHash = commitAddress(_secret, _address.bytes);
+    assert(!hashedPartyGoers.member(commitHash), "You are already on the list");
+    hashedPartyGoers.insert(commitHash);// persistentCommit이므로 disclose가 필요 없습니다
 
     if (hashedPartyGoers.size() == maxListSize) {
-        const localPartyState = localStartParty();
-        // 신뢰하지 말고 검증하세요
-        assert(localPartyState == PartyState.READY, "Please start the party, the list is full");
+        // @TODO -- 향후 여기서 주최자에게 이벤트를 발행할 예정 (MIP-0002)
         partyState = PartyState.READY;
     }
 }
 
-export circuit checkIn(participantPk: Bytes<32>): [] {
-    const _sk = localSk();
-    const pubKey = publicKey(_sk);
-    assert(organizers.member(disclose(pubKey)), "You are not an organizer");
+// 파티 시작 (주최자)
+export circuit startParty(): [] {
+    const _secret = localSecret();
+    const pubKey = getDappPublicKey(_secret);
+    assert(organizer == pubKey, "Only the organizer can start the party");
+    assert(partyState == PartyState.READY || partyState == PartyState.NOT_STARTED, 
+        "The party is not in the correct state for this operation");
 
-    assert(partyState == PartyState.READY, "The party has not started yet");
+    partyState = PartyState.STARTED;
+}
+
+export circuit closeEntry(): [] {
+    const _secret = localSecret();
+    const pubKey = getDappPublicKey(_secret);
+    assert(organizer == pubKey, "Only organizer can close the doors");
+    assert(partyState == PartyState.STARTED, "Party in wrong state");
+
+    partyState = PartyState.DOORS_CLOSED;
+}
+
+// 참가자가 호출하므로 호출자에게 결제를 요청할 수 있습니다
+// 이 circuit이 실행되고 나면 참가자는 공개됩니다
+export circuit checkIn(address: UserAddress): [] {
+    // 상태 검증 확인
+    assert(partyState == PartyState.STARTED, "The party has not been started. Call the party police");
     assert(checkedInParty.size() < hashedPartyGoers.size(), "All guests have already checked in");
-    assert(hashedPartyGoers.member(commitWithSk(participantPk, _sk)), "You are not on the list");
 
-    checkedInParty.insert(disclose(participantPk));
+    const _secret = localSecret();
+    const commitHash = commitAddress(_secret, address.bytes);
+
+    // 호출자 검증 확인
+    assert(hashedPartyGoers.member(commitHash), "You are not on the list");
+    assert(!checkedInParty.member(disclose(address)), "You have already checked in");
+   
+    // unshielded 결제를 수신하며, 이 시점부터 참가자는 공개됩니다
+    receiveUnshielded(nativeToken(), entryFee as Uint<128>);
+    checkedInParty.insert(disclose(address));
+
+    if(checkedInParty.size() == maxListSize) {
+        partyState = PartyState.DOORS_CLOSED;
+    }
 }
 
-export circuit chainStartParty(): [] {
-    const _sk = localSk();
-    const pubKey = publicKey(_sk);
-    assert(organizers.member(disclose(pubKey)), "Only organizers can start the party");
+export circuit claimFees(address: UserAddress): [] {
+    const _secret = localSecret();
+    const pubKey = getDappPublicKey(_secret);
+    assert(organizer == pubKey, "You are not the organizer");
 
-    assert(partyState == PartyState.NOT_READY, "The party has already started");
+    // 상태 검증 확인
+    assert(partyState == PartyState.DOORS_CLOSED, "The doors are not yet closed");
+    assert(checkedInParty.size() > 0, "No fees to claim");
 
-    const localPartyState = disclose(localStartParty());
-    assert(localPartyState == PartyState.READY, "Please start the party locally");
-    partyState = localPartyState;
+    // 컨트랙트의 NIGHT 토큰 잔액을 계산합니다
+    const totalCollected = checkedInParty.size() * entryFee;
+    assert(unshieldedBalanceGte(nativeToken(), totalCollected), "Contract balance wrong");
+
+    // 주최자에게 전송합니다
+    sendUnshielded(
+        nativeToken(),
+        disclose(totalCollected) as Uint<128>,
+        right<ContractAddress, UserAddress>(disclose(address))
+    );
+    partyState = PartyState.FEES_CLAIMED;
 }
 
-circuit commitWithSk(_participantPk: Bytes<32>, _sk: Bytes<32>): Bytes<32> {
-    const hash = persistentHash<Vector<2, Bytes<32>>>([_participantPk, _sk]);
-    return disclose(hash);
+circuit commitAddress(_secret: Bytes<32>, _address: Bytes<32>): Bytes<32> {
+    return persistentCommit<Bytes<32>>(_address, _secret);
 }
 
 // 사용자가 추적될 수 없도록 이 DApp에 특화된 publicKey를 해시합니다
-export circuit publicKey(_sk: Bytes<32>): Bytes<32> {
-    return persistentHash<Vector<2, Bytes<32>>>([pad(32, "guest-list:pk:"), _sk]);
+// _secret은 충분히 복잡한 값이어야 합니다
+circuit getDappPublicKey(_secret: Bytes<32>): Bytes<32> {
+    return persistentHash<Vector<2, Bytes<32>>>([pad(32, "private-party:pk:"), _secret]);
 }
 
 ```

@@ -21,10 +21,9 @@ Midnight DApp 개발에 필요한 핵심 도구를 설치하는 방법을 안내
 - Google Chrome 브라우저
 - Visual Studio Code
 - Docker Desktop: [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
-- Lace Wallet: [https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk)
 
 
-개발은 Linux와 Mac에서 지원되며, 현재 Windows는 지원되지 않습니다.
+개발은 Linux와 Mac에서 지원됩니다. 현재 Windows는 네이티브로 지원되지 않으므로, Windows 사용자는 WSL을 통한 개발을 권장합니다.
 
 ## Install Compact
 
@@ -91,7 +90,7 @@ Proof server는 Docker 기반 백그라운드 서비스로 실행됩니다. 다�
 터미널에서 proof server를 시작하세요:
 
 ```bash
-docker run -p 6300:6300 midnightntwrk/proof-server:8.0.3 midnight-proof-server -v
+docker run -p 6300:6300 midnightntwrk/proof-server:latest midnight-proof-server -v
 ```
 
 이 명령어는 실행 중인 동안 터미널을 점유합니다.
@@ -99,7 +98,7 @@ docker run -p 6300:6300 midnightntwrk/proof-server:8.0.3 midnight-proof-server -
 **확인**: `http://localhost:6300`에서 수신 대기 중이라는 로그가 터미널에 표시되면 정상입니다.
 
 :::note
-로컬 proof server를 Lace Midnight wallet과 함께 사용하려면, **Settings » Midnight**으로 이동하여 `Local (http://localhost:6300)`을 선택하세요.
+로컬 proof server를 Lace Midnight wallet과 함께 사용하려면, **Settings » Midnight**으로 이동하여 `Local (http://localhost:6300)`을 선택하세요. 현재 Lace에서는 로컬 proof server만 지원됩니다.
 :::
 
 ## Install the Compact VS Code extension
@@ -152,7 +151,7 @@ Error: bind: address already in use
 포트 6300을 사용 중인 프로세스를 중지하거나, 다른 포트에서 proof server를 실행하세요:
 
 ```bash
-docker run -p 6301:6300 midnightntwrk/proof-server:8.0.3 midnight-proof-server -v
+docker run -p 6301:6300 midnightntwrk/proof-server:latest midnight-proof-server -v
 ```
 
 애플리케이션 설정에서 새 포트로 변경하는 것도 잊지 마세요.

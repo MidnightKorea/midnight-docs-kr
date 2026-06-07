@@ -1,146 +1,396 @@
 ---
-title: Setting up Cardano-db-sync
-sidebar_label: Setting up Cardano-db-sync
+title: Set up Cardano-db-sync
+sidebar_label: Set up Cardano-db-sync
 description: Midnight를 위한 Cardano-db-sync 설정 가이드입니다.
 keywords: [node, db-sync]
-sidebar_position: 10
+sidebar_position: 15
 tags: [node]
 ---
 
-# Setting up Cardano-db-sync
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-[Partner Chain](https://github.com/input-output-hk/partner-chains)인 Midnight 노드는 Cardano blockchain의 스크립트를 추적해야 합니다. Cardano-db-sync는 이 목적으로 사용되는 도구로, Cardano 체인을 따라가면서 blockchain과 내부 ledger 상태에서 정보를 추출합니다. 추출된 데이터는 PostgreSQL 데이터베이스에 저장됩니다. PostgreSQL 인터페이스를 통해 Midnight 노드가 데이터베이스 스키마에 SQL 쿼리를 직접 실행하거나, SQL 라이브러리를 지원하는 언어로 Cardano 체인에 접근할 수 있습니다.
+# Set up Cardano-db-sync
 
-따라서 Midnight 노드에는 `Cardano-db-sync` 인스턴스와의 상시 연결이 필수입니다.
+이 가이드는 Midnight를 위한 Cardano-db-sync를 설정하는 단계별 방법을 안내합니다.
 
-## System Requirements
+## Prerequisites
 
-| **요구 사항**      | **Cardano Mainnet**                                                                                      | **Preview Testnet**                                                  |
-| -------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| **운영체제** | 일반적인 Linux 배포판                                                                       | 일반적인 Linux 배포판                                   |
-| **메모리**           | 32 GB 이상                                                                                             | 16 GB 이상                                                         |
-| **CPU 코어**        | 4개 이상                                                                                                | 4개 이상                                                            |
-| **IOPS**             | 60,000 IOPS 이상. 낮은 등급은 동기화가 느려지거나 체인 tip에 뒤처질 수 있습니다. | 30,000 IOPS 이상. 낮은 등급은 동기화가 느려질 수 있습니다. |
-| **디스크 스토리지**     | 320 GB, SSD                                                                                               | 40 GB (SSD 권장)                                                |
+Cardano-db-sync를 설정하기 전에 다음 사항을 준비하세요:
 
-## Installation
+* 노드가 실행 중인 [Cardano node 설정](./cardano-node) 완료.
+* 충분한 리소스(CPU, 메모리, 스토리지).
 
-Cardano-db-sync는 정적 바이너리, Nix, 소스 빌드, Docker 등 다양한 방법으로 설치할 수 있습니다. **이 문서에서는 [Docker](https://hub.docker.com/) 방법을 다룹니다.**
+## Create PostgreSQL database
 
-:::note
+`Cardano-db-sync`는 blockchain 데이터를 관계형 스키마로 인덱싱하기 위해 `PostgreSQL` 백엔드가 필요합니다.
 
-자세한 정보는 공식 Cardano-db-sync 저장소를 참고하세요: https://github.com/IntersectMBO/cardano-db-sync
+### Install PostgreSQL
 
-:::
+다음 명령어를 실행해 PostgreSQL을 설치합니다:
 
-## Install Docker
-
-- Linux에 Docker Engine 설치: https://docs.docker.com/engine/install/
-
-:::note Docker Desktop 사용자
-Docker Desktop은 그래픽 앱으로, 여기서 직접 `docker --version` 같은 명령어를 실행할 수는 없습니다. 백그라운드 Docker 엔진만 제공합니다. 모든 Midnight 명령어는 시스템 터미널에서 실행해야 합니다.
-
-명령어 실행 전:
-
-1. **Docker Desktop**을 실행합니다
-2. **"Docker is running"**이 표시될 때까지 대기합니다
-3. Docker Desktop을 열어둔 채로 유지합니다 — UI에서 컨테이너를 실행하지 마세요
-4. 이 가이드의 모든 명령어를 터미널에서 그대로 실행합니다
-:::
-
-### Verify Docker is installed
-
-- Docker 버전과 설치 경로를 확인합니다:
-
-```shell
-docker --version # Docker 버전 출력
-which docker # 실행 파일 경로 출력
+```bash
+sudo apt install curl ca-certificates -y
+sudo install -d /usr/share/postgresql-common/pgdg
+sudo curl -s -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+sudo apt update && sudo apt -y install postgresql-17 postgresql-server-dev-17
 ```
 
-- Docker 데몬이 실행 중인지 확인합니다:
+### Configure roles and database
 
-```shell
-sudo systemctl status docker
+PostgreSQL 셸을 시작합니다:
+
+```bash
+sudo -i -u postgres psql
 ```
 
-Docker가 실행 중이면 다음과 같은 출력이 나타납니다:
+사용자 `midnight`을 생성하고, `midnight` 사용자에게 알려진 비밀번호와 전체 권한을 부여합니다:
 
-```shell
-● docker.service - Docker Application Container Engine
-   Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)
-   Active: active (running) since Mon 2023-10-09 15:00:00 UTC; 1h 30min ago
+```sql
+CREATE USER midnight WITH PASSWORD 'your_actual_password';
+ALTER ROLE midnight WITH SUPERUSER CREATEDB;
+CREATE DATABASE cexplorer;
 ```
 
-## Clone `midnight-node-docker` Repository:
+이 명령어들은 관리자 권한으로 PostgreSQL에 안전하게 로그인하고, 사용자 `midnight`을 생성해 알려진 비밀번호와 전체 권한을 부여하며, 비어 있는 `cexplorer` 데이터베이스를 생성합니다.
 
-[midnight-node-docker](https://github.com/midnightntwrk/midnight-node-docker) 저장소에는 Preview Testnet에서 Cardano-db-sync/ PostgreSQL 인스턴스를 쉽게 시작할 수 있는 Docker Compose 파일이 포함되어 있습니다.
+### Configure authentication
 
-- 저장소를 클론하고 해당 디렉토리로 이동합니다:
+Cardano-db-sync가 비밀번호를 직접 입력하지 않고 연결할 수 있도록 `.pgpass` 파일을 생성합니다:
 
-```shell
-git clone https://github.com/midnightntwrk/midnight-node-docker
-cd midnight-node-docker
+```bash
+# Set variable for postgres password
+export POSTGRES_PASSWORD='your_actual_password'
+
+# Set the variable to a hidden file in your home directory
+export PGPASSFILE="${HOME}/.pgpass"
 ```
-
-## Configure Cardano-db-sync/ PostgreSQL
-
-Cardano-db-sync와 PostgreSQL 서비스는 `compose-partner-chains.yml`에 정의되어 있습니다.
 
 :::important
 
-보안을 위해 Cardano-db-sync와 PostgreSQL에 고유한 사용자명, 비밀번호, 포트를 설정하세요.
+`your_actual_password`를 실제로 사용할 안전한 비밀번호로 바꾸세요.
 
 :::
 
-- `compose-partner-chains.yml`을 에디터로 열고, 기본 사용자명, 비밀번호, 포트를 본인만 아는 고유한 값으로 변경합니다.
-- `Ogmios` 서비스를 주석 처리합니다 (블록 프로듀서로서 블록 생성 작업에 필요한 경우가 아니라면).
-- `compose-partner-chains.yml`을 저장합니다.
+연결 문자열을 `.pgpass` 파일에 기록합니다:
 
-## Start Cardano-db-sync/ PostgreSQL
-
-- `compose-partner-chains.yml`에 정의된 서비스를 시작합니다:
-
-```shell
-docker-compose -f compose-partner-chains.yml up -d
+```bash
+echo "/var/run/postgresql:5432:cexplorer:midnight:$POSTGRES_PASSWORD" > "$PGPASSFILE"
 ```
 
-- Cardano-db-sync 동기화 진행 상황을 조회합니다:
+`.pgpass` 파일에 엄격한 권한을 설정합니다. 파일이 누구나 읽을 수 있는 상태이면 PostgreSQL은 해당 파일을 무시합니다:
 
-  - `psql`을 직접 사용하는 경우:
-    ```shell
-    sudo apt-get install postgresql-client # psql 클라이언트 설치
-    ```
-    - psql로 PostgreSQL 셸에 로그인합니다:
-    ```shell
-    psql -h localhost -U postgres -d cexplorer -p 5432
-    ```
-  - Docker를 통해 PostgreSQL 셸에 로그인할 수도 있습니다:
-    ```shell
-    docker exec -it db-sync-postgres psql -U postgres -d cexplorer
-    ```
-    PostgreSQL 셸에서 다음 쿼리를 실행하여 현재 동기화 상태를 확인합니다:
-    ```shell
-    SELECT 100 * (
-        EXTRACT(EPOCH FROM (MAX(time) AT TIME ZONE 'UTC')) -
-        EXTRACT(EPOCH FROM (MIN(time) AT TIME ZONE 'UTC'))
-    ) / (
-        EXTRACT(EPOCH FROM (NOW() AT TIME ZONE 'UTC')) -
-        EXTRACT(EPOCH FROM (MIN(time) AT TIME ZONE 'UTC'))
-    ) AS sync_percent
-    FROM block;
-    ```
-  - SSH로 원격 조회하는 경우:
+```bash
+chmod 0600 "$PGPASSFILE"
+```
 
-    원격으로 조회하려면 SSH를 통해 다음 명령어를 실행합니다:
+연결 테스트를 실행합니다:
 
-    ```shell
-    ssh user@x.x.x.x -C "psql -d cexplorer -h localhost -p 5432 -U postgres -c \"SELECT 100 * (EXTRACT(EPOCH FROM (MAX(time) AT TIME ZONE 'UTC')) - EXTRACT(EPOCH FROM (MIN(time) AT TIME ZONE 'UTC'))) / (EXTRACT(EPOCH FROM (NOW() AT TIME ZONE 'UTC')) - EXTRACT(EPOCH FROM (MIN(time) AT TIME ZONE 'UTC'))) AS sync_percent FROM block;\""
-    ```
+```bash
+psql -h /var/run/postgresql -U midnight -d cexplorer -c "SELECT current_user; SELECT now();"
+```
 
-    user@x.x.x.x를 SSH 사용자명과 서버 IP 주소로 바꾸세요.
+결과 해석 방법은 다음과 같습니다:
 
-:::tip
+- **Success**: 성공하면 비밀번호를 묻지 않고 `midnight`과 현재 타임스탬프가 담긴 테이블을 반환합니다.
+- **Password Prompt**: 비밀번호를 묻는다면 `.pgpass` 파일이 올바르게 읽히지 않는 것입니다. 호스트, 포트, 데이터베이스 이름이 일치하지 않을 가능성이 높습니다.
+- **Access Denied**: `database "cexplorer" does not exist`가 나오면 데이터베이스를 먼저 생성해야 합니다.
 
-Midnight 노드가 동작하려면 Cardano-db-sync가 완전히 동기화되어야 합니다.
+`.pgpass` 파일이 존재하는지, 내용까지 확인합니다:
+
+```bash
+cat ~/.pgpass
+```
+
+출력 예시:
+
+```bash
+/var/run/postgresql:5432:cexplorer:midnight:YOUR_PASSWORD
+```
+
+`~/.pgpass` 파일은 `psql`, `pg_dump` 같은 PostgreSQL 클라이언트 도구가 비밀번호를 직접 입력하거나 스크립트에 하드코딩하지 않고 자동으로 가져오도록 하는 설정 파일입니다.
+
+### PostgreSQL 17 configuration tuning
+
+:::important
+
+Mainnet을 대상으로 할 때는 PostgreSQL 튜닝이 **필수**입니다. 튜닝하지 않으면 Cardano-db-sync 동기화 완료까지 매우 오랜 시간이 걸립니다.
 
 :::
+
+`/etc/postgresql/17/main/postgresql.conf` 파일을 수정합니다:
+
+다음 항목을 찾아 값을 변경합니다. 주석 처리된 줄은 `#`을 제거해 활성화하세요:
+
+| Configuration | Description |
+| --- | --- |
+| `shared_buffers = 16GB` | PostgreSQL이 Cardano ledger를 활성 메모리에 훨씬 많이 유지할 수 있게 합니다. |
+| `maintenance_work_mem = 4GB` | 현재 "Building Index" 단계에서 가장 중요합니다. 인덱스 정렬 작업에 더 많은 여유 공간을 제공합니다. |
+| `max_parallel_maintenance_workers = 4` | 하나의 인덱스를 만드는 데 4개의 CPU 코어가 함께 작업할 수 있게 합니다. |
+| `effective_cache_size = 48GB` | PostgreSQL 플래너가 캐싱에 활용할 수 있는 전체 RAM 양을 파악하도록 돕습니다. |
+
+## Setup Cardano-db-sync
+
+이 섹션에서는 Cardano-db-sync 바이너리와 설정 파일을 다운로드해 설치하는 방법을 다룹니다.
+
+:::important
+
+Cardano-db-sync [13.7.1.0](https://github.com/IntersectMBO/cardano-db-sync/releases/tag/13.7.1.0)을 Cardano-node [11.0.1](https://github.com/IntersectMBO/cardano-node/releases/tag/11.0.1)과 함께 사용하세요. Van Rossem 업그레이드 변경 사항 때문에, Cardano-db-sync 데이터베이스는 Cardano-node 11.0.1을 기준으로 다시 replay해야 합니다. 이 Cardano-db-sync 버전으로의 업그레이드는 단순한 바이너리 교체가 아닙니다. 기존 데이터베이스를 사용하려면 먼저 replay해야 합니다.
+
+:::
+
+### Download Cardano-db-sync binaries
+
+네트워크를 "preview", "mainnet", "preprod" 중 하나로 설정합니다:
+
+```bash
+NETWORK="preprod"
+```
+
+Cardano-db-sync 바이너리를 다운로드해 임시 디렉토리에 압축을 풉니다:
+
+```bash
+mkdir -p ~/tmp
+cd ~/tmp
+curl -L -O https://github.com/IntersectMBO/cardano-db-sync/releases/download/13.7.1.0/cardano-db-sync-13.7.1.0-linux.tar.gz
+tar -xzf cardano-db-sync-13.7.1.0-linux.tar.gz
+```
+
+Cardano-db-sync 바이너리를 로컬 bin 디렉토리로 옮깁니다:
+
+```bash
+mkdir -p ~/.local/bin
+cp bin/* ~/.local/bin/
+chmod +x ~/.local/bin/cardano-db-sync*
+```
+
+Cardano-db-sync 설치를 확인합니다:
+
+```bash
+cardano-db-sync --version
+which cardano-db-sync
+```
+
+다운로드한 `db-sync` 스키마를 `~/cardano-data` 디렉토리로 옮깁니다:
+
+```bash
+mkdir -p ~/cardano-data/
+sudo mv ~/tmp/schema ~/cardano-data/
+```
+
+Cardano-db-sync `config.json` 파일을 다운로드합니다:
+
+```bash
+cd ~/cardano-data
+curl -O https://book.world.dev.cardano.org/environments/$NETWORK/db-sync-config.json
+```
+
+Cardano-db-sync `config.json` 파일을 Cardano node 설정 파일 경로로 업데이트합니다:
+
+```bash
+sed -i "s|\"NodeConfigFile\": \"config.json\"|\"NodeConfigFile\": \"/home/midnight/.local/share/$NETWORK/config.json\"|" ~/cardano-data/db-sync-config.json
+```
+
+Cardano-db-sync 설치를 확인합니다:
+
+```bash
+cardano-db-sync --version
+which cardano-db-sync
+```
+
+{/*
+
+### Download Cardano-db-sync snapshot
+
+Cardano-db-sync can take several days to reindex the chain from scratch especially if targeting Mainnet. To speed things up, use a trusted snapshot from: [https://update-cardano-mainnet.iohk.io/cardano-db-sync/index.html#13.6/](https://update-cardano-mainnet.iohk.io/cardano-db-sync/index.html#13.6/). 
+
+Download the latest Cardano-db-sync snapshot:
+
+```bash
+sudo apt update && sudo apt install pv -y
+cd ~/tmp
+wget https://update-cardano-mainnet.iohk.io/cardano-db-sync/13.6/db-sync-snapshot-schema-13.6-block-13121647-x86_64.tgz
+```
+
+Extract the snapshot:
+
+```bash
+pv db-sync-snapshot-schema-13.6-block-13121647-x86_64.tgz | tar -xf -
+```
+
+Move the `dbsync` ledger state file into the `~/cardano-data/db-sync-state` directory:
+
+```bash
+mv ~/tmp/*.lstate.gz ~/cardano-data/db-sync-state/
+```
+
+### Restore the database
+
+Restore the database from the snapshot:
+
+```bash
+pg_restore -h /var/run/postgresql -U midnight -d cexplorer -Fd ~/tmp/db -v --no-owner --no-privileges --jobs=4
+```
+
+:::important
+
+This may take a few hours but it's better than days if syncing from scratch.
+
+:::
+
+Run `htop` or `top` to monitor the `postgres` processes. You should see 4 `postgres` processes working hard (usually near the top of the list).
+
+```bash
+htop
+```
+
+You can see the actual size of the database increasing in real-time. Run this every few minutes:
+
+```bash
+sudo -u postgres psql -c "SELECT pg_size_pretty(pg_database_size('cexplorer'));"
+```
+
+Example output:
+
+```sql
+pg_size_pretty
+----------------
+60 GB
+(1 row)
+```
+
+:::warning
+The snapshot is around 430+ GB in size. You need to have sufficient disk space to accommodate the snapshot.
+:::
+
+You need to wait for the snapshot to be fully imported before running Cardano-db-sync.
+
+*/}
+
+### Run Cardano-db-sync
+
+:::important
+[Cardano node](./cardano-node)가 실행 중인지 확인하세요. Cardano-db-sync는 Cardano-node가 제공하는 Cardano 데이터베이스를 사용해 체인을 인덱싱합니다.
+:::
+
+PostgreSQL 비밀번호 환경 변수를 설정합니다:
+
+```bash
+export PGPASSFILE="${HOME}/.pgpass"
+```
+
+셸에서 Cardano-db-sync를 대화형으로 시작합니다:
+
+```bash
+cardano-db-sync \
+    --config /home/midnight/cardano-data/db-sync-config.json \
+    --socket-path /home/midnight/cardano-data/db/node.socket \
+    --schema-dir /home/midnight/cardano-data/schema \
+    --state-dir /home/midnight/cardano-data/db-sync-state
+```
+
+:::info
+Cardano-db-sync는 초기화 중에 5~20분 정도 지연될 수 있습니다. 정상적인 동작입니다.
+:::
+
+`cardano-db-sync`의 최신 블록 높이를 확인합니다:
+
+```bash
+psql -d cexplorer -c "SELECT block_no, slot_no, time FROM block ORDER BY id DESC LIMIT 1;"
+```
+
+`cardano-db-sync` 동기화 비율을 확인합니다:
+
+```bash
+psql -d cexplorer -c "
+SELECT 
+    100 * (EXTRACT(epoch FROM (MAX(time) AT TIME ZONE 'UTC')) - EXTRACT(epoch FROM (MIN(time) AT TIME ZONE 'UTC'))) 
+    / (EXTRACT(epoch FROM (NOW() AT TIME ZONE 'UTC')) - EXTRACT(epoch FROM (MIN(time) AT TIME ZONE 'UTC'))) 
+AS sync_percent 
+FROM block;" 
+```
+
+출력 예시:
+
+```sql
+sync_percent
+------------
+45.00
+(1 row)
+```
+
+Cardano-db-sync가 45% 동기화됐다는 뜻입니다. 동기화 비율이 최소 99%에 도달할 때까지 기다린 뒤 다음 단계를 진행하세요.
+
+:::info
+더 유용한 SQL 쿼리는 Cardano-db-sync 저장소에서 확인하세요: [https://github.com/IntersectMBO/cardano-db-sync/blob/master/doc/interesting-queries.md](https://github.com/IntersectMBO/cardano-db-sync/blob/master/doc/interesting-queries.md)
+:::
+
+### Setup Cardano-db-sync `systemd` service
+
+Cardano-db-sync용 서비스 파일을 생성합니다:
+
+```bash
+sudo vim /etc/systemd/system/cardano-db-sync.service
+```
+
+서비스 파일에 다음 내용을 붙여넣습니다:
+
+```bash
+[Unit]
+Description=Cardano DB Sync
+# Ensures db-sync doesn't start until the node is ready
+After=cardano-node.service
+Requires=cardano-node.service
+
+[Service]
+User=midnight
+Type=simple
+# Crucial: Tells the tool where to find the Postgres password
+Environment="PGPASSFILE=/home/midnight/.pgpass"
+WorkingDirectory=/home/midnight/cardano-data
+ExecStart=/home/midnight/.local/bin/cardano-db-sync \
+    --config /home/midnight/cardano-data/db-sync-config.json \
+    --socket-path /home/midnight/cardano-data/db/node.socket \
+    --schema-dir /home/midnight/cardano-data/schema \
+    --state-dir /home/midnight/cardano-data/db-sync-state
+# SIGINT is the "clean" way to shut down to prevent database corruption
+KillSignal=SIGINT
+Restart=always
+RestartSec=10
+# Increases the limit for open files (important for high-throughput DBs)
+LimitNOFILE=32768
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Cardano-db-sync 서비스를 활성화하고 시작합니다:
+
+```bash
+# Reload systemd to recognize new files
+sudo systemctl daemon-reload
+
+# Enable services to start on boot
+sudo systemctl enable cardano-db-sync
+
+# Start the services
+sudo systemctl start cardano-db-sync 
+```
+
+Cardano-db-sync 서비스 상태를 확인합니다:
+
+```bash
+sudo systemctl status cardano-db-sync
+```
+
+실시간 로그를 확인합니다:
+
+```bash
+# Follow Cardano-db-sync logs
+journalctl -u cardano-db-sync -f
+```
+
+## Next steps
+
+Cardano-db-sync가 완전히 동기화되면 Midnight node를 시작할 수 있습니다. 자세한 내용은 [Set up full node](./full-node) 가이드를 참고하세요.

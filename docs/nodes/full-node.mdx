@@ -1,118 +1,179 @@
 ---
-title: Setting up Full and Archive Nodes
-sidebar_label: Setting up Full and Archive Nodes
+title: Set up full node
+sidebar_label: Set up full node
 description: Midnight full node 및 archive node 설정 가이드입니다.
 keywords: [node]
-sidebar_position: 30
+sidebar_position: 20
 tags: [node]
 ---
 
-# Setting up Full and Archive Nodes for Midnight
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-Full node 또는 archive node를 운영하면 Midnight blockchain과 동기화하고, transaction을 검증하며, 타사 인프라에 의존하지 않고 체인 상태를 관리할 수 있습니다. Full node는 실시간 상호작용과 효율적인 스토리지에 적합하고, archive node는 심층 분석이나 데이터 접근이 필요한 개발자와 조직에게 포괄적인 히스토리 데이터를 제공합니다.
+# Set up full node
 
-## Full Node vs. Archive Node
-
-**Full Node**는 blockchain과 동기화하고, transaction을 검증하며, 실시간 상태 조회를 제공합니다. 설정 가능한 블록 수(기본값 256블록)보다 오래된 히스토리 상태를 pruning하므로, 대부분의 DApp 개발과 네트워크 실시간 상호작용에 적합합니다. 주요 장점은 디스크 공간을 효율적으로 사용하여 archive node보다 훨씬 적은 스토리지가 필요하다는 것입니다.
-
-**Archive Node**는 모든 블록과 상태를 포함한 blockchain의 전체 히스토리를 유지합니다. 방대한 디스크 공간이 필요하지만, 블록 익스플로러 구축, 심층 디버깅, 과거 이벤트 조회 등 히스토리 데이터 접근이 필요한 경우에 필수적입니다. Archive node 설정에는 `--pruning archive` 파라미터 같은 특정 설정이 필요합니다.
-
+이 가이드는 Midnight full node를 설정하는 단계별 방법을 안내합니다.
 
 ## Prerequisites
 
 Midnight full node 설정 전에 다음 사항을 준비하세요:
 
-* [Docker](https://docs.docker.com/engine/install/) 설치 및 설정 완료.
-* [Cardano-db-sync 인스턴스 설정](./cardano-db-sync) 완료 (PostgreSQL 포트 접근 가능).
-* 충분한 리소스 (CPU, 메모리, 스토리지).
+* PostgreSQL 포트에 접근할 수 있는 [Cardano-db-sync 인스턴스 설정](./cardano-db-sync) 완료.
+* 충분한 리소스(CPU, 메모리, 스토리지).
 
-## Setting Up a Full Node
+## Install Midnight node
 
-### Step 1: Configure PostgreSQL Database
+Midnight node는 Midnight 프로토콜의 코어 클라이언트입니다. 아래 단계를 따라 Midnight node를 설치하세요.
 
-다음 파라미터로 PostgreSQL 인스턴스를 설정합니다:
-
-* **Host:** PostgreSQL 서버 주소.
-* **Port:** 기본값 5432.
-* **Username:** 데이터베이스 사용자.
-* **Password:** 데이터베이스 비밀번호.
-* **Database Name:** 데이터베이스 이름 (예: cexplorer).
-
-### Step 2: Run the Docker Command for a Full Node
-
-다음 Docker 명령어로 full node를 설정합니다:
+노드용 디렉토리를 생성합니다:
 
 ```bash
-docker run \
-  --name midnight-full-node \
-  --platform linux/amd64 \
-  -p 30333:30333 \
-  -v midnight-data:/node \
-  -e MIDNIGHT_NODE_IMAGE="midnightnetwork/midnight-node:<VERSION>" \
-  -e POSTGRES_HOST="postgres" \
-  -e POSTGRES_PORT="5432" \
-  -e POSTGRES_USER="postgres" \
-  -e POSTGRES_PASSWORD="password123" \
-  -e POSTGRES_DB="cexplorer" \
-  -e DB_SYNC_POSTGRES_CONNECTION_STRING="psql://postgres:password123@x.x.x.x:5432/cexplorer" \
-  -e BASE_PATH="./node/chain/" \
-  -e CFG_PRESET="testnet-02" \
-  midnightnetwork/midnight-node:<VERSION> \
-  --chain=/res/testnet-02/testnetRaw.json \
+mkdir -p ~/data ~/res ~/.local/bin
+```
+
+- `~/data`: 노드 데이터베이스/base path 용도.
+- `~/res`: 체인 설정 파일 용도.
+- 모두 `midnight` 사용자 소유로 둡니다.
+
+Midnight node 바이너리를 다운로드해 설치합니다:
+
+임시 디렉토리를 만들고 그 안으로 이동합니다:
+
+```bash
+mkdir -p ~/tmp && cd ~/tmp
+```
+
+Midnight node 바이너리를 다운로드합니다:
+
+```bash
+curl -L -O https://github.com/midnightntwrk/midnight-node/releases/download/node-0.22.5/midnight-node-0.22.5-linux-amd64.tar.gz
+```
+
+:::note
+바이너리를 다운로드하기 전에 [호환성 매트릭스](../../relnotes/support-matrix)에서 항상 최신 릴리스 버전을 확인하세요.
+:::
+
+바이너리의 압축을 풉니다:
+
+```bash
+tar -xvzf midnight-node-0.22.5-linux-amd64.tar.gz
+```
+
+바이너리를 로컬 bin 디렉토리로 옮깁니다:
+
+```bash
+mv ~/tmp/midnight-node ~/.local/bin/
+```
+
+체인 설정 파일을 res 디렉토리로 옮깁니다:
+
+```bash
+mv ~/tmp/res ~/res
+```
+
+셸 환경을 다시 로드합니다:
+
+```bash
+source ~/.bashrc # or source ~/.zshrc
+```
+
+### Set environment variables
+
+`.env` 설정 파일을 만들고 PostgreSQL 데이터베이스용 환경 변수를 설정합니다:
+
+```bash
+# PostgreSQL connection
+export POSTGRES_HOST="localhost"
+export POSTGRES_DB="cexplorer"
+export POSTGRES_PORT="5432"
+export POSTGRES_USER="midnight"
+export POSTGRES_PASSWORD="YOUR_POSTGRES_PASSWORD"
+
+# Cardano database connection string
+export DB_SYNC_POSTGRES_CONNECTION_STRING="postgresql://midnight:YOUR_POSTGRES_PASSWORD@localhost:5432/cexplorer"
+
+export NODE_NAME="your_node_name"
+```
+
+변수를 셸 환경에 로드합니다:
+
+```bash
+source ~/.env
+```
+
+변수가 정상적으로 로드됐는지 확인합니다:
+
+```bash
+echo $DB_SYNC_POSTGRES_CONNECTION_STRING
+```
+
+## Run a full node
+
+환경 변수가 설정되면, 다음 명령어로 Midnight node를 실행합니다:
+
+<Tabs>
+<TabItem value="preview" label="Preview">
+
+```bash
+midnight-node \
+  --chain /home/midnight/res/preview/chain-spec-raw.json \
+  --base-path /home/midnight/data \
+  --pool-limit 35 \
+  --name $NODE_NAME \
   --no-private-ip
 ```
 
-`<VERSION>`을 [릴리스 호환성 매트릭스](../../relnotes/support-matrix)에 따른 올바른 노드 버전으로 바꾸세요.
-
-
-## Setting Up an Archive Node
-
-### Step 1: Configure PostgreSQL Database
-
-다음 파라미터로 PostgreSQL 인스턴스를 설정합니다:
-
-* **Host:** PostgreSQL 서버 주소.
-* **Port:** 기본값 5432.
-* **Username:** 데이터베이스 사용자.
-* **Password:** 데이터베이스 비밀번호.
-* **Database Name:** 데이터베이스 이름 (예: cexplorer).
-
-### Step 2: Run the Docker Command for an Archive Node
-
-Archive node를 설정하려면 `--pruning` 파라미터를 수정하여 전체 히스토리 상태를 저장합니다:
+</TabItem>
+<TabItem value="preprod" label="Preprod">
 
 ```bash
-docker run \
-  --name midnight-archive-node \
-  --platform linux/amd64 \
-  -p 30333:30333 \
-  -v midnight-data:/node \
-  -e MIDNIGHT_NODE_IMAGE="midnightnetwork/midnight-node:0.6.6-6288973b" \
-  -e POSTGRES_HOST="postgres" \
-  -e POSTGRES_PORT="5432" \
-  -e POSTGRES_USER="postgres" \
-  -e POSTGRES_PASSWORD="password123" \
-  -e POSTGRES_DB="cexplorer" \
-  -e DB_SYNC_POSTGRES_CONNECTION_STRING="psql://postgres:password123@x.x.x.x:5432/cexplorer" \
-  -e BASE_PATH="./node/chain/" \
-  -e CFG_PRESET="testnet-02" \
-  midnightnetwork/midnight-node:0.6.6-6288973b \
-  --chain=/res/testnet-02/testnetRaw.json \
+midnight-node \
+  --chain /home/midnight/res/preprod/chain-spec-raw.json \
+  --base-path /home/midnight/data \
+  --pool-limit 35 \
+  --name $NODE_NAME \
+  --no-private-ip
+```
+
+</TabItem>
+</Tabs>
+
+### Available networks
+
+`--chain` 플래그로 노드를 실행할 네트워크를 지정합니다. 사용 가능한 네트워크는 다음과 같습니다:
+
+- `local`: 로컬 테스트용. 네트워크를 지정하지 않으면 기본값으로 사용됩니다.
+- `preview`: Preview 네트워크용.
+- `preprod`: Preprod 네트워크용.
+- `mainnet`: Mainnet 네트워크용.
+
+
+## Verify the node
+
+노드 로그를 모니터링해 네트워크와 동기화되는지 확인합니다. 출력에서 확인할 항목은 다음과 같습니다:
+
+- **Cardano db connection**: `Postgres connection established`가 보이면 DB 설정이 올바른 것입니다.
+- **Peers**: `IDLE (0 peers)`를 확인하세요. 0에서 멈춰 있으면 방화벽(포트 30333)이나 `-bootnodes` 주소를 점검하세요.
+- **Syncing**: 네트워크에서 블록을 받아오면서 `Best: #0 ...` 값이 증가하기 시작해야 합니다.
+
+## Full node vs. archive node
+Full node는 blockchain과 동기화하고, transaction을 검증하며, 실시간 상태 조회를 제공합니다. 설정 가능한 블록 수(기본값 256블록)보다 오래된 히스토리 상태는 pruning합니다. 그래서 대부분의 DApp 개발과 네트워크 실시간 상호작용에 적합합니다.
+주요 장점은 디스크 공간을 효율적으로 사용한다는 점으로, archive node보다 훨씬 적은 스토리지만 필요합니다.
+
+Archive node는 모든 블록과 상태를 포함한 blockchain의 전체 히스토리를 유지합니다.
+이렇게 전체를 저장하면 디스크 공간을 많이 차지하지만, 블록 익스플로러 구축, 심층 디버깅, 과거 이벤트 조회처럼 히스토리 데이터 접근이 필요한 경우에는 필수적입니다.
+
+Midnight node를 archive 모드로 실행하려면 `--pruning archive` 플래그를 사용하세요.
+
+```bash
+midnight-node \
+  --chain /home/midnight/res/preview/chain-spec-raw.json \
+  --base-path /home/midnight/data \
   --pruning archive \
-  --no-private-ip
+  --no-private-ip \
+  --name $NODE_NAME
 ```
 
+## Next steps
 
-## Verifying the Node
-
-### Check Logs
-
-노드 로그를 모니터링하여 네트워크와 정상 동기화되는지 확인합니다:
-
-```bash
-docker logs -f <node-name>
-```
-
-### Test Connectivity
-
-노드의 P2P 포트(기본값: `30333`)가 열려 있고 네트워크 통신이 가능한지 확인하세요. `telnet`, `netcat`, `nmap` 같은 도구로 포트 상태를 점검하고, 노드가 네트워크에 올바르게 연결되어 있는지 검증합니다.
+Full node를 설정했다면, [Node endpoints](./node-endpoints)를 사용해 Midnight blockchain과 상호작용할 수 있습니다.

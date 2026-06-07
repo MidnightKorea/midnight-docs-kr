@@ -1,6 +1,6 @@
 ---
 SPDX-License-Identifier: Apache-2.0
-copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 sidebar_label: "게시판 컨트랙트"
 title: "게시판 컨트랙트"
 description: "Midnight 네트워크에서 프라이버시를 보호하는 게시판 컨트랙트를 구축하는 방법을 알아봅니다."
@@ -59,7 +59,7 @@ touch src/bboard.compact
 `pragma language_version` 지시문은 컨트랙트에서 사용하는 Compact 버전을 지정합니다:
 
 ```compact
-pragma language_version >= 0.22;
+pragma language_version >= 0.23;
 ```
 
 이 지시문은:
@@ -72,7 +72,7 @@ pragma language_version >= 0.22;
 내장 타입과 함수를 위해 Compact의 표준 라이브러리를 임포트합니다:
 
 ```compact
-pragma language_version >= 0.22;
+pragma language_version >= 0.23;
 
 import CompactStandardLibrary;
 ```
@@ -88,7 +88,7 @@ import CompactStandardLibrary;
 게시판은 두 가지 가능한 상태를 가집니다. 이를 나타내는 열거형 타입을 정의합니다:
 
 ```compact
-pragma language_version >= 0.22;
+pragma language_version >= 0.23;
 
 import CompactStandardLibrary;
 
@@ -110,7 +110,7 @@ export enum State {
 ledger는 컨트랙트의 공개 온체인 상태를 나타냅니다. 게시판에는 네 가지 공개 정보가 필요합니다:
 
 ```compact
-pragma language_version >= 0.22;
+pragma language_version >= 0.23;
 
 import CompactStandardLibrary;
 
@@ -277,7 +277,7 @@ commitment는 중요한 특성을 가집니다:
 완성된 게시판 컨트랙트는 다음과 같아야 합니다:
 
 ```compact
-pragma language_version >= 0.22;
+pragma language_version >= 0.23;
 
 import CompactStandardLibrary;
 

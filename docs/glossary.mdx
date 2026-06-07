@@ -1,6 +1,6 @@
 ---
 SPDX-License-Identifier: Apache-2.0
-copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 sidebar_label: Glossary
 description: Midnight Network에서 사용되는 용어집입니다.
 title: Glossary
@@ -111,6 +111,12 @@ Electric Coin 회사에서 만든 고성능 ZK Snark 구현체입니다.
 ### HD wallet
 Hierarchical Deterministic wallet의 줄임말입니다. 단일 마스터 시드 구문(보통 12개 또는 24개 단어)으로부터 여러 주소와 개인 키를 생성할 수 있는 유형의 암호화폐 wallet입니다. 모든 주소와 자금을 복구하려면 시드 구문 하나만 백업하면 됩니다. Midnight은 네트워크에서 사용되는 세 가지 주소 유형(Unshielded, Shielded, DUST)을 파생하고 관리하기 위해 HD wallet을 사용합니다.
 
+### HRP
+
+Human-readable part(HRP)는 Bech32 또는 Bech32m으로 인코딩된 주소의 텍스트 접두사로, 주소 유형과 해당 주소가 속한 네트워크를 식별합니다.
+Midnight에서는 HRP 접두사로 주소 유형을 구분합니다: unshielded 주소는 `mn_addr`, shielded 암호화 키 주소는 `mn_shield-esk`, DUST 주소는 `mn_dust`를 사용합니다.
+Testnet 환경에서는 접두사에 네트워크 ID가 포함됩니다. 예: `mn_addr_{network_id}`.
+
 ### Kachina
 사용자 로컬 머신의 프라이빗 상태와 블록체인의 공개 상태 사이의 격차를 해소하는, 데이터 보호 스마트 컨트랙트를 위한 통합 보안 모델입니다.
 보편적 구성 가능성(UC) 모델을 기반으로 하며, ZK Snark에 의존하여 UC 보안 프레임워크 내에서 데이터 보호를 보장하는 스마트 컨트랙트 프로토콜을 수립합니다.
@@ -132,6 +138,11 @@ Compact에서 `ledger` 선언은 컨트랙트가 글로벌 원장에 기여하�
 
 ### Multi-asset
 블록체인 플랫폼이나 프로토콜이 다양한 유형의 디지털 자산 또는 토큰을 동시에 지원하고 처리할 수 있는 능력입니다.
+
+### NATS
+
+NATS는 서비스 간 이벤트 기반 통신에 사용되는 가볍고 빠른 오픈소스 메시징 시스템입니다.
+Midnight의 indexer 아키텍처에서 NATS는 내부 메시지 브로커 역할을 하며, chain indexer와 wallet indexer 같은 indexer 구성 요소들이 이벤트와 데이터를 비동기로 주고받을 수 있게 해 줍니다.
 
 ### NIGHT
 Midnight의 네이티브 유틸리티 토큰으로, 양도 가능하고 영구적이며, 거버넌스, 인센티브, DUST 생성의 원천으로 사용됩니다.

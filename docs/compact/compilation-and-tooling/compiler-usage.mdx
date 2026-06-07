@@ -1,10 +1,9 @@
 # Compact compiler usage page
 
-This is the usage page of **compactc**, a compiler for Compact.
-This document assumes you are using **compactc** by itself.
-However, use the Compact command-line tool instead of using the
-compiler on its own. [The usage page of the Compact command-line tool](dev-tool-usage)
-is provided separately.
+이 페이지는 Compact 컴파일러 **compactc**의 사용법을 다룹니다.
+**compactc**를 단독으로 사용하는 경우를 전제로 설명하지만,
+컴파일러를 직접 호출하기보다 Compact 명령줄 도구 사용을 권장합니다.
+[Compact 명령줄 도구 사용법](dev-tool-usage)은 별도 페이지에서 안내합니다.
 
 NAME
 ====
@@ -145,10 +144,10 @@ obj/test/keys/foo.prover
 obj/test/keys/foo.verifier
 ```
 
-Note that
+참고로
 
 ```
 compactc --skip-zk src/test.compact obj/test
 ```
 
-키 파일을 제외하고 동일한 결과를 생성합니다.
+명령은 키 파일을 제외하고 동일한 결과를 생성합니다.

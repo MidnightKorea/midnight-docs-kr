@@ -1,8 +1,0 @@
-position: 11
-label: 'AI 도구'
-collapsible: true # 카테고리를 접을 수 있게 설정
-collapsed: true # 기본적으로 카테고리를 접어둠
-link:
-  type: generated-index
-  title: AI 도구
-  description: Midnight 네트워크에서 빌드하기 위한 AI 도구.

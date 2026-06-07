@@ -1,6 +1,6 @@
 ---
 sidebar_label: Node error codes
-description: A list of Midnight node error codes and their troubleshooting steps.
+description: Midnight 노드 오류 코드 및 문제 해결 방법 목록입니다.
 keywords: [node]
 title: Node error codes
 sidebar_position: 60
@@ -9,198 +9,198 @@ tags: [node]
 
 # Midnight node error codes
 
-Midnight node errors are `LedgerApiError` codes mapped to `u8` (0–255). They surface via Substrate's `InvalidTransaction::Custom(u8)` when the node rejects a transaction at the ledger level.
+Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한 값입니다. 노드가 레저 수준에서 트랜잭션을 거부할 때 Substrate의 `InvalidTransaction::Custom(u8)`을 통해 표면화됩니다.
 
-They often occur when the node rejects a submitted transaction with `Custom(N)` in the Substrate dispatch error.
+노드가 제출된 트랜잭션을 Substrate 디스패치 오류의 `Custom(N)` 형태로 거부할 때 자주 발생합니다.
 
 :::info
-A pallet-level `DispatchError::Module` surfaces with index 5 (`pallet_midnight`) or 6 (`pallet_midnight_system`) and you need to decode the inner error. To learn how to decode the inner error, see the [Decode 1010 transaction rejection errors](/how-to/decode-1010-transaction-rejection-errors) troubleshooting guide.
+팔렛 수준의 `DispatchError::Module`은 인덱스 5 (`pallet_midnight`) 또는 6 (`pallet_midnight_system`)으로 표면화되며, 내부 오류를 디코딩해야 합니다. 내부 오류 디코딩 방법은 [Decode 1010 transaction rejection errors](/how-to/decode-1010-transaction-rejection-errors) 문제 해결 가이드를 참조하세요.
 :::
 
 ## Error tables by code range
 
-Below is a list of the Midnight node specific errors categorized by type and status code. The error tables group errors by code range to help you identify the error types.
+아래는 유형 및 상태 코드별로 분류된 Midnight 노드 전용 오류 목록입니다. 오류 테이블은 코드 범위별로 오류를 그룹화하여 오류 유형을 식별하는 데 도움을 줍니다.
 
 ### Deserialization errors (0–11)
 
-Errors that occur when the node fails to deserialize data from the wire format.
+노드가 와이어 포맷에서 데이터 역직렬화에 실패할 때 발생하는 오류입니다.
 
 | Code | Name | Description | How to fix |
 |------|------|-------------|-------|
-| 0 | `NetworkId` | Failed to deserialize the network ID | Check SDK version compatibility, verify network ID encoding |
-| 1 | `Transaction` | Failed to deserialize transaction payload | Verify transaction was built with a compatible SDK version |
-| 2 | `LedgerState` | Failed to deserialize ledger state | Internal node error |
-| 3 | `ContractAddress` | Failed to deserialize contract address | Verify the contract address format |
-| 4 | `PublicKey` | Failed to deserialize public key | Check key format and encoding |
-| 5 | `VersionedArenaKey` | Failed to deserialize versioned arena key | Internal |
-| 6 | `UserAddress` | Failed to deserialize user address | Verify address format |
-| 7 | `TypedArenaKey` | Failed to deserialize typed arena key | Internal |
-| 8 | `SystemTransaction` | Failed to deserialize system transaction | Governance/bridge transaction format error |
-| 9 | `DustPublicKey` | Failed to deserialize DUST public key | Check DUST key format |
-| 10 | `CNightGeneratesDustActionType` | Failed to deserialize cNIGHT-generates-DUST action type | Internal bridge/observation error |
-| 11 | `CNightGeneratesDustEvent` | Failed to deserialize cNIGHT-generates-DUST event | Internal bridge/observation error |
+| 0 | `NetworkId` | 네트워크 ID 역직렬화에 실패한 경우 | SDK 버전 호환성 확인, 네트워크 ID 인코딩 검증 |
+| 1 | `Transaction` | 트랜잭션 페이로드 역직렬화에 실패한 경우 | 호환되는 SDK 버전으로 트랜잭션을 빌드했는지 확인 |
+| 2 | `LedgerState` | 레저 상태 역직렬화에 실패한 경우 | 노드 내부 오류 |
+| 3 | `ContractAddress` | 컨트랙트 주소 역직렬화에 실패한 경우 | 컨트랙트 주소 형식 확인 |
+| 4 | `PublicKey` | 공개 키 역직렬화에 실패한 경우 | 키 형식 및 인코딩 확인 |
+| 5 | `VersionedArenaKey` | 버전 관리 아레나 키 역직렬화에 실패한 경우 | 내부 오류 |
+| 6 | `UserAddress` | 사용자 주소 역직렬화에 실패한 경우 | 주소 형식 확인 |
+| 7 | `TypedArenaKey` | 타입 지정 아레나 키 역직렬화에 실패한 경우 | 내부 오류 |
+| 8 | `SystemTransaction` | 시스템 트랜잭션 역직렬화에 실패한 경우 | 거버넌스/브릿지 트랜잭션 형식 오류 |
+| 9 | `DustPublicKey` | DUST 공개 키 역직렬화에 실패한 경우 | DUST 키 형식 확인 |
+| 10 | `CNightGeneratesDustActionType` | cNIGHT-generates-DUST 액션 타입 역직렬화에 실패한 경우 | 내부 브릿지/관측 오류 |
+| 11 | `CNightGeneratesDustEvent` | cNIGHT-generates-DUST 이벤트 역직렬화에 실패한 경우 | 내부 브릿지/관측 오류 |
 
-Most deserialization errors occur due to version mismatch. Always refer to the [compatibility matrix](../relnotes/support-matrix) to ensure you are using compatible versions of Midnight blockchain components.
+역직렬화 오류의 대부분은 버전 불일치로 인해 발생합니다. [호환성 매트릭스](../relnotes/support-matrix)를 참조하여 Midnight 블록체인 구성 요소의 호환 버전을 사용하고 있는지 항상 확인하세요.
 
 ### Serialization errors (50–63)
 
-Errors that occur when the node fails to serialize data for storage or transmission.
+노드가 저장 또는 전송을 위한 데이터 직렬화에 실패할 때 발생하는 오류입니다.
 
 | Code | Name | Description | How to fix |
 |------|------|-------------|-------|
-| 50 | `TransactionIdentifier` | Failed to serialize transaction identifier | Internal |
-| 51 | `LedgerState` | Failed to serialize ledger state | Internal node error |
-| 52 | `LedgerParameters` | Failed to serialize ledger parameters | Internal node error |
-| 53 | `ContractAddress` | Failed to serialize contract address | Internal |
-| 54 | `ContractState` | Failed to serialize contract state | The contract state might be corrupt |
-| 55 | `ContractStateToJson` | Failed to serialize contract state to JSON | Contract state format incompatible with JSON serialization |
-| 56 | `ZswapState` | Failed to serialize Zswap state | Internal Zswap error |
-| 57 | `UnknownType` | Failed to serialize an unknown type | Internal |
-| 58 | `MerkleTreeDigest` | Failed to serialize Merkle tree digest | Internal Merkle tree error |
-| 59 | `VersionedArenaKey` | Failed to serialize versioned arena key | Internal |
-| 60 | `TypedArenaKey` | Failed to serialize typed arena key | Internal |
-| 61 | `CNightGeneratesDustEvent` | Failed to serialize cNIGHT-generates-DUST event | Internal bridge error |
-| 62 | `SystemTransaction` | Failed to serialize system transaction | Internal governance error |
-| 63 | `ArenaHash` | Failed to serialize arena hash | Internal |
+| 50 | `TransactionIdentifier` | 트랜잭션 식별자 직렬화에 실패한 경우 | 내부 오류 |
+| 51 | `LedgerState` | 레저 상태 직렬화에 실패한 경우 | 노드 내부 오류 |
+| 52 | `LedgerParameters` | 레저 파라미터 직렬화에 실패한 경우 | 노드 내부 오류 |
+| 53 | `ContractAddress` | 컨트랙트 주소 직렬화에 실패한 경우 | 내부 오류 |
+| 54 | `ContractState` | 컨트랙트 상태 직렬화에 실패한 경우 | 컨트랙트 상태가 손상되었을 수 있음 |
+| 55 | `ContractStateToJson` | 컨트랙트 상태의 JSON 직렬화에 실패한 경우 | 컨트랙트 상태 형식이 JSON 직렬화와 호환되지 않음 |
+| 56 | `ZswapState` | Zswap 상태 직렬화에 실패한 경우 | Zswap 내부 오류 |
+| 57 | `UnknownType` | 알 수 없는 타입 직렬화에 실패한 경우 | 내부 오류 |
+| 58 | `MerkleTreeDigest` | 머클 트리 다이제스트 직렬화에 실패한 경우 | 내부 머클 트리 오류 |
+| 59 | `VersionedArenaKey` | 버전 관리 아레나 키 직렬화에 실패한 경우 | 내부 오류 |
+| 60 | `TypedArenaKey` | 타입 지정 아레나 키 직렬화에 실패한 경우 | 내부 오류 |
+| 61 | `CNightGeneratesDustEvent` | cNIGHT-generates-DUST 이벤트 직렬화에 실패한 경우 | 내부 브릿지 오류 |
+| 62 | `SystemTransaction` | 시스템 트랜잭션 직렬화에 실패한 경우 | 내부 거버넌스 오류 |
+| 63 | `ArenaHash` | 아레나 해시 직렬화에 실패한 경우 | 내부 오류 |
 
 ### Transaction invalid (100–109, 193–200)
 
-Errors that occur when the node applies a transaction to the ledger state and then rejects it for violating a ledger invariant.
+노드가 트랜잭션을 레저 상태에 적용한 후 레저 불변 조건 위반으로 거부할 때 발생하는 오류입니다.
 
 | Code | Name | Description | How to fix |
 |------|------|-------------|-------|
-| 100 | `EffectsMismatch` | Declared transaction effects don't match the computed effects | Rebuild the transaction. The effects declaration is stale or the SDK computed it incorrectly |
-| 101 | `ContractAlreadyDeployed` | A contract already exists at the target address | Use a different contract address or find the existing deployment |
-| 102 | `ContractNotPresent` | Called a contract that doesn't exist at the given address | Verify the contract address; deploy the contract first |
-| 103 | `Zswap` | Zswap-level transaction error (e.g., double-spend, unknown Merkle root) | Check for nullifier reuse, verify coin tree root is current |
-| 104 | `Transcript` | The node rejected on-chain transcript execution | Check contract logic; the circuit's on-chain transcript failed |
-| 105 | `InsufficientClaimable` | Not enough NIGHT tokens to claim | Ensure sufficient NIGHT balance for the operation |
-| 106 | `VerifierKeyNotFound` | Verifier key missing for the circuit operation | Deploy the verifier key before calling the circuit |
-| 107 | `VerifierKeyAlreadyPresent` | Verifier key already exists for this operation | The key is already deployed; no action needed |
-| 108 | `ReplayCounterMismatch` | Signed counter doesn't match (replay attack prevention) | Rebuild the transaction with the current replay counter |
-| 109 | `UnknownError` | Unclassified transaction invalid error | Check node logs for details |
-| 193 | `ReplayProtectionViolation` | Transaction violates replay protection (duplicate intent) | This transaction or intent was already submitted |
-| 194 | `BalanceCheckOutOfBounds` | Token balance would overflow or underflow | Verify token amounts don't exceed representable range |
-| 195 | `InputNotInUtxos` | Input references a UTXO that doesn't exist in the set | The coin may already be spent; resync wallet state |
-| 196 | `DustDoubleSpend` | Attempt to spend the same DUST twice | DUST UTXO already consumed; resync DUST wallet |
-| 197 | `DustDeregistrationNotRegistered` | Attempting to deregister a DUST address that isn't registered | Verify the DUST address is currently registered |
-| 198 | `GenerationInfoAlreadyPresent` | DUST generation info already exists | Duplicate generation info submission |
-| 199 | `InvariantViolation` | Protocol-level invariant violated (e.g., NIGHT supply exceeded) | Transaction would break fundamental protocol rules |
-| 200 | `RewardTooSmall` | Claimed reward is below the minimum payout threshold | Accumulate more rewards before claiming |
+| 100 | `EffectsMismatch` | 선언된 트랜잭션 이펙트가 계산된 이펙트와 일치하지 않는 경우 | 트랜잭션을 다시 빌드하세요. 이펙트 선언이 오래되었거나 SDK가 잘못 계산했을 수 있습니다 |
+| 101 | `ContractAlreadyDeployed` | 대상 주소에 이미 컨트랙트가 존재하는 경우 | 다른 컨트랙트 주소를 사용하거나 기존 배포를 확인하세요 |
+| 102 | `ContractNotPresent` | 지정한 주소에 존재하지 않는 컨트랙트를 호출한 경우 | 컨트랙트 주소를 확인하고 먼저 컨트랙트를 배포하세요 |
+| 103 | `Zswap` | Zswap 수준의 트랜잭션 오류 (예: 이중 지출, 알 수 없는 머클 루트) | 널리파이어 재사용 여부를 확인하고 코인 트리 루트가 최신 상태인지 검증하세요 |
+| 104 | `Transcript` | 노드가 온체인 트랜스크립트 실행을 거부한 경우 | 컨트랙트 로직을 확인하세요. 회로의 온체인 트랜스크립트 실행에 실패했습니다 |
+| 105 | `InsufficientClaimable` | 클레임할 NIGHT 토큰이 부족한 경우 | 해당 작업에 충분한 NIGHT 잔액이 있는지 확인하세요 |
+| 106 | `VerifierKeyNotFound` | 회로 작업에 필요한 검증자 키가 없는 경우 | 회로를 호출하기 전에 검증자 키를 배포하세요 |
+| 107 | `VerifierKeyAlreadyPresent` | 해당 작업에 검증자 키가 이미 존재하는 경우 | 키가 이미 배포되어 있으므로 추가 조치가 필요하지 않습니다 |
+| 108 | `ReplayCounterMismatch` | 서명된 카운터가 일치하지 않는 경우 (리플레이 공격 방지) | 현재 리플레이 카운터로 트랜잭션을 다시 빌드하세요 |
+| 109 | `UnknownError` | 분류되지 않은 트랜잭션 무효 오류 | 노드 로그에서 자세한 내용을 확인하세요 |
+| 193 | `ReplayProtectionViolation` | 트랜잭션이 리플레이 보호를 위반한 경우 (인텐트 중복) | 해당 트랜잭션 또는 인텐트가 이미 제출되었습니다 |
+| 194 | `BalanceCheckOutOfBounds` | 토큰 잔액이 오버플로우 또는 언더플로우를 일으킬 경우 | 토큰 수량이 표현 가능한 범위를 초과하지 않는지 확인하세요 |
+| 195 | `InputNotInUtxos` | 입력이 UTXO 집합에 존재하지 않는 UTXO를 참조하는 경우 | 해당 코인이 이미 사용되었을 수 있습니다. 지갑 상태를 다시 동기화하세요 |
+| 196 | `DustDoubleSpend` | 동일한 DUST를 이중으로 지출하려는 경우 | DUST UTXO가 이미 소비되었습니다. DUST 지갑을 다시 동기화하세요 |
+| 197 | `DustDeregistrationNotRegistered` | 등록되지 않은 DUST 주소를 등록 해제하려는 경우 | DUST 주소가 현재 등록되어 있는지 확인하세요 |
+| 198 | `GenerationInfoAlreadyPresent` | DUST 생성 정보가 이미 존재하는 경우 | 생성 정보가 중복 제출되었습니다 |
+| 199 | `InvariantViolation` | 프로토콜 수준의 불변 조건이 위반된 경우 (예: NIGHT 공급량 초과) | 해당 트랜잭션은 근본적인 프로토콜 규칙을 위반합니다 |
+| 200 | `RewardTooSmall` | 클레임한 보상이 최소 지급 기준에 미달하는 경우 | 보상을 더 누적한 후 클레임하세요 |
 
 ### Transaction malformed (110–139, 166–192)
 
-Errors that occur when the node rejects a transaction that is structurally invalid.
+노드가 구조적으로 유효하지 않은 트랜잭션을 거부할 때 발생하는 오류입니다.
 
 | Code | Name | Description | How to fix |
 |------|------|-------------|-------|
-| 110 | `VerifierKeyNotSet` | Contract deployed without required verifier key | Include verifier keys when deploying the contract |
-| 111 | `TransactionTooLarge` | Transaction exceeds maximum allowed size | Reduce transaction payload; split into multiple transactions |
-| 112 | `VerifierKeyTooLarge` | Verifier key exceeds deserialization limit | Use a smaller circuit or contact Midnight support |
-| 113 | `VerifierKeyNotPresent` | Referenced verifier key not found | Deploy the contract with the verifier key before calling the circuit |
-| 114 | `ContractNotPresent` | Transaction references a non-existent contract | Verify contract address; deploy the contract first |
-| 115 | `InvalidProof` | Zero-knowledge proof verification failed | Regenerate the proof. Ensure the proof server is compatible |
-| 116 | `BindingCommitmentOpeningInvalid` | Binding commitment was incorrectly opened | Internal Zswap error — rebuild the transaction |
-| 117 | `NotNormalized` | Transaction is not in normal form | Rebuild with the SDK; normalize the transaction before submission |
-| 118 | `FallibleWithoutCheckpoint` | Fallible transcript missing initial checkpoint | Add kernel.checkpoint() at the start of fallible sections |
-| 119 | `ClaimReceiveFailed` | Failed to claim a coin commitment receive | Coin commitment format error; rebuild the transaction |
-| 120 | `ClaimSpendFailed` | Failed to claim a coin commitment spend | Coin commitment format error; rebuild the transaction |
-| 121 | `ClaimNullifierFailed` | Failed to claim a nullifier | Nullifier format error; rebuild the transaction |
-| 122 | `ClaimCallFailed` | Failed to claim a contract call | Contract call format error; rebuild the transaction |
-| 123 | `InvalidSchnorrProof` | Fiat-Shamir Schnorr proof verification failed | Signing error — regenerate the transaction signature |
-| 124 | `UnclaimedCoinCom` | Contract-owned output left unclaimed | Ensure you claim all contract outputs in the transaction before submitting the transaction |
-| 125 | `UnclaimedNullifier` | Contract-owned coin input left unauthorized | You must authorize all contract inputs |
-| 126 | `Unbalanced` | Negative balance in a token type | Transaction doesn't balance. Check token amounts |
-| 127 | `Zswap` | Zswap offer is structurally malformed | Rebuild the Zswap offer and check proof validity |
-| 128 | `BuiltinDecode` | FAB (field-aligned binary) decode error | Internal encoding error. Verify data formats |
-| 129 | `GuaranteedLimit` | Exceeded guaranteed section limits | Reduce the guaranteed section size |
-| 130 | `MergingContracts` | Error merging contract intents | These contracts cannot merge; check configuration |
-| 131 | `CantMergeTypes` | Attempted to merge incompatible transaction types | Transaction types must be compatible for merging |
-| 132 | `ClaimOverflow` | Claimed coin value overflows deltas | Token amounts exceed representable range |
-| 133 | `ClaimCoinMismatch` | ClaimRewards coin doesn't match the real coin | Rebuild the claim with correct coin data |
-| 134 | `KeyNotInCommittee` | Signing key is not a committee member | Only committee members can sign this operation |
-| 135 | `InvalidCommitteeSignature` | Committee signature verification failed | Verify the signing key and signature |
-| 136 | `ThresholdMissed` | Committee approval threshold not met | Gather more committee signatures |
-| 137 | `TooManyZswapEntries` | Too many Zswap entries (>=2^16) | Reduce the number of shielded operations |
-| 138 | `BalanceCheckOverspend` | Negative balance in a transaction segment | Segment spends more than available; check amounts |
-| 139 | `UnknownError` | Unclassified malformed transaction error | Check node logs for details |
-| 166 | `InvalidNetworkId` | Transaction's network ID doesn't match the node's network | Verify `networkId` matches the target (for example, `undeployed` for devnet); check `setNetworkId()` |
-| 167 | `IllegallyDeclaredGuaranteed`  | Guaranteed segment (0) used where forbidden | Don't use `segment_id` 0 for intents |
-| 168 | `FeeCalculation` | Fee calculation error | Transaction size or timing parameters are invalid |
-| 169 | `InvalidDustRegistrationSignature` | DUST registration signature verification failed | Regenerate DUST registration with correct keys |
-| 170 | `InvalidDustSpendProof` | DUST spend proof verification failed | Regenerate DUST spend proof |
-| 171 | `OutOfDustValidityWindow` | DUST outside its validity time window | DUST creation time is outside the allowed window; use fresher DUST |
-| 172 | `MultipleDustRegistrationsForKey` | Multiple DUST registrations for same key in one intent | Only one DUST registration per key per intent |
-| 173 | `InsufficientDustForRegistrationFee` | Not enough DUST to pay registration fee | Acquire more DUST before registering |
-| 174 | `MalformedContractDeploy` | Contract deployment is structurally invalid | Check for non-zero balance or incorrect charged state in deploy |
-| 175 | `IntentSignatureVerificationFailure` | Intent signature verification failed | Regenerate intent signatures |
-| 176 | `IntentSignatureKeyMismatch` | Signing key doesn't match verifying key | Use the correct signing key for the intent |
-| 177 | `IntentSegmentIdCollision` | Duplicate `segment_id` in intent merge | Each intent must have a unique `segment_id` |
-| 178 | `IntentAtGuaranteedSegmentId` | Intent placed at `segment_id` 0 (reserved for guaranteed) | Use `segment_id` >= 1 for intents |
-| 179 | `UnsupportedProofVersion` | Proof version not supported | Update SDK/proof server to a compatible version |
-| 180 | `GuaranteedTranscriptVersion` | Guaranteed transcript version not supported | Update to a compatible ledger/SDK version |
-| 181 | `FallibleTranscriptVersion` | Fallible transcript version not supported | Update to a compatible ledger/SDK version |
-| 182 | `TransactionApplicationError` | Intent TTL expired, too far in future, or duplicate | Check intent timing; avoid resubmitting same intent |
-| 183 | `BalanceCheckOutOfBounds` | Balance overflow/underflow in a segment | Token amounts in a segment exceed representable range |
-| 184 | `BalanceCheckConversionFailure` | Failed to convert balance to i128 | Token amount too large for internal representation |
-| 185 | `PedersenCheckFailure` | Binding commitment mismatch | Internal cryptographic error — rebuild the transaction |
-| 186 | `EffectsCheckFailure` | Transaction effects validation failed | Declared effects don't match computed effects |
-| 187 | `DisjointCheckFailure` | Input/output sets are not disjoint | Shielded and transient inputs/outputs must not overlap |
-| 188 | `SequencingCheckFailure` | Call graph sequencing violated | Contract calls must respect ordering constraints |
-| 189 | `InputsNotSorted` | Unshielded inputs are not sorted | Sort unshielded inputs before submission |
-| 190 | `OutputsNotSorted` | Unshielded outputs are not sorted | Sort unshielded outputs before submission |
-| 191 | `DuplicateInputs` | Duplicate unshielded inputs | Remove duplicate inputs from the transaction |
-| 192 | `InputsSignaturesLengthMismatch` | Input count doesn't match signature count | Ensure each input has a corresponding signature |
+| 110 | `VerifierKeyNotSet` | 필수 검증자 키 없이 컨트랙트가 배포된 경우 | 컨트랙트 배포 시 검증자 키를 포함하세요 |
+| 111 | `TransactionTooLarge` | 트랜잭션이 최대 허용 크기를 초과한 경우 | 트랜잭션 페이로드를 줄이거나 여러 트랜잭션으로 분할하세요 |
+| 112 | `VerifierKeyTooLarge` | 검증자 키가 역직렬화 한도를 초과한 경우 | 더 작은 회로를 사용하거나 Midnight 지원팀에 문의하세요 |
+| 113 | `VerifierKeyNotPresent` | 참조한 검증자 키를 찾을 수 없는 경우 | 회로를 호출하기 전에 검증자 키와 함께 컨트랙트를 배포하세요 |
+| 114 | `ContractNotPresent` | 트랜잭션이 존재하지 않는 컨트랙트를 참조하는 경우 | 컨트랙트 주소를 확인하고 먼저 컨트랙트를 배포하세요 |
+| 115 | `InvalidProof` | 영지식 증명 검증에 실패한 경우 | 증명을 다시 생성하세요. 증명 서버가 호환 버전인지 확인하세요 |
+| 116 | `BindingCommitmentOpeningInvalid` | 바인딩 커밋먼트가 올바르게 열리지 않은 경우 | Zswap 내부 오류 — 트랜잭션을 다시 빌드하세요 |
+| 117 | `NotNormalized` | 트랜잭션이 정규 형식이 아닌 경우 | SDK로 다시 빌드하세요. 제출 전 트랜잭션을 정규화하세요 |
+| 118 | `FallibleWithoutCheckpoint` | 폴러블 트랜스크립트에 초기 체크포인트가 없는 경우 | 폴러블 섹션 시작 부분에 `kernel.checkpoint()`를 추가하세요 |
+| 119 | `ClaimReceiveFailed` | 코인 커밋먼트 수신 클레임에 실패한 경우 | 코인 커밋먼트 형식 오류 — 트랜잭션을 다시 빌드하세요 |
+| 120 | `ClaimSpendFailed` | 코인 커밋먼트 지출 클레임에 실패한 경우 | 코인 커밋먼트 형식 오류 — 트랜잭션을 다시 빌드하세요 |
+| 121 | `ClaimNullifierFailed` | 널리파이어 클레임에 실패한 경우 | 널리파이어 형식 오류 — 트랜잭션을 다시 빌드하세요 |
+| 122 | `ClaimCallFailed` | 컨트랙트 호출 클레임에 실패한 경우 | 컨트랙트 호출 형식 오류 — 트랜잭션을 다시 빌드하세요 |
+| 123 | `InvalidSchnorrProof` | Fiat-Shamir Schnorr 증명 검증에 실패한 경우 | 서명 오류 — 트랜잭션 서명을 다시 생성하세요 |
+| 124 | `UnclaimedCoinCom` | 컨트랙트 소유 출력이 클레임되지 않은 채로 남아 있는 경우 | 트랜잭션 제출 전 모든 컨트랙트 출력을 클레임하세요 |
+| 125 | `UnclaimedNullifier` | 컨트랙트 소유 코인 입력이 승인되지 않은 경우 | 모든 컨트랙트 입력을 반드시 승인하세요 |
+| 126 | `Unbalanced` | 특정 토큰 타입에서 잔액이 음수가 된 경우 | 트랜잭션 잔액이 맞지 않습니다. 토큰 수량을 확인하세요 |
+| 127 | `Zswap` | Zswap 오퍼의 구조가 잘못된 경우 | Zswap 오퍼를 다시 빌드하고 증명 유효성을 확인하세요 |
+| 128 | `BuiltinDecode` | FAB(field-aligned binary) 디코드 오류 | 내부 인코딩 오류 — 데이터 형식을 확인하세요 |
+| 129 | `GuaranteedLimit` | 보장 섹션 한도를 초과한 경우 | 보장 섹션 크기를 줄이세요 |
+| 130 | `MergingContracts` | 컨트랙트 인텐트 병합 중 오류가 발생한 경우 | 해당 컨트랙트들은 병합할 수 없습니다. 설정을 확인하세요 |
+| 131 | `CantMergeTypes` | 호환되지 않는 트랜잭션 타입을 병합하려는 경우 | 병합하려는 트랜잭션 타입이 서로 호환되어야 합니다 |
+| 132 | `ClaimOverflow` | 클레임한 코인 값이 델타를 초과하는 경우 | 토큰 수량이 표현 가능한 범위를 초과합니다 |
+| 133 | `ClaimCoinMismatch` | ClaimRewards 코인이 실제 코인과 일치하지 않는 경우 | 올바른 코인 데이터로 클레임을 다시 빌드하세요 |
+| 134 | `KeyNotInCommittee` | 서명 키가 위원회 구성원이 아닌 경우 | 위원회 구성원만 해당 작업에 서명할 수 있습니다 |
+| 135 | `InvalidCommitteeSignature` | 위원회 서명 검증에 실패한 경우 | 서명 키와 서명을 확인하세요 |
+| 136 | `ThresholdMissed` | 위원회 승인 임계값에 미달하는 경우 | 위원회 서명을 더 수집하세요 |
+| 137 | `TooManyZswapEntries` | Zswap 항목이 너무 많은 경우 (>=2^16) | 실드 작업 수를 줄이세요 |
+| 138 | `BalanceCheckOverspend` | 트랜잭션 세그먼트에서 잔액이 음수가 된 경우 | 세그먼트가 가용 금액을 초과하여 지출합니다. 수량을 확인하세요 |
+| 139 | `UnknownError` | 분류되지 않은 잘못된 트랜잭션 오류 | 노드 로그에서 자세한 내용을 확인하세요 |
+| 166 | `InvalidNetworkId` | 트랜잭션의 네트워크 ID가 노드의 네트워크와 일치하지 않는 경우 | `networkId`가 대상과 일치하는지 확인하세요 (예: 데브넷의 경우 `undeployed`). `setNetworkId()` 설정을 확인하세요 |
+| 167 | `IllegallyDeclaredGuaranteed`  | 허용되지 않는 위치에 보장 세그먼트(0)가 사용된 경우 | 인텐트에는 `segment_id` 0을 사용하지 마세요 |
+| 168 | `FeeCalculation` | 수수료 계산 오류 | 트랜잭션 크기 또는 타이밍 파라미터가 유효하지 않습니다 |
+| 169 | `InvalidDustRegistrationSignature` | DUST 등록 서명 검증에 실패한 경우 | 올바른 키로 DUST 등록을 다시 생성하세요 |
+| 170 | `InvalidDustSpendProof` | DUST 지출 증명 검증에 실패한 경우 | DUST 지출 증명을 다시 생성하세요 |
+| 171 | `OutOfDustValidityWindow` | DUST가 유효 시간 창 밖에 있는 경우 | DUST 생성 시간이 허용 범위를 벗어났습니다. 더 최신의 DUST를 사용하세요 |
+| 172 | `MultipleDustRegistrationsForKey` | 하나의 인텐트에 동일한 키에 대한 DUST 등록이 여러 개인 경우 | 인텐트당 키 하나에 DUST 등록은 하나만 허용됩니다 |
+| 173 | `InsufficientDustForRegistrationFee` | 등록 수수료를 지불할 DUST가 부족한 경우 | 등록 전에 더 많은 DUST를 확보하세요 |
+| 174 | `MalformedContractDeploy` | 컨트랙트 배포의 구조가 유효하지 않은 경우 | 배포 시 잔액이 0이 아니거나 충전 상태가 잘못되었는지 확인하세요 |
+| 175 | `IntentSignatureVerificationFailure` | 인텐트 서명 검증에 실패한 경우 | 인텐트 서명을 다시 생성하세요 |
+| 176 | `IntentSignatureKeyMismatch` | 서명 키가 검증 키와 일치하지 않는 경우 | 인텐트에 올바른 서명 키를 사용하세요 |
+| 177 | `IntentSegmentIdCollision` | 인텐트 병합 시 `segment_id`가 중복되는 경우 | 각 인텐트는 고유한 `segment_id`를 가져야 합니다 |
+| 178 | `IntentAtGuaranteedSegmentId` | 인텐트가 `segment_id` 0 (보장 세그먼트 예약)에 위치한 경우 | 인텐트에는 `segment_id` >= 1을 사용하세요 |
+| 179 | `UnsupportedProofVersion` | 지원되지 않는 증명 버전인 경우 | SDK 또는 증명 서버를 호환 버전으로 업데이트하세요 |
+| 180 | `GuaranteedTranscriptVersion` | 보장 트랜스크립트 버전이 지원되지 않는 경우 | 호환되는 레저/SDK 버전으로 업데이트하세요 |
+| 181 | `FallibleTranscriptVersion` | 폴러블 트랜스크립트 버전이 지원되지 않는 경우 | 호환되는 레저/SDK 버전으로 업데이트하세요 |
+| 182 | `TransactionApplicationError` | 인텐트 TTL 만료, 너무 먼 미래 설정, 또는 중복인 경우 | 인텐트 타이밍을 확인하고 동일한 인텐트를 재제출하지 마세요 |
+| 183 | `BalanceCheckOutOfBounds` | 세그먼트에서 잔액 오버플로우 또는 언더플로우가 발생한 경우 | 세그먼트 내 토큰 수량이 표현 가능한 범위를 초과합니다 |
+| 184 | `BalanceCheckConversionFailure` | 잔액을 i128로 변환하는 데 실패한 경우 | 토큰 수량이 내부 표현에 비해 너무 큽니다 |
+| 185 | `PedersenCheckFailure` | 바인딩 커밋먼트 불일치 | 내부 암호화 오류 — 트랜잭션을 다시 빌드하세요 |
+| 186 | `EffectsCheckFailure` | 트랜잭션 이펙트 검증에 실패한 경우 | 선언된 이펙트가 계산된 이펙트와 일치하지 않습니다 |
+| 187 | `DisjointCheckFailure` | 입력/출력 집합이 분리되어 있지 않은 경우 | 실드 및 트랜지언트 입력/출력은 서로 겹치지 않아야 합니다 |
+| 188 | `SequencingCheckFailure` | 호출 그래프의 순서 조건이 위반된 경우 | 컨트랙트 호출은 순서 제약을 준수해야 합니다 |
+| 189 | `InputsNotSorted` | 언실드 입력이 정렬되지 않은 경우 | 제출 전 언실드 입력을 정렬하세요 |
+| 190 | `OutputsNotSorted` | 언실드 출력이 정렬되지 않은 경우 | 제출 전 언실드 출력을 정렬하세요 |
+| 191 | `DuplicateInputs` | 언실드 입력이 중복된 경우 | 트랜잭션에서 중복 입력을 제거하세요 |
+| 192 | `InputsSignaturesLengthMismatch` | 입력 수와 서명 수가 일치하지 않는 경우 | 각 입력에 대응하는 서명이 있는지 확인하세요 |
 
 ### Infrastructure errors (150–155, 165)
 
-Errors that occur when the node encounters infrastructure errors not directly related to transaction content.
+트랜잭션 내용과 직접 관련 없는 인프라 오류가 노드에서 발생할 때 나타나는 오류입니다.
 
 | Code | Name | Description | How to fix |
 |------|------|-------------|-------|
-| 150 | `LedgerCacheError` | Ledger cache mutex/lock poisoned | Restart the node; this is an internal concurrency error |
-| 151 | `NoLedgerState` | No ledger state present in the node | Node may not be fully synced; wait for sync to complete |
-| 152 | `LedgerStateScaleDecodingError` | SCALE decoding of ledger state failed | The node state might be corrupt; try a resync |
-| 153 | `ContractCallCostError` | Failed to calculate contract call cost | Internal cost model error |
-| 154 | `BlockLimitExceededError` | Transaction exceeds block limits | Reduce transaction size or wait for a less congested block |
-| 155 | `FeeCalculationError` | Fee calculation failed | Internal fee model error |
-| 165 | `GetTransactionContextError` | Failed to retrieve transaction context | Internal node error |
+| 150 | `LedgerCacheError` | 레저 캐시 뮤텍스/락이 오염된 경우 | 노드를 재시작하세요. 내부 동시성 오류입니다 |
+| 151 | `NoLedgerState` | 노드에 레저 상태가 없는 경우 | 노드가 완전히 동기화되지 않았을 수 있습니다. 동기화가 완료될 때까지 기다리세요 |
+| 152 | `LedgerStateScaleDecodingError` | 레저 상태의 SCALE 디코딩에 실패한 경우 | 노드 상태가 손상되었을 수 있습니다. 재동기화를 시도하세요 |
+| 153 | `ContractCallCostError` | 컨트랙트 호출 비용 계산에 실패한 경우 | 내부 비용 모델 오류 |
+| 154 | `BlockLimitExceededError` | 트랜잭션이 블록 한도를 초과한 경우 | 트랜잭션 크기를 줄이거나 덜 혼잡한 블록을 기다리세요 |
+| 155 | `FeeCalculationError` | 수수료 계산에 실패한 경우 | 내부 수수료 모델 오류 |
+| 165 | `GetTransactionContextError` | 트랜잭션 컨텍스트 조회에 실패한 경우 | 노드 내부 오류 |
 
 ### System transaction errors (201–210)
 
-Errors that occur when the node encounters errors from governance and bridge system transactions. These are special transactions submitted by the network's governance mechanisms.
+거버넌스 및 브릿지 시스템 트랜잭션에서 노드가 오류를 만날 때 발생하는 오류입니다. 이는 네트워크 거버넌스 메커니즘이 제출하는 특수 트랜잭션입니다.
 
 | Code | Name | Description | How to fix |
 |------|------|-------------|-------|
-| 201 | `IllegalPayout` | Payout exceeds remaining supply or bridge pool | Payout amount is too large for available funds |
-| 202 | `InsufficientTreasuryFunds` | Treasury doesn't have enough funds | Requested amount exceeds treasury balance |
-| 203 | `CommitmentAlreadyPresent` | Faerie-gold double-commitment attempt | Commitment already exists in the tree |
-| 204 | `UnknownError` | Unclassified system transaction error | Check node logs |
-| 205 | `ReplayProtectionFailure` | System transaction replay protection violated | Duplicate system transaction |
-| 206 | `IllegalReserveDistribution` | Reserve distribution exceeds supply | Distribution amount exceeds available reserves |
-| 207 | `GenerationInfoAlreadyPresent` | DUST generation info already inserted | Duplicate generation info |
-| 208 | `InvalidBasisPoints` | Bridge fee basis points >= 10,000 | Basis points must be between 0 and 9,999 |
-| 209 | `InvariantViolation` | Protocol-level invariant violated | Transaction would break fundamental protocol rules |
-| 210 | `TreasuryDisabled` | Attempted to access disabled treasury | Treasury feature is not enabled |
+| 201 | `IllegalPayout` | 지급액이 남은 공급량 또는 브릿지 풀을 초과하는 경우 | 지급 금액이 가용 자금에 비해 너무 큽니다 |
+| 202 | `InsufficientTreasuryFunds` | 재무부에 자금이 부족한 경우 | 요청한 금액이 재무부 잔액을 초과합니다 |
+| 203 | `CommitmentAlreadyPresent` | 페어리 골드 이중 커밋먼트 시도 | 커밋먼트가 이미 트리에 존재합니다 |
+| 204 | `UnknownError` | 분류되지 않은 시스템 트랜잭션 오류 | 노드 로그를 확인하세요 |
+| 205 | `ReplayProtectionFailure` | 시스템 트랜잭션 리플레이 보호가 위반된 경우 | 시스템 트랜잭션이 중복 제출되었습니다 |
+| 206 | `IllegalReserveDistribution` | 리저브 배분이 공급량을 초과하는 경우 | 배분 금액이 가용 리저브를 초과합니다 |
+| 207 | `GenerationInfoAlreadyPresent` | DUST 생성 정보가 이미 삽입된 경우 | 생성 정보가 중복 제출되었습니다 |
+| 208 | `InvalidBasisPoints` | 브릿지 수수료 베이시스 포인트가 10,000 이상인 경우 | 베이시스 포인트는 0에서 9,999 사이여야 합니다 |
+| 209 | `InvariantViolation` | 프로토콜 수준의 불변 조건이 위반된 경우 | 해당 트랜잭션은 근본적인 프로토콜 규칙을 위반합니다 |
+| 210 | `TreasuryDisabled` | 비활성화된 재무부에 접근하려는 경우 | 재무부 기능이 활성화되어 있지 않습니다 |
 
 ### Host API error (255)
 
-Errors that occur when the node encounters errors from the host API.
+노드가 호스트 API 오류를 만날 때 발생하는 오류입니다.
 
 | Code | Name | Description | How to fix |
 |------|------|-------------|-------|
-| 255 | `HostApiError` | Error in host API processing | Internal runtime error; check node logs |
+| 255 | `HostApiError` | 호스트 API 처리 중 오류가 발생한 경우 | 내부 런타임 오류입니다. 노드 로그를 확인하세요 |
 
 ## Pallet dispatch errors
 
-When a transaction fails inside a Substrate pallet, the error surfaces as `DispatchError::Module { index, error }`. 
-The `index` identifies the pallet and `error` is the SCALE-encoded variant index within that pallet's error enum. 
+트랜잭션이 Substrate 팔렛 내에서 실패하면 `DispatchError::Module { index, error }` 형태로 오류가 표면화됩니다.
+`index`는 팔렛을 식별하며, `error`는 해당 팔렛 오류 열거형 내 변형의 SCALE 인코딩 인덱스입니다.
 
-Below is a list of the Midnight node specific pallet errors categorized by pallet and variant.
+아래는 팔렛 및 변형별로 분류된 Midnight 노드 전용 팔렛 오류 목록입니다.
 
 ### Pallet index map
 
-Below is a list of the Midnight node specific pallet indices and their descriptions.
+아래는 Midnight 노드 전용 팔렛 인덱스와 설명 목록입니다.
 
 | Index | Pallet | Description |
 |-------|--------|-------------|
@@ -214,86 +214,86 @@ Below is a list of the Midnight node specific pallet indices and their descripti
 
 ### `pallet_midnight`
 
-Errors from the core pallet managing the ledger state and transactions.
+레저 상태와 트랜잭션을 관리하는 핵심 팔렛에서 발생하는 오류입니다.
 
 | Variant | Name | Description |
 |---------|------|-------------|
-| 0 | `NewStateOutOfBounds` | New ledger state is out of acceptable bounds |
-| 1 | `Deserialization` | Wraps DeserializationError (codes 0–11) |
-| 2 | `Serialization` | Wraps SerializationError (codes 50–63) |
-| 3 | `Transaction` | Wraps TransactionError (codes 100–210) |
-| 4 | `LedgerCacheError` | Ledger cache poisoned (code 150) |
-| 5 | `NoLedgerState` | No ledger state (code 151) |
-| 6 | `LedgerStateScaleDecodingError` | SCALE decode failure (code 152) |
-| 7 | `ContractCallCostError` | Cost calculation failure (code 153) |
-| 8 | `BlockLimitExceededError` | Block limit exceeded (code 154) |
-| 9 | `FeeCalculationError` | Fee calculation failure (code 155) |
-| 10 | `HostApiError` | Host API error (code 255) |
-| 11 | `NetworkIdNotString` | Network ID not a valid string |
-| 12 | `GetTransactionContextError` | Transaction context retrieval error (code 165) |
+| 0 | `NewStateOutOfBounds` | 새 레저 상태가 허용 범위를 벗어난 경우 |
+| 1 | `Deserialization` | DeserializationError (코드 0–11)를 래핑합니다 |
+| 2 | `Serialization` | SerializationError (코드 50–63)를 래핑합니다 |
+| 3 | `Transaction` | TransactionError (코드 100–210)를 래핑합니다 |
+| 4 | `LedgerCacheError` | 레저 캐시 오염 (코드 150) |
+| 5 | `NoLedgerState` | 레저 상태 없음 (코드 151) |
+| 6 | `LedgerStateScaleDecodingError` | SCALE 디코딩 실패 (코드 152) |
+| 7 | `ContractCallCostError` | 비용 계산 실패 (코드 153) |
+| 8 | `BlockLimitExceededError` | 블록 한도 초과 (코드 154) |
+| 9 | `FeeCalculationError` | 수수료 계산 실패 (코드 155) |
+| 10 | `HostApiError` | 호스트 API 오류 (코드 255) |
+| 11 | `NetworkIdNotString` | 네트워크 ID가 유효한 문자열이 아닌 경우 |
+| 12 | `GetTransactionContextError` | 트랜잭션 컨텍스트 조회 오류 (코드 165) |
 
 ### `pallet_midnight_system`
 
-Errors from the system transaction pallet.
+시스템 트랜잭션 팔렛에서 발생하는 오류입니다.
 
 | Variant | Name | Description |
 |---------|------|-------------|
-| 0 | `LedgerApiError` | Wraps full LedgerApiError |
-| 1 | `SystemTransactionNotAllowedForGovernance`   | Governance-disallowed system transaction |
+| 0 | `LedgerApiError` | 전체 LedgerApiError를 래핑합니다 |
+| 1 | `SystemTransactionNotAllowedForGovernance`   | 거버넌스에서 허용되지 않는 시스템 트랜잭션 |
 
 ### `pallet_federated_authority`
 
-Errors from the multi-collective governance authority pallet.
+다중 집합 거버넌스 권한 팔렛에서 발생하는 오류입니다.
 
 | Variant | Name | Description |
 |---------|------|-------------|
-| 0 | `MotionAlreadyApproved` | Authority already approved this motion |
-| 1 | `MotionApprovalMissing` | Approver not in the approval list |
-| 2 | `MotionApprovalExceedsBounds` | Exceeds maximum authority bodies |
-| 3 | `MotionNotFound` | Motion does not exist |
-| 4 | `MotionNotEnded` | Motion voting not yet complete |
-| 5 | `MotionHasEnded` | Motion ended; no more changes allowed |
-| 6 | `MotionTooEarlyToClose` | Approval period hasn't ended yet |
-| 7 | `MotionAlreadyExists` | Motion already exists |
-| 8 | `MotionExpired` | Motion expired without enough approvals |
-| 9 | `MotionWeightBoundTooLow` | Weight bound too low for the call |
+| 0 | `MotionAlreadyApproved` | 권한 기관이 이미 해당 동의안을 승인한 경우 |
+| 1 | `MotionApprovalMissing` | 승인자가 승인 목록에 없는 경우 |
+| 2 | `MotionApprovalExceedsBounds` | 최대 권한 기관 수를 초과한 경우 |
+| 3 | `MotionNotFound` | 동의안이 존재하지 않는 경우 |
+| 4 | `MotionNotEnded` | 동의안 투표가 아직 완료되지 않은 경우 |
+| 5 | `MotionHasEnded` | 동의안이 종료되어 더 이상 변경할 수 없는 경우 |
+| 6 | `MotionTooEarlyToClose` | 승인 기간이 아직 종료되지 않은 경우 |
+| 7 | `MotionAlreadyExists` | 동의안이 이미 존재하는 경우 |
+| 8 | `MotionExpired` | 충분한 승인 없이 동의안이 만료된 경우 |
+| 9 | `MotionWeightBoundTooLow` | 호출에 대한 가중치 한도가 너무 낮은 경우 |
 
 ### `pallet_cnight_observation`
 
-Errors from the cNIGHT bridge integration pallet.
+cNIGHT 브릿지 통합 팔렛에서 발생하는 오류입니다.
 
 | Variant | Name | Description |
 |---------|------|-------------|
-| 0 | `MaxCardanoAddrLengthExceeded` | Cardano wallet address too long |
-| 1 | `MaxRegistrationsExceeded` | Too many registrations |
-| 2 | `LedgerApiError` | Wraps LedgerApiError |
-| 3 | `InherentAlreadyExecuted` | Only one inherent call per block |
-| 4 | `CardanoPositionRegression` | Next Cardano position doesn't advance |
-| 5 | `TooManyUtxos` | UTXO count exceeds capacity |
+| 0 | `MaxCardanoAddrLengthExceeded` | Cardano 지갑 주소가 너무 긴 경우 |
+| 1 | `MaxRegistrationsExceeded` | 등록이 너무 많은 경우 |
+| 2 | `LedgerApiError` | LedgerApiError를 래핑합니다 |
+| 3 | `InherentAlreadyExecuted` | 블록당 내재 호출은 한 번만 허용됩니다 |
+| 4 | `CardanoPositionRegression` | 다음 Cardano 포지션이 앞으로 진행되지 않는 경우 |
+| 5 | `TooManyUtxos` | UTXO 수가 용량을 초과하는 경우 |
 
 ### `pallet_federated_authority_observation`
 
-Errors from the multi-collective governance synchronization pallet.
+다중 집합 거버넌스 동기화 팔렛에서 발생하는 오류입니다.
 
 | Variant | Name | Description |
 |---------|------|-------------|
-| 0 | `EmptyMembers` | Membership set is empty |
-| 1 | `DuplicatedMembers` | Duplicate members in the set |
-| 2 | `InherentAlreadyExecuted` | Only one inherent call per block |
+| 0 | `EmptyMembers` | 멤버십 집합이 비어 있는 경우 |
+| 1 | `DuplicatedMembers` | 집합에 중복 멤버가 있는 경우 |
+| 2 | `InherentAlreadyExecuted` | 블록당 내재 호출은 한 번만 허용됩니다 |
 
 ### `pallet_system_parameters`
 
-Errors from the system parameters pallet.
+시스템 파라미터 팔렛에서 발생하는 오류입니다.
 
 | Variant | Name | Description |
 |---------|------|-------------|
-| 0 | `UrlTooLong` | URL exceeds maximum allowed length |
+| 0 | `UrlTooLong` | URL이 최대 허용 길이를 초과하는 경우 |
 
 ## JSON-RPC error codes
 
-The Midnight node uses standard JSON-RPC 2.0 error codes from the `jsonrpsee` crate. These are the most common error codes you might encounter when interacting with the node.
+Midnight 노드는 `jsonrpsee` 크레이트의 표준 JSON-RPC 2.0 오류 코드를 사용합니다. 아래는 노드와 상호작용할 때 자주 마주칠 수 있는 오류 코드입니다.
 
 | Code | Name | Used in | Description |
 |------|------|---------|-------------|
-| -32602 | `INVALID_PARAMS` | State RPC, Block RPC, Events, Peer Info | Bad contract address, account address, block hash, peer ID, or other invalid parameter |
-| -32603 | `INTERNAL_ERROR` | Peer Info RPC, System Parameters RPC | Failed to send/receive internal requests, runtime API failures |
+| -32602 | `INVALID_PARAMS` | State RPC, Block RPC, Events, Peer Info | 잘못된 컨트랙트 주소, 계정 주소, 블록 해시, 피어 ID 또는 기타 유효하지 않은 파라미터 |
+| -32603 | `INTERNAL_ERROR` | Peer Info RPC, System Parameters RPC | 내부 요청 전송/수신 실패, 런타임 API 오류 |

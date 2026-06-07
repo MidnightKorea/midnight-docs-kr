@@ -1,6 +1,6 @@
 ---
 title: Common SDK integration issues
-description: Troubleshoot common issues when building on Midnight Network.
+description: Midnight Network 위에서 개발할 때 자주 발생하는 문제를 해결하는 방법을 안내합니다.
 sidebar_position: 1
 sidebar_label: Common SDK integration issues
 tags: [sdk, integration, issues]
@@ -9,22 +9,22 @@ toc_max_heading_level: 3
 
 # Common SDK integration issues
 
-This troubleshooting guide covers common errors and how to resolve them when building DApps using Midnight.js and Wallet SDKs.
+이 문제 해결 가이드는 Midnight.js와 Wallet SDK로 DApp을 개발할 때 자주 마주치는 오류와 그 해결 방법을 안내합니다.
 
 ## Midnight.js SDK issues
 
-Midnight.js errors are plain JavaScript classes. Catch them with `try/catch` and the `instanceof` operator.
+Midnight.js 오류는 일반적인 JavaScript 클래스입니다. `try/catch`와 `instanceof` 연산자로 잡아서 처리하면 됩니다.
 
-### A transaction fails during execution
+### 트랜잭션이 실행 도중 실패하는 경우
 
-**Errors**: `TxFailedError`, `DeployTxFailedError`, `CallTxFailedError`, `ReplaceMaintenanceAuthorityTxFailedError`, `RemoveVerifierKeyTxFailedError`, `InsertVerifierKeyTxFailedError`
+**오류**: `TxFailedError`, `DeployTxFailedError`, `CallTxFailedError`, `ReplaceMaintenanceAuthorityTxFailedError`, `RemoveVerifierKeyTxFailedError`, `InsertVerifierKeyTxFailedError`
 
-All transaction error classes expose a `finalizedTxData` property containing the finalization data of the failed transaction. `TxFailedError` and `CallTxFailedError` additionally expose a `circuitId` property.
+모든 트랜잭션 오류 클래스는 실패한 트랜잭션의 최종 데이터를 담은 `finalizedTxData` 속성을 제공합니다. `TxFailedError`와 `CallTxFailedError`는 여기에 더해 `circuitId` 속성도 제공합니다.
 
-**What to check**:
+**확인 사항**:
 
-- Check the `finalizedTxData` property on the caught error to identify which transaction failed and why.
-- For call transactions, check the `circuitId` property to identify the circuit that constructed the transaction.
+- 잡은 오류의 `finalizedTxData` 속성을 확인해 어떤 트랜잭션이 왜 실패했는지 파악하세요.
+- 호출 트랜잭션이라면 `circuitId` 속성을 확인해 트랜잭션을 구성한 회로가 무엇인지 파악하세요.
 
 ```typescript
 import { CallTxFailedError, DeployTxFailedError } from '@midnight-ntwrk/midnight-js-contracts';
@@ -43,144 +43,144 @@ try {
 }
 ```
 
-### Deployed contract type does not match expectations
+### 배포된 컨트랙트 타입이 예상과 일치하지 않는 경우
 
-**Error**: `ContractTypeError`
+**오류**: `ContractTypeError`
 
-This error occurs when the deployed contract state does not match the expected contract type, or when one or more verifier keys are mismatched.
+이 오류는 배포된 컨트랙트 상태가 기대한 컨트랙트 타입과 일치하지 않거나, 하나 이상의 검증자 키가 일치하지 않을 때 발생합니다.
 
-**What to check**:
+**확인 사항**:
 
-- Check the `circuitIds` property to identify which circuits carry undefined or non-matching verifier keys.
-- Verify that you compiled and deployed the contract with the verifier keys the SDK expects.
+- `circuitIds` 속성을 확인해 검증자 키가 정의되지 않았거나 일치하지 않는 회로가 무엇인지 파악하세요.
+- SDK가 기대하는 검증자 키로 컨트랙트를 컴파일하고 배포했는지 확인하세요.
 
-### Call transaction configuration is incomplete
+### 호출 트랜잭션 설정이 불완전한 경우
 
-**Error**: `IncompleteCallTxPrivateStateConfig`
+**오류**: `IncompleteCallTxPrivateStateConfig`
 
-This error occurs when a call transaction sets `privateStateId` without providing a `privateStateProvider`.
+이 오류는 호출 트랜잭션에서 `privateStateProvider`를 제공하지 않고 `privateStateId`만 지정했을 때 발생합니다.
 
-**What to check**:
+**확인 사항**:
 
-- If you set `privateStateId` in the call options, then you must also provide a `privateStateProvider`.
-- Check the `privateStateId` and `privateStateProvider` properties on the error to see which values the SDK received and which were omitted.
+- 호출 옵션에 `privateStateId`를 지정했다면 `privateStateProvider`도 함께 제공해야 합니다.
+- 오류의 `privateStateId`와 `privateStateProvider` 속성을 확인해 SDK가 어떤 값을 받았고 어떤 값이 누락되었는지 살펴보세요.
 
-### Contract lookup configuration is incomplete
+### 컨트랙트 조회 설정이 불완전한 경우
 
-**Error**: `IncompleteFindContractPrivateStateConfig`
+**오류**: `IncompleteFindContractPrivateStateConfig`
 
-This error occurs when a contract lookup sets `initialPrivateState` without providing a `privateStateId`. The runtime throws this message:
+이 오류는 컨트랙트 조회에서 `privateStateId`를 제공하지 않고 `initialPrivateState`만 지정했을 때 발생합니다. 런타임은 다음 메시지를 던집니다.
 
 ```
 'initialPrivateState' was defined for contract find while 'privateStateId' was undefined
 ```
 
-**What to check**:
+**확인 사항**:
 
-- If you supply `initialPrivateState` in the find options, then you must also supply a `privateStateId`.
-- Check the `initialPrivateState` and `privateStateId` properties on the error for the values passed.
+- 조회 옵션에 `initialPrivateState`를 지정했다면 `privateStateId`도 함께 지정해야 합니다.
+- 오류의 `initialPrivateState`와 `privateStateId` 속성을 확인해 전달된 값을 살펴보세요.
 
-For the complete list of Midnight.js error classes and their properties, see the [Midnight.js error reference](/sdks/error-reference/midnight-js).
+Midnight.js 오류 클래스 전체 목록과 각 속성은 [Midnight.js error reference](/sdks/error-reference/midnight-js)를 참고하세요.
 
 ## Wallet SDK
 
-Wallet SDK errors are often Effect `Data.TaggedError` instances. Use `Effect.catchTag` with the `_tag` value to catch a specific error, or `Effect.catchTags` to handle a union.
+Wallet SDK 오류는 대개 Effect의 `Data.TaggedError` 인스턴스입니다. 특정 오류를 잡으려면 `_tag` 값과 함께 `Effect.catchTag`를 사용하고, 여러 오류를 한꺼번에 처리하려면 `Effect.catchTags`를 사용하세요.
 
-### Cannot connect to the node
+### 노드에 연결할 수 없는 경우
 
-**Errors**: `ConnectionError` (`_tag: 'ConnectionError'`), `InvalidProtocolSchemeError` (`_tag: 'InvalidProtocolSchemeError'`), `FailedToDeriveWebSocketUrlError` (`_tag: 'FailedToDeriveWebSocketUrlError'`)
+**오류**: `ConnectionError` (`_tag: 'ConnectionError'`), `InvalidProtocolSchemeError` (`_tag: 'InvalidProtocolSchemeError'`), `FailedToDeriveWebSocketUrlError` (`_tag: 'FailedToDeriveWebSocketUrlError'`)
 
-**Known `ConnectionError` messages**:
-- `"Could not connect within specified time range (5s)"` — the node is unreachable or slow to respond.
-- `"Failed to retrieve genesis transactions"` — connected but genesis data is unavailable.
+**알려진 `ConnectionError` 메시지**:
+- `"Could not connect within specified time range (5s)"` — 노드에 접근할 수 없거나 응답이 느린 경우입니다.
+- `"Failed to retrieve genesis transactions"` — 연결은 되었지만 제네시스 데이터를 사용할 수 없는 경우입니다.
 
-**What to check**:
+**확인 사항**:
 
-- Verify the node WebSocket URL is correct and the node is running.
-- If connecting over a slow network, then you should consider increasing the connection timeout.
-- If you see `InvalidProtocolSchemeError`, then ensure all network URLs use the expected scheme: `ws://` or `wss://` for WebSocket connections, `http://` or `https://` for HTTP.
+- 노드 WebSocket URL이 올바른지, 노드가 실행 중인지 확인하세요.
+- 느린 네트워크로 연결한다면 연결 타임아웃을 늘리는 것을 고려하세요.
+- `InvalidProtocolSchemeError`가 보인다면 모든 네트워크 URL이 예상한 스킴을 사용하는지 확인하세요. WebSocket 연결은 `ws://` 또는 `wss://`, HTTP는 `http://` 또는 `https://`를 사용해야 합니다.
 
-### The SDK cannot parse a node response
+### SDK가 노드 응답을 파싱하지 못하는 경우
 
-**Error**: `ParseError` (`_tag: 'ParseError'`)
+**오류**: `ParseError` (`_tag: 'ParseError'`)
 
-**What to check**:
+**확인 사항**:
 
-- This usually indicates a protocol version mismatch between the SDK and the node.
-- Verify the SDK and node versions are compatible and update whichever is out of date.
+- 이 오류는 대개 SDK와 노드 간의 프로토콜 버전이 일치하지 않음을 나타냅니다.
+- SDK와 노드 버전이 호환되는지 확인하고, 오래된 쪽을 업데이트하세요.
 
 :::note
 
-Always refer to the [Compatibility matrix](/relnotes/support-matrix) to check for compatible versions of the SDK and node for the environment you are working in.
+작업 중인 환경에 호환되는 SDK와 노드 버전은 항상 [Compatibility matrix](/relnotes/support-matrix)에서 확인하세요.
 
 :::
 
-### The node rejects a transaction as invalid
+### 노드가 트랜잭션을 유효하지 않다고 거부하는 경우
 
-**Error**: `TransactionInvalidError` (`_tag: 'TransactionInvalidError'`)
+**오류**: `TransactionInvalidError` (`_tag: 'TransactionInvalidError'`)
 
-**What to check**:
+**확인 사항**:
 
-- A malformed transaction or a validation-rule violation caused this error.
-- Review the transaction construction logic. You should not resubmit without changes.
+- 트랜잭션 형식이 잘못되었거나 검증 규칙을 위반해 이 오류가 발생합니다.
+- 트랜잭션 구성 로직을 검토하세요. 수정 없이 다시 제출해서는 안 됩니다.
 
-### Insufficient funds
+### 잔액이 부족한 경우
 
-**Errors**: `InsufficientFundsError` (`_tag: 'Wallet.InsufficientFunds'`), `InsufficientFundsError` (Capabilities — plain `Error`)
+**오류**: `InsufficientFundsError` (`_tag: 'Wallet.InsufficientFunds'`), `InsufficientFundsError` (Capabilities — 일반 `Error`)
 
-The tagged-error variant exposes `tokenType: string` and `amount: bigint`. The capabilities variant is a plain JavaScript `Error` thrown during coin selection, not an Effect failure.
+태그드 오류 형태는 `tokenType: string`과 `amount: bigint`를 제공합니다. Capabilities 형태는 코인 선택 과정에서 던져지는 일반 JavaScript `Error`이며, Effect 실패가 아닙니다.
 
-**Known capabilities message**: `"Insufficient Funds: could not balance <tokenType>"`
+**알려진 capabilities 메시지**: `"Insufficient Funds: could not balance <tokenType>"`
 
-**What to check**:
+**확인 사항**:
 
-- Check the wallet balance for the token type before constructing the transaction.
-- Reduce the transfer amount or request a top-up.
-- For the capabilities plain `Error`, use `try/catch` or `Effect.tryPromise` rather than `Effect.catchTag`.
+- 트랜잭션을 구성하기 전에 해당 토큰 타입의 지갑 잔액을 확인하세요.
+- 전송 금액을 줄이거나 충전을 요청하세요.
+- Capabilities의 일반 `Error`는 `Effect.catchTag`가 아니라 `try/catch`나 `Effect.tryPromise`로 처리하세요.
 
-### Proof generation fails
+### 증명 생성에 실패하는 경우
 
-**Error**: `ProvingError` (`_tag: 'Wallet.Proving'`)
+**오류**: `ProvingError` (`_tag: 'Wallet.Proving'`)
 
-**What to check**:
+**확인 사항**:
 
-- Confirm the [proof server](/guides/run-proof-server) is running and accessible.
-- Verify you are loading the correct circuit keys.
-- Check the wrapped cause for the underlying provider error.
+- [proof server](/guides/run-proof-server)가 실행 중이고 접근 가능한지 확인하세요.
+- 올바른 회로 키를 로드하고 있는지 확인하세요.
+- 래핑된 cause를 확인해 하위 프로바이더 오류가 무엇인지 파악하세요.
 
-### Coins are missing nonce hashes
+### 코인에 논스 해시가 없는 경우
 
-**Error**: `InvalidCoinHashesError` (`_tag: 'Wallet.InvalidCoinHashes'`)
+**오류**: `InvalidCoinHashesError` (`_tag: 'Wallet.InvalidCoinHashes'`)
 
-**What to check**:
+**확인 사항**:
 
-- Ensure coins are fully synced before spending.
-- Check the `missingNonces` field to identify the affected coins.
+- 코인을 사용하기 전에 완전히 동기화되었는지 확인하세요.
+- `missingNonces` 필드를 확인해 영향을 받은 코인을 파악하세요.
 
-### Address is invalid
+### 주소가 유효하지 않은 경우
 
-**Errors**: `AddressError` (`_tag: 'Wallet.Address'`)
+**오류**: `AddressError` (`_tag: 'Wallet.Address'`)
 
-`AddressError` exposes `originalAddress: string` which contains the rejected input. Address-format errors are plain `Error` throws. You can catch them with `try/catch`.
+`AddressError`는 거부된 입력값을 담은 `originalAddress: string`을 제공합니다. 주소 형식 오류는 일반 `Error`로 던져지며, `try/catch`로 잡을 수 있습니다.
 
-**Common address-format messages**:
-- `"Expected prefix mn"`: The address does not start with the `mn` prefix.
-- `"Segment contains disallowed characters"`: The address segment contains characters outside the allowed set.
-- `"Unshielded address needs to be 32 bytes long"`: The unshielded address payload is the wrong length.
-- `"Dust address is too large"`: The DUST address exceeds the maximum allowed size.
+**자주 발생하는 주소 형식 메시지**:
+- `"Expected prefix mn"`: 주소가 `mn` 접두사로 시작하지 않습니다.
+- `"Segment contains disallowed characters"`: 주소 세그먼트에 허용되지 않은 문자가 포함되어 있습니다.
+- `"Unshielded address needs to be 32 bytes long"`: unshielded 주소 페이로드의 길이가 잘못되었습니다.
+- `"Dust address is too large"`: DUST 주소가 허용된 최대 크기를 초과했습니다.
 
-**What to check**:
+**확인 사항**:
 
-- Validate address strings before passing them to the address-format API.
-- Use `AddressError` for higher-level address validation at the wallet layer.
+- 주소 형식 API에 전달하기 전에 주소 문자열을 검증하세요.
+- 지갑 계층에서의 상위 수준 주소 검증에는 `AddressError`를 사용하세요.
 
-### HTTP networking errors
+### HTTP 네트워킹 오류
 
-**Errors**: `ClientError` (`_tag: 'ClientError'`), `ServerError` (`_tag: 'ServerError'`)
+**오류**: `ClientError` (`_tag: 'ClientError'`), `ServerError` (`_tag: 'ServerError'`)
 
-**What to check**:
+**확인 사항**:
 
-- `ClientError` corresponds to HTTP 400–499 status codes. These indicate a problem with the request itself such as a bad input, authentication failure, or a not-found resource. Do not retry without changing the request. Check the error for the specific status code.
-- `ServerError` corresponds to HTTP 500+ status codes. For persistent 500 errors, check the server logs. The SDK automatically retries on transient 502–504 errors.
+- `ClientError`는 HTTP 400~499 상태 코드에 해당합니다. 잘못된 입력, 인증 실패, 리소스를 찾을 수 없음 등 요청 자체에 문제가 있음을 나타냅니다. 요청을 수정하지 않고 재시도하지 마세요. 오류에서 구체적인 상태 코드를 확인하세요.
+- `ServerError`는 HTTP 500 이상의 상태 코드에 해당합니다. 500 오류가 지속되면 서버 로그를 확인하세요. SDK는 일시적인 502~504 오류에 대해 자동으로 재시도합니다.
 
-For the complete list of Wallet SDK error types, see the [Wallet SDK error reference](/sdks/error-reference/wallet-sdk).
+Wallet SDK 오류 타입 전체 목록은 [Wallet SDK error reference](/sdks/error-reference/wallet-sdk)를 참고하세요.

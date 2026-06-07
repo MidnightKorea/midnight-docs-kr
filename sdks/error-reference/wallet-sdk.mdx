@@ -1,6 +1,6 @@
 ---
 title: Wallet SDK error reference
-description: Error reference for the Wallet SDK.
+description: Wallet SDK의 오류 레퍼런스입니다.
 sidebar_position: 20
 sidebar_label: Wallet SDK error reference
 tags: [error reference]
@@ -9,26 +9,26 @@ toc_max_heading_level: 2
 
 # Wallet SDK error reference
 
-All errors in the Midnight wallet SDK are Effect `Data.TaggedError` instances unless noted otherwise. 
+Midnight wallet SDK의 모든 오류는 별도로 명시되지 않는 한 Effect `Data.TaggedError` 인스턴스입니다.
 
-To catch errors, use `Effect.catchTag` with the `_tag` field shown for each error. For union types, use `Effect.catchTags`.
+오류를 처리하려면 각 오류에 표시된 `_tag` 필드와 함께 `Effect.catchTag`를 사용하세요. 유니온 타입의 경우 `Effect.catchTags`를 사용하세요.
 
-This reference highlights the error classes with details on how to catch and fix them.
+이 레퍼런스에서는 각 오류 클래스를 처리하고 해결하는 방법을 자세히 안내합니다.
 
 ## Node client (`@midnight-ntwrk/wallet-sdk-node-client`)
 
-These seven errors form the `NodeClientError` union type.
+다음 7개의 오류가 `NodeClientError` 유니온 타입을 구성합니다.
 
 ### `SubmissionError`
 
-An error indicating that transaction submission to the node failed.
+노드로 트랜잭션을 제출하는 데 실패했음을 나타내는 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'SubmissionError'` |
 | Fields | `message: string`, `txData: unknown`, `cause?: unknown` |
 
-**Fix**: Inspect `message` and `cause` for the underlying reason. Check node connectivity and that the transaction format is correct.
+**해결 방법**: `message`와 `cause`를 확인해 근본 원인을 파악하세요. 노드 연결 상태와 트랜잭션 형식이 올바른지 점검하세요.
 
 ```typescript
 Effect.catchTag('SubmissionError', (e) => ...)
@@ -36,17 +36,17 @@ Effect.catchTag('SubmissionError', (e) => ...)
 
 ### `ConnectionError`
 
-An error indicating a failed node connection through a WebSocket.
+WebSocket을 통한 노드 연결에 실패했음을 나타내는 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'ConnectionError'` |
 
-**Known messages**:
-- `"Could not connect within specified time range (5s)"`: Node is unreachable or slow to respond
-- `"Failed to retrieve genesis transactions"`: Connected but genesis data unavailable
+**알려진 메시지**:
+- `"Could not connect within specified time range (5s)"`: 노드에 도달할 수 없거나 응답이 느린 경우
+- `"Failed to retrieve genesis transactions"`: 연결은 됐지만 제네시스 데이터를 사용할 수 없는 경우
 
-**Fix**: Verify the node WebSocket URL is correct and the node is running. Increase connection timeout if the node is on a slow network.
+**해결 방법**: 노드 WebSocket URL이 올바른지, 노드가 실행 중인지 확인하세요. 노드가 느린 네트워크에 있는 경우 연결 타임아웃을 늘려보세요.
 
 ```typescript
 Effect.catchTag('ConnectionError', (e) => ...)
@@ -54,15 +54,15 @@ Effect.catchTag('ConnectionError', (e) => ...)
 
 ### `TransactionProgressError`
 
-An error indicating that a submitted transaction did not reach the desired lifecycle stage within the expected time.
+제출된 트랜잭션이 예상 시간 내에 원하는 수명 주기 단계에 도달하지 못했음을 나타내는 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'TransactionProgressError'` |
 
-**Known messages**: `"Transaction did not reach finality within expected time"`
+**알려진 메시지**: `"Transaction did not reach finality within expected time"`
 
-**Fix**: Check network congestion and node health. The transaction may still be in the mempool — query its status before resubmitting.
+**해결 방법**: 네트워크 혼잡도와 노드 상태를 확인하세요. 트랜잭션이 아직 멤풀에 있을 수 있으므로, 재제출 전에 상태를 먼저 조회하세요.
 
 ```typescript
 Effect.catchTag('TransactionProgressError', (e) => ...)
@@ -70,13 +70,13 @@ Effect.catchTag('TransactionProgressError', (e) => ...)
 
 ### `ParseError`
 
-An error indicating that the SDK could not parse a result returned by the node.
+SDK가 노드에서 반환된 결과를 파싱하지 못했음을 나타내는 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'ParseError'` |
 
-**Fix**: Usually indicates a protocol version mismatch between the SDK and the node. Check that SDK and node versions are compatible.
+**해결 방법**: 대체로 SDK와 노드 간의 프로토콜 버전 불일치를 나타냅니다. SDK와 노드 버전이 호환되는지 확인하세요.
 
 ```typescript
 Effect.catchTag('ParseError', (e) => ...)
@@ -84,13 +84,13 @@ Effect.catchTag('ParseError', (e) => ...)
 
 ### `TransactionUsurpedError`
 
-An error indicating that another transaction replaced a transaction with the same discriminators.
+동일한 discriminator를 가진 다른 트랜잭션이 기존 트랜잭션을 대체했음을 나타내는 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'TransactionUsurpedError'` |
 
-**Fix**: The original transaction is no longer relevant. If an unexpected replacement occurred, then investigate which process submitted a conflicting transaction.
+**해결 방법**: 원래 트랜잭션은 더 이상 유효하지 않습니다. 예기치 않은 대체가 발생한 경우, 충돌하는 트랜잭션을 제출한 프로세스를 조사하세요.
 
 ```typescript
 Effect.catchTag('TransactionUsurpedError', (e) => ...)
@@ -98,13 +98,13 @@ Effect.catchTag('TransactionUsurpedError', (e) => ...)
 
 ### `TransactionDroppedError`
 
-An error indicating that the node dropped a transaction, most likely because the mempool is full.
+노드가 트랜잭션을 삭제했음을 나타내는 오류입니다. 대부분 멤풀이 가득 찬 경우 발생합니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'TransactionDroppedError'` |
 
-**Fix**: Wait for the mempool to drain and resubmit. Consider increasing the transaction fee if the network supports fee prioritization.
+**해결 방법**: 멤풀이 비워질 때까지 기다렸다가 재제출하세요. 네트워크가 수수료 우선순위를 지원한다면 트랜잭션 수수료를 높이는 것도 고려해보세요.
 
 ```typescript
 Effect.catchTag('TransactionDroppedError', (e) => ...)
@@ -112,13 +112,13 @@ Effect.catchTag('TransactionDroppedError', (e) => ...)
 
 ### `TransactionInvalidError`
 
-An error indicating that the node rejected a transaction as invalid.
+노드가 트랜잭션을 유효하지 않다고 판단해 거부했음을 나타내는 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'TransactionInvalidError'` |
 
-**Fix**: A malformed transaction or a validation-rule violation caused this error. Review the transaction construction logic. Do not resubmit without changes.
+**해결 방법**: 잘못 구성된 트랜잭션이나 검증 규칙 위반으로 발생한 오류입니다. 트랜잭션 구성 로직을 검토하세요. 수정 없이 재제출하지 마세요.
 
 ```typescript
 Effect.catchTag('TransactionInvalidError', (e) => ...)
@@ -126,17 +126,17 @@ Effect.catchTag('TransactionInvalidError', (e) => ...)
 
 ## Shielded wallet (`@midnight-ntwrk/wallet-sdk-shielded`)
 
-The shielded wallet exposes 8 error types:
+Shielded 지갑은 8가지 오류 타입을 제공합니다.
 
 ### `OtherWalletError`
 
-Catch-all for wallet errors that do not fit a more specific category.
+더 구체적인 범주에 해당하지 않는 지갑 오류를 처리하는 포괄적인 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.Other'` |
 
-**Fix**: Inspect the error details. If this surfaces in production, then consider opening an issue with a reproduction case.
+**해결 방법**: 오류 세부 정보를 확인하세요. 프로덕션에서 이 오류가 발생한다면 재현 케이스와 함께 이슈를 등록하는 것을 고려해보세요.
 
 ```typescript
 Effect.catchTag('Wallet.Other', (e) => ...)
@@ -144,13 +144,13 @@ Effect.catchTag('Wallet.Other', (e) => ...)
 
 ### `SyncWalletError`
 
-An error indicating that a wallet sync with the Midnight blockchain failed.
+Midnight 블록체인과의 지갑 동기화에 실패했음을 나타내는 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.Sync'` |
 
-**Fix**: Check connectivity to the node. Retry the sync operation. Persistent failures may indicate a corrupted local state.
+**해결 방법**: 노드 연결 상태를 확인하고 동기화 작업을 재시도하세요. 지속적으로 실패한다면 로컬 상태가 손상되었을 수 있습니다.
 
 ```typescript
 Effect.catchTag('Wallet.Sync', (e) => ...)
@@ -158,13 +158,13 @@ Effect.catchTag('Wallet.Sync', (e) => ...)
 
 ### `SubmissionWalletError`
 
-A wrapper around submission errors that occur at the wallet layer (distinct from the node-client `SubmissionError`).
+지갑 레이어에서 발생한 제출 오류를 감싸는 래퍼입니다 (노드 클라이언트의 `SubmissionError`와는 별개입니다).
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.SubmissionWalletError'` |
 
-**Fix**: Unwrap and inspect the underlying cause. Usually delegates to the node-client submission path.
+**해결 방법**: 내부 원인을 풀어서 확인하세요. 대체로 노드 클라이언트 제출 경로로 위임됩니다.
 
 ```typescript
 Effect.catchTag('Wallet.SubmissionWalletError', (e) => ...)
@@ -172,14 +172,14 @@ Effect.catchTag('Wallet.SubmissionWalletError', (e) => ...)
 
 ### `InsufficientFundsError`
 
-An error indicating that the wallet does not hold enough tokens of the specified type to complete the operation.
+지정된 토큰 타입에 대해 지갑에 작업을 완료할 만큼 충분한 토큰이 없음을 나타내는 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.InsufficientFunds'` |
 | Fields | `tokenType: string`, `amount: bigint` |
 
-**Fix**: Check the wallet balance for `tokenType` before constructing the transaction. Request a top-up or reduce the transfer amount.
+**해결 방법**: 트랜잭션 구성 전에 `tokenType`의 지갑 잔액을 확인하세요. 충전을 요청하거나 전송 금액을 줄이세요.
 
 ```typescript
 Effect.catchTag('Wallet.InsufficientFunds', (e) => {
@@ -189,14 +189,14 @@ Effect.catchTag('Wallet.InsufficientFunds', (e) => {
 
 ### `AddressError`
 
-An error indicating that the provided address is invalid.
+제공된 주소가 유효하지 않음을 나타내는 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.Address'` |
 | Fields | `originalAddress: string` |
 
-**Fix**: Validate the address format before use. To understand the address format, see the [Address encoding](/sdks/official/wallet-developer-guide#address-encoding) section of the wallet SDK guide. The `originalAddress` field contains the rejected input.
+**해결 방법**: 사용 전에 주소 형식을 검증하세요. 주소 형식에 대한 자세한 내용은 지갑 SDK 가이드의 [Address encoding](/sdks/official/wallet-developer-guide#address-encoding) 섹션을 참조하세요. `originalAddress` 필드에 거부된 입력값이 담겨 있습니다.
 
 ```typescript
 Effect.catchTag('Wallet.Address', (e) => ...)
@@ -204,14 +204,14 @@ Effect.catchTag('Wallet.Address', (e) => ...)
 
 ### `InvalidCoinHashesError`
 
-An error indicating that one or more coins are missing their required nonce hashes.
+하나 이상의 코인에 필수 논스 해시가 없음을 나타내는 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.InvalidCoinHashes'` |
 | Fields | `missingNonces: unknown[]` |
 
-**Fix**: Ensure coins are fully synced before spending. The `missingNonces` field identifies the affected coins.
+**해결 방법**: 코인을 지출하기 전에 완전히 동기화되었는지 확인하세요. `missingNonces` 필드에 영향을 받는 코인이 식별됩니다.
 
 ```typescript
 Effect.catchTag('Wallet.InvalidCoinHashes', (e) => ...)
@@ -219,13 +219,13 @@ Effect.catchTag('Wallet.InvalidCoinHashes', (e) => ...)
 
 ### `TransactingError`
 
-Error during transaction construction or fee balancing.
+트랜잭션 구성 또는 수수료 밸런싱 중에 발생한 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.Transacting'` |
 
-**Fix**: Check that inputs are valid and that the fee token balance is sufficient. Review transaction parameters.
+**해결 방법**: 입력값이 유효하고 수수료 토큰 잔액이 충분한지 확인하세요. 트랜잭션 파라미터를 검토하세요.
 
 ```typescript
 Effect.catchTag('Wallet.Transacting', (e) => ...)
@@ -233,13 +233,13 @@ Effect.catchTag('Wallet.Transacting', (e) => ...)
 
 ### `TransactionHistoryError`
 
-Error reading or writing the transaction history store.
+트랜잭션 기록 저장소를 읽거나 쓰는 중에 발생한 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.TransactionHistory'` |
 
-**Fix**: Check local storage availability and permissions. A corrupt store history might be causing the error. Clearing and resyncing is a recovery option.
+**해결 방법**: 로컬 스토리지의 가용성과 권한을 확인하세요. 손상된 저장소 기록이 원인일 수 있습니다. 초기화 후 재동기화로 복구할 수 있습니다.
 
 ```typescript
 Effect.catchTag('Wallet.TransactionHistory', (e) => ...)
@@ -247,17 +247,17 @@ Effect.catchTag('Wallet.TransactionHistory', (e) => ...)
 
 ## Unshielded wallet (`@midnight-ntwrk/wallet-sdk-unshielded-wallet`)
 
-The unshielded wallet exposes eleven error types: all eight from the shielded wallet (same `_tag` values) plus five additional types below.
+Unshielded 지갑은 11가지 오류 타입을 제공합니다. Shielded 지갑의 8가지 오류(동일한 `_tag` 값)를 포함하며, 아래 5가지 추가 타입이 더 있습니다.
 
 ### `SignError`
 
-Failed to sign a transaction.
+트랜잭션 서명에 실패한 경우 발생합니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.Sign'` |
 
-**Fix**: Ensure the signing key is available and not locked. Check hardware wallet connectivity if applicable.
+**해결 방법**: 서명 키가 사용 가능하고 잠겨있지 않은지 확인하세요. 해당되는 경우 하드웨어 지갑 연결 상태도 점검하세요.
 
 ```typescript
 Effect.catchTag('Wallet.Sign', (e) => ...)
@@ -265,13 +265,13 @@ Effect.catchTag('Wallet.Sign', (e) => ...)
 
 ### `ApplyTransactionError`
 
-Failed to apply a transaction to the local UTXO set.
+로컬 UTXO 세트에 트랜잭션을 적용하는 데 실패한 경우 발생합니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.ApplyTransaction'` |
 
-**Fix**: Usually follows a submission error. Verify that the node accepted the transaction before attempting to apply it locally.
+**해결 방법**: 대체로 제출 오류 이후에 발생합니다. 로컬에 적용하기 전에 노드가 트랜잭션을 수락했는지 확인하세요.
 
 ```typescript
 Effect.catchTag('Wallet.ApplyTransaction', (e) => ...)
@@ -279,13 +279,13 @@ Effect.catchTag('Wallet.ApplyTransaction', (e) => ...)
 
 ### `RollbackUtxoError`
 
-Failed to roll back a UTXO during a chain reorganisation.
+체인 재편성(chain reorganisation) 중 UTXO 롤백에 실패한 경우 발생합니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.RollbackUtxo'` |
 
-**Fix**: If rollback fails repeatedly, then the local UTXO state might be inconsistent. If that happens, then you might need a full resync.
+**해결 방법**: 롤백이 반복적으로 실패한다면 로컬 UTXO 상태가 불일치 상태일 수 있습니다. 이 경우 전체 재동기화가 필요할 수 있습니다.
 
 ```typescript
 Effect.catchTag('Wallet.RollbackUtxo', (e) => ...)
@@ -293,13 +293,13 @@ Effect.catchTag('Wallet.RollbackUtxo', (e) => ...)
 
 ### `SpendUtxoError`
 
-Failed to mark a UTXO as spent.
+UTXO를 소비됨으로 표시하는 데 실패한 경우 발생합니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.SpendUtxo'` |
 
-**Fix**: The UTXO may already be spent or not present in the local set. To reconcile state, resync the wallet.
+**해결 방법**: 해당 UTXO가 이미 소비되었거나 로컬 세트에 존재하지 않을 수 있습니다. 상태를 맞추려면 지갑을 재동기화하세요.
 
 ```typescript
 Effect.catchTag('Wallet.SpendUtxo', (e) => ...)
@@ -307,13 +307,13 @@ Effect.catchTag('Wallet.SpendUtxo', (e) => ...)
 
 ### `UtxoNotFoundError`
 
-A referenced UTXO could not be found in the local set.
+참조된 UTXO를 로컬 세트에서 찾을 수 없는 경우 발생합니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'UtxoNotFoundError'` |
 
-**Fix**: Ensure the wallet is fully synced. The UTXO might have already been spent or the sync might be behind the chain tip.
+**해결 방법**: 지갑이 완전히 동기화되어 있는지 확인하세요. 해당 UTXO가 이미 소비되었거나 동기화가 체인 최신 상태보다 뒤처져 있을 수 있습니다.
 
 ```typescript
 Effect.catchTag('UtxoNotFoundError', (e) => ...)
@@ -321,7 +321,7 @@ Effect.catchTag('UtxoNotFoundError', (e) => ...)
 
 ## DUST wallet (`@midnight-ntwrk/wallet-sdk-dust-wallet`)
 
-The DUST wallet exposes four error types, all shared with the shielded wallet:
+DUST 지갑은 Shielded 지갑과 공유되는 4가지 오류 타입을 제공합니다.
 
 | Error | `_tag` |
 |-------|--------|
@@ -330,21 +330,21 @@ The DUST wallet exposes four error types, all shared with the shielded wallet:
 | `TransactingError` | `'Wallet.Transacting'` |
 | `InsufficientFundsError` | `'Wallet.InsufficientFunds'` |
 
-For field details and fixes, see the [Shielded wallet](#shielded-wallet-midnight-ntwrkwallet-sdk-shielded) section.
+필드 세부 정보 및 해결 방법은 [Shielded wallet](#shielded-wallet-midnight-ntwrkwallet-sdk-shielded) 섹션을 참조하세요.
 
 ## Capabilities (`@midnight-ntwrk/wallet-sdk-capabilities`)
 
-The capabilities package exposes three error types.
+capabilities 패키지는 3가지 오류 타입을 제공합니다.
 
 ### `ProvingError`
 
-Wraps errors from the proving provider.
+증명 프로바이더에서 발생한 오류를 감싸는 래퍼입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.Proving'` |
 
-**Fix**: Check proof server connectivity and that you are loading the correct circuit keys. Inspect the wrapped cause for the underlying provider error.
+**해결 방법**: 증명 서버 연결 상태와 올바른 회로 키를 로드하고 있는지 확인하세요. 래핑된 원인을 검사해 프로바이더의 근본 오류를 파악하세요.
 
 ```typescript
 Effect.catchTag('Wallet.Proving', (e) => ...)
@@ -352,13 +352,13 @@ Effect.catchTag('Wallet.Proving', (e) => ...)
 
 ### `SubmissionError` (Capabilities)
 
-Submission error raised at the capabilities/service layer.
+capabilities/서비스 레이어에서 발생한 제출 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'SubmissionError'` |
 
-**Fix**: Same as node-client `SubmissionError`. Check node connectivity and transaction validity.
+**해결 방법**: 노드 클라이언트의 `SubmissionError`와 동일합니다. 노드 연결 상태와 트랜잭션 유효성을 확인하세요.
 
 ```typescript
 Effect.catchTag('SubmissionError', (e) => ...)
@@ -366,27 +366,27 @@ Effect.catchTag('SubmissionError', (e) => ...)
 
 ### `InsufficientFundsError` (Capabilities — native `Error`)
 
-This is a plain JavaScript `Error`, *not* a `Data.TaggedError`. It is thrown (not yielded as an Effect failure) during coin selection.
+이 오류는 일반 JavaScript `Error`로, `Data.TaggedError`가 아닙니다. 코인 선택 중에 Effect 실패가 아닌 throw 방식으로 발생합니다.
 
-**Known messages**: `"Insufficient Funds: could not balance <tokenType>"` 
+**알려진 메시지**: `"Insufficient Funds: could not balance <tokenType>"`
 
-Where `<tokenType>` is the token identifier.
+여기서 `<tokenType>`은 토큰 식별자입니다.
 
-**Fix**: Catch with standard `try/catch` or `Effect.tryPromise`. Ensure the wallet has enough of the specified token type before invoking coin selection.
+**해결 방법**: 표준 `try/catch` 또는 `Effect.tryPromise`로 처리하세요. 코인 선택을 호출하기 전에 지갑에 지정된 토큰 타입이 충분한지 확인하세요.
 
 ## Utilities (`@midnight-ntwrk/wallet-sdk-utilities`)
 
-The utilities package exposes five error types.
+utilities 패키지는 5가지 오류 타입을 제공합니다.
 
 ### `LedgerError`
 
-Wraps exceptions thrown by the ledger WASM module.
+레저 WASM 모듈에서 발생한 예외를 감싸는 래퍼입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'LedgerError'` |
 
-**Fix**: Inspect the wrapped cause. Usually indicates invalid state passed to the ledger. Check that ledger inputs are well-formed.
+**해결 방법**: 래핑된 원인을 확인하세요. 대체로 레저에 유효하지 않은 상태가 전달되었음을 나타냅니다. 레저 입력이 올바른 형식인지 점검하세요.
 
 ```typescript
 Effect.catchTag('LedgerError', (e) => ...)
@@ -394,13 +394,13 @@ Effect.catchTag('LedgerError', (e) => ...)
 
 ### `LeftError<L>`
 
-Raised when you encounter an `Either.Left` value where you expected a `Right`.
+`Right`를 기대하는 곳에서 `Either.Left` 값을 만났을 때 발생합니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'LeftError'` |
 
-**Fix**: Check the logic that produces the `Either` value. A `Left` here indicates an unhandled error branch.
+**해결 방법**: `Either` 값을 생성하는 로직을 확인하세요. 여기서 `Left`는 처리되지 않은 오류 분기를 나타냅니다.
 
 ```typescript
 Effect.catchTag('LeftError', (e) => ...)
@@ -408,13 +408,13 @@ Effect.catchTag('LeftError', (e) => ...)
 
 ### `InvalidProtocolSchemeError`
 
-This error occurs when one or more of the network URLs provided uses an unsupported protocol scheme.
+제공된 네트워크 URL 중 하나 이상이 지원되지 않는 프로토콜 스킴을 사용할 때 발생하는 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'InvalidProtocolSchemeError'` |
 
-**Fix**: Ensure URLs use the expected scheme (for example, `ws://` or `wss://` for WebSocket connections, `http://` or `https://` for HTTP).
+**해결 방법**: URL에 올바른 스킴을 사용하고 있는지 확인하세요 (예: WebSocket 연결의 경우 `ws://` 또는 `wss://`, HTTP의 경우 `http://` 또는 `https://`).
 
 ```typescript
 Effect.catchTag('InvalidProtocolSchemeError', (e) => ...)
@@ -422,13 +422,13 @@ Effect.catchTag('InvalidProtocolSchemeError', (e) => ...)
 
 ### `FailedToDeriveWebSocketUrlError`
 
-This error occurs when the system cannot derive a WebSocket URL from the provided input.
+제공된 입력에서 WebSocket URL을 도출할 수 없을 때 발생하는 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'FailedToDeriveWebSocketUrlError'` |
 
-**Fix**: Check that the input URL is well-formed and that the derivation logic covers the provided scheme/host combination.
+**해결 방법**: 입력 URL이 올바른 형식인지, 도출 로직이 제공된 스킴/호스트 조합을 지원하는지 확인하세요.
 
 ```typescript
 Effect.catchTag('FailedToDeriveWebSocketUrlError', (e) => ...)
@@ -436,13 +436,13 @@ Effect.catchTag('FailedToDeriveWebSocketUrlError', (e) => ...)
 
 ### `ClientError`
 
-A client-side networking error, corresponding to HTTP 400–499 status codes.
+HTTP 400–499 상태 코드에 해당하는 클라이언트 측 네트워크 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'ClientError'` |
 
-**Fix**: These indicate a problem with the request, such as bad input, authentication failure, or not found. Do not retry without changing the request. Inspect the error for the specific status code.
+**해결 방법**: 잘못된 입력, 인증 실패, 리소스 없음 등 요청 자체의 문제를 나타냅니다. 요청을 수정하지 않고 재시도하지 마세요. 오류에서 구체적인 상태 코드를 확인하세요.
 
 ```typescript
 Effect.catchTag('ClientError', (e) => ...)
@@ -450,13 +450,13 @@ Effect.catchTag('ClientError', (e) => ...)
 
 ### `ServerError`
 
-A server-side error, corresponding to HTTP 500+ status codes.
+HTTP 500 이상 상태 코드에 해당하는 서버 측 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'ServerError'` |
 
-**Fix**: For persistent 500 errors, check server logs. The SDK automatically retries on transient 502–504 errors (gateway/service unavailable errors).
+**해결 방법**: 500 오류가 지속된다면 서버 로그를 확인하세요. SDK는 일시적인 502–504 오류(게이트웨이/서비스 불가 오류)에 대해 자동으로 재시도합니다.
 
 ```typescript
 Effect.catchTag('ServerError', (e) => ...)
@@ -464,21 +464,21 @@ Effect.catchTag('ServerError', (e) => ...)
 
 ## Runtime (`@midnight-ntwrk/wallet-sdk-runtime`)
 
-The runtime package exposes one error type.
+runtime 패키지는 1가지 오류 타입을 제공합니다.
 
 ### `WalletRuntimeError`
 
-A configuration error in the wallet runtime.
+지갑 런타임의 설정 오류입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'WalletRuntimeError'` |
 
-**Known messages**:
-- `"No variant to init"`: No wallet variant was provided during initialisation
-- `"Empty variants list"`: The variants list supplied to the runtime is empty
+**알려진 메시지**:
+- `"No variant to init"`: 초기화 중에 지갑 변형이 제공되지 않은 경우
+- `"Empty variants list"`: 런타임에 제공된 변형 목록이 비어있는 경우
 
-**Fix**: Ensure that you configure at least one wallet variant before you initialise the runtime.
+**해결 방법**: 런타임을 초기화하기 전에 최소 하나의 지갑 변형을 설정하세요.
 
 ```typescript
 Effect.catchTag('WalletRuntimeError', (e) => ...)
@@ -486,26 +486,26 @@ Effect.catchTag('WalletRuntimeError', (e) => ...)
 
 ## Address format (`@midnight-ntwrk/wallet-sdk-address-format`)
 
-The address format package exposes five error types.
+address format 패키지는 5가지 오류 타입을 제공합니다.
 
-These are plain JavaScript `Error` throws, not `Data.TaggedError` instances. Catch with standard `try/catch`.
+이 오류들은 `Data.TaggedError` 인스턴스가 아닌 일반 JavaScript `Error` throw입니다. 표준 `try/catch`로 처리하세요.
 
 | Message | Cause |
 |---------|-------|
-| `"Expected prefix mn"` | Address does not start with the `mn` prefix |
-| `"Segment contains disallowed characters"` | Address segment has characters outside the allowed set |
-| `"Expected type <expected>, got <actual>"` | Address type byte does not match the expected type |
-| `"Coin public key needs to be 32 bytes long"` | Public key component is the wrong length |
-| `"Unshielded address needs to be 32 bytes long"` | Unshielded address payload is the wrong length |
-| `"Dust address is too large"` | DUST address exceeds the maximum allowed size |
+| `"Expected prefix mn"` | 주소가 `mn` 접두사로 시작하지 않는 경우 |
+| `"Segment contains disallowed characters"` | 주소 세그먼트에 허용되지 않는 문자가 포함된 경우 |
+| `"Expected type <expected>, got <actual>"` | 주소 타입 바이트가 예상 타입과 일치하지 않는 경우 |
+| `"Coin public key needs to be 32 bytes long"` | 공개 키 구성요소의 길이가 올바르지 않은 경우 |
+| `"Unshielded address needs to be 32 bytes long"` | Unshielded 주소 페이로드의 길이가 올바르지 않은 경우 |
+| `"Dust address is too large"` | DUST 주소가 허용된 최대 크기를 초과한 경우 |
 
-**Fix**: Validate address strings before passing them to the address-format API. Use the shielded wallet's `AddressError` (`'Wallet.Address'`) for higher-level address validation.
+**해결 방법**: address-format API에 전달하기 전에 주소 문자열을 검증하세요. 상위 수준의 주소 검증에는 Shielded 지갑의 `AddressError`(`'Wallet.Address'`)를 사용하세요.
 
 ## Complete tag registry
 
 <details>
 
-<summary>All twenty-nine `_tag` values, alphabetically sorted</summary>
+<summary>알파벳순으로 정렬된 29개의 `_tag` 값 전체 목록</summary>
 
 | `_tag` | Package | Error type |
 |--------|---------|-----------|

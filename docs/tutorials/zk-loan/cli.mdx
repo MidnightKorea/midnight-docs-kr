@@ -518,7 +518,7 @@ const { pureCircuits } = ZKLoanCreditScorer;
 // private state에서 옵니다 — `ownPublicKey()`는 prover가 주장하는 값이라 쓰지 않으므로,
 // 이것이 호출자의 유일하게 신뢰되는 신원입니다.
 export const deriveUserPublicKey = (userSecretKey: Uint8Array, pin: bigint): Uint8Array => {
-  return pureCircuits.deriveUserPublicKey({ bytes: userSecretKey }, pin).bytes;
+  return pureCircuits.deriveUserPublicKey(userSecretKey, pin);
 };
 
 // attestation 메시지에 쓸 userPubKeyHash를 계산합니다. contract이 `requestLoan`
@@ -679,9 +679,7 @@ export const blacklistUser = async (
   userPublicKey: Uint8Array,
 ): Promise<FinalizedTxData> => {
   logger.info('Blacklisting user public key...');
-  const finalizedTxData = await contract.callTx.blacklistUser({
-    bytes: userPublicKey,
-  });
+  const finalizedTxData = await contract.callTx.blacklistUser(userPublicKey);
   logger.info(
     `Transaction ${finalizedTxData.public.txId} added in block ${finalizedTxData.public.blockHeight}`,
   );
@@ -693,9 +691,7 @@ export const removeBlacklistUser = async (
   userPublicKey: Uint8Array,
 ): Promise<FinalizedTxData> => {
   logger.info('Removing user public key from blacklist...');
-  const finalizedTxData = await contract.callTx.removeBlacklistUser({
-    bytes: userPublicKey,
-  });
+  const finalizedTxData = await contract.callTx.removeBlacklistUser(userPublicKey);
   logger.info(
     `Transaction ${finalizedTxData.public.txId} added in block ${finalizedTxData.public.blockHeight}`,
   );
@@ -711,9 +707,7 @@ export const rotateAdmin = async (
   newAdminPublicKey: Uint8Array,
 ): Promise<FinalizedTxData> => {
   logger.info('Rotating admin role to new derived public key...');
-  const finalizedTxData = await contract.callTx.rotateAdmin({
-    bytes: newAdminPublicKey,
-  });
+  const finalizedTxData = await contract.callTx.rotateAdmin(newAdminPublicKey);
   logger.info(
     `Transaction ${finalizedTxData.public.txId} added in block ${finalizedTxData.public.blockHeight}`,
   );
@@ -725,7 +719,7 @@ export const rotateAdmin = async (
 // 사용자별 신원(PIN에 묶임)과 admin 역할(PIN 없음) 양쪽에 쓰이지만, contract 내부의
 // 서로 다른 도메인 구분자가 둘을 논리적으로 분리합니다.
 export const deriveAdminPublicKey = (userSecretKey: Uint8Array): Uint8Array => {
-  return pureCircuits.deriveAdminPublicKey({ bytes: userSecretKey }).bytes;
+  return pureCircuits.deriveAdminPublicKey(userSecretKey);
 };
 
 export const registerProvider = async (
@@ -777,7 +771,7 @@ export const displayContractState = async (
   } else {
     logger.info(`Contract address: ${contractAddress}`);
     logger.info(
-      `Admin public key: ${Buffer.from(ledgerState.contractAdmin.bytes).toString('hex')}`,
+      `Admin public key: ${Buffer.from(ledgerState.contractAdmin).toString('hex')}`,
     );
     logger.info(`Blocklist size: ${ledgerState.blacklist.size()}`);
   }

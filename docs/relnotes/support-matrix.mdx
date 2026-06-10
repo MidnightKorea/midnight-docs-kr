@@ -11,28 +11,72 @@ sidebar_position: 10
 
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 :::note
 최신 테스트 완료 버전만 반영합니다. 이전 버전도 동작할 수 있지만, 호환성이나 지원을 보장하지 않습니다.
 :::
 
-| Functional area            | Component                           | Version     | Notes                                       |
-|----------------------------|-------------------------------------|-------------|---------------------------------------------|
-| Network                    | Network                             | Preprod/Preview/Mainnet | 현재 네트워크 환경         |
-|                            | Node (Midnight)                     | 1.0.0      | Preview                                      |
-|                            |                                     | 0.22.5      | Preprod / Mainnet                           |
-| Runtime and contracts      | Compact devtools (`compact`)        | 0.5.1       | 컴파일러 설치 및 컨트랙트 컴파일      |
-|                            | Compact toolchain (`compact compile`) | 0.31.0      | Midnight용 컨트랙트 컴파일러              |
-|                            | Compact runtime                     | 0.16.0      | 컨트랙트용 런타임 라이브러리               |
-|                            | Compact JS                          | 2.5.1       | 컴파일된 컨트랙트용 TypeScript 실행 환경 |
-|                            | Platform JS                         | 2.2.4       | 핵심 추상화 및 타입                 |
-|                            | On-chain runtime                    | 3.0.0       | 온체인 런타임 지원 (v3)               |
-|                            | Ledger                              | 8.1.0       | Preview                                     |
-|                            |                                     | 8.0.3       | Preprod / Mainnet                           |
-| SDKs and APIs              | Wallet SDK facade                   | 3.0.0       | 지갑 통합 구축용 SDK        |
-|                            | Midnight.js                         | 4.1.1       | DApp 프레임워크: 컨트랙트, 타입, 프로바이더 |
-|                            | testkit-js                          | 4.1.1       | E2E 테스트 프레임워크                       |
-|                            | DApp Connector API                  | 4.0.1       | DApp과 지갑 간 인터페이스         |
-| Indexing and data          | Midnight Indexer                    | 4.3.3       | Preview                                     |
-|                            |                                     | 4.0.1       | Preprod / Mainnet                           |
-| ZK and proving services    | Proof server                        | 8.0.3       | ZKP 증명 생성 처리                |
+<Tabs>
+<TabItem value="preview" label="Preview" default>
 
+| Functional area            | Component                             | Version   | Notes                                       |
+|----------------------------|---------------------------------------|-----------|---------------------------------------------|
+| Network                    | Node (Midnight)                       | 1.0.0     | Preview 네트워크 노드                       |
+| Runtime and contracts      | Compact devtools (`compact`)          | 0.5.1     | 컴파일러 설치 및 컨트랙트 컴파일            |
+|                            | Compact toolchain (`compact compile`) | 0.31.0    | Midnight용 컨트랙트 컴파일러                |
+|                            | Compact runtime                       | 0.16.0    | 컨트랙트용 런타임 라이브러리                |
+|                            | Compact JS                            | 2.5.1     | 컴파일된 컨트랙트용 TypeScript 실행 환경    |
+|                            | Platform JS                           | 2.2.4     | 핵심 추상화 및 타입                         |
+|                            | On-chain runtime                      | 3.0.0     | 온체인 런타임 지원 (v3)                     |
+|                            | Ledger                                | 8.1.0     | Preview Ledger                              |
+| SDKs and APIs              | Wallet SDK facade                     | 3.0.0     | 지갑 통합 구축용 SDK                        |
+|                            | Midnight.js                           | 4.1.1     | DApp 프레임워크: 컨트랙트, 타입, 프로바이더 |
+|                            | testkit-js                            | 4.1.1     | E2E 테스트 프레임워크                       |
+|                            | DApp Connector API                    | 4.0.1     | DApp과 지갑 간 인터페이스                   |
+| Indexing and data          | Midnight Indexer                      | 4.3.3     | Preview Indexer                             |
+| ZK and proving services    | Proof server                          | 8.0.3     | ZKP 증명 생성 처리                          |
+
+</TabItem>
+<TabItem value="preprod" label="Preprod">
+
+| Functional area            | Component                             | Version   | Notes                                       |
+|----------------------------|---------------------------------------|-----------|---------------------------------------------|
+| Network                    | Node (Midnight)                       | 0.22.5    | Preprod 네트워크 노드                       |
+| Runtime and contracts      | Compact devtools (`compact`)          | 0.5.1     | 컴파일러 설치 및 컨트랙트 컴파일            |
+|                            | Compact toolchain (`compact compile`) | 0.31.0    | Midnight용 컨트랙트 컴파일러                |
+|                            | Compact runtime                       | 0.16.0    | 컨트랙트용 런타임 라이브러리                |
+|                            | Compact JS                            | 2.5.1     | 컴파일된 컨트랙트용 TypeScript 실행 환경    |
+|                            | Platform JS                           | 2.2.4     | 핵심 추상화 및 타입                         |
+|                            | On-chain runtime                      | 3.0.0     | 온체인 런타임 지원 (v3)                     |
+|                            | Ledger                                | 8.0.3     | Preprod Ledger                              |
+| SDKs and APIs              | Wallet SDK facade                     | 3.0.0     | 지갑 통합 구축용 SDK                        |
+|                            | Midnight.js                           | 4.1.1     | DApp 프레임워크: 컨트랙트, 타입, 프로바이더 |
+|                            | testkit-js                            | 4.1.1     | E2E 테스트 프레임워크                       |
+|                            | DApp Connector API                    | 4.0.1     | DApp과 지갑 간 인터페이스                   |
+| Indexing and data          | Midnight Indexer                      | 4.0.1     | Preprod Indexer                             |
+| ZK and proving services    | Proof server                          | 8.0.3     | ZKP 증명 생성 처리                          |
+
+</TabItem>
+<TabItem value="mainnet" label="Mainnet">
+
+| Functional area            | Component                             | Version   | Notes                                       |
+|----------------------------|---------------------------------------|-----------|---------------------------------------------|
+| Network                    | Node (Midnight)                       | 0.22.5    | Mainnet 네트워크 노드                       |
+| Runtime and contracts      | Compact devtools (`compact`)          | 0.5.1     | 컴파일러 설치 및 컨트랙트 컴파일            |
+|                            | Compact toolchain (`compact compile`) | 0.31.0    | Midnight용 컨트랙트 컴파일러                |
+|                            | Compact runtime                       | 0.16.0    | 컨트랙트용 런타임 라이브러리                |
+|                            | Compact JS                            | 2.5.1     | 컴파일된 컨트랙트용 TypeScript 실행 환경    |
+|                            | Platform JS                           | 2.2.4     | 핵심 추상화 및 타입                         |
+|                            | On-chain runtime                      | 3.0.0     | 온체인 런타임 지원 (v3)                     |
+|                            | Ledger                                | 8.0.3     | Mainnet Ledger                              |
+| SDKs and APIs              | Wallet SDK facade                     | 3.0.0     | 지갑 통합 구축용 SDK                        |
+|                            | Midnight.js                           | 4.1.1     | DApp 프레임워크: 컨트랙트, 타입, 프로바이더 |
+|                            | testkit-js                            | 4.1.1     | E2E 테스트 프레임워크                       |
+|                            | DApp Connector API                    | 4.0.1     | DApp과 지갑 간 인터페이스                   |
+| Indexing and data          | Midnight Indexer                      | 4.0.1     | Mainnet Indexer                             |
+| ZK and proving services    | Proof server                          | 8.0.3     | ZKP 증명 생성 처리                          |
+
+</TabItem>
+</Tabs>

@@ -1,7 +1,7 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-title: Midnight.js v4.1.1 release notes
+title: Midnight.js v4.1.1 릴리스 노트
 description: "Release notes for Midnight.js v4.1.1, covering breaking error handling changes, security hardening, and qanet support in testkit-js."
 displayed_sidebar: sidebar
 ---
@@ -12,96 +12,96 @@ displayed_sidebar: sidebar
 
 ---
 
-## High-level summary
+## 주요 변경 사항 요약
 
-This release introduces breaking changes to error handling in the indexer public data provider and hardens security for key management and provider URL validation. It also adds qanet support in testkit-js and improves contract governance code organization and type safety.
+이번 릴리스는 indexer public data provider의 오류 처리에 breaking change를 도입하고, key 관리와 provider URL 검증의 보안을 강화합니다. 또한 testkit-js에 qanet 지원을 추가하고, contract governance 코드의 구조와 타입 안전성을 개선합니다.
 
-## Audience
+## 대상 독자
 
-This release note is most relevant for developers who:
+이 릴리스 노트는 다음과 같은 개발자에게 유용합니다:
 
-- Use `IndexerFormattedError.cause` in error handling code (renamed to `.errors`).
-- Export or import signing keys through the Midnight.js key management APIs.
-- Configure provider URLs for non-loopback environments.
-- Run E2E tests against qanet using testkit-js.
+- 오류 처리 코드에서 `IndexerFormattedError.cause`를 사용하는 경우 (`.errors`로 이름 변경됨)
+- Midnight.js key 관리 API로 signing key를 내보내거나 가져오는 경우
+- loopback이 아닌 환경에서 provider URL을 구성하는 경우
+- testkit-js로 qanet 대상 E2E 테스트를 실행하는 경우
 
-## Summary of updates
+## 업데이트 요약
 
-- Renamed `IndexerFormattedError.cause` to `.errors` for ES2022 `Error.cause` compatibility.
-- Applied full password policy to signing key and private state export operations.
-- Emitted contract state for `blockHeight` and `blockHash` configurations.
-- Hardened error handling in `indexer-public-data-provider` with structured error types.
-- Added signing key value validation on import.
-- Added warnings for plain HTTP/WS on non-loopback provider URLs.
-- Added qanet support via NIGHT/DUST faucet flow in testkit-js.
-
----
-
-## New features
-
-Below is a detailed breakdown of the new capabilities introduced in this release.
-
-### qanet support in testkit-js
-
-Testkit-js now supports qanet environments through a NIGHT/DUST faucet flow, enabling E2E testing against the qanet network. The keystore derives the `waitForFunds` address directly.
-
-### Parameterized compose image versions
-
-Testkit-js compose configurations now accept parameterized image versions, enabling a nightly E2E matrix that tests against multiple component versions.
+- ES2022 `Error.cause` 호환성을 위해 `IndexerFormattedError.cause`를 `.errors`로 이름 변경
+- signing key와 private state 내보내기 작업에 전체 password 정책 적용
+- `blockHeight`·`blockHash` 구성에 대한 contract 상태 방출
+- `indexer-public-data-provider`의 오류 처리를 구조화된 오류 타입으로 강화
+- signing key 가져오기 시 값 검증 추가
+- loopback이 아닌 provider URL에서 평문 HTTP/WS 사용 시 경고 추가
+- testkit-js에 NIGHT/DUST faucet 흐름 기반 qanet 지원 추가
 
 ---
 
-## Breaking changes
+## 신규 기능
 
-### Rename `IndexerFormattedError.cause` to `.errors`
+이번 릴리스에 도입된 새로운 기능의 상세 내용입니다.
 
-The ES2022 `Error.cause` slot is contractually a single underlying error, not a collection. Shadowing it with an array of GraphQL errors broke Node's `util.inspect` causal chain, Sentry grouping, and structured loggers. This release renames the property to `.errors` to avoid the conflict.
+### testkit-js의 qanet 지원
 
-**Migration**: Replace all references to `IndexerFormattedError.cause` with `.errors`.
+testkit-js가 NIGHT/DUST faucet 흐름을 통해 qanet 환경을 지원하여, qanet 네트워크 대상 E2E 테스트를 실행할 수 있습니다. keystore가 `waitForFunds` 주소를 직접 도출합니다.
 
-### Extracted `correlateDeployTxId` helper
+### compose 이미지 버전 매개변수화
 
-This release extracts the contract-action / identifier correlation logic into a pure helper that takes narrow structural types. `toFinalizedDeployTxData` is now file-local and no longer exported. Use `correlateDeployTxId` instead.
-
-### Non-null assertions replaced with type predicates
-
-Rx filter chains in contract action handling now use type predicates instead of non-null assertions, which may affect code that relied on the previous type narrowing behavior.
+testkit-js의 compose 구성이 이미지 버전을 매개변수로 받을 수 있어, 여러 컴포넌트 버전 조합을 시험하는 nightly E2E matrix를 구성할 수 있습니다.
 
 ---
 
-## Bug fixes and quality improvements
+## 호환성 주의 사항 (Breaking changes)
 
-This release includes the following bug fixes and quality improvements.
+### `IndexerFormattedError.cause` → `.errors` 이름 변경
 
-### Full password policy on export operations
+ES2022의 `Error.cause` 슬롯은 규약상 단일 원인 오류를 담는 자리이지, 오류 모음을 담는 자리가 아닙니다. 이 자리를 GraphQL 오류 배열로 덮어쓰면 Node의 `util.inspect` 인과 체인, Sentry 그룹핑, 구조화 로거가 깨집니다. 이번 릴리스는 충돌을 피하기 위해 속성 이름을 `.errors`로 변경합니다.
 
-Export operations for signing keys and private states now enforce the same password policy as other key management operations, closing a security gap.
+**마이그레이션**: `IndexerFormattedError.cause` 참조를 모두 `.errors`로 바꾸세요.
 
-### Contract state emission for block configurations
+### `correlateDeployTxId` helper 분리
 
-Contract state is now emitted for `blockHeight` and `blockHash` configurations, resolving cases where the system missed state updates.
+contract action과 identifier를 대응시키는 로직을 좁은 구조적 타입을 받는 pure helper로 분리했습니다. `toFinalizedDeployTxData`는 이제 파일 내부 전용이며 더 이상 export되지 않습니다. 대신 `correlateDeployTxId`를 사용하세요.
 
-### Hardened indexer error handling
+### non-null assertion을 type predicate로 교체
 
-The `indexer-public-data-provider` now uses structured error types with proper error categorization, improving debuggability for GraphQL query failures.
-
-### Signing key validation on import
-
-Imported signing key values are now validated before storage, preventing invalid keys from causing downstream failures.
-
-### Plain HTTP/WS warning for non-loopback URLs
-
-Midnight.js now warns when provider URLs use plain HTTP or WebSocket protocols for non-loopback addresses, helping developers identify insecure configurations.
+contract action 처리의 Rx filter 체인이 non-null assertion 대신 type predicate를 사용합니다. 이전의 타입 좁히기 동작에 의존하던 코드는 영향을 받을 수 있습니다.
 
 ---
 
-## Known issues
+## 버그 수정 및 품질 개선
 
-No critical known issues exist at release time.
+이번 릴리스에 포함된 버그 수정 및 품질 개선 사항입니다.
+
+### 내보내기 작업에 전체 password 정책 적용
+
+signing key와 private state 내보내기 작업이 다른 key 관리 작업과 동일한 password 정책을 강제합니다. 이전까지 남아 있던 보안 공백 하나를 메웁니다.
+
+### block 구성에 대한 contract 상태 방출
+
+`blockHeight`·`blockHash` 구성에서도 contract 상태가 방출되어, 상태 업데이트를 놓치던 사례가 해결되었습니다.
+
+### indexer 오류 처리 강화
+
+`indexer-public-data-provider`가 적절한 오류 분류를 갖춘 구조화된 오류 타입을 사용합니다. GraphQL 쿼리 실패의 디버깅이 쉬워집니다.
+
+### signing key 가져오기 시 검증
+
+가져온 signing key 값을 저장 전에 검증하여, 잘못된 key가 이후 단계에서 실패를 일으키는 것을 방지합니다.
+
+### loopback이 아닌 URL의 평문 HTTP/WS 경고
+
+provider URL이 loopback이 아닌 주소에 평문 HTTP나 WebSocket 프로토콜을 사용하면 Midnight.js가 경고를 출력합니다. 안전하지 않은 구성을 찾아내는 데 도움이 됩니다.
 
 ---
 
-## Links and references
+## 알려진 이슈
+
+릴리스 시점에 확인된 치명적인 이슈는 없습니다.
+
+---
+
+## 링크 및 참고 자료
 
 - **GitHub**: [Midnight.js repository](https://github.com/midnightntwrk/midnight-js)
 - **API reference**: [Midnight.js API documentation](/api-reference/midnight-js/packages)

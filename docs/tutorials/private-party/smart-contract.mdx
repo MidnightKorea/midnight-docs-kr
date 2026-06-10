@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 sidebar_label: "Private party contract"
 title: "Private party contract"
-description: "Build a private party contract on Midnight that demonstrates the privacy boundary, Unshielded NIGHT tokens, and access control in Compact."
+description: "Midnight에서 privacy boundary, Unshielded NIGHT token, Compact의 접근 제어를 보여 주는 private party contract를 구축합니다."
 sidebar_position: 10
 toc_max_heading_level: 2
 tags:
@@ -18,96 +18,96 @@ tags:
 
 # Private party contract
 
-The private party tutorial is a beginner-level demonstration of the following features:
-- Unshielded token send/receive (NIGHT)
-- The privacy boundary
+이 private party 튜토리얼은 다음 기능을 다루는 초급 수준의 예제입니다:
+- Unshielded token 송수신 (NIGHT)
+- privacy boundary
 - persistentCommit
-- DApp-specific public keys
+- DApp 전용 public key
 
-It has two main components:
+이 튜토리얼에는 두 가지 핵심 구성 요소가 있습니다:
 1. Compact contract
-1. Test script
+1. 테스트 스크립트
 
-This tutorial demonstrates writing safe and secure Compact contracts with no witnesses and private data, and verifying the contract's operation with MidnightJS in a local devnet test script. Write each code block by hand rather than copying and pasting code.
+witness 없이 비공개 데이터를 다루는 안전한 Compact contract를 작성하고, MidnightJS 기반 로컬 devnet 테스트 스크립트로 contract의 동작을 검증하는 과정을 다룹니다. 코드를 복사해 붙여 넣기보다는 각 코드 블록을 직접 타이핑하며 따라가세요.
 
-The focus in this tutorial is on Compact, the test script is provided.
+이 튜토리얼의 초점은 Compact에 있으며, 테스트 스크립트는 미리 제공됩니다.
 
 ## Prerequisites
 
-Before you begin this tutorial, ensure you have:
-- [Installed the toolchain](../../getting-started/installation)
-- Node.js v22+
+시작하기 전에 다음 사항을 확인하세요:
+- [툴체인 설치](../../getting-started/installation) 완료
+- Node.js v22 이상
 
 ## Problem analysis
 
-The private party contract lets the party organizer collect RSVP notifications while maintaining attendee privacy up to a specific boundary, where attendees then become public. This tutorial refers to this as the "privacy boundary," an important element to understand when developing Midnight DApps. In this example, paying the entry fee in Unshielded NIGHT tokens crosses the privacy boundary.
+private party contract는 organizer가 참석자의 privacy를 특정 경계까지 유지하면서 RSVP 알림을 모을 수 있게 해 줍니다. 그 경계를 넘으면 참석자는 공개됩니다. 이 튜토리얼에서는 이 경계를 "privacy boundary"라고 부르며, Midnight DApp을 개발할 때 반드시 이해해야 하는 요소입니다. 이 예제에서는 Unshielded NIGHT token으로 입장료를 내는 순간 privacy boundary를 넘게 됩니다.
 
-In Compact, privacy is the default and you as the DApp developer hold the responsibility to manually transition a piece of data from private to public. However, certain functions in Compact are *always public*.
+Compact에서 privacy는 기본값이며, 데이터를 비공개에서 공개로 전환하는 일은 DApp 개발자인 여러분이 직접 책임지고 처리해야 합니다. 다만 Compact의 일부 기능은 *항상 공개*입니다.
 
-For example, ledger writes, returns from exported circuits, contract-to-contract calls, and Unshielded token transfers are all public. Hashing and commitment schemes in Compact can obfuscate data passed through the first three of these domains, but what about Unshielded tokens?
+예를 들어 ledger 쓰기, export된 circuit의 반환값, contract 간 호출, Unshielded token 전송은 모두 공개됩니다. 앞의 세 가지 영역을 지나는 데이터는 Compact의 해싱과 commitment 기법으로 가릴 수 있습니다. 그렇다면 Unshielded token은 어떨까요?
 
-Unshielded tokens are always public.
+Unshielded token은 항상 공개입니다.
 
-This tutorial will demonstrate absolute privacy for party attendees until the Unshielded token transfer, at which point the privacy boundary is crossed and privacy is no longer maintained.
+이 튜토리얼에서는 Unshielded token 전송 전까지 참석자의 privacy를 완전하게 유지하다가, 전송 시점에 privacy boundary를 넘으면서 더 이상 privacy가 유지되지 않는 과정을 보여 줍니다.
 
 ## Program design
 
-The private party program maintains privacy of party attendees by letting them RSVP to a party with a DApp-specific public key that hides their identity. The party organizer collects an entry fee in NIGHT tokens. NIGHT is an Unshielded token, and therefore these transactions are public. The attendees of the party remain private until they pay the entry fee and arrive at the party.
+private party 프로그램은 참석자가 신원을 감추는 DApp 전용 public key로 파티에 RSVP하게 하여 참석자의 privacy를 유지합니다. organizer는 입장료를 NIGHT token으로 받습니다. NIGHT은 Unshielded token이므로 이 거래는 공개됩니다. 참석자는 입장료를 내고 파티에 도착하기 전까지 비공개로 남습니다.
 
-The organizer maintains privacy within the DApp until the contract pays out the fees claimed by the organizer.
+organizer 역시 contract가 청구된 입장료를 지급하기 전까지는 DApp 안에서 privacy를 유지합니다.
 
 ### Operational steps
 
-First, consider the operational components of the contract. What does the contract need to do?
+먼저 contract의 동작 측면을 생각해 봅니다. contract는 무엇을 해야 할까요?
 
-In order, it needs to:
-1. Deploy the contract and allow the organizer to set some initial values
-1. Privately allow attendees to RSVP to the party
-1. Give access to the organizer (and only the organizer) to start the party
-1. Allow attendees who have previously RSVP'd to check-in to the party
-1. Close the doors for entry (organizer only)
-1. Payout fees to the organizer
+순서대로 정리하면 다음과 같습니다:
+1. contract를 배포하고 organizer가 초기값을 설정
+1. 참석자가 비공개로 파티에 RSVP
+1. organizer만 (그리고 오직 organizer만) 파티를 시작할 수 있도록 권한 부여
+1. 이미 RSVP한 참석자가 파티에 check-in
+1. 입장 마감 (organizer 전용)
+1. organizer에게 입장료 지급
 
 ### Data: private by default
 
-Compact treats data as private by default. This application demonstrates setting a piece of private state data and passing it privately into Compact circuits. No party attendee data is public until the Unshielded token transfer occurs.
+Compact는 데이터를 기본적으로 비공개로 취급합니다. 이 애플리케이션에서는 비공개 상태 데이터를 설정하고 Compact circuit에 비공개로 전달하는 과정을 보여 줍니다. Unshielded token 전송이 일어나기 전까지는 어떤 참석자 데이터도 공개되지 않습니다.
 
 ::::note[Always-public domains]
-While Compact treats all data as private by default, certain domains are *always public*. This includes:
-- Ledger fields
-- Returns from exported circuits
-- Contract to contract calls
-- Unshielded transactions
+Compact는 모든 데이터를 기본적으로 비공개로 취급하지만, 일부 영역은 *항상 공개*입니다. 다음이 여기에 해당합니다:
+- ledger 필드
+- export된 circuit의 반환값
+- contract 간 호출
+- Unshielded 트랜잭션
 
 ::::
 
 ### Access control
 
-An important aspect of developing smart contracts in open public systems, like the Midnight blockchain, is access control to circuits. Once you deploy the contract to the blockchain, its circuits effectively become public APIs that *anyone* can call. Secure Compact contracts need to guard access to circuits intended for only a specific user or type of user.
+Midnight 블록체인 같은 개방형 공개 시스템에서 smart contract를 개발할 때 중요한 요소 중 하나가 circuit 접근 제어입니다. contract를 블록체인에 배포하는 순간, 그 circuit는 사실상 *누구나* 호출할 수 있는 공개 API가 됩니다. 안전한 Compact contract라면 특정 사용자나 특정 유형의 사용자만 쓰도록 만든 circuit의 접근을 보호해야 합니다.
 
 ## Compact tutorial
 
-Compact provides a significant amount of flexibility for a DApp developer to precisely define a mix of public and private data. This tutorial focuses primarily on the Compact code and the remaining setup code comes with the repository.
+Compact는 DApp 개발자가 공개 데이터와 비공개 데이터의 조합을 정밀하게 정의할 수 있도록 상당한 유연성을 제공합니다. 이 튜토리얼은 주로 Compact 코드에 집중하며, 나머지 셋업 코드는 저장소에 포함되어 있습니다.
 
 ### Setup
 
-Start by cloning the private party repository:
+먼저 private party 저장소를 클론합니다:
 ```bash
 git clone git@github.com:midnightntwrk/example-private-party.git
 ```
 
-Open the project in your text editor and navigate to the `contracts` directory before creating a new `.compact` file.
+텍스트 에디터에서 프로젝트를 열고 `contracts` 디렉터리로 이동한 뒤 새 `.compact` 파일을 만듭니다.
 ```bash
 cd example-private-party/contracts && touch private-party.compact
 ```
 
-The first thing to do is declare the language version and imports:
+가장 먼저 언어 버전과 import를 선언합니다:
 ```compact
 pragma language_version 0.23;
 import CompactStandardLibrary;
 ```
 
-Then declare an enum of custom states:
+그런 다음 커스텀 상태 enum을 선언합니다:
 ```compact
 export enum PartyState {
     NOT_STARTED,
@@ -118,7 +118,7 @@ export enum PartyState {
 }
 ```
 
-Next, declare the *public* ledger fields:
+다음으로 *공개* ledger 필드를 선언합니다:
 ```compact
 export sealed ledger organizer: Bytes<32>;
 export sealed ledger maxListSize: Uint<16>;
@@ -128,19 +128,19 @@ export ledger hashedPartyGoers: Set<Bytes<32>>;
 export ledger checkedInParty: Set<UserAddress>;
 ```
 
-The keyword `sealed` denotes immutable ledger fields that can only be set during constructor execution and cannot be changed after the constructor completes.
+`sealed` 키워드는 변경 불가능한 ledger 필드를 나타냅니다. 이 필드는 constructor 실행 중에만 값을 설정할 수 있고, constructor가 끝난 뒤에는 바꿀 수 없습니다.
 
 ### Witnesses
 
-This contract uses no witness functions, but they can be useful to modify private state data in-circuit, provide off-chain computation, or enable functionality that does not exist in Compact, such as division. Witnesses are only declared in Compact. They are implemented in the off-chain TypeScript code, and therefore the return from a witness cannot be trusted without prior validation. For a demonstration of witness functions, see the [Battleship tutorial](../bship/smart-contract#witnesses).
+이 contract는 witness 함수를 사용하지 않지만, witness는 circuit 안에서 비공개 상태 데이터를 수정하거나, 오프체인 연산을 제공하거나, 나눗셈처럼 Compact에 없는 기능을 구현할 때 유용합니다. witness는 Compact에서 선언만 하고 구현은 오프체인 TypeScript 코드에서 하므로, witness의 반환값은 사전 검증 없이는 신뢰할 수 없습니다. witness 함수의 예시는 [Battleship 튜토리얼](../bship/smart-contract#witnesses)을 참고하세요.
 
-This tutorial will access private state data via Compact circuit inputs.
+이 튜토리얼에서는 비공개 상태 데이터에 Compact circuit 입력으로 접근합니다.
 
 ### Constructor
 
-Next, set up the constructor that executes on contract deployment. The party organizer will deploy this contract.
+다음으로 contract 배포 시점에 실행되는 constructor를 작성합니다. 이 contract는 organizer가 배포합니다.
 
-First, validate the inputs are non-zero before creating a unique identifier for the organizer:
+먼저 입력값이 0이 아닌지 검증한 뒤, organizer의 고유 식별자를 만듭니다:
 ```compact
 constructor (partySize: Uint<16>, fee: Uint<16>, _secret: Bytes<32>) {
     assert(partySize > 0, "The party size must be greater than zero");
@@ -149,60 +149,60 @@ constructor (partySize: Uint<16>, fee: Uint<16>, _secret: Bytes<32>) {
     const pubKey = getDappPublicKey(_secret);
     organizer = disclose(pubKey);
 
-}// end of constructor
+}// constructor 끝
 ```
 
-The implementation for `getDappPublicKey()` comes later. For now, understand that the organizer provides a secret that is hashed to provide a "public key" specific to this DApp. Compact circuit inputs are private, so `_secret` passes from private state directly to the circuit inputs and is never exposed publicly. The `pubKey` is safe to store on the ledger publicly, because it does not tie to the organizer's address or any other identifying information.
+`getDappPublicKey()`의 구현은 뒤에서 다룹니다. 지금은 organizer가 제공한 secret을 해싱해 이 DApp 전용 "public key"를 만든다는 것만 이해하면 됩니다. Compact circuit 입력은 비공개이므로, `_secret`은 비공개 상태에서 circuit 입력으로 곧바로 전달되며 외부에 노출되지 않습니다. `pubKey`는 organizer의 주소나 다른 식별 정보와 연결되지 않으므로 ledger에 공개로 저장해도 안전합니다.
 
-Now that you have verified the inputs and privately identified the party organizer, set the remaining ledger fields:
+입력을 검증하고 organizer를 비공개로 식별했으니, 이제 나머지 ledger 필드를 설정합니다:
 ```compact
     entryFee = disclose(fee);
     maxListSize = disclose(partySize);
     partyState = PartyState.NOT_STARTED;
 
-}// end of constructor
+}// constructor 끝
 ```
 
-Before the party starts, attendees need to RSVP that they plan to attend the party. You will implement the following circuit to allow this privately:
+파티가 시작되기 전에 참석자는 참석 의사를 RSVP로 알려야 합니다. 이를 비공개로 처리하는 circuit를 다음과 같이 구현합니다:
 ```compact
 export circuit rsvp(_address: UserAddress, _secret: Bytes<32>): [] {
     const pubKey = getDappPublicKey(_secret);
-    // caller authentication check
+    // 호출자 인증 검사
     assert(pubKey != organizer, "Organizer cannot RSVP to the party");
 
-    // state verification check
+    // 상태 검증 검사
     assert(partyState == PartyState.NOT_STARTED, "The party has already started");
     assert(hashedPartyGoers.size() < maxListSize, "The list is full");
 
-}// end of rsvp
+}// rsvp 끝
 ```
 
-The same `getDappPublicKey()` circuit can be used for both organizers and party attendees to create a unique identifier that maintains privacy. The unique `_secret` passed into this circuit returns a different hash for each secret.
+`getDappPublicKey()` circuit는 organizer와 참석자 모두가 privacy를 유지하는 고유 식별자를 만드는 데 그대로 사용할 수 있습니다. 이 circuit에 전달하는 `_secret`이 다르면 반환되는 해시도 달라집니다.
 
-After `assert`ing that the organizer isn't trying to attend their own party, the state of the contract is verified to be correct to accept RSVPs.
+organizer가 자기 파티에 참석하려는 것이 아닌지 `assert`로 확인한 다음, contract가 RSVP를 받을 수 있는 올바른 상태인지 검증합니다.
 
-Next, create a commitment to the `UserAddress` provided by the caller:
+다음으로 호출자가 제공한 `UserAddress`에 대한 commitment를 만듭니다:
 ```compact
-    // party goer address remains private
+    // 참석자 address는 비공개로 유지됩니다
     const commitHash = commitAddress(_secret, _address.bytes);
     assert(!hashedPartyGoers.member(commitHash), "You are already on the list");
-    hashedPartyGoers.insert(commitHash);// doesn't need disclose bc persistentCommit
+    hashedPartyGoers.insert(commitHash);// persistentCommit이므로 disclose 불필요
 
-}// end of rsvp
+}// rsvp 끝
 ```
 
-With this pattern, the caller of this circuit ties the provided address to their secret and creates a cryptographic commitment to these values. The `commitAddress()` circuit will be written later, but it allows public storage of the hash while maintaining privacy of the underlying values and enabling a check of these values later.
+이 패턴에서 circuit 호출자는 제공한 주소를 자신의 secret과 묶어 이 값들에 대한 암호학적 commitment를 만듭니다. `commitAddress()` circuit는 뒤에서 작성하는데, 이 circuit를 사용하면 원본 값들의 privacy를 유지하면서 해시는 공개로 저장할 수 있고, 나중에 이 값들을 다시 확인할 수도 있습니다.
 
-The last thing to do in this circuit is automatically trigger a state change if the list is full:
+이 circuit에서 마지막으로 할 일은 리스트가 가득 찼을 때 자동으로 상태를 전환하는 것입니다:
 ```compact
 
     if (hashedPartyGoers.size() == maxListSize) {
         partyState = PartyState.READY;
     }
-}// end of rsvp
+}// rsvp 끝
 ```
 
-Now that the RSVP circuit is working, add the ability for the organizer to start the party:
+RSVP circuit가 동작하게 되었으니, 이제 organizer가 파티를 시작할 수 있는 기능을 추가합니다:
 ```compact
 export circuit startParty(_secret: Bytes<32>): [] {
     const pubKey = getDappPublicKey(_secret);
@@ -211,57 +211,57 @@ export circuit startParty(_secret: Bytes<32>): [] {
         "The party is not in the correct state for this operation");
 
     partyState = PartyState.STARTED;
-}// end of startParty
+}// startParty 끝
 ```
 
-This circuit identifies the caller's `pubKey`, checks that it matches the previously stored organizer's public key, and ensures the contract state is one of two possible values before updating the contract state. Changing the contract state allows party attendees to check in to the party.
+이 circuit는 호출자의 `pubKey`를 식별하고, 앞서 저장한 organizer의 public key와 일치하는지 확인한 뒤, contract 상태가 두 가지 허용 값 중 하나인지 검사하고 나서 상태를 갱신합니다. contract 상태가 바뀌면 참석자가 파티에 check-in할 수 있습니다.
 
-Start the `checkIn` circuit:
+`checkIn` circuit를 작성합니다:
 ```compact
 export circuit checkIn(address: UserAddress, _secret: Bytes<32>): [] {
-    // state verification checks
+    // 상태 검증 검사
     assert(partyState == PartyState.STARTED, "The party has not been started. Call the party police");
     assert(checkedInParty.size() < hashedPartyGoers.size(), "All guests have already checked in");
 
     const commitHash = commitAddress(_secret, address.bytes);
 
-    // caller verification checks
+    // 호출자 검증 검사
     assert(hashedPartyGoers.member(commitHash), "You are not on the list");
     assert(!checkedInParty.member(disclose(address)), "You have already checked in");
    
-}// end of checkIn
+}// checkIn 끝
 ```
 
-This circuit intends to be called only by attendees who have already RSVP'd and restricts access to those on the `hashedPartyGoers` list. If the circuit caller is not on this list, or has provided a different `address` or `_secret` their circuit call will not pass the caller verification checks.
+이 circuit는 이미 RSVP한 참석자만 호출하도록 만들어졌으며, `hashedPartyGoers` 리스트에 있는 사람으로 접근을 제한합니다. 호출자가 이 리스트에 없거나 RSVP 때와 다른 `address` 또는 `_secret`을 제공하면, 그 호출은 호출자 검증을 통과하지 못합니다.
 
-The `commitAddress()` circuit makes use of a one-way, deterministic hashing function. In order to prove that the caller is some previously stored caller, they provide the same values and those values are hashed again. Comparing these two hashes should match if the caller provided the same value.
+`commitAddress()` circuit는 단방향 결정론적 해시 함수를 사용합니다. 호출자가 이전에 저장된 그 호출자임을 증명하려면 같은 값을 다시 제공해야 하고, 이 값들이 다시 해싱됩니다. 호출자가 같은 값을 제공했다면 두 해시는 일치합니다.
 
-Now that the caller is identified and state is as expected, the contract needs to accept payment. Payment for the party is denominated in NIGHT, which is an Unshielded token. All Unshielded tokens are public transactions.
+호출자를 식별했고 상태도 기대한 대로이니, 이제 contract가 결제를 받을 차례입니다. 파티 입장료는 NIGHT으로 결제하며, NIGHT은 Unshielded token입니다. Unshielded token 거래는 모두 공개됩니다.
 
-The private party attendees are now public:
+이 시점에 비공개였던 참석자가 공개됩니다:
 ```compact
-    // take in unshielded payment, party goers are now public
+    // Unshielded 결제를 받는 순간 참석자는 공개됩니다
     receiveUnshielded(nativeToken(), entryFee as Uint<128>);
     checkedInParty.insert(disclose(address));
 
-}// end of checkIn
+}// checkIn 끝
 ```
 
-The `nativeToken()` function returns the default color of all zeroes, indicating the NIGHT token. After the payment transaction completes, the `address` is `disclose()` and written to the ledger publicly.
+`nativeToken()` 함수는 모두 0으로 이루어진 기본 color를 반환하며, 이는 NIGHT token을 가리킵니다. 결제 트랜잭션이 완료되면 `address`를 `disclose()` 처리해 ledger에 공개로 기록합니다.
 
 ::::note[What disclose() does]
-`disclose()` itself *does not* make a value public. It only tells the compiler that you, the DApp developer, are marking this value as safe to store publicly.
+`disclose()` 자체는 값을 공개로 만들지 *않습니다*. DApp 개발자인 여러분이 이 값을 공개 저장해도 안전하다고 표시한다는 사실을 컴파일러에 알려 줄 뿐입니다.
 ::::
 
-The last thing to do in this circuit is to automatically close the doors to the party if everyone has checked in:
+이 circuit에서 마지막으로 할 일은 모두가 check-in했을 때 자동으로 파티 입장을 마감하는 것입니다:
 ```compact
     if(checkedInParty.size() == maxListSize) {
         partyState = PartyState.DOORS_CLOSED;
     }
-}// end of checkIn
+}// checkIn 끝
 ```
 
-If the `maxListSize` is never reached, a manual circuit needs to be provided for the organizer to change this state:
+`maxListSize`에 끝내 도달하지 못하는 경우를 대비해, organizer가 직접 이 상태를 바꿀 수 있는 circuit도 따로 제공해야 합니다:
 ```compact
 export circuit closeEntry(_secret: Bytes<32>): [] {
     const pubKey = getDappPublicKey(_secret);
@@ -269,24 +269,24 @@ export circuit closeEntry(_secret: Bytes<32>): [] {
     assert(partyState == PartyState.STARTED, "Party in wrong state");
 
     partyState = PartyState.DOORS_CLOSED;
-}// end of closeEntry
+}// closeEntry 끝
 ```
 
-The contract accepted the NIGHT tokens and now holds them for claiming by the organizer. The contract needs to provide a circuit that allows the organizer to claim these fees:
+contract는 받은 NIGHT token을 organizer가 청구할 때까지 보관합니다. 이제 organizer가 이 입장료를 청구할 수 있는 circuit가 필요합니다:
 ```compact
 export circuit claimFees(address: UserAddress, _secret: Bytes<32>): [] {
     const pubKey = getDappPublicKey(_secret);
     assert(organizer == pubKey, "You are not the organizer");
 
-    // state verification checks
+    // 상태 검증 검사
     assert(partyState == PartyState.DOORS_CLOSED, "The doors are not yet closed");
     assert(checkedInParty.size() > 0, "No fees to claim");
 
-    // calculate contract balance of NIGHT tokens
+    // contract의 NIGHT token 잔액 계산
     const totalCollected = checkedInParty.size() * entryFee;
     assert(unshieldedBalanceGte(nativeToken(), totalCollected), "Contract balance wrong");
 
-    // send to organizer, they are now public
+    // organizer에게 전송, organizer는 이제 공개됩니다
     sendUnshielded(
         nativeToken(),
         disclose(totalCollected) as Uint<128>,
@@ -296,38 +296,38 @@ export circuit claimFees(address: UserAddress, _secret: Bytes<32>): [] {
 }
 ```
 
-This circuit has similar components to previous circuits, except that it calculates the available balance of tokens before sending them to the organizer. This makes the organizer public through the `sendUnshielded()` function.
+이 circuit는 앞의 circuit들과 구성이 비슷하지만, token을 organizer에게 보내기 전에 사용 가능한 잔액을 계산한다는 점이 다릅니다. `sendUnshielded()` 함수를 거치면서 organizer도 공개됩니다.
 
-It is important to verify through `unshieldedBalanceGte()` that the contract balance is as expected. If the balance is too low to perform the `sendUnshielded()` transaction, the circuit execution will fail.
+`unshieldedBalanceGte()`로 contract 잔액이 기대한 값인지 확인하는 일은 중요합니다. 잔액이 `sendUnshielded()` 트랜잭션을 수행하기에 부족하면 circuit 실행이 실패합니다.
 
-Now the `commitAddress()` circuit:
+이제 `commitAddress()` circuit입니다:
 ```compact
 circuit commitAddress(_address: Bytes<32>, _secret: Bytes<32>): Bytes<32> {
     return persistentCommit<Bytes<32>>(_address, _secret);
 }
 ```
 
-This circuit makes use of `persistentCommit` to obfuscate the `_address` which is hashed with a random salt value, in this case the `_secret`. It is important to always use sufficiently random salt values, because the inputs to `persistentCommit` can be any simple value that is easily guessable. Due to the sufficiently random salt value, the hash returned does not need to be passed through `disclose()` before crossing into the public domain. It is already considered safe to do so.
+이 circuit는 `persistentCommit`으로 `_address`를 가립니다. `_address`는 무작위 salt 값, 여기서는 `_secret`과 함께 해싱됩니다. `persistentCommit`의 입력은 쉽게 추측할 수 있는 단순한 값일 수 있으므로, 충분히 무작위적인 salt 값을 항상 사용해야 합니다. salt가 충분히 무작위적이라면 반환된 해시는 공개 영역으로 넘어가기 전에 `disclose()`를 거칠 필요가 없습니다. 이미 안전하다고 간주되기 때문입니다.
 
-Now the `getDappPublicKey()` circuit:
+이제 `getDappPublicKey()` circuit입니다:
 ```compact
 circuit getDappPublicKey(_secret: Bytes<32>): Bytes<32> {
     return persistentHash<Vector<2, Bytes<32>>>([pad(32, "private-party:pk:"), _secret]);
 }
 ```
 
-By contrast, the `persistentHash` function is for arbitrary binary data, like the `_secret`. Hashed with the domain separator specific to this DApp, it produces a "DApp-specific public key" that needs to be disclosed if intending to cross into the public domain. This is currently the only safe way to verify the caller of a Compact circuit.
+이와 달리 `persistentHash` 함수는 `_secret` 같은 임의의 이진 데이터를 위한 것입니다. 이 DApp 전용 domain separator와 함께 해싱하면 "DApp 전용 public key"가 만들어지며, 이 값을 공개 영역으로 넘기려면 disclose해야 합니다. 현재로서는 이것이 Compact circuit의 호출자를 검증하는 유일하게 안전한 방법입니다.
 
-That is all of the Compact code needed to enable your private party!
+private party에 필요한 Compact 코드는 이것이 전부입니다!
 
 ### Compilation
 
-To compile the contract:
+contract를 컴파일하려면:
 ```bash
 yarn compile
 ```
 
-Successful output:
+성공 시 출력:
 ```
 $ compact compile contract/private-party.compact contract/managed/private-party
 Compiling 5 circuits:
@@ -339,14 +339,14 @@ Compiling 5 circuits:
 Done in 8.24s.
 ```
 
-If compilation is not successful, carefully read and understand the compiler error message and correct the error. Fighting the compiler is one of the most useful ways to learn new languages.
+컴파일이 실패하면 컴파일러 오류 메시지를 꼼꼼히 읽고 이해한 뒤 오류를 수정하세요. 컴파일러와 씨름하는 과정은 새 언어를 배우는 가장 좋은 방법 중 하나입니다.
 
-To further inspect circuit data run the zkir linter (optional), from the `/contract` directory:
+circuit 데이터를 더 자세히 살펴보려면 `/contract` 디렉터리에서 zkir linter를 실행하세요(선택사항):
 ```bash
 npx compact-zkir-lint -r managed/private-party/zkir
 ```
 
-Successful output:
+성공 시 출력:
 ```
 zkir-lint: scanned 5 file(s)
 
@@ -375,26 +375,26 @@ zkir-lint: scanned 5 file(s)
 
 ### Testing
 
-Compilation only satisfies the Compact compiler with proper syntax. To ensure the contract operates as expected, run the test suite. Comprehensive test suites are essential in writing safe and secure contracts.
+컴파일을 통과했다는 것은 Compact 컴파일러가 보기에 문법이 올바르다는 뜻일 뿐입니다. contract가 기대대로 동작하는지 확인하려면 테스트 스위트를 실행하세요. 안전한 contract를 작성하려면 포괄적인 테스트 스위트가 필수입니다.
 
-Be sure the Docker engine is running and start the local devnet:
+Docker 엔진이 실행 중인지 확인하고 로컬 devnet을 시작하세요:
 ```bash
 yarn env:up
 ```
 
-This will create a small local blockchain in a Docker container that consists of:
+이 명령은 Docker 컨테이너 안에 다음으로 구성된 작은 로컬 블록체인을 만듭니다:
 - Midnight Node
 - Midnight Indexer
 - Midnight proof server
 
-The proof server is a vital component of Midnight's zero-knowledge proof system. To learn more, see [Zero-knowledge proofs](../../concepts/zero-knowledge-proofs.mdx).
+proof server는 Midnight의 zero-knowledge proof 시스템에서 핵심적인 구성 요소입니다. 자세한 내용은 [Zero-knowledge proofs](../../concepts/zero-knowledge-proofs.mdx)를 참고하세요.
 
-Run the test suite:
+테스트 스위트를 실행합니다:
 ```bash
 yarn test:local
 ```
 
-Successful output:
+성공 시 출력:
 ```
 [17:27:12.796] INFO (46073): Wallet sync [22]: shielded=true, unshielded=true, dust=true
 [17:27:12.796] INFO (46073): Wallet sync complete after 22 emissions
@@ -443,14 +443,14 @@ Successful output:
    ✓ Private Party smart contract via midnight-js > Deploys the contract(the hard way)  16823ms
 ```
 
-Read through the MidnightJS components that enable these tests in `/src/test/party.test.ts`. To learn more about testing specifically, see [Test and debug](../../compact/test-and-debug.mdx).
+이 테스트를 구동하는 MidnightJS 구성 요소는 `/src/test/party.test.ts`에서 읽어 보세요. 테스트에 대해 더 알아보려면 [Test and debug](../../compact/test-and-debug.mdx)를 참고하세요.
 
 ## Conclusion
 
-This concludes the private party tutorial. The inclusion of the Unshielded NIGHT token exposed the party attendees. To maintain their privacy, rework this contract and test suite to use Shielded tokens.
+이것으로 private party 튜토리얼을 마칩니다. Unshielded NIGHT token을 사용하면서 참석자가 공개되었습니다. 참석자의 privacy를 끝까지 유지하고 싶다면, 이 contract와 테스트 스위트를 Shielded token을 사용하도록 고쳐 보세요.
 
-To inspect the full private-party repository, see [example-private-party](https://github.com/midnightntwrk/example-private-party). If you have questions, reach out in the Discord dev-chat channel.
+전체 private-party 저장소는 [example-private-party](https://github.com/midnightntwrk/example-private-party)에서 확인할 수 있습니다. 질문이 있다면 Discord의 dev-chat 채널에 남겨 주세요.
 
 ## Next steps
 
-For a more comprehensive, from scratch tutorial, see [Battleship](../bship/index.mdx) or move on to a more advanced use case with [ZK-loan](../zk-loan/index.mdx).
+처음부터 끝까지 직접 구축하는 더 포괄적인 튜토리얼이 필요하다면 [Battleship](../bship/index.mdx)을, 더 고급 사례로 넘어가려면 [ZK-loan](../zk-loan/index.mdx)을 참고하세요.

@@ -1,6 +1,6 @@
 position: 2
 label: 'Private Party'
-description: "Beginner: learn about privacy on Midnight."
+description: "입문: Midnight의 프라이버시를 배웁니다."
 collapsible: true # make the category collapsible
 collapsed: true # keep the category closed by default
 link:

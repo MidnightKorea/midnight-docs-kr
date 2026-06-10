@@ -42,9 +42,10 @@ jobs:
           API_REF=$(echo "$ALL_FILES" | grep -E '^api-reference/' || true)
           DOCS=$(echo "$ALL_FILES" | grep -E '^(docs|blog|sdks|compact|relnotes)/' | grep -v '^docs/_learn' | grep -v '^docs/_develop' || true)
 
-          INFRA_COUNT=$(echo "$INFRA" | grep -c . || echo 0)
-          API_COUNT=$(echo "$API_REF" | grep -c . || echo 0)
-          DOCS_COUNT=$(echo "$DOCS" | grep -c . || echo 0)
+          # grep -c는 0건이어도 "0"을 출력하므로 || echo 0 금지 (이중 출력으로 카운트 깨짐)
+          INFRA_COUNT=$(echo "$INFRA" | grep -c . || true)
+          API_COUNT=$(echo "$API_REF" | grep -c . || true)
+          DOCS_COUNT=$(echo "$DOCS" | grep -c . || true)
 
           # 최근 커밋 요약
           COMMITS=$(git log --oneline HEAD..upstream/main | head -20)
@@ -68,7 +69,7 @@ jobs:
           if [ "$DOCS_COUNT" != "0" ]; then
             echo "### 번역 필요 파일" >> /tmp/issue-body.md
             echo "$DOCS" | while read -r f; do
-              [ -n "$f" ] && echo "- [ ] \`$f\`" >> /tmp/issue-body.md
+              if [ -n "$f" ]; then echo "- [ ] \`$f\`" >> /tmp/issue-body.md; fi
             done
             echo "" >> /tmp/issue-body.md
           fi
@@ -77,7 +78,7 @@ jobs:
             echo "<details><summary>API Reference 변경 파일 (${API_COUNT}개)</summary>" >> /tmp/issue-body.md
             echo "" >> /tmp/issue-body.md
             echo "$API_REF" | while read -r f; do
-              [ -n "$f" ] && echo "- \`$f\`" >> /tmp/issue-body.md
+              if [ -n "$f" ]; then echo "- \`$f\`" >> /tmp/issue-body.md; fi
             done
             echo "" >> /tmp/issue-body.md
             echo "</details>" >> /tmp/issue-body.md

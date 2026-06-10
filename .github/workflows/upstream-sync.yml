@@ -99,7 +99,7 @@ jobs:
       - name: Ensure label exists
         if: steps.check.outputs.behind != '0'
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
           gh label create "upstream-sync" --color "1d76db" --description "Upstream 동기화 알림" --repo "$REPO" 2>/dev/null || true
@@ -107,7 +107,7 @@ jobs:
       - name: Create issue
         if: steps.check.outputs.behind != '0'
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
           BEHIND=${{ steps.check.outputs.behind }}

@@ -16,7 +16,7 @@ ZK Loan 예제는 신용 데이터가 사용자 기기를 벗어나지 않은 �
 
 ## What this DApp demonstrates
 
-이 예제는 [Counter](./counter)나 [Bulletin board](./bboard) DApp보다 의도적으로 규모가 큽니다 — 여러 Midnight 구성 요소를 한곳에 엮어냅니다.
+이 예제는 [Bulletin board](./bboard) DApp보다 의도적으로 규모가 큽니다 — 여러 Midnight 구성 요소를 한곳에 엮어냅니다.
 
 - **Witness가 제공하는 private input**: TypeScript 코드가 proving 시점에 신용 데이터를 영지식 prover에 공급하되 온체인에는 노출하지 않습니다.
 - **circuit 안에서의 Schnorr-on-Jubjub 서명 검증**: 직접 작성한 Compact 모듈(표준 라이브러리에 `jubjubSchnorrVerify`가 추가되면 교체 가능)이 신용 데이터가 등록된 attestation 제공자에게서 왔음을 증명합니다.

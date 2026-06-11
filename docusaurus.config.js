@@ -195,7 +195,61 @@ const config = {
             ],
             to: 'https://academy.midnight.network/',
           },
-        
+          {
+            from: '/category/examples',
+            to: '/examples',
+          },
+          {
+            from: '/category/tutorials',
+            to: '/tutorials',
+          },
+          {
+            from: '/category/contracts',
+            to: '/examples/contracts',
+          },
+          {
+            from: '/category/dapps',
+            to: '/examples/dapps',
+          },
+          {
+            from: ['/category/counter', '/tutorials/counter'],
+            to: '/tutorials/bboard',
+          },
+          {
+            from: '/tutorials/counter/smart-contract',
+            to: '/tutorials/bboard/smart-contract',
+          },
+          {
+            from: '/tutorials/counter/counter-cli',
+            to: '/tutorials/bboard/bboard-cli',
+          },
+          {
+            from: '/examples/dapps/counter',
+            to: '/examples/dapps/bboard',
+          },
+          {
+            from: '/category/bulletin-board',
+            to: '/tutorials/bboard',
+          },
+          {
+            from: '/category/battleship',
+            to: '/tutorials/bship',
+          },
+          {
+            from: '/category/leaderboard',
+            to: '/tutorials/leaderboard',
+          },
+          {
+            from: '/category/zk-loan',
+            to: '/tutorials/zk-loan',
+          },
+          {
+            from: [
+              '/ai-tools/midnight-mcp-ai-assisted-development',
+              '/category/ai-tools',
+            ],
+            to: '/',
+          },
         ],
       },
     ],

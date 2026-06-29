@@ -1,0 +1,139 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+sidebar_position: 55
+sidebar_label: Nightforge
+description: Midnight용 커뮤니티 개발 환경인 Nightforge로 Compact contract를 하나의 CLI에서 컴파일하고 배포하며 운영합니다.
+title: Nightforge
+tags: [community, cli, tooling, compact, deployment, wallet, proof-server, scaffolding]
+toc_max_heading_level: 2
+id: nightforge
+---
+
+# Nightforge
+
+[Nightforge](https://github.com/cadalt0/NIGHTFORGE)는 Midnight Network에서 Compact contract를 컴파일하고 배포하며 운영하기 위한 개발 환경입니다. 프로젝트 scaffolding, wallet 생명주기 도구, proof server 오케스트레이션, 배포를 하나의 CLI로 묶어 제공합니다. [cadalt0](https://github.com/cadalt0)가 이 프로젝트를 관리하며 npm에 [`nightforge`](https://www.npmjs.com/package/nightforge)로 배포합니다.
+
+:::warning[Community-maintained - not audited]
+
+이 프로젝트는 Midnight Foundation이 아니라 [cadalt0](https://github.com/cadalt0)가 관리합니다. 감사(audit)를 받지 않았습니다. npm 패키지는 MIT 라이선스를 명시하는 반면, 저장소의 `LICENSE` 파일에는 Apache 2.0 텍스트가 들어 있습니다. production 워크플로에 사용하기 전에 이 도구를 직접 검토하시기 바랍니다.
+
+:::
+
+## Prerequisites
+
+Nightforge를 사용하기 전에 다음을 갖췄는지 확인하세요:
+
+- Node.js와 npm.
+- [Compact developer tools](/getting-started/installation)가 설치되어 있고 `PATH`에서 사용할 수 있어야 합니다. `compile` 명령은 `compact` CLI를 호출합니다.
+- `nightforge proof-server`로 local proof server를 실행하기 위한 Docker.
+- 배포 자금으로 쓸 [Preprod faucet](https://faucet.preprod.midnight.network/)의 tNIGHT.
+
+## Compatibility
+
+| Component | Version | Notes |
+|---|---|---|
+| Nightforge | `1.0.0` | 최신 npm 릴리스. GitHub 릴리스 `v1.0.0`. |
+| Compact compiler | Not pinned | Nightforge는 시스템에 설치된 `compact` CLI를 호출합니다. |
+| Proof server image | `midnightntwrk/proof-server:7.0.0` | 기본 태그. `-v <version>`으로 변경할 수 있습니다. 현재 릴리스는 [compatibility matrix](/relnotes/support-matrix)에서 확인하세요. |
+| Networks | Preprod (default), custom endpoints | `--network` 또는 `--remote`로 설정합니다. |
+| License | MIT on npm | 저장소의 `LICENSE` 파일에는 Apache 2.0 텍스트가 들어 있습니다. |
+
+## Installation
+
+패키지를 로컬에 설치합니다:
+
+```bash
+npm install nightforge
+```
+
+`npx`로 명령을 실행합니다:
+
+```bash
+npx nightforge --help
+```
+
+## Quickstart
+
+```bash
+# 1) Create a project
+npx nightforge init my-midnight-app
+cd my-midnight-app
+
+# 2) Compile the contract
+npx nightforge compile
+
+# 3) Start the wallet sync service
+npx nightforge sync
+
+# 4) In another terminal, check the synced balance
+npx nightforge wallet balance
+
+# 5) Deploy using the synced state
+npx nightforge deploy example --network preprod
+```
+
+`init` 명령은 `midnight.config.js`, `contracts/example.compact`, `scripts/` 디렉터리, walletsync 설정 파일을 생성합니다. `-t`를 붙여 템플릿을 고를 수 있습니다: `default`, `token`, `nft`.
+
+## Auto mode
+
+`deploy --auto`는 전체 과정을 자동으로 진행합니다. wallet이 없으면 생성하고, tNIGHT 충전을 기다린 뒤 DUST를 등록하고, proof server가 준비될 때까지 기다린 다음 배포합니다.
+
+```bash
+npx nightforge deploy --auto --network preprod
+```
+
+local proof server 대신 remote proof server로 배포를 지정하려면:
+
+```bash
+npx nightforge deploy example --auto --remote http://YOUR-PROOF-HOST:6300
+```
+
+## Commands
+
+| Command | Purpose |
+|---|---|
+| `nightforge init <project-name>` | 프로젝트 scaffold를 생성합니다. |
+| `nightforge compile` | Compact contract를 `contracts/managed/`로 컴파일합니다. |
+| `nightforge sync --init` | walletsync 설정 파일을 생성합니다. |
+| `nightforge sync` | walletsync 서버를 실행합니다(기본 포트 `8787`). |
+| `nightforge wallet create` | wallet을 생성합니다. |
+| `nightforge wallet restore` | seed로 wallet을 복구합니다. |
+| `nightforge wallet balance` | 활성 wallet의 잔액을 확인합니다. |
+| `nightforge wallet dust` | DUST 생성을 위해 tNIGHT를 등록합니다. |
+| `nightforge proof-server` | local proof server를 실행합니다(단축형: `ps`). |
+| `nightforge deploy <contract>` | 컴파일된 contract를 배포합니다. |
+| `nightforge clean` | 빌드 산출물을 제거합니다. |
+
+저장소의 [command guides](https://github.com/cadalt0/NIGHTFORGE/tree/main/Docs)에서 모든 flag를 자세히 설명합니다.
+
+## Runtime state files
+
+Nightforge는 프로젝트 루트에 로컬 state 파일을 기록합니다:
+
+| File | Purpose |
+|---|---|
+| `wallet.json` | 저장된 wallet seed, address, network. |
+| `proof-server-status.json` | proof server의 실행 및 준비 상태. |
+| `deployment.json` | 배포 메타데이터 출력. |
+
+`nightforge wallet`로 생성한 wallet은 프로젝트 외부의 `~/.nightforge/wallets/`에 저장되며, wallet마다 JSON 파일 하나로 소유자 전용 파일 권한이 부여됩니다.
+
+:::caution[Wallet files contain seeds]
+
+`wallet.json`과 `~/.nightforge/wallets/` 아래 파일에는 wallet seed가 들어 있습니다. 절대 버전 관리에 커밋하지 말고, 환경마다 별도의 wallet을 사용하세요.
+
+:::
+
+## Additional resources
+
+- [Project repository](https://github.com/cadalt0/NIGHTFORGE): 소스, command guide, 문제 해결.
+- [`nightforge` on npm](https://www.npmjs.com/package/nightforge): 배포된 패키지.
+- [Project site](https://midnight-forge-pearl.vercel.app/): 호스팅되는 랜딩 페이지.
+- [Changelog](https://github.com/cadalt0/NIGHTFORGE/blob/main/CHANGELOG.md): 버전 이력.
+
+## Report issues
+
+Nightforge 관련 문제는 [cadalt0's tracker](https://github.com/cadalt0/NIGHTFORGE/issues)에 등록하세요.
+
+이 문서 페이지 관련 문제는 [Midnight docs repository](https://github.com/midnightntwrk/midnight-docs/issues)에 등록하세요.

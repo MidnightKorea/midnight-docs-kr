@@ -21,7 +21,7 @@ toc_max_heading_level: 2
 
 - **Compact 툴체인 설치**: 설치 방법은 [툴체인 설치](../../../getting-started/installation) 가이드를 참조하세요
 - **proof 서버 실행 중**: 설치 방법은 [proof 서버 실행](../../../getting-started/installation#set-up-the-proof-server) 가이드를 참조하세요
-- **Node.js 버전 22 이상**: `node --version`으로 확인하세요
+- **Node.js 버전 24 이상**: `node --version`으로 확인하세요
 
 ## Set up the project
 
@@ -59,7 +59,7 @@ touch src/bboard.compact
 `pragma language_version` 지시문은 컨트랙트에서 사용하는 Compact 버전을 지정합니다:
 
 ```compact
-pragma language_version >= 0.23;
+pragma language_version 0.23;
 ```
 
 이 지시문은:
@@ -72,7 +72,7 @@ pragma language_version >= 0.23;
 내장 타입과 함수를 위해 Compact의 표준 라이브러리를 임포트합니다:
 
 ```compact
-pragma language_version >= 0.23;
+pragma language_version 0.23;
 
 import CompactStandardLibrary;
 ```
@@ -88,7 +88,7 @@ import CompactStandardLibrary;
 게시판은 두 가지 가능한 상태를 가집니다. 이를 나타내는 열거형 타입을 정의합니다:
 
 ```compact
-pragma language_version >= 0.23;
+pragma language_version 0.23;
 
 import CompactStandardLibrary;
 
@@ -110,7 +110,7 @@ export enum State {
 ledger는 컨트랙트의 공개 온체인 상태를 나타냅니다. 게시판에는 네 가지 공개 정보가 필요합니다:
 
 ```compact
-pragma language_version >= 0.23;
+pragma language_version 0.23;
 
 import CompactStandardLibrary;
 
@@ -277,7 +277,7 @@ commitment는 중요한 특성을 가집니다:
 완성된 게시판 컨트랙트는 다음과 같아야 합니다:
 
 ```compact
-pragma language_version >= 0.23;
+pragma language_version 0.23;
 
 import CompactStandardLibrary;
 
@@ -346,8 +346,8 @@ compact compile src/bboard.compact src/managed/bboard
 
 ```
 Compiling 2 circuits:
-  circuit "post" (k=13, rows=4569)
-  circuit "takeDown" (k=13, rows=4580)
+  circuit "post" (k=14, rows=10070)
+  circuit "takeDown" (k=14, rows=10087)
 Overall progress [====================] 2/2
 ```
 
@@ -508,7 +508,7 @@ export declare class Contract<PS = any, W extends Witnesses<PS> = Witnesses<PS>>
 
 ```typescript
 import { Ledger } from "./managed/bboard/contract/index.js";
-import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
+import { WitnessContext } from "@midnight-ntwrk/midnight-js-protocol/compact-runtime";
 
 export type BBoardPrivateState = {
   readonly secretKey: Uint8Array;
@@ -546,21 +546,19 @@ witness 함수는 ledger 상태, private 상태, 컨트랙트 주소에 접근�
 컨트랙트 API를 재내보내기 위해 `contract/src/index.ts`를 생성합니다:
 
 ```typescript
+import { CompiledContract } from "@midnight-ntwrk/midnight-js-protocol/compact-js";
+
 export * from "./managed/bboard/contract/index.js";
 export * from "./witnesses";
 
 import * as CompiledBBoardContract from "./managed/bboard/contract/index.js";
 import * as Witnesses from "./witnesses";
-import { CompiledContract } from "@midnight-ntwrk/compact-js";
 
 export const CompiledBBoardContractContract = CompiledContract.make<
   CompiledBBoardContract.Contract<Witnesses.BBoardPrivateState>
->(
-  "BBoard",
-  CompiledBBoardContract.Contract<Witnesses.BBoardPrivateState>,
-).pipe(
+>("BBoard", CompiledBBoardContract.Contract<Witnesses.BBoardPrivateState>).pipe(
   CompiledContract.withWitnesses(Witnesses.witnesses),
-  CompiledContract.withCompiledFileAssets("./compiled/bboard"),
+  CompiledContract.withCompiledFileAssets("./managed/bboard"),
 );
 ```
 
@@ -594,7 +592,7 @@ npm init -y
     "lib": ["ESNext"],
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
@@ -614,7 +612,18 @@ npm init -y
 - `declaration`: TypeScript 소비자를 위한 `.d.ts` 타입 정의 파일 생성
 - `outDir`: 컴파일된 JavaScript 파일은 `./dist`에 저장
 - `rootDir`: 소스 TypeScript 파일은 `./src`에 위치
+- `moduleResolution`: Midnight.js 패키지의 서브패스 임포트를 해석하기 위해 `Bundler`로 설정
 - `strict`: 더 나은 코드 품질을 위한 엄격한 타입 검사 활성화
+
+프로덕션 빌드에서 테스트 파일을 제외하도록 같은 디렉터리에 `tsconfig.build.json` 파일을 만드세요:
+
+```json
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["src/test/**/*.ts"],
+  "compilerOptions": {}
+}
+```
 
 ### Add build scripts
 
@@ -623,12 +632,9 @@ npm init -y
 ```json
 {
   "name": "@midnight-ntwrk/bboard-contract",
-  "version": "0.1.0",
-  "license": "Apache-2.0",
-  "private": true,
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -639,47 +645,44 @@ npm init -y
     }
   },
   "scripts": {
-    "clean": "rm -rf dist managed",
-    "compile:compact": "compact compile src/bboard.compact src/managed/bboard",
-    "compile:typescript": "tsc",
-    "build": "npm run clean && npm run compile:compact && npm run compile:typescript && cp -Rf ./src/managed ./dist/managed && cp ./src/bboard.compact ./dist"
+    "build": "rm -rf dist && tsc --project tsconfig.build.json && cp -Rf ./src/managed ./dist/managed && cp ./src/bboard.compact ./dist",
+    "compact": "compact compile src/bboard.compact ./src/managed/bboard",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.8.0"
+    "typescript": "^5.9.3"
   }
 }
 ```
 
 각 스크립트의 용도는 다음과 같습니다:
 
-- `clean`: 새로운 빌드를 위해 컴파일된 출력을 제거
-- `compile:compact`: Compact 컴파일러를 실행하여 circuit 및 TypeScript API 생성
-- `compile:typescript`: TypeScript를 JavaScript로 컴파일
-- `build`: 모든 컴파일 단계를 순서대로 실행하고 필요한 파일을 복사
+- `compact`: Compact 컴파일러를 실행하여 circuit 및 TypeScript API 생성
+- `typecheck`: JavaScript 출력 없이 TypeScript 타입을 검증
+- `build`: `tsconfig.build.json`을 사용하여 TypeScript를 컴파일하고, 생성된 `managed/` 디렉터리와 컨트랙트 소스를 `dist/`로 복사
 
 ### Build the contract
 
-전체 빌드 프로세스를 실행합니다:
+`compact`와 `build` 스크립트는 독립적으로 실행되므로, Compact 컨트랙트를 다시 컴파일하지 않고도 TypeScript 빌드를 다시 실행할 수 있습니다:
 
 ```bash
 npm install
+npm run compact
 npm run build
 ```
 
 이 명령은:
 
-1. 의존성(TypeScript 컴파일러 및 Node.js 타입)을 설치합니다
-2. 이전 빌드 아티팩트를 정리합니다
-3. Compact 컨트랙트를 circuit 및 TypeScript로 컴파일합니다
-4. TypeScript를 JavaScript로 컴파일합니다
-5. 타입 정의 파일을 생성합니다
-6. 관리 코드와 소스 컨트랙트를 `dist` 디렉터리에 복사합니다
+1. 의존성(TypeScript 컴파일러)을 설치합니다
+2. Compact 컨트랙트를 circuit 및 생성된 TypeScript API(`src/managed/bboard/`)로 컴파일합니다
+3. `src/test` 디렉터리를 제외하는 `tsconfig.build.json`을 사용하여 TypeScript를 JavaScript로 컴파일합니다
+4. `managed/` 디렉터리와 소스 `bboard.compact` 파일을 `dist/`로 복사합니다
 
-Compact 컴파일러와 TypeScript 컴파일러 모두의 출력이 표시됩니다. 성공하면 다음을 갖게 됩니다:
+성공하면 다음을 갖게 됩니다:
 
-- `dist/managed/bboard/`: 생성된 컨트랙트 코드
+- `src/managed/bboard/`: Compact 컴파일러가 생성한 컨트랙트 코드
 - `dist/`: 컴파일된 JavaScript 및 타입 정의
+- `dist/managed/bboard/`: 패키징을 위해 복사된 생성 컨트랙트 코드
 - `dist/bboard.compact`: 소스 컨트랙트 파일
 
 ## Next steps

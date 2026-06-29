@@ -17,13 +17,13 @@ Midnight 개발은 **macOS, Linux, Windows(WSL 사용)**에서 지원됩니다.
 
 다음이 설치되어 있는지 확인하세요:
 
-- [Node.js](https://nodejs.org/) (v18 이상)
+- [Node.js](https://nodejs.org/) (v22 이상)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) — proof server 실행에 필요합니다
 
 설치를 확인합니다:
 
 ```bash
-node --version    # should print v18.x.x or higher
+node --version    # should print v22.x.x or higher
 npm --version     # should print 9.x.x or higher
 docker --version  # should print Docker version 2x.x.x or higher
 ```
@@ -58,15 +58,9 @@ touch package.json
     "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "@midnight-ntwrk/ledger-v8": "^8.0.0",
-    "@midnight-ntwrk/midnight-js-network-id": "^4.0.0",
-    "@midnight-ntwrk/midnight-js-utils": "^4.0.0",
-    "@midnight-ntwrk/wallet-sdk-address-format": "^3.0.0",
-    "@midnight-ntwrk/wallet-sdk-dust-wallet": "^3.0.0",
-    "@midnight-ntwrk/wallet-sdk-facade": "^3.0.0",
-    "@midnight-ntwrk/wallet-sdk-hd": "^3.0.0",
-    "@midnight-ntwrk/wallet-sdk-shielded": "^2.0.0",
-    "@midnight-ntwrk/wallet-sdk-unshielded-wallet": "^2.0.0",
+    "@midnight-ntwrk/midnight-js-network-id": "4.1.1",
+    "@midnight-ntwrk/midnight-js-utils": "4.1.1",
+    "@midnightntwrk/wallet-sdk": "1.2.0",
     "rxjs": "^7.8.1",
     "ws": "^8.19.0"
   },
@@ -146,45 +140,37 @@ import { Buffer } from 'buffer';
 import * as readline from 'readline';
 import * as Rx from 'rxjs';
 
-// HD wallet — derives multiple key pairs from a single seed phrase
-import { HDWallet, Roles, generateRandomSeed } from '@midnight-ntwrk/wallet-sdk-hd';
-
-// Utility to convert binary data to hex strings
-import { toHex } from '@midnight-ntwrk/midnight-js-utils';
-
-// Ledger types — defines tokens, keys, and on-chain parameters
-import * as ledger from '@midnight-ntwrk/ledger-v8';
-import { unshieldedToken } from '@midnight-ntwrk/ledger-v8';
-
-// WalletFacade — combines the three sub-wallets into a single interface
-import { WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
-
-// ShieldedWallet — handles private (zero-knowledge) transactions
-import { ShieldedWallet } from '@midnight-ntwrk/wallet-sdk-shielded';
-
-// DustWallet — generates and spends DUST for transaction fees
-import { DustWallet } from '@midnight-ntwrk/wallet-sdk-dust-wallet';
-
-// UnshieldedWallet — handles transparent (public) transactions like receiving tNight
+// The Midnight wallet SDK ships as a single barrel package that re-exports every
+// wallet sub-package: HD key derivation, the wallet facade, the shielded, unshielded,
+// and dust wallets, transaction history storage, and address formatting.
 import {
-  createKeystore,
-  InMemoryTransactionHistoryStorage,
-  PublicKey,
+  HDWallet,
+  Roles,
+  generateRandomSeed,
+  WalletFacade,
+  ShieldedWallet,
+  DustWallet,
   UnshieldedWallet,
-} from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
-import type { UnshieldedKeystore } from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
-
-// Network ID — tells the SDK which network to connect to (preprod, preview, etc.)
-import { setNetworkId, getNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
-
-// Address formatting — encodes wallet keys into human-readable bech32m addresses
-import {
+  createKeystore,
+  PublicKey,
+  NoOpTransactionHistoryStorage,
   DustAddress,
   MidnightBech32m,
   ShieldedAddress,
   ShieldedCoinPublicKey,
   ShieldedEncryptionPublicKey,
-} from '@midnight-ntwrk/wallet-sdk-address-format';
+} from '@midnightntwrk/wallet-sdk';
+import type { UnshieldedKeystore } from '@midnightntwrk/wallet-sdk';
+
+// Utility to convert binary data to hex strings
+import { toHex } from '@midnight-ntwrk/midnight-js-utils';
+
+// Ledger types — defines tokens, keys, and on-chain parameters (re-exported via midnight-js-protocol)
+import * as ledger from '@midnight-ntwrk/midnight-js-protocol/ledger';
+import { unshieldedToken } from '@midnight-ntwrk/midnight-js-protocol/ledger';
+
+// Network ID — tells the SDK which network to connect to (preprod, preview, etc.)
+import { setNetworkId, getNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 ```
 
 ### 설정
@@ -399,7 +385,7 @@ const buildWallet = async (keys: ReturnType<typeof deriveKeys>) => {
       indexerHttpUrl: CONFIG.indexerHttpUrl,
       indexerWsUrl: CONFIG.indexerWsUrl,
     },
-    txHistoryStorage: new InMemoryTransactionHistoryStorage(),
+    txHistoryStorage: new NoOpTransactionHistoryStorage(),
   };
 
   const dustConfig = {
@@ -569,7 +555,7 @@ const main = async () => {
   const encPubKey = ShieldedEncryptionPublicKey.fromHexString(initialState.shielded.encryptionPublicKey.toHexString());
   const shieldedAddress = MidnightBech32m.encode(networkId, new ShieldedAddress(coinPubKey, encPubKey)).toString();
   const unshieldedAddress = unshieldedKeystore.getBech32Address();
-  const dustAddress = MidnightBech32m.encode(networkId, initialState.dust.address).toString();
+  const dustAddress = DustAddress.encodePublicKey(networkId, initialState.dust.publicKey);
 
   console.log('');
   console.log('  Wallet Addresses:');
@@ -659,7 +645,7 @@ main().catch((err) => {
 });
 ```
 
-## 전체 스크립트
+## 전체 스크립트 {#full-script}
 
 각 섹션을 개별적으로 붙여넣는 대신 전체 스크립트를 한 번에 복사하려면, 아래 블록을 펼쳐서 전체 `src/index.ts`를 확인하세요.
 
@@ -702,28 +688,12 @@ import { Buffer } from 'buffer';
 import * as readline from 'readline';
 import * as Rx from 'rxjs';
 
-import { HDWallet, Roles, generateRandomSeed } from '@midnight-ntwrk/wallet-sdk-hd';
+import { HDWallet, Roles, generateRandomSeed, WalletFacade, ShieldedWallet, DustWallet, UnshieldedWallet, createKeystore, PublicKey, NoOpTransactionHistoryStorage, DustAddress, MidnightBech32m, ShieldedAddress, ShieldedCoinPublicKey, ShieldedEncryptionPublicKey } from '@midnightntwrk/wallet-sdk';
+import type { UnshieldedKeystore } from '@midnightntwrk/wallet-sdk';
 import { toHex } from '@midnight-ntwrk/midnight-js-utils';
-import * as ledger from '@midnight-ntwrk/ledger-v8';
-import { unshieldedToken } from '@midnight-ntwrk/ledger-v8';
-import { WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
-import { ShieldedWallet } from '@midnight-ntwrk/wallet-sdk-shielded';
-import { DustWallet } from '@midnight-ntwrk/wallet-sdk-dust-wallet';
-import {
-  createKeystore,
-  InMemoryTransactionHistoryStorage,
-  PublicKey,
-  UnshieldedWallet,
-} from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
-import type { UnshieldedKeystore } from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
+import * as ledger from '@midnight-ntwrk/midnight-js-protocol/ledger';
+import { unshieldedToken } from '@midnight-ntwrk/midnight-js-protocol/ledger';
 import { setNetworkId, getNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
-import {
-  DustAddress,
-  MidnightBech32m,
-  ShieldedAddress,
-  ShieldedCoinPublicKey,
-  ShieldedEncryptionPublicKey,
-} from '@midnight-ntwrk/wallet-sdk-address-format';
 
 
 // ─── Configuration ─────────────────────────────────────────────────────────────
@@ -734,7 +704,7 @@ const CONFIG = {
   indexerWsUrl: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
   node: 'https://rpc.preprod.midnight.network',
   proofServer: 'http://localhost:6300',
-  faucetUrl: 'https://faucet.preprod.midnight.network',
+  faucetUrl: 'https://midnight-tmnight-preprod.nethermind.dev/',
 };
 
 
@@ -881,7 +851,7 @@ const buildWallet = async (keys: ReturnType<typeof deriveKeys>) => {
       indexerHttpUrl: CONFIG.indexerHttpUrl,
       indexerWsUrl: CONFIG.indexerWsUrl,
     },
-    txHistoryStorage: new InMemoryTransactionHistoryStorage(),
+    txHistoryStorage: new NoOpTransactionHistoryStorage(),
   };
   const dustConfig = {
     ...shieldedConfig,
@@ -1001,7 +971,7 @@ const main = async () => {
   const encPubKey = ShieldedEncryptionPublicKey.fromHexString(initialState.shielded.encryptionPublicKey.toHexString());
   const shieldedAddress = MidnightBech32m.encode(networkId, new ShieldedAddress(coinPubKey, encPubKey)).toString();
   const unshieldedAddress = unshieldedKeystore.getBech32Address();
-  const dustAddress = MidnightBech32m.encode(networkId, initialState.dust.address).toString();
+  const dustAddress = DustAddress.encodePublicKey(networkId, initialState.dust.publicKey);
 
   console.log('');
   console.log('  Wallet Addresses:');
@@ -1083,7 +1053,7 @@ main().catch((err) => {
 
 ## Step 5: proof server 시작
 
-스크립트를 준비했으니, 영지식 증명을 처리할 proof server를 시작합니다. 두 번째 터미널 창을 열고 프로젝트 폴더로 이동한 뒤 proof server를 시작하세요:
+스크립트를 준비했으니, 스크립트가 요청하는 영지식 증명을 처리할 수 있도록 proof server를 시작합니다. 프로젝트 폴더에서 detached 모드로 실행하면 proof server가 백그라운드에서 동작하고 터미널을 곧바로 다시 사용할 수 있습니다:
 
 :::info
 proof server를 시작하기 전에 Docker Desktop이 열려 있고 실행 중이어야 합니다.
@@ -1091,12 +1061,10 @@ proof server를 시작하기 전에 Docker Desktop이 열려 있고 실행 중�
 
 ```bash
 cd midnight-dust-tutorial
-docker compose -f proof-server.yml up
+docker compose -f proof-server.yml up -d
 ```
 
-처음 실행 시 Docker가 proof server 이미지(~2 GB)를 다운로드합니다. 출력에 `listening on: 0.0.0.0:6300`이 나타나면 proof server가 준비된 것입니다.
-
-이 터미널은 실행 중인 상태로 두고 첫 번째 터미널로 돌아갑니다.
+`-d` 플래그는 proof server를 백그라운드에서 실행하므로 같은 터미널을 계속 사용할 수 있습니다. 처음 실행할 때는 Docker가 proof server 이미지(~2 GB)를 다운로드합니다. 작업이 끝나면 `docker compose -f proof-server.yml down`으로 중지하세요.
 
 ## Step 6: 스크립트 실행
 
@@ -1129,7 +1097,7 @@ Create a new wallet or restore an existing one? (n/r):
     Unshielded:  mn_addr_preprod1q...  ← send tNight here
     Dust:        mn_dust_preprod1w...
 
-  Faucet: https://faucet.preprod.midnight.network
+  Faucet: https://midnight-tmnight-preprod.nethermind.dev/
 
   🕐 Syncing wallet with network
 ```
@@ -1139,7 +1107,7 @@ Create a new wallet or restore an existing one? (n/r):
 지갑에 자금을 충전합니다:
 
 1. unshielded 주소(`← send tNight here` 표시)를 복사합니다. 주소 앞뒤에 공백이 들어가지 않도록 주의하세요. 공백이 있으면 faucet에서 거부됩니다.
-2. 브라우저에서 faucet 링크를 엽니다: [https://faucet.preprod.midnight.network](https://faucet.preprod.midnight.network)
+2. 브라우저에서 faucet 링크를 엽니다: [https://midnight-tmnight-preprod.nethermind.dev/](https://midnight-tmnight-preprod.nethermind.dev/)
 3. faucet에 주소를 붙여넣고 tNight 토큰을 요청합니다.
 4. 기다리면 스크립트가 자동으로 입금을 감지합니다.
 
@@ -1183,7 +1151,7 @@ midnight-dust-tutorial/
 
 **`npm start` 실행 시 "Cannot find module" 오류**: `npm install`을 먼저 실행했는지 확인하세요. 여전히 오류가 발생하면 `node_modules`와 `package-lock.json`을 삭제한 뒤 `npm install`을 다시 실행하세요.
 
-**포트 6300 연결 거부**: proof server가 실행되지 않고 있습니다. 다른 터미널에서 `docker compose -f proof-server.yml up`이 실행 중이고 `listening on: 0.0.0.0:6300`이 표시되는지 확인하세요.
+**포트 6300 연결 거부**: proof server가 실행되지 않고 있습니다. `docker compose -f proof-server.yml up -d`를 실행했는지, 그리고 `docker compose -f proof-server.yml logs`에 `listening on: 0.0.0.0:6300`이 표시되는지 확인하세요.
 
 **Proof server 시작 실패 또는 멈춤**: Docker Desktop이 먼저 열려 있고 실행 중인지 확인하세요.
 
@@ -1197,4 +1165,4 @@ midnight-dust-tutorial/
 
 ## 다음 단계
 
-DUST 생성이 활성화되면 지갑이 트랜잭션 수수료를 지불할 준비가 된 것입니다. [Midnight에 스마트 컨트랙트 배포하기](https://docs.midnight.network/guides/deploy-mn-app)를 탐색하거나, 자체 애플리케이션의 지갑 설정 흐름에 DUST 생성을 통합할 수 있습니다. [Awesome DApps 리포지토리](https://github.com/midnightntwrk/awesome-dapps)와 [Midnight 문서](https://docs.midnight.network/)에서 더 많은 정보를 확인하세요.
+DUST 생성이 활성화되면 지갑이 트랜잭션 수수료를 지불할 준비가 된 것입니다. [Midnight에 스마트 컨트랙트 배포하기](https://docs.midnight.network/guides/deploy-mn-app)를 살펴보거나, 자체 애플리케이션의 지갑 설정 흐름에 DUST 생성을 통합할 수 있습니다. [Awesome DApps 리포지토리](https://github.com/midnightntwrk/midnight-awesome-dapps)와 [Midnight 문서](https://docs.midnight.network/)에서 더 많은 정보를 확인하세요.

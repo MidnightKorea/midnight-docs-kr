@@ -30,8 +30,8 @@ others.insert(item2);
 
 Compact의 표준 라이브러리는 이를 위한 두 가지 주요 원시형을 제공합니다:
 
-- [`persistentHash`](../reference/compact/compact-std-library/exports#persistentHash): 이진 데이터 해싱을 위한 기본 구성 요소
-- [`persistentCommit`](../reference/compact/compact-std-library/exports#persistentCommit): 모든 Compact 유형에서 commitment를 생성하기 위한 원시형.
+- [`persistentHash`](../../compact/standard-library/exports#persistentHash): 이진 데이터 해싱을 위한 기본 구성 요소
+- [`persistentCommit`](../../compact/standard-library/exports#persistentCommit): 모든 Compact 유형에서 commitment를 생성하기 위한 원시형.
 
 둘 다 입력의 해시를 생성하는데, `persistentHash`는 `Bytes<32>` 데이터 유형에 한정되고, `persistentCommit`은 `Bytes<32>` 무작위 값과 함께 임의의 데이터를 해싱합니다. 해시는 출력으로부터 입력을 역산할 수 없고, 입력 전체를 추측하지 않는 한 입력에 대한 정보도 알아낼 수 없음을 보장합니다. `persistentCommit`에 추가 무작위성 입력이 있는 이유가 바로 이것입니다. 값 자체를 추측하여 해시 일치 여부를 확인하는 공격을 방지합니다. 이는 선거의 개별 투표처럼 가능한 값의 수가 적을 때 특히 중요합니다.
 
@@ -82,7 +82,7 @@ Compact에서 `MerkleTree<n, T>` 및 `HistoricMerkleTree<n, T>` 유형으로 제
 
 내부적으로는 circuit이 트리에 삽입된 값까지의 경로에 대한 지식을 증명하고, 이 경로의 해시가 트리의 예상 경로와 일치하는지 확인하는 방식으로 작동합니다.
 
-Compact 표준 라이브러리와 Compact JavaScript 대상 ADT는 이러한 연산을 위한 도구를 제공합니다. 구체적으로 [`MerkleTreePath<n, T>`](../reference/compact/compact-std-library/exports#merkletreepath) 유형, [`merkleTreePathRoot<n, T>()`](../reference/compact/compact-std-library/exports#merkle_tree_path_root) circuit, 그리고 [ledger 데이터 유형](../reference/compact/ledger-adt) 명세에 설명된 `MerkleTree`/`HistoricMerkleTree` JavaScript 상태 객체의 `pathForLeaf()`와 `findPathForLeaf()` 함수를 참조하세요.
+Compact 표준 라이브러리와 Compact JavaScript 대상 ADT는 이러한 연산을 위한 도구를 제공합니다. 구체적으로 [`MerkleTreePath<n, T>`](../../compact/standard-library/exports#merkletreepath) 유형, [`merkleTreePathRoot<n, T>()`](../../compact/standard-library/exports#merkle_tree_path_root) circuit, 그리고 [ledger 데이터 유형](../../compact/reference/ledger-adt) 명세에 설명된 `MerkleTree`/`HistoricMerkleTree` JavaScript 상태 객체의 `pathForLeaf()`와 `findPathForLeaf()` 함수를 참조하세요.
 
 이들을 조합하여 다음과 같이 사용할 수 있습니다:
 

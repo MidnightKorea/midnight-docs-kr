@@ -1,0 +1,137 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+sidebar_position: 20
+sidebar_label: Integration
+description: "DApp Connector(CAIP-372)로 Midnight Network의 community wallet을 연동합니다: discovery, connect, ZK proving, fees, 그리고 이식 가능한 React 코드."
+title: Integrate a wallet
+tags: [community, wallets, integration, dapp-connector, proving, dust, react, caip-372]
+toc_max_heading_level: 2
+id: community-wallets-integration
+---
+
+# Integrate a wallet
+
+브라우저 DApp에서 community wallet을 DApp Connector API(CAIP-372)를 통해 연결합니다. 이 페이지는 discovery, connect, ZK proving, fees, 그리고 이식 가능한 React 코드를 다룹니다. wallet을 먼저 고르려면 [overview](./wallets-overview.mdx)를 참고하세요. 확장 없이 headless 또는 agent 흐름을 다루려면 [CLI and MCP workflow](./cli-and-mcp.mdx)를 보세요.
+
+| Item | Detail |
+|---|---|
+| DApp Connector API | `@midnight-ntwrk/dapp-connector-api` v4.0.1 |
+| Local proof server | `http://localhost:6300` (Lace와 로컬 네트워크); CLI connector는 `ws://localhost:9932` |
+| Networks | `mainnet`, `preview`, `preprod`, `undeployed` (local). connector 표준은 `'mainnet'`뿐이며, 다른 id는 wallet마다 정의가 다릅니다(자세한 내용은 [Connect and the ConnectedAPI surface](#connect-and-the-connectedapi-surface) 참고) |
+
+## The DApp Connector API (CAIP-372)
+
+Midnight 브라우저 wallet은 전역 `window.midnight` 아래에 식별자를 키로 삼아 Initial API를 주입합니다. 그 형태는 초안 [CAIP-372](https://github.com/ChainAgnostic/CAIPs/pull/372/files)(Chain Agnostic Improvement Proposal)와 호환되므로, 같은 DApp 코드가 여러 wallet에서 동작합니다. ([npm](https://www.npmjs.com/package/@midnight-ntwrk/dapp-connector-api), [connector repo and spec](https://github.com/midnightntwrk/midnight-dapp-connector-api), [API reference](https://docs.midnight.network/api-reference/dapp-connector))
+
+```ts
+type InitialAPI = {
+  rdns: string;        // reverse-DNS id, stable per product
+  name: string;        // display name (sanitize before rendering, XSS)
+  icon: string;        // URL or data: URL (render via <img>, not innerHTML)
+  apiVersion: string;  // version of @midnight-ntwrk/dapp-connector-api implemented
+  connect: (networkId: string) => Promise<ConnectedAPI>;
+};
+```
+
+두 가지 discovery 경로를 모두 지원하세요. Lace나 1AM 같은 wallet은 고정된 친숙한 키 아래에 주입합니다(`window.midnight.mnLace`, `window.midnight['1am']`). 반면 v4 명세는 각 wallet을 자체 키 아래에 설치하고 안정적인 `rdns` 필드를 노출합니다. wallet을 찾으려면 `Object.values(window.midnight)`를 훑어 `rdns`나 `name`으로 매칭하세요. wallet을 사용하기 전에 그 `apiVersion`이 DApp이 지원하는 범위와 맞는지 확인하세요. 명세는 Ethereum의 EIP-6963 같은 이벤트 기반 discovery를 향후 추가 가능성으로 언급하지만, 현재 메커니즘은 공유된 `window.midnight` 객체입니다. ([React wallet-connect guide](https://docs.midnight.network/guides/react-wallet-connect))
+
+## Connect and the ConnectedAPI surface
+
+`connect(networkId)`는 authorize를 요청하고, 그런 다음 Midnight의 세 가지 asset 종류(shielded, unshielded, DUST)를 아우르는 ConnectedAPI로 resolve됩니다. connector 명세가 표준화한 것은 `'mainnet'`뿐이고, 다른 모든 network id는 wallet마다 정의가 다릅니다. 예를 들어 CLI connector는 대문자로 된 `'Preview'`, `'PreProd'`, `'Undeployed'`를 기대하며, 그래서 [CLI snippet](./cli-and-mcp.mdx#develop-and-test-without-a-wallet)이 `networkId: "Preview"`를 사용합니다. 정확한 문자열은 대상 wallet의 문서에서 확인하세요.
+
+| Method | Purpose |
+|--------|---------|
+| `getShieldedAddresses()` / `getUnshieldedAddress()` / `getDustAddress()` | asset 종류별 Bech32m 주소 |
+| `getShieldedBalances()` / `getUnshieldedBalances()` | 토큰별 잔액 |
+| `getDustBalance()` | `{ balance, cap }`: DUST는 `cap`을 향해 재생성됩니다 |
+| `makeTransfer(outputs, {payFees})` / `makeIntent(inputs, outputs, {...})` | transfer 또는 unbalanced intent 생성 |
+| `balanceUnsealedTransaction(tx)` / `balanceSealedTransaction(tx)` | contract로 만든 transaction의 balance를 맞추고 fee 지불 |
+| `signData(data, {encoding, keyType})` | unshielded 키로 임의의 데이터에 서명 |
+| `submitTransaction(tx)` | sealed transaction을 broadcast(wallet이 relayer 역할) |
+| `getProvingProvider(keyMaterialProvider)` | ZK proving을 wallet에 위임 |
+| `getConfiguration()` / `getConnectionStatus()` / `hintUsage(methodNames)` | 설정; 상태(networkId 포함); 사전 요청 힌트 |
+
+:::warning[Feature-detect, because coverage varies]
+
+connector는 일종의 계약이지만, 모든 wallet이 모든 메서드를 구현하지는 않습니다. Lace는 `getProvingProvider()`나 `signData()`를 구현하지 않습니다(자세한 내용은 [Lace](./wallets-overview.mdx#lace) 참고). 호출하기 전에 항상 확인하세요. 예를 들어 `typeof api.getProvingProvider === "function"`처럼요.
+
+:::
+
+:::warning[The #1 connect gotcha: call connect() synchronously in the click handler]
+
+Lace는 실제 authorization 팝업을 엽니다. 브라우저가 transient user activation을 잃었다면, 예를 들어 무언가를 `await`했거나 `setTimeout` 또는 RxJS `interval`을 먼저 썼다면, 브라우저가 팝업을 조용히 차단합니다. 페이지 로드 시 자동 재연결에는 사용자 제스처가 없으므로, wallet이 주입할 때까지 `window.midnight`를 polling한 뒤 연결하세요. 확장은 `DOMContentLoaded` 직후 약간 늦게 주입되며, 사용자가 설치 후 새로고침해야 할 수도 있습니다.
+
+:::
+
+## Where ZK proofs come from
+
+모든 Midnight transaction에는 ZK proof가 필요합니다. 그 proof를 누가 생성하느냐가 wallet 사이의 핵심 차이이며, 이는 custody 모델과 맞물립니다.
+
+- **Local proof server (Lace).** Lace는 로컬 proof server를 요구합니다(Settings → Midnight → Local, `http://localhost:6300`). witness 데이터는 사용자의 기기에 머물지만, server를 직접 띄워야 합니다. Lace는 `getProvingProvider()`를 노출하지 않으므로, DApp이 proving을 Lace에 위임할 수 없습니다.
+- **In-browser WASM (1AM).** 1AM은 Midnight의 prover, 즉 BLS12-381 곡선 위의 Halo2 기반 zk-SNARK를 수 MB의 WASM으로 컴파일해 탭 안에서 proving합니다. 별도 프로세스가 없지만, proving 시간은 여전히 circuit 크기와 일회성 cold-start 키 로딩에 좌우됩니다. 1AM은 `getProvingProvider()`를 구현하며 hosted Proof Station을 제공합니다.
+- **Delegated (`getProvingProvider`).** v4 connector는 proving을 이 메서드 뒤로 추상화하며, 옛 `Configuration.proverServerUri`는 deprecate합니다. 가능하면 wallet에서 proving provider를 얻고, Lace의 경우 설정된 proof server로 fall back하세요.
+
+## Fees and DUST
+
+fee는 DUST로 지불하며, wallet은 NIGHT을 보유함으로써 DUST를 생성하고 시간이 지나면서 재생성합니다. `getDustBalance()`는 `{ balance, cap }`을 반환하고, `submitTransaction`은 `payFees` 옵션과 함께 wallet을 relayer로 사용합니다. 따라서 wallet이 fee를 sponsor할 수 있지만, sponsorship은 connector가 허용하는 기능일 뿐 특정 wallet이 실제로 제공한다는 보장은 아닙니다. 새 wallet에서는 DUST 생성에 시간이 걸립니다. Lace의 mainnet이나 testnet에서는 약 12시간, 로컬 네트워크에서는 약 5분입니다. 초과 지출은 `BalanceCheckOverspend` (138)로 나타납니다(자세한 내용은 [Troubleshooting](./reference.mdx#troubleshooting-and-error-reference) 참고).
+
+## The portable integration code
+
+이 코드는 표준 connector를 따르는 모든 wallet(Lace, 1AM)에서 동작합니다. [CLI connector](./cli-and-mcp.mdx#develop-and-test-without-a-wallet)는 확장이 없는 개발용 fallback입니다.
+
+```ts
+import { setNetworkId } from "@midnight-ntwrk/midnight-js-network-id";
+import type { InitialAPI, ConnectedAPI } from "@midnight-ntwrk/dapp-connector-api";
+
+// 1. Discover (friendly key first, then the v4 rdns scan)
+const wallets = Object.values(window.midnight ?? {})
+  .filter((w): w is InitialAPI => !!w?.name && !!w?.apiVersion);
+
+// 2. Connect: MUST be synchronous in the click handler (pop-up blocking)
+//    networkId: only 'mainnet' is standard; others are wallet-defined (CLI uses 'Preview' etc.)
+async function connect(w: InitialAPI, networkId = "preprod"): Promise<ConnectedAPI> {
+  const api = await w.connect(networkId);             // user authorizes here
+  const status = await api.getConnectionStatus();
+  if (status.status !== "connected") throw new Error("wallet disconnected");
+  setNetworkId(status.networkId);                     // align the DApp to the wallet's network
+  return api;
+}
+// To submit: build the tx (api.makeTransfer or your contract), prove (feature-detect
+// api.getProvingProvider, else local proof server), then api.submitTransaction(tx).
+```
+
+## Where wallets diverge
+
+connector 사이의 이런 차이를 처리하세요.
+
+- **Proving:** `getProvingProvider`를 feature-detect하세요. 1AM은 있지만 Lace는 없으므로, 로컬 proof server로 fall back하고 deprecate된 `proverServerUri`를 하드코딩하지 마세요.
+- **`signData`:** Lace에는 없으므로, 서명 기반 인증을 하기 전에 feature-detect하세요.
+- **Pop-up:** Lace는 auth 팝업을 여므로 `connect()`를 동기적으로 유지하세요. 재연결 경로에는 제스처가 없으므로, `window.midnight`를 polling한 뒤 연결하세요.
+- **Network:** 항상 DApp을 `getConnectionStatus().networkId`에 맞추세요.
+- **DUST:** `getDustBalance()`를 읽고, `{ balance: 0n }`과 `cap`을 모두 처리하며, sponsor된 fee를 가정하지 마세요.
+- **Non-standard tiles:** Ctrl과 Gero는 표준을 따르는 connector를 주입하지 않을 수 있으므로, feature-detect한 뒤 Lace나 1AM으로 degrade하세요.
+
+## React: the production pattern
+
+Edda Labs midnight-starter-template(데모는 `counter.nebula.builders`)는 Lace와 1AM을 복사·붙여넣기 가능한 wallet widget으로 연결합니다. 로직을 다시 유도하지 말고 이것을 사용하세요.
+
+```tsx
+import { useWallet } from "@/modules/midnight/wallet-widget/hooks/useWallet";
+
+function ConnectButton() {
+  const { connectWallet, disconnect, status, dustBalance } = useWallet();
+  if (status?.status === "connected")
+    return <button onClick={() => disconnect()}>Connected · DUST {String(dustBalance?.balance)}</button>;
+  return <button onClick={() => connectWallet("mnLace", "preprod")}>Connect Lace</button>;
+}
+```
+
+repo의 핵심 파일들은 `frontend-vite-react/src/modules/midnight/` 아래에 있습니다.
+
+- `wallet-widget/api/walletController.ts`: discovery, 팝업 안전 connect, proof-server 확인
+- `wallet-widget/hooks/useWallet.ts`와 `contexts/wallet.tsx`: 상태
+- `wallet-widget/ui/midnightWallet.tsx`: connect 모달
+- `counter-sdk/`: 연결된 wallet을 Compact 호출에 연결
+
+([starter template](https://github.com/eddalabs/midnight-starter-template), [React guide](https://docs.midnight.network/guides/react-wallet-connect))

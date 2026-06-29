@@ -7,740 +7,173 @@ tags: [deployment, smart-contract, JavaScript]
 toc_max_heading_level: 2
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
 import Step, { StepsProvider } from "@site/src/components/Step/Step";
 
-이 튜토리얼에서는 컴파일된 Hello World 컨트랙트를 Midnight Preprod 네트워크에 배포합니다.
-지갑 설정, 배포 스크립트 작성, 컨트랙트의 블록체인 제출 과정을 다룹니다.
+# Deploy the hello world contract
 
-튜토리얼을 마치면 네트워크에서 직접 호출할 수 있는 라이브 컨트랙트를 갖게 됩니다.
+[Hello World tutorial](../getting-started/hello-world)은 미리 자금이 충전된 지갑이 있는 Docker 기반 로컬 devnet에 컨트랙트를 배포합니다. 이 가이드에서는 같은 `example-hello-world` 컨트랙트를 메인넷 출시 전 최종 테스트에 쓰는 공개 Midnight 테스트넷인 **Preprod**에 배포합니다. 배포가 끝나면 컨트랙트가 Preprod 블록 탐색기에 표시되고 모든 Preprod indexer에서 접근할 수 있습니다.
 
 ## Prerequisites
 
 시작하기 전에 다음을 준비하세요:
 
-- `contracts/managed/hello-world/`에 컴파일된 Hello World 컨트랙트. [첫 번째 컨트랙트 빌드](../getting-started/hello-world) 튜토리얼을 먼저 완료해야 합니다.
-- Node.js 20.x 이상. [NVM](https://github.com/nvm-sh/nvm)으로 설치할 수 있습니다.
-- Docker 설치 및 실행. [proof server](./run-proof-server)를 통해 ZK proof를 생성하는 데 필요합니다.
-
-프로젝트 루트에서 npm 프로젝트를 초기화하세요. `package.json` 파일이 생성됩니다:
-
-```bash
-npm init -y
-```
-
-배포 스크립트를 저장할 `src` 디렉토리를 생성하세요:
-
-```bash
-mkdir src
-```
-
-프로젝트 구조가 다음과 같은지 확인하세요:
-
-```
-my-midnight-contract/
-├── contracts/
-│   ├── managed/
-│   │   └── hello-world/
-│   │       ├── compiler/
-│   │       ├── contract/
-│   │       ├── keys/
-│   │       └── zkir/
-│   └── hello-world.compact
-├── src/
-└── package.json
-```
+- 로컬 devnet에서 [Hello World tutorial](../getting-started/hello-world) 완료(`yarn test:local` 통과)
+- 컨트랙트가 이미 컴파일된 [`example-hello-world`](https://github.com/midnightntwrk/example-hello-world) 클론(`contracts/managed/hello-world/`가 채워진 상태)
+- Preprod 네트워크용으로 설정된 Midnight 호환 지갑(Lace, 1AM 등), 또는 본인이 관리하는 24단어 mnemonic / 64자 hex seed
+- 실행 중인 Docker engine(proof server가 컨테이너로 실행됨)
 
 <StepsProvider>
 <Step>
 
-## Install deployment dependencies
+## Generate a wallet
 
-지갑 관리, 컨트랙트 배포, 네트워크 연결에 필요한 의존성을 추가합니다.
+배포 및 호출 트랜잭션에 서명하려면 Preprod 네트워크 지갑이 필요합니다. 테스트 스위트는 24단어 BIP-39 mnemonic과 64자 hex seed를 모두 지원하므로, 지갑이 내보내는 형식을 사용하면 됩니다.
 
-`package.json`을 다음과 같이 업데이트하세요:
+**Midnight 호환 지갑 사용**(Lace, 1AM 등):
+1. 지갑에서 네트워크를 **Preprod**로 전환하고 새 지갑을 생성합니다. seed phrase를 안전하게 저장하세요.
+2. **Unshielded** 주소를 확인해 둡니다. 다음 단계에서 faucet에 붙여넣습니다.
 
-```json
-{
-  "name": "my-midnight-contract",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "compile": "compact compile contracts/hello-world.compact contracts/managed/hello-world",
-    "build": "tsc",
-    "deploy": "tsx src/deploy.ts",
-    "start-proof-server": "docker run -p 6300:6300 midnightntwrk/proof-server:8.0.3 -- midnight-proof-server -v"
-  },
-  "devDependencies": {
-    "@types/node": "^22.0.0",
-    "@types/ws": "^8.18.1",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
-  },
-  "dependencies": {
-    "@midnight-ntwrk/compact-runtime": "0.16.0",
-    "@midnight-ntwrk/ledger-v8": "8.0.3",
-    "@midnight-ntwrk/midnight-js-contracts": "4.0.2",
-    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.0.2",
-    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.0.2",
-    "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.0.2",
-    "@midnight-ntwrk/midnight-js-network-id": "4.0.2",
-    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "4.0.2",
-    "@midnight-ntwrk/midnight-js-types": "4.0.2",
-    "@midnight-ntwrk/wallet-sdk-address-format": "3.1.0",
-    "@midnight-ntwrk/wallet-sdk-dust-wallet": "3.0.0",
-    "@midnight-ntwrk/wallet-sdk-facade": "3.0.0",
-    "@midnight-ntwrk/wallet-sdk-hd": "3.1.0",
-    "@midnight-ntwrk/wallet-sdk-shielded": "2.1.0",
-    "@midnight-ntwrk/wallet-sdk-unshielded-wallet": "2.1.0",
-    "ws": "^8.19.0"
-  }
-}
-```
+이 seed phrase는 3단계에서 `.env.preprod`에 붙여넣습니다.
 
-각 패키지의 역할은 다음과 같습니다:
+**직접 키 사용**: 24단어 BIP-39 mnemonic이나 64자 hex seed라면 무엇이든 동작합니다. 테스트 스위트가 여기서 shielded 키와 unshielded 키를 모두 파생합니다.
 
-- **Wallet SDK 패키지**: shielded, unshielded, DUST 작업을 지원하는 Midnight 지갑 생성 및 관리
-- **Midnight.js 패키지**: 컨트랙트 배포, proof 생성, 블록체인 상호작용 처리
-- **개발 도구**: TypeScript 실행(`tsx`)과 Node.js 타입 정의
+</Step>
+<Step>
 
-의존성을 설치하세요:
+## Fund the wallet with tNIGHT and tDUST
+
+Preprod 트랜잭션 수수료는 **tDUST**로 지불하며, tDUST는 **tNIGHT**를 보유(및 위임)하면 생성됩니다. 자금 충전은 두 단계로 진행됩니다:
+
+1. **faucet에서 tNIGHT 받기**: [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)을 열고 Unshielded 주소를 붙여넣은 뒤 **Request tokens**를 클릭합니다. faucet이 몇 분 안에 1000 tNIGHT를 보냅니다.
+
+2. **위임하여 tDUST 생성 시작**: 지갑의 위임 기능으로 tNIGHT를 위임하면 사용 가능한 tDUST 생성이 시작됩니다. 정확한 메뉴 이름은 지갑마다 다릅니다. tDUST가 없으면 테스트 스크립트가 `Wallet.InsufficientFunds` 오류로 실패합니다.
+
+faucet 문제 해결은 [Get faucet tokens](./acquire-tokens)를 참고하세요.
+
+:::tip Verify balances before continuing
+테스트를 실행하기 전에 지갑에서 tNIGHT와 tDUST 잔액을 모두 확인하세요. tDUST 잔액이 0이 아닐 때까지 기다립니다. DUST 생성은 네트워크가 위임 트랜잭션을 온체인에서 확정한 뒤에야 시작됩니다.
+:::
+
+</Step>
+<Step>
+
+## Configure `.env.preprod`
+
+리포지토리에는 예제 파일이 포함되어 있습니다. 리포지토리 루트에서:
 
 ```bash
-npm install
+cp .env.preprod.example .env.preprod
 ```
 
-</Step>
-<Step>
-
-## Configure TypeScript
-
-배포 스크립트의 컴파일 방식을 정의하는 TypeScript 설정 파일을 생성합니다.
-
-프로젝트 루트에 `tsconfig.json`을 생성하세요:
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "outDir": "dist",
-    "rootDir": "src",
-    "strict": false,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "declaration": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true
-  },
-  "include": ["src/**/*"],
-  "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node"
-  }
-}
-```
-
-주요 설정:
-- 최신 JavaScript(ES2022) 타겟으로 성능 확보
-- Midnight SDK와 호환되는 ESNext 모듈 사용
-- 예제 단순화를 위해 strict 타입 검사 비활성화
-- 컴파일 결과를 `dist` 디렉토리에 출력
-
-</Step>
-<Step>
-
-## Create wallet utilities
-
-지갑 생성, 키 파생, provider 설정을 담당하는 공유 유틸리티 파일을 만듭니다.
-이 코드는 배포 및 상호작용 스크립트 전반에서 재사용됩니다.
-
-`src/utils.ts`를 생성하고 다음 코드를 추가하세요:
-
-```typescript
-import * as path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { WebSocket } from 'ws';
-import * as Rx from 'rxjs';
-import { Buffer } from 'buffer';
-
-// Midnight SDK 가져오기
-import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
-import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
-import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
-import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config-provider';
-import { setNetworkId, getNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
-import * as ledger from '@midnight-ntwrk/ledger-v8';
-import { WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
-import { DustWallet } from '@midnight-ntwrk/wallet-sdk-dust-wallet';
-import { HDWallet, Roles } from '@midnight-ntwrk/wallet-sdk-hd';
-import { ShieldedWallet } from '@midnight-ntwrk/wallet-sdk-shielded';
-import { createKeystore, InMemoryTransactionHistoryStorage, PublicKey, UnshieldedWallet } from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
-import { CompiledContract } from '@midnight-ntwrk/compact-js';
-
-// GraphQL 구독을 위한 WebSocket 활성화
-// @ts-expect-error 지갑 동기화에 필요
-globalThis.WebSocket = WebSocket;
-```
-
-지갑 관리, 컨트랙트 배포, 네트워크 연결에 필요한 모듈을 import합니다.
-전역 `WebSocket` 할당은 Node.js 환경에서 지갑 동기화에 필요합니다.
-
-위 import 구문 아래에 네트워크 엔드포인트를 설정하세요.
-
-<Tabs>
-<TabItem value="preprod">
-```typescript
-// Preprod 네트워크 설정
-setNetworkId('preprod');
-
-// Preprod 네트워크 구성
-export const CONFIG = {
-  indexer: 'https://indexer.preprod.midnight.network/api/v4/graphql',
-  indexerWS: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
-  node: 'https://rpc.preprod.midnight.network',
-  proofServer: 'http://127.0.0.1:6300',
-};
-```
-</TabItem>
-<TabItem value="undeployed">
-```typescript
-// Undeployed 네트워크 설정
-setNetworkId('undeployed');
-
-// Undeployed 네트워크 구성
-export const CONFIG = {
-  indexer: 'http://localhost:8088/api/v4/graphql',
-  indexerWS: 'ws://localhost:8088/api/v4/graphql/ws',
-  node: 'ws://localhost:9944',
-  proofServer: 'http://localhost:6300',
-};
-```
-</TabItem>
-</Tabs>
-
-네트워크 설정 아래에 컴파일된 컨트랙트를 로드하고 배포를 준비하는 코드를 추가하세요.
-
-```typescript
-// 경로 구성
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-export const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'hello-world');
-
-// 컴파일된 컨트랙트 로드
-const contractPath = path.join(zkConfigPath, 'contract', 'index.js');
-export const HelloWorld = await import(pathToFileURL(contractPath).href);
-
-export const compiledContract = CompiledContract.make('hello-world', HelloWorld.Contract).pipe(
-  CompiledContract.withVacantWitnesses,
-  CompiledContract.withCompiledFileAssets(zkConfigPath),
-);
-```
-
-지갑 생성 함수를 추가하세요:
-
-```typescript
-// ─── 지갑 함수 ──────────────────────────────────────────────────────────
-
-export function deriveKeys(seed: string) {
-  const hdWallet = HDWallet.fromSeed(Buffer.from(seed, 'hex'));
-  if (hdWallet.type !== 'seedOk') throw new Error('Invalid seed');
-
-  const result = hdWallet.hdWallet
-    .selectAccount(0)
-    .selectRoles([Roles.Zswap, Roles.NightExternal, Roles.Dust])
-    .deriveKeysAt(0);
-
-  if (result.type !== 'keysDerived') throw new Error('Key derivation failed');
-
-  hdWallet.hdWallet.clear();
-  return result.keys;
-}
-
-export async function createWallet(seed: string) {
-  const keys = deriveKeys(seed);
-  const networkId = getNetworkId();
-
-  // 다양한 지갑 컴포넌트를 위한 비밀 키 파생
-  const shieldedSecretKeys = ledger.ZswapSecretKeys.fromSeed(keys[Roles.Zswap]);
-  const dustSecretKey = ledger.DustSecretKey.fromSeed(keys[Roles.Dust]);
-  const unshieldedKeystore = createKeystore(keys[Roles.NightExternal], networkId);
-
-  const walletConfig = {
-    networkId,
-    indexerClientConnection: {
-      indexerHttpUrl: CONFIG.indexer,
-      indexerWsUrl: CONFIG.indexerWS
-    },
-    provingServerUrl: new URL(CONFIG.proofServer),
-    relayURL: new URL(CONFIG.node.replace(/^http/, 'ws')),
-  };
-
-  // 지갑 컴포넌트 초기화
-  const shieldedWallet = ShieldedWallet(walletConfig)
-    .startWithSecretKeys(shieldedSecretKeys);
-
-  const unshieldedWallet = UnshieldedWallet({
-    networkId,
-    indexerClientConnection: walletConfig.indexerClientConnection,
-    txHistoryStorage: new InMemoryTransactionHistoryStorage(),
-  }).startWithPublicKey(PublicKey.fromKeyStore(unshieldedKeystore));
-
-  const dustWallet = DustWallet({
-    ...walletConfig,
-    costParameters: {
-      additionalFeeOverhead: 300_000_000_000_000n,
-      feeBlocksMargin: 5
-    },
-  }).startWithSecretKey(dustSecretKey, ledger.LedgerParameters.initialParameters().dust);
-
-  const wallet = new WalletFacade(shieldedWallet, unshieldedWallet, dustWallet);
-  await wallet.start(shieldedSecretKeys, dustSecretKey);
-
-  return { wallet, shieldedSecretKeys, dustSecretKey, unshieldedKeystore };
-}
-```
-
-각 함수의 역할:
-- **deriveKeys**: HD 지갑 파생을 통해 하나의 시드에서 역할별 키를 생성합니다
-- **createWallet**: 세 가지 컴포넌트로 구성된 Midnight 지갑을 생성합니다:
-  - **Shielded 지갑**: ZK proof 기반 비공개 트랜잭션 처리
-  - **Unshielded 지갑**: 온체인에서 공개되는 트랜잭션 처리
-  - **DUST 지갑**: 트랜잭션 수수료에 필요한 가스 리소스 관리
-
-트랜잭션 서명 함수를 추가하세요:
-
-```typescript
-// 지갑의 개인 키로 트랜잭션 인텐트에 서명
-export function signTransactionIntents(
-  tx: { intents?: Map<number, any> },
-  signFn: (payload: Uint8Array) => ledger.Signature,
-  proofMarker: 'proof' | 'pre-proof'
-): void {
-  if (!tx.intents || tx.intents.size === 0) return;
-
-  for (const segment of tx.intents.keys()) {
-    const intent = tx.intents.get(segment);
-    if (!intent) continue;
-
-    const cloned = ledger.Intent.deserialize<
-      ledger.SignatureEnabled,
-      ledger.Proofish,
-      ledger.PreBinding
-    >('signature', proofMarker, 'pre-binding', intent.serialize());
-
-    const sigData = cloned.signatureData(segment);
-    const signature = signFn(sigData);
-
-    if (cloned.fallibleUnshieldedOffer) {
-      const sigs = cloned.fallibleUnshieldedOffer.inputs.map(
-        (_: any, i: number) =>
-          cloned.fallibleUnshieldedOffer!.signatures.at(i) ?? signature
-      );
-      cloned.fallibleUnshieldedOffer =
-        cloned.fallibleUnshieldedOffer.addSignatures(sigs);
-    }
-
-    if (cloned.guaranteedUnshieldedOffer) {
-      const sigs = cloned.guaranteedUnshieldedOffer.inputs.map(
-        (_: any, i: number) =>
-          cloned.guaranteedUnshieldedOffer!.signatures.at(i) ?? signature
-      );
-      cloned.guaranteedUnshieldedOffer =
-        cloned.guaranteedUnshieldedOffer.addSignatures(sigs);
-    }
-
-    tx.intents.set(segment, cloned);
-  }
-}
-```
-
-이 함수는 지갑의 개인 키로 트랜잭션 인텐트에 서명합니다. unshielded 트랜잭션에 필수입니다.
-
-트랜잭션 서명 함수 아래에 provider 생성 함수를 추가하세요:
-
-```typescript
-export async function createProviders(
-  walletCtx: Awaited<ReturnType<typeof createWallet>>
-) {
-  const state = await Rx.firstValueFrom(
-    walletCtx.wallet.state().pipe(Rx.filter((s) => s.isSynced))
-  );
-
-  const walletProvider = {
-    getCoinPublicKey: () => state.shielded.coinPublicKey.toHexString(),
-    getEncryptionPublicKey: () => state.shielded.encryptionPublicKey.toHexString(),
-    async balanceTx(tx: any, ttl?: Date) {
-      const recipe = await walletCtx.wallet.balanceUnboundTransaction(
-        tx,
-        {
-          shieldedSecretKeys: walletCtx.shieldedSecretKeys,
-          dustSecretKey: walletCtx.dustSecretKey
-        },
-        { ttl: ttl ?? new Date(Date.now() + 30 * 60 * 1000) },
-      );
-
-      const signFn = (payload: Uint8Array) =>
-        walletCtx.unshieldedKeystore.signData(payload);
-
-      signTransactionIntents(recipe.baseTransaction, signFn, 'proof');
-      if (recipe.balancingTransaction) {
-        signTransactionIntents(recipe.balancingTransaction, signFn, 'pre-proof');
-      }
-
-      return walletCtx.wallet.finalizeRecipe(recipe);
-    },
-    submitTx: (tx: any) => walletCtx.wallet.submitTransaction(tx) as any,
-  };
-
-  const zkConfigProvider = new NodeZkConfigProvider(zkConfigPath);
-
-  return {
-    privateStateProvider: levelPrivateStateProvider({
-      privateStateStoreName: 'hello-world-state',
-      walletProvider
-    }),
-    publicDataProvider: indexerPublicDataProvider(
-      CONFIG.indexer,
-      CONFIG.indexerWS
-    ),
-    zkConfigProvider,
-    proofProvider: httpClientProofProvider(CONFIG.proofServer, zkConfigProvider),
-    walletProvider,
-    midnightProvider: walletProvider,
-  };
-}
-```
-
-컨트랙트 배포에 필요한 provider를 생성합니다:
-- **privateStateProvider**: 로컬 컨트랙트 상태 저장소 관리
-- **publicDataProvider**: indexer에서 블록체인 데이터 조회
-- **zkConfigProvider**: 컨트랙트의 ZK circuit 설정 로드
-- **proofProvider**: proof server와 통신
-- **walletProvider**: 트랜잭션 잔액 조정 및 서명 처리
-- **midnightProvider**: 네트워크에 트랜잭션 제출
-
-</Step>
-<Step>
-
-## Create the deployment script
-
-배포 전 과정을 처리하는 메인 스크립트를 작성합니다.
-
-`src/deploy.ts`를 생성하고 다음 코드를 추가하세요:
-
-```typescript
-import { createInterface } from 'node:readline/promises';
-import { stdin, stdout } from 'node:process';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as Rx from 'rxjs';
-import { Buffer } from 'buffer';
-
-// Midnight.js 가져오기
-import { deployContract } from '@midnight-ntwrk/midnight-js-contracts';
-import { toHex } from '@midnight-ntwrk/midnight-js-utils';
-import { unshieldedToken } from '@midnight-ntwrk/ledger-v8';
-import { generateRandomSeed } from '@midnight-ntwrk/wallet-sdk-hd';
-
-// utils.ts 파일의 공유 유틸리티
-import {
-  createWallet,
-  createProviders,
-  compiledContract,
-  zkConfigPath
-} from './utils.js';
-```
-
-필요한 함수를 import하고, 컨트랙트가 컴파일되어 있는지 확인합니다.
-
-위 import 구문 아래에 메인 배포 로직을 추가하세요:
-
-```typescript
-// ─── 메인 배포 스크립트 ────────────────────────────────────────────────────────
-
-async function main() {
-  console.log('\n╔══════════════════════════════════════════════════════════════╗');
-  console.log('║        Deploy Hello World to Midnight Preprod                ║');
-  console.log('╚══════════════════════════════════════════════════════════════╝\n');
-
-  // 컨트랙트 컴파일 여부 확인
-  if (!fs.existsSync(path.join(zkConfigPath, 'contract', 'index.js'))) {
-    console.error('Contract not compiled! Run: npm run compile');
-    process.exit(1);
-  }
-
-  const rl = createInterface({ input: stdin, output: stdout });
-
-  try {
-    // 1. 지갑 설정
-    console.log('─── Step 1: Wallet Setup ───────────────────────────────────────\n');
-    const choice = await rl.question(
-      '  [1] Create new wallet\n  [2] Restore from seed\n  > '
-    );
-
-    const seed = choice.trim() === '2'
-      ? await rl.question('\n  Enter your 64-character seed: ')
-      : toHex(Buffer.from(generateRandomSeed()));
-
-    if (choice.trim() !== '2') {
-      console.log(
-        `\n  ⚠️  SAVE THIS SEED (you'll need it later):\n  ${seed}\n`
-      );
-    }
-
-    console.log('  Creating wallet...');
-    const walletCtx = await createWallet(seed);
-
-    console.log('  Syncing with network...');
-    const state = await Rx.firstValueFrom(
-      walletCtx.wallet.state().pipe(
-        Rx.throttleTime(5000),
-        Rx.filter((s) => s.isSynced)
-      )
-    );
-
-    const address = walletCtx.unshieldedKeystore.getBech32Address();
-    const balance = state.unshielded.balances[unshieldedToken().raw] ?? 0n;
-
-    console.log(`\n  Wallet Address: ${address}`);
-    console.log(`  Balance: ${balance.toLocaleString()} tNight\n`);
-```
-
-지갑 생성 과정:
-- 새 지갑 생성 또는 기존 시드 복원 중 선택
-- 새 지갑의 경우 암호학적으로 안전한 랜덤 시드 생성
-- 지갑 생성 후 Preprod 네트워크와 동기화
-- 지갑 주소와 잔액 표시
-
-이어서 자금 지원 및 DUST 등록 코드를 추가하세요:
-
-```typescript
-    // 2. 필요시 지갑에 자금 지원
-    if (balance === 0n) {
-      console.log('─── Step 2: Fund Your Wallet ───────────────────────────────────\n');
-      console.log('  Visit: https://faucet.preprod.midnight.network/');
-      console.log(`  Address: ${address}\n`);
-      console.log('  Waiting for funds...');
-
-      await Rx.firstValueFrom(
-        walletCtx.wallet.state().pipe(
-          Rx.throttleTime(10000),
-          Rx.filter((s) => s.isSynced),
-          Rx.map((s) => s.unshielded.balances[unshieldedToken().raw] ?? 0n),
-          Rx.filter((b) => b > 0n),
-        ),
-      );
-      console.log('  Funds received!\n');
-    }
-
-    // 3. DUST 등록
-    console.log('─── Step 3: DUST Token Setup ───────────────────────────────────\n');
-    const dustState = await Rx.firstValueFrom(
-      walletCtx.wallet.state().pipe(Rx.filter((s) => s.isSynced))
-    );
-
-    if (dustState.dust.walletBalance(new Date()) === 0n) {
-      const nightUtxos = dustState.unshielded.availableCoins.filter(
-        (c: any) => !c.meta?.registeredForDustGeneration
-      );
-
-      if (nightUtxos.length > 0) {
-        console.log('  Registering for DUST generation...');
-        const recipe = await walletCtx.wallet.registerNightUtxosForDustGeneration(
-          nightUtxos,
-          walletCtx.unshieldedKeystore.getPublicKey(),
-          (payload) => walletCtx.unshieldedKeystore.signData(payload),
-        );
-        await walletCtx.wallet.submitTransaction(
-          await walletCtx.wallet.finalizeRecipe(recipe)
-        );
-      }
-
-      console.log('  Waiting for DUST tokens...');
-      await Rx.firstValueFrom(
-        walletCtx.wallet.state().pipe(
-          Rx.throttleTime(5000),
-          Rx.filter((s) => s.isSynced),
-          Rx.filter((s) => s.dust.walletBalance(new Date()) > 0n)
-        ),
-      );
-    }
-    console.log('  DUST tokens ready!\n');
-```
-
-배포 전 필수 단계를 처리합니다:
-- **자금 지원**: 잔액이 0인 경우 Preprod faucet 안내 후 자금 도착 대기
-- **DUST 등록**: DUST는 Midnight의 가스 token입니다. unshielded UTXO를 DUST 생성에 등록하고 token 생성을 대기합니다.
-
-실제 배포 코드를 추가하세요:
-
-```typescript
-    // 4. 컨트랙트 배포
-    console.log('─── Step 4: Deploy Contract ────────────────────────────────────\n');
-    console.log('  Setting up providers...');
-    const providers = await createProviders(walletCtx);
-
-    console.log('  Deploying contract (this may take 30-60 seconds)...\n');
-    const deployed = await deployContract(providers, {
-      compiledContract,
-      privateStateId: 'helloWorldState',
-      initialPrivateState: {},
-    });
-
-    const contractAddress = deployed.deployTxData.public.contractAddress;
-    console.log('  ✅ Contract deployed successfully!\n');
-    console.log(`  Contract Address: ${contractAddress}\n`);
-
-    // 5. 배포 정보 저장
-    const deploymentInfo = {
-      contractAddress,
-      seed,
-      network: 'preprod',
-      deployedAt: new Date().toISOString(),
-    };
-
-    fs.writeFileSync('deployment.json', JSON.stringify(deploymentInfo, null, 2));
-    console.log('  Saved to deployment.json\n');
-
-    await walletCtx.wallet.stop();
-    console.log('─── Deployment Complete! ───────────────────────────────────────\n');
-  } finally {
-    rl.close();
-  }
-}
-
-main().catch(console.error);
-```
-
-마지막 섹션에서 수행하는 작업:
-- 컨트랙트 배포에 필요한 모든 provider 설정
-- `deployContract` 호출: ZK proof 생성, Preprod 네트워크에 트랜잭션 제출, 확인 대기
-- 배포 정보를 `deployment.json`에 저장
-- 지갑 정리 및 완료 메시지 출력
-
-</Step>
-<Step>
-
-## Run the deployment
-
-이제 컨트랙트를 Preprod에 배포할 수 있습니다.
-
-먼저 proof server가 실행 중인지 확인하세요:
+`.env.preprod`을 열고 두 변수 중 **하나만** 설정하세요. 나머지 줄은 완전히 삭제합니다. 둘 다 정의하면 오류가 발생합니다.
 
 ```bash
-npm run start-proof-server
+# Use this line if your wallet exports a 24-word phrase:
+MIDNIGHT_PREPROD_MNEMONIC=word1 word2 word3 ... word24
+
+# Or this line if you have a raw seed (hex, no 0x prefix):
+MIDNIGHT_PREPROD_SEED=abcd1234...                  # 64 hex characters
 ```
 
-이 명령은 터미널을 점유하므로, 별도 터미널 창에서 실행 상태를 유지하세요.
+:::warning Keep `.env.preprod` private
+이 파일에는 Preprod 지갑을 제어하는 비밀 정보가 들어 있습니다. 이미 `.gitignore`에 등록되어 있으니, 커밋하거나 공유하거나 채팅에 붙여넣지 마세요.
+:::
 
-새 터미널에서 배포 스크립트를 실행하세요:
+</Step>
+<Step>
+
+## Start the proof server
+
+proof server는 테스트가 네트워크에 제출하는 영지식 증명을 생성합니다. Preprod에서는 로컬 devnet 스택 전체가 아니라 proof server만 있으면 됩니다(테스트가 공개 Preprod 엔드포인트에 연결하므로 로컬 node나 indexer는 필요하지 않습니다).
+
+별도 터미널에서 프로젝트 루트로 이동해 실행하세요:
 
 ```bash
-npm run deploy
+yarn proof:up
 ```
 
-스크립트가 배포 과정을 단계별로 안내합니다:
+이 명령은 `compose.yml`에서 `proof-server` 서비스만 시작하고, `http://127.0.0.1:6300`에서 정상 상태가 될 때까지 기다립니다.
 
-1. **지갑 생성**: 새 지갑 생성 또는 기존 시드 복원을 선택합니다. 새 지갑의 경우 표시되는 시드를 반드시 저장하세요. 이후 컨트랙트와 상호작용할 때 필요합니다.
-2. **자금 지원**: 잔액이 없으면 스크립트가 주소를 표시하고 대기합니다. [Preprod faucet](https://faucet.preprod.midnight.network/)에서 테스트 token을 요청하세요.
-3. **DUST 등록**: 스크립트가 자동으로 DUST 생성을 등록하고 token 도착을 대기합니다.
-4. **배포**: 컨트랙트를 네트워크에 배포합니다. ZK proof 생성과 블록체인 확인 대기로 30~60초 소요됩니다.
+</Step>
+<Step>
 
-배포 완료 시 다음과 유사한 출력이 표시됩니다:
+## Run the test against Preprod
 
-```shell
-✅ Contract deployed successfully!
+기본 터미널로 돌아와서:
 
-Contract Address: 0x1234567890abcdef...
-
-Saved to deployment.json
+```bash
+yarn test:preprod
 ```
+
+이 스크립트는 다음을 수행합니다:
+
+1. `.env.preprod`의 비밀 정보로 지갑을 빌드합니다.
+2. Preprod indexer에 맞춰 지갑을 동기화합니다. 첫 실행에서는 오래 걸릴 수 있습니다(기본 동기화 타임아웃은 로컬 10분, 원격 네트워크 60분). 로그가 상태 방출마다 한 줄씩 출력하므로 진행 상황을 지켜볼 수 있습니다.
+3. 자금이 있는지 확인하고, 아직 등록되지 않았다면 DUST 생성을 위해 지갑을 등록합니다.
+4. `hello-world` 컨트랙트를 배포하고 `storeMessage("Hello World!")` 호출을 제출합니다.
+
+성공하면 다음과 유사한 출력으로 끝납니다:
+
+```bash
+INFO: Wallet sync complete after 23 emissions
+INFO: Wallet NIGHT balance on 'preprod': ...
+INFO: Providers initialized on 'preprod'. Ready to test!
+INFO: Creating private state...
+INFO: Setting the contract address...
+INFO: Contract deployed at: bba6579743ae23b44301d4a9f8df30dbd5244d63a59d8fbc2c9fc7ea521a04f8
+ ✓ src/test/hw.test.ts (2 tests)
+   ✓ Hello World Contract (preprod) > Deploys the contract
+   ✓ Hello World Contract (preprod) > Stores Hello World!
+```
+
+</Step>
+<Step>
+
+## Verify on the block explorer
+
+로그의 `Contract deployed at: ...` 줄에서 컨트랙트 주소를 복사해 Preprod 탐색기에서 조회하세요:
+
+- [preprod.midnightexplorer.com](https://preprod.midnightexplorer.com/)
+- [midnight-preprod.subscan.io](https://midnight-preprod.subscan.io/)
+
+탐색기에는 배포 트랜잭션과 그 뒤에 이어지는 호출 트랜잭션이 표시됩니다.
+
+</Step>
+<Step>
+
+## Shut down
+
+작업이 끝나면 proof server를 중지하세요:
+
+```bash
+yarn proof:down
+```
+
+컨테이너는 종료되지만 이미지는 다음 실행을 위해 캐시에 남습니다.
 
 </Step>
 </StepsProvider>
 
-## Understanding the deployment artifacts
+## Troubleshooting
 
-배포가 완료되면 루트 디렉토리에 `deployment.json` 파일이 생성됩니다.
-파일 내용 예시:
+**`Wallet.InsufficientFunds`**: 지갑에 사용 가능한 tDUST가 없습니다. 지갑에서 tNIGHT뿐 아니라 tDUST 잔액도 0이 아닌지 확인하세요. DUST 생성은 위임 트랜잭션이 확정된 뒤에야 시작됩니다.
 
-```json
-{
-  "contractAddress": "0x1234567890abcdef...",
-  "seed": "1234567890abcdef...",
-  "network": "preprod",
-  "deployedAt": "2026-02-10T20:00:00.000Z"
-}
+**동기화가 끝나지 않음**: 새로 만든 지갑의 Preprod 동기화는 느릴 수 있습니다. 기본 60분 타임아웃에 걸리면 `MIDNIGHT_SYNC_TIMEOUT_MS` 환경 변수로 늘리세요:
+
+```bash
+MIDNIGHT_SYNC_TIMEOUT_MS=7200000 yarn test:preprod   # 2 hours
 ```
 
-각 필드의 의미:
+**`Set only one of MIDNIGHT_PREPROD_MNEMONIC or MIDNIGHT_PREPROD_SEED`**: `.env.preprod`에 두 변수를 모두 정의했습니다. 하나를 삭제하세요.
 
-- **contractAddress**: 배포된 컨트랙트의 고유 주소. 상호작용 시 사용합니다.
-- **seed**: 지갑 시드. 개발 편의상 저장되지만, 프로덕션에서는 절대 버전 관리에 커밋하지 마세요.
-- **network**: 컨트랙트가 배포된 네트워크
-- **deployedAt**: 배포 시각
+**proof server에 연결할 수 없음**: `yarn proof:up`이 완료되었고 `http://127.0.0.1:6300`이 응답하는지 확인하세요. 포트 6300이 사용 중이면 충돌하는 프로세스를 중지하거나 `compose.yml`에서 호스트 포트를 변경하세요.
 
-이제 프로젝트 구조가 다음과 같아야 합니다:
+## Deploy to Preview
 
-```
-my-midnight-contract/
-├── contracts/
-│   ├── managed/
-│   │   └── hello-world/
-│   │       ├── compiler/
-│   │       ├── contract/
-│   │       ├── keys/
-│   │       └── zkir/
-│   └── hello-world.compact
-├── src/
-│   ├── deploy.ts
-│   └── utils.ts
-├── node_modules/
-├── deployment.json      # 배포 스크립트에 의해 생성됨
-├── package-lock.json
-├── package.json
-└── tsconfig.json
-```
+같은 방식으로 Preview도 지원합니다:
 
-## Troubleshoot
+1. `.env.preview.example`을 `.env.preview`로 복사하고 `MIDNIGHT_PREVIEW_MNEMONIC` 또는 `MIDNIGHT_PREVIEW_SEED`를 입력합니다.
+2. [Preview faucet](https://midnight-tmnight-preview.nethermind.dev/)에서 지갑에 자금을 충전하고 tDUST를 위해 위임합니다.
+3. `yarn test:preview`를 실행합니다.
 
-배포 중 자주 발생하는 문제와 해결 방법입니다.
-
-### Proof server connection error
-
-`Wallet.Proving: Failed to prove transaction` 오류가 발생하면:
-
-- Docker 실행 여부 확인: `docker ps`
-- proof server 시작 여부 확인: `npm run start-proof-server`
-- 포트 6300이 이미 사용 중인지 확인
-
-### Insufficient DUST tokens
-
-DUST 부족으로 배포가 실패하면:
-
-- DUST 생성에 몇 분이 걸릴 수 있으므로 잠시 기다린 뒤, 지갑 시드로 복원하여 배포 스크립트를 다시 실행하세요.
-- tNight token이 충분한지 확인하세요. DUST는 tNight에서 생성됩니다.
-- 스크립트 출력에서 DUST 등록 성공 여부를 확인하세요.
-
-### Contract compilation error
-
-컨트랙트 파일이 없다는 오류가 나오면:
-
-- `npm run compile`로 컨트랙트를 다시 컴파일하세요.
-- 컴파일 오류 없이 성공했는지 확인하세요.
-- `contracts/managed/hello-world/contract/index.js` 파일이 존재하는지 확인하세요.
-
-## Security considerations
-
-컨트랙트 배포 시 다음 보안 사항을 지키세요:
-
-- **시드를 절대 커밋하지 마세요**: 프로덕션에서는 `deployment.json`을 `.gitignore`에 추가하세요. 시드는 지갑과 자금의 접근 권한을 제어합니다.
-- **환경 변수를 사용하세요**: 프로덕션 배포 시 파일 대신 환경 변수에서 시드를 로드하세요.
-- **지갑을 분리하세요**: 개발, 테스트, 프로덕션에 각각 다른 지갑을 사용하세요.
-- **배포를 확인하세요**: 블록 탐색기에서 컨트랙트 주소와 배포 트랜잭션을 반드시 확인하세요.
-
-## Next steps
-
-컨트랙트를 Preprod에 배포했습니다. [Hello World 컨트랙트와 상호작용하기](./interact-with-mn-app) 가이드에서 CLI를 빌드하고 `storeMessage` circuit을 호출해 보세요.
+전체 네트워크 URL과 탐색기 목록은 [Environments and endpoints](../relnotes/network)를 참고하세요.

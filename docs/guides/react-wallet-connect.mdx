@@ -12,7 +12,7 @@ toc_max_heading_level: 2
 
 import Step, { StepsProvider } from "@site/src/components/Step/Step";
 
-이 가이드에서는 DApp Connector API를 활용하여 Midnight Lace 지갑에 연결하는 React 애플리케이션을 만들어 봅니다.
+이 가이드에서는 DApp Connector API를 활용하여 Midnight 지갑에 연결하는 React 애플리케이션을 만들어 봅니다.
 연결 상태와 지갑 주소를 보여주는 간단한 인터페이스를 구현하며, 이를 바탕으로 더 복잡한 DApp을 개발할 수 있습니다.
 
 코드 예시는 핵심 기능에 집중하기 위해 CSS 스타일링을 포함하지 않습니다. Tailwind, styled-components, CSS 모듈 등 원하는 스타일링 도구를 자유롭게 적용하시면 됩니다.
@@ -24,7 +24,7 @@ import Step, { StepsProvider } from "@site/src/components/Step/Step";
 - TypeScript 및 JavaScript 기본 지식
 - React 기초(컴포넌트, 상태, 훅)에 대한 이해
 - Node.js와 npm 설치
-- 브라우저에 [Midnight Lace 지갑 확장 프로그램](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) 설치
+- 브라우저에 Midnight 지갑 확장 프로그램 설치
 
 ### Set up a React project
 
@@ -127,9 +127,39 @@ export default WalletCard;
 </Step>
 <Step>
 
+## Select a wallet
+
+지갑은 전역 `window.midnight` 객체 아래에 Initial API 인스턴스를 주입하는데, 이때 고정된 이름이 아니라 새로 생성된 UUID를 키로 사용합니다. 또한 한 브라우저에 여러 지갑이 동시에 존재할 수도 있습니다. 예를 들어 같은 seed phrase로 두 지갑을 불러온 경우가 그렇습니다. 그래서 하드코딩한 키를 찾는 대신 `window.midnight`의 항목을 읽어 그중 하나를 선택합니다.
+
+`src` 디렉토리에 `selectWallet.ts` 파일을 생성하고 다음 코드를 추가합니다:
+
+```typescript
+import type { InitialAPI } from '@midnight-ntwrk/dapp-connector-api';
+
+export const listWallets = (): InitialAPI[] => {
+  const injected = window.midnight;
+  return injected ? Object.values(injected) : [];
+};
+
+export const selectWallet = (): InitialAPI => {
+  const wallets = listWallets();
+
+  if (wallets.length === 0) {
+    throw new Error('No Midnight wallet found. Please install a Midnight wallet extension.');
+  }
+
+  return wallets[0];
+};
+```
+
+`selectWallet` 함수는 설치된 지갑을 읽어 첫 번째 지갑을 반환합니다. 이렇게 하면 예시를 연결 흐름에만 집중할 수 있습니다. 지갑이 둘 이상일 때는 DApp Connector API 명세에 따라 임의로 고르지 말고 사용자가 직접 선택하도록 해야 합니다. `listWallets`로 선택지를 렌더링하되, 각 지갑을 표시할 때는 XSS를 방지하기 위해 `name`과 `icon`을 안전하게 렌더링하세요.
+
+</Step>
+<Step>
+
 ## Integrate the DApp Connector API
 
-이제 DApp Connector API로 지갑 연결 로직을 관리하는 `App` 컴포넌트를 작성합니다.
+이제 DApp Connector API와 이전 단계에서 만든 `selectWallet` 헬퍼로 지갑 연결 로직을 관리하는 `App` 컴포넌트를 작성합니다.
 
 `src` 디렉토리의 `App.tsx`를 생성하거나 열고, 기존 코드를 다음으로 교체합니다:
 
@@ -137,7 +167,7 @@ export default WalletCard;
 import React, { useState } from 'react';
 import WalletCard from './WalletCard';
 import '@midnight-ntwrk/dapp-connector-api';
-import type { InitialAPI } from '@midnight-ntwrk/dapp-connector-api';
+import { selectWallet } from './selectWallet';
 
 const App: React.FC = () => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -149,15 +179,14 @@ const App: React.FC = () => {
     let address = null;
 
     try {
-      // window 객체를 통해 Midnight Lace 지갑에 접근
-      const wallet: InitialAPI = window.midnight!.mnLace;
+      const wallet = selectWallet();
 
       // 지정된 네트워크에 연결 (로컬 개발의 경우 'undeployed' 사용)
       const connectedApi = await wallet.connect('preprod');
 
-      // 지갑에서 shielded 주소 가져오기
-      const addresses = await connectedApi.getShieldedAddresses();
-      address = addresses.shieldedAddress;
+      // 지갑에서 unshielded 주소 가져오기
+      const { unshieldedAddress } = await connectedApi.getUnshieldedAddress();
+      address = unshieldedAddress;
 
       // 선택 사항: 서비스 URI 구성 가져오기
       const serviceUriConfig = await connectedApi.getConfiguration();
@@ -165,7 +194,7 @@ const App: React.FC = () => {
 
       // 연결이 설정되었는지 확인
       const connectionStatus = await connectedApi.getConnectionStatus();
-      if (connectionStatus) {
+      if (connectionStatus.status === 'connected') {
         isConnected = true;
         console.log("Connected to the wallet:", address);
       }
@@ -204,15 +233,15 @@ export default App;
 
 지갑 연결 과정을 단계별로 살펴보겠습니다:
 
-1. **지갑 접근**: DApp Connector API는 `window.midnight.{walletProvider}`를 통해 지갑을 노출합니다.
-여기서는 `window.midnight.mnLace`로 Midnight Lace 지갑에 접근합니다.
-2. **네트워크 연결**: `connect()` 메서드에 네트워크 ID를 전달하여 호출합니다.
-로컬 개발에는 `'undeployed'`, Preview 테스트넷에는 `'preview'`, PreProd 네트워크에는 `'preprod'`를 사용합니다.
-3. **주소 조회**: 네트워크에 연결한 뒤 `getShieldedAddresses()` 메서드로 지갑의 shielded 주소를 가져옵니다.
-4. **상태 확인**: `getConnectionStatus()`로 연결 여부를 확인합니다.
+1. **지갑 선택**: `selectWallet` 헬퍼는 `window.midnight`에 설치된 지갑을 읽어 연결할 지갑 하나를 반환합니다.
+지갑을 찾지 못하면 예외를 던지며, 이는 감싸고 있는 `try/catch`에서 처리됩니다.
+2. **네트워크 연결**: `connect()` 메서드에 네트워크 ID를 인자로 전달하여 호출합니다.
+예시에서는 `'preprod'`를 사용했습니다. 로컬 개발에는 `'undeployed'`, Preview 네트워크에는 `'preview'`를 사용할 수 있습니다.
+3. **주소 조회**: 네트워크에 연결한 뒤 `getUnshieldedAddress()` 메서드로 지갑의 unshielded 주소를 가져옵니다. shielded 주소는 애플리케이션에서 실제로 필요할 때만 요청하세요.
+4. **상태 확인**: `getConnectionStatus()`로 연결 상태를 확인합니다. 이 메서드는 `status`가 `'connected'` 또는 `'disconnected'`인 객체로 resolve됩니다.
 
 `handleConnect` 이벤트 핸들러가 이 모든 단계를 처리하고, 결과에 따라 컴포넌트 상태를 업데이트합니다.
-사용자가 **Connect Wallet** 버튼을 클릭하면 Lace 지갑에서 연결 승인 팝업이 나타납니다.
+사용자가 **Connect Wallet** 버튼을 클릭하면 지갑에서 연결 승인을 요청합니다.
 
 </Step>
 <Step>
@@ -264,11 +293,11 @@ npm run dev
 
 브라우저에서 로컬 개발 URL(보통 `http://localhost:5173`)에 접속합니다.
 
-**Connect Wallet**을 클릭하면 Midnight Lace 지갑 확장 프로그램에서 연결 승인을 요청합니다.
+**Connect Wallet**을 클릭하면 지갑 확장 프로그램에서 연결 승인을 요청합니다.
 
 ![Connect Wallet](./img/connect-wallet.png)
 
-승인하면 애플리케이션에 연결 상태와 지갑의 shielded 주소가 표시됩니다.
+승인하면 애플리케이션에 연결 상태와 지갑의 unshielded 주소가 표시됩니다.
 
 ![Connected Wallet](./img/connected-wallet.png)
 
@@ -281,18 +310,19 @@ npm run dev
 
 ### Wallet not detected
 
-`window.midnight`가 undefined인 경우:
+`window.midnight`가 undefined이거나 `No Midnight wallet found` 에러가 나타나는 경우:
 
-- 브라우저에 Midnight Lace 지갑 확장 프로그램이 설치되어 있고 활성화되어 있는지 확인합니다.
+- 브라우저에 Midnight 지갑 확장 프로그램이 설치되어 있고 활성화되어 있는지 확인합니다.
 - 확장 프로그램 설치 또는 활성화 후 페이지를 새로고침합니다.
+- 고정된 키(예: `window.midnight.mnLace`)가 아니라 열거 방식(`Object.values(window.midnight)`)으로 `window.midnight`에서 지갑을 읽고 있는지 확인합니다. 지갑은 Initial API를 UUID 키 아래에 주입하므로, 하드코딩한 이름은 `undefined`로 해석됩니다.
 - 브라우저 콘솔에서 확장 프로그램 관련 에러를 확인합니다.
 
 ### Connection fails
 
 연결에 실패하는 경우:
 
-- `connect()` 메서드의 네트워크 ID가 지갑에 설정된 네트워크 ID와 일치하는지 확인합니다.
-- Lace 지갑이 잠금 해제 상태이고 동기화가 완료되었는지 확인합니다.
+- `connect()` 메서드에 지정한 네트워크 ID가 지갑에 설정된 네트워크 ID와 일치하는지 확인합니다.
+- 지갑이 잠금 해제 상태이고 동기화가 완료되었는지 확인합니다.
 - 브라우저 콘솔에서 구체적인 에러 메시지를 확인합니다.
 - DApp Connector API 패키지가 올바르게 설치되었는지 확인합니다.
 

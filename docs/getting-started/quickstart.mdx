@@ -17,8 +17,8 @@ import Step, { StepsProvider } from "@site/src/components/Step/Step";
 
 Midnight DApp을 실행하려면 다음이 필요합니다:
 
-- Compact 컴파일러 설치 완료. [Toolchain 설치](./installation)를 참고하세요.
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) 설치 및 실행 중
+- Compact compiler `0.31.0` 설치 완료. [Toolchain 설치](./installation)를 참고하세요.
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) 설치 및 실행 중, Docker Compose v2 포함.
 - [Node.js](https://nodejs.org/) v22 이상. [NVM](https://github.com/nvm-sh/nvm)으로 설치할 수 있습니다.
 
 ## Midnight CLI tool
@@ -44,33 +44,29 @@ Midnight 개발이 처음이라면 _contract_로 시작하는 것을 권장합�
 
 #### Contract
 
-**Contract**를 선택하면 Compact smart contract 배포에 필요한 최소 구성의 프로젝트가 생성됩니다.
+**Contract**를 선택하면 Compact smart contract 배포에 필요한 최소 구성의 프로젝트가 생성됩니다. 이어서 contract 템플릿을 선택하라는 프롬프트가 나타납니다:
 
-이어서 contract 템플릿을 선택하라는 프롬프트가 나타납니다. 현재 선택 가능한 옵션은 다음과 같습니다:
+| Template | 설명 |
+|----------|-------------|
+| `hello-world` | 기본값. 메시지를 저장하는 contract로, Compact contract를 컴파일·배포하고 상호작용할 수 있도록 local devnet이 함께 번들로 제공됩니다. |
+| `battleship` | private board 상태 머신으로, [example-battleship](https://github.com/midnightntwrk/example-battleship)에서 복제됩니다. |
 
-- Hello world
-
-Hello world contract는 Compact contract를 배포하고 CLI에서 상호작용하는 방법을 보여주는 기본 예제입니다.
+번들 devnet과 `--network` 플래그는 `hello-world`에서만 제공됩니다.
 
 #### Full DApp
 
-**Full DApp**을 선택하면 contract 로직, 배포 스크립트, contract와 상호작용하는 CLI까지 갖춘 완전한 탈중앙화 애플리케이션이 생성됩니다.
+**Full DApp**을 선택하면 contract와 상호작용하는 브라우저 또는 CLI 인터페이스까지 갖춘 완전한 탈중앙화 애플리케이션이 생성됩니다. 이어서 DApp 템플릿을 선택하라는 프롬프트가 나타납니다:
 
-이어서 DApp 템플릿을 선택하라는 프롬프트가 나타납니다. 선택 가능한 옵션은 다음과 같습니다:
+| Template | 설명 |
+|----------|-------------|
+| `bboard` | 기본값. 프라이버시를 보호하는 게시판으로, [example-bboard](https://github.com/midnightntwrk/example-bboard)에서 복제됩니다. |
+| `leaderboard` | 브라우저에서 ZK proving을 수행하는 React + Lace 브라우저 DApp으로, [midnight-leaderboard](https://github.com/midnightntwrk/midnight-leaderboard)에서 복제됩니다. |
 
-- Counter  
-- Bulletin board
+:::note
+`dex`와 `midnight-kitties`는 템플릿 선택기에 _coming soon_으로 표시됩니다. Full DApp 템플릿은 아래에 설명한 번들 devnet 흐름 대신 각자의 upstream 리포지토리 README를 따릅니다.
+:::
 
-Counter 템플릿은 카운터를 증가/감소시키며 공유 contract 상태를 유지하고 갱신하는 방법을 보여주는 예제입니다.
-
-Bulletin board 템플릿은 zero-knowledge(ZK) proof를 사용해 메시지를 게시하고 삭제할 수 있는 프라이버시 보호 게시판입니다.
-
-이 가이드에서는 첫 번째 프롬프트에서 **Contract**를 선택하고, 템플릿 선택 프롬프트에서 **Hello world**를 선택하세요. 나머지 프롬프트에 따라 설정을 완료하세요.
-
-**Full DApp**을 선택한 경우, 각 템플릿의 전용 리소스를 참고하세요:
-
-- [example-counter 저장소](https://github.com/midnightntwrk/example-counter)
-- [Bulletin board DApp](../examples/dapps/bboard)
+이 가이드에서는 첫 번째 프롬프트에서 **Contract**를 선택하고, 템플릿 선택 프롬프트에서 **hello-world**를 선택하세요. 나머지 프롬프트에 따라 설정을 완료하세요.
 
 다음과 유사한 출력이 나타납니다:
 
@@ -103,69 +99,53 @@ my-app/
 ├── contracts/
 │   └── hello-world.compact    # Compact smart contract
 ├── src/
-│   ├── cli.ts                 # 배포된 contract와 상호작용
-│   ├── deploy.ts              # Preprod에 contract 배포
-│   └── check-balance.ts       # wallet 잔액 확인
-├── docker-compose.yml         # Proof server 설정
+│   ├── cli.ts                 # Interact with deployed contract
+│   ├── deploy.ts              # Deploy contract
+│   └── check-balance.ts       # Check wallet balance
+├── docker-compose.yml         # Local devnet: node, indexer, proof server
 ├── package.json
-└── deployment.json            # 배포 정보 (wallet seed와 contract 주소 포함)
+└── .midnight-state.json       # Deployment state (gitignored; contract address and network)
 ```
 
 `contracts/hello-world.compact` 파일에 Compact smart contract 코드가 있습니다.
 
 ```compact
-pragma language_version 0.23;
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
 
 export ledger message: Opaque<"string">;
 
-export circuit storeMessage(newMessage: Opaque<"string">): [] {
-  message = disclose(newMessage);
+export circuit storeMessage(customMessage: Opaque<"string">): [] {
+    message = disclose(customMessage);
 }
 ```
 
 [Compact](../compact/)는 contract 로직을 정의하는 Midnight의 smart contract 언어입니다. TypeScript와 유사하지만 Midnight 런타임용으로 설계되었습니다.
 
-`docker-compose.yml` 파일에는 [proof server](../guides/run-proof-server) 설정이 포함되어 있습니다. Proof server는 Midnight 네트워크에서 smart contract용 ZK proof를 생성하며, contract를 배포하거나 상호작용하기 전에 반드시 실행 중이어야 합니다.
+`docker-compose.yml` 파일은 Docker에서 실행되는 local devnet, 즉 Midnight node, indexer, [proof server](../guides/run-proof-server)를 정의합니다. Proof server는 Midnight 네트워크에서 smart contract용 ZK(zero-knowledge) proof를 생성합니다. Contract를 배포하거나 상호작용하기 전에 devnet이 실행 중이어야 합니다.
 
 ## Set up the project
 
-프로젝트 설정 스크립트를 실행하세요:
+설정 스크립트를 실행하세요:
 
 ```bash
 npm run setup
 ```
 
-이 스크립트는 proof server 시작, contract 컴파일, Preprod 네트워크 배포를 순서대로 수행합니다.
+`npm run setup`은 Docker에서 local devnet(node, indexer, proof server)을 띄우고, contract를 컴파일한 뒤 배포합니다. Wallet 확장 프로그램이나 faucet은 필요하지 않습니다. 로컬 `dev` preset이 genesis seed에 NIGHT을 미리 발행해 두며, 이 자금으로 배포가 자동으로 처리됩니다.
 
-새 wallet을 생성할지, 기존 wallet을 복원할지 선택하는 메뉴가 나타납니다. 새 wallet을 생성하면 seed와 wallet 주소가 표시됩니다. Seed는 복원 시 필요하므로 안전한 곳에 저장하세요.
-
-:::note
-[Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)에서 tNIGHT token을 받아 wallet에 충전해야 합니다. tNIGHT는 Midnight blockchain에서 transaction 수수료 지불에 필요한 tDUST를 생성합니다.
-:::
-
-Wallet에 자금을 충전하면 CLI가 자동으로 tDUST를 생성하고 Preprod 네트워크에 contract를 배포합니다. 몇 초 정도 소요됩니다.
-
-배포가 완료되면 다음과 같은 출력이 표시됩니다:
-
-```
-  ✅ Contract deployed successfully!
-
-  Contract Address: b92d63e566cbcede6............
-
-  Saved to deployment.json
-```
-
-루트 디렉토리의 `deployment.json` 파일에 contract 배포 정보가 저장됩니다. CLI는 contract와 상호작용할 때 이 파일을 참조합니다.
+CLI는 배포 상태를 `.midnight-state.json` 파일에 기록합니다(Git이 이 파일을 무시합니다). 이 파일에는 contract 주소와 활성 네트워크가 담깁니다. CLI는 contract와 상호작용할 때 이 파일을 참조합니다.
 
 ## Interact with the contract
 
-Contract와 상호작용할 수 있는 CLI를 시작하세요:
+Contract를 배포한 뒤, 대화형 CLI를 시작하세요:
 
 ```bash
 npm run cli
 ```
 
-Wallet seed를 입력하라는 프롬프트가 나타납니다. Wallet이 네트워크와 동기화되면 다음 메뉴로 contract와 상호작용할 수 있습니다:
+CLI로 배포된 contract와 상호작용할 수 있습니다:
 
 ```
 1. Store a message
@@ -174,45 +154,75 @@ Wallet seed를 입력하라는 프롬프트가 나타납니다. Wallet이 네트
 4. Exit
 ```
 
-원하는 옵션을 선택하고 프롬프트에 따라 진행하세요.
+메뉴에서 원하는 옵션을 선택하고 프롬프트에 따라 진행하세요. Ledger 상태를 직접 확인하려면 end-to-end 테스트를 실행하세요:
+
+```bash
+npm run test:e2e
+```
+
+### Deploy to a public testnet
+
+기본값은 local devnet입니다. 공개 testnet은 선택 사항이며, `npm run setup`에 `--network`를 전달하세요:
+
+```bash
+npm run setup -- --network preview
+```
+
+공개 네트워크를 처음 대상으로 지정하면 CLI가 wallet을 생성하고 충전에 사용할 faucet URL을 출력합니다. [preview faucet](https://midnight-tmnight-preview.nethermind.dev/) 또는 [preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)에서 wallet에 자금을 충전하세요. 네트워크 선택은 고정으로 유지되며, 이후에는 `npm run network <name>`으로 네트워크를 전환할 수 있습니다.
+
+| Network | Source | 용도 |
+|---------|--------|-------------|
+| `undeployed` | Local devnet (`docker-compose.yml`) | 기본값. 자금 충전이나 wallet 확장 프로그램이 필요하지 않습니다. |
+| `preview` | Public preview ([faucet](https://midnight-tmnight-preview.nethermind.dev/)) | 릴리스 전 공유 인프라입니다. |
+| `preprod` | Public preprod ([faucet](https://midnight-tmnight-preprod.nethermind.dev/)) | mainnet에 가장 가깝습니다. |
 
 ## Templates
 
-Midnight CLI 도구에서 제공하는 스타터 템플릿:
+Midnight CLI 도구는 contract와 full DApp 모두를 위한 스타터 템플릿을 제공합니다. `--template <name>`으로 템플릿을 전달하거나, 생략하면 CLI가 선택하라는 프롬프트를 표시합니다.
 
 ### Hello world
 
-Blockchain에 메시지를 저장하고 조회하는 간단한 DApp입니다.
+`hello-world` 템플릿은 blockchain에 메시지를 게시하고 조회하는 메시지 저장 contract입니다. 번들로 제공되는 local devnet과 함께 제공됩니다.
 
 ```bash
 npx create-mn-app my-app
 ```
 
-Hello world는 기본 템플릿이므로 `--template` 플래그 없이 사용할 수 있으며, 의존성이 자동으로 설치됩니다.
+`hello-world`는 기본 템플릿이며 의존성이 설치된 상태로 제공됩니다. 새 `hello-world` 프로젝트를 만들 때 `--template` 플래그는 필요하지 않습니다.
 
-### Counter
+### Battleship
 
-카운터를 증가/감소시키는 간단한 DApp입니다.
+`battleship` 템플릿은 private board 상태 머신으로, [example-battleship](https://github.com/midnightntwrk/example-battleship)에서 복제됩니다.
 
 ```bash
-npx create-mn-app my-app --template counter
-cd my-app
-npm install
+npx create-mn-app my-app --template battleship
 ```
-
-Counter 템플릿에 대한 자세한 내용은 GitHub의 [example-counter 저장소](https://github.com/midnightntwrk/example-counter)를 참고하세요.
 
 ### Bulletin board
 
-메시지를 게시하고 삭제할 수 있는 프라이버시 기반 게시판 DApp입니다.
+`bboard` 템플릿은 메시지를 게시하고 삭제할 수 있는 프라이버시 보호 게시판 DApp으로, [example-bboard](https://github.com/midnightntwrk/example-bboard)에서 복제됩니다.
 
 ```bash
 npx create-mn-app my-app --template bboard
-cd my-app
-npm install
 ```
 
 ZK proof를 활용해 온체인에서 신원을 드러내지 않으면서도 게시자와 메시지 소유자를 검증합니다. 자세한 내용은 [Bulletin board DApp](../examples/dapps/bboard) 예제를 참고하세요.
+
+### Leaderboard
+
+The `leaderboard` template is a React + Lace browser DApp with in-browser ZK proving, cloned from [midnight-leaderboard](https://github.com/midnightntwrk/midnight-leaderboard).
+
+```bash
+npx create-mn-app my-app --template leaderboard
+```
+
+:::note
+`create-mn-app` v0.4.2는 Counter 템플릿을 제거했습니다. `--from` 플래그로 은퇴한 Counter 예제를 여전히 스캐폴딩할 수 있습니다:
+
+```bash
+npx create-mn-app@latest my-app --from midnightntwrk/example-counter
+```
+:::
 
 ## CLI options
 
@@ -220,13 +230,19 @@ ZK proof를 활용해 온체인에서 신원을 드러내지 않으면서도 게
 
 | 옵션 | 설명 |
 |--------|-------------|
-| `-t`, `--template <name>` | 템플릿 선택: `hello-world`, `counter`, `bboard` |
+| `-t`, `--template <name>` | 템플릿 선택: `hello-world`, `battleship`, `bboard`, `leaderboard` |
+| `--list` | 사용 가능한 템플릿 목록 표시 |
+| `--from <owner/repo>` | GitHub 저장소로부터 스캐폴딩 |
+| `--network <name>` | `hello-world` 템플릿의 네트워크 설정 (`undeployed`, `preview`, `preprod`) |
+| `-y` | 프롬프트 없이 기본값 적용 |
+| `--dry-run` | 파일을 생성하지 않고 CLI가 만들 내용 미리 보기 |
 | `--use-npm/yarn/pnpm/bun` | 특정 패키지 매니저 강제 사용 |
 | `--skip-install` | 의존성 설치 건너뛰기 |
-| `--skip-git` | git 초기화 건너뛰기 |
-| `--verbose` | 상세 출력 |
-| `-h`, `--help` | 도움말 |
-| `-V`, `--version` | 버전 정보 |
+| `--skip-git` | git 저장소 초기화 건너뛰기 |
+| `--verbose` | 프로젝트 생성 시 상세 출력 표시 |
+| `-h`, `--help` | 도움말 표시 |
+| `-V`, `--version` | CLI 도구 버전 표시 |
+
 
 
 ## Next steps

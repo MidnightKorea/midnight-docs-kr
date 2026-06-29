@@ -1,0 +1,94 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Ledger 8.1.0 릴리스 노트
+description: The Midnight Ledger is the core library for transaction construction, ZKP proving, and on-chain state management on the Midnight Network.
+displayed_sidebar: sidebar
+---
+
+* **Version**: v8.1.0
+* **Date**: 2026년 5월 13일
+
+---
+
+## High-level summary
+
+Ledger 8.1.0은 storage 계층을 크게 개선하고 wallet 기능을 강화한 마이너 릴리스입니다. 이번 릴리스에는 race condition, deadlock, 메모리 관리 문제를 해결하는 `storage-core` 서브시스템의 핵심 수정이 포함됩니다. 또한 wallet 개발자를 위해 WASM 바인딩을 통해 더 세분화된 제어 메커니즘과 event 내용을 노출합니다.
+
+## Audience
+
+이번 릴리스 노트는 다음 대상에게 가장 관련이 깊습니다.
+
+- 개선된 storage 안정성과 새 incremental garbage collector의 혜택을 받는 노드 운영자
+- wallet 연동을 위해 ledger WASM 바인딩을 사용하는 개발자
+- WASM 인터페이스를 통해 ledger event를 소비하는 DApp 개발자
+
+## Summary of updates
+
+- `storage-core`에 시간 제한 방식으로 동작하는 incremental garbage collector 추가
+- ParityDB가 기존 인스턴스를 사용하고 제네릭 `Deref`를 통해 백엔드를 공유할 수 있도록 허용
+- deadlock을 유발할 수 있던 `force_as_arc`의 race condition 수정
+- promoted 키와 unpromoted 키가 섞일 때 발생하던 `Sp` serialization panic 수정
+- `Sp::into_tracked` 동작 수정
+- `get()`에서 `cache_insert_new_key` 이전에 대기 중이던 `Update` 제거
+- deadlock을 방지하기 위해 `force_as_arc`의 lock 순서 수정
+- WASM 바인딩에서 wallet용 세분화된 제어와 event 내용 노출
+
+---
+
+## New features
+
+이번 릴리스에 도입된 새 기능을 자세히 설명합니다.
+
+### Incremental garbage collector
+
+`storage-core`의 새 incremental garbage collector는 시간 제한 방식으로 동작하여, 메인 처리 루프를 막지 않으면서 storage 비대화를 방지합니다. 이 기능을 사용하려면 데이터베이스가 새 scan 연산을 지원해야 합니다.
+
+### Shared ParityDB backend
+
+이제 ParityDB는 기존 인스턴스를 사용하고 제네릭 `Deref`를 통해 백엔드를 공유할 수 있습니다. 덕분에 여러 컴포넌트가 같은 데이터베이스에 접근할 때 리소스 소비가 줄어듭니다.
+
+### Enhanced wallet WASM bindings
+
+이제 WASM 바인딩은 wallet 연동을 위한 더 세분화된 제어 메커니즘과 event 내용을 노출합니다. wallet 개발자는 ledger 상태와 상호작용하는 방식을 더 유연하게 구성할 수 있습니다.
+
+---
+
+## Breaking changes
+
+v8.1.0에는 breaking change가 없습니다.
+
+---
+
+## Bug fixes and quality improvements
+
+이번 릴리스에 포함된 버그 수정과 품질 개선은 다음과 같습니다.
+
+### `force_as_arc`의 race condition
+
+동시 접근 시 deadlock을 유발할 수 있던 `force_as_arc`의 race condition을 수정했습니다. 이로써 다른 코드 경로에서 같은 deadlock을 일으킬 수 있던 lock 순서 위반 문제도 함께 해결됩니다.
+
+### `Sp` serialization panic
+
+promoted 키와 unpromoted 키가 섞일 때 발생하던 `Sp` serialization panic을 수정하여, 상태 serialization 중 노드가 크래시되지 않도록 했습니다.
+
+### `Sp::into_tracked` 동작
+
+`Sp::into_tracked`가 정확한 추적 상태를 생성하도록 동작을 바로잡았습니다.
+
+### `get()`의 메모리 누수
+
+이제 `get()`에서 `cache_insert_new_key` 이전에 대기 중인 `Update` 항목을 제거하여, 시간이 지나며 누적될 수 있던 메모리 누수를 수정했습니다.
+
+---
+
+## Known issues
+
+릴리스 시점에 확인된 심각한 알려진 문제는 없습니다.
+
+---
+
+## Links and references
+
+- **GitHub**: [Midnight Ledger repository](https://github.com/midnightntwrk/midnight-ledger)
+- **Release**: [Ledger 8.1.0 on GitHub](https://github.com/midnightntwrk/midnight-ledger/releases/tag/ledger-8.1.0)

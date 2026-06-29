@@ -1,0 +1,82 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+sidebar_position: 45
+sidebar_label: Midnight Explorer
+description: 커뮤니티가 만든 web explorer인 Midnight Explorer로 Midnight Network의 block, transaction, address, contract를 탐색합니다.
+title: Midnight Explorer
+tags: [community, explorer, blocks, transactions, contracts, analytics, nextjs, typescript]
+toc_max_heading_level: 2
+id: midnight-explorer
+---
+
+# Midnight Explorer
+
+[Midnight Explorer](https://github.com/Tech-Expansion/midnight-explorer-web)는 Midnight Network을 위한 오픈소스 blockchain explorer입니다. transaction, block, smart contract, liquidity pool을 비롯한 on-chain 활동을 검색하고 추적하며 분석할 수 있는 web 인터페이스를 제공합니다. [TexLabs](https://texlabs.org)가 [Tech-Expansion](https://github.com/Tech-Expansion) GitHub 조직에서 이 프로젝트를 관리하며, [midnightexplorer.com](https://www.midnightexplorer.com)에서 공개 인스턴스를 운영합니다.
+
+:::warning[Community-maintained - not audited]
+
+이 프로젝트는 Midnight Foundation이 아니라 TexLabs가 관리합니다. 감사(audit)를 받지 않았습니다. production 결정에 이 데이터를 활용하기 전에 직접 검토하시기 바랍니다.
+
+:::
+
+## Prerequisites
+
+explorer를 로컬에서 실행하기 전에 다음을 갖췄는지 확인하세요:
+
+- Node.js 20 이상.
+- npm.
+- 컨테이너 기반 배포를 사용할 계획이라면 Docker.
+
+## Compatibility
+
+| Component | Version | Notes |
+|---|---|---|
+| Explorer version | `0.1.0` | 정식 릴리스 없음. `main` 브랜치에서 코드를 받습니다. |
+| `@midnight-ntwrk/compact-runtime` | `^0.9.0` | `package.json`에 명시됨. |
+| `@midnight-ntwrk/midnight-js-types` | `^2.0.2` | `package.json`에 명시됨. |
+| `@midnight-ntwrk/zswap` | `^4.0.0` | `package.json`에 명시됨. |
+| Networks | Preview, Preprod, Mainnet Lite | 헤더의 network switcher에서 선택합니다. 공개 인스턴스는 기본적으로 Preprod를 제공합니다. |
+| License | Apache 2.0 | |
+
+## Features
+
+explorer는 다음과 같은 화면을 제공합니다:
+
+- **Universal search**: block, transaction, address, contract를 hash나 ID로 조회합니다.
+- **Block explorer**: 최신 block을 전체 block 상세 정보 및 transaction 목록과 함께 살펴봅니다.
+- **Transaction viewer**: transaction 데이터, input, output, contract 상호작용을 확인합니다.
+- **Address explorer**: address의 이력, 잔액, 연관된 contract를 봅니다.
+- **Smart contracts**: 배포된 contract와 그 on-chain state를 살펴봅니다.
+- **Pool analytics**: liquidity pool의 지표와 활동을 추적합니다.
+- **Network charts**: on-chain 통계와 시간에 따른 추세를 시각화합니다.
+- **Live network stats**: 현재 epoch, slot, 총 block 수, transaction 수, 평균 block 생성 시간을 모니터링합니다.
+- **Network switcher**: 헤더에서 Midnight 환경을 전환합니다.
+
+## Run the explorer locally
+
+의존성을 설치하고 개발 서버를 실행합니다:
+
+```bash
+npm install
+npm run dev
+```
+
+`dev` 스크립트는 포트 `8081`에서 Next.js를 실행합니다. 브라우저에서 `http://localhost:8081`을 엽니다.
+
+이 프로젝트는 Next.js 15 (App Router), TypeScript, Tailwind CSS v4, Radix UI, TanStack Query, Recharts, PostgreSQL을 사용합니다.
+
+## Deployment
+
+저장소에는 컨테이너 기반 호스팅을 위한 `Dockerfile`과 Nginx compose 파일(`docker-compose.nginx.yml`)이 함께 들어 있습니다. README에는 Let's Encrypt를 이용한 HTTPS 설정, 인증서 자동 갱신, 무중단 업데이트를 위한 blue-green 전략이 정리되어 있습니다. 전체 배포 명령은 [project README](https://github.com/Tech-Expansion/midnight-explorer-web#readme)를 참고하세요.
+
+## Additional resources
+
+- [Project repository](https://github.com/Tech-Expansion/midnight-explorer-web): 소스, README, 배포 가이드.
+- [Public explorer instance](https://www.midnightexplorer.com): TexLabs가 호스팅하며 기본적으로 Preprod를 제공합니다.
+
+## Report issues
+
+explorer 관련 문제는 [TexLabs' tracker](https://github.com/Tech-Expansion/midnight-explorer-web/issues)에 등록하세요.
+
+이 문서 페이지 관련 문제는 [Midnight docs repository](https://github.com/midnightntwrk/midnight-docs/issues)에 등록하세요.

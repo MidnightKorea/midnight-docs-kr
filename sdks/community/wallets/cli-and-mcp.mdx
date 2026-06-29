@@ -1,0 +1,93 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+sidebar_position: 30
+sidebar_label: CLI and MCP
+description: "wallet CLI로 브라우저 wallet 없이 Midnight Network에서 개발·테스트하고, MCP를 통해 AI agent로 self-custody wallet을 제어하는 방법을 다룹니다."
+title: Develop with the wallet CLI and MCP
+tags: [community, wallets, cli, mcp, ai-agents, testing, automation, devnet]
+toc_max_heading_level: 2
+id: community-wallets-cli-mcp
+---
+
+# Develop with the wallet CLI and MCP
+
+스크립트, CI, AI agent가 브라우저 확장 없이 wallet CLI와 그 MCP 서버를 사용해 Midnight에서 자금을 보유하고 옮기는 방법을 다룹니다. wallet을 먼저 고르려면 [overview](./wallets-overview.mdx)를 참고하세요. 브라우저 DApp 연동은 [integration guide](./integration.mdx)를 보세요.
+
+## Develop and test without a wallet
+
+wallet CLI는 동일한 `ConnectedAPI`를 로컬 WebSocket으로 노출하므로, DApp 코드 경로를 그대로 둔 채 실행할 수 있고 사용자는 나중에 아무 브라우저 wallet으로 연결하면 됩니다. CLI는 self-custody이며(키는 `~/.midnight`에 저장, BIP-39/44, Lace 호환) 네트워크에 구애받지 않아, 하나의 seed로 `undeployed`, `preprod`, `preview`를 모두 다룹니다.
+
+| Group | Commands |
+|---|---|
+| Wallet | `wallet generate/list/use/info/remove`, `info`, `address`, `genesis-address` |
+| Transactions | `balance`, `transfer`, `airdrop`, `inspect-cost` |
+| DUST | `dust register`, `dust status` |
+| Local network | `localnet up/status/stop/down/clean` |
+| Config / connector | `config get/set/unset`, `cache clear`, `serve` |
+
+`midnight localnet up`은 Docker로 전체 스택을 구성하므로(node는 `9944`, indexer는 `8088`, proof server는 `6300`), faucet 없이 배포하고 거래할 수 있습니다.
+
+```bash
+midnight localnet up                          # node + indexer + proof server (Docker)
+midnight wallet generate alice                # self-custody key in ~/.midnight
+midnight config set network undeployed
+midnight airdrop 1000                          # fund the active wallet (undeployed-only)
+midnight airdrop 1000 mn_addr_undeployed1...   # ...or fund ANY address directly (v0.4.1, no seed import)
+midnight dust register                         # REQUIRED before transfers; wait ~5 min locally for DUST (else error 138)
+midnight balance
+midnight transfer mn_addr_undeployed1... 100   # positional: <recipient> <amount>
+
+midnight serve --network preview               # headless DApp Connector on ws://localhost:9932
+midnight serve --network preview --approve-all # dev only: auto-approve every request
+```
+
+:::warning[#1 beginner gotcha]
+
+transfer 전에 `dust register`를 먼저 실행하세요. 그러지 않으면 transfer가 `BalanceCheckOverspend` (138)로 실패합니다. DUST는 로컬에서 약 5분이면 재생성됩니다(자세한 내용은 [Fees and DUST](./integration.mdx#fees-and-dust)와 [Troubleshooting](./reference.mdx#troubleshooting-and-error-reference) 참고).
+
+:::
+
+```ts
+// A DApp connects to the CLI connector exactly like a browser wallet:
+import { createWalletClient } from "midnight-wallet-connector";
+const wallet = await createWalletClient({ url: "ws://localhost:9932", networkId: "Preview" });
+const balances = await wallet.getUnshieldedBalances(); // same ConnectedAPI surface
+```
+
+`midnight serve`를 상대로 빌드하고 테스트한 뒤(스크립트로 다룰 수 있고 팝업이 없습니다), 배포하고 나면 사용자가 코드 변경 없이 Lace나 1AM으로 연결합니다.
+
+:::note[Freshness (v0.4.1)]
+
+이제 `midnight airdrop`로 아무 주소에나 직접 자금을 보낼 수 있습니다. 받는 쪽 주소를 붙여넣기만 하면 되고 seed import는 필요 없습니다. 로컬 네트워크에서 브라우저 wallet에 자금을 넣으려고 seed를 import할 필요가 더 이상 없습니다. indexer 연결도 v4 API로 옮겨가서 테스트 네트워크의 연결 오류가 해결됩니다. ([repo](https://github.com/nel349/midnight-wallet-cli))
+
+:::
+
+([CLI README](https://www.npmjs.com/package/midnight-wallet-cli), [connector](https://www.npmjs.com/package/midnight-wallet-connector), [local playground](https://forum.midnight.network/t/local-playground-for-midnight-compact-contracts-run-a-full-node-indexer-and-proof-server-via-docker-fund-your-lace-wallet-and-deploy-without-testnets-or-faucets/1002))
+
+## AI and agent tooling (the MCP column)
+
+MCP 열은 agent가 도구를 호출하는 영역이며, 두 가지 형태로 나뉩니다.
+
+**Wallet-control MCP.** midnight-wallet-cli에는 MCP 서버(`midnight-wallet-mcp`)가 포함되어 CLI 명령을 도구로 노출하므로, AI agent가 self-custody wallet을 운영할 수 있습니다.
+
+| Group | MCP tools |
+|---|---|
+| Wallet and info | `midnight_wallet_generate`, `_list`, `_use`, `_info`, `_remove`, `midnight_info`, `midnight_address`, `midnight_genesis_address` |
+| Transactions | `midnight_balance`, `_transfer`, `_airdrop`, `midnight_inspect_cost` |
+| DUST | `midnight_dust_register`, `_status` |
+| Local network | `midnight_localnet_up`, `_stop`, `_down`, `_status`, `_clean` |
+| Config | `midnight_config_get`, `_set`, `_unset`, `midnight_cache_clear` |
+
+가장 중요한 것은 최신 도구들입니다. 토큰을 옮기는 것을 넘어, 이제 agent가 전체 contract 수명주기를 다룰 수 있습니다. 배포하고, 호출하고, 상태를 읽습니다. 또한 두 단계 확인 도구가 있어 무언가 실행되기 전에 agent가 무엇을 지출하려는지 사람에게 보여줍니다. Claude Code(`.mcp.json`), Claude Desktop, Cursor, VS Code(Copilot), Windsurf 같은 아무 MCP 클라이언트나 이 바이너리를 가리키게 하면 됩니다.
+
+```json
+{ "mcpServers": { "midnight-wallet": { "command": "midnight-wallet-mcp" } } }
+```
+
+이곳이 가장 위험이 큰 셀입니다. agent의 도구 범위를 제한하고, 지출 한도를 두고, 목적지를 allowlist로 관리하고, 사람을 의사결정 고리 안에 두세요(자세한 내용은 [Security checklist](./reference.mdx#security-checklist) 참고). 따라 해 볼 자료: "Multi-Language Dev Session #22: midnight-wallet-cli" ([YouTube](https://www.youtube.com/watch?v=zgt27WFzQHk), [CLI README](https://www.npmjs.com/package/midnight-wallet-cli)).
+
+**Dev-assistant MCP.** 이것은 빌드를 돕는 도구입니다. Compact를 작성하고, connector를 연결하고, 주장을 검증합니다. 강연 "Midnight for Developers: Midnight MCP, The AI Tool That Finally Understands Compact"를 참고하세요 ([YouTube](https://www.youtube.com/watch?v=oGDSMDejUkE)). 두 개의 마켓플레이스가 있습니다.
+
+- **Midnight Expert**에는 개발 수명주기 전반을 아우르는 13개 플러그인(87개 skill, 17개 agent)이 있습니다. 여기서 가장 관련 깊은 것은 `midnight-tooling`(CLI, devnet, proof server), `midnight-dapp-dev`(frontend과 connector), `midnight-wallet`(wallet SDK), `midnight-verify`(SDK와 connector 주장 검증), `midnight-status-codes`입니다. `/plugin`으로 설치한 뒤 `https://midnightntwrk.expert`를 추가하세요. ([midnightntwrk.expert](https://midnightntwrk.expert/))
+- **Edda Labs**는 `midnight` 플러그인을 제공합니다. `/midnight-docs`, `/midnight-docs-repos`, `/midnight-examples`, `/midnight-contracts`, `/midnight-starter`([React pattern](./integration.mdx#react-the-production-pattern)에서 쓰인 것과 동일한 [`eddalabs/midnight-starter-template`](https://github.com/eddalabs/midnight-starter-template))가 들어 있습니다. `/plugin marketplace add eddalabs/edda-marketplace`로 설치한 뒤 `/plugin install midnight`을 실행하세요.

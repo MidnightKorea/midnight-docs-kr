@@ -42,25 +42,32 @@ cd bboard-cli
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "rm -rf dist && tsc && cp -R ../contract/src/managed dist/contract/src/managed",
+    "build": "rm -rf dist && tsc --project tsconfig.build.json && cp -R ../contract/src/managed dist/contract/src/managed",
     "ci": "npm run typecheck && npm run lint && npm run build",
     "lint": "eslint src",
-    "preprod": "node --experimental-specifier-resolution=node --loader ts-node/esm src/launcher/preprod.ts",
-    "undeployed": "node --experimental-specifier-resolution=node --loader ts-node/esm src/launcher/undeployed.ts",
+    "prepack": "npm run build",
+    "standalone": "node --experimental-specifier-resolution=node --loader ts-node/esm src/launcher/standalone.ts",
+    "preview-remote": "node --experimental-specifier-resolution=node --loader ts-node/esm src/launcher/preview.ts",
+    "preprod-remote": "node --experimental-specifier-resolution=node --loader ts-node/esm src/launcher/preprod.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@types/json-schema": "^7.0.15",
-    "@types/node": "^25.2.0"
+    "@types/node": "^25.3.0"
   }
 }
 ```
 
-`preprod` 스크립트는 CLI 애플리케이션을 실행하고 Midnight Preprod 테스트넷에 연결하며, `undeployed` 스크립트는 CLI 애플리케이션을 실행하고 로컬 머신에서 실행 중인 로컬 Midnight 네트워크에 연결합니다.
+각 런처 스크립트는 서로 다른 네트워크를 대상으로 합니다:
+
+- `preprod-remote`: Midnight이 호스팅하는 **Preprod** 테스트넷에 연결합니다
+- `preview-remote`: Midnight이 호스팅하는 **Preview** 테스트넷에 연결합니다
+- `standalone`: genesis-mint 지갑 시드를 사용해 로컬 머신에서 실행 중인 로컬 Midnight 네트워크에 연결합니다
 
 :::info
 로컬 Midnight 네트워크 설정에 대한 자세한 정보는 [Midnight 로컬 네트워크](../../../guides/midnight-local-network/) 문서를 참조하세요.
 :::
+
 ## Configure TypeScript
 
 `bboard-cli/tsconfig.json`을 생성합니다:
@@ -74,7 +81,7 @@ cd bboard-cli
     "lib": ["ESNext"],
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
@@ -85,6 +92,16 @@ cd bboard-cli
     "esModuleInterop": true,
     "skipLibCheck": true
   }
+}
+```
+
+프로덕션 빌드에서 테스트를 제외하도록 `bboard-cli/tsconfig.build.json`을 만드세요:
+
+```json
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["src/**/*.test.ts"],
+  "compilerOptions": {}
 }
 ```
 
@@ -110,21 +127,40 @@ export interface Config {
   readonly logDir: string;
   readonly zkConfigPath: string;
   getEnvironment(logger: Logger): TestEnvironment;
-  readonly requestFaucetTokens: boolean;
   readonly generateDust: boolean;
 }
 
 export const currentDir = path.resolve(new URL(import.meta.url).pathname, '..');
 ```
 
-CLI는 두 가지 네트워크 환경을 지원합니다:
+CLI는 세 가지 네트워크 환경을 지원합니다:
 
-- **Preprod**: `preprod.midnight.network`에서 Midnight이 호스팅하는 테스트넷에 연결합니다
-- **Undeployed**: 로컬 머신에서 실행 중인 로컬 Midnight 네트워크에 연결합니다.
+- **Standalone**: 로컬 머신에서 실행 중인 로컬 Midnight 네트워크에 연결하며 genesis-mint 지갑 시드를 사용합니다. genesis 지갑이 이미 tDUST를 보유하고 있으므로 DUST 생성은 비활성화됩니다.
+- **Preview**: Midnight이 호스팅하는 Preview 테스트넷에 연결합니다.
+- **Preprod**: Midnight이 호스팅하는 Preprod 테스트넷에 연결합니다.
 
-<Tabs>
-  <TabItem value="preprod">
 ```typescript title="bboard-cli/src/config.ts"
+export class StandaloneConfig implements Config {
+  getEnvironment(logger: Logger): TestEnvironment {
+    return getTestEnvironment(logger) as TestEnvironment;
+  }
+  privateStateStoreName = 'bboard-private-state';
+  logDir = path.resolve(currentDir, '..', 'logs', 'standalone', `${new Date().toISOString()}.log`);
+  zkConfigPath = path.resolve(currentDir, '..', '..', 'contract', 'src', 'managed', 'bboard');
+  generateDust = false;
+}
+
+export class PreviewRemoteConfig implements Config {
+  getEnvironment(logger: Logger): TestEnvironment {
+    setNetworkId('preview');
+    return new PreviewTestEnvironment(logger);
+  }
+  privateStateStoreName = 'bboard-private-state';
+  logDir = path.resolve(currentDir, '..', 'logs', 'preview-remote', `${new Date().toISOString()}.log`);
+  zkConfigPath = path.resolve(currentDir, '..', '..', 'contract', 'src', 'managed', 'bboard');
+  generateDust = true;
+}
+
 export class PreprodRemoteConfig implements Config {
   getEnvironment(logger: Logger): TestEnvironment {
     setNetworkId('preprod');
@@ -133,8 +169,34 @@ export class PreprodRemoteConfig implements Config {
   privateStateStoreName = 'bboard-private-state';
   logDir = path.resolve(currentDir, '..', 'logs', 'preprod-remote', `${new Date().toISOString()}.log`);
   zkConfigPath = path.resolve(currentDir, '..', '..', 'contract', 'src', 'managed', 'bboard');
-  requestFaucetTokens = false;
   generateDust = true;
+}
+
+export class PreviewTestEnvironment extends RemoteTestEnvironment {
+  constructor(logger: Logger) {
+    super(logger);
+  }
+
+  private getProofServerUrl(): string {
+    const container = this.proofServerContainer as { getUrl(): string } | undefined;
+    if (!container) {
+      throw new Error('Proof server container is not available.');
+    }
+    return container.getUrl();
+  }
+
+  getEnvironmentConfiguration(): EnvironmentConfiguration {
+    return {
+      walletNetworkId: 'preview',
+      networkId: 'preview',
+      indexer: 'https://indexer.preview.midnight.network/api/v4/graphql',
+      indexerWS: 'wss://indexer.preview.midnight.network/api/v4/graphql/ws',
+      node: 'https://rpc.preview.midnight.network',
+      nodeWS: 'wss://rpc.preview.midnight.network',
+      faucet: 'https://midnight-tmnight-preview.nethermind.dev/',
+      proofServer: this.getProofServerUrl(),
+    };
+  }
 }
 
 export class PreprodTestEnvironment extends RemoteTestEnvironment {
@@ -158,58 +220,14 @@ export class PreprodTestEnvironment extends RemoteTestEnvironment {
       indexerWS: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
       node: 'https://rpc.preprod.midnight.network',
       nodeWS: 'wss://rpc.preprod.midnight.network',
-      faucet: 'https://faucet.preprod.midnight.network/api/request-tokens',
+      faucet: 'https://midnight-tmnight-preprod.nethermind.dev/',
       proofServer: this.getProofServerUrl(),
     };
   }
 }
 ```
-</TabItem>
-<TabItem value="undeployed">
-```typescript title="bboard-cli/src/config.ts"
-export class UndeployedConfig implements Config {
-  getEnvironment(logger: Logger): TestEnvironment {
-    setNetworkId('undeployed');
-    return new UndeployedTestEnvironment(logger);
-  }
-  privateStateStoreName = 'bboard-private-state';
-  logDir = path.resolve(currentDir, '..', 'logs', 'undeployed', `${new Date().toISOString()}.log`);
-  zkConfigPath = path.resolve(currentDir, '..', '..', 'contract', 'src', 'managed', 'bboard');
-  requestFaucetTokens = false;
-  generateDust = true;
-}
 
-export class UndeployedTestEnvironment extends RemoteTestEnvironment {
-  constructor(logger: Logger) {
-    super(logger);
-  }
-
-  private getProofServerUrl(): string {
-    const container = this.proofServerContainer as { getUrl(): string } | undefined;
-    if (!container) {
-      throw new Error('Proof server container is not available.');
-    }
-    return container.getUrl();
-  }
-
-  getEnvironmentConfiguration(): EnvironmentConfiguration {
-    return {
-      walletNetworkId: 'undeployed',
-      networkId: 'undeployed',
-      indexer: 'http://localhost:8088/api/v4/graphql',
-      indexerWS: 'ws://localhost:8088/api/v4/graphql/ws',
-      node: 'http://localhost:9944',
-      nodeWS: 'ws://localhost:9944',
-      faucet: 'https://docs.midnight.network/midnight-local-network/#get-faucet-tokens',
-      proofServer: this.getProofServerUrl(),
-    };
-  }
-}
-```
-</TabItem>
-</Tabs>
-
-두 설정 모두 ZK proof 생성을 위해 로컬 Docker proof 서버를 사용합니다. 로컬 proof 서버는 더 나은 성능을 제공하며 proof 생성을 위해 외부 네트워크 접근이 필요하지 않습니다.
+세 가지 설정 모두 zero-knowledge(ZK) proof 생성을 위해 로컬 Docker proof 서버를 사용합니다. 로컬 proof 서버는 더 나은 성능을 제공하며 proof 생성에 외부 네트워크 접근이 필요하지 않습니다.
 
 ## Implement logging utilities
 
@@ -254,10 +272,10 @@ export const createLogger = async (logPath: string): Promise<pino.Logger> => {
 `bboard-cli/src/wallet-utils.ts`를 생성합니다:
 
 ```typescript title="bboard-cli/src/wallet-utils.ts"
-import { UnshieldedTokenType } from '@midnight-ntwrk/ledger-v8';
+import { UnshieldedTokenType } from '@midnight-ntwrk/midnight-js-protocol/ledger';
 import { type FacadeState, type WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
-import { ShieldedWallet } from '@midnight-ntwrk/wallet-sdk-shielded';
-import { type UnshieldedWallet, UnshieldedWalletState } from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
+import { type ShieldedWalletAPI, type ShieldedWalletState } from '@midnight-ntwrk/wallet-sdk-shielded';
+import { type UnshieldedWalletAPI, type UnshieldedWalletState } from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
 import * as Rx from 'rxjs';
 
 import { FaucetClient, type EnvironmentConfiguration } from '@midnight-ntwrk/testkit-js';
@@ -273,29 +291,26 @@ import { getNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 초기 상태 함수를 추가합니다:
 
 ```typescript title="bboard-cli/src/wallet-utils.ts"
-export const getInitialState = async (wallet: ShieldedWallet | UnshieldedWallet) => {
-  if (wallet instanceof ShieldedWallet) {
-    return Rx.firstValueFrom((wallet as ShieldedWallet).state);
-  } else {
-    return Rx.firstValueFrom((wallet as UnshieldedWallet).state);
-  }
-};
-
-export const getInitialShieldedState = async (logger: Logger, wallet: ShieldedWallet) => {
+export const getInitialShieldedState = async (
+  logger: Logger,
+  wallet: ShieldedWalletAPI,
+): Promise<ShieldedWalletState> => {
   logger.info('Getting initial state of wallet...');
   return Rx.firstValueFrom(wallet.state);
 };
 
-export const getInitialUnshieldedState = async (logger: Logger, wallet: UnshieldedWallet) => {
+export const getInitialUnshieldedState = async (
+  logger: Logger,
+  wallet: UnshieldedWalletAPI,
+): Promise<UnshieldedWalletState> => {
   logger.info('Getting initial state of wallet...');
   return Rx.firstValueFrom(wallet.state);
 };
 ```
 
 이 함수들은 지갑 상태에 타입 안전하게 접근합니다:
-- `getInitialState()`: 런타임 타입 검사를 사용하여 차폐(shielded) 및 비차폐(unshielded) 지갑을 모두 처리하는 제네릭 함수
-- `getInitialShieldedState()`: 차폐 지갑 상태를 가져오고 작업을 로깅
-- `getInitialUnshieldedState()`: 비차폐 지갑 상태를 가져오고 작업을 로깅
+- `getInitialShieldedState()`: `ShieldedWalletAPI`에서 shielded 지갑 상태를 가져오고 작업을 로깅합니다
+- `getInitialUnshieldedState()`: `UnshieldedWalletAPI`에서 unshielded 지갑 상태를 가져오고 작업을 로깅합니다
 
 ### Sync wallet
 
@@ -315,7 +330,12 @@ const isProgressStrictlyComplete = (progress: unknown): boolean => {
   return (candidate.isStrictlyComplete as () => boolean)();
 };
 
-export const syncWallet = (logger: Logger, wallet: WalletFacade, throttleTime = 2_000, timeout = 90_000) => {
+const isFacadeStateSynced = (state: FacadeState): boolean =>
+  isProgressStrictlyComplete(state.shielded.state.progress) &&
+  isProgressStrictlyComplete(state.dust.state.progress) &&
+  isProgressStrictlyComplete(state.unshielded.progress);
+
+export const syncWallet = (logger: Logger, wallet: WalletFacade, throttleTime = 2_000) => {
   logger.info('Syncing wallet...');
 
   return Rx.firstValueFrom(
@@ -339,30 +359,23 @@ export const syncWallet = (logger: Logger, wallet: WalletFacade, throttleTime = 
           `Wallet synced state emission (synced=${isSynced}): { shielded=${shieldedSynced}, unshielded=${unshieldedSynced}, dust=${dustSynced} }`,
         );
       }),
-      Rx.filter(
-        (state: FacadeState) =>
-          isProgressStrictlyComplete(state.shielded.state.progress) &&
-          isProgressStrictlyComplete(state.dust.state.progress) &&
-          isProgressStrictlyComplete(state.unshielded.progress),
-      ),
+      Rx.filter((state: FacadeState) => isFacadeStateSynced(state)),
       Rx.tap(() => logger.info('Sync complete')),
       Rx.tap((state: FacadeState) => {
         const shieldedBalances = state.shielded.balances || {};
         const unshieldedBalances = state.unshielded.balances || {};
-        const dustBalances = state.dust.walletBalance(new Date(Date.now())) || 0n;
+        const dustBalances = state.dust.balance(new Date(Date.now())) || 0n;
 
         logger.info(
           `Wallet balances after sync - Shielded: ${JSON.stringify(shieldedBalances)}, Unshielded: ${JSON.stringify(unshieldedBalances)}, Dust: ${dustBalances}`,
         );
       }),
-      Rx.timeout({
-        each: timeout,
-        with: () => Rx.throwError(() => new Error(`Wallet sync timeout after ${timeout}ms`)),
-      }),
     ),
   );
 };
 ```
+
+`isFacadeStateSynced` 헬퍼는 세 가지(shielded, unshielded, dust) 진행 상태 확인을 한곳에 모아 `waitForUnshieldedFunds`에서 재사용할 수 있게 합니다. DUST 잔액은 `state.dust.balance(...)`로 읽습니다. 기존 `walletBalance(...)` API는 `@midnight-ntwrk/wallet-sdk` 1.0에서 제거됐습니다.
 
 ### Wait for unshielded funds
 
@@ -377,6 +390,7 @@ export const waitForUnshieldedFunds = async (
   env: EnvironmentConfiguration,
   tokenType: UnshieldedTokenType,
   fundFromFaucet = false,
+  throttleTime = 2_000,
 ): Promise<UnshieldedWalletState> => {
   const initialState = await getInitialUnshieldedState(logger, wallet.unshielded);
   const unshieldedAddress = UnshieldedAddress.codec.encode(getNetworkId(), initialState.address);
@@ -389,12 +403,37 @@ export const waitForUnshieldedFunds = async (
   if (initialBalance === undefined || initialBalance === 0n) {
     logger.info(`Your wallet initial balance is: 0 (not yet initialized)`);
     logger.info(`Waiting to receive tokens...`);
-    const facadeState = await syncWallet(logger, wallet);
-    return facadeState.unshielded;
+    return Rx.firstValueFrom(
+      wallet.state().pipe(
+        Rx.tap((state: FacadeState) => {
+          const balance = state.unshielded.balances[tokenType.raw] ?? 0n;
+          logger.debug(
+            `Wallet funds state emission: { synced=${isFacadeStateSynced(state)}, balance=${balance.toString()} }`,
+          );
+        }),
+        Rx.throttleTime(throttleTime),
+        Rx.filter(
+          (state: FacadeState) => isFacadeStateSynced(state) && (state.unshielded.balances[tokenType.raw] ?? 0n) > 0n,
+        ),
+        Rx.tap(() => logger.info('Sync complete')),
+        Rx.tap((state: FacadeState) => {
+          const shieldedBalances = state.shielded.balances || {};
+          const unshieldedBalances = state.unshielded.balances || {};
+          const dustBalances = state.dust.balance(new Date(Date.now())) || 0n;
+
+          logger.info(
+            `Wallet balances after sync - Shielded: ${JSON.stringify(shieldedBalances)}, Unshielded: ${JSON.stringify(unshieldedBalances)}, Dust: ${dustBalances}`,
+          );
+        }),
+        Rx.map((state: FacadeState) => state.unshielded),
+      ),
+    );
   }
   return initialState;
 };
 ```
+
+`waitForUnshieldedFunds`는 wallet이 완전히 동기화되고 **그리고** 요청한 token 유형의 unshielded 잔액이 0보다 커질 때까지 기다립니다 — 이렇게 하면 wallet이 초기 sync를 끝낸 뒤에야 faucet 입금이 관찰되는 race를 피할 수 있습니다.
 
 ## Implement DUST generation
 
@@ -402,7 +441,6 @@ export const waitForUnshieldedFunds = async (
 
 ```typescript title="bboard-cli/src/generate-dust.ts"
 import { type WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
-import { UtxoWithMeta as UtxoWithMetaDust } from '@midnight-ntwrk/wallet-sdk-dust-wallet';
 import { createKeystore, UnshieldedWalletState } from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
 import { Logger } from 'pino';
 import { HDWallet, Roles } from '@midnight-ntwrk/wallet-sdk-hd';
@@ -433,13 +471,10 @@ export const generateDust = async (
   unshieldedState: UnshieldedWalletState,
   walletFacade: WalletFacade,
 ) => {
-  const ttlIn10min = new Date(Date.now() + 10 * 60 * 1000);
   const dustState = await walletFacade.dust.waitForSyncedState();
   const networkId = getNetworkId();
   const unshieldedKeystore = createKeystore(getUnshieldedSeed(walletSeed), networkId);
-  const utxos: UtxoWithMetaDust[] = unshieldedState.availableCoins
-    .filter((coin) => !coin.meta.registeredForDustGeneration)
-    .map((utxo) => ({ ...utxo.utxo, ctime: new Date(utxo.meta.ctime) }));
+  const utxos = unshieldedState.availableCoins.filter((coin) => !coin.meta.registeredForDustGeneration);
 
   if (utxos.length === 0) {
     logger.info('No unregistered UTXOs found for dust generation.');
@@ -448,26 +483,19 @@ export const generateDust = async (
 
   logger.info(`Generating dust with ${utxos.length} UTXOs...`);
 
-  const registerForDustTransaction = await walletFacade.dust.createDustGenerationTransaction(
-    new Date(),
-    ttlIn10min,
+  const recipe = await walletFacade.registerNightUtxosForDustGeneration(
     utxos,
     unshieldedKeystore.getPublicKey(),
-    dustState.dustAddress,
+    (payload) => unshieldedKeystore.signData(payload),
+    dustState.address,
   );
-
-  const intent = registerForDustTransaction.intents?.get(1);
-  const intentSignatureData = intent!.signatureData(1);
-  const signature = unshieldedKeystore.signData(intentSignatureData);
-  const recipe = await walletFacade.dust.addDustGenerationSignature(registerForDustTransaction, signature);
-
-  const transaction = await walletFacade.finalizeTransaction(recipe);
+  const transaction = await walletFacade.finalizeRecipe(recipe);
   const txId = await walletFacade.submitTransaction(transaction);
 
   const dustBalance = await rx.firstValueFrom(
     walletFacade.state().pipe(
-      rx.filter((s) => s.dust.walletBalance(new Date()) > 0n),
-      rx.map((s) => s.dust.walletBalance(new Date())),
+      rx.filter((s) => s.dust.balance(new Date()) > 0n),
+      rx.map((s) => s.dust.balance(new Date())),
     ),
   );
   logger.info(`Dust generation transaction submitted with txId: ${txId}`);
@@ -477,15 +505,16 @@ export const generateDust = async (
 };
 ```
 
-DUST 생성은 tNIGHT 토큰을 지정하여 트랜잭션 수수료를 위한 DUST를 자동으로 생성합니다.
-`getUnshieldedSeed` 함수는 `NightExternal` 역할을 사용하여 HD 지갑 시드에서 비차폐 지갑 키를 파생합니다.
+DUST 생성은 tNIGHT 토큰을 지정해 트랜잭션 수수료용 DUST를 자동으로 생성합니다.
+`getUnshieldedSeed` 함수는 `NightExternal` 역할을 사용해 HD 지갑 시드에서 unshielded 지갑 키를 파생합니다.
 
-`generateDust` 함수는:
-1. 미등록 UTXO를 필터링합니다
-2. DUST 생성 트랜잭션을 생성합니다
-3. 비차폐 keystore로 서명합니다
-4. 네트워크에 제출합니다
-5. DUST 잔액이 업데이트될 때까지 대기합니다
+`generateDust` 함수는 다음을 수행합니다:
+1. 이미 DUST 생성에 등록된 UTXO를 걸러냅니다
+2. `walletFacade.registerNightUtxosForDustGeneration()`로 등록 recipe를 만들며, 각 intent를 unshielded keystore로 서명하는 콜백을 전달합니다
+3. recipe를 확정하고 트랜잭션을 네트워크에 제출합니다
+4. DUST 잔액 observable이 0이 아닌 값을 발행할 때까지 대기합니다
+
+wallet SDK 1.0 facade는 이전 wallet 패키지에서 필요했던 intent 구성과 서명 연결을 숨기므로, CLI는 서명 콜백만 제공하면 나머지는 wallet이 처리합니다.
 
 ## Implement wallet provider
 
@@ -501,20 +530,25 @@ import {
   type FinalizedTransaction,
   LedgerParameters,
   ZswapSecretKeys,
-} from '@midnight-ntwrk/ledger-v8';
-import { type MidnightProvider, UnboundTransaction, type WalletProvider } from '@midnight-ntwrk/midnight-js-types';
+} from '@midnight-ntwrk/midnight-js-protocol/ledger';
+import { type MidnightProvider, type UnboundTransaction, type WalletProvider } from '@midnight-ntwrk/midnight-js-types';
 import { ttlOneHour } from '@midnight-ntwrk/midnight-js-utils';
 import { type WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
 import type { Logger } from 'pino';
 
 import { getInitialShieldedState } from './wallet-utils';
-import { DustWalletOptions, EnvironmentConfiguration, FluentWalletBuilder } from '@midnight-ntwrk/testkit-js';
-import { NetworkId } from '@midnight-ntwrk/wallet-sdk-abstractions';
+import { type DustWalletOptions, type EnvironmentConfiguration, FluentWalletBuilder } from '@midnight-ntwrk/testkit-js';
+
+type UnshieldedKeystore = {
+  getPublicKey(): unknown;
+  signData(payload: Uint8Array): string;
+};
 
 export class MidnightWalletProvider implements MidnightProvider, WalletProvider {
   logger: Logger;
   readonly env: EnvironmentConfiguration;
   readonly wallet: WalletFacade;
+  readonly unshieldedKeystore: UnshieldedKeystore;
   readonly zswapSecretKeys: ZswapSecretKeys;
   readonly dustSecretKey: DustSecretKey;
 
@@ -524,16 +558,18 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
     wallet: WalletFacade,
     zswapSecretKeys: ZswapSecretKeys,
     dustSecretKey: DustSecretKey,
+    unshieldedKeystore: UnshieldedKeystore,
   ) {
     this.logger = logger;
     this.env = environmentConfiguration;
     this.wallet = wallet;
     this.zswapSecretKeys = zswapSecretKeys;
     this.dustSecretKey = dustSecretKey;
+    this.unshieldedKeystore = unshieldedKeystore;
   }
 ```
 
-이 클래스는 지갑 facade, 차폐 및 DUST 작업을 위한 암호학적 키, 환경 설정을 저장합니다.
+이 클래스는 wallet facade, (트랜잭션 밸런싱 시 intent 페이로드 서명에 사용되는) unshielded keystore, shielded 및 DUST 작업용 암호학적 키, 환경 설정을 저장합니다. ledger 타입을 `@midnight-ntwrk/midnight-js-protocol/ledger` 서브경로로 임포트하면 별도의 `@midnight-ntwrk/ledger-v8` 패키지를 대체합니다.
 
 ### Implement key provider methods
 
@@ -562,7 +598,8 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
       { shieldedSecretKeys: this.zswapSecretKeys, dustSecretKey: this.dustSecretKey },
       { ttl },
     );
-    return await this.wallet.finalizeRecipe(recipe);
+    const signedRecipe = await this.wallet.signRecipe(recipe, (payload) => this.unshieldedKeystore.signData(payload));
+    return this.wallet.finalizeRecipe(signedRecipe);
   }
 
   submitTx(tx: FinalizedTransaction): Promise<string> {
@@ -570,7 +607,7 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
   }
 ```
 
-`balanceTx()` 메서드는 바인딩되지 않은 트랜잭션(입출력이 선택되지 않은)을 받아 수수료를 충당할 적절한 UTXO를 선택하고 잔돈 출력을 추가하여 밸런싱합니다. 차폐 트랜잭션 수수료를 지불하기 위해 DUST 토큰을 사용합니다. `submitTx()` 메서드는 최종화된 트랜잭션을 네트워크에 제출하고 트랜잭션 해시를 반환합니다.
+`balanceTx()` 메서드는 (입출력이 선택되지 않은) 바인딩되지 않은 트랜잭션을 받아 수수료를 충당할 적절한 UTXO를 선택하고 잔돈 출력을 추가해 밸런싱합니다. 그런 다음 recipe를 확정하기 전에 unshielded keystore로 unshielded intent 페이로드에 서명하도록 wallet에 요청합니다. `submitTx()` 메서드는 확정된 트랜잭션을 네트워크에 제출하고 트랜잭션 해시를 반환합니다.
 
 ### Implement lifecycle methods
 
@@ -597,16 +634,17 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
   static async build(logger: Logger, env: EnvironmentConfiguration, seed?: string): Promise<MidnightWalletProvider> {
     const dustOptions: DustWalletOptions = {
       ledgerParams: LedgerParameters.initialParameters(),
-      additionalFeeOverhead: 1_000n,
+      additionalFeeOverhead: env.walletNetworkId === 'undeployed' ? 500_000_000_000_000_000n : 1_000n,
       feeBlocksMargin: 5,
     };
     const builder = FluentWalletBuilder.forEnvironment(env).withDustOptions(dustOptions);
     const buildResult = seed
       ? await builder.withSeed(seed).buildWithoutStarting()
       : await builder.withRandomSeed().buildWithoutStarting();
-    const { wallet, seeds } = buildResult as {
+    const { wallet, seeds, keystore } = buildResult as unknown as {
       wallet: WalletFacade;
       seeds: { masterSeed: string; shielded: Uint8Array; dust: Uint8Array };
+      keystore: UnshieldedKeystore;
     };
 
     const initialState = await getInitialShieldedState(logger, wallet.shielded);
@@ -620,13 +658,15 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
       wallet,
       ZswapSecretKeys.fromSeed(seeds.shielded),
       DustSecretKey.fromSeed(seeds.dust),
+      keystore,
     );
   }
 }
 ```
 
-팩토리 메서드는 테스트 네트워크에 적합한 낮은 `additionalFeeOverhead`(1000n)로 DUST 옵션을 구성합니다. 시드가 제공되면 기존 지갑을 복원하고, 그렇지 않으면 새로운 랜덤 시드를 생성합니다.
-이 메서드는 사용자 참조를 위해 시드와 차폐 주소를 로깅하고, 시드에서 파생된 모든 필요한 암호학적 키로 프로바이더를 생성합니다.
+팩토리 메서드는 네트워크에 따라 달라지는 `additionalFeeOverhead`로 DUST 옵션을 구성합니다. `@midnight-ntwrk/testkit-js`가 제공하는 기본값(`500_000_000_000_000_000n`)은 `undeployed`(standalone) 네트워크에서 필요하며, 더 낮은 값을 쓰면 노드 측에서 `BalanceCheckOverspend`로 실패할 수 있습니다. 원격 테스트넷에서는 이 오버헤드가 지갑이 보통 보유한 것보다 많은 DUST를 요구하므로, CLI는 이를 `1_000n`으로 재정의합니다.
+
+시드가 제공되면 빌더는 기존 지갑을 복원하고, 그렇지 않으면 새로운 랜덤 시드를 생성합니다. 빌더 결과는 unshielded intent 서명을 위해 미리 구성된 `keystore`도 함께 제공합니다. 이 메서드는 사용자 참조를 위해 시드와 shielded 주소를 로깅하고 모든 암호학적 자료를 프로바이더에 저장합니다.
 
 ## Implement the main CLI logic
 
@@ -652,19 +692,20 @@ import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
 import { type Logger } from 'pino';
-import { type Config } from './config.js';
+import { type Config, StandaloneConfig } from './config.js';
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
-import { type ContractAddress } from '@midnight-ntwrk/compact-runtime';
+import { type ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 import { assertIsContractAddress, toHex } from '@midnight-ntwrk/midnight-js-utils';
 import { TestEnvironment } from '@midnight-ntwrk/testkit-js';
 import { MidnightWalletProvider } from './midnight-wallet-provider';
 import { randomBytes } from '../../api/src/utils';
-import { unshieldedToken } from '@midnight-ntwrk/ledger-v8';
+import { unshieldedToken } from '@midnight-ntwrk/midnight-js-protocol/ledger';
 import { syncWallet, waitForUnshieldedFunds } from './wallet-utils';
 import { generateDust } from './generate-dust';
-import { BBoardPrivateState } from '@midnight-ntwrk/bboard-contract';
+import { BBoardPrivateState } from '../../contract/src/witnesses.js';
 
-globalThis.WebSocket = WebSocket as unknown as typeof globalThis.WebSocket;
+// @ts-expect-error: It's needed to enable WebSocket usage through apollo
+globalThis.WebSocket = WebSocket;
 ```
 
 `globalThis.WebSocket` 할당은 브라우저 호환 API를 위한 Node.js WebSocket 구현을 설정합니다. 이를 통해 Indexer 및 Node RPC 서비스에 WebSocket으로 연결할 수 있습니다.
@@ -800,29 +841,34 @@ const mainLoop = async (providers: BBoardProviders, rli: Interface, logger: Logg
   try {
     while (true) {
       const choice = await rli.question(MAIN_LOOP_QUESTION);
-      switch (choice) {
-        case '1': {
-          const message = await rli.question(`What message do you want to post? `);
-          await bboardApi.post(message);
-          break;
+      try {
+        switch (choice) {
+          case '1': {
+            const message = await rli.question(`What message do you want to post? `);
+            await bboardApi.post(message);
+            break;
+          }
+          case '2':
+            await bboardApi.takeDown();
+            break;
+          case '3':
+            await displayLedgerState(providers, bboardApi.deployedContract, logger);
+            break;
+          case '4':
+            await displayPrivateState(providers, logger);
+            break;
+          case '5':
+            displayDerivedState(currentState, logger);
+            break;
+          case '6':
+            logger.info('Exiting...');
+            return;
+          default:
+            logger.error(`Invalid choice: ${choice}`);
         }
-        case '2':
-          await bboardApi.takeDown();
-          break;
-        case '3':
-          await displayLedgerState(providers, bboardApi.deployedContract, logger);
-          break;
-        case '4':
-          await displayPrivateState(providers, logger);
-          break;
-        case '5':
-          displayDerivedState(currentState, logger);
-          break;
-        case '6':
-          logger.info('Exiting...');
-          return;
-        default:
-          logger.error(`Invalid choice: ${choice}`);
+      } catch (e) {
+        logError(logger, e);
+        logger.info('Returning to main menu...');
       }
     }
   } finally {
@@ -831,14 +877,15 @@ const mainLoop = async (providers: BBoardProviders, rli: Interface, logger: Logg
 };
 ```
 
-루프는 먼저 `deployOrJoin()`을 호출하여 컨트랙트 연결을 초기화합니다. 트랜잭션이 컨트랙트를 수정할 때마다 자동으로 업데이트를 받기 위해 반응형 상태 observable을 구독합니다.
-`finally` 블록 덕분에 루프가 종료될 때 구독이 반드시 정리됩니다.
+루프는 먼저 `deployOrJoin()`을 호출해 컨트랙트 연결을 초기화합니다. 트랜잭션이 컨트랙트를 수정할 때마다 자동으로 업데이트를 받기 위해 반응형 상태 observable을 구독합니다. 각 메뉴 동작은 자체 `try`/`catch`를 가지므로, circuit 호출이 실패해도(예: 이미 점유된 게시판에 글을 올리는 경우) 종료하지 않고 오류를 로깅한 뒤 메인 메뉴로 돌아갑니다. 바깥쪽 `finally` 블록은 루프가 끝날 때 구독이 정리되도록 보장합니다.
 
 ### Wallet setup menu
 
-이 함수는 지갑 시드 초기화를 처리합니다:
+이 함수는 지갑 시드 초기화를 처리합니다. CLI가 로컬 standalone 네트워크에서 실행될 때는 프롬프트를 건너뛰고 genesis-mint 지갑 시드를 반환하는데, 이 시드는 로컬 노드의 genesis 블록에서 이미 tNIGHT과 tDUST를 보유하고 있습니다.
 
 ```typescript title="bboard-cli/src/index.ts"
+const GENESIS_MINT_WALLET_SEED = '0000000000000000000000000000000000000000000000000000000000000001';
+
 const WALLET_LOOP_QUESTION = `
 You can do one of the following:
   1. Build a fresh wallet
@@ -847,6 +894,9 @@ You can do one of the following:
 Which would you like to do? `;
 
 const buildWallet = async (config: Config, rli: Interface, logger: Logger): Promise<string | undefined> => {
+  if (config instanceof StandaloneConfig) {
+    return GENESIS_MINT_WALLET_SEED;
+  }
   while (true) {
     const choice = await rli.question(WALLET_LOOP_QUESTION);
     switch (choice) {
@@ -864,7 +914,7 @@ const buildWallet = async (config: Config, rli: Interface, logger: Logger): Prom
 };
 ```
 
-이 함수는 세 가지 옵션을 제공합니다:
+원격 네트워크에서는 이 함수가 세 가지 옵션을 제공합니다:
 - 랜덤 시드로 새 지갑 생성
 - 기존 시드에서 지갑 복원
 - 애플리케이션 종료
@@ -890,13 +940,7 @@ export const run = async (config: Config, testEnv: TestEnvironment, logger: Logg
 
     await walletProvider.start();
 
-    const unshieldedState = await waitForUnshieldedFunds(
-      logger,
-      walletFacade,
-      envConfiguration,
-      unshieldedToken(),
-      config.requestFaucetTokens,
-    );
+    const unshieldedState = await waitForUnshieldedFunds(logger, walletFacade, envConfiguration, unshieldedToken());
     const nightBalance = unshieldedState.balances[unshieldedToken().raw];
     if (nightBalance === undefined) {
       logger.info('No funds received, exiting...');
@@ -918,8 +962,9 @@ export const run = async (config: Config, testEnv: TestEnvironment, logger: Logg
         privateStateStoreName: config.privateStateStoreName,
         signingKeyStoreName: `${config.privateStateStoreName}-signing-keys`,
         privateStoragePasswordProvider: () => {
-          return 'key-just-for-testing-here!';
+          return 'Bboard-Test-2026!';
         },
+        accountId: seed,
       }),
       publicDataProvider: indexerPublicDataProvider(envConfiguration.indexer, envConfiguration.indexerWS),
       zkConfigProvider: zkConfigProvider,
@@ -957,10 +1002,10 @@ export const run = async (config: Config, testEnv: TestEnvironment, logger: Logg
 
 이 함수는 다음 워크플로우를 실행합니다:
 1. **환경 시작**: 네트워크에 대한 엔드포인트 설정을 가져옵니다
-2. **지갑 빌드**: 시드에서 지갑을 생성하거나 복원합니다
-3. **자금 대기**: 지갑에 수수료를 위한 tNIGHT 토큰이 있는지 확인합니다
-4. **DUST 생성**: DUST 생성을 위해 UTXO를 등록합니다 (활성화된 경우)
-5. **프로바이더 구성**: 필요한 6개의 프로바이더(private 상태, 공개 데이터, ZK 설정, proof, 지갑, midnight)를 모두 설정합니다
+2. **지갑 빌드**: 시드에서 지갑을 생성하거나 복원합니다(standalone에서는 genesis-mint 시드를 사용)
+3. **자금 대기**: 지갑에 수수료용 tNIGHT 토큰이 있는지 확인합니다
+4. **DUST 생성**: DUST 생성을 위해 UTXO를 등록합니다(이미 DUST를 보유한 standalone에서는 건너뜀)
+5. **프로바이더 구성**: 필요한 6개의 프로바이더(private 상태, 공개 데이터, ZK 설정, proof, wallet, midnight)를 모두 설정합니다. Midnight.js 4.x는 private 상태를 컨트랙트 주소별로 범위화하며, (지갑 시드로 설정되는) `accountId` 옵션이 LevelDB 저장소의 키가 되어 같은 머신의 여러 사용자가 상태를 공유하지 않도록 합니다.
 6. **메인 루프 진입**: 대화형 게시판 세션을 시작합니다
 7. **정리**: 중첩된 `finally` 블록으로 오류가 발생해도 리소스가 반드시 정리됩니다
 
@@ -981,7 +1026,9 @@ function logError(logger: Logger, e: unknown) {
 
 이 함수는 오류가 `Error` 인스턴스인지 확인하여 메시지와 스택 트레이스에 접근하며, 표준 JavaScript 오류 패턴을 따르지 않는 경우에도 항상 오류가 로깅되도록 합니다.
 
-## Create the application entry point
+## Create the application entry points
+
+각 launcher는 그에 맞는 `Config` 인스턴스를 만들고, logger를 초기화하고, 테스트 환경을 가져온 뒤 CLI 애플리케이션을 시작합니다. launcher들은 비동기 초기화를 위해 top-level await를 사용합니다.
 
 <Tabs>
   <TabItem value="preprod">
@@ -997,52 +1044,72 @@ const logger = await createLogger(config.logDir);
 const testEnvironment = config.getEnvironment(logger);
 await run(config, testEnvironment, logger);
 ```
-
-이 런처는 `PreprodRemoteConfig` 인스턴스를 생성하고, 로거를 초기화하며, 테스트 환경을 가져오고, CLI 애플리케이션을 시작합니다. 런처는 비동기 초기화를 위해 top-level await를 사용합니다.
 </TabItem>
-<TabItem value="undeployed">
-`bboard-cli/src/launcher/undeployed.ts`를 생성합니다:
+<TabItem value="preview">
+`bboard-cli/src/launcher/preview.ts`를 만드세요:
 
-```typescript title="bboard-cli/src/launcher/undeployed.ts"
+```typescript title="bboard-cli/src/launcher/preview.ts"
 import { createLogger } from '../logger-utils.js';
 import { run } from '../index.js';
-import { UndeployedConfig } from '../config.js';
+import { PreviewRemoteConfig } from '../config.js';
 
-const config = new UndeployedConfig();
+const config = new PreviewRemoteConfig();
+const logger = await createLogger(config.logDir);
+const testEnvironment = config.getEnvironment(logger);
+await run(config, testEnvironment, logger);
+```
+</TabItem>
+<TabItem value="standalone">
+`bboard-cli/src/launcher/standalone.ts`를 만드세요:
+
+```typescript title="bboard-cli/src/launcher/standalone.ts"
+import { createLogger } from '../logger-utils.js';
+import { run } from '../index.js';
+import { StandaloneConfig } from '../config.js';
+
+const config = new StandaloneConfig();
 const logger = await createLogger(config.logDir);
 const testEnvironment = config.getEnvironment(logger);
 await run(config, testEnvironment, logger);
 ```
 
-런처는 `UndeployedConfig` 인스턴스를 생성하고, 로거를 초기화하며, 테스트 환경을 가져오고, CLI 애플리케이션을 시작합니다. 런처는 비동기 초기화를 위해 top-level await를 사용합니다.
-
 :::info
-`undeployed` 런처는 로컬 머신에서 실행 중인 로컬 Midnight 네트워크에 연결합니다. 자세한 정보는 [Midnight 로컬 네트워크](../../../guides/midnight-local-network/)를 참조하세요.
+`standalone` 런처는 로컬 머신에서 실행 중인 로컬 Midnight 네트워크에 연결합니다. 자세한 정보는 [Midnight 로컬 네트워크](../../../guides/midnight-local-network/)를 참조하세요.
 :::
 </TabItem>
 </Tabs>
 
-## Configure proof server
+## Configure the proof server
 
-`bboard-cli/proof-server.yml`을 생성합니다:
+로컬 개발용으로 `bboard-cli/proof-server-local.yml`을 생성합니다. 이 파일은 proof 서버를 고정된 호스트 포트로 노출하므로, 한 번 시작해 두고 CLI 실행 사이에 재사용할 수 있습니다:
+
+```yaml title="bboard-cli/proof-server-local.yml"
+services:
+  proof-server:
+    image: midnightntwrk/proof-server:8.0.3
+    command: ['midnight-proof-server', '-v']
+    container_name: "proof-server-local"
+    ports:
+      - '6300:6300'
+```
+
+testkit 컨테이너 매니저가 사용할 `bboard-cli/proof-server.yml`도 함께 생성합니다. testkit은 임시 호스트 포트(`0:6300`)를 선택하므로 여러 테스트 실행이 충돌하지 않습니다:
 
 ```yaml title="bboard-cli/proof-server.yml"
 services:
   proof-server:
-    image: 'midnightntwrk/proof-server:latest'
+    image: midnightntwrk/proof-server:8.0.3
+    command: ['midnight-proof-server', '-v']
     container_name: "proof-server_$TESTCONTAINERS_UID"
     ports:
-      - "0:6300"
-    environment:
-      EXTRA_ARGS: -v
-      RUST_BACKTRACE: "full"
+      - '0:6300'
 ```
 
-:::note
-이 튜토리얼에서 사용되는 proof 서버는 Brick Towers가 유지 관리하는 커뮤니티 Docker 이미지입니다.
-:::
+CLI를 실행하기 전에 오래 유지되는 로컬 proof 서버를 시작합니다:
 
-이 Docker Compose 파일은 proof 서버를 구성합니다. testkit은 현재 디렉터리에서 `proof-server.yml` 파일을 확인하여 이 컨테이너의 생명주기를 자동으로 관리합니다.
+```bash
+docker compose -f proof-server-local.yml up -d
+```
 
 ## Next steps
 

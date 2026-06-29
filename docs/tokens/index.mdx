@@ -1,0 +1,49 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Tokens on Midnight
+description: "Midnight 네트워크의 NIGHT, DUST, shielded·unshielded 토큰, custom token, 수수료를 이해합니다."
+id: index
+tags: [tokens, night, dust, shielded, unshielded, fees, custom-tokens]
+---
+
+# Tokens on Midnight
+
+Midnight에는 네이티브 토큰 NIGHT 하나와 네이티브 리소스 DUST 하나가 있습니다. NIGHT은 양도 가능하며 staking과 거버넌스에 쓰이고, 시간이 지나면서 DUST를 생성합니다. DUST는 양도 불가능한 shielded 리소스로, 네트워크가 transaction 수수료를 지불하기 위해 소비합니다. 두 가지 모두 shielded(비공개) 상태와 unshielded(공개) 상태를 지원하는 이중 ledger 위에서 동작합니다.
+
+이 섹션에서는 NIGHT, DUST, 그리고 여러분이 Compact로 만드는 custom token을 다룹니다.
+
+## NIGHT and DUST
+
+- **NIGHT**: 네이티브 유틸리티 토큰입니다. staking, 거버넌스, DUST 생성을 위해 NIGHT을 보유합니다. 단위: STAR (1 NIGHT = 10^6 STAR).
+- **DUST**: shielded이면서 양도 불가능한 수수료 리소스입니다(토큰이 아닙니다). 보유한 NIGHT 잔액이 상한까지 시간에 따라 DUST를 생성하고, 모든 transaction이 이를 소비합니다. 단위: SPECK (1 DUST = 10^15 SPECK).
+
+이 설계의 경제적 근거는 [Dual-component tokenomics](/concepts/dual-component-tokenomics)를 참고하세요. DUST의 기술적 아키텍처(생성, decay, 등록)는 [DUST architecture](/concepts/dust-architecture)를 참고하세요.
+
+## Shielded and unshielded
+
+Midnight의 이중 ledger에서는 토큰이 두 가지 형태로 존재할 수 있습니다.
+
+- **Shielded**: wallet 주소와 transaction 세부 정보가 비공개로 유지되는 private 상태입니다. 1AM과 urble은 기본적으로 shielded를 사용합니다.
+- **Unshielded**: ledger에 공개되어 누구나 볼 수 있는 public 상태로, 투명한 블록체인과 비슷합니다. Lace에서는 shielded를 선택적으로(opt-in) 사용할 수 있습니다.
+
+NIGHT과 custom token 모두 shielded 상태와 unshielded 상태 사이를 오갈 수 있습니다. Compact에서의 shielded·unshielded 토큰 전송 코드 예시는 [Token transfers](/examples/contracts/token-transfers)를 참고하세요.
+
+## Custom tokens
+
+Compact로 직접 fungible 토큰과 non-fungible 토큰을 만들 수 있습니다. standard library는 새 토큰을 mint하는 `mintShieldedToken`(및 unshielded 대응 함수)과, 이를 전송하는 `sendShielded` / `receiveShielded`를 제공합니다. Midnight의 토큰 표준은 MIP(Midnight Improvement Proposal) 절차를 통해 마련될 예정입니다. 그때까지는 [OpenZeppelin contracts for Compact](/sdks/community/openzeppelin-compact-contracts) 라이브러리가 Solidity 원본을 본떠 만든 재사용 가능한 access control·보안 primitive를 제공합니다.
+
+## Fees
+
+Midnight의 모든 transaction에는 DUST가 필요합니다. 새 wallet에서는 NIGHT을 어떻게 등록하느냐에 따라 DUST 생성 방식이 달라집니다. 현재 대부분의 NIGHT은 cross-chain 경로(Cardano의 cNIGHT)를 통해 Midnight에 도달합니다. 이 등록은 Cardano에서 확정된 뒤 Midnight 노드까지 전달되어야 하며, 약 12시간이 걸립니다. 로컬 네트워크에서는 DUST가 약 5분이면 생성됩니다. 네이티브 mNIGHT이 출시되면 이 지연은 사라집니다. 시작하려면:
+
+- [Get faucet tokens](/guides/acquire-tokens) (Preprod의 tNIGHT과 tDUST)
+- [Generate DUST programmatically](/guides/generating-dust-programmatically) (wallet SDK 사용)
+
+## Further reading
+
+- [Dual-component tokenomics](/concepts/dual-component-tokenomics): NIGHT과 DUST를 뒷받침하는 경제 모델
+- [DUST architecture](/concepts/dust-architecture): 생성, decay, 등록, 프로토콜 파라미터
+- [Ledgers](/concepts/ledgers): UTXO 기반 ledger와 이 모델이 토큰을 표현하는 방식
+- [Token transfers example](/examples/contracts/token-transfers): Compact의 shielded·unshielded 전송 코드
+- [Compact standard library](/compact/standard-library/): 토큰 관리 함수

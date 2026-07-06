@@ -1,32 +1,32 @@
 ---
 slug: migrating-to-kapa-and-midnight-expert
-title: "Migrate to the Kapa MCP server and Midnight Expert"
-description: "We are retiring the Midnight MCP server. Learn how to move to the Kapa MCP server for doc search and Midnight Expert for hands-on development."
+title: "Kapa MCP 서버와 Midnight Expert로 이전하기"
+description: "기존 Midnight MCP 서버를 종료합니다. 문서 검색은 Kapa MCP 서버로, 실전 개발은 Midnight Expert로 옮겨 가는 방법을 알아봅니다."
 authors: aaron
 tags: [mcp, ai, developer-tools, kapa, midnight-expert, tooling]
 date: 2026-06-25
 image: /img/blog/updates.jpg
 ---
 
-We're retiring the existing Midnight MCP server. Two tools replace it, and both are available today.
+기존 Midnight MCP 서버를 종료합니다. 이를 대체하는 두 가지 도구가 있으며, 둘 다 오늘부터 사용할 수 있습니다.
 
-The first is the [Kapa](https://www.kapa.ai/) MCP server. It's the same Midnight knowledge base that already answers questions behind the "Ask AI" button on these docs, now exposed over MCP so your editor can query it directly. It takes over the search and question-answering side of the old server.
+첫 번째는 [Kapa](https://www.kapa.ai/) MCP 서버입니다. 이 문서의 "Ask AI" 버튼 뒤에서 이미 질문에 답하고 있는 바로 그 Midnight 지식 베이스를, 이제 MCP로 노출해 편집기에서 직접 질의할 수 있게 한 것입니다. 기존 서버가 담당하던 검색과 질의응답 기능을 이어받습니다.
 
-The second is [Midnight Expert](https://midnightntwrk.expert/). It's a suite of [Claude Code](https://claude.com/claude-code) plugins that covers everything else: writing and validating contracts in Compact, running a local devnet, looking up error codes, fact-checking against the real toolchain, and more.
+두 번째는 [Midnight Expert](https://midnightntwrk.expert/)입니다. Compact로 컨트랙트를 작성하고 검증하기, 로컬 devnet 실행, 에러 코드 조회, 실제 툴체인 기반 팩트체크 등 나머지 모든 것을 아우르는 [Claude Code](https://claude.com/claude-code) 플러그인 모음입니다.
 
-If you installed the old Midnight MCP server, the short version is this: remove that config, add these two, and you get broader coverage than before. The rest of this post is how each tool works, and how to make the switch.
+기존 Midnight MCP 서버를 설치했다면, 요점은 이렇습니다. 그 설정을 지우고 이 두 가지를 추가하면, 이전보다 넓은 범위를 커버하게 됩니다. 이 글의 나머지는 각 도구가 어떻게 동작하는지, 그리고 어떻게 갈아타는지에 관한 내용입니다.
 
 ## Kapa: ask Midnight anything, from your editor
 
-You have probably already used Kapa without installing anything. The "Ask AI" button on this documentation site is Kapa, and it answers from more than the docs alone. Its index is a curated set of Midnight sources: the official documentation, hand-picked core repositories like the ledger, midnight.js, and the node, and standalone material such as the whitepaper. Open it on this page and ask it something; that same knowledge base is what the MCP server exposes.
+아무것도 설치하지 않고도 이미 Kapa를 써봤을 가능성이 높습니다. 이 문서 사이트의 "Ask AI" 버튼이 바로 Kapa이며, 문서만이 아니라 그 이상에서 답을 찾아냅니다. Kapa의 인덱스는 엄선된 Midnight 자료 모음입니다. 공식 문서, ledger·midnight.js·node처럼 손수 고른 핵심 저장소, 그리고 백서 같은 독립 자료까지 포함합니다. 이 페이지에서 열어 무엇이든 물어보세요. MCP 서버가 노출하는 것도 바로 그 지식 베이스입니다.
 
-The difference MCP makes is where you can use it. Instead of switching to a browser tab to check the docs, your AI coding assistant queries Kapa from inside your editor and answers in context while you keep working. Ask how DUST generation works, how to structure a witness, or what a specific ledger type does, and the answer comes back grounded in current documentation rather than guessed from stale training data.
+MCP가 만들어 내는 차이는 이걸 어디서 쓸 수 있느냐입니다. 문서를 확인하려고 브라우저 탭으로 넘어가는 대신, AI 코딩 어시스턴트가 편집기 안에서 Kapa에 질의하고, 작업을 이어 가는 그대로 맥락에 맞춰 답합니다. DUST 생성이 어떻게 동작하는지, witness를 어떻게 구성하는지, 특정 ledger 타입이 무슨 일을 하는지 물어보면, 낡은 학습 데이터에서 추측한 답이 아니라 현재 문서에 근거한 답이 돌아옵니다.
 
-Here is how to connect it.
+연결 방법은 다음과 같습니다.
 
 ### Claude Code
 
-Run one command:
+명령어 하나만 실행하세요.
 
 ```bash
 claude mcp add --transport http midnight https://midnight.mcp.kapa.ai
@@ -34,11 +34,11 @@ claude mcp add --transport http midnight https://midnight.mcp.kapa.ai
 
 ### Cursor and VS Code
 
-Open the "Ask AI" button on this site, click "Use MCP", and choose "Add to Cursor" or "Add to VS Code". Both are one-click installs.
+이 사이트의 "Ask AI" 버튼을 열고 "Use MCP"를 클릭한 뒤 "Add to Cursor" 또는 "Add to VS Code"를 선택하세요. 둘 다 원클릭 설치입니다.
 
 ### Any other MCP client
 
-The server URL is `https://midnight.mcp.kapa.ai`. For Claude Desktop, ChatGPT, or any client that reads an `mcpServers` config, add it manually:
+서버 URL은 `https://midnight.mcp.kapa.ai`입니다. Claude Desktop, ChatGPT, 또는 `mcpServers` 설정을 읽는 클라이언트라면 직접 추가하세요.
 
 ```json
 {
@@ -51,79 +51,79 @@ The server URL is `https://midnight.mcp.kapa.ai`. For Claude Desktop, ChatGPT, o
 }
 ```
 
-Some clients label this a remote or HTTP server and ask for a transport field; the URL is the same in every case. You can also click "Copy MCP URL" from the "Use MCP" menu and paste it wherever your client expects it.
+일부 클라이언트는 이것을 remote 또는 HTTP 서버라고 부르며 transport 필드를 요구하기도 합니다. 어느 경우든 URL은 동일합니다. "Use MCP" 메뉴에서 "Copy MCP URL"을 클릭해, 클라이언트가 요구하는 자리에 붙여 넣어도 됩니다.
 
 ## Midnight Expert: the hands-on toolkit
 
-Where Kapa answers questions, Midnight Expert does the work. It's a [marketplace of Claude Code plugins](https://github.com/devrelaicom/midnight-expert), and it's where the generation, validation, and tooling features of the old server now live, with broader coverage.
+Kapa가 질문에 답한다면, Midnight Expert는 실제로 일을 합니다. [Claude Code 플러그인 마켓플레이스](https://github.com/devrelaicom/midnight-expert)이며, 기존 서버의 생성·검증·툴링 기능이 이제 더 넓은 커버리지로 자리 잡은 곳입니다.
 
-At the moment it bundles more than fifteen plugins: over a hundred skills, more than a dozen agents, and a couple hundred reference documents covering Compact contracts, the TypeScript SDK, wallet operations, devnet and proof server infrastructure, code quality, and error catalogs. Because the plugins run inside Claude Code, the capabilities show up as skills and slash commands you can call directly in a session.
+현재 열다섯 개가 넘는 플러그인을 묶어 제공합니다. 백 개가 넘는 skill, 열두 개 이상의 agent, 그리고 Compact 컨트랙트, TypeScript SDK, 지갑 운영, devnet과 proof 서버 인프라, 코드 품질, 에러 카탈로그를 아우르는 수백 개의 참조 문서가 들어 있습니다. 플러그인이 Claude Code 안에서 실행되기 때문에, 이 기능들은 세션에서 바로 호출할 수 있는 skill과 슬래시 명령으로 나타납니다.
 
-A few you'll reach for early:
+초반에 자주 쓰게 될 몇 가지를 꼽자면 이렇습니다.
 
-- `/midnight-verify:verify` validates a Compact claim, snippet, or contract against the real compiler and runtime, so the code you keep is code that runs.
-- `/midnight-tooling:devnet start` spins up a local devnet without you assembling Docker Compose files by hand.
-- `/midnight-status-codes:lookup` decodes a Midnight error or status code and tells you which component produced it.
-- `/midnight-fact-check:check` checks content against the actual toolchain instead of trusting what an assistant remembers.
-- `/midnight-expert:doctor` runs a health check across your whole setup: compiler, proof server, plugins, and dependencies.
+- `/midnight-verify:verify`는 Compact 주장·스니펫·컨트랙트를 실제 컴파일러와 런타임에 대조해 검증합니다. 그래서 남겨 두는 코드는 실제로 동작하는 코드가 됩니다.
+- `/midnight-tooling:devnet start`는 Docker Compose 파일을 손수 짜맞추지 않아도 로컬 devnet을 띄워 줍니다.
+- `/midnight-status-codes:lookup`은 Midnight 에러나 상태 코드를 해독하고, 어느 컴포넌트가 그것을 냈는지 알려 줍니다.
+- `/midnight-fact-check:check`는 어시스턴트가 기억하는 내용을 믿는 대신, 콘텐츠를 실제 툴체인에 대조해 확인합니다.
+- `/midnight-expert:doctor`는 컴파일러, proof 서버, 플러그인, 의존성까지 전체 설정을 아우르는 상태 점검을 실행합니다.
 
-The coverage goes well beyond writing contracts. The `compact-core` plugin carries contract patterns, privacy rules, and review checklists; `midnight-dapp-dev` scaffolds DApp frontends and wires them to your contract through the Midnight SDKs; `midnight-wallet` covers wallet building and the DApp Connector API; and `compact-cli-dev` generates a command-line interface for a contract. Whether you're working on a circuit, a browser DApp, or the wallet integration in between, there is likely a plugin covering the current patterns.
+커버리지는 컨트랙트 작성을 훨씬 넘어섭니다. `compact-core` 플러그인은 컨트랙트 패턴, 프라이버시 규칙, 리뷰 체크리스트를 담고 있고, `midnight-dapp-dev`는 DApp 프런트엔드를 스캐폴딩해 Midnight SDK를 통해 컨트랙트와 연결하며, `midnight-wallet`은 지갑 구축과 DApp Connector API를 다루고, `compact-cli-dev`는 컨트랙트용 커맨드라인 인터페이스를 생성합니다. 서킷을 다루든, 브라우저 DApp을 만들든, 그 사이의 지갑 연동을 하든, 현재 패턴을 다루는 플러그인이 대개 하나쯤 있습니다.
 
-Keeping current is the point. Compact and the Midnight SDKs change often, and neither was in any model's training data, so an unguided assistant fills the gaps by guessing and gets them wrong. Midnight Expert is built to stop that. Its skills steer the assistant toward verified patterns, and commands like `/midnight-verify:verify` and `/midnight-fact-check:check` make it check generated code against the real compiler, runtime, and toolchain before you ever see it. Those guardrails are the difference between code that looks plausible and code that runs.
+핵심은 최신 상태를 유지하는 것입니다. Compact와 Midnight SDK는 자주 바뀌고, 어느 쪽도 모델의 학습 데이터에 들어 있지 않았습니다. 그래서 가이드 없는 어시스턴트는 빈틈을 추측으로 메우다가 틀립니다. Midnight Expert는 바로 그것을 막기 위해 만들어졌습니다. skill이 어시스턴트를 검증된 패턴 쪽으로 이끌고, `/midnight-verify:verify`와 `/midnight-fact-check:check` 같은 명령은 생성된 코드를 여러분이 보기도 전에 실제 컴파일러·런타임·툴체인에 대조하게 만듭니다. 이 가드레일이 그럴듯해 보이는 코드와 실제로 동작하는 코드를 가릅니다.
 
-Install it with the setup script:
+설치는 setup 스크립트로 합니다.
 
 ```bash
 curl -fsSL https://midnightntwrk.expert/install.sh | bash
 ```
 
-Or add it from inside Claude Code: run `/plugin`, add `https://midnightntwrk.expert` as a marketplace, and install the plugins you want.
+또는 Claude Code 안에서 추가하세요. `/plugin`을 실행하고, `https://midnightntwrk.expert`를 마켓플레이스로 추가한 뒤, 원하는 플러그인을 설치하면 됩니다.
 
 ## Which tool for which job
 
-The two are complementary, and most developers will run both.
+둘은 상호 보완적이며, 대부분의 개발자는 둘 다 쓰게 됩니다.
 
-Reach for Kapa when you have a question and want a documentation-grounded answer without leaving your editor: what a term means, how a mechanism works, where something is covered in the docs. It works in any MCP client, including Claude Code.
+편집기를 벗어나지 않고 문서에 근거한 답을 얻고 싶을 때 Kapa를 찾으세요. 어떤 용어가 무슨 뜻인지, 어떤 메커니즘이 어떻게 동작하는지, 문서 어디에서 다루는지 같은 것들입니다. Claude Code를 포함한 모든 MCP 클라이언트에서 동작합니다.
 
-Reach for Midnight Expert when you want to act inside Claude Code: generate a contract, scaffold a DApp, verify it compiles, start a devnet, decode an error, run a review. Kapa tells you how DUST works; Midnight Expert helps you write the contract that uses it and checks that it compiles.
+Claude Code 안에서 직접 무언가를 실행하고 싶을 때 Midnight Expert를 찾으세요. 컨트랙트 생성, DApp 스캐폴딩, 컴파일 검증, devnet 시작, 에러 해독, 리뷰 실행 같은 작업입니다. Kapa는 DUST가 어떻게 동작하는지 알려 주고, Midnight Expert는 그 DUST를 쓰는 컨트랙트를 작성하도록 돕고 컴파일되는지 확인해 줍니다.
 
 ## Make the switch
 
-Three steps, all in one place.
+세 단계, 모두 한자리에서 끝납니다.
 
-1. Remove the retired Midnight MCP server (skip this step if you never installed it). In Claude Code:
+1. 종료되는 Midnight MCP 서버를 제거합니다(설치한 적이 없다면 이 단계는 건너뛰세요). Claude Code에서:
 
    ```bash
    claude mcp remove midnight
    ```
 
-   If you added it through a config file instead, delete its entry from the `mcpServers` block in your Claude Desktop, Cursor, or VS Code settings. The server was usually registered under the name `midnight`.
+   설정 파일로 추가했다면, Claude Desktop, Cursor, VS Code 설정의 `mcpServers` 블록에서 해당 항목을 지우세요. 이 서버는 보통 `midnight`이라는 이름으로 등록되어 있었습니다.
 
-2. Add the Kapa MCP server:
+2. Kapa MCP 서버를 추가합니다:
 
    ```bash
    claude mcp add --transport http midnight https://midnight.mcp.kapa.ai
    ```
 
-   Or use the one-click install from the "Ask AI" then "Use MCP" menu, or the JSON config shown above.
+   또는 "Ask AI" → "Use MCP" 메뉴의 원클릭 설치나, 위에 나온 JSON 설정을 사용하세요.
 
-3. Install Midnight Expert:
+3. Midnight Expert를 설치합니다:
 
    ```bash
    curl -fsSL https://midnightntwrk.expert/install.sh | bash
    ```
 
-That's the whole migration. Old server out, two new servers in.
+이것으로 이전이 끝납니다. 옛 서버는 나가고, 두 개의 새 서버가 들어옵니다.
 
 ## What you get, and where to start
 
-Kapa keeps your AI assistant answering from current Midnight documentation instead of guessing from training data that never included Compact. Midnight Expert gives Claude Code the skills and commands to write, validate, run, and debug real Midnight code. Together they cover both halves of AI-assisted development on Midnight: knowing, and doing.
+Kapa는 AI 어시스턴트가 Compact를 한 번도 담은 적 없는 학습 데이터에서 추측하는 대신, 현재 Midnight 문서에 근거해 답하도록 유지해 줍니다. Midnight Expert는 Claude Code에 실제 Midnight 코드를 작성·검증·실행·디버그할 skill과 명령을 부여합니다. 둘을 합치면 Midnight에서의 AI 지원 개발의 두 축, 즉 '아는 것'과 '하는 것'을 모두 커버합니다.
 
-The fastest way to see how they can help you build on Midnight is to try a few prompts:
+이들이 Midnight 빌드에 어떻게 도움이 되는지 가장 빠르게 확인하는 방법은 몇 가지 프롬프트를 직접 던져 보는 것입니다.
 
-- "How does DUST generation work, and what happens to it when I spend the backing NIGHT?"
-- "Write a Compact counter contract and verify that it compiles."
-- "I'm getting a proof server error. What does it mean, and how do I fix it?"
-- "Start a local devnet and tell me when it's healthy."
+- "DUST 생성은 어떻게 동작하고, 그 뒷받침이 되는 NIGHT을 소비하면 DUST는 어떻게 되나요?"
+- "Compact counter 컨트랙트를 작성하고 컴파일되는지 검증해 줘."
+- "proof 서버 에러가 나고 있어. 무슨 뜻이고 어떻게 고치지?"
+- "로컬 devnet을 시작하고 정상 상태가 되면 알려 줘."
 
-The existing Midnight MCP server goes offline soon. The replacements are live today, so there's no reason to wait. Make the switch and keep building.
+기존 Midnight MCP 서버는 곧 오프라인이 됩니다. 대체 도구는 오늘부터 살아 있으니 미룰 이유가 없습니다. 지금 갈아타고 계속 빌드하세요.

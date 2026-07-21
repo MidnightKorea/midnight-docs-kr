@@ -1,0 +1,531 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Create and transfer a shielded token
+description: "Midnight에서 Compact로 프라이버시를 지키는 shielded 토큰을 만들고 배포하고 전송합니다. 값은 변경 불가능한 coin에 담기고 잔액은 공개되지 않습니다."
+sidebar_label: Shielded 토큰
+sidebar_position: 3
+tags: [tokens, shielded, compact, tutorial, mint, transfer, privacy]
+---
+
+# Create and transfer a shielded token
+
+[unshielded 토큰 튜토리얼](/tokens/unshielded-token)에서는 **unshielded** 토큰을 만들었습니다. 잔액이 on-chain에 있고, 컨트랙트는 호출 한 번으로 자기 잔액을 읽으며, 전송은 `sendUnshielded` 한 줄입니다. 이 문서에서는 같은 토큰의 **shielded** 버전을 만듭니다. 프라이버시 모델이 설계를 어떻게 바꾸는지 직접 보는 것이 핵심입니다.
+
+Shielded 토큰에는 읽을 수 있는 공개 잔액이 없습니다. 값은 변경 불가능한 *coin*에 담기고, 모든 동작을 좌우하는 규칙은 *fresh* coin과 *committed* coin의 차이입니다. 여기서는 transaction 하나로 shielded coin을 mint해 호출자에게 비공개로 전달하는 작은 컨트랙트를 만듭니다.
+
+이 문서는 [unshielded 토큰 튜토리얼](/tokens/unshielded-token)을 마쳤거나, 최소한 그 프로젝트가 준비되어 있다고 가정합니다. 동일한 툴체인, 동일한 로컬 네트워크, 그리고 대부분의 지원 파일을 그대로 재사용합니다. 아직 준비하지 않았다면 [프로젝트 설정](/tokens/unshielded-token#set-up-your-project)을 먼저 진행하세요.
+
+## What changes for a shielded token
+
+이 문서 전체를 관통하는 개념은 세 가지입니다. 셋 다 unshielded 토큰에는 해당하지 않으며, 모두 Midnight에서 shielded 값이 동작하는 방식에서 곧바로 나옵니다.
+
+**공개 잔액이 없습니다.** 체인은 금액이 아니라 commitment와 nullifier를 기록합니다. shielded 값에 대해서는 `unshieldedBalance(color)` 같은 것을 호출할 수 없습니다. 그런 숫자가 on-chain에 존재하지 않기 때문입니다. 컨트랙트는 자기가 무엇을 보유하는지 알려면 스스로 coin을 추적해야 하고, 전송이 성공했는지 확인하려면 컨트랙트가 아니라 *wallet*의 shielded 잔액을 읽어야 합니다.
+
+**값은 변경 불가능한 coin에 담깁니다.** `ShieldedCoinInfo`는 shielded coin을 나타내며 nonce, color, value로 구성됩니다. coin의 값은 그 자리에서 바꿀 수 없습니다. 일부만 옮기려면 coin을 소비해야 하고, 그러면 standard library가 남은 금액에 해당하는 새 *change* coin을 돌려줍니다. nonce는 모든 coin을 서로 다르게 만들며, private seed에서 `evolveNonce`로 결정적으로 유도합니다.
+
+Fresh coin과 committed coin은 소비 방식이 다릅니다.
+
+| Coin 상태 | 타입 | 소비 방법 |
+| :---- | :---- | :---- |
+| Fresh (방금 생성됨, 같은 transaction) | `ShieldedCoinInfo` | `sendImmediateShielded` |
+| Committed (이미 ledger에 있음) | `QualifiedShieldedCoinInfo` (`mt_index` 추가) | `sendShielded` |
+
+방금 mint한 coin은 아직 Merkle tree 위치가 없어서 `sendShielded`로 소비할 수 없습니다. ledger가 on-chain에 commit하고 나면 `mt_index`가 생기면서 `QualifiedShieldedCoinInfo`가 되고, 이것이 `sendShielded`가 요구하는 타입입니다. 이 문서에서는 *같은* transaction 안에서 coin을 mint하고 소비합니다. 그러면 fresh coin 경로만 쓰게 되므로 transaction 간에 Merkle 위치를 추적할 필요가 없습니다. committed 경로는 [더 나아가기](#go-further-with-committed-transfers-and-burns)에서 다룹니다.
+
+컨트랙트를 거치는 shielded 전송에는 현재 제약이 하나 더 있습니다. `sendShielded` primitive는 아직 coin ciphertext를 생성하지 않기 때문에, 현재 호출자가 아닌 다른 사용자에게 shielded 값을 보내면 그 사용자는 coin을 받았다는 사실을 통지받지 못합니다. 실질적으로는 컨트랙트가 **호출자**, 즉 transaction에 서명한 사람에게만 shielded 값을 확실히 전달할 수 있다는 뜻입니다. 이 문서에서 보여주는 전송이 바로 그것입니다.
+
+## Set up
+
+unshielded 튜토리얼의 환경을 그대로 씁니다. 구체적으로는 다음과 같습니다.
+
+- 툴체인(compactc 0.31.1), 로컬 네트워크(midnight-local-dev), proof server. [프로젝트 설정](/tokens/unshielded-token#set-up-your-project)을 참고하세요.
+- `src/config.ts`와 `src/wallet.ts`는 **unshielded 튜토리얼과 완전히 동일합니다**. 수정 없이 그대로 복사하세요.
+
+패키지도 unshielded 튜토리얼과 같으므로, 그 문서를 마쳤다면 이미 전부 설치되어 있습니다. shielded 컨트랙트에는 unshielded 컨트랙트에 없던 요소가 하나 등장합니다. circuit에 값을 공급하는 off-chain 함수인 **witness**입니다. witness로 private state에 있는 nonce seed와 minter secret을 컨트랙트에 전달합니다.
+
+## Build the shielded token contract
+
+앞서와 마찬가지로 컨트랙트를 파일 하나에 블록 단위로 쌓아 올립니다.
+
+```bash
+touch contracts/shielded-token.compact
+```
+
+### Set the language version, import the library, and declare the witnesses
+
+```compact
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+witness localNonceSeed(): Bytes<32>;
+witness minterSecretKey(): Bytes<32>;
+```
+
+새로 추가된 줄은 witness입니다. witness는 off-chain에서 실행되어 circuit에 값을 넣어주는 함수입니다. 그 값은 circuit이 공개하지 않고 사용하는 private 데이터인 경우가 많지만, 반드시 그럴 필요는 없습니다. witness는 off-chain 연산을 위한 훅이고, 반환값은 public일 수도 private일 수도 있습니다. 프라이버시가 witness에 묶여 있는 것도 아닙니다. 일반 circuit 파라미터로 전달한 값도 circuit이 명시적으로 공개하지 않는 한 private으로 남습니다.
+
+witness는 두 개입니다. `localNonceSeed()`는 nonce seed를 공급하고, `minterSecretKey()`는 누가 mint할 수 있는지를 식별하는 두 번째 private 32바이트 값을 공급합니다. 컨트랙트는 이 secret을 저장하지도 공개하지도 않습니다. 여기서 *유도한* public key만 저장하고(다음 절), mint 시점에 호출자가 그 유도 과정을 재현할 수 있는지 확인합니다.
+
+### Declare the on-chain state
+
+```compact
+export ledger token_color: Bytes<32>;
+export ledger initialized: Boolean;
+export ledger mints: Counter;
+export ledger minter: Bytes<32>;
+```
+
+`token_color`와 `initialized`는 unshielded 튜토리얼과 같은 역할을 합니다. 여기에 *없는* 것에 주목하세요. 잔액도 없고, 누가 얼마를 들고 있는지에 대한 map도 없습니다. shielded 잔액을 on-chain에 기록하면 shielding이 숨기려는 바로 그 금액이 공개되므로, 컨트랙트는 잔액을 전혀 보관하지 않습니다. `mints`는 counter이며, on-chain 상태가 변하는 것을 보여주는 용도로만 씁니다.
+
+`minter`는 mint 권한이 있는 wallet의 public key를 담습니다. 위의 secret에서 유도해 배포 시점에 한 번 설정합니다. 해시 값이므로 on-chain에 저장해도 secret에 대해서는 아무것도 드러나지 않습니다.
+
+### Initialize at deployment
+
+```compact
+constructor() {
+  // 배포자가 유도한 key가 mint 권한을 가진 minter가 됩니다.
+  minter = disclose(deriveMinterKey(minterSecretKey()));
+  initialized = false;
+}
+
+// 도메인 분리 해시로 secret에서 public key를 유도합니다. secret을 가진 호출자만
+// 이 값을 재현할 수 있으므로, 이를 기준으로 접근을 통제해도 안전합니다.
+export circuit deriveMinterKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "tutorial:shielded:minter:v1"), sk]);
+}
+```
+
+`deriveMinterKey`는 secret을 domain separator와 함께 해싱해 public key로 만듭니다. constructor는 배포 시 한 번 실행되어 *배포자*가 유도한 key를 mint 권한자로 기록합니다. 따라서 이후 mint는 배포 secret을 가진 wallet만 할 수 있습니다. (여기에 `ownPublicKey()`를 쓰지 않은 것은 의도적입니다. 이 함수는 prover가 주장한 값을 반환할 뿐 서명자와 결속되지 않으므로, 이를 검사에 쓰면 누구나 우회할 수 있습니다.) unshielded 튜토리얼과 마찬가지로 constructor는 `token_color`를 설정하지 않고(mint할 때 설정됩니다), `initialized`는 false로 시작합니다.
+
+### Mint a shielded coin and send it to the caller
+
+이 문서의 핵심입니다. 컨트랙트 앞으로 fresh shielded coin을 mint하고, 같은 transaction 안에서 호출자에게 보냅니다.
+
+```compact
+export circuit mint_and_send(amount: Uint<64>, nonceIndex: Uint<128>): [] {
+  // 배포 secret을 보유한, 권한 있는 minter만 mint할 수 있습니다.
+  assert(minter == deriveMinterKey(minterSecretKey()), "not authorized to mint");
+  assert(disclose(amount) > 0, "amount must be non-zero");
+
+  const domain = pad(32, "tutorial:shielded:token");
+  const nonce = disclose(evolveNonce(disclose(nonceIndex), localNonceSeed()));
+
+  const coin = mintShieldedToken(
+    domain,
+    disclose(amount),
+    nonce,
+    right<ZswapCoinPublicKey, ContractAddress>(kernel.self())
+  );
+
+  sendImmediateShielded(
+    coin,
+    left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()),
+    coin.value
+  );
+
+  token_color = coin.color;
+  initialized = true;
+  mints.increment(1);
+}
+```
+
+위 코드를 하나씩 살펴보면 다음과 같습니다.
+
+- 첫 번째 `assert`가 권한 검사입니다. 호출자의 secret witness로 minter key를 다시 계산해 저장된 `minter`와 일치하는지 요구하므로, 배포자만 mint할 수 있습니다. 다음 `assert`는 금액이 0인 호출을 막습니다.
+- `pad(32, "tutorial:shielded:token")`은 domain separator를 만듭니다. unshielded 튜토리얼과 동일한 방식이지만 레이블이 다르므로 shielded 토큰은 별도의 color를 갖습니다.
+- `evolveNonce(nonceIndex, localNonceSeed())`는 고유한 nonce를 유도합니다. seed는 witness에서 오는 private 값입니다. mint가 *유도된* nonce를 공개하므로 그 nonce만 `disclose(...)`로 감싸고, seed는 비밀로 남습니다. mint할 때마다 다른 `nonceIndex`를 넘겨서 nonce가 겹치지 않게 하세요.
+- `mintShieldedToken(...)`은 `amount`만큼 mint하고 fresh coin인 `ShieldedCoinInfo`를 반환합니다. 수신자 `right<ZswapCoinPublicKey, ContractAddress>(kernel.self())`는 컨트랙트 자신의 주소이며, 수신자 타입 중 컨트랙트 쪽임을 표시합니다. 따라서 새 coin은 컨트랙트 소유가 됩니다.
+- `sendImmediateShielded(coin, ..., coin.value)`는 그 fresh coin을 같은 transaction 안에서 소비해 전체 값을 호출자인 `ownPublicKey()`에게 보냅니다. 수신자는 컨트랙트가 아니라 사용자 key이므로 `left<ZswapCoinPublicKey, ContractAddress>(...)`로 감쌉니다. 전체 값을 보내므로 따로 관리할 change coin이 없습니다. `sendShielded`와 마찬가지로 `sendImmediateShielded`도 `ShieldedSendResult`를 반환합니다. 이 circuit은 반환값을 무시하지만, `coin.value`보다 적게 보내는 부분 전송이라면 직접 처리해야 하는 change coin이 돌아옵니다. 자세한 내용은 [더 나아가기](#go-further-with-committed-transfers-and-burns)를 참고하세요.
+- 마지막 세 줄은 color를 기록하고, `initialized`를 뒤집고, counter를 올립니다.
+
+mint 금액은 `Uint<64>`입니다. 프로토콜이 단일 mint를 이 폭으로 제한합니다. 반면 coin의 값은 `Uint<128>`이라서 `coin.value`가 더 넓은 타입입니다. unshielded 튜토리얼과 마찬가지로 mint에는 배포자의 권한이 필요하고, 차이는 그 방식에 있습니다. unshielded 컨트랙트는 secret을 일반 circuit 파라미터로 받지만, 이 컨트랙트는 witness로 가져오므로 호출자가 인자로 넘길 일이 아예 없습니다.
+
+이것으로 컨트랙트가 완성됐습니다. 앞서와 같은 방식으로, 전용 출력 디렉터리에 컴파일하세요.
+
+```bash
+compact compile contracts/shielded-token.compact src/shielded/managed/shielded-token
+```
+
+## Wire the contract for deployment
+
+shielded 쪽 TypeScript는 전부 `src/shielded/`에 둡니다. 지원 파일 중 두 개가 unshielded 튜토리얼과 다릅니다. `config.ts`와 `wallet.ts`는 `src/`에 있는 것을 그대로 재사용하므로, 아래 import에서 `../`로 한 단계 올라갑니다.
+
+### Implement the witnesses
+
+`src/shielded/witnesses.ts`를 만듭니다.
+
+```bash
+mkdir src/shielded
+touch src/shielded/witnesses.ts
+```
+
+이 파일에는 private state(nonce seed와 minter secret)와, 그 값을 circuit에 넘기는 두 개의 witness 구현이 들어갑니다.
+
+```typescript
+import { randomBytes } from 'node:crypto';
+
+export type ShieldedTokenPrivateState = {
+  readonly nonceSeed: Uint8Array;
+  readonly minterSecret: Uint8Array;
+};
+
+export const createShieldedTokenPrivateState = (
+  nonceSeed: Uint8Array = randomBytes(32),
+  minterSecret: Uint8Array = randomBytes(32),
+): ShieldedTokenPrivateState => ({ nonceSeed, minterSecret });
+
+// 각 witness는 [갱신된 privateState, circuit에 넘길 값]을 반환합니다. 여기서는
+// 상태가 바뀌지 않으며, 돌려주는 값은 nonce seed와 minter secret입니다.
+export const witnesses = {
+  localNonceSeed: ({
+    privateState,
+  }: {
+    privateState: ShieldedTokenPrivateState;
+  }): [ShieldedTokenPrivateState, Uint8Array] => [privateState, privateState.nonceSeed],
+  minterSecretKey: ({
+    privateState,
+  }: {
+    privateState: ShieldedTokenPrivateState;
+  }): [ShieldedTokenPrivateState, Uint8Array] => [privateState, privateState.minterSecret],
+};
+```
+
+`createShieldedTokenPrivateState`는 두 secret을 모두 `randomBytes(32)`로 생성합니다. Midnight 공식 예제와 같은 방식입니다. 이를 고정된 공개 값으로 바꾸지 마세요. 컨트랙트는 minter secret의 *해시*를 on-chain에 공개하고 그것을 재현할 수 있는지로 mint를 통제합니다. secret을 하드코딩하면 누구든 그 값을 다시 계산해 여러분의 배포본에서 마음대로 mint할 수 있고, nonce seed까지 예측 가능해지면 coin nonce도 예측할 수 있게 됩니다.
+
+실행할 때마다 secret을 새로 뽑아도 되는 이유는, 배포 스크립트를 실행할 때마다 새 컨트랙트를 배포하고 배포와 mint가 같은 프로세스의 private state를 공유하기 때문입니다. 뒤집어 말하면 나중에 *같은* 컨트랙트에 다시 mint하려면 private state를 저장해 두어야 합니다. constructor가 minter key를 한 번만 설정하기 때문입니다.
+
+### Wrap the compiled contract with the witnesses
+
+`src/shielded/contract.ts`를 만듭니다.
+
+```bash
+touch src/shielded/contract.ts
+```
+
+unshielded 튜토리얼의 래퍼에서 두 가지만 바뀝니다. shielded 출력 디렉터리를 가리키고, 컨트랙트에 witness가 없다고 선언하는 대신 witness를 공급합니다. 컴파일 결과물이 바로 옆 `src/shielded/managed/` 아래에 있으므로 내부 경로는 이전과 똑같아 보입니다.
+
+```typescript
+import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-js';
+import path from 'node:path';
+import { witnesses } from './witnesses.js';
+
+export { Contract, ledger, type Ledger } from './managed/shielded-token/contract/index.js';
+import { Contract } from './managed/shielded-token/contract/index.js';
+
+const currentDir = path.resolve(new URL(import.meta.url).pathname, '..');
+export const zkConfigPath = path.resolve(currentDir, 'managed', 'shielded-token');
+
+export const CompiledShieldedToken = CompiledContract.make(
+  'ShieldedToken',
+  Contract,
+).pipe(
+  // unshielded 튜토리얼은 witness 함수를 선언하지 않아서 withVacantWitnesses를
+  // 썼습니다. 이 컨트랙트에는 witness가 두 개 있으므로 대신 그 구현을 공급합니다.
+  // Midnight의 witness 기반 예제들이 쓰는 것과 같은 패턴입니다.
+  CompiledContract.withWitnesses(witnesses),
+  CompiledContract.withCompiledFileAssets(zkConfigPath),
+);
+```
+
+unshielded 래퍼와 달라진 점은 `withVacantWitnesses` 자리에 `withWitnesses(witnesses)`가 온 것과 shielded 출력 경로뿐입니다. Midnight의 witness 기반 예제들이 쓰는 패턴 그대로입니다.
+
+### Update the providers
+
+`src/shielded/providers.ts`를 만듭니다.
+
+```bash
+touch src/shielded/providers.ts
+```
+
+타입에 들어가는 circuit 이름, private state 저장소 이름, 공유 모듈 두 개의 import에 붙은 `../`를 빼면 unshielded 튜토리얼과 동일합니다.
+
+```typescript
+import { type MidnightProviders } from '@midnight-ntwrk/midnight-js-types';
+import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
+import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
+import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config-provider';
+import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
+import { type MidnightWalletProvider } from '../wallet.js';
+import { type NetworkConfig } from '../config.js';
+
+export type TokenCircuits = 'mint_and_send';
+
+export type TokenProviders = MidnightProviders<any>;
+
+export function buildProviders(
+  wallet: MidnightWalletProvider,
+  zkConfigPath: string,
+  config: NetworkConfig,
+): TokenProviders {
+  const zkConfigProvider = new NodeZkConfigProvider<TokenCircuits>(zkConfigPath);
+
+  return {
+    privateStateProvider: levelPrivateStateProvider({
+      privateStateStoreName: `shielded-token-${Date.now()}`,
+      privateStoragePasswordProvider: () => 'Shielded-Token-Test-Password',
+      accountId: wallet.getCoinPublicKey(),
+    }),
+    publicDataProvider: indexerPublicDataProvider(
+      config.indexer,
+      config.indexerWS,
+    ),
+    zkConfigProvider,
+    proofProvider: httpClientProofProvider(
+      config.proofServer,
+      zkConfigProvider,
+    ),
+    walletProvider: wallet,
+    midnightProvider: wallet,
+  };
+}
+```
+
+unshielded 튜토리얼과 달리 private state는 비어 있지 않습니다. nonce seed와 minter secret을 담고 있습니다. 실제 값은 다음 단계에서 배포할 때 넘깁니다.
+
+## Deploy and test
+
+배포 스크립트의 뼈대는 앞서와 같습니다. wallet을 만들고, 자금과 DUST를 기다린 다음 배포합니다. 달라지는 것은 무엇을 배포하고 무엇을 호출하느냐뿐입니다. wallet, 자금, DUST 단계는 unshielded 튜토리얼과 같지만, 이 문서만 보고도 실행할 수 있도록 전부 다시 실었습니다.
+
+`src/shielded/deploy.ts`를 만듭니다.
+
+```bash
+touch src/shielded/deploy.ts
+```
+
+import는 shielded 컨트랙트와 private state 팩토리, 그리고 `toHex`를 가져오도록 바뀌고, 공유 모듈 두 개는 `../`로 참조합니다.
+
+```typescript
+import { WebSocket } from 'ws';
+import { firstValueFrom } from 'rxjs';
+import { filter, timeout as rxTimeout } from 'rxjs/operators';
+import pino from 'pino';
+import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
+import { deployContract, submitCallTx } from '@midnight-ntwrk/midnight-js-contracts';
+import { type EnvironmentConfiguration } from '@midnight-ntwrk/testkit-js';
+import { UnshieldedAddress } from '@midnight-ntwrk/wallet-sdk';
+import { unshieldedToken } from '@midnight-ntwrk/midnight-js-protocol/ledger';
+import { toHex } from '@midnight-ntwrk/midnight-js-utils';
+import { getConfig } from '../config.js';
+import { MidnightWalletProvider, syncWallet } from '../wallet.js';
+import { buildProviders } from './providers.js';
+import {
+  CompiledShieldedToken,
+  ledger,
+  zkConfigPath,
+} from './contract.js';
+import { createShieldedTokenPrivateState } from './witnesses.js';
+
+(globalThis as any).WebSocket = WebSocket;
+
+const logger = pino({ level: 'info', transport: { target: 'pino-pretty' } });
+```
+
+다음으로 seed에서 wallet을 만들고, 자금을 넣을 수 있도록 주소를 출력하고, NIGHT이 도착하기를 기다리고, unshielded 채널을 동기화하고, 그 NIGHT을 DUST 생성용으로 등록한 뒤, DUST가 생길 때까지 폴링합니다.
+
+unshielded 튜토리얼과 동일한 자금 조달 흐름이며, 여기에 전문을 실었습니다.
+
+```typescript
+const config = getConfig();
+setNetworkId(config.networkId);
+
+const env: EnvironmentConfiguration = {
+  walletNetworkId: config.networkId,
+  networkId: config.networkId,
+  indexer: config.indexer,
+  indexerWS: config.indexerWS,
+  node: config.node,
+  nodeWS: config.nodeWS,
+  faucet: config.faucet,
+  proofServer: config.proofServer,
+};
+
+const seed = process.env['MIDNIGHT_SEED'];
+if (!seed) {
+  throw new Error('Set MIDNIGHT_SEED to your wallet seed (hex, no 0x prefix).');
+}
+
+const wallet = await MidnightWalletProvider.build(logger, env, {
+  kind: 'seed',
+  value: seed,
+});
+await wallet.start();
+
+// wallet의 첫 상태 업데이트에서 주소를 읽어 출력합니다. 이 주소로 자금을 넣으세요.
+const initialState = await firstValueFrom(wallet.wallet.state());
+const address = UnshieldedAddress.codec
+  .encode(config.networkId, initialState.unshielded.address)
+  .asString();
+logger.info(`Fund this address with tNIGHT, then this continues: ${address}`);
+
+const nightRaw = unshieldedToken().raw;
+
+// 1) NIGHT이 도착할 때까지 기다립니다.
+logger.info('Waiting for NIGHT to arrive...');
+await firstValueFrom(
+  wallet.wallet.state().pipe(
+    filter((s: any) => (s.unshielded.balances[nightRaw] ?? 0n) > 0n),
+    rxTimeout({ each: 30 * 60_000 }),
+  ),
+);
+logger.info('NIGHT received.');
+
+// 2) 등록하기 전에 unshielded 채널 동기화가 끝나기를 기다립니다. 그래야 wallet이
+//    자신의 NIGHT UTXO를 정확히 파악합니다.
+logger.info('Waiting for the unshielded channel to sync...');
+const syncedState = await firstValueFrom(
+  wallet.wallet.state().pipe(
+    filter((s: any) => s.unshielded.progress?.isStrictlyComplete() === true),
+    rxTimeout({ each: 30 * 60_000 }),
+  ),
+);
+logger.info('Unshielded channel synced.');
+
+// 3) NIGHT UTXO를 DUST 생성용으로 등록합니다. 새로 받은 NIGHT은 자동으로 등록되지
+//    않으며, DUST가 없으면 wallet은 transaction 수수료를 낼 수 없습니다.
+const unregistered = syncedState.unshielded.availableCoins.filter(
+  (coin: any) =>
+    coin.utxo.type === nightRaw &&
+    coin.meta.registeredForDustGeneration === false,
+);
+
+if (unregistered.length > 0) {
+  logger.info(`Registering ${unregistered.length} NIGHT UTXO(s) for DUST generation...`);
+  const recipe = await wallet.wallet.registerNightUtxosForDustGeneration(
+    unregistered,
+    wallet.unshieldedKeystore.getPublicKey(),
+    (payload: Uint8Array) => wallet.unshieldedKeystore.signData(payload),
+  );
+  const finalized = await wallet.wallet.finalizeRecipe(recipe);
+  const txId = await wallet.wallet.submitTransaction(finalized);
+  logger.info(`DUST registration submitted: ${txId}`);
+} else {
+  logger.info('NIGHT is already registered for DUST generation.');
+}
+
+// 4) DUST를 쓸 수 있을 때까지 기다립니다. 구독을 열어두는 대신 잔액을 폴링하면
+//    오래 기다려도 메모리 사용량이 늘지 않습니다.
+logger.info('Waiting for DUST to be generated from your NIGHT...');
+const dustDeadline = Date.now() + 30 * 60_000;
+let dustBalance = 0n;
+while (Date.now() < dustDeadline) {
+  const s = await firstValueFrom(wallet.wallet.state());
+  try {
+    dustBalance = s.dust.balance(new Date());
+  } catch {
+    dustBalance = 0n;
+  }
+  logger.info(`  dust balance: ${dustBalance}`);
+  if (dustBalance > 0n) break;
+  await new Promise((r) => setTimeout(r, 15_000));
+}
+if (dustBalance <= 0n) {
+  throw new Error('Timed out waiting for DUST to be generated.');
+}
+logger.info(`DUST available: ${dustBalance}`);
+```
+
+로컬 네트워크에서는 genesis wallet에 이미 자금이 있고 등록도 끝나 있습니다. 따라서 NIGHT 대기는 즉시 끝나고, 등록 단계는 이미 완료됐다고 알리며, DUST는 몇 초 안에 생깁니다.
+
+이제 shielded 고유의 부분입니다. provider를 구성하고, private state와 함께 컨트랙트를 배포한 뒤, 초기 상태를 읽습니다.
+
+```typescript
+const providers = buildProviders(wallet, zkConfigPath, config);
+
+const deployed = await deployContract(providers, {
+  compiledContract: CompiledShieldedToken,
+  privateStateId: 'shielded-token',
+  initialPrivateState: createShieldedTokenPrivateState(),
+});
+const contractAddress = deployed.deployTxData.public.contractAddress;
+logger.info(`Deployed at ${contractAddress}`);
+
+async function readLedger() {
+  const state = await providers.publicDataProvider.queryContractState(contractAddress);
+  return ledger(state!.data);
+}
+
+logger.info(`initialized at deploy: ${(await readLedger()).initialized}`); // false
+```
+
+unshielded 튜토리얼과 다른 점은 `initialPrivateState` 값 하나뿐입니다. 빈 객체 대신 `createShieldedTokenPrivateState()`를 넘깁니다. 이것은 witness가 아니라 컨트랙트의 초기 *private state*입니다. `deployContract`는 이 값을 대상으로 constructor를 실행하고, private state provider에 `privateStateId` 키로 저장합니다. 이후 circuit을 호출할 때마다 프레임워크가 현재 private state를 불러와 `WitnessContext.privateState`를 통해 여러분의 witness 구현에 전달하고, 각 witness는 circuit에 넘길 값과 함께 갱신된 private state를 반환합니다. witness는 앞서 작성한 off-chain 함수이고, private state는 그 함수들이 읽는 데이터입니다.
+
+호출 한 번으로 shielded 토큰을 mint해 자기 wallet으로 전달한 다음, 컨트랙트 상태를 다시 읽습니다.
+
+```typescript
+await submitCallTx(providers, {
+  compiledContract: CompiledShieldedToken,
+  contractAddress,
+  privateStateId: 'shielded-token',
+  circuitId: 'mint_and_send',
+  args: [1000n, 0n], // amount, nonceIndex 순서
+});
+
+const afterMint = await readLedger();
+logger.info(`initialized after mint: ${afterMint.initialized}`); // true
+logger.info(`token color: ${toHex(afterMint.token_color)}`);
+```
+
+`mint_and_send`는 shielded 1,000단위를 mint해 같은 transaction 안에서 호출자에게 보냅니다. 이번이 첫 호출이므로 `nonceIndex`는 `0n`입니다. 두 번째 호출은 `1n`을 쓰고, 그 뒤로도 하나씩 늘려 nonce가 겹치지 않게 합니다.
+
+마지막으로 **wallet**의 shielded 잔액을 읽어 전송을 확인합니다. shielded 토큰에는 읽을 수 있는 컨트랙트 잔액이 없습니다.
+
+```typescript
+const after = await syncWallet(logger, wallet.wallet, 60 * 60_000);
+const color = toHex(afterMint.token_color);
+const shieldedBalance = after.shielded.balances[color] ?? 0n;
+logger.info(`wallet shielded balance of the token: ${shieldedBalance}`); // 1000이어야 합니다
+
+await wallet.stop();
+```
+
+동기화가 끝나면 wallet의 shielded 잔액에 해당 토큰 color로 1,000이 잡혀야 합니다. 컨트랙트가 shielded 값을 mint해 여러분에게 비공개로 전달했다는 뜻입니다.
+
+### Run it
+
+로컬 네트워크를 별도 터미널에서 실행해 둔 상태로, unshielded 튜토리얼과 똑같이 genesis wallet seed를 써서 스크립트를 실행하세요.
+
+```bash
+MIDNIGHT_NETWORK=local \
+MIDNIGHT_SEED=0000000000000000000000000000000000000000000000000000000000000001 \
+npx tsx src/shielded/deploy.ts
+```
+
+컨트랙트 주소, mint 후 true로 바뀐 `initialized`, 그리고 wallet shielded 잔액 1,000이 출력되어야 합니다. Preprod에서 실행하려면 [unshielded 튜토리얼](/tokens/unshielded-token#run-against-preprod-instead)의 Preprod 안내를 그대로 따르세요.
+
+## Go further with committed transfers and burns
+
+위 흐름은 transaction 하나에서 coin을 mint하고 소비하므로 fresh coin 경로만 씁니다. 반면 흔히 쓰는 두 가지 작업에는 committed 경로나 특수 수신자가 필요합니다. 해당 primitive는 모두 같은 standard library에 있고 아래 시그니처는 정확하지만, 실제 노드에서 처음부터 끝까지 연결하려면 transaction 간 Merkle 위치를 관리해야 합니다. 바로 복사해 쓰는 코드가 아니라 다음에 만들어 볼 과제로 보세요.
+
+1. **컨트랙트가 이미 보유한 coin 전송하기.** ledger가 mint된 coin을 on-chain에 commit하면 그 coin은 Merkle tree 인덱스인 `mt_index`를 얻어 `QualifiedShieldedCoinInfo`가 되고, `sendShielded`로 소비합니다.
+
+```compact
+circuit sendShielded(
+  input: QualifiedShieldedCoinInfo,
+  recipient: Either<ZswapCoinPublicKey, ContractAddress>,
+  value: Uint<128>
+): ShieldedSendResult;
+```
+
+`sendShielded`는 `ShieldedSendResult { change: Maybe<ShieldedCoinInfo>; sent: ShieldedCoinInfo; }`를 반환합니다. coin의 값보다 적게 보내면 `change`에 나머지에 해당하는 새 coin이 담깁니다. 소비 후 재생성 패턴이며, 애플리케이션은 그 change coin을 저장해 두고 commit될 때까지 기다렸다가 나중에 별도의 `QualifiedShieldedCoinInfo`로 소비해야 합니다.
+
+실제 네트워크에서 까다로운 부분은 commit된 coin의 `mt_index`를 확보해 circuit에 넘기는 일입니다. 보통 indexer에서 가져오며, 바로 이 부분을 신중하게 구현하고 테스트해야 합니다. 또한 현재로서는 호출자가 아닌 사용자에게 shielded 값을 전달해도 그 사용자에게 통지되지 않는다는 점을 기억하세요.
+
+2. **shielded 값 소각하기.** 소각은 값을 파기하는 특수 수신자에게 보내는 것이며, 그 주소는 `shieldedBurnAddress()`가 반환합니다.
+
+```compact
+circuit shieldedBurnAddress(): Either<ZswapCoinPublicKey, ContractAddress>;
+```
+
+committed coin을 소각하려면 `sendShielded(input, shieldedBurnAddress(), value)`를 호출하세요. 같은 transaction에서 mint한 coin을 소각하려면 `sendImmediateShielded(coin, shieldedBurnAddress(), value)`를 쓰세요. 어느 쪽이든 부분 소각은 전송과 마찬가지로 change coin을 돌려줍니다.
+
+## What you built
+
+shielded 토큰을 만들어 처음부터 끝까지 옮겨 봤습니다.
+
+- `mintShieldedToken`은 컨트랙트가 소유하는 fresh shielded coin을 생성합니다.
+- private witness seed를 받는 `evolveNonce`는 고유한 coin nonce를 유도합니다.
+- `sendImmediateShielded`는 그 fresh coin을 같은 transaction에서 소비해 호출자에게 전달합니다.
+- shielded 잔액은 공개되지 않으므로, 결과는 컨트랙트가 아니라 wallet의 shielded 잔액을 읽어 확인했습니다.
+
+두 튜토리얼을 관통하는 메시지는 프라이버시가 설정 항목이 아니라는 것입니다. 프라이버시는 컨트랙트가 무엇을 저장하고 값이 어떻게 이동하는지를 바꿉니다. [unshielded 토큰](/tokens/unshielded-token)은 잔액 추적을 체인에 맡겼지만, shielded 토큰은 값을 coin에 담고 금액을 전혀 공개하지 않습니다.

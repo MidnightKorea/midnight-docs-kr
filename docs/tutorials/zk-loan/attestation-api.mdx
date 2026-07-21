@@ -93,7 +93,7 @@ import {
   jubjubPointX,
   jubjubPointY,
   type JubjubPoint,
-} from "@midnight-ntwrk/compact-runtime";
+} from "@midnight-ntwrk/midnight-js-protocol/compact-runtime";
 import { ZKLoanCreditScorer } from "zkloan-credit-scorer-contract";
 const { pureCircuits } = ZKLoanCreditScorer;
 
@@ -199,7 +199,7 @@ import {
   jubjubPointX,
   jubjubPointY,
   type JubjubPoint,
-} from '@midnight-ntwrk/compact-runtime';
+} from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 
 export function createServer(
   providerSk: bigint,
@@ -325,7 +325,7 @@ entry point는 키 관리를 처리하고 서버를 시작합니다.
 import {
   jubjubPointX,
   jubjubPointY,
-} from '@midnight-ntwrk/compact-runtime';
+} from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 import { createServer } from './server.js';
 import { generateKeyPair, getPublicKey } from './signing.js';
@@ -390,8 +390,9 @@ entry point는 두 가지 모드를 지원합니다.
   },
   "dependencies": {
     "zkloan-credit-scorer-contract": "0.1.0",
-    "@midnight-ntwrk/compact-runtime": "0.15.0",
-    "@midnight-ntwrk/midnight-js-network-id": "4.0.4",
+    "@midnight-ntwrk/compact-runtime": "^0.16.0",
+    "@midnight-ntwrk/midnight-js-network-id": "4.1.1",
+    "@midnight-ntwrk/midnight-js-protocol": "4.1.1",
     "restify": "^11.1.0"
   },
   "devDependencies": {
@@ -400,6 +401,8 @@ entry point는 두 가지 모드를 지원합니다.
   }
 }
 ```
+
+attestation API는 `@midnight-ntwrk/midnight-js-protocol/compact-runtime`에서 `ecMulGenerator`, `jubjubPointX`, `jubjubPointY`, `JubjubPoint`를 가져오므로, 여기서 `midnight-js-protocol`은 직접 의존성입니다. `@midnight-ntwrk/compact-runtime`도 그대로 두어야 합니다. 생성된 컨트랙트 코드(`zkloan-credit-scorer-contract`를 통해 간접적으로 import됩니다)가 런타임에 이를 필요로 하기 때문입니다.
 
 다음으로 `zkloan-credit-scorer-attestation-api/tsconfig.json`을 다음 코드로 만드세요.
 
@@ -412,7 +415,7 @@ entry point는 두 가지 모드를 지원합니다.
     "lib": ["ESNext"],
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
@@ -426,6 +429,8 @@ entry point는 두 가지 모드를 지원합니다.
   "include": ["src/**/*.ts"]
 }
 ```
+
+`moduleResolution`은 레거시 `node`가 아니라 `bundler`입니다. 그래야 TypeScript가 `@midnight-ntwrk/midnight-js-protocol`이 `/compact-runtime`, `/ledger`, `/compact-js`를 배포할 때 사용하는 `exports` subpath 맵을 읽을 수 있습니다. `node16`과 `nodenext`도 동작합니다.
 
 ## Understanding the attestation flow
 
@@ -494,7 +499,7 @@ Preprod 대신 [Midnight Local Dev](/guides/midnight-local-network)로 테스트
 ```yaml
 services:
   proof-server:
-    image: "midnightntwrk/proof-server:8.0.3"
+    image: "midnightntwrk/proof-server:8.1.0"
     ports:
       - "6300:6300"
     environment:
@@ -502,7 +507,7 @@ services:
 ```
 
 :::note
-proof server는 최신 버전을 사용하세요. 사용 중인 SDK에 맞는 버전은 [호환성 매트릭스](/relnotes/compact-js)에서 확인하세요.
+proof server는 최신 버전을 사용하세요. 사용 중인 SDK에 맞는 버전은 [호환성 매트릭스](/relnotes/support-matrix)에서 확인하세요.
 :::
 
 proof server를 시작합니다.
@@ -518,7 +523,7 @@ docker compose -f proof-server.yml up -d
 docker compose -f proof-server.yml ps
 ```
 
-`6300` 포트에서 `proof-server` 컨테이너가 실행 중인 것을 확인할 수 있습니다.
+`6300` 포트에서 `proof-server` 컨테이너가 실행 중인 것을 확인할 수 있습니다. 서버가 응답하는지 확인하려면 호스트에서 `curl http://localhost:6300/version`을 실행하세요. compose 파일에 curl 기반 `healthcheck`는 추가하지 마세요. proof-server 이미지에는 `curl`이 포함되어 있지 않아, 서버가 정상이어도 컨테이너 내부 healthcheck는 실패합니다.
 
 proof server는 이 스택에서 연산 부담이 가장 큰 컴포넌트입니다. [Part 3](./cli)에서 CLI로 트랜잭션을 제출하면, proof server는 circuit 정의, public input(ledger 상태), private input(witness 데이터)을 받습니다. 그런 다음 ZK proof를 만들어 Midnight Network에 제출합니다. 이 proof는 private input을 드러내지 않으면서 연산이 올바르게 수행되었음을 증명합니다.
 

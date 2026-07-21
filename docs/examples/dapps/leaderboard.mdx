@@ -1,0 +1,302 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+sidebar_label: "Leaderboard DApp"
+sidebar_position: 25
+title: Leaderboard DApp
+description: Midnight Network의 zero-knowledge proof로 플레이어 신원을 보호하면서 점수를 제출하고 소유권을 증명하는 리더보드 DApp 예제입니다.
+toc_max_heading_level: 2
+---
+
+# Leaderboard DApp
+
+리더보드 smart contract는 Compact로 작성한 프라이버시 보존 점수 기록 예제입니다. 이 예제에서는 플레이어가 프라이버시 모드를 골라 점수를 제출하고, zero-knowledge(ZK) proof로 플레이어 신원을 보호하는 DApp을 만들어 봅니다.
+
+이 예제에서 다루는 Midnight의 핵심 개념은 다음과 같습니다.
+
+- Compact의 `Map`과 커스텀 struct로 구조화된 온체인 데이터를 다루는 smart contract 작성
+- 소유자의 secret key를 드러내지 않고 ZK proof로 엔트리 소유권을 검증
+- witness를 조건부로 호출해 여러 프라이버시 모드를 구현
+- Lace wallet에 연결되는 브라우저 프론트엔드 구축
+
+이 문서를 끝까지 읽으면 리더보드 컨트랙트가 프라이버시 규칙을 어떻게 강제하는지, 그리고 DApp 전체를 빌드해 브라우저에서 어떻게 다루는지 알 수 있습니다.
+
+## The leaderboard scenario
+
+플레이어가 최고 점수를 기록하는 아케이드 리더보드를 떠올려 보세요. 규칙은 단순합니다.
+
+- 누구나 언제든 점수를 제출할 수 있습니다.
+- 각 엔트리에는 점수, 표시 이름, 소유권 commitment가 저장됩니다.
+- 표시 이름은 플레이어가 직접 고릅니다. 커스텀 이름, 공개 주소, 또는 "Crimson Tiger" 같은 익명 생성 이름 중 하나입니다.
+- 최초 제출자만 ZK proof로 자신의 엔트리임을 증명할 수 있습니다.
+
+관건은 플레이어에게 프라이버시 선택권을 온전히 주면서도 소유권 규칙을 강제하는 것입니다. 기존 시스템이라면 플레이어 신원을 서버에 저장해야 합니다. Midnight은 더 나은 방법을 제공합니다. 플레이어는 비공개 데이터를 네트워크로 전송하지 않고 로컬에서 ZK proof를 만들어 소유권을 증명합니다.
+
+## DApp architecture
+
+리더보드 예제는 세 개의 workspace 패키지와 proof server용 Docker 설정으로 이루어진 모노레포입니다.
+
+```text
+midnight-leaderboard/
+├── contract/                    # Compact smart contract와 TypeScript 바인딩
+│   ├── leaderboard.compact      # smart contract
+│   └── src/
+│       ├── index.ts             # 컨트랙트 export와 witness 연결
+│       └── witnesses.ts         # Witness provider
+├── api/                         # 공용 비즈니스 로직 (플랫폼 독립적)
+│   └── src/
+│       ├── index.ts             # LeaderboardAPI 클래스
+│       ├── common-types.ts      # 공용 타입과 provider 인터페이스
+│       └── utils/index.ts       # 표시 이름 디코더
+├── leaderboard-ui/              # React + Vite 브라우저 DApp
+│   └── src/
+│       ├── App.tsx              # 게임 UI, 리더보드, wallet 연결
+│       ├── main.tsx             # Buffer polyfill이 포함된 진입점
+│       ├── contexts/            # Lace wallet provider 브리지
+│       └── hooks/               # indexer 읽기 훅
+└── proof-server/                # proof server용 Docker 설정
+    └── Dockerfile
+```
+
+## The leaderboard contract
+
+리더보드 컨트랙트는 Compact로 작성했습니다. 플레이어가 표시 이름을 골라 점수를 제출하고, 신원을 드러내지 않고 자신의 엔트리임을 증명하는 프라이버시 보존 애플리케이션을 어떻게 만드는지 보여주는 예제입니다.
+
+전체 컨트랙트는 다음과 같습니다.
+
+```compact
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+struct ScoreEntry {
+  score: Uint<64>,
+  displayName: Bytes<32>,
+  ownerHash: Bytes<32>
+}
+
+export ledger scores: Map<Uint<64>, ScoreEntry>;
+export ledger nextId: Counter;
+
+witness localSecretKey(): Bytes<32>;
+witness getCustomName(): Bytes<32>;
+
+export circuit ownerCommitment(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "leaderboard:owner:"), sk]);
+}
+
+export circuit submitScore(
+  score: Uint<64>,
+  useCustomName: Boolean
+): [] {
+  const sk = localSecretKey();
+  const ownerHash = ownerCommitment(sk);
+  nextId.increment(1);
+  const entryId = disclose(nextId.read() as Uint<64>);
+  if (disclose(useCustomName)) {
+    const customName = getCustomName();
+    scores.insert(entryId, ScoreEntry {
+      score: disclose(score),
+      displayName: disclose(customName),
+      ownerHash: disclose(ownerHash)
+    });
+  } else {
+    scores.insert(entryId, ScoreEntry {
+      score: disclose(score),
+      displayName: disclose(persistentHash<Bytes<32>>(sk)),
+      ownerHash: disclose(ownerHash)
+    });
+  }
+}
+
+export circuit verifyOwnership(targetEntryId: Uint<64>): [] {
+  assert(scores.member(disclose(targetEntryId)), "entry not found");
+  const entry = scores.lookup(disclose(targetEntryId));
+  const callerHash = ownerCommitment(localSecretKey());
+  assert(callerHash == entry.ownerHash, "not the owner");
+}
+```
+
+컨트랙트는 크게 세 부분으로 나뉩니다.
+
+### Ledger state
+
+리더보드 상태는 두 개의 공개 필드로 온체인에 기록됩니다.
+
+- `scores`: 제출된 모든 엔트리를 자동 증가 ID로 저장하는 `Map<Uint<64>, ScoreEntry>`입니다. 각 `ScoreEntry`에는 점수, 표시 이름, 소유권 commitment가 담깁니다.
+- `nextId`: 새 엔트리마다 고유 ID를 부여하는 자동 증가 `Counter`입니다.
+
+### Circuits
+
+export된 세 개의 circuit이 컨트랙트의 동작을 정의합니다.
+
+- `ownerCommitment(sk)`: `persistentHash`로 secret key에서 온체인 신원을 파생하는 헬퍼 circuit입니다. 결정적인 commitment를 만들어 두면 secret을 드러내지 않고도 나중에 저장·검증할 수 있습니다.
+- `submitScore(score, useCustomName)`: 새 리더보드 엔트리를 만듭니다. `localSecretKey` witness로 secret key를 가져와 소유자 commitment를 계산한 뒤 `scores`에 새 `ScoreEntry`를 넣습니다. `useCustomName` 플래그는 표시 이름을 `getCustomName` witness에서 가져올지, secret key 해시에서 직접 파생할지를 결정합니다.
+- `verifyOwnership(targetEntryId)`: 특정 엔트리의 소유자임을 증명합니다. 엔트리를 조회하고 secret key로 소유자 commitment를 다시 계산한 뒤, 저장된 `ownerHash`와 일치하는지 assert합니다. ledger에는 아무것도 기록하지 않습니다.
+
+### Witnesses
+
+컨트랙트에는 두 개의 witness 함수가 있습니다.
+
+- `localSecretKey()`: private state에서 secret key를 반환합니다. 이 키는 온체인에도, 생성된 proof에도 절대 나타나지 않습니다.
+- `getCustomName()`: TypeScript 호스트가 런타임에 제공하는 커스텀 표시 이름을 반환합니다. 어떤 값을 넘길지는 선택한 프라이버시 모드에 따라 TypeScript 레이어가 결정합니다.
+
+## Prerequisites
+
+리더보드 예제를 다루기 전에 다음이 준비되어 있어야 합니다.
+
+- Node.js v22 이상
+- Docker Desktop 설치 및 실행
+- Compact toolchain 설치
+- Lace wallet 브라우저 확장 프로그램 설치
+
+자세한 내용은 [toolchain 설치](../../getting-started/installation)를 참조하세요.
+
+## Set up the example
+
+### Clone the repository
+
+GitHub에서 리더보드 예제를 받으세요.
+
+```bash
+git clone https://github.com/midnightntwrk/midnight-leaderboard.git
+cd midnight-leaderboard
+```
+
+### Install dependencies
+
+필요한 Node.js 패키지를 모두 설치하세요.
+
+```bash
+npm install
+```
+
+contract, API, UI 컴포넌트의 패키지가 함께 설치됩니다.
+
+## Start the proof server
+
+proof server는 비공개 데이터를 보호하기 위해 트랜잭션의 ZK proof를 로컬에서 생성합니다. 컨트랙트를 배포하거나 호출하려면 먼저 실행되어 있어야 합니다.
+
+proof server를 실행하세요.
+
+```bash
+docker run -p 6300:6300 midnightntwrk/proof-server:8.0.3 -- midnight-proof-server -v
+```
+
+:::tip[proof server를 계속 실행해 두세요]
+DApp을 사용하는 동안 proof server는 계속 떠 있어야 합니다.
+:::
+
+## Compile the contract
+
+프로젝트 루트에서 새 터미널 창을 열고 `contract` 디렉터리로 이동하세요.
+
+```bash
+cd contract
+npm run compact
+```
+
+컨트랙트가 컴파일되면서 TypeScript 바인딩, circuit 키, ZKIR 파일이 `contract/managed/leaderboard/`에 생성됩니다.
+
+출력은 다음과 같습니다.
+
+```text
+Compiling 2 circuits:
+  circuit "submitScore" (k=13, rows=4720)
+  circuit "verifyOwnership" (k=13, rows=2352)
+```
+
+contract와 API 패키지를 빌드하세요.
+
+```bash
+cd ..
+npm run build
+```
+
+## Set up the wallet
+
+브라우저 DApp은 온체인 트랜잭션을 위해 Lace wallet에 연결합니다.
+
+1. [Lace](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) 브라우저 확장 프로그램을 설치하고 새 wallet을 만드세요.
+2. 네트워크를 **Preprod**로 설정하세요.
+3. proof server를 `http://localhost:6300`으로 설정하세요.
+4. [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)에서 tNIGHT을 받아 wallet에 충전하세요.
+5. Tokens로 이동해 **Generate tDUST**를 클릭하고 트랜잭션을 확인하세요.
+
+:::note[tDUST에 대하여]
+Preprod에서 트랜잭션 수수료를 내려면 tDUST이 필요합니다. tDUST은 보유한 tNIGHT 잔액에서 생성됩니다.
+:::
+
+## Run the browser DApp
+
+`leaderboard-ui` 디렉터리로 이동해 의존성을 설치하고 개발 서버를 실행하세요.
+
+```bash
+cd leaderboard-ui
+npm install
+npm run dev
+```
+
+브라우저에서 `http://localhost:3000`을 여세요. 리더보드 UI가 로드되면서 Preprod indexer에 연결됩니다.
+
+## Interact with the leaderboard
+
+### Connect your wallet
+
+UI 우측 상단의 **Connect Wallet**을 클릭하세요. Lace가 연결 승인을 요청합니다. 승인하면 wallet 주소와 tDUST 잔액이 헤더에 표시됩니다.
+
+### Deploy a new contract
+
+**Deploy Contract**를 클릭하세요. UI가 `LeaderboardAPI.deploy()`를 호출해 Lace를 통해 배포 트랜잭션을 제출합니다. Preprod에서 트랜잭션이 확정될 때까지 기다리세요.
+
+:::note[트랜잭션 소요 시간]
+네트워크가 트랜잭션과 ZK proof를 처리해야 하므로, Preprod에서 컨트랙트 배포에는 보통 20~30초가 걸립니다.
+:::
+
+확정되면 컨트랙트 주소가 UI에 표시됩니다.
+
+### Submit a score
+
+게임 영역에는 점수 카운터가 있습니다. 게임을 플레이하거나 점수를 직접 입력한 다음, 제출 전에 표시 이름 모드를 고르세요.
+
+- **커스텀 이름**: 최대 32자까지 입력합니다. `getCustomName` witness가 이 값을 circuit에 전달합니다.
+- **공개 주소**: `getCustomName` witness가 wallet 주소를 표시 이름으로 넘깁니다.
+- **익명**: 컨트랙트가 `getCustomName` witness를 호출하지 않습니다. 대신 circuit이 `persistentHash(secretKey)`를 표시 이름으로 저장합니다. 소유자 commitment를 계산해야 하므로 `localSecretKey` witness는 그대로 호출됩니다. UI는 익명 엔트리를 "Crimson Tiger" 같은 생성 이름으로 표시합니다.
+
+**Submit Score**를 클릭하면 UI는 다음 순서로 동작합니다.
+
+1. `localSecretKey` witness로 private state에서 secret key를 가져옵니다.
+2. `ownerCommitment(secretKey)`로 소유자 commitment를 계산합니다.
+3. proof server로 ZK proof를 로컬에서 생성합니다.
+4. Lace를 통해 트랜잭션을 제출합니다.
+5. 확정을 기다린 뒤 리더보드를 갱신합니다.
+
+:::info[프라이버시 보호]
+secret key는 사용자 기기를 절대 벗어나지 않습니다. 네트워크로 무언가 전송되기 전에 proof server가 로컬에서 ZK proof를 생성합니다.
+:::
+
+### View the leaderboard
+
+리더보드 표는 트랜잭션이 확정될 때마다 자동으로 갱신됩니다. wallet 연결 없이 Preprod indexer에서 상태를 직접 읽어옵니다. 익명 엔트리는 생성된 이름으로 표시되고, 커스텀 이름과 공개 주소 엔트리는 제출한 그대로 표시됩니다.
+
+### Verify entry ownership
+
+자신의 엔트리 옆에 있는 **Verify Ownership**을 클릭하세요. UI가 `verifyOwnership(entryId)`를 호출해, 보유한 secret key가 엔트리에 저장된 `ownerHash`와 일치한다는 ZK proof를 생성합니다. circuit은 ledger에 아무것도 쓰지 않고 온체인에서 일치 여부만 assert합니다.
+
+성공 메시지가 뜨면 소유권이 확인된 것입니다. wallet에 해당 엔트리의 secret key가 없으면 assert가 실패하고, 트랜잭션은 네트워크에 닿기 전에 proof server가 로컬에서 거부합니다.
+
+:::caution[같은 브라우저에서만 동작합니다]
+secret key는 로컬 private state 저장소에 있으므로, 소유권 검증은 엔트리를 제출한 브라우저와 wallet 인스턴스에서만 동작합니다.
+:::
+
+### Read state without a wallet
+
+wallet을 연결하지 않아도 리더보드를 볼 수 있습니다. UI는 `LeaderboardIndexerProvider`로 indexer에서 `scores` 맵을 직접 가져옵니다. 읽기 전용 접근이며, 점수 제출과 소유권 검증에는 wallet 연결이 필요합니다.
+
+## Next steps
+
+리더보드 예제를 이해했다면 다음으로 넘어가 보세요.
+
+- **GitHub 저장소 살펴보기**: [리더보드 저장소](https://github.com/midnightntwrk/midnight-leaderboard)
+- **직접 만들어 보기**: [리더보드 튜토리얼](../../tutorials/leaderboard/overview)을 따라가면 DApp의 모든 레이어를 처음부터 만들어 볼 수 있습니다.
+- **Bulletin board 예제 살펴보기**: [Bulletin board DApp](./bboard)은 CLI 인터페이스에 단일 상태 컨트랙트를 쓰는 더 간단한 출발점입니다.

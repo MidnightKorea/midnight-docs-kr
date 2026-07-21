@@ -3,7 +3,8 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Tokens on Midnight
 description: "Midnight 네트워크의 NIGHT, DUST, shielded·unshielded 토큰, custom token, 수수료를 이해합니다."
-id: index
+sidebar_label: 개요
+sidebar_position: 1
 tags: [tokens, night, dust, shielded, unshielded, fees, custom-tokens]
 ---
 
@@ -32,6 +33,8 @@ NIGHT과 custom token 모두 shielded 상태와 unshielded 상태 사이를 오�
 ## Custom tokens
 
 Compact로 직접 fungible 토큰과 non-fungible 토큰을 만들 수 있습니다. standard library는 새 토큰을 mint하는 `mintShieldedToken`(및 unshielded 대응 함수)과, 이를 전송하는 `sendShielded` / `receiveShielded`를 제공합니다. Midnight의 토큰 표준은 MIP(Midnight Improvement Proposal) 절차를 통해 마련될 예정입니다. 그때까지는 [OpenZeppelin contracts for Compact](/sdks/community/openzeppelin-compact-contracts) 라이브러리가 Solidity 원본을 본떠 만든 재사용 가능한 access control·보안 primitive를 제공합니다.
+
+직접 토큰을 만들고 전송하는 전 과정을 따라가려면 2부작 튜토리얼을 참고하세요. [unshielded 토큰 만들고 전송하기](/tokens/unshielded-token)와 [shielded 토큰 만들고 전송하기](/tokens/shielded-token)입니다.
 
 ## Fees
 

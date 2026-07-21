@@ -44,17 +44,16 @@ touch package.json
     "vite-plugin-wasm": "^3.5.0"
   },
   "dependencies": {
-    "@midnight-ntwrk/compact-js": "^2.5.0",
-    "@midnight-ntwrk/compact-runtime": "^0.16.0",
-    "@midnight-ntwrk/dapp-connector-api": "^4.0.1",
-    "@midnight-ntwrk/ledger-v8": "^8.0.3",
-    "@midnight-ntwrk/midnight-js-contracts": "^4.0.4",
-    "@midnight-ntwrk/midnight-js-fetch-zk-config-provider": "^4.0.4",
-    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "^4.0.4",
-    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "^4.0.4",
-    "@midnight-ntwrk/midnight-js-network-id": "^4.0.4",
-    "@midnight-ntwrk/midnight-js-types": "^4.0.4",
-    "@midnight-ntwrk/midnight-js-utils": "^4.0.4",
+    "@midnight-ntwrk/compact-js": "2.5.1",
+    "@midnight-ntwrk/dapp-connector-api": "4.0.1",
+    "@midnight-ntwrk/midnight-js-contracts": "4.1.1",
+    "@midnight-ntwrk/midnight-js-fetch-zk-config-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-network-id": "4.1.1",
+    "@midnight-ntwrk/midnight-js-protocol": "4.1.1",
+    "@midnight-ntwrk/midnight-js-types": "4.1.1",
+    "@midnight-ntwrk/midnight-js-utils": "4.1.1",
     "fp-ts": "^2.16.11",
     "graphql": "^16.11.0",
     "effect": "^3.14.0",
@@ -139,7 +138,7 @@ touch contract/leaderboard.compact
 이 컨트랙트는 자동 증가하는 counter를 키로 하는 `Map`에 저장되는 `ScoreEntry` struct를 정의합니다. `witness` 함수를 통해 프론트엔드가 필요할 때 비공개 데이터를 circuit에 전달할 수 있습니다.
 
 ```compact
-pragma language_version >= 0.23;
+pragma language_version 0.23;
 
 import CompactStandardLibrary;
 

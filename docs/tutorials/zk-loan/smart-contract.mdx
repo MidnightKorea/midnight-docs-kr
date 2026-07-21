@@ -36,7 +36,7 @@ node --version
 ```
 
 :::caution Node 20 will crash mid-sync
-이 DApp은 `@midnight-ntwrk/wallet-sdk-shielded`를 사용하는데, 이 패키지는 shielded wallet 상태에서 `Map.prototype.values().map(...)`을 호출합니다. 여기에는 Node 22에 추가된 [Iterator helpers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator)가 필요합니다. Node 20에서는 wallet이 시작되는 듯 보이다가 첫 sync 업데이트에서 `state.pendingOutputs.values.map is not a function` 오류로 죽습니다. [nvm](https://github.com/nvm-sh/nvm)을 사용한다면 저장소 루트에 `22`(또는 원하는 22 이상 릴리스)가 담긴 `.nvmrc` 파일을 두어 `nvm use`가 자동으로 인식하게 하세요.
+이 DApp은 `@midnight-ntwrk/wallet-sdk` barrel(shielded wallet을 재export합니다)을 사용하는데, 이 패키지는 shielded wallet 상태에서 `Map.prototype.values().map(...)`을 호출합니다. 여기에는 Node 22에 추가된 [Iterator helpers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator)가 필요합니다. Node 20에서는 wallet이 시작되는 듯 보이다가 첫 sync 업데이트에서 `state.pendingOutputs.values.map is not a function` 오류로 죽습니다. [nvm](https://github.com/nvm-sh/nvm)을 사용한다면 저장소 루트에 `22`(또는 원하는 22 이상 릴리스)가 담긴 `.nvmrc` 파일을 두어 `nvm use`가 자동으로 인식하게 하세요.
 :::
 
 Midnight Compact 컴파일러를 설치하세요. [설치 가이드](/getting-started/installation)의 안내에 따라 시스템에 Compact toolchain을 설치합니다.
@@ -49,9 +49,9 @@ compact compile --version
 
 `compact update`를 실행해 최신 Compact toolchain을 설치하세요. 워크스페이스 `package.json`은 `@midnight-ntwrk/compact-runtime: ^0.16.0`을 선언하며, 이는 최신 `compact compile`이 생성하는 버전과 일치합니다.
 
-:::note compact-js's nested compact-runtime
+:::note Midnight JS 4.1.x protocol ACL
 
-`compact-js@2.5.0`은 `compact-runtime@0.15.0`을 정확히 고정(exact-pin)하지만, 이 고정은 compact-js 내부 의존성 해석에만 적용됩니다. npm은 `0.15` 빌드를 `node_modules/@midnight-ntwrk/compact-js/node_modules/` 안에 중첩해 두고, 최상위에서는 애플리케이션 코드에 `0.16`을 제공합니다. 워크스페이스 수준의 버전 충돌은 없으며, 중첩된 사본에 대해 따로 조치할 필요는 없습니다.
+Midnight JS **4.1.x**부터는 직접 작성한 코드에서 protocol 패키지(`ledger`, `compact-runtime`, `compact-js`, `onchain-runtime`, `platform-js`)를 더 이상 직접 import하지 않습니다. 대신 버전에 구애받지 않는 **`@midnight-ntwrk/midnight-js-protocol`** ACL 패키지의 subpath import로 가져옵니다. 예를 들면 `@midnight-ntwrk/midnight-js-protocol/compact-runtime`입니다. `@midnight-ntwrk/compact-runtime`은 여전히 직접 의존성으로 선언되어 있는데, 컴파일러가 생성한 컨트랙트 코드가 이를 직접 import하기 때문입니다. 다만 직접 작성하는 import는 모두 protocol subpath를 가리켜야 합니다. 이렇게 하면 코드가 특정 ledger 메이저 버전에 묶이지 않습니다.
 
 :::
 
@@ -91,23 +91,18 @@ cat > package.json << 'EOF'
     "vitest": "^4.0.15"
   },
   "dependencies": {
-    "@midnight-ntwrk/compact-js": "^2.5.0",
     "@midnight-ntwrk/compact-runtime": "^0.16.0",
-    "@midnight-ntwrk/ledger-v8": "8.0.3",
-    "@midnight-ntwrk/midnight-js-contracts": "4.0.4",
-    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.0.4",
-    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.0.4",
-    "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.0.4",
-    "@midnight-ntwrk/midnight-js-network-id": "4.0.4",
-    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "4.0.4",
-    "@midnight-ntwrk/midnight-js-types": "4.0.4",
-    "@midnight-ntwrk/midnight-js-utils": "4.0.4",
-    "@midnight-ntwrk/wallet-sdk-address-format": "3.1.0",
-    "@midnight-ntwrk/wallet-sdk-dust-wallet": "3.0.0",
-    "@midnight-ntwrk/wallet-sdk-facade": "3.0.0",
-    "@midnight-ntwrk/wallet-sdk-hd": "3.0.0",
-    "@midnight-ntwrk/wallet-sdk-shielded": "2.1.0",
-    "@midnight-ntwrk/wallet-sdk-unshielded-wallet": "2.1.0",
+    "@midnight-ntwrk/midnight-js-contracts": "4.1.1",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-network-id": "4.1.1",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-protocol": "4.1.1",
+    "@midnight-ntwrk/midnight-js-types": "4.1.1",
+    "@midnight-ntwrk/midnight-js-utils": "4.1.1",
+    "@midnight-ntwrk/wallet-sdk": "1.2.0",
+    "@midnight-ntwrk/wallet-sdk-address-format": "3.1.2",
     "@scure/bip39": "^2.0.1",
     "dotenv": "^17.2.3",
     "pino": "^10.1.0",
@@ -117,16 +112,25 @@ cat > package.json << 'EOF'
   },
   "overrides": {
     "smoldot": "npm:@aspect-build/empty@0.0.0",
-    "@midnight-ntwrk/ledger-v8": "8.0.3",
-    "@midnight-ntwrk/midnight-js-network-id": "4.0.4"
+    "@midnight-ntwrk/ledger-v8": "8.1.0",
+    "@midnight-ntwrk/midnight-js-network-id": "4.1.1"
   },
   "resolutions": {
-    "@midnight-ntwrk/ledger-v8": "8.0.3",
-    "@midnight-ntwrk/midnight-js-network-id": "4.0.4"
+    "@midnight-ntwrk/ledger-v8": "8.1.0",
+    "@midnight-ntwrk/midnight-js-network-id": "4.1.1"
   }
 }
 EOF
 ```
+
+:::note 4.0.x에서 달라진 점
+
+- `@midnight-ntwrk/compact-js`와 `@midnight-ntwrk/ledger-v8` 직접 의존성이 사라졌습니다. 둘 다 새로 추가된 `@midnight-ntwrk/midnight-js-protocol`을 통해 가져옵니다.
+- 개별 wallet-sdk 하위 패키지 5개(`-facade`, `-hd`, `-shielded`, `-dust-wallet`, `-unshielded-wallet`)가 `@midnight-ntwrk/wallet-sdk` barrel 하나로 통합되었습니다. barrel은 정확한 버전(`1.2.0`)으로 고정하세요. npm의 `latest` dist-tag는 아직 `1.1.0`을 가리키고 있어서, caret 범위를 쓰면 조용히 구버전으로 해석됩니다.
+- 모든 `@midnight-ntwrk/midnight-js-*` 패키지가 `4.1.1`로 올라가고, `overrides`/`resolutions`로 고정한 ledger는 `8.1.0`으로 이동합니다.
+- `@midnight-ntwrk/compact-runtime`은 직접 의존성으로 남습니다. 컴파일러가 생성한 컨트랙트 코드가 이를 직접 import하기 때문입니다.
+
+:::
 
 다음으로, 아래 명령으로 `.gitignore`를 생성합니다:
 
@@ -648,7 +652,7 @@ witness는 proving 시점에 ZK circuit에 private 데이터를 제공하는 Typ
 
 ```typescript
 import { Ledger } from "./managed/zkloan-credit-scorer/contract/index.js";
-import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
+import { WitnessContext } from "@midnight-ntwrk/midnight-js-protocol/compact-runtime";
 
 export type SchnorrSignature = {
   announcement: { x: bigint; y: bigint };
@@ -784,7 +788,7 @@ cat > contract/tsconfig.json << 'EOF'
     "lib": ["ESNext"],
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
@@ -798,6 +802,12 @@ cat > contract/tsconfig.json << 'EOF'
 }
 EOF
 ```
+
+:::note `moduleResolution: bundler`가 필요합니다
+
+Midnight JS 4.1.x는 protocol 패키지의 `exports` subpath 맵(`@midnight-ntwrk/midnight-js-protocol/compact-runtime`, `/ledger`, `/compact-js` 등)을 사용합니다. 레거시 `moduleResolution: node` 리졸버는 이 맵을 읽지 못합니다. protocol subpath에서 import하는 모든 워크스페이스에 `bundler`, `node16`, `nodenext` 중 하나를 사용하세요.
+
+:::
 
 `contract/tsconfig.build.json`을 생성합니다:
 

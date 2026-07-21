@@ -3,7 +3,9 @@ label: 'Tokens'
 collapsible: true
 collapsed: true
 link:
-  type: doc
-  id: index
+  type: generated-index
+  slug: /tokens
+  title: Tokens
+  description: Midnight의 NIGHT, DUST, shielded·unshielded 토큰, custom token, 수수료, 그리고 직접 토큰을 만들고 전송하는 방법을 다룹니다.
 customProps:
-  description: "NIGHT, DUST, shielded and unshielded tokens, custom tokens, and fees on Midnight."
+  description: "Midnight의 NIGHT, DUST, shielded·unshielded 토큰, custom token, 수수료, 그리고 직접 토큰을 만들고 전송하는 방법을 다룹니다."

@@ -50,7 +50,7 @@ tags: ["tutorial", "dapp", "leaderboard", "compact", "privacy", "lace", "typescr
 시작하기 전에 다음 도구를 설치해야 합니다.
 
 - [Node.js v22+](https://nodejs.org/) (필요하면 `nvm install 22`을 사용하세요).
-- [Compact 툴체인](https://docs.midnight.network/getting-started/installation#install-compact) (컴파일러 버전 0.31.0).
+- [Compact 툴체인](https://docs.midnight.network/getting-started/installation#install-compact).
 - [Docker](https://docs.docker.com/desktop/) (로컬 proof 서버용).
 - [Lace 지갑](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) 브라우저 확장.
 
@@ -87,7 +87,7 @@ midnight-leaderboard/
 │       ├── main.tsx        # Buffer polyfill이 포함된 진입점
 │       ├── contexts/       # Lace 지갑 provider 브리지
 │       └── hooks/          # Indexer 읽기 hook
-├── proof-server/           # Railway 배포용 Docker 설정
+├── proof-server/           # 로컬 proof server용 Docker 설정
 │   └── Dockerfile
 ├── vercel.json             # 프론트엔드 배포 설정
 └── package.json            # 워크스페이스 루트
@@ -103,16 +103,3 @@ midnight-leaderboard/
 | [Part 2: TypeScript integration](./api-layer.mdx) | 컨트랙트 패키지, witness, 공용 API 레이어를 구성합니다. |
 | [Part 3: Browser DApp](./browser-dapp.mdx) | Lace 지갑 연결과 indexer 읽기를 갖춘 React 프론트엔드를 만듭니다. |
 | [Part 4: Production deployment](./deployment.mdx) | 프론트엔드를 Vercel에 배포합니다. |
-
-## Compatibility
-
-이 튜토리얼은 [호환성 매트릭스](https://docs.midnight.network/relnotes/support-matrix)에서 다음 버전을 기준으로 합니다.
-
-| Component | Version |
-|-----------|---------|
-| Compact compiler | 0.31.0 |
-| Compact runtime | 0.16.0 |
-| Ledger | 8.0.3 |
-| midnight-js | 4.0.4 |
-| DApp connector API | 4.0.1 |
-| proof server | 8.0.3 |

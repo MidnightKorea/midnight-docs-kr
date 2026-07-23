@@ -15,9 +15,9 @@ displayed_sidebar: sidebar
 
 ## 주요 변경 사항 요약
 
-Midnight Indexer 4.3.2는 개발 라인의 patch 릴리스로, Midnight 1.1 번들에 포함되어 배포됩니다. indexer-api에 kubernetes probe 연동용 HTTP `/live` liveness 엔드포인트를 추가하고, 종료 신호가 처리 중인 wallet 항목을 놓칠 수 있던 `dustGenerations` subscription 버그를 수정합니다.
+Midnight Indexer 4.3.2는 개발 라인의 patch 릴리스로, Midnight 1.1 번들에 포함되어 배포됩니다. indexer-api에 kubernetes probe 연동용 HTTP `/live` liveness 엔드포인트를 추가하고, 종료 신호가 처리 중인 지갑 항목을 놓칠 수 있던 `dustGenerations` subscription 버그를 수정합니다.
 
-이 릴리스는 Node 1.0.0, Ledger 8.1.0과 페어링됩니다. Node 0.22.x를 운영 중이라면 이 릴리스가 아니라 4.0.x 유지보수 라인을 따라가세요.
+이 릴리스는 노드 1.0.0, Ledger 8.1.0과 페어링됩니다. 노드 0.22.x를 운영 중이라면 이 릴리스가 아니라 4.0.x 유지보수 라인을 따라가세요.
 
 :::caution
 4.0.x 라인에서 4.3.2로 업그레이드하려면 indexer를 리셋하고 genesis부터 다시 인덱싱해야 합니다. mainnet/preprod 규모 기준 약 3~4일을 잡아 두세요. 4.3.x 라인 내부 업그레이드(4.3.0 → 4.3.1 → 4.3.2)는 리셋 없이 바로 적용됩니다.
@@ -27,16 +27,16 @@ Midnight Indexer 4.3.2는 개발 라인의 patch 릴리스로, Midnight 1.1 번�
 
 이 릴리스 노트는 다음과 같은 경우에 유용합니다:
 
-- Node 1.0.0 이상을 대상으로 Midnight Indexer를 운영하는 operator
-- `dustGenerations` subscription을 사용하는 wallet 연동 개발자
+- 노드 1.0.0 이상을 대상으로 Midnight Indexer를 운영하는 operator
+- `dustGenerations` subscription을 사용하는 지갑 연동 개발자
 - indexer-api에 kubernetes liveness probe를 구성하는 SRE
 
-Node 0.22.x를 운영 중인 operator는 이 릴리스가 아니라 4.0.x 유지보수 라인을 따라가야 합니다.
+노드 0.22.x를 운영 중인 operator는 이 릴리스가 아니라 4.0.x 유지보수 라인을 따라가야 합니다.
 
 ## 업데이트 요약
 
 - indexer-api에 kubernetes liveness probe용 `/live` HTTP 엔드포인트 추가
-- `dustGenerations` subscription 종료 판정을 wallet별 cursor 대신 체인 진행도 기준으로 수정
+- `dustGenerations` subscription 종료 판정을 지갑별 cursor 대신 체인 진행도 기준으로 수정
 - storage drain과 체인 진행도 읽기 사이의 race window를 닫는 re-drain 단계 추가
 
 ---
@@ -67,9 +67,9 @@ v4.3.2에는 breaking change가 없습니다. indexer 4.x 개발 라인을 이�
 
 ### `dustGenerations` subscription 종료 판정 수정
 
-사용자가 넘긴 `endIndex`가 wallet 소유 generation index와 일치하지 않으면 `dustGenerations` subscription이 live-tail 상태에서 멈출 수 있었습니다. 이제 종료 신호가 wallet별 cursor(`cursor > end_index` 엄격 비교) 대신 체인 진행도(`chain_first_free > end_index`)를 사용합니다. `dustNullifierTransactions`·`shieldedNullifierTransactions`와 같은 패턴입니다.
+사용자가 넘긴 `endIndex`가 지갑 소유 generation index와 일치하지 않으면 `dustGenerations` subscription이 live-tail 상태에서 멈출 수 있었습니다. 이제 종료 신호가 지갑별 cursor(`cursor > end_index` 엄격 비교) 대신 체인 진행도(`chain_first_free > end_index`)를 사용합니다. `dustNullifierTransactions`·`shieldedNullifierTransactions`와 같은 패턴입니다.
 
-`Progress`를 내보내기 전의 re-drain 단계가 storage drain 종료와 체인 진행도 읽기 사이의 작은 race window를 닫습니다. 체인의 현재 `dustGenerationEndIndex`를 `endIndex`로 넘기는 wallet은 이제 깔끔하게 종료됩니다.
+`Progress`를 내보내기 전의 re-drain 단계가 storage drain 종료와 체인 진행도 읽기 사이의 작은 race window를 닫습니다. 체인의 현재 `dustGenerationEndIndex`를 `endIndex`로 넘기는 지갑은 이제 깔끔하게 종료됩니다.
 
 ---
 

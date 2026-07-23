@@ -15,7 +15,7 @@ toc_max_heading_level: 2
 
 게시판 예제는 주요 Midnight 개념을 소개하는 프라이버시 중심 DApp입니다:
 
-- Compact에서 비공개 상태를 가진 스마트 컨트랙트 작성
+- Compact에서 private state를 가진 스마트 컨트랙트 작성
 - 영지식 증명을 사용하여 신원을 공개하지 않고 검증
 - 암호화 커밋 기반 접근 제어 구현
 
@@ -122,7 +122,7 @@ export circuit publicKey(sk: Bytes<32>, sequence: Bytes<32>): Bytes<32> {
 
 ### Witness
 
-컨트랙트는 하나의 witness 함수 `localSecretKey()`를 정의합니다. 이 함수는 circuit 실행 중에 사용자의 비밀 키를 온체인이나 생성된 proof에 노출하지 않고 반환합니다.
+컨트랙트는 하나의 witness 함수 `localSecretKey()`를 정의합니다. 이 함수는 circuit 실행 중에 사용자의 비밀 키를 온체인이나 생성된 증명에 노출하지 않고 반환합니다.
 
 ## Prerequisites
 
@@ -160,16 +160,16 @@ npm install
 
 ## Start the proof server
 
-proof 서버는 개인 데이터 보호를 위해 트랜잭션의 영지식 증명을 로컬에서 생성합니다. 컨트랙트 배포나 상호작용 시 반드시 실행 중이어야 합니다.
+proof server는 개인 데이터 보호를 위해 트랜잭션의 영지식 증명을 로컬에서 생성합니다. 컨트랙트 배포나 상호작용 시 반드시 실행 중이어야 합니다.
 
-다음 명령으로 proof 서버를 시작합니다:
+다음 명령으로 proof server를 시작합니다:
 
 ```bash
 docker run -p 6300:6300 midnightntwrk/proof-server:8.0.3 -- midnight-proof-server -v
 ```
 
 :::tip
-DApp을 사용하는 동안 proof 서버가 _반드시_ 실행 중이어야 합니다.
+DApp을 사용하는 동안 proof server가 _반드시_ 실행 중이어야 합니다.
 :::
 
 ## Compile the contract
@@ -257,13 +257,13 @@ Which would you like to do?
 
 ### Set up your wallet
 
-게시판 CLI는 Lace Midnight Preview 같은 브라우저 wallet과는 별도로, 로컬에서 실행되는 헤드리스 wallet을 사용합니다.
+게시판 CLI는 Lace Midnight Preview 같은 브라우저 지갑과는 별도로, 로컬에서 실행되는 헤드리스 지갑을 사용합니다.
 
 #### Create a new wallet
 
-메뉴에서 옵션 `1`을 선택하여 새 wallet을 만듭니다.
+메뉴에서 옵션 `1`을 선택하여 새 지갑을 만듭니다.
 
-CLI가 새 wallet을 생성하고 정보를 표시합니다:
+CLI가 새 지갑을 생성하고 정보를 표시합니다:
 
 ```
 Initializing wallet builder for preprod
@@ -275,14 +275,14 @@ Syncing wallet...
 ```
 
 :::warning 시드를 안전하게 보관하세요
-wallet 시드를 안전한 곳에 저장하세요. wallet 복구 시 시드가 필요합니다.
+wallet 시드를 안전한 곳에 저장하세요. 지갑 복구 시 시드가 필요합니다.
 :::
 
 #### Restore an existing wallet
 
-이미 wallet 시드가 있다면 옵션 `2`를 선택하여 시드로 wallet을 복원합니다.
+이미 지갑 시드가 있다면 옵션 `2`를 선택하여 시드로 지갑을 복원합니다.
 
-프롬프트가 나타나면 wallet 시드를 입력합니다:
+프롬프트가 나타나면 지갑 시드를 입력합니다:
 
 ```
 Which would you like to do? 2
@@ -291,15 +291,15 @@ Initializing wallet builder for preprod
 Building wallet without starting with configuration
 ```
 
-CLI가 wallet을 복원하고 주소와 잔액을 표시합니다.
+CLI가 지갑을 복원하고 주소와 잔액을 표시합니다.
 
 ### Get faucet tokens
 
 컨트랙트를 배포하려면 먼저 faucet에서 tNight 토큰을 받아야 합니다.
 
-1. CLI 출력에서 비차폐 주소를 복사합니다.
+1. CLI 출력에서 unshielded 주소를 복사합니다.
 2. [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)를 방문합니다.
-3. 비차폐 주소를 붙여넣습니다.
+3. unshielded 주소를 붙여넣습니다.
 4. **Request tokens**을 선택합니다.
 5. 트랜잭션이 확인될 때까지 기다립니다. 보통 1~2분 소요됩니다.
 
@@ -318,11 +318,11 @@ You can do one of the following:
 Which would you like to do?
 ```
 
-wallet이 tNight 보유량에서 컨트랙트 운영에 필요한 tDUST 네트워크 리소스를 자동으로 생성합니다.
+지갑이 tNight 보유량에서 컨트랙트 운영에 필요한 tDUST 네트워크 리소스를 자동으로 생성합니다.
 
 ### Deploy the contract
 
-wallet에 자금이 충전되면 게시판 컨트랙트를 Preprod에 배포할 수 있습니다.
+지갑에 자금이 충전되면 게시판 컨트랙트를 Preprod에 배포할 수 있습니다.
 
 Contract Actions 메뉴에서 옵션 `1`을 선택하여 새 게시판 컨트랙트를 배포합니다:
 
@@ -386,7 +386,7 @@ Current owner is: '0000000000000000000000000000000000000000000000000000000000000
 
 #### View private state
 
-옵션 `4`를 선택하여 자신만 볼 수 있는 비공개 상태를 확인합니다:
+옵션 `4`를 선택하여 자신만 볼 수 있는 private state를 확인합니다:
 
 ```
 Which would you like to do? 4
@@ -490,7 +490,7 @@ Which would you like to do? 6
  Shutting down test environment...
 ```
 
-CLI가 wallet을 정상 종료하고 테스트 환경을 중지합니다.
+CLI가 지갑을 정상 종료하고 테스트 환경을 중지합니다.
 
 ## Next steps
 

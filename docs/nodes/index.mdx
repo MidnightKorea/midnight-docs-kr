@@ -13,7 +13,7 @@ Midnight Node는 Midnight 네트워크 운영을 위한 핵심 인프라입니�
 
 Midnight Node의 주요 역할은 다음과 같습니다:
 
-* 영지식 증명을 사용해 프라이버시를 보존하는 스마트 컨트랙트 transaction을 처리합니다.
+* 영지식 증명을 사용해 프라이버시를 보존하는 스마트 컨트랙트 트랜잭션을 처리합니다.
 * 프로토콜 규칙을 적용하고 블록체인 상태 무결성을 유지합니다.
 * P2P 기능을 제공합니다: 노드 디스커버리, 연결 수립, 블록 gossip을 처리합니다.
 * 허가형 FNO(Federated Node Operators)와 등록형 SPO(Stake Pool Operators) validator를 모두 지원해 탈중앙화를 실현합니다.
@@ -85,7 +85,7 @@ Midnight Node의 주요 역할은 다음과 같습니다:
 |--------------------------------|------------------------------|
 | Block time                     | 6 seconds                    |
 | Session length                 | 1200 slots (2 hours)         |
-| Epoch length                   | 300 blocks                   |
+| Epoch length                   | 300 블록                   |
 | Hash function                  | `blake2_256`                 |
 | Account type                   | `sr25519` public key         |
 | P2P port                       | 30333 (default)              |
@@ -100,13 +100,13 @@ Midnight Node의 주요 역할은 다음과 같습니다:
 
 Midnight Node에는 코어 블록체인 기능을 구현하는 8개의 커스텀 pallet이 포함됩니다:
 
-* **pallet-midnight**: 코어 ledger 상태와 프라이버시 보존 transaction 처리를 담당합니다.
+* **pallet-midnight**: 코어 ledger 상태와 프라이버시 보존 트랜잭션 처리를 담당합니다.
 * **pallet-midnight-system**: 시스템 수준의 관리 작업을 담당합니다.
 * **pallet-cnight-observation**: cNIGHT 토큰 관리와 DUST 생성을 위한 Cardano 브리지 통합입니다.
 * **pallet-federated-authority**: 여러 기구의 합의가 필요한 다중 집단 거버넌스를 담당합니다.
 * **pallet-federated-authority-observation**: Cardano Mainchain과의 거버넌스 동기화를 담당합니다.
 * **pallet-system-parameters**: 거버넌스가 제어하는 네트워크 파라미터를 관리합니다.
-* **pallet-throttle**: 거버넌스 멤버 계정별로 서명 transaction 처리량을 제한합니다.
+* **pallet-throttle**: 거버넌스 멤버 계정별로 서명 트랜잭션 처리량을 제한합니다.
 * **pallet-version**: 런타임 버전 추적과 업그레이드 모니터링을 담당합니다.
 
 ## Signature schemes
@@ -119,7 +119,7 @@ Midnight Node는 작업 영역마다 서로 다른 암호화 방식을 사용합
 
 ## Node types
 
-* **[Full node](../nodes/full-node)**: transaction을 검증하고 현재 블록체인 상태를 유지합니다.
+* **[Full node](../nodes/full-node)**: 트랜잭션을 검증하고 현재 블록체인 상태를 유지합니다.
 * **[Archive node](../nodes/full-node#full-node-vs-archive-node)**: 모든 과거 상태를 포함한 전체 블록체인 기록을 저장합니다.
 * **[Boot node](../nodes/boot-node)**: 네트워크에 합류하는 노드에 초기 연결 지점을 제공합니다.
 * **[RPC node](../nodes/rpc-node)**: 외부 클라이언트가 사용할 HTTP/WebSocket API를 노출합니다.

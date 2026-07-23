@@ -8,7 +8,7 @@ sidebar_position: 20
 ---
 
 
-작동하는 게시판 DApp의 TypeScript 코드를 살펴봅니다. 컨트랙트 상호작용 로직과 비공개 상태 관리를 포함한 전체 코드베이스를 다룹니다.
+작동하는 게시판 DApp의 TypeScript 코드를 살펴봅니다. 컨트랙트 상호작용 로직과 private state 관리를 포함한 전체 코드베이스를 다룹니다.
 
 
 ## Prerequisites
@@ -25,16 +25,16 @@ TypeScript 코드는 세 개의 디렉토리에 걸쳐 있습니다:
 - `bboard-cli/src` - 메인 애플리케이션 실행 루프
 
 핵심 파일:
-- `contract/src/witnesses.ts` - 비공개 상태 및 witness 함수 정의
+- `contract/src/witnesses.ts` - private state 및 witness 함수 정의
 - `api/src/index.ts` - 애플리케이션 인터페이스 구현
 
 ## Define the private state
 
-블록체인은 모든 사용자에게 보이는 공개 컨트랙트 상태를 저장합니다. 비공개 상태는 각 DApp 인스턴스에 로컬로 유지되며 사용자마다 다릅니다. 컨트랙트는 비공개 상태 접근 함수의 타입만 선언하고, 함수 구현이나 비공개 상태 구조는 지정하지 않습니다. 생성된 컨트랙트 API는 비공개 상태 타입으로 특정 컴포넌트를 매개변수화합니다.
+블록체인은 모든 사용자에게 보이는 공개 컨트랙트 상태를 저장합니다. private state는 각 DApp 인스턴스에 로컬로 유지되며 사용자마다 다릅니다. 컨트랙트는 private state 접근 함수의 타입만 선언하고, 함수 구현이나 private state 구조는 지정하지 않습니다. 생성된 컨트랙트 API는 private state 타입으로 특정 컴포넌트를 매개변수화합니다.
 
-비공개 상태용 인터페이스나 타입 별칭을 정의하는 것이 모범 사례입니다.
+private state용 인터페이스나 타입 별칭을 정의하는 것이 모범 사례입니다.
 
-게시판의 비공개 상태에는 애플리케이션 수명 주기 동안 변하지 않는 사용자의 비밀 키가 포함됩니다. `localSecretKey()` witness가 이 값을 가져옵니다.
+게시판의 private state에는 애플리케이션 수명 주기 동안 변하지 않는 사용자의 비밀 키가 포함됩니다. `localSecretKey()` witness가 이 값을 가져옵니다.
 
 게시판 컨트랙트는 비밀 키를 바이트 배열로 선언하며, 이는 TypeScript의 `Uint8Array`에 해당합니다. `secretKey` 속성을 가진 `BBoardPrivateState`를 정의합니다:
 
@@ -55,14 +55,14 @@ export function createBBoardPrivateState(secretKey: Uint8Array): BBoardPrivateSt
 
 ## Initialize the private oracle
 
-영지식 증명 시스템은 비공개 상태에 접근하는 컴포넌트를 *오라클*이라고 부릅니다. 이 용어는 Midnight API와 문서 전반에서 사용됩니다.
+영지식 증명 시스템은 private state에 접근하는 컴포넌트를 *오라클*이라고 부릅니다. 이 용어는 Midnight API와 문서 전반에서 사용됩니다.
 
 `witnesses` 객체는 선언된 각 witness 함수에 대한 속성 또는 메서드가 필요합니다. `bboard.compact` contract는 하나의 witness 함수를 선언합니다: `localSecretKey`.
 
 ### Function structure
 
 함수 시그니처에는 다음이 포함됩니다:
-- **매개변수**: `WitnessContext` - ledger 상태, 비공개 상태 및 contract 주소를 포함
+- **매개변수**: `WitnessContext` - ledger 상태, private state 및 컨트랙트 주소를 포함
 - **반환값**: 다음을 포함하는 튜플:
   - 새 비공개 오라클 상태
   - witness 함수의 선언된 반환 타입과 일치하는 값
@@ -78,7 +78,7 @@ export function createBBoardPrivateState(secretKey: Uint8Array): BBoardPrivateSt
 
 ### Implementation
 
-`localSecretKey` 함수는 변경되지 않은 비공개 상태(상태를 수정하지 않으므로)와 컨트랙트 해시 생성 및 검증에 사용할 비밀 키 값을 반환합니다:
+`localSecretKey` 함수는 변경되지 않은 private state(상태를 수정하지 않으므로)와 컨트랙트 해시 생성 및 검증에 사용할 비밀 키 값을 반환합니다:
 
 ```typescript
 // 이 witness 함수는 Compact 컴파일러가 생성한 contract API와 통합됩니다
@@ -90,11 +90,11 @@ export const witnesses = createBBoardWitnesses<BBoardPrivateState>({
 ```
 
 :::important
-비공개 상태를 직접 변경하지 마세요. witness 함수에서 새 상태 값을 반환하세요.
+private state를 직접 변경하지 마세요. witness 함수에서 새 상태 값을 반환하세요.
 :::
 
 :::caution
-비공개 상태에 전역 변수를 사용하지 마세요. 항상 witness 함수에 전달된 값을 사용하세요.
+private state에 전역 변수를 사용하지 마세요. 항상 witness 함수에 전달된 값을 사용하세요.
 :::
 
 ## Invoke the post circuit
@@ -143,9 +143,9 @@ await this.deployedContract.callTx.takeDown([]);
 - **DeployContractOptions 객체**: 배포 구성 매개변수를 포함
 
 게시판 컨트랙트의 경우 `DeployContractOptions`에 다음이 필요합니다:
-- `privateStateKey`: `PrivateStateProvider`에 비공개 상태를 저장할 키
+- `privateStateKey`: `PrivateStateProvider`에 private state를 저장할 키
 - `contract`: Compact 컴파일러가 생성한, 실행 가능한 JavaScript를 포함하는 `Contract` 객체
-- `initialPrivateState`: `privateStateKey`로 저장되는 타입과 일치하는 초기 비공개 상태
+- `initialPrivateState`: `privateStateKey`로 저장되는 타입과 일치하는 초기 private state
 
 ### Configuration
 
@@ -154,7 +154,7 @@ await this.deployedContract.callTx.takeDown([]);
 ```typescript
 privateStateKey: 'bboard-private-state'
 ```
-구성된 provider에서 사용자 비공개 상태를 검색하기 위한 고유 식별자입니다. 기존 상태가 없으면 시스템이 이 키 아래에 새 상태를 생성하고 저장합니다.
+구성된 provider에서 사용자 private state를 검색하기 위한 고유 식별자입니다. 기존 상태가 없으면 시스템이 이 키 아래에 새 상태를 생성하고 저장합니다.
 
 #### Contract instance
 
@@ -176,7 +176,7 @@ export const bboardContractInstance = new Contract(witnesses);
 initialPrivateState: await getPrivateState(providers.privateStateProvider)
 ```
 
-`getPrivateState` 메서드는 기존 비공개 상태를 가져오거나 32바이트 랜덤 값으로 새 상태를 생성하여, 항상 유효한 비공개 상태에 접근할 수 있도록 합니다.
+`getPrivateState` 메서드는 기존 private state를 가져오거나 32바이트 랜덤 값으로 새 상태를 생성하여, 항상 유효한 private state에 접근할 수 있도록 합니다.
 
 ### Complete deployment call
 
@@ -215,11 +215,11 @@ npx turbo build
 
 ### Troubleshooting: ERR_UNSUPPORTED_DIR_IMPORT
 
-이 Node.js 오류는 `.zshrc`, `.bashrc`를 수정하거나 NVM으로 Node 버전을 변경한 뒤 환경 캐시 문제로 발생합니다.
+이 Node.js 오류는 `.zshrc`, `.bashrc`를 수정하거나 NVM으로 노드 버전을 변경한 뒤 환경 캐시 문제로 발생합니다.
 
 **해결 방법:**
 1. 새 터미널 창을 엽니다(`source ~/.zshrc`에 의존하지 마세요)
-2. Node 버전을 확인합니다: `nvm use 18`
+2. 노드 버전을 확인합니다: `nvm use 18`
 3. 캐시된 모듈을 삭제합니다:
    ```bash
    rm -rf node_modules/.cache

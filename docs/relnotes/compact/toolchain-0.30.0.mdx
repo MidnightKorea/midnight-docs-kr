@@ -7,7 +7,7 @@
 
 ## High-level summary
 
-Compact 툴체인 0.30부터 Midnight 원장 버전 8을 대상으로 합니다. 기존 버전(0.28, 0.29)은 원장 7 대상이었습니다. 원장 8 블록체인용 컨트랙트는 툴체인 0.30 이상으로 컴파일하세요. 이전 버전도 동작할 수 있지만 테스트되지 않았고, 알려진 버그가 있습니다. 원장 7용 컨트랙트는 툴체인 0.29 또는 이전 호환 버전을 사용하세요.
+Compact 툴체인 0.30부터 Midnight ledger 버전 8을 대상으로 합니다. 기존 버전(0.28, 0.29)은 ledger 7 대상이었습니다. ledger 8 블록체인용 컨트랙트는 툴체인 0.30 이상으로 컴파일하세요. 이전 버전도 동작할 수 있지만 테스트되지 않았고, 알려진 버그가 있습니다. ledger 7용 컨트랙트는 툴체인 0.29 또는 이전 호환 버전을 사용하세요.
 
 Compact devtools 0.5.0도 함께 릴리스됩니다. 툴체인 0.30.0 사용을 위해 devtools 업데이트가 **필수는 아니지만**, 새 기능이 포함되어 있습니다. 이미 설치되어 있다면 `compact self update`로 업데이트하세요. 미설치 시 https://github.com/midnightntwrk/compact/releases/tag/compact-v0.5.0 의 `curl` 명령으로 설치하세요.
 
@@ -17,7 +17,7 @@ Compact devtools 0.5.0도 함께 릴리스됩니다. 툴체인 0.30.0 사용을 
 
 ## What changed
 
-Midnight 원장 8.0을 대상으로 합니다. 사용자에게 영향을 미치던 여러 버그가 수정된 블록체인 버전입니다. 주요 변경 사항:
+Midnight ledger 8.0을 대상으로 합니다. 사용자에게 영향을 미치던 여러 버그가 수정된 블록체인 버전입니다. 주요 변경 사항:
 
 - 컴파일러가 `--ledger-version` 및 `--runtime-version` 플래그를 지원합니다
 - 컴파일러와 fixup 도구가 이제 `--compact-path` 및 `--trace-search` 플래그를 지원합니다
@@ -33,9 +33,9 @@ Midnight 원장 8.0을 대상으로 합니다. 사용자에게 영향을 미치�
 
 ### Ledger and runtime version flags
 
-**설명**: 컴파일러가 `--ledger-version` 플래그로 대상 원장 버전을, `--runtime-version` 플래그로 Compact 런타임 버전을 보고할 수 있습니다.
+**설명**: 컴파일러가 `--ledger-version` 플래그로 대상 ledger 버전을, `--runtime-version` 플래그로 Compact 런타임 버전을 보고할 수 있습니다.
 
-Compact 컨트랙트는 특정 버전의 Midnight 원장용으로 컴파일됩니다. 원장 버전에 따라 퍼블릭 상태 형식과 증명자/검증자 키 형식이 결정되며, 주 버전이 다른 원장에서는 일반적으로 동작하지 않습니다.
+Compact 컨트랙트는 특정 버전의 Midnight ledger용으로 컴파일됩니다. ledger 버전에 따라 퍼블릭 상태 형식과 증명자/검증자 키 형식이 결정되며, 주 버전이 다른 ledger에서는 일반적으로 동작하지 않습니다.
 
 `--ledger-version` 사용 예시:
 
@@ -44,7 +44,7 @@ $ compact compile --ledger-version
 ledger-8.0.0
 ```
 
-원장 버전은 [Midnight 원장](https://github.com/midnightntwrk/midnight-ledger) GitHub 저장소의 태그(또는 Git 커밋 해시나 브랜치 이름)에 대응합니다.
+ledger 버전은 [Midnight ledger](https://github.com/midnightntwrk/midnight-ledger) GitHub 저장소의 태그(또는 Git 커밋 해시나 브랜치 이름)에 대응합니다.
 
 생성된 JavaScript 코드는 특정 버전의 Compact 런타임을 import합니다. 1.0 이전까지는 마이너 버전에서도 호환성을 깨는 변경이 있을 수 있으므로, DApp에서 올바른 런타임 버전을 사용하는 것이 중요합니다. 생성된 코드가 버전 일치를 자동으로 확인합니다.
 
@@ -57,7 +57,7 @@ $ compact compile --runtime-version
 
 Compact 런타임 패키지는 [npm에서 사용 가능](https://www.npmjs.com/package/@midnight-ntwrk/compact-runtime)합니다.
 
-`format` 및 `fixup` 도구와 같은 다른 Compact 툴체인 도구는 원장이나 런타임 버전에 의존하지 않으므로 이 플래그를 인식하지 못합니다.
+`format` 및 `fixup` 도구와 같은 다른 Compact 툴체인 도구는 ledger이나 런타임 버전에 의존하지 않으므로 이 플래그를 인식하지 못합니다.
 
 ### Search path flags
 
@@ -83,7 +83,7 @@ https://docs.midnight.network/compact/reference/lang-ref 의 언어 레퍼런스
 
 **설명**: 생성된 TypeScript 코드에 이제 `ProvableCircuits<PS>` 타입과 `Contract` 클래스의 `provableCircuits` 필드가 포함됩니다. `ProvableCircuits`는 증명자 및 검증자 키가 있는 회로만 포함합니다.
 
-기존에는 TypeScript 코드에 `ImpureCircuits`와 `PureCircuits`만 있었습니다. Midnight.js는 `ImpureCircuits`로 증명이 필요한 회로 목록을 가져왔지만, 위트니스 호출만으로 비순수인 회로(원장 상태 미사용)는 증명이 불필요하며, 증명 시도 시 실패했습니다.
+기존에는 TypeScript 코드에 `ImpureCircuits`와 `PureCircuits`만 있었습니다. Midnight.js는 `ImpureCircuits`로 증명이 필요한 회로 목록을 가져왔지만, witness 호출만으로 비순수인 회로(ledger state 미사용)는 증명이 불필요하며, 증명 시도 시 실패했습니다.
 
 이제 `ProvableCircuits`로 증명이 필요한 회로만 정확히 구분합니다. `ProvableCircuits`는 항상 비순수이므로 `ImpureCircuits`에도 포함되어, **비호환성** 변경이 아닙니다.
 
@@ -113,7 +113,7 @@ Compact 런타임의 타입 `NativePoint`와 `CompactTypeNativePoint`도 `Jubjub
 
 ### It is a compiler error to use `persistentHash` or `persistentCommit` on opaque JavaScript values
 
-**변경 사항**: 불투명 JavaScript 값(`Opaque<'string'>` 또는 `Opaque<'Uint8Array'>`)을 포함하는 Compact 값에 표준 라이브러리 회로 `persistentHash` 또는 `persistentCommit`을 직접 또는 간접적으로(예: 구현에서 `persistentHash`를 사용하는 표준 라이브러리 회로를 통해) 사용하면 이제 컴파일러 오류가 발생합니다. 이는 표준 라이브러리 연산 `merkleTreePathRoot`과 원장 ADT `MerkleTree` 및 `HistoricMerkleTree` 삽입 연산에도 영향을 미칩니다.
+**변경 사항**: 불투명 JavaScript 값(`Opaque<'string'>` 또는 `Opaque<'Uint8Array'>`)을 포함하는 Compact 값에 표준 라이브러리 회로 `persistentHash` 또는 `persistentCommit`을 직접 또는 간접적으로(예: 구현에서 `persistentHash`를 사용하는 표준 라이브러리 회로를 통해) 사용하면 이제 컴파일러 오류가 발생합니다. 이는 표준 라이브러리 연산 `merkleTreePathRoot`과 ledger ADT `MerkleTree` 및 `HistoricMerkleTree` 삽입 연산에도 영향을 미칩니다.
 
 **영향**: 이전에 컴파일되던 일부 코드에서 이제 컴파일러 오류가 발생합니다.
 
@@ -156,7 +156,7 @@ Compact 런타임의 타입 `NativePoint`와 `CompactTypeNativePoint`도 `Jubjub
 - [Issue #81: `v0.28.0`에서 `Vector<32, Uint<8>>`에서 `Bytes<32>`로의 캐스트에 대한 제약 수가 두 배로 됨](https://github.com/LFDT-Minokawa/compact/issues/81)
 - [Issue #107: NullifiersNEClaimedNullifiers로 회로 호출 실패](https://github.com/LFDT-Minokawa/compact/issues/107)
 - [Issue #110: AllCommitmentsSubsetCheckFailure로 회로 호출 실패](https://github.com/LFDT-Minokawa/compact/issues/110)
-- [Issue #117: 컨트랙트 생성자에서 차폐 토큰을 발행할 수 없음](https://github.com/LFDT-Minokawa/compact/issues/117)
+- [Issue #117: 컨트랙트 생성자에서 shielded 토큰을 발행할 수 없음](https://github.com/LFDT-Minokawa/compact/issues/117)
 - [Issue #139: compactc의 include 및 모듈 파일 검색 순서가 직관적이지 않고 안전하지 않을 수 있음](https://github.com/LFDT-Minokawa/compact/issues/139)
 - [Issue #151: `sendUnshielded`와 `receiveUnshielded` 사용 시 회로 호출 실패](https://github.com/LFDT-Minokawa/compact/issues/151)
 - [Issue #155: 특화되지 않은 제네릭 Uint을 포함하는 타입 선언 실패](https://github.com/LFDT-Minokawa/compact/issues/155)

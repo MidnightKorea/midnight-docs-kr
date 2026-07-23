@@ -10,11 +10,11 @@ toc_max_heading_level: 2
 
 # Leaderboard DApp
 
-리더보드 smart contract는 Compact로 작성한 프라이버시 보존 점수 기록 예제입니다. 이 예제에서는 플레이어가 프라이버시 모드를 골라 점수를 제출하고, zero-knowledge(ZK) proof로 플레이어 신원을 보호하는 DApp을 만들어 봅니다.
+리더보드 스마트 컨트랙트는 Compact로 작성한 프라이버시 보존 점수 기록 예제입니다. 이 예제에서는 플레이어가 프라이버시 모드를 골라 점수를 제출하고, 영지식(ZK) 증명으로 플레이어 신원을 보호하는 DApp을 만들어 봅니다.
 
 이 예제에서 다루는 Midnight의 핵심 개념은 다음과 같습니다.
 
-- Compact의 `Map`과 커스텀 struct로 구조화된 온체인 데이터를 다루는 smart contract 작성
+- Compact의 `Map`과 커스텀 struct로 구조화된 온체인 데이터를 다루는 스마트 컨트랙트 작성
 - 소유자의 secret key를 드러내지 않고 ZK proof로 엔트리 소유권을 검증
 - witness를 조건부로 호출해 여러 프라이버시 모드를 구현
 - Lace wallet에 연결되는 브라우저 프론트엔드 구축
@@ -138,7 +138,7 @@ export된 세 개의 circuit이 컨트랙트의 동작을 정의합니다.
 
 컨트랙트에는 두 개의 witness 함수가 있습니다.
 
-- `localSecretKey()`: private state에서 secret key를 반환합니다. 이 키는 온체인에도, 생성된 proof에도 절대 나타나지 않습니다.
+- `localSecretKey()`: private state에서 secret key를 반환합니다. 이 키는 온체인에도, 생성된 증명에도 절대 나타나지 않습니다.
 - `getCustomName()`: TypeScript 호스트가 런타임에 제공하는 커스텀 표시 이름을 반환합니다. 어떤 값을 넘길지는 선택한 프라이버시 모드에 따라 TypeScript 레이어가 결정합니다.
 
 ## Prerequisites
@@ -171,7 +171,7 @@ cd midnight-leaderboard
 npm install
 ```
 
-contract, API, UI 컴포넌트의 패키지가 함께 설치됩니다.
+컨트랙트, API, UI 컴포넌트의 패키지가 함께 설치됩니다.
 
 ## Start the proof server
 
@@ -206,7 +206,7 @@ Compiling 2 circuits:
   circuit "verifyOwnership" (k=13, rows=2352)
 ```
 
-contract와 API 패키지를 빌드하세요.
+컨트랙트와 API 패키지를 빌드하세요.
 
 ```bash
 cd ..
@@ -217,11 +217,11 @@ npm run build
 
 브라우저 DApp은 온체인 트랜잭션을 위해 Lace wallet에 연결합니다.
 
-1. [Lace](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) 브라우저 확장 프로그램을 설치하고 새 wallet을 만드세요.
+1. [Lace](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) 브라우저 확장 프로그램을 설치하고 새 지갑을 만드세요.
 2. 네트워크를 **Preprod**로 설정하세요.
 3. proof server를 `http://localhost:6300`으로 설정하세요.
-4. [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)에서 tNIGHT을 받아 wallet에 충전하세요.
-5. Tokens로 이동해 **Generate tDUST**를 클릭하고 트랜잭션을 확인하세요.
+4. [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)에서 tNIGHT을 받아 지갑에 충전하세요.
+5. 토큰으로 이동해 **Generate tDUST**를 클릭하고 트랜잭션을 확인하세요.
 
 :::note[tDUST에 대하여]
 Preprod에서 트랜잭션 수수료를 내려면 tDUST이 필요합니다. tDUST은 보유한 tNIGHT 잔액에서 생성됩니다.
@@ -243,7 +243,7 @@ npm run dev
 
 ### Connect your wallet
 
-UI 우측 상단의 **Connect Wallet**을 클릭하세요. Lace가 연결 승인을 요청합니다. 승인하면 wallet 주소와 tDUST 잔액이 헤더에 표시됩니다.
+UI 우측 상단의 **Connect Wallet**을 클릭하세요. Lace가 연결 승인을 요청합니다. 승인하면 지갑 주소와 tDUST 잔액이 헤더에 표시됩니다.
 
 ### Deploy a new contract
 
@@ -260,7 +260,7 @@ UI 우측 상단의 **Connect Wallet**을 클릭하세요. Lace가 연결 승인
 게임 영역에는 점수 카운터가 있습니다. 게임을 플레이하거나 점수를 직접 입력한 다음, 제출 전에 표시 이름 모드를 고르세요.
 
 - **커스텀 이름**: 최대 32자까지 입력합니다. `getCustomName` witness가 이 값을 circuit에 전달합니다.
-- **공개 주소**: `getCustomName` witness가 wallet 주소를 표시 이름으로 넘깁니다.
+- **공개 주소**: `getCustomName` witness가 지갑 주소를 표시 이름으로 넘깁니다.
 - **익명**: 컨트랙트가 `getCustomName` witness를 호출하지 않습니다. 대신 circuit이 `persistentHash(secretKey)`를 표시 이름으로 저장합니다. 소유자 commitment를 계산해야 하므로 `localSecretKey` witness는 그대로 호출됩니다. UI는 익명 엔트리를 "Crimson Tiger" 같은 생성 이름으로 표시합니다.
 
 **Submit Score**를 클릭하면 UI는 다음 순서로 동작합니다.
@@ -277,21 +277,21 @@ secret key는 사용자 기기를 절대 벗어나지 않습니다. 네트워크
 
 ### View the leaderboard
 
-리더보드 표는 트랜잭션이 확정될 때마다 자동으로 갱신됩니다. wallet 연결 없이 Preprod indexer에서 상태를 직접 읽어옵니다. 익명 엔트리는 생성된 이름으로 표시되고, 커스텀 이름과 공개 주소 엔트리는 제출한 그대로 표시됩니다.
+리더보드 표는 트랜잭션이 확정될 때마다 자동으로 갱신됩니다. 지갑 연결 없이 Preprod indexer에서 상태를 직접 읽어옵니다. 익명 엔트리는 생성된 이름으로 표시되고, 커스텀 이름과 공개 주소 엔트리는 제출한 그대로 표시됩니다.
 
 ### Verify entry ownership
 
 자신의 엔트리 옆에 있는 **Verify Ownership**을 클릭하세요. UI가 `verifyOwnership(entryId)`를 호출해, 보유한 secret key가 엔트리에 저장된 `ownerHash`와 일치한다는 ZK proof를 생성합니다. circuit은 ledger에 아무것도 쓰지 않고 온체인에서 일치 여부만 assert합니다.
 
-성공 메시지가 뜨면 소유권이 확인된 것입니다. wallet에 해당 엔트리의 secret key가 없으면 assert가 실패하고, 트랜잭션은 네트워크에 닿기 전에 proof server가 로컬에서 거부합니다.
+성공 메시지가 뜨면 소유권이 확인된 것입니다. 지갑에 해당 엔트리의 secret key가 없으면 assert가 실패하고, 트랜잭션은 네트워크에 닿기 전에 proof server가 로컬에서 거부합니다.
 
 :::caution[같은 브라우저에서만 동작합니다]
-secret key는 로컬 private state 저장소에 있으므로, 소유권 검증은 엔트리를 제출한 브라우저와 wallet 인스턴스에서만 동작합니다.
+secret key는 로컬 private state 저장소에 있으므로, 소유권 검증은 엔트리를 제출한 브라우저와 지갑 인스턴스에서만 동작합니다.
 :::
 
 ### Read state without a wallet
 
-wallet을 연결하지 않아도 리더보드를 볼 수 있습니다. UI는 `LeaderboardIndexerProvider`로 indexer에서 `scores` 맵을 직접 가져옵니다. 읽기 전용 접근이며, 점수 제출과 소유권 검증에는 wallet 연결이 필요합니다.
+지갑을 연결하지 않아도 리더보드를 볼 수 있습니다. UI는 `LeaderboardIndexerProvider`로 indexer에서 `scores` 맵을 직접 가져옵니다. 읽기 전용 접근이며, 점수 제출과 소유권 검증에는 지갑 연결이 필요합니다.
 
 ## Next steps
 

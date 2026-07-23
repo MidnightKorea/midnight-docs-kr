@@ -153,9 +153,9 @@ disclose(witnessValue)
 
 **Message**: `"invalid type <T> for witness <W> return value: witness return values cannot include contract values"`
 
-**Triggers**: witness 함수가 contract 타입 값을 포함하는 반환 타입을 선언한 경우입니다.
+**Triggers**: witness 함수가 컨트랙트 타입 값을 포함하는 반환 타입을 선언한 경우입니다.
 
-**Fix**: witness 반환 타입에서 contract 타입 값을 모두 제거하세요. witness는 struct, enum 등 일반 타입은 반환할 수 있지만 contract 값은 반환할 수 없습니다. contract 관련 정보는 개별 필드로 나눠 전달하세요.
+**Fix**: witness 반환 타입에서 컨트랙트 타입 값을 모두 제거하세요. witness는 struct, enum 등 일반 타입은 반환할 수 있지만 컨트랙트 값은 반환할 수 없습니다. 컨트랙트 관련 정보는 개별 필드로 나눠 전달하세요.
 
 ## ZKIR generation errors
 
@@ -165,7 +165,7 @@ disclose(witnessValue)
 
 **Message**: `"cross-contract calls are not yet supported"`
 
-**Triggers**: contract가 cross-contract 호출을 시도했으나 ZKIR 출력 단계가 아직 이를 지원하지 않는 경우입니다.
+**Triggers**: 컨트랙트가 cross-contract 호출을 시도했으나 ZKIR 출력 단계가 아직 이를 지원하지 않는 경우입니다.
 
 **Fix**: 현재 컴파일러의 제약 사항입니다. 해당 기능이 제공될 때까지 cross-contract 호출을 사용하지 않도록 구조를 바꾸세요.
 
@@ -179,13 +179,13 @@ disclose(witnessValue)
 
 ## Runtime errors
 
-컴파일러가 아니라, 컴파일된 contract가 Midnight 런타임에서 실행될 때 발생하는 오류입니다.
+컴파일러가 아니라, 컴파일된 컨트랙트가 Midnight 런타임에서 실행될 때 발생하는 오류입니다.
 
 ### Base error class
 
 **Class**: `CompactError`
 
-**Description**: `CompactError`는 모든 contract 런타임 오류의 기반 클래스입니다. 이 타입을 catch하면 어떤 Compact contract 오류든 일괄적으로 처리할 수 있습니다.
+**Description**: `CompactError`는 모든 컨트랙트 런타임 오류의 기반 클래스입니다. 이 타입을 catch하면 어떤 Compact contract 오류든 일괄적으로 처리할 수 있습니다.
 
 ### Failed assertion
 
@@ -193,7 +193,7 @@ disclose(witnessValue)
 
 **Triggers**: Compact `assert` 식이 런타임에 `false`로 평가된 경우입니다.
 
-**Fix**: assertion 조건을 점검하세요. `<message>` 텍스트는 `assert`에 전달한 문자열입니다. 이를 단서로 contract 소스에서 해당 assertion을 찾아 조건이 충족되지 않은 이유를 확인하세요.
+**Fix**: assertion 조건을 점검하세요. `<message>` 텍스트는 `assert`에 전달한 문자열입니다. 이를 단서로 컨트랙트 소스에서 해당 assertion을 찾아 조건이 충족되지 않은 이유를 확인하세요.
 
 ### Runtime type error
 
@@ -209,7 +209,7 @@ disclose(witnessValue)
 
 **Triggers**: 스마트 컨트랙트를 컴파일한 Compact 컴파일러 버전과, 실행에 사용한 `@midnight-ntwrk/compact-runtime` 버전이 다른 경우입니다.
 
-**Fix**: 프로젝트의 `@midnight-ntwrk/compact-runtime`을 contract 빌드에 사용한 컴파일러 버전에 맞게 업데이트하세요. 또는 런타임 버전에 맞는 컴파일러로 contract를 다시 컴파일하세요.
+**Fix**: 프로젝트의 `@midnight-ntwrk/compact-runtime`을 컨트랙트 빌드에 사용한 컴파일러 버전에 맞게 업데이트하세요. 또는 런타임 버전에 맞는 컴파일러로 컨트랙트를 다시 컴파일하세요.
 
 :::info[Version compatibility]
 [호환성 매트릭스](../relnotes/support-matrix)를 참조하여 어떤 버전끼리 호환되는지 항상 확인하세요.

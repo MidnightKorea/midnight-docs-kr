@@ -23,7 +23,7 @@ v4.0.3은 릴리스 파이프라인 문제로 게시되지 않았으며, 모든 
 이 릴리스 노트는 다음과 같은 개발자에게 유용합니다:
 
 - Midnight.js로 DApp을 개발하면서 단일 barrel import 패키지를 원하는 경우
-- wallet 연동 DApp Connector API를 통한 proving을 구현하는 경우
+- 지갑 연동 DApp Connector API를 통한 proving을 구현하는 경우
 - burn address 또는 제3자 수신자에 대한 shielded output을 처리하는 경우
 - GitHub API 제한이 있는 CI 환경에서 compact fetch 흐름을 실행하는 경우
 
@@ -61,7 +61,7 @@ re-export 네임스페이스:
 
 ### `@midnight-ntwrk/midnight-js-dapp-connector-proof-provider`
 
-DApp Connector의 proving API를 Midnight.js `ProofProvider` 인터페이스에 맞춰 변환하는 패키지로, 독립형 proof server 없이 wallet에 proving을 위임할 수 있습니다.
+DApp Connector의 proving API를 Midnight.js `ProofProvider` 인터페이스에 맞춰 변환하는 패키지로, 독립형 proof server 없이 지갑에 proving을 위임할 수 있습니다.
 
 ```typescript
 import { dappConnectorProofProvider } from '@midnight-ntwrk/midnight-js-dapp-connector-proof-provider';
@@ -85,11 +85,11 @@ const proofProvider = await dappConnectorProofProvider(
 
 resolver가 지원하는 항목:
 
-- Wallet 소유 output
+- 지갑 소유 output
 - Shielded burn address output
 - 선택적 제3자 수신자 키 매핑
 
-이 변경으로 모든 output을 wallet 자체 키로 암호화하여 발생하던 phantom balance 문제가 방지됩니다.
+이 변경으로 모든 output을 지갑 자체 키로 암호화하여 발생하던 phantom balance 문제가 방지됩니다.
 
 ### 고수준 API에서 추가 암호화 매핑
 

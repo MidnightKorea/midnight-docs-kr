@@ -65,7 +65,7 @@ Midnight Indexer 1.0.0은 기존 Scala 구현을 대체하는 새로운 Rust 기
 
 #### Deprecated
 
-* Scala 기반 인덱서(더 이상 사용되지 않지만 전환 기간 중 운영 가능)
+* Scala 기반 indexer(더 이상 사용되지 않지만 전환 기간 중 운영 가능)
 
 
 ### Breaking Changes
@@ -75,9 +75,9 @@ Midnight Indexer 1.0.0은 기존 Scala 구현을 대체하는 새로운 Rust 기
 **영향**: API 엔드포인트는 유사하나, 내부 구현 및 성능 특성이 다릅니다
 **필요한 조치**:
 
-* 새로운 Rust 기반 인덱서에서 통합을 테스트하세요: `https://indexer-rs.testnet-02.midnight.network/api/v1/graphql`
+* 새로운 Rust 기반 indexer에서 통합을 테스트하세요: `https://indexer-rs.testnet-02.midnight.network/api/v1/graphql`
 * 이전 엔드포인트(`indexer.testnet-02...`)에서 마이그레이션을 시작하세요
-* 향후 릴리스에서 Scala 인덱서의 지원 종료를 모니터링하세요
+* 향후 릴리스에서 Scala indexer의 지원 종료를 모니터링하세요
 
 ### Known Issues
 
@@ -103,7 +103,7 @@ Midnight Indexer 1.0.0은 기존 Scala 구현을 대체하는 새로운 Rust 기
 
 ### Installation & Migration:
 
-* 새 인덱서 바이너리를 배포하세요
+* 새 indexer 바이너리를 배포하세요
 * 적절한 백엔드(SQLite 또는 PostgreSQL)에 연결하세요
 * API 통합을 새 엔드포인트로 변경하세요
 

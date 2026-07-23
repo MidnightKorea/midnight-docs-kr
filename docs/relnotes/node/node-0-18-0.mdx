@@ -14,7 +14,7 @@ displayed_sidebar: sidebar
 
 ## High-level summary
 
-이번 릴리스는 기존의 차폐(shielded) 트랜잭션과 더불어 비차폐(unshielded) 트랜잭션을 지원하고, tDUST 대신 DUST 기반 수수료를 도입한 새로운 토크노믹스 모델을 적용합니다.
+이번 릴리스는 기존의 shielded(shielded) 트랜잭션과 더불어 unshielded(unshielded) 트랜잭션을 지원하고, tDUST 대신 DUST 기반 수수료를 도입한 새로운 토크노믹스 모델을 적용합니다.
 Midnight generator는 Midnight toolkit으로 재설계되어 기능이 대폭 확장되었습니다.
 또한 Partner Chains v1.8.0으로 업그레이드됩니다.
 이번 릴리스에 포함된 호환성을 깨는 변경 때문에 체인 리셋이 필요하며, Preview 개발자와 스테이크 풀 운영자에게 영향이 있습니다.
@@ -32,7 +32,7 @@ Midnight generator는 Midnight toolkit으로 재설계되어 기능이 대폭 �
 
 이번 릴리스의 주요 변경 사항은 다음과 같습니다.
 
-- 기존 차폐 트랜잭션과 함께 비차폐 트랜잭션 도입
+- 기존 shielded 트랜잭션과 함께 unshielded 트랜잭션 도입
 - NIGHT 토큰에서 생성되는 새로운 DUST 수수료 메커니즘 적용
 - Partner Chains v1.8.0으로 업그레이드
 - Federated Authority Observation 기능 추가
@@ -49,7 +49,7 @@ Midnight generator는 Midnight toolkit으로 재설계되어 기능이 대폭 �
 
 ### Unshielded transactions
 
-이제 Midnight은 기존 차폐 트랜잭션에 더해 비차폐 트랜잭션도 지원합니다. 이로써 개발자는 자신의 사용 사례에 맞는 트랜잭션 유형을 선택할 수 있습니다.
+이제 Midnight은 기존 shielded 트랜잭션에 더해 unshielded 트랜잭션도 지원합니다. 이로써 개발자는 자신의 사용 사례에 맞는 트랜잭션 유형을 선택할 수 있습니다.
 
 ### DUST fee mechanism
 
@@ -59,8 +59,8 @@ Midnight generator는 Midnight toolkit으로 재설계되어 기능이 대폭 �
 
 Midnight generator는 개발자를 위한 커맨드라인 도구인 Midnight toolkit으로 재설계되었습니다. 이 새로운 툴킷으로 다음 작업을 수행할 수 있습니다.
 
-- 비차폐 토큰 전송
-- 컨트랙트 호출 사이에서 차폐 + 비차폐 토큰 전송
+- unshielded 토큰 전송
+- 컨트랙트 호출 사이에서 shielded + unshielded 토큰 전송
 - 로컬 및 원격 네트워크와 동기화
 - DUST 수수료 계산
 - 컴파일된 컨트랙트 실행

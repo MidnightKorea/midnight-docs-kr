@@ -29,7 +29,7 @@ displayed_sidebar: sidebar
 
 - ES2022 `Error.cause` 호환성을 위해 `IndexerFormattedError.cause`를 `.errors`로 이름 변경
 - signing key와 private state 내보내기 작업에 전체 password 정책 적용
-- `blockHeight`·`blockHash` 구성에 대한 contract 상태 방출
+- `blockHeight`·`blockHash` 구성에 대한 컨트랙트 상태 방출
 - `indexer-public-data-provider`의 오류 처리를 구조화된 오류 타입으로 강화
 - signing key 가져오기 시 값 검증 추가
 - loopback이 아닌 provider URL에서 평문 HTTP/WS 사용 시 경고 추가
@@ -55,7 +55,7 @@ testkit-js의 compose 구성이 이미지 버전을 매개변수로 받을 수 �
 
 ### `IndexerFormattedError.cause` → `.errors` 이름 변경
 
-ES2022의 `Error.cause` 슬롯은 규약상 단일 원인 오류를 담는 자리이지, 오류 모음을 담는 자리가 아닙니다. 이 자리를 GraphQL 오류 배열로 덮어쓰면 Node의 `util.inspect` 인과 체인, Sentry 그룹핑, 구조화 로거가 깨집니다. 이번 릴리스는 충돌을 피하기 위해 속성 이름을 `.errors`로 변경합니다.
+ES2022의 `Error.cause` 슬롯은 규약상 단일 원인 오류를 담는 자리이지, 오류 모음을 담는 자리가 아닙니다. 이 자리를 GraphQL 오류 배열로 덮어쓰면 노드의 `util.inspect` 인과 체인, Sentry 그룹핑, 구조화 로거가 깨집니다. 이번 릴리스는 충돌을 피하기 위해 속성 이름을 `.errors`로 변경합니다.
 
 **마이그레이션**: `IndexerFormattedError.cause` 참조를 모두 `.errors`로 바꾸세요.
 
@@ -79,7 +79,7 @@ signing key와 private state 내보내기 작업이 다른 key 관리 작업과 
 
 ### block 구성에 대한 contract 상태 방출
 
-`blockHeight`·`blockHash` 구성에서도 contract 상태가 방출되어, 상태 업데이트를 놓치던 사례가 해결되었습니다.
+`blockHeight`·`blockHash` 구성에서도 컨트랙트 상태가 방출되어, 상태 업데이트를 놓치던 사례가 해결되었습니다.
 
 ### indexer 오류 처리 강화
 

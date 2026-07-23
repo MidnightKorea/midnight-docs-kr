@@ -32,7 +32,7 @@ Midnight.js은 Midnight 블록체인에서 탈중앙화 애플리케이션 개�
 
 
 - **마일스톤 릴리스** -- 이번 릴리스부터 시맨틱 버전 관리를 적용합니다.  
-- **Wallet 4.0.0 지원** -- Bech32m이 기본 주소 형식이 되었습니다. `midnight-js@1.0.0`은 Wallet 4.0.0과 이전 버전을 모두 지원합니다.  
+- **지갑 4.0.0 지원** -- Bech32m이 기본 주소 형식이 되었습니다. `midnight-js@1.0.0`은 지갑 4.0.0과 이전 버전을 모두 지원합니다.  
 - **midnight-js-testing** -- 테스트 프레임워크가 공개되었습니다. 알려진 이슈 항목을 참고하세요.  
 - **midnight-js-logger-provider** -- 개발자가 커스텀 로깅 전략을 정의할 수 있습니다. 알려진 이슈 항목을 참고하세요.  
 - **Node.js 22 LTS 검증 완료** -- 최신 장기 지원 릴리스와 완벽하게 호환됩니다.  
@@ -89,7 +89,7 @@ Midnight.js은 Midnight 블록체인에서 탈중앙화 애플리케이션 개�
 
 2. *`privateStateKey`이 `privateStateId`로 이름 변경*
 
-   `privateStateKey` 매개변수가 새로운 `PrivateStateProvider` 인터페이스와 일관성을 유지하기 위해 `privateStateId`로 이름이 변경되었습니다. 이 변경은 contracts 라이브러리의 다수 함수, 인터페이스에 영향을 줍니다. 
+   `privateStateKey` 매개변수가 새로운 `PrivateStateProvider` 인터페이스와 일관성을 유지하기 위해 `privateStateId`로 이름이 변경되었습니다. 이 변경은 컨트랙트 라이브러리의 다수 함수, 인터페이스에 영향을 줍니다. 
    
    ```ts
    type PrivateStateId = string
@@ -117,7 +117,7 @@ Midnight.js은 Midnight 블록체인에서 탈중앙화 애플리케이션 개�
 
 ### Known Issues
 
-- **midnight-js-logger-provider** -- 새로운 logger provider이 아직 contracts 라이브러리에 통합되지 않았습니다.
+- **midnight-js-logger-provider** -- 새로운 logger provider이 아직 컨트랙트 라이브러리에 통합되지 않았습니다.
 
 - **midnight-js-testing** -- 테스트 프레임워크가 복잡하며, 추가 안내가 제공될 예정입니다.  
   [문서는 여기에서 확인할 수 있습니다](https://github.com/midnightntwrk/midnight-js/blob/main/packages/testing/README.md) *(참고: 이 링크는 현재 공개적으로 접근할 수 없으며, 연결된 GitHub 계정이 필요합니다)*.

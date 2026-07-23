@@ -12,21 +12,21 @@ id: community-wallets-cli-mcp
 
 # Develop with the wallet CLI and MCP
 
-스크립트, CI, AI agent가 브라우저 확장 없이 wallet CLI와 그 MCP 서버를 사용해 Midnight에서 자금을 보유하고 옮기는 방법을 다룹니다. wallet을 먼저 고르려면 [overview](./wallets-overview.mdx)를 참고하세요. 브라우저 DApp 연동은 [integration guide](./integration.mdx)를 보세요.
+스크립트, CI, AI agent가 브라우저 확장 없이 wallet CLI와 그 MCP 서버를 사용해 Midnight에서 자금을 보유하고 옮기는 방법을 다룹니다. 지갑을 먼저 고르려면 [overview](./wallets-overview.mdx)를 참고하세요. 브라우저 DApp 연동은 [integration guide](./integration.mdx)를 보세요.
 
 ## Develop and test without a wallet
 
-wallet CLI는 동일한 `ConnectedAPI`를 로컬 WebSocket으로 노출하므로, DApp 코드 경로를 그대로 둔 채 실행할 수 있고 사용자는 나중에 아무 브라우저 wallet으로 연결하면 됩니다. CLI는 self-custody이며(키는 `~/.midnight`에 저장, BIP-39/44, Lace 호환) 네트워크에 구애받지 않아, 하나의 seed로 `undeployed`, `preprod`, `preview`를 모두 다룹니다.
+wallet CLI는 동일한 `ConnectedAPI`를 로컬 WebSocket으로 노출하므로, DApp 코드 경로를 그대로 둔 채 실행할 수 있고 사용자는 나중에 아무 브라우저 지갑으로 연결하면 됩니다. CLI는 self-custody이며(키는 `~/.midnight`에 저장, BIP-39/44, Lace 호환) 네트워크에 구애받지 않아, 하나의 seed로 `undeployed`, `preprod`, `preview`를 모두 다룹니다.
 
 | Group | Commands |
 |---|---|
-| Wallet | `wallet generate/list/use/info/remove`, `info`, `address`, `genesis-address` |
-| Transactions | `balance`, `transfer`, `airdrop`, `inspect-cost` |
+| 지갑 | `wallet generate/list/use/info/remove`, `info`, `address`, `genesis-address` |
+| 트랜잭션 | `balance`, `transfer`, `airdrop`, `inspect-cost` |
 | DUST | `dust register`, `dust status` |
 | Local network | `localnet up/status/stop/down/clean` |
 | Config / connector | `config get/set/unset`, `cache clear`, `serve` |
 
-`midnight localnet up`은 Docker로 전체 스택을 구성하므로(node는 `9944`, indexer는 `8088`, proof server는 `6300`), faucet 없이 배포하고 거래할 수 있습니다.
+`midnight localnet up`은 Docker로 전체 스택을 구성하므로(노드는 `9944`, indexer는 `8088`, proof server는 `6300`), faucet 없이 배포하고 거래할 수 있습니다.
 
 ```bash
 midnight localnet up                          # node + indexer + proof server (Docker)
@@ -59,7 +59,7 @@ const balances = await wallet.getUnshieldedBalances(); // same ConnectedAPI surf
 
 :::note[Freshness (v0.4.1)]
 
-이제 `midnight airdrop`로 아무 주소에나 직접 자금을 보낼 수 있습니다. 받는 쪽 주소를 붙여넣기만 하면 되고 seed import는 필요 없습니다. 로컬 네트워크에서 브라우저 wallet에 자금을 넣으려고 seed를 import할 필요가 더 이상 없습니다. indexer 연결도 v4 API로 옮겨가서 테스트 네트워크의 연결 오류가 해결됩니다. ([repo](https://github.com/nel349/midnight-wallet-cli))
+이제 `midnight airdrop`로 아무 주소에나 직접 자금을 보낼 수 있습니다. 받는 쪽 주소를 붙여넣기만 하면 되고 seed import는 필요 없습니다. 로컬 네트워크에서 브라우저 지갑에 자금을 넣으려고 seed를 import할 필요가 더 이상 없습니다. indexer 연결도 v4 API로 옮겨가서 테스트 네트워크의 연결 오류가 해결됩니다. ([repo](https://github.com/nel349/midnight-wallet-cli))
 
 :::
 
@@ -74,12 +74,12 @@ MCP 열은 agent가 도구를 호출하는 영역이며, 두 가지 형태로 �
 | Group | MCP tools |
 |---|---|
 | Wallet and info | `midnight_wallet_generate`, `_list`, `_use`, `_info`, `_remove`, `midnight_info`, `midnight_address`, `midnight_genesis_address` |
-| Transactions | `midnight_balance`, `_transfer`, `_airdrop`, `midnight_inspect_cost` |
+| 트랜잭션 | `midnight_balance`, `_transfer`, `_airdrop`, `midnight_inspect_cost` |
 | DUST | `midnight_dust_register`, `_status` |
 | Local network | `midnight_localnet_up`, `_stop`, `_down`, `_status`, `_clean` |
 | Config | `midnight_config_get`, `_set`, `_unset`, `midnight_cache_clear` |
 
-가장 중요한 것은 최신 도구들입니다. 토큰을 옮기는 것을 넘어, 이제 agent가 전체 contract 수명주기를 다룰 수 있습니다. 배포하고, 호출하고, 상태를 읽습니다. 또한 두 단계 확인 도구가 있어 무언가 실행되기 전에 agent가 무엇을 지출하려는지 사람에게 보여줍니다. Claude Code(`.mcp.json`), Claude Desktop, Cursor, VS Code(Copilot), Windsurf 같은 아무 MCP 클라이언트나 이 바이너리를 가리키게 하면 됩니다.
+가장 중요한 것은 최신 도구들입니다. 토큰을 옮기는 것을 넘어, 이제 agent가 전체 컨트랙트 수명주기를 다룰 수 있습니다. 배포하고, 호출하고, 상태를 읽습니다. 또한 두 단계 확인 도구가 있어 무언가 실행되기 전에 agent가 무엇을 지출하려는지 사람에게 보여줍니다. Claude Code(`.mcp.json`), Claude Desktop, Cursor, VS Code(Copilot), Windsurf 같은 아무 MCP 클라이언트나 이 바이너리를 가리키게 하면 됩니다.
 
 ```json
 { "mcpServers": { "midnight-wallet": { "command": "midnight-wallet-mcp" } } }

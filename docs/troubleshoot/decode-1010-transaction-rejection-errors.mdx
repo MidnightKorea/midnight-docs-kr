@@ -13,7 +13,7 @@ import Tabs from "@theme/Tabs";
 
 # Decode 1010 transaction rejection errors
 
-`1010 Invalid Transaction` 응답이 발생했을 때, 내부의 `Custom error: N` 값을 Midnight 원장 오류 변형(variant)으로 디코딩하여 문제를 해결하세요.
+`1010 Invalid Transaction` 응답이 발생했을 때, 내부의 `Custom error: N` 값을 Midnight ledger 오류 변형(variant)으로 디코딩하여 문제를 해결하세요.
 
 ## Understand the cause of the error
 
@@ -88,7 +88,7 @@ curl -H "Content-Type: application/json" \
 
 ### Look up the variant
 
-아래의 [variant 테이블](#look-up-the-variant)에서 `u8` 값을 찾아 해당하는 원장 오류 이름과 분류를 확인하세요.
+아래의 [variant 테이블](#look-up-the-variant)에서 `u8` 값을 찾아 해당하는 ledger 오류 이름과 분류를 확인하세요.
 
 </Step>
 
@@ -104,7 +104,7 @@ curl -H "Content-Type: application/json" \
 
 ### Deserialization errors (0–11)
 
-노드가 직렬화된 입력을 디코딩하지 못한 경우입니다. 이 단계에서 거부된 트랜잭션은 어떤 원장 로직에도 도달하지 않습니다.
+노드가 직렬화된 입력을 디코딩하지 못한 경우입니다. 이 단계에서 거부된 트랜잭션은 어떤 ledger 로직에도 도달하지 않습니다.
 
 <details>
 <summary><strong>Show full table</strong></summary>
@@ -112,7 +112,7 @@ curl -H "Content-Type: application/json" \
 | Code | Variant |
 | ---- | ------- |
 | 0    | NetworkId |
-| 1    | Transaction |
+| 1    | 트랜잭션 |
 | 2    | LedgerState |
 | 3    | ContractAddress |
 | 4    | PublicKey |
@@ -154,7 +154,7 @@ curl -H "Content-Type: application/json" \
 
 ### Invalid transactions (100–109, 193–200, 239–250)
 
-트랜잭션 자체의 구조에는 문제가 없지만, 현재 원장 상태와 충돌하는 경우입니다. 운영 트래픽에서 가장 흔하게 발생하는 거부 사유입니다.
+트랜잭션 자체의 구조에는 문제가 없지만, 현재 ledger state와 충돌하는 경우입니다. 운영 트래픽에서 가장 흔하게 발생하는 거부 사유입니다.
 
 <details>
 <summary><strong>Show full table</strong></summary>
@@ -289,7 +289,7 @@ curl -H "Content-Type: application/json" \
 
 ### Infrastructure errors (150–157, 165)
 
-원장 조회나 수수료 계산 같은 내부 작업을 노드가 완료하지 못한 경우입니다. 제출된 트랜잭션 자체가 원인은 아닙니다.
+ledger 조회나 수수료 계산 같은 내부 작업을 노드가 완료하지 못한 경우입니다. 제출된 트랜잭션 자체가 원인은 아닙니다.
 
 <details>
 <summary><strong>Show full table</strong></summary>
@@ -375,7 +375,7 @@ replay 카운터가 오래되었거나 인텐트의 TTL 윈도가 만료된 상�
 <details>
 <summary><strong>115 InvalidProof / 235 Zswap.Malformed.InvalidProof</strong> — 영지식 증명 검증에 실패한 경우</summary>
 
-증명 서버가 노드 및 SDK와 호환되는 버전으로 실행 중인지 확인하세요. [proof server 실행](../guides/run-proof-server.mdx)과 [릴리스 호환성 매트릭스](../relnotes/support-matrix.mdx)를 참조하세요.
+proof server가 노드 및 SDK와 호환되는 버전으로 실행 중인지 확인하세요. [proof server 실행](../guides/run-proof-server.mdx)과 [릴리스 호환성 매트릭스](../relnotes/support-matrix.mdx)를 참조하세요.
 
 </details>
 
@@ -395,13 +395,13 @@ SDK와 지갑이 트랜잭션을 제출하려는 노드와 같은 네트워크 I
 
 ## When 1010 has no inner u8
 
-응답에 `code: 1010`은 있지만 `Custom error: N` 부분이 없다면, Midnight 원장 로직이 아니라 그 위 단계인 Substrate 검증에서 거부가 일어난 것입니다. 가장 흔한 원인은 다음과 같습니다.
+응답에 `code: 1010`은 있지만 `Custom error: N` 부분이 없다면, Midnight ledger 로직이 아니라 그 위 단계인 Substrate 검증에서 거부가 일어난 것입니다. 가장 흔한 원인은 다음과 같습니다.
 
 - **Bad signature**: 서명 키가 발신자와 일치하지 않거나, 서명 후 페이로드가 변경된 경우
 - **Stale era**: mortal era 윈도가 지난 경우. 현재 블록 해시를 다시 가져와 트랜잭션을 새로 만드세요.
 - **Wrong nonce**: 노드의 계정 nonce가 서명 시점에 사용한 값과 다른 경우. 현재 nonce를 조회한 뒤 다시 제출하세요.
 
-이러한 거부는 원장에 도달하지 않으므로 `LedgerApiError` 표에는 나타나지 않습니다.
+이러한 거부는 ledger에 도달하지 않으므로 `LedgerApiError` 표에는 나타나지 않습니다.
 
 ## Verify the fix
 
@@ -421,4 +421,4 @@ curl -H "Content-Type: application/json" \
 변형을 식별하지 못하거나, 위 조치를 적용한 뒤에도 거부가 계속된다면 다음을 확인하세요.
 
 - **Confirm the node version**: 변형 번호는 릴리스에 따라 달라집니다. 사용 중인 네트워크의 버전에 해당하는 [노드 릴리스 노트](../relnotes/node.mdx)를 확인하세요.
-- **Check the compatibility matrix**: 증명 서버, 런타임, SDK가 [릴리스 호환성 매트릭스](../relnotes/support-matrix.mdx)에서 지원하는 조합과 일치하는지 확인하세요.
+- **Check the compatibility matrix**: proof server, 런타임, SDK가 [릴리스 호환성 매트릭스](../relnotes/support-matrix.mdx)에서 지원하는 조합과 일치하는지 확인하세요.

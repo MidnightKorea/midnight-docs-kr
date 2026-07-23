@@ -29,7 +29,7 @@ flowchart LR
 
 업그레이드 과정을 이해하려면 먼저 아키텍처를 알아야 합니다. Midnight node는 Midnight 소프트웨어만 실행하는 것이 아니라, `cardano-node`, `cardano-db-sync`, Postgres 데이터베이스(`cexplorer`)로 구성된 로컬 Cardano 인프라 스택에 의존합니다.
 
-Midnight node는 이 Postgres 데이터베이스에서 Cardano 메인 체인 상태를 끊임없이 읽으면서 Midnight 블록을 생산하고, 파트너 체인 contract 이벤트를 읽고, NIGHT/DUST 생성 UTXO를 가져옵니다.
+Midnight node는 이 Postgres 데이터베이스에서 Cardano 메인 체인 상태를 끊임없이 읽으면서 Midnight 블록을 생산하고, 파트너 체인 컨트랙트 이벤트를 읽고, NIGHT/DUST 생성 UTXO를 가져옵니다.
 
 Cardano 하드포크가 일어나면:
 
@@ -73,4 +73,4 @@ operator가 라이브 `midnight-node`를 내리고, 기존 호스트 하드웨�
 Van Rossem 하드포크는 상태 replay를 요구하므로, 서비스 다운타임을 피하려면 parallel Cardano stack 방식을 사용해야 합니다. Federated node operator, faucet, RPC 등 핵심 서비스는 다운타임을 최소화하기 위해 이 방식을 따르세요.
 :::
 
-**핵심 정리:** 다운타임 최소화는 개별 node의 가동률 지표를 지키는 일에 그치지 않습니다. Cardano가 그 아래에서 진화하는 동안 Midnight Network 전체의 건강, 처리량, 탈중앙화된 무결성을 지키는 일입니다.
+**핵심 정리:** 다운타임 최소화는 개별 노드의 가동률 지표를 지키는 일에 그치지 않습니다. Cardano가 그 아래에서 진화하는 동안 Midnight Network 전체의 건강, 처리량, 탈중앙화된 무결성을 지키는 일입니다.

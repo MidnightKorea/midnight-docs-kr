@@ -31,7 +31,7 @@ Edda Labs 유지보수자들은 [MeshJS/midnight-starter-template](https://githu
 - [Node.js v22+](https://nodejs.org/) 설치.
 - [pnpm v10+](https://pnpm.io/installation) 설치.
 - [Docker](https://docs.docker.com/desktop/) 실행(proof server와 standalone 네트워크용).
-- [Git Large File Storage (LFS)](https://git-lfs.com/) 설치 - zero-knowledge proof 아티팩트(`.prover`, `.verifier`, `.bzkir`, `.zkir` 파일)에 필요합니다.
+- [Git Large File Storage (LFS)](https://git-lfs.com/) 설치 - 영지식 증명 아티팩트(`.prover`, `.verifier`, `.bzkir`, `.zkir` 파일)에 필요합니다.
 - [Compact developer tools](/getting-started/installation) 설치 후 `0.30.0`으로 업데이트.
 - Preview 네트워크에 맞게 설정한 [Lace wallet](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) 브라우저 확장.
 
@@ -68,7 +68,7 @@ git clone https://github.com/eddalabs/midnight-starter-template.git
 cd midnight-starter-template
 ```
 
-Git Large File Storage(LFS)로 zero-knowledge proof 아티팩트를 내려받습니다.
+Git Large File Storage(LFS)로 영지식 증명 아티팩트를 내려받습니다.
 
 ```bash
 git lfs install
@@ -92,7 +92,7 @@ pnpm build
 
 :::warning[Git LFS required]
 
-저장소는 zero-knowledge proof 아티팩트(prover key, verifier key, ZKIR 파일)를 Git LFS로 저장합니다. `git lfs install`과 `git lfs pull`을 거치지 않으면 이 파일들이 바이너리 데이터가 아니라 텍스트 포인터로 나타나, 컨트랙트 배포가 "mismatched verifier keys" 오류로 실패합니다.
+저장소는 영지식 증명 아티팩트(prover key, verifier key, ZKIR 파일)를 Git LFS로 저장합니다. `git lfs install`과 `git lfs pull`을 거치지 않으면 이 파일들이 바이너리 데이터가 아니라 텍스트 포인터로 나타나, 컨트랙트 배포가 "mismatched verifier keys" 오류로 실패합니다.
 
 :::
 
@@ -154,7 +154,7 @@ Edda Labs 팀은 전체 배포 절차를 [DEPLOYMENT_PROCEDURE.md](https://githu
 
 :::note[Git LFS in Vercel]
 
-Vercel 설정에서 Git LFS를 활성화하지 않고 배포하면 빌드는 끝나지만 DApp이 런타임에 실패합니다. proof 아티팩트가 바이너리 파일이 아니라 LFS 포인터이기 때문입니다. 먼저 LFS를 활성화한 뒤, 캐시 없이 다시 배포하세요.
+Vercel 설정에서 Git LFS를 활성화하지 않고 배포하면 빌드는 끝나지만 DApp이 런타임에 실패합니다. 증명 아티팩트가 바이너리 파일이 아니라 LFS 포인터이기 때문입니다. 먼저 LFS를 활성화한 뒤, 캐시 없이 다시 배포하세요.
 
 :::
 
@@ -162,7 +162,7 @@ Vercel 설정에서 Git LFS를 활성화하지 않고 배포하면 빌드는 끝
 
 저장소에는 다음 내용을 다루는 체계적인 세션 가이드가 담긴 `educational-material/` 디렉터리가 들어 있습니다.
 
-- zero-knowledge proof와 프라이버시를 강화한 DApp
+- 영지식 증명과 프라이버시를 강화한 DApp
 - devnet, Preview, Testnet 환경
 - [Edda Labs YouTube 채널](https://www.youtube.com/@eddalabs)의 영상 가이드
 - 영어, 스페인어, 포르투갈어로 제공

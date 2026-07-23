@@ -14,7 +14,7 @@ displayed_sidebar: sidebar
 
 ## 주요 변경 사항 요약
 
-이번 릴리스는 ledger v8 지원과 주요 contract 실행 업데이트를 포함한 Midnight.js v4 세대를 도입합니다. call option 구성 및 state 쿼리에 필요한 중요 API 변경 사항도 포함되어 있습니다.
+이번 릴리스는 ledger v8 지원과 주요 컨트랙트 실행 업데이트를 포함한 Midnight.js v4 세대를 도입합니다. call option 구성 및 state 쿼리에 필요한 중요 API 변경 사항도 포함되어 있습니다.
 
 ## 대상 독자
 
@@ -22,7 +22,7 @@ displayed_sidebar: sidebar
 
 - v3.2.0에서 v4.0.x로 마이그레이션하는 경우
 - ledger 타입 및 circuit 식별자를 직접 다루는 경우
-- contract 실행을 위한 커스텀 call option을 구성하는 경우
+- 컨트랙트 실행을 위한 커스텀 call option을 구성하는 경우
 - unproven call에 대한 트랜잭션 구성 로직을 유지보수하는 경우
 
 ## 업데이트 요약
@@ -66,7 +66,7 @@ const result = await createUnprovenCallTxFromInitialStates(
 ```
 
 ### Ledger v8 지원
-프레임워크가 ledger v8을 대상으로 하며, provable circuit(기존 impure circuit에서 이름 변경) 지원과 indexer v4 호환성이 업데이트되었습니다. 모든 contract 컴파일 출력이 ledger v8 호환으로 재생성되었습니다.
+프레임워크가 ledger v8을 대상으로 하며, provable circuit(기존 impure circuit에서 이름 변경) 지원과 indexer v4 호환성이 업데이트되었습니다. 모든 컨트랙트 컴파일 출력이 ledger v8 호환으로 재생성되었습니다.
 
 ### `createProofProvider` 팩토리 함수
 `@midnight-ntwrk/midnight-js-types`에서 새로운 `createProofProvider` 유틸리티가 export됩니다. `ProvingProvider`로부터 `ProofProvider`를 생성하여 proof provider 설정을 간소화하며, 선택적으로 cost model을 적용할 수 있습니다.
@@ -135,7 +135,7 @@ const [zswapState, contractState, ledgerParameters] = result;
 
 **필요 조치**:
 - 모든 `CallOptionsProviderDataDependencies` 객체에 `ledgerParameters`를 추가하세요.
-- contract 및 Zswap state와 동일한 쿼리 블록 컨텍스트에서 가져온 값을 사용하세요.
+- 컨트랙트 및 Zswap state와 동일한 쿼리 블록 컨텍스트에서 가져온 값을 사용하세요.
 
 ```typescript
 // v4.0.1
@@ -168,14 +168,14 @@ const callOptions: CallOptionsProviderDataDependencies = {
 call 트랜잭션 구성 및 unshielded offer 처리의 정확성이 개선되었습니다.
 
 ### `createUnprovenLedgerCallTx`에서 QueryContext의 무손실 바이너리 경로
-`toLedgerQueryContext`를 통한 손실 있는 encode/decode 사이클로 인해, 비자명(non-trivial) ledger state(bounded Merkle tree, 복합 셀 등)를 가진 contract에서 "expected a cell, received null" 오류가 발생하던 문제가 수정되었습니다. 코드베이스 전체에서 무손실로 검증된 바이너리 직렬화 경로(`toLedgerContractState` + `LedgerQueryContext` 생성자)로 대체되었습니다. 이에 따라 `createUnprovenLedgerCallTx`에서 `coinPublicKey` 파라미터도 제거되었습니다.
+`toLedgerQueryContext`를 통한 손실 있는 encode/decode 사이클로 인해, 비자명(non-trivial) ledger state(bounded Merkle tree, 복합 셀 등)를 가진 컨트랙트에서 "expected a cell, received null" 오류가 발생하던 문제가 수정되었습니다. 코드베이스 전체에서 무손실로 검증된 바이너리 직렬화 경로(`toLedgerContractState` + `LedgerQueryContext` 생성자)로 대체되었습니다. 이에 따라 `createUnprovenLedgerCallTx`에서 `coinPublicKey` 파라미터도 제거되었습니다.
 
 ### User-addressed claim unshielded spend의 unshielded offer
 user-addressed claim unshielded spend에서 unshielded offer가 올바르게 첨부되지 않는 문제가 수정되었습니다. ledger-utils의 `extractUserAddressedOutputs` 함수가 unshielded output 매칭을 올바르게 처리하도록 업데이트되어, claim 작업의 트랜잭션이 정확히 구성됩니다. 이 함수는 이후 #648에서 제거되었으며, unshielded offer 처리는 이제 ledger의 `addCalls` API가 담당합니다.
 
 ## 테스트
 
-unshielded 흐름의 wallet 전송 동작 검증을 위한 회귀 테스트 범위가 확대되었습니다.
+unshielded 흐름의 지갑 전송 동작 검증을 위한 회귀 테스트 범위가 확대되었습니다.
 
 ### Night wallet 전송 테스트
 night wallet unshielded 전송에 대한 통합 테스트가 추가되었으며, `balanceUnboundTransaction` 사용 검증이 포함됩니다.

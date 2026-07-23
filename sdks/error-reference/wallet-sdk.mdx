@@ -338,13 +338,13 @@ capabilities 패키지는 3가지 오류 타입을 제공합니다.
 
 ### `ProvingError`
 
-증명 프로바이더에서 발생한 오류를 감싸는 래퍼입니다.
+proof provider에서 발생한 오류를 감싸는 래퍼입니다.
 
 | Field | Value |
 |-------|-------|
 | `_tag` | `'Wallet.Proving'` |
 
-**해결 방법**: 증명 서버 연결 상태와 올바른 회로 키를 로드하고 있는지 확인하세요. 래핑된 원인을 검사해 프로바이더의 근본 오류를 파악하세요.
+**해결 방법**: proof server 연결 상태와 올바른 회로 키를 로드하고 있는지 확인하세요. 래핑된 원인을 검사해 provider의 근본 오류를 파악하세요.
 
 ```typescript
 Effect.catchTag('Wallet.Proving', (e) => ...)
@@ -532,7 +532,7 @@ address format 패키지는 5가지 오류 타입을 제공합니다.
 | `'Wallet.RollbackUtxo'` | `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `RollbackUtxoError` |
 | `'Wallet.Sign'` | `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `SignError` |
 | `'Wallet.SpendUtxo'` | `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `SpendUtxoError` |
-| `'Wallet.SubmissionWalletError'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `SubmissionError` (wallet) |
+| `'Wallet.SubmissionWalletError'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `SubmissionError` (지갑) |
 | `'Wallet.Sync'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet`, `@midnight-ntwrk/wallet-sdk-dust-wallet` | `SyncWalletError` |
 | `'Wallet.Transacting'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet`, `@midnight-ntwrk/wallet-sdk-dust-wallet` | `TransactingError` |
 | `'Wallet.TransactionHistory'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `TransactionHistoryError` |

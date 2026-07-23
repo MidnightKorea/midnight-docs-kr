@@ -10,7 +10,7 @@ toc_max_heading_level: 2
 
 # ZK Loan DApp
 
-ZK Loan 예제는 신용 데이터가 사용자 기기를 벗어나지 않은 채로 비공개 신용 데이터에 따라 대출 신청을 평가하는 방법을 보여줍니다. 은행 형태의 attestation 제공자가 오프체인에서 신용 프로필에 서명하고, smart contract는 영지식 circuit 안에서 서명을 검증한 뒤 대출 상태와 승인 금액만 ledger에 기록합니다.
+ZK Loan 예제는 신용 데이터가 사용자 기기를 벗어나지 않은 채로 비공개 신용 데이터에 따라 대출 신청을 평가하는 방법을 보여줍니다. 은행 형태의 attestation 제공자가 오프체인에서 신용 프로필에 서명하고, 스마트 컨트랙트는 영지식 circuit 안에서 서명을 검증한 뒤 대출 상태와 승인 금액만 ledger에 기록합니다.
 
 신용 점수, 월 소득, 재직 기간, attestation 서명, 사용자 PIN은 모두 비공개로 유지됩니다. 블록체인은 사용자가 어떤 등급에 *해당하는지*만 알 뿐, 그 *이유*는 결코 알지 못합니다.
 
@@ -26,7 +26,7 @@ ZK Loan 예제는 신용 데이터가 사용자 기기를 벗어나지 않은 �
 
 ## Project structure
 
-이 저장소는 contract, CLI, attestation API, 그리고 선택적 UI까지 네 개의 workspace로 구성된 단일 모노레포입니다.
+이 저장소는 컨트랙트, CLI, attestation API, 그리고 선택적 UI까지 네 개의 workspace로 구성된 단일 모노레포입니다.
 
 ```
 zkloan-credit-scorer/
@@ -46,7 +46,7 @@ zkloan-credit-scorer/
 
 ## Prerequisites
 
-- **Node.js** v22 이상 — SDK가 Iterator helper를 사용하므로, Node 20은 첫 동기화에서 크래시합니다
+- **Node.js** v22 이상 — SDK가 Iterator helper를 사용하므로, 노드 20은 첫 동기화에서 크래시합니다
 - **npm** v10 이상
 - **Docker와 Docker Compose** — 로컬 standalone 네트워크용
 - **Compact toolchain** — `compact` devtool로 설치한 뒤 `compact update`를 실행하고 `compact compile --version`으로 확인하세요(마지막 검증 버전은 `0.31.1`)
@@ -153,7 +153,7 @@ cd zkloan-credit-scorer-cli
 npm run standalone
 ```
 
-CLI는 로컬 `undeployed` 네트워크에서 미리 자금이 충전된 16진수 시드를 사용하므로, faucet이나 wallet 확장 프로그램이 필요하지 않습니다.
+CLI는 로컬 `undeployed` 네트워크에서 미리 자금이 충전된 16진수 시드를 사용하므로, faucet이나 지갑 확장 프로그램이 필요하지 않습니다.
 
 **Option B — Preprod (remote)** — [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)에서 tDUST로 자금을 충전한 Preprod wallet의 24단어 BIP-39 니모닉이 필요하며, `6300` 포트에 로컬 proof server가 있어야 합니다(4단계를 했다면 이미 실행 중이고, 아니면 `docker run --rm -p 6300:6300 midnightntwrk/proof-server:8.1.0 midnight-proof-server -v`).
 
@@ -163,7 +163,7 @@ cd zkloan-credit-scorer-cli
 npm run preprod-remote
 ```
 
-wallet이 동기화된 뒤에는 다음 작업을 순서대로 먼저 수행하세요 — 2단계를 끝내기 전까지는 모든 대출 요청이 `evaluateApplicant` 안에서 실패합니다.
+지갑이 동기화된 뒤에는 다음 작업을 순서대로 먼저 수행하세요 — 2단계를 끝내기 전까지는 모든 대출 요청이 `evaluateApplicant` 안에서 실패합니다.
 
 1. **Deploy**(옵션 1). 출력된 컨트랙트 주소를 저장하세요.
 2. **attestation 제공자 등록**(관리자 메뉴 → 옵션 8). 5단계의 Provider ID, x, y를 붙여넣으세요.
@@ -184,18 +184,18 @@ npm run build            # 프로덕션 번들 생성
 연결 방법:
 
 1. Midnight Lace wallet 확장 프로그램을 설치하고 Preprod 네트워크로 전환하세요.
-2. [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)에서 tDUST로 wallet에 자금을 충전하세요.
+2. [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)에서 tDUST로 지갑에 자금을 충전하세요.
 3. 5단계와 6단계(Preprod 옵션)가 이미 실행되었는지 확인하세요 — attestation API가 떠 있고, Preprod 컨트랙트가 배포되었으며, 제공자가 그 컨트랙트에 등록된 상태여야 합니다.
-4. UI를 열고 **Connect Lace wallet**을 클릭한 뒤, **01 · Contract**에 컨트랙트 주소를 붙여넣고 **Connect**를 클릭하세요.
+4. UI를 열고 **Connect Lace wallet**을 클릭한 뒤, **01 · 컨트랙트**에 컨트랙트 주소를 붙여넣고 **Connect**를 클릭하세요.
 
 대출을 제출하기 전에 Lace의 동기화가 끝날 때까지 기다리세요(확장 프로그램에 `Wallet syncing (…%)` 배너가 표시됩니다) — 동기화 도중에 제출하면 "Transaction submission failed"라는 일반 오류로 실패합니다.
 
 ## Build it from scratch
 
-각 조각이 *왜* 그런 모습인지 이해하고 싶다면, 이 DApp을 빈 디렉토리에서부터 만드는 3부작 튜토리얼을 따라가 보세요. witness/disclose 분리, circuit 내 Schnorr 검증, PIN에서 파생한 신원, wallet과 제공자 연결을 차례로 다룹니다.
+각 조각이 *왜* 그런 모습인지 이해하고 싶다면, 이 DApp을 빈 디렉토리에서부터 만드는 3부작 튜토리얼을 따라가 보세요. witness/disclose 분리, circuit 내 Schnorr 검증, PIN에서 파생한 신원, 지갑과 제공자 연결을 차례로 다룹니다.
 
 - [Part 1 — ZK Loan smart contract](../../tutorials/zk-loan/smart-contract): Compact 컨트랙트, Schnorr 검증 모듈, witness 구현, 컨트랙트 컴파일 + 빌드.
 - [Part 2 — Attestation API](../../tutorials/zk-loan/attestation-api): 오프체인 Schnorr 서명자, REST endpoint, proof server Docker 설정.
-- [Part 3 — CLI and end-to-end testing](../../tutorials/zk-loan/cli): wallet 파생, 제공자 연결, 대화형 메뉴, 전체 로컬 개발 안내.
+- [Part 3 — CLI and end-to-end testing](../../tutorials/zk-loan/cli): 지갑 파생, 제공자 연결, 대화형 메뉴, 전체 로컬 개발 안내.
 
 이 튜토리얼은 저장소의 모든 파일을 한 줄씩 다루며, 설계 선택에 대한 해설을 곁들입니다.

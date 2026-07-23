@@ -16,23 +16,23 @@ displayed_sidebar: sidebar
 
 이번 릴리스는 shielded coin 흐름에서 실패를 유발하던 트랜잭션 구성 경로를 되돌려 v4.0.x 라인을 안정화합니다.
 
-또한 proving provider 설정, contract 오류 타입, 보안 강화, 트랜잭션 처리 전반의 운영 안정성이 개선되었습니다.
+또한 proving provider 설정, 컨트랙트 오류 타입, 보안 강화, 트랜잭션 처리 전반의 운영 안정성이 개선되었습니다.
 
 ## 대상 독자
 
 이 릴리스 노트는 다음과 같은 개발자에게 유용합니다:
 
 - v4.0.1로 업그레이드하고 `addCalls` 기반 call 트랜잭션 흐름을 적용한 경우
-- shielded coin 작업을 사용하는 contract를 개발하는 경우
+- shielded coin 작업을 사용하는 컨트랙트를 개발하는 경우
 - 인증 헤더가 필요한 HTTP proof provider를 운영하는 경우
-- Effect 기반 contract 오류에 대한 커스텀 오류 처리를 유지보수하는 경우
+- Effect 기반 컨트랙트 오류에 대한 커스텀 오류 처리를 유지보수하는 경우
 
 ## 업데이트 요약
 
 - `httpClientProvingProvider`에 커스텀 헤더 지원 추가
 - 안전한 오류 타입 좁히기를 위한 `isEffectContractError` 타입 가드 추가
 - shielded-call 안정성 복원을 위해 `createUnprovenLedgerCallTx` 내부 로직 되돌림
-- contract 소유 spend 검증 전 Merkle-tree rehash 처리 수정
+- 컨트랙트 소유 spend 검증 전 Merkle-tree rehash 처리 수정
 - deploy 흐름에서 compact 오류 전파 개선
 - fallible 트랜잭션 오류 구성 및 리포팅 수정
 
@@ -44,7 +44,7 @@ displayed_sidebar: sidebar
 
 ### `httpClientProvingProvider`의 헤더 지원
 
-HTTP client proving provider가 proof server에 대한 모든 요청에 커스텀 헤더를 지원합니다. 인증 토큰, API 키 또는 기타 커스텀 헤더를 proof 생성 및 검증 요청에 함께 전송할 수 있습니다.
+HTTP client proving provider가 proof server에 대한 모든 요청에 커스텀 헤더를 지원합니다. 인증 토큰, API 키 또는 기타 커스텀 헤더를 증명 생성 및 검증 요청에 함께 전송할 수 있습니다.
 
 사용법:
 
@@ -133,7 +133,7 @@ createUnprovenLedgerCallTx(
 
 #### 오류: shielded 작업에서 "expected a cell, received null"
 
-**원인**: v4.0.1 `addCalls` 스택 초기화가 `receiveShielded`, `sendShielded`, `writeCoin`을 사용하는 contract에서 불일치
+**원인**: v4.0.1 `addCalls` 스택 초기화가 `receiveShielded`, `sendShielded`, `writeCoin`을 사용하는 컨트랙트에서 불일치
 
 **해결**: v4.0.2 트랜잭션 구성 경로(복원된 prototype 방식) 사용
 
@@ -151,19 +151,19 @@ createUnprovenLedgerCallTx(
 
 ### `createUnprovenLedgerCallTx`를 `ContractCallPrototype` 방식으로 복원
 
-v4.0.1에서 도입된 `PreTranscript + Transaction.addCalls()` 방식은 shielded coin 작업(`receiveShielded`, `sendShielded`, `writeCoin`)을 사용하는 contract에서 실패합니다. `addCalls()` 스택 머신이 circuit 실행 시 compact-runtime의 `queryLedgerState`와 동일하게 스택을 초기화하지 않아, shielded 작업이 초기 스택의 항목을 기대하는 `dup` 연산을 생성할 때 `"expected a cell, received null"` 오류가 발생합니다.
+v4.0.1에서 도입된 `PreTranscript + Transaction.addCalls()` 방식은 shielded coin 작업(`receiveShielded`, `sendShielded`, `writeCoin`)을 사용하는 컨트랙트에서 실패합니다. `addCalls()` 스택 머신이 circuit 실행 시 compact-runtime의 `queryLedgerState`와 동일하게 스택을 초기화하지 않아, shielded 작업이 초기 스택의 항목을 기대하는 `dup` 연산을 생성할 때 `"expected a cell, received null"` 오류가 발생합니다.
 
 `createUnprovenLedgerCallTx`를 `ContractCallPrototype + Intent.addCall()`과 `PartitionedTranscript`를 사용하는 방식으로 복원하여 shielded coin 작업을 올바르게 처리합니다.
 
-**영향받는 contract**: `receiveShielded`, `sendShielded`, `writeCoin`을 사용하는 모든 contract(예: Seabattle `join_p1`/`join_p2`, Lunarswap `addLiquidity`)
+**영향받는 컨트랙트**: `receiveShielded`, `sendShielded`, `writeCoin`을 사용하는 모든 컨트랙트(예: Seabattle `join_p1`/`join_p2`, Lunarswap `addLiquidity`)
 
 ### contract 소유 spend 전 `ZswapChainState` rehash
 
-ledger-v8의 `ZswapInput.newContractOwned`는 coin 포함 증명 검증 전에 chain state의 Merkle tree가 rehash되어 있어야 합니다. `zswapStateToOffer` 함수가 input 구성 전에 chain state에서 `postBlockUpdate()`를 호출하도록 변경되었습니다. 이 처리가 없으면, 이전 트랜잭션에서 예치된 coin을 사용하는 contract(예: Seabattle `join_p2`에서 `join_p1`의 coin에 `mergeCoinImmediate` 호출)가 `"attempted to spend from a Merkle tree that was not rehashed"` 오류와 함께 실패합니다.
+ledger-v8의 `ZswapInput.newContractOwned`는 coin 포함 증명 검증 전에 chain state의 Merkle tree가 rehash되어 있어야 합니다. `zswapStateToOffer` 함수가 input 구성 전에 chain state에서 `postBlockUpdate()`를 호출하도록 변경되었습니다. 이 처리가 없으면, 이전 트랜잭션에서 예치된 coin을 사용하는 컨트랙트(예: Seabattle `join_p2`에서 `join_p1`의 coin에 `mergeCoinImmediate` 호출)가 `"attempted to spend from a Merkle tree that was not rehashed"` 오류와 함께 실패합니다.
 
 ### `createUnprovenDeployTxFromVerifierKeys`에서 `CompactError` 전파 수정
 
-`createUnprovenDeployTxFromVerifierKeys`의 오류 핸들러가 contract 런타임 오류 해제 시 `ContractRuntimeError`만 확인했습니다. `compact-js` 의존성이 `initialState` 오류를 `ContractConfigurationError`로 래핑하도록 변경되어, 핸들러가 `ContractRuntimeError`와 `ContractConfigurationError`를 모두 인식하도록 업데이트되었습니다. 이로써 `CompactError` 메시지가 호출자에게 올바르게 전파됩니다.
+`createUnprovenDeployTxFromVerifierKeys`의 오류 핸들러가 컨트랙트 런타임 오류 해제 시 `ContractRuntimeError`만 확인했습니다. `compact-js` 의존성이 `initialState` 오류를 `ContractConfigurationError`로 래핑하도록 변경되어, 핸들러가 `ContractRuntimeError`와 `ContractConfigurationError`를 모두 인식하도록 업데이트되었습니다. 이로써 `CompactError` 메시지가 호출자에게 올바르게 전파됩니다.
 
 ### Fallible offer 오류 리포팅 수정
 

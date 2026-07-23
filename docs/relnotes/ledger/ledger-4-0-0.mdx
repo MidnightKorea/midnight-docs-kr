@@ -7,7 +7,7 @@ displayed_sidebar: sidebar
 
 # Ledger
 
-Midnight의 원장(ledger)은 컨트랙트 상태와 토큰 상태의 공개 기록으로, Zswap의 암호학적 커밋먼트와 컨트랙트 주소를 해당 상태에 매핑하는 구조로 구성됩니다.
+Midnight의 ledger(ledger)은 컨트랙트 상태와 토큰 상태의 공개 기록으로, Zswap의 암호학적 commitment와 컨트랙트 주소를 해당 상태에 매핑하는 구조로 구성됩니다.
 
 [관련 문서 링크](../../develop/how-midnight-works/semantics)
 
@@ -44,11 +44,11 @@ Midnight Ledger의 최신 업데이트와 개선 사항을 확인하세요. 새�
 - Zswap 생성자에 세그먼트 ID를 추가했습니다. 실패 가능한 오퍼에는 `1`로, 보장된 오퍼에는 `0`으로 설정해야 합니다.
 - `ZswapLocalStateNoKeys`를 `ZswapLocalState`로 이름을 변경하고, 기존의 키 포함 상태를 제거했습니다.
 - Pluto-Eris에서 BLS12-381로 전환했습니다.
-- 직접적인 증명자 키와 파라미터 대신 데이터 프로바이더를 사용하도록 전환했습니다.
+- 직접적인 증명자 키와 파라미터 대신 데이터 provider를 사용하도록 전환했습니다.
 
 #### Features
 
-- Midnight용 키 자료를 가져오는 데이터 프로바이더를 추가했습니다. `MIDNIGHT_PARAM_SOURCE` 환경 변수를 사용하여 소스를 재정의할 수 있습니다.
+- Midnight용 키 자료를 가져오는 데이터 provider를 추가했습니다. `MIDNIGHT_PARAM_SOURCE` 환경 변수를 사용하여 소스를 재정의할 수 있습니다.
 
 
 ### Artifacts

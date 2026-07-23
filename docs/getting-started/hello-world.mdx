@@ -18,8 +18,8 @@ import Step, { StepsProvider } from "@site/src/components/Step/Step";
 완료하면 다음을 수행할 수 있습니다:
 
 - 상태를 저장하는 Compact smart contract 작성
-- Contract를 zero-knowledge circuit으로 컴파일
-- 로컬 테스트 네트워크에 contract 배포
+- 컨트랙트를 zero-knowledge circuit으로 컴파일
+- 로컬 테스트 네트워크에 컨트랙트 배포
 - Blockchain에 Hello World 메시지 기록
 
 ## Prerequisites
@@ -75,10 +75,10 @@ export circuit storeMessage(newMessage: Opaque<"string">): [] {
   message = disclose(newMessage);
 }
 ```
-- `pragma language_version`은 contract가 사용하는 Compact 버전을 지정합니다.
+- `pragma language_version`은 컨트랙트가 사용하는 Compact 버전을 지정합니다.
 - `ledger message`는 온체인 상태에 문자열 값을 저장하는 `message`라는 state variable을 생성합니다. 온체인 상태는 blockchain에서 공개적이고 영구적입니다.
 - `circuit storeMessage`는 온체인 상태를 수정하는 로직을 정의하는 Compact circuit입니다.
-- `newMessage: Opaque<"string">`는 입력 파라미터입니다. *Circuit 파라미터는 기본적으로 비공개입니다.* `disclose()` 함수는 비공개 값을 공개 상태로 저장하겠다고 명시적으로 선언하는 역할을 합니다. 이 함수 없이 `newMessage`를 ledger에 직접 할당하면 컴파일러 오류가 발생합니다.
+- `newMessage: Opaque<"string">`는 입력 파라미터입니다. *Circuit 파라미터는 기본적으로 비공개입니다.* `disclose()` 함수는 비공개 값을 public state로 저장하겠다고 명시적으로 선언하는 역할을 합니다. 이 함수 없이 `newMessage`를 ledger에 직접 할당하면 컴파일러 오류가 발생합니다.
 
 </Step>
 
@@ -89,7 +89,7 @@ export circuit storeMessage(newMessage: Opaque<"string">): [] {
 컴파일은 Compact 코드를 zero-knowledge circuit으로 변환하고, 암호화 키를 생성하며,
 DApp에서 사용할 TypeScript API와 JavaScript 구현을 만들어 줍니다.
 
-contracts 폴더에서 컴파일러를 실행하세요:
+컨트랙트 폴더에서 컴파일러를 실행하세요:
 
 ```bash
 compact compile hello-world.compact managed/hello-world.compact
@@ -106,7 +106,7 @@ Compiling 1 circuits:
 1. Compact 코드를 파싱하고 유효성을 검사합니다.
 2. 로직에서 zero-knowledge circuit을 생성합니다.
 3. Circuit용 proving key와 verifying key를 생성합니다.
-4. Contract용 TypeScript API와 JavaScript 구현을 생성합니다.
+4. 컨트랙트용 TypeScript API와 JavaScript 구현을 생성합니다.
 
 컴파일이 완료되면 새로운 디렉토리 구조가 나타납니다:
 
@@ -124,10 +124,10 @@ contracts/
 
 각 디렉토리의 역할:
 
-- **contract/**: JavaScript 구현과 타입 정의가 포함된 컴파일된 contract artifact.
-- **keys/**: Zero-knowledge proof 생성에 필요한 암호화 proving key와 verifying key.
+- **컨트랙트/**: JavaScript 구현과 타입 정의가 포함된 컴파일된 contract artifact.
+- **keys/**: 영지식 증명 생성에 필요한 암호화 proving key와 verifying key.
 - **zkir/**: Zero-Knowledge Intermediate Representation. Compact와 ZK 백엔드 사이의 중간 표현.
-- **compiler/**: 다른 도구에서 contract 구조를 파악하는 데 활용할 수 있는 컴파일러 생성 JSON 출력.
+- **compiler/**: 다른 도구에서 컨트랙트 구조를 파악하는 데 활용할 수 있는 컴파일러 생성 JSON 출력.
 
 </Step>
 
@@ -143,14 +143,14 @@ yarn env:up
 
 다음 단계를 위해 proof server를 실행 상태로 유지하세요.
 
-Contract 배포에는 wallet이 필요합니다. 로컬 devnet 패키지에는 미리 자금이 충전된 3개의 wallet이 포함되어 있습니다.
+컨트랙트 배포에는 지갑이 필요합니다. 로컬 devnet 패키지에는 미리 자금이 충전된 3개의 지갑이 포함되어 있습니다.
 
 Hello World 테스트 스크립트를 실행하세요:
 ```bash
 yarn test:local
 ```
 
-테스트 스크립트가 로컬 devnet의 출력을 표시하면서 contract 배포와 상호작용을 자동으로 진행합니다:
+테스트 스크립트가 로컬 devnet의 출력을 표시하면서 컨트랙트 배포와 상호작용을 자동으로 진행합니다:
 
 ```
 [12:46:12.694] INFO (22064): Wallet sync complete after 23 emissions

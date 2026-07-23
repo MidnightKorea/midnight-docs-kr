@@ -18,7 +18,7 @@ toc_max_heading_level: 2
 
 Midnight Indexer 4.3.3은 4.3.x 개발 라인의 patch 릴리스로, Midnight 1.1 번들에 포함되어 배포됩니다. GraphQL WebSocket subscription 쿼터를 추가하고, 진행 중인 API 필드를 표시하는 `@beta` directive를 도입하며, `Block`에 tree별 end index를 노출하고, nullifier 이벤트 타입에 lazy `transaction` 참조를 추가합니다. 또한 shielded nullifier 입력 검증을 강화하고, 새로 연결된 subscription에 dtime 업데이트를 전달하도록 `dustGenerations` subscription을 수정합니다.
 
-이 릴리스는 Node 1.0.0, Ledger 8.1.0과 페어링됩니다. Node 0.22.x를 운영 중이라면 이 릴리스가 아니라 4.0.x 유지보수 라인을 따라가세요.
+이 릴리스는 노드 1.0.0, Ledger 8.1.0과 페어링됩니다. 노드 0.22.x를 운영 중이라면 이 릴리스가 아니라 4.0.x 유지보수 라인을 따라가세요.
 
 :::caution[4.0.x에서 업그레이드]
 4.0.x 라인에서 4.3.3으로 업그레이드하려면 indexer를 리셋하고 genesis부터 다시 인덱싱해야 합니다. mainnet/preprod 규모 기준 약 3~4일을 잡아 두세요. 4.3.x 라인 내부 업그레이드(4.3.2 → 4.3.3)는 바로 적용됩니다. 이미지 태그만 올리고 rolling-restart 하면 됩니다. additive migration 하나(`003_block_tree_end_indexes` / `004_block_tree_end_indexes`)가 체인 리셋 없이 자동으로 실행됩니다.
@@ -30,12 +30,12 @@ Midnight Indexer 4.3.3은 4.3.x 개발 라인의 patch 릴리스로, Midnight 1.
 
 이 릴리스 노트는 다음과 같은 경우에 유용합니다:
 
-- Node 1.0.0 이상을 대상으로 Midnight Indexer를 운영하는 operator
-- Indexer GraphQL API를 대상으로 연동하는 DApp·wallet 개발자
-- dust subscription(`dustGenerations`, `dustNullifierTransactions`)을 사용하는 wallet 연동 개발자
+- 노드 1.0.0 이상을 대상으로 Midnight Indexer를 운영하는 operator
+- Indexer GraphQL API를 대상으로 연동하는 DApp·지갑 개발자
+- dust subscription(`dustGenerations`, `dustNullifierTransactions`)을 사용하는 지갑 연동 개발자
 - `indexer-api`에 kubernetes probe를 구성하는 SRE
 
-Node 0.22.x를 운영 중인 operator는 이 릴리스가 아니라 4.0.x 유지보수 라인을 따라가야 합니다.
+노드 0.22.x를 운영 중인 operator는 이 릴리스가 아니라 4.0.x 유지보수 라인을 따라가야 합니다.
 
 ---
 
@@ -69,7 +69,7 @@ GraphQL WebSocket에 connection별·client별 subscription 한도를 추가합�
 
 ### nullifier 이벤트 타입의 transaction 참조
 
-`DustNullifierTransaction`과 `ShieldedNullifierTransaction`에 `transaction: Transaction!` 필드(`@beta`)를 추가하며, 기존 transaction DataLoader를 통해 lazy하게 resolve됩니다. DataLoader는 해당 필드가 선택될 때만 가져오므로, 요청하지 않는 사용자에게는 payload 비용이 없습니다. 이를 통해 wallet sync는 해시를 따로 모아 질의하는 대신 nullifier 매치에서 전체 transaction을 인라인으로 가져올 수 있습니다. 기존 `transactionId`와 `transactionHash` 필드도 그대로 사용할 수 있습니다.
+`DustNullifierTransaction`과 `ShieldedNullifierTransaction`에 `transaction: Transaction!` 필드(`@beta`)를 추가하며, 기존 transaction DataLoader를 통해 lazy하게 resolve됩니다. DataLoader는 해당 필드가 선택될 때만 가져오므로, 요청하지 않는 사용자에게는 payload 비용이 없습니다. 이를 통해 wallet sync는 해시를 따로 모아 질의하는 대신 nullifier 매치에서 전체 트랜잭션을 인라인으로 가져올 수 있습니다. 기존 `transactionId`와 `transactionHash` 필드도 그대로 사용할 수 있습니다.
 
 ### shielded nullifier transactions 입력 검증 강화
 
@@ -81,7 +81,7 @@ shielded nullifier transactions 영역의 입력 검증을 강화합니다. 이�
 
 ### dust nullifier byte 필드 `LeBytes` 접미사로 이름 변경
 
-`@beta`(진행 중) 필드에 국한되므로, 안정 API 사용자에게는 영향이 없습니다. 4.0.x 운영 라인(Node 0.22.x 페어링)을 사용 중이라면 이 변경은 영향을 주지 않습니다. 해당 필드는 4.0.x API 영역에 존재하지 않습니다. 4.3.x 라인의 beta dust nullifier API를 사용하는 경우에만 필드명과 인자명을 갱신하면 됩니다:
+`@beta`(진행 중) 필드에 국한되므로, 안정 API 사용자에게는 영향이 없습니다. 4.0.x 운영 라인(노드 0.22.x 페어링)을 사용 중이라면 이 변경은 영향을 주지 않습니다. 해당 필드는 4.0.x API 영역에 존재하지 않습니다. 4.3.x 라인의 beta dust nullifier API를 사용하는 경우에만 필드명과 인자명을 갱신하면 됩니다:
 
 - `DustNullifierTransaction.nullifier` → `nullifierLeBytes`
 - `DustNullifierTransaction.commitment` → `commitmentLeBytes`
@@ -95,7 +95,7 @@ shielded nullifier 타입은 그대로입니다. 이번 이름 변경은 little-
 
 ### `dustGenerations` subscription dtime 업데이트 수정
 
-새로 시작한 `dustGenerations` subscription(index 0에서 시작하고 이전 cutoff가 없는 경우)은 이전에는 dtime drain을 단락(short-circuit)시켜 `DustGenerationDtimeUpdate` 항목을 건너뛰었습니다. 이제 subscription이 이 항목을 올바르게 전달하므로, 갓 연결된 wallet은 전체 과거 구간에 대한 dtime 업데이트를 받습니다. ([#1166](https://github.com/midnightntwrk/midnight-indexer/pull/1166))
+새로 시작한 `dustGenerations` subscription(index 0에서 시작하고 이전 cutoff가 없는 경우)은 이전에는 dtime drain을 단락(short-circuit)시켜 `DustGenerationDtimeUpdate` 항목을 건너뛰었습니다. 이제 subscription이 이 항목을 올바르게 전달하므로, 갓 연결된 지갑은 전체 과거 구간에 대한 dtime 업데이트를 받습니다. ([#1166](https://github.com/midnightntwrk/midnight-indexer/pull/1166))
 
 ---
 

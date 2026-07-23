@@ -72,7 +72,7 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 | 100 | `EffectsMismatch` | 선언된 트랜잭션 이펙트가 계산된 이펙트와 일치하지 않는 경우 | 트랜잭션을 다시 빌드하세요. 이펙트 선언이 오래되었거나 SDK가 잘못 계산했을 수 있습니다 |
 | 101 | `ContractAlreadyDeployed` | 대상 주소에 이미 컨트랙트가 존재하는 경우 | 다른 컨트랙트 주소를 사용하거나 기존 배포를 확인하세요 |
 | 102 | `ContractNotPresent` | 지정한 주소에 존재하지 않는 컨트랙트를 호출한 경우 | 컨트랙트 주소를 확인하고 먼저 컨트랙트를 배포하세요 |
-| 103 | `Zswap` | Zswap 수준의 트랜잭션 오류 (예: 이중 지출, 알 수 없는 머클 루트) | 널리파이어 재사용 여부를 확인하고 코인 트리 루트가 최신 상태인지 검증하세요 |
+| 103 | `Zswap` | Zswap 수준의 트랜잭션 오류 (예: 이중 지출, 알 수 없는 머클 루트) | nullifier 재사용 여부를 확인하고 코인 트리 루트가 최신 상태인지 검증하세요 |
 | 104 | `Transcript` | 노드가 온체인 트랜스크립트 실행을 거부한 경우 | 컨트랙트 로직을 확인하세요. 회로의 온체인 트랜스크립트 실행에 실패했습니다 |
 | 105 | `InsufficientClaimable` | 클레임할 NIGHT 토큰이 부족한 경우 | 해당 작업에 충분한 NIGHT 잔액이 있는지 확인하세요 |
 | 106 | `VerifierKeyNotFound` | 회로 작업에 필요한 검증자 키가 없는 경우 | 회로를 호출하기 전에 검증자 키를 배포하세요 |
@@ -99,13 +99,13 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 | 112 | `VerifierKeyTooLarge` | 검증자 키가 역직렬화 한도를 초과한 경우 | 더 작은 회로를 사용하거나 Midnight 지원팀에 문의하세요 |
 | 113 | `VerifierKeyNotPresent` | 참조한 검증자 키를 찾을 수 없는 경우 | 회로를 호출하기 전에 검증자 키와 함께 컨트랙트를 배포하세요 |
 | 114 | `ContractNotPresent` | 트랜잭션이 존재하지 않는 컨트랙트를 참조하는 경우 | 컨트랙트 주소를 확인하고 먼저 컨트랙트를 배포하세요 |
-| 115 | `InvalidProof` | 영지식 증명 검증에 실패한 경우 | 증명을 다시 생성하세요. 증명 서버가 호환 버전인지 확인하세요 |
-| 116 | `BindingCommitmentOpeningInvalid` | 바인딩 커밋먼트가 올바르게 열리지 않은 경우 | Zswap 내부 오류 — 트랜잭션을 다시 빌드하세요 |
+| 115 | `InvalidProof` | 영지식 증명 검증에 실패한 경우 | 증명을 다시 생성하세요. proof server가 호환 버전인지 확인하세요 |
+| 116 | `BindingCommitmentOpeningInvalid` | 바인딩 commitment가 올바르게 열리지 않은 경우 | Zswap 내부 오류 — 트랜잭션을 다시 빌드하세요 |
 | 117 | `NotNormalized` | 트랜잭션이 정규 형식이 아닌 경우 | SDK로 다시 빌드하세요. 제출 전 트랜잭션을 정규화하세요 |
 | 118 | `FallibleWithoutCheckpoint` | 폴러블 트랜스크립트에 초기 체크포인트가 없는 경우 | 폴러블 섹션 시작 부분에 `kernel.checkpoint()`를 추가하세요 |
-| 119 | `ClaimReceiveFailed` | 코인 커밋먼트 수신 클레임에 실패한 경우 | 코인 커밋먼트 형식 오류 — 트랜잭션을 다시 빌드하세요 |
-| 120 | `ClaimSpendFailed` | 코인 커밋먼트 지출 클레임에 실패한 경우 | 코인 커밋먼트 형식 오류 — 트랜잭션을 다시 빌드하세요 |
-| 121 | `ClaimNullifierFailed` | 널리파이어 클레임에 실패한 경우 | 널리파이어 형식 오류 — 트랜잭션을 다시 빌드하세요 |
+| 119 | `ClaimReceiveFailed` | 코인 commitment 수신 클레임에 실패한 경우 | 코인 commitment 형식 오류 — 트랜잭션을 다시 빌드하세요 |
+| 120 | `ClaimSpendFailed` | 코인 commitment 지출 클레임에 실패한 경우 | 코인 commitment 형식 오류 — 트랜잭션을 다시 빌드하세요 |
+| 121 | `ClaimNullifierFailed` | nullifier 클레임에 실패한 경우 | nullifier 형식 오류 — 트랜잭션을 다시 빌드하세요 |
 | 122 | `ClaimCallFailed` | 컨트랙트 호출 클레임에 실패한 경우 | 컨트랙트 호출 형식 오류 — 트랜잭션을 다시 빌드하세요 |
 | 123 | `InvalidSchnorrProof` | Fiat-Shamir Schnorr 증명 검증에 실패한 경우 | 서명 오류 — 트랜잭션 서명을 다시 생성하세요 |
 | 124 | `UnclaimedCoinCom` | 컨트랙트 소유 출력이 클레임되지 않은 채로 남아 있는 경우 | 트랜잭션 제출 전 모든 컨트랙트 출력을 클레임하세요 |
@@ -121,7 +121,7 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 | 134 | `KeyNotInCommittee` | 서명 키가 위원회 구성원이 아닌 경우 | 위원회 구성원만 해당 작업에 서명할 수 있습니다 |
 | 135 | `InvalidCommitteeSignature` | 위원회 서명 검증에 실패한 경우 | 서명 키와 서명을 확인하세요 |
 | 136 | `ThresholdMissed` | 위원회 승인 임계값에 미달하는 경우 | 위원회 서명을 더 수집하세요 |
-| 137 | `TooManyZswapEntries` | Zswap 항목이 너무 많은 경우 (>=2^16) | 실드 작업 수를 줄이세요 |
+| 137 | `TooManyZswapEntries` | Zswap 항목이 너무 많은 경우 (>=2^16) | shielded 작업 수를 줄이세요 |
 | 138 | `BalanceCheckOverspend` | 트랜잭션 세그먼트에서 잔액이 음수가 된 경우 | 세그먼트가 가용 금액을 초과하여 지출합니다. 수량을 확인하세요 |
 | 139 | `UnknownError` | 분류되지 않은 잘못된 트랜잭션 오류 | 노드 로그에서 자세한 내용을 확인하세요 |
 | 166 | `InvalidNetworkId` | 트랜잭션의 네트워크 ID가 노드의 네트워크와 일치하지 않는 경우 | `networkId`가 대상과 일치하는지 확인하세요 (예: 데브넷의 경우 `undeployed`). `setNetworkId()` 설정을 확인하세요 |
@@ -134,22 +134,22 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 | 173 | `InsufficientDustForRegistrationFee` | 등록 수수료를 지불할 DUST가 부족한 경우 | 등록 전에 더 많은 DUST를 확보하세요 |
 | 174 | `MalformedContractDeploy` | 컨트랙트 배포의 구조가 유효하지 않은 경우 | 배포 시 잔액이 0이 아니거나 충전 상태가 잘못되었는지 확인하세요 |
 | 175 | `IntentSignatureVerificationFailure` | 인텐트 서명 검증에 실패한 경우 | 인텐트 서명을 다시 생성하세요 |
-| 176 | `IntentSignatureKeyMismatch` | 서명 키가 검증 키와 일치하지 않는 경우 | 인텐트에 올바른 서명 키를 사용하세요 |
+| 176 | `IntentSignatureKeyMismatch` | 서명 키가 verifier key와 일치하지 않는 경우 | 인텐트에 올바른 서명 키를 사용하세요 |
 | 177 | `IntentSegmentIdCollision` | 인텐트 병합 시 `segment_id`가 중복되는 경우 | 각 인텐트는 고유한 `segment_id`를 가져야 합니다 |
 | 178 | `IntentAtGuaranteedSegmentId` | 인텐트가 `segment_id` 0 (보장 세그먼트 예약)에 위치한 경우 | 인텐트에는 `segment_id` >= 1을 사용하세요 |
-| 179 | `UnsupportedProofVersion` | 지원되지 않는 증명 버전인 경우 | SDK 또는 증명 서버를 호환 버전으로 업데이트하세요 |
+| 179 | `UnsupportedProofVersion` | 지원되지 않는 증명 버전인 경우 | SDK 또는 proof server를 호환 버전으로 업데이트하세요 |
 | 180 | `GuaranteedTranscriptVersion` | 보장 트랜스크립트 버전이 지원되지 않는 경우 | 호환되는 레저/SDK 버전으로 업데이트하세요 |
 | 181 | `FallibleTranscriptVersion` | 폴러블 트랜스크립트 버전이 지원되지 않는 경우 | 호환되는 레저/SDK 버전으로 업데이트하세요 |
 | 182 | `TransactionApplicationError` | 인텐트 TTL 만료, 너무 먼 미래 설정, 또는 중복인 경우 | 인텐트 타이밍을 확인하고 동일한 인텐트를 재제출하지 마세요 |
 | 183 | `BalanceCheckOutOfBounds` | 세그먼트에서 잔액 오버플로우 또는 언더플로우가 발생한 경우 | 세그먼트 내 토큰 수량이 표현 가능한 범위를 초과합니다 |
 | 184 | `BalanceCheckConversionFailure` | 잔액을 i128로 변환하는 데 실패한 경우 | 토큰 수량이 내부 표현에 비해 너무 큽니다 |
-| 185 | `PedersenCheckFailure` | 바인딩 커밋먼트 불일치 | 내부 암호화 오류 — 트랜잭션을 다시 빌드하세요 |
+| 185 | `PedersenCheckFailure` | 바인딩 commitment 불일치 | 내부 암호화 오류 — 트랜잭션을 다시 빌드하세요 |
 | 186 | `EffectsCheckFailure` | 트랜잭션 이펙트 검증에 실패한 경우 | 선언된 이펙트가 계산된 이펙트와 일치하지 않습니다 |
-| 187 | `DisjointCheckFailure` | 입력/출력 집합이 분리되어 있지 않은 경우 | 실드 및 트랜지언트 입력/출력은 서로 겹치지 않아야 합니다 |
+| 187 | `DisjointCheckFailure` | 입력/출력 집합이 분리되어 있지 않은 경우 | shielded 및 트랜지언트 입력/출력은 서로 겹치지 않아야 합니다 |
 | 188 | `SequencingCheckFailure` | 호출 그래프의 순서 조건이 위반된 경우 | 컨트랙트 호출은 순서 제약을 준수해야 합니다 |
-| 189 | `InputsNotSorted` | 언실드 입력이 정렬되지 않은 경우 | 제출 전 언실드 입력을 정렬하세요 |
-| 190 | `OutputsNotSorted` | 언실드 출력이 정렬되지 않은 경우 | 제출 전 언실드 출력을 정렬하세요 |
-| 191 | `DuplicateInputs` | 언실드 입력이 중복된 경우 | 트랜잭션에서 중복 입력을 제거하세요 |
+| 189 | `InputsNotSorted` | 언shielded 입력이 정렬되지 않은 경우 | 제출 전 언shielded 입력을 정렬하세요 |
+| 190 | `OutputsNotSorted` | 언shielded 출력이 정렬되지 않은 경우 | 제출 전 언shielded 출력을 정렬하세요 |
+| 191 | `DuplicateInputs` | 언shielded 입력이 중복된 경우 | 트랜잭션에서 중복 입력을 제거하세요 |
 | 192 | `InputsSignaturesLengthMismatch` | 입력 수와 서명 수가 일치하지 않는 경우 | 각 입력에 대응하는 서명이 있는지 확인하세요 |
 
 ### Infrastructure errors (150–155, 165)
@@ -174,7 +174,7 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 |------|------|-------------|-------|
 | 201 | `IllegalPayout` | 지급액이 남은 공급량 또는 브릿지 풀을 초과하는 경우 | 지급 금액이 가용 자금에 비해 너무 큽니다 |
 | 202 | `InsufficientTreasuryFunds` | 재무부에 자금이 부족한 경우 | 요청한 금액이 재무부 잔액을 초과합니다 |
-| 203 | `CommitmentAlreadyPresent` | 페어리 골드 이중 커밋먼트 시도 | 커밋먼트가 이미 트리에 존재합니다 |
+| 203 | `CommitmentAlreadyPresent` | 페어리 골드 이중 commitment 시도 | commitment가 이미 트리에 존재합니다 |
 | 204 | `UnknownError` | 분류되지 않은 시스템 트랜잭션 오류 | 노드 로그를 확인하세요 |
 | 205 | `ReplayProtectionFailure` | 시스템 트랜잭션 리플레이 보호가 위반된 경우 | 시스템 트랜잭션이 중복 제출되었습니다 |
 | 206 | `IllegalReserveDistribution` | 리저브 배분이 공급량을 초과하는 경우 | 배분 금액이 가용 리저브를 초과합니다 |

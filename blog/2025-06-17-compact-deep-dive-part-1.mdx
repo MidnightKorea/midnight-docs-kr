@@ -75,7 +75,7 @@ export circuit publicKey(sk: Bytes<32>, instance: Bytes<32>): Bytes<32> {
 ```
 
 `post` circuit에 집중하겠습니다.
-먼저 contract의 기본 사항을 다시 살펴보겠습니다.
+먼저 컨트랙트의 기본 사항을 다시 살펴보겠습니다.
 Bulletin board의 상태를 위한 Compact `enum` 타입을 선언하고, 몇 가지 ledger 필드를 선언합니다.
 세 개는 변경 가능한 ledger 셀이고 하나는 `Counter`입니다:
 
@@ -114,7 +114,7 @@ export circuit post(newMessage: Opaque<"string">): [] {
 `publicKey`를 exported로 선언하면 두 가지 효과가 있습니다:
 
 - TypeScript 또는 JavaScript에서 circuit을 호출할 수 있게 됩니다.
-- Contract의 진입점이 되어 `publicKey` transaction을 Midnight blockchain에 제출할 수 있게 됩니다.
+- 컨트랙트의 진입점이 되어 `publicKey` transaction을 Midnight blockchain에 제출할 수 있게 됩니다.
 
 ```compact
 export circuit publicKey(sk: Bytes<32>, instance: Bytes<32>): Bytes<32> {
@@ -144,9 +144,9 @@ compiler        contract        keys            zkir
 ```
 
 네 개의 하위 디렉토리가 있습니다.
-`compiler`에는 composable contract에서 사용될 contract 메타데이터가 있으며, 지금은 무시해도 됩니다.
+`compiler`에는 composable contract에서 사용될 컨트랙트 메타데이터가 있으며, 지금은 무시해도 됩니다.
 `keys`와 `zkir`은 ZK proof와 관련되어 있으며 이후 글에서 다루겠습니다.
-컴파일러는 contract 코드를 JavaScript 구현으로 변환했으며, 이것은 contract 하위 디렉토리에 있습니다.
+컴파일러는 컨트랙트 코드를 JavaScript 구현으로 변환했으며, 이것은 컨트랙트 하위 디렉토리에 있습니다.
 먼저 이 부분에 집중하겠습니다.
 
 ```
@@ -155,7 +155,7 @@ index.cjs       index.cjs.map   index.d.cts
 ```
 
 세 개의 파일이 있습니다.
-`index.cjs`는 contract의 JavaScript 구현입니다.
+`index.cjs`는 컨트랙트의 JavaScript 구현입니다.
 (JavaScript 소스 코드이며, `.cjs` 확장자는 CommonJS 모듈 시스템을 사용한다는 의미입니다.)
 `index.cjs.map`은 디버깅에 사용할 수 있는 소스 맵 파일입니다.
 `index.cjs`의 JavaScript 구현을 `bboard.compact`에 있던 원래 Compact 소스 코드에 연결합니다.
@@ -169,7 +169,7 @@ TypeScript 컴파일러가 생성하는 소스 맵은 TypeScript 컴파일러의
 
 ## TypeScript Declaration
 
-이제 TypeScript 선언 파일 `index.d.cts`를 살펴보면서 contract 구현의 구조를 파악해 보겠습니다.
+이제 TypeScript 선언 파일 `index.d.cts`를 살펴보면서 컨트랙트 구현의 구조를 파악해 보겠습니다.
 이 파일을 순서대로가 아닌 방식으로 살펴보겠습니다.
 더 읽기 전에, 코드를 직접 컴파일하여 이 파일을 생성하고 직접 살펴보시기를 권장합니다.
 
@@ -204,7 +204,7 @@ export enum State { VACANT = 0, OCCUPIED = 1 }
 ```
 
 이 `enum` 타입이 Compact에서 exported되지 않았다면 이 선언을 볼 수 없을 것입니다.
-그러면 이 타입이 contract의 API(circuit 파라미터나 ledger 등)에 나타날 때마다 기본 TypeScript 표현 타입인 `number`가 대신 표시됩니다.
+그러면 이 타입이 컨트랙트의 API(circuit 파라미터나 ledger 등)에 나타날 때마다 기본 TypeScript 표현 타입인 `number`가 대신 표시됩니다.
 (직접 시도해 보세요!
 Compact contract에서 `enum`의 `export` 키워드를 제거해 보세요.
 생성된 TypeScript나 JavaScript contract 코드만 보고 싶다면, Compact 컴파일러에 `--skip-zk` 명령줄 플래그를 전달하여 ZK 키 생성을 건너뛸 수 있습니다.
@@ -212,7 +212,7 @@ Compact contract에서 `enum`의 `export` 키워드를 제거해 보세요.
 
 ### The Compact Ledger
 
-Compact에서 contract의 공개 상태는 ledger 선언으로 설정됩니다.
+Compact에서 컨트랙트의 public state는 ledger 선언으로 설정됩니다.
 컴파일러는 이를 모두 수집하여 ledger 타입의 형태로 DApp에 노출합니다:
 
 ```typescript
@@ -225,7 +225,7 @@ export type Ledger = {
 ```
 
 모든 ledger 필드에 대한 읽기 전용 속성이 있습니다.
-TypeScript에서 읽기 전용인 이유는, ledger를 **업데이트**하려면 실제로 체인에 transaction을 제출해야 하기 때문입니다.
+TypeScript에서 읽기 전용인 이유는, ledger를 **업데이트**하려면 실제로 체인에 트랜잭션을 제출해야 하기 때문입니다.
 그러나 DApp은 공개 ledger 상태의 (스냅샷에서) 자유롭게 읽을 수 있습니다.
 
 앞서 `State`가 이 API에 나타나는 이유는 Compact `enum` 타입 `State`를 exported했기 때문이라고 언급했습니다.
@@ -256,8 +256,8 @@ export declare function ledger(state: __compactRuntime.StateValue): Ledger;
 
 ### Compact Circuits
 
-Contract에는 세 개의 exported circuit이 있었습니다.
-export함으로써 DApp의 TypeScript 또는 JavaScript 코드에서 호출할 수 있게 되며, contract의 진입점을 형성합니다.
+컨트랙트에는 세 개의 exported circuit이 있었습니다.
+export함으로써 DApp의 TypeScript 또는 JavaScript 코드에서 호출할 수 있게 되며, 컨트랙트의 진입점을 형성합니다.
 TypeScript 선언 파일에서 두 곳에 선언을 볼 수 있습니다:
 
 ```typescript
@@ -282,7 +282,7 @@ export type Circuits<T> = {
 `post`와 `takeDown` circuit은 *impure*합니다.
 Compact에서 이는 기본적으로 public state에 접근하거나(읽기만 하더라도) witness를 호출한다는 의미입니다.
 `ImpureCircuits<T>` 타입에 선언됩니다.
-여기서 제네릭 타입 파라미터 `T`는 contract의 private state 타입입니다.
+여기서 제네릭 타입 파라미터 `T`는 컨트랙트의 private state 타입입니다.
 Compact 컴파일러는 이 타입이 무엇인지 알지 못하며(알 필요도 없습니다); DApp 개발자가 이를 채웁니다.
 
 `post` circuit의 Compact 시그니처는 `circuit post(new_message: Opaque<"string">): []`였습니다.
@@ -290,21 +290,21 @@ Compact 컴파일러는 이 타입이 무엇인지 알지 못하며(알 필요�
 
 첫째, circuit은 `CircuitContext<T>` 타입의 추가 첫 번째 인자를 받습니다.
 이것은 [Compact runtime](/api-reference/compact-runtime/interfaces/CircuitContext)에 선언된 인터페이스입니다.
-Contract의 온체인 및 private state의 캡슐화, 별도의 Zswap 상태, 그리고 circuit이 실제로 온체인에서 실행되는 경우의 온체인 컨텍스트 표현을 포함합니다(다만 이 JavaScript 코드는 온체인에서 실행되는 것이 **아닙니다**).
+컨트랙트의 온체인 및 private state의 캡슐화, 별도의 Zswap 상태, 그리고 circuit이 실제로 온체인에서 실행되는 경우의 온체인 컨텍스트 표현을 포함합니다(다만 이 JavaScript 코드는 온체인에서 실행되는 것이 **아닙니다**).
 
 둘째, Compact 타입 `Opaque<"string">`이 TypeScript 타입 `string`으로 표현됩니다.
 Compact의 목표 중 하나는 Compact 타입의 TypeScript 표현이 항상 예측 가능한 것입니다.
 
 셋째, 반환 타입(Compact에서는 `[]`)이 실제로는 `CircuitResults<T, []>`입니다.
 이것은 [Compact runtime](/api-reference/compact-runtime/interfaces/CircuitResults)에 선언된 또 다른 인터페이스입니다.
-TypeScript 타입 `[]`의 실제 반환값과 함께, ZK proof를 구성하는 데 필요한 일부 proof 데이터, 그리고 circuit 실행 후의 public 및 private state를 나타내는 새 `CircuitContext<T>`를 포함합니다.
+TypeScript 타입 `[]`의 실제 반환값과 함께, ZK proof를 구성하는 데 필요한 일부 증명 데이터, 그리고 circuit 실행 후의 public 및 private state를 나타내는 새 `CircuitContext<T>`를 포함합니다.
 
 여기서 `takeDown`에 대해서는 자세히 다루지 않겠지만, 그 시그니처도 마찬가지로 Compact의 circuit 시그니처에서 예측 가능하게 도출되었음을 확인할 수 있습니다.
 
 헬퍼 circuit `publicKey`는 *pure*합니다.
 이는 public state에 접근하거나 witness를 호출하지 않는다는 의미입니다(즉, impure하지 않습니다).
 `PureCircuits` 타입에 선언됩니다.
-Pure circuit은 contract의 인스턴스 없이 실행할 수 있는 것입니다.
+Pure circuit은 컨트랙트의 인스턴스 없이 실행할 수 있는 것입니다.
 구체적으로, ledger 상태에 접근할 필요가 없고 private state에 대한 접근 권한도 없습니다.
 여기서 이를 확인할 수 있는데, 추가 첫 번째 `CircuitContext` 인자가 없고, 반환값이 `CircuitResult`가 아닌 순수 TypeScript 타입입니다.
 `PureCircuits` 타입은 제네릭이 아니며, private state의 타입을 나타내는 타입 파라미터 `T`가 필요하지 않습니다.
@@ -317,7 +317,7 @@ Pure circuit은 contract의 인스턴스 없이 실행할 수 있는 것입니�
 
 ### Compact Witnesses
 
-Contract에는 하나의 witness 선언이 있었으며, 이것도 contract의 TypeScript API에 반영됩니다:
+컨트랙트에는 하나의 witness 선언이 있었으며, 이것도 컨트랙트의 TypeScript API에 반영됩니다:
 
 ```typescript
 export type Witnesses<T> = {
@@ -328,15 +328,15 @@ export type Witnesses<T> = {
 Witness의 시그니처도 Compact witness 선언에서 예측 가능하게 도출됩니다.
 `WitnessContext<Ledger, T>` 타입의 추가 첫 번째 인자가 있습니다.
 이 인터페이스는 [Compact runtime](/api-reference/compact-runtime/interfaces/WitnessContext)에 선언되어 있습니다.
-공개 ledger 상태의 스냅샷, `T` 타입의 contract private state, 그리고 contract 주소를 포함합니다.
+공개 ledger 상태의 스냅샷, `T` 타입의 contract private state, 그리고 컨트랙트 주소를 포함합니다.
 Witness는 `T` 타입의 새 private state와 Compact 반환값으로 구성된 튜플(두 요소의 TypeScript 배열)을 반환합니다.
 Compact 타입 `Bytes<32>`는 기본 TypeScript 타입 Uint8Array로 표현됩니다.
 
-DApp 구현에서는 contract를 생성할 때 이 시그니처를 가진 witness를 제공해야 합니다.
+DApp 구현에서는 컨트랙트를 생성할 때 이 시그니처를 가진 witness를 제공해야 합니다.
 
 ### The Contract Type
 
-마지막으로, contract 타입의 선언이 있습니다:
+마지막으로, 컨트랙트 타입의 선언이 있습니다:
 
 ```typescript
 export declare class Contract<T, W extends Witnesses<T> = Witnesses<T>> {
@@ -351,7 +351,7 @@ export declare const pureCircuits: PureCircuits;
 ```
 
 Private state 타입과 witness 타입에 대해 파라미터화되어 있으며, 위에서 본 타입 선언들을 사용하는 witness, circuit, impure circuit, 생성자, 초기 상태를 가지고 있습니다.
-Pure circuit은 contract의 인스턴스가 필요하지 않다는 사실을 반영하여 (contract 속성이 아닌) 최상위 TypeScript 값입니다.
+Pure circuit은 컨트랙트의 인스턴스가 필요하지 않다는 사실을 반영하여 (컨트랙트 속성이 아닌) 최상위 TypeScript 값입니다.
 
-Contract 자체는 `index.cjs`의 컴파일러 생성 JavaScript 코드로 구현됩니다.
+컨트랙트 자체는 `index.cjs`의 컴파일러 생성 JavaScript 코드로 구현됩니다.
 이 시리즈의 다음 글인 "Compact Deep Dive - Part 2: Circuits and Witnesses"에서 circuit과 witness가 생성된 코드에서 어떻게 구현되는지 살펴보겠습니다.

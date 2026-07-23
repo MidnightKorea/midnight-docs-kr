@@ -10,7 +10,7 @@ image: /img/blog/js.jpg
 date: 2025-07-04
 ---
 
-Midnight blockchain은 DApp의 데이터 프라이버시와 컴플라이언스에 새로운 접근 방식을 도입하며, zero-knowledge proof(ZKP)와 듀얼 토큰 시스템을 활용합니다.
+Midnight blockchain은 DApp의 데이터 프라이버시와 컴플라이언스에 새로운 접근 방식을 도입하며, 영지식 증명(ZKP)와 듀얼 토큰 시스템을 활용합니다.
 
 이 글에서는 Midnight blockchain에 연결하는 방법을 안내합니다. Polkadot API를 사용하여 Substrate 기반 blockchain(Midnight 포함)에 접속하고, 새 블록을 실시간으로 수신하며, 블록에서 데이터를 추출하는 방법을 다룹니다.
 
@@ -23,14 +23,14 @@ Midnight blockchain은 DApp의 데이터 프라이버시와 컴플라이언스�
 Midnight은 기존 blockchain의 데이터 프라이버시 한계를 해결하기 위해 설계되었습니다. 이를 위해 다음 기술을 활용합니다:
 
 - [Zero-Knowledge Proof(ZKP)](https://www.google.com/url?q=https://docs.midnight.network/learn/glossary%23zero-knowledge-proof-zkp&sa=D&source=docs&ust=1751469460016839&usg=AOvVaw0GBVs0ZrYgq8Eggpat3hpn): 데이터 자체를 드러내지 않고도 데이터를 검증할 수 있습니다.
-- [듀얼 토큰 시스템](https://www.google.com/url?q=https://docs.midnight.network/learn/introduction/native-token/about-dust&sa=D&source=docs&ust=1751469460016900&usg=AOvVaw1yvGgY8EL1yJB3W61g1LQq): 거버넌스를 위한 NIGHT(비차폐)와 transaction 수수료 지불을 위한 DUST(차폐)를 사용합니다.
-- [Compact Smart Contract 언어](https://www.google.com/url?q=https://docs.midnight.network/develop/reference/compact/&sa=D&source=docs&ust=1751469460016917&usg=AOvVaw0DQvxLVoHOxx7vIhTKZFnG): TypeScript 기반 언어로 프라이버시 보존 smart contract 개발을 지원합니다.
+- [듀얼 토큰 시스템](https://www.google.com/url?q=https://docs.midnight.network/learn/introduction/native-token/about-dust&sa=D&source=docs&ust=1751469460016900&usg=AOvVaw1yvGgY8EL1yJB3W61g1LQq): 거버넌스를 위한 NIGHT(unshielded)와 트랜잭션 수수료 지불을 위한 DUST(shielded)를 사용합니다.
+- [Compact Smart Contract 언어](https://www.google.com/url?q=https://docs.midnight.network/develop/reference/compact/&sa=D&source=docs&ust=1751469460016917&usg=AOvVaw0DQvxLVoHOxx7vIhTKZFnG): TypeScript 기반 언어로 프라이버시 보존 스마트 컨트랙트 개발을 지원합니다.
 
 이러한 기능 덕분에 Midnight은 의료 기록, 금융 거래, 신원 확인 등 데이터 기밀이 중요한 애플리케이션에 적합합니다.
 
 ## Connecting to the Midnight Blockchain
 
-[`@polkadot/api`](https://polkadot.js.org/docs/api/) 라이브러리는 Midnight을 포함한 Substrate 기반 blockchain에 연결하기 위한 WebSocket 프로바이더(WsProvider)를 제공합니다.
+[`@polkadot/api`](https://polkadot.js.org/docs/api/) 라이브러리는 Midnight을 포함한 Substrate 기반 blockchain에 연결하기 위한 WebSocket provider(WsProvider)를 제공합니다.
 
 ### Installation
 
@@ -68,7 +68,7 @@ api.rpc.chain.subscribeNewHeads((lastHeader) => {
 
 ## Extracting Data from Blocks
 
-각 새 블록에서 transaction과 event 같은 상세 정보를 추출하려면 다음 접근 방식을 사용할 수 있습니다:
+각 새 블록에서 트랜잭션과 event 같은 상세 정보를 추출하려면 다음 접근 방식을 사용할 수 있습니다:
 
 ```javascript  
 api.rpc.chain.subscribeNewHeads(async (lastHeader) => {  
@@ -91,7 +91,7 @@ api.rpc.chain.subscribeNewHeads(async (lastHeader) => {
 });  
 ```
 
-이 스크립트는 새 블록 헤더를 구독하고, 전체 블록과 관련 event를 가져오며, 각 extrinsic(transaction)과 event에 대한 상세 정보를 로깅합니다.
+이 스크립트는 새 블록 헤더를 구독하고, 전체 블록과 관련 event를 가져오며, 각 extrinsic(트랜잭션)과 event에 대한 상세 정보를 로깅합니다.
 
 ## What is an extrinsic?
 
@@ -99,7 +99,7 @@ Midnight 같은 Substrate 기반 blockchain에서 extrinsic은 런타임 외부�
 
 세 가지 주요 유형의 extrinsic이 있습니다:
 
-- **Signed Extrinsic**: 디지털 서명이 포함된 사용자 제출 transaction입니다. 토큰 전송이나 smart contract 호출 등이 해당합니다. 서명으로 진위를 보장하고 transaction 수수료를 청구할 수 있습니다.
+- **Signed Extrinsic**: 디지털 서명이 포함된 사용자 제출 transaction입니다. 토큰 전송이나 스마트 컨트랙트 호출 등이 해당합니다. 서명으로 진위를 보장하고 트랜잭션 수수료를 청구할 수 있습니다.
 - **Unsigned Extrinsic**: 서명 없이 제출되며, 사용자 인증이 필요 없는 작업에 사용됩니다. 오용 방지를 위해 커스텀 검증 로직을 적용할 수 있습니다.
 - **Inherent Extrinsic**: Blockchain 자체에서 생성되며, 블록 타임스탬프 설정 같은 시스템 수준 작업에 사용됩니다. 네트워크를 통해 전파되지 않고, 블록 생성 시 블록 프로듀서가 직접 포함시킵니다.
 

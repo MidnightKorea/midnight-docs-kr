@@ -77,7 +77,7 @@ sequenceDiagram
 
 Midnight block producer가 되려면, 먼저 Cardano Stake Pool Operator(SPO)로 운영 중이어야 합니다. 이 기본 요건은 blockchain 운영과 인프라 관리에 대한 기초 역량을 보장합니다.
 
-SPO 요건을 충족한 후, Midnight Block Producer Committee에 후보자로 등록할 수 있습니다. 이 committee는 Cardano blockchain의 smart contract로 구현되어 있으며, 각 epoch에서 블록 생성을 위한 SPO의 교체 및 선정을 관리합니다. 등록은 Midnight 노드 소프트웨어에서 제공하는 간단한 CLI 명령어로 진행됩니다.
+SPO 요건을 충족한 후, Midnight Block Producer Committee에 후보자로 등록할 수 있습니다. 이 committee는 Cardano blockchain의 스마트 컨트랙트로 구현되어 있으며, 각 epoch에서 블록 생성을 위한 SPO의 교체 및 선정을 관리합니다. 등록은 Midnight 노드 소프트웨어에서 제공하는 간단한 CLI 명령어로 진행됩니다.
 
 등록 완료 후 최종 운영 단계는 Midnight 노드를 block producer 모드로 설정하고 실행하는 것입니다. 이 모드에서는 Midnight 노드와 cardano-db-sync가 실행되는 PostgreSQL 인스턴스 간의 지속적인 연결이 필요합니다. 이 연결은 Midnight 노드가 Cardano blockchain을 정확하게 추적하고 동기화하는 데 필수적입니다.
 

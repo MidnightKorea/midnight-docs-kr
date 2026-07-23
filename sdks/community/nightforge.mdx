@@ -12,7 +12,7 @@ id: nightforge
 
 # Nightforge
 
-[Nightforge](https://github.com/cadalt0/NIGHTFORGE)는 Midnight Network에서 Compact contract를 컴파일하고 배포하며 운영하기 위한 개발 환경입니다. 프로젝트 scaffolding, wallet 생명주기 도구, proof server 오케스트레이션, 배포를 하나의 CLI로 묶어 제공합니다. [cadalt0](https://github.com/cadalt0)가 이 프로젝트를 관리하며 npm에 [`nightforge`](https://www.npmjs.com/package/nightforge)로 배포합니다.
+[Nightforge](https://github.com/cadalt0/NIGHTFORGE)는 Midnight Network에서 Compact contract를 컴파일하고 배포하며 운영하기 위한 개발 환경입니다. 프로젝트 scaffolding, 지갑 생명주기 도구, proof server 오케스트레이션, 배포를 하나의 CLI로 묶어 제공합니다. [cadalt0](https://github.com/cadalt0)가 이 프로젝트를 관리하며 npm에 [`nightforge`](https://www.npmjs.com/package/nightforge)로 배포합니다.
 
 :::warning[Community-maintained - not audited]
 
@@ -77,7 +77,7 @@ npx nightforge deploy example --network preprod
 
 ## Auto mode
 
-`deploy --auto`는 전체 과정을 자동으로 진행합니다. wallet이 없으면 생성하고, tNIGHT 충전을 기다린 뒤 DUST를 등록하고, proof server가 준비될 때까지 기다린 다음 배포합니다.
+`deploy --auto`는 전체 과정을 자동으로 진행합니다. 지갑이 없으면 생성하고, tNIGHT 충전을 기다린 뒤 DUST를 등록하고, proof server가 준비될 때까지 기다린 다음 배포합니다.
 
 ```bash
 npx nightforge deploy --auto --network preprod
@@ -97,12 +97,12 @@ npx nightforge deploy example --auto --remote http://YOUR-PROOF-HOST:6300
 | `nightforge compile` | Compact contract를 `contracts/managed/`로 컴파일합니다. |
 | `nightforge sync --init` | walletsync 설정 파일을 생성합니다. |
 | `nightforge sync` | walletsync 서버를 실행합니다(기본 포트 `8787`). |
-| `nightforge wallet create` | wallet을 생성합니다. |
-| `nightforge wallet restore` | seed로 wallet을 복구합니다. |
-| `nightforge wallet balance` | 활성 wallet의 잔액을 확인합니다. |
+| `nightforge wallet create` | 지갑을 생성합니다. |
+| `nightforge wallet restore` | seed로 지갑을 복구합니다. |
+| `nightforge wallet balance` | 활성 지갑의 잔액을 확인합니다. |
 | `nightforge wallet dust` | DUST 생성을 위해 tNIGHT를 등록합니다. |
 | `nightforge proof-server` | local proof server를 실행합니다(단축형: `ps`). |
-| `nightforge deploy <contract>` | 컴파일된 contract를 배포합니다. |
+| `nightforge deploy <contract>` | 컴파일된 컨트랙트를 배포합니다. |
 | `nightforge clean` | 빌드 산출물을 제거합니다. |
 
 저장소의 [command guides](https://github.com/cadalt0/NIGHTFORGE/tree/main/Docs)에서 모든 flag를 자세히 설명합니다.
@@ -117,11 +117,11 @@ Nightforge는 프로젝트 루트에 로컬 state 파일을 기록합니다:
 | `proof-server-status.json` | proof server의 실행 및 준비 상태. |
 | `deployment.json` | 배포 메타데이터 출력. |
 
-`nightforge wallet`로 생성한 wallet은 프로젝트 외부의 `~/.nightforge/wallets/`에 저장되며, wallet마다 JSON 파일 하나로 소유자 전용 파일 권한이 부여됩니다.
+`nightforge wallet`로 생성한 지갑은 프로젝트 외부의 `~/.nightforge/wallets/`에 저장되며, 지갑마다 JSON 파일 하나로 소유자 전용 파일 권한이 부여됩니다.
 
 :::caution[Wallet files contain seeds]
 
-`wallet.json`과 `~/.nightforge/wallets/` 아래 파일에는 wallet seed가 들어 있습니다. 절대 버전 관리에 커밋하지 말고, 환경마다 별도의 wallet을 사용하세요.
+`wallet.json`과 `~/.nightforge/wallets/` 아래 파일에는 wallet seed가 들어 있습니다. 절대 버전 관리에 커밋하지 말고, 환경마다 별도의 지갑을 사용하세요.
 
 :::
 

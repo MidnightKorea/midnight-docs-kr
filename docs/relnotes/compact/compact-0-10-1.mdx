@@ -33,10 +33,10 @@ Compact 컴파일러는 Compact 스마트 컨트랙트 코드를 실행 가능�
 이 문서의 나머지 부분에서는 언어 및 컴파일러의 변경 사항을 설명합니다.
 
 ## Summary of Changes
-- 새로운 퍼블릭 원장 선언 구문이 도입되었습니다.
-- `ledger` 키워드는 더 이상 원장 필드 접근에 사용되지 않습니다.
-- 원장 커널 연산은 `kernel`에서 사용할 수 있습니다.
-- 원장 필드 업데이트 축약형은 이제 문(statement)입니다.
+- 새로운 퍼블릭 ledger 선언 구문이 도입되었습니다.
+- `ledger` 키워드는 더 이상 ledger 필드 접근에 사용되지 않습니다.
+- ledger 커널 연산은 `kernel`에서 사용할 수 있습니다.
+- ledger 필드 업데이트 축약형은 이제 문(statement)입니다.
 - Unsigned Integer 크기를 제네릭으로 지정할 수 있습니다.
 - 뺄셈의 정적 타이핑이 개선되었습니다.
 - 관계 연산자의 우선순위가 변경되었습니다.
@@ -48,7 +48,7 @@ Compact 컴파일러는 Compact 스마트 컨트랙트 코드를 실행 가능�
 
 ## New Public Ledger Declaration Syntax
 
-퍼블릭 원장 선언 방식을 변경했습니다. Compact 0.5.0에서는 컨트랙트에 최대 하나의 `ledger` 블록이 있었습니다. `ledger` 블록에는 모든 원장 필드의 선언이 포함되었고, 컨트랙트의 퍼블릭 상태를 초기화하기 위한 생성자가 최대 하나 있었습니다. 예를 들어, Bulletin Board 튜토리얼에서:
+퍼블릭 ledger 선언 방식을 변경했습니다. Compact 0.5.0에서는 컨트랙트에 최대 하나의 `ledger` 블록이 있었습니다. `ledger` 블록에는 모든 ledger 필드의 선언이 포함되었고, 컨트랙트의 퍼블릭 상태를 초기화하기 위한 생성자가 최대 하나 있었습니다. 예를 들어, Bulletin Board 튜토리얼에서:
 
 ```compact
 ledger {
@@ -64,9 +64,9 @@ ledger {
 }
 ```
 
-위는 이전 원장 구문입니다.
+위는 이전 ledger 구문입니다.
 
-Compact 0.10.1에서는 `ledger` 블록이 제거되고 각 원장 필드에 대해 별도의 선언이 사용됩니다. 이러한 선언은 컨트랙트의 최상위 레벨이나 모듈 본문 어디에서든 위치할 수 있습니다. 생성자는 여전히 최대 하나이며, 존재할 경우 컨트랙트의 최상위 레벨에 위치해야 합니다. Bulletin Board 퍼블릭 상태 선언은 이제 다음과 같습니다:
+Compact 0.10.1에서는 `ledger` 블록이 제거되고 각 ledger 필드에 대해 별도의 선언이 사용됩니다. 이러한 선언은 컨트랙트의 최상위 레벨이나 모듈 본문 어디에서든 위치할 수 있습니다. 생성자는 여전히 최대 하나이며, 존재할 경우 컨트랙트의 최상위 레벨에 위치해야 합니다. Bulletin Board 퍼블릭 상태 선언은 이제 다음과 같습니다:
 
 ```compact
 export ledger state: Cell[STATE];
@@ -83,11 +83,11 @@ constructor() {
 
 ### Key Changes
 
-- **원장 필드는 개별적으로 선언됩니다.** `ledger` 키워드를 사용하며, 이전과 동일하게 이름과 타입을 갖습니다.
-- **원장 필드는 다른 선언과 동일한 네임스페이스에** 위치합니다. 컨트랙트 최상위 레벨이나 모듈 내에서 선언됩니다. 따라서 원장 필드 이름이 다른 이름과 충돌하면 컴파일 타임 오류가 발생합니다.
-- **원장 필드는 선택적으로 내보낼 수 있으며,** 선언 앞에 `export` 키워드를 붙입니다.
-- **내보낸 원장 필드는** 모듈을 가져오는 코드나 DApp의 TypeScript 코드에서 접근할 수 있으며, 읽기 전용 접근을 제공합니다.
-- **sealed 원장 필드는** `sealed` 키워드를 사용하여 컨트랙트 초기화 중에만 설정할 수 있습니다. 초기화 후에는 변경 불가능합니다.
+- **ledger 필드는 개별적으로 선언됩니다.** `ledger` 키워드를 사용하며, 이전과 동일하게 이름과 타입을 갖습니다.
+- **ledger 필드는 다른 선언과 동일한 네임스페이스에** 위치합니다. 컨트랙트 최상위 레벨이나 모듈 내에서 선언됩니다. 따라서 ledger 필드 이름이 다른 이름과 충돌하면 컴파일 타임 오류가 발생합니다.
+- **ledger 필드는 선택적으로 내보낼 수 있으며,** 선언 앞에 `export` 키워드를 붙입니다.
+- **내보낸 ledger 필드는** 모듈을 가져오는 코드나 DApp의 TypeScript 코드에서 접근할 수 있으며, 읽기 전용 접근을 제공합니다.
+- **sealed ledger 필드는** `sealed` 키워드를 사용하여 컨트랙트 초기화 중에만 설정할 수 있습니다. 초기화 후에는 변경 불가능합니다.
 
 ### Example with `sealed` Keyword
 
@@ -107,44 +107,44 @@ constructor(x: Unsigned Integer[16]) {
 
 ### Why We Made These Changes
 
-개발자가 코드에서 가장 적합한 위치에 원장 필드를 선언할 수 있는 유연성을 제공하고자 했습니다. 이제 원장 필드를 해당 필드에 접근하는 회로와 함께 선언할 수 있습니다. 이를 통해 모듈에 로컬(또는 "프라이빗")인 원장 필드를 만들 수 있습니다.
+개발자가 코드에서 가장 적합한 위치에 ledger 필드를 선언할 수 있는 유연성을 제공하고자 했습니다. 이제 ledger 필드를 해당 필드에 접근하는 회로와 함께 선언할 수 있습니다. 이를 통해 모듈에 로컬(또는 "프라이빗")인 ledger 필드를 만들 수 있습니다.
 
 ### How to Fix Your Code
 
-이것은 **호환성을 깨는 변경**입니다. 이전 원장 선언 구문은 더 이상 동작하지 않습니다. 코드를 업데이트하려면:
+이것은 **호환성을 깨는 변경**입니다. 이전 ledger 선언 구문은 더 이상 동작하지 않습니다. 코드를 업데이트하려면:
 
 1. 선언에서 `ledger` 키워드와 중괄호를 제거하세요.
-2. 원장 필드(생성자 제외) 앞에 `ledger` 또는 `export ledger`를 붙이세요.
-3. 원장 필드 이름이 동일한 네임스페이스의 다른 이름과 충돌하지 않는지 확인하세요.
+2. ledger 필드(생성자 제외) 앞에 `ledger` 또는 `export ledger`를 붙이세요.
+3. ledger 필드 이름이 동일한 네임스페이스의 다른 이름과 충돌하지 않는지 확인하세요.
 
-컴파일러가 이름 충돌 시 오류를 표시합니다. 원장 필드 또는 충돌하는 선언의 이름을 변경해야 할 수 있으며, 컨트랙트 코드와 DApp의 TypeScript 구현 모두 업데이트해야 합니다.
+컴파일러가 이름 충돌 시 오류를 표시합니다. ledger 필드 또는 충돌하는 선언의 이름을 변경해야 할 수 있으며, 컨트랙트 코드와 DApp의 TypeScript 구현 모두 업데이트해야 합니다.
 
 ---
 
 ## The `ledger` Keyword is No Longer Used for Ledger Field Access
 
-원장 선언 변경과 함께 원장 필드 접근 방식도 변경되었습니다. Compact 0.5.0에서는 `ledger` 키워드를 사용하여 원장 필드를 참조했습니다(예: `ledger.fieldName.operation(...)`). 여기서 `ledger`는 키워드입니다.
+ledger 선언 변경과 함께 ledger 필드 접근 방식도 변경되었습니다. Compact 0.5.0에서는 `ledger` 키워드를 사용하여 ledger 필드를 참조했습니다(예: `ledger.fieldName.operation(...)`). 여기서 `ledger`는 키워드입니다.
 
 Compact 0.10.1에서는 필드 이름이 해당 선언과 동일한 네임스페이스에서 비한정 식별자로 사용됩니다. 동일한 코드가 이제 `fieldName.operation(...)`으로 작성됩니다.
 
 ### Why We Made This Change
 
-원장 필드가 이제 최상위 레벨 또는 모듈 레벨 선언이므로, 이름 앞에 키워드를 붙일 강한 이유가 없습니다.
+ledger 필드가 이제 최상위 레벨 또는 모듈 레벨 선언이므로, 이름 앞에 키워드를 붙일 강한 이유가 없습니다.
 
 ### How to Fix Your Code
 
 이것은 **호환성을 깨는 변경**입니다. `ledger` 키워드는 더 이상 필드 접근에 사용할 수 없습니다. 다음과 같이 코드를 업데이트하세요:
 
-- 원장 필드 접근에서 `ledger` 키워드와 점(`.`)을 제거하세요.
-- 원장 필드 이름이 다른 선언에 의해 가려지지 않는지 확인하세요. 가려지는 경우, 원장 필드 또는 충돌하는 선언의 이름을 변경하세요.
+- ledger 필드 접근에서 `ledger` 키워드와 점(`.`)을 제거하세요.
+- ledger 필드 이름이 다른 선언에 의해 가려지지 않는지 확인하세요. 가려지는 경우, ledger 필드 또는 충돌하는 선언의 이름을 변경하세요.
 
 ---
 
 ## Ledger Kernel Operations are Available on `kernel`
 
-Midnight 원장에는 커널 연산이 포함되어 있으며, 이는 개념적으로 특정 필드와 무관한 원장의 최상위 연산입니다. Compact 0.5.0에서는 `ledger` 키워드를 사용했습니다(예: `ledger.kernelOperation(...)`).
+Midnight ledger에는 커널 연산이 포함되어 있으며, 이는 개념적으로 특정 필드와 무관한 ledger의 최상위 연산입니다. Compact 0.5.0에서는 `ledger` 키워드를 사용했습니다(예: `ledger.kernelOperation(...)`).
 
-Compact 0.10.1에서는 `ledger` 키워드 없이 커널 연산에 접근합니다. 대신, 표준 라이브러리에 `Kernel` 타입의 `kernel` 원장 필드가 있습니다. 예시:
+Compact 0.10.1에서는 `ledger` 키워드 없이 커널 연산에 접근합니다. 대신, 표준 라이브러리에 `Kernel` 타입의 `kernel` ledger 필드가 있습니다. 예시:
 
 ```compact
 kernel.kernelOperation(...);
@@ -152,7 +152,7 @@ kernel.kernelOperation(...);
 
 ### Why We Made This Change
 
-이 변경은 원장 접근에서 `ledger` 구문을 제거하여 언어 구문을 간소화하기 위한 것입니다.
+이 변경은 ledger 접근에서 `ledger` 구문을 제거하여 언어 구문을 간소화하기 위한 것입니다.
 
 ### How to Fix Your Code
 
@@ -167,7 +167,7 @@ kernel.kernelOperation(...);
 
 ## Ledger-Field Update Shortcuts Are Now Statements
 
-Compact 0.5.0과 Compact 0.10.1 모두 원장 쓰기, 증가, 감소 연산의 축약형을 제공합니다:
+Compact 0.5.0과 Compact 0.10.1 모두 ledger 쓰기, 증가, 감소 연산의 축약형을 제공합니다:
 
 ```compact
 ledgerFieldAccess = expr;  // ledgerFieldAccess.write(expr)와 동일
@@ -243,7 +243,7 @@ Compact 0.10.1에서는 `==`와 `!=`가 다른 관계 연산자보다 낮은 우
 
 ## Generics Can No Longer Be Parameterized Over Generics
 
-Compact 0.5.0에서는 구조체, 회로, 위트니스, 모듈과 같은 제네릭을 다른 제네릭으로 매개변수화하여 선언할 수 있었습니다. 예를 들어:
+Compact 0.5.0에서는 구조체, 회로, witness, 모듈과 같은 제네릭을 다른 제네릭으로 매개변수화하여 선언할 수 있었습니다. 예를 들어:
 
 ```compact
 struct Foo[F] {

@@ -11,9 +11,9 @@ import FlipCardGrid from '@site/src/components/FlipCard/FlipCardGrid';
 
 # What is Midnight?
 
-Midnight은 데이터 보호에 특화된 blockchain 플랫폼입니다. 민감한 데이터의 프라이버시를 지키면서 분산 원장의 장점을 활용할 수 있도록 설계되었습니다.
+Midnight은 데이터 보호에 특화된 blockchain 플랫폼입니다. 민감한 데이터의 프라이버시를 지키면서 분산 ledger의 장점을 활용할 수 있도록 설계되었습니다.
 
-기존 blockchain에서는 모든 transaction이 참여자 전체에게 영구적으로 공개됩니다. 반면 Midnight은 selective disclosure를 지원합니다. 데이터 자체를 드러내지 않고도 해당 데이터가 특정 조건을 만족한다는 것을 증명할 수 있습니다. 덕분에 헬스케어, 금융, 공공 서비스처럼 데이터 보호가 법적으로 요구되는 규제 산업에서도 blockchain을 도입할 수 있습니다.
+기존 blockchain에서는 모든 트랜잭션이 참여자 전체에게 영구적으로 공개됩니다. 반면 Midnight은 selective disclosure를 지원합니다. 데이터 자체를 드러내지 않고도 해당 데이터가 특정 조건을 만족한다는 것을 증명할 수 있습니다. 덕분에 헬스케어, 금융, 공공 서비스처럼 데이터 보호가 법적으로 요구되는 규제 산업에서도 blockchain을 도입할 수 있습니다.
 
 
 ## Core concepts
@@ -22,7 +22,7 @@ Midnight은 데이터 보호에 특화된 blockchain 플랫폼입니다. 민감�
 
 Midnight은 두 가지 상태를 병렬로 관리합니다:
 
-- **Public state**: 온체인에 저장되어 모든 네트워크 참여자가 볼 수 있는 데이터입니다. Transaction proof, 컨트랙트 코드, 의도적으로 공개한 정보 등이 여기에 해당합니다.
+- **Public state**: 온체인에 저장되어 모든 네트워크 참여자가 볼 수 있는 데이터입니다. 트랜잭션 증명, 컨트랙트 코드, 의도적으로 공개한 정보 등이 여기에 해당합니다.
 
 - **Private state**: 사용자 로컬에 암호화되어 저장되며, 네트워크에 절대 노출되지 않습니다. 개인 정보, 비즈니스 데이터, 기밀 유지가 필요한 민감 데이터가 여기에 해당합니다.
 
@@ -32,15 +32,15 @@ Midnight은 두 가지 상태를 병렬로 관리합니다:
 Public state와 private state를 잇는 핵심 기술은 zero-knowledge cryptography입니다. Midnight은 zk-SNARK를 활용하여 다음과 같은 작업을 수행합니다:
 - 입력 데이터를 보지 않고 연산 결과를 검증
 - 이유를 밝히지 않고 명제가 참임을 증명
-- 연산 복잡도와 무관하게 128바이트의 compact한 proof 생성
-- 온체인에서 밀리초 단위로 proof 검증
+- 연산 복잡도와 무관하게 128바이트의 compact한 증명 생성
+- 온체인에서 밀리초 단위로 증명 검증
 
 예를 들어, 헬스케어 애플리케이션에서는 환자의 진료 기록 없이도 치료 자격을 증명할 수 있고, 금융 시스템에서는 실제 금액을 드러내지 않고도 잔액이 충분한지 검증할 수 있습니다.
 
 
 ### Compact programming language
 
-Midnight은 TypeScript 기반의 도메인 특화 언어인 Compact를 제공합니다. 암호학 전문 지식 없이도 프라이버시를 보장하는 smart contract를 작성할 수 있으며, 코드는 자동으로 zero-knowledge circuit으로 컴파일됩니다.
+Midnight은 TypeScript 기반의 도메인 특화 언어인 Compact를 제공합니다. 암호학 전문 지식 없이도 프라이버시를 보장하는 스마트 컨트랙트를 작성할 수 있으며, 코드는 자동으로 zero-knowledge circuit으로 컴파일됩니다.
 
 ## Why Midnight
 
@@ -63,14 +63,14 @@ Midnight은 TypeScript 기반의 도메인 특화 언어인 Compact를 제공합
   <FlipCard
     title="프라이버시 도구는 진입 장벽이 높습니다"
     frontContent="대부분의 팀은 전문적인 암호학 지식이 없어 ZK 시스템을 직접 구축하기 어렵습니다."
-    backContent="기존 ZK 개발은 circuit 설계와 proof system에 대한 깊은 이해를 요구합니다. Midnight의 Compact 언어는 TypeScript와 유사한 코드를 circuit과 proof로 자동 컴파일하여 이러한 진입 장벽을 크게 낮춥니다."
+    backContent="기존 ZK 개발은 circuit 설계와 proof system에 대한 깊은 이해를 요구합니다. Midnight의 Compact 언어는 TypeScript와 유사한 코드를 circuit과 증명으로 자동 컴파일하여 이러한 진입 장벽을 크게 낮춥니다."
     height="240px"
   />
 
   <FlipCard
     title="비공개 연산도 검증 가능해야 합니다"
     frontContent="민감한 로직은 프라이버시가 필요하지만, 동시에 네트워크에 정확성을 증명해야 합니다."
-    backContent="Midnight에서는 비공개 데이터를 로컬에서 연산한 뒤, 원본 입력 대신 zero-knowledge proof를 제출합니다. Validator는 원본 데이터 없이도 정확성을 검증할 수 있어 프라이버시와 신뢰를 모두 확보합니다."
+    backContent="Midnight에서는 비공개 데이터를 로컬에서 연산한 뒤, 원본 입력 대신 영지식 증명을 제출합니다. Validator는 원본 데이터 없이도 정확성을 검증할 수 있어 프라이버시와 신뢰를 모두 확보합니다."
     height="240px"
   />
 
@@ -82,19 +82,19 @@ Midnight은 TypeScript 기반의 도메인 특화 언어인 Compact를 제공합
 
 ### Transaction flow
 
-Midnight에서 transaction이 처리되는 과정은 다음과 같습니다. 먼저 사용자가 비공개 데이터에 대한 연산을 로컬에서 수행합니다. 이 데이터는 네트워크에 절대 노출되지 않습니다. 이어서 Midnight 런타임이 해당 연산의 zero-knowledge proof를 생성합니다. 입력값을 공개하지 않으면서도 연산이 올바르게 수행되었음을 수학적으로 증명하는 것입니다.
+Midnight에서 트랜잭션이 처리되는 과정은 다음과 같습니다. 먼저 사용자가 비공개 데이터에 대한 연산을 로컬에서 수행합니다. 이 데이터는 네트워크에 절대 노출되지 않습니다. 이어서 Midnight 런타임이 해당 연산의 영지식 증명을 생성합니다. 입력값을 공개하지 않으면서도 연산이 올바르게 수행되었음을 수학적으로 증명하는 것입니다.
 
-생성된 proof와 공개 출력값은 blockchain에 제출됩니다. 네트워크의 validator가 zk-SNARK 검증 알고리즘으로 proof를 검증하며, 원래 연산이 아무리 복잡해도 밀리초 단위로 완료됩니다. 검증이 끝나면 public state는 blockchain에, private state는 사용자의 로컬 저장소에 각각 업데이트됩니다.
+생성된 증명과 공개 출력값은 blockchain에 제출됩니다. 네트워크의 validator가 zk-SNARK 검증 알고리즘으로 증명을 검증하며, 원래 연산이 아무리 복잡해도 밀리초 단위로 완료됩니다. 검증이 끝나면 public state는 blockchain에, private state는 사용자의 로컬 저장소에 각각 업데이트됩니다.
 
 ### Network architecture
 
 Midnight은 proof-of-stake blockchain입니다. Validator는 stake delegation을 통해 누구나 참여할 수 있으며, 네트워크 보안에 기여한 대가로 보상을 받습니다. Cardano와의 네이티브 브릿지를 통해 두 체인 간 자산 전송도 지원합니다.
 
-네트워크는 두 가지 유형의 transaction을 처리합니다. 하나는 기존 blockchain과 동일한 표준 public transaction이고, 다른 하나는 프라이버시 보호를 위해 zero-knowledge proof를 사용하는 shielded transaction입니다. 두 유형 모두 동일한 validator 집합이 검증하므로 네트워크 전반에 걸쳐 일관된 보안이 유지됩니다.
+네트워크는 두 가지 유형의 트랜잭션을 처리합니다. 하나는 기존 blockchain과 동일한 표준 public transaction이고, 다른 하나는 프라이버시 보호를 위해 영지식 증명을 사용하는 shielded transaction입니다. 두 유형 모두 동일한 validator 집합이 검증하므로 네트워크 전반에 걸쳐 일관된 보안이 유지됩니다.
 
 ### Privacy guarantees
 
-Midnight은 여러 계층에 걸친 프라이버시 보호를 제공합니다. Data minimization 원칙에 따라 필수 데이터만 온체인에 기록하고, 민감한 정보는 로컬에 보관합니다. Forward secrecy를 통해 과거 데이터도 보호합니다. 향후 암호화 키가 유출되더라도 과거 transaction은 비공개로 유지됩니다.
+Midnight은 여러 계층에 걸친 프라이버시 보호를 제공합니다. Data minimization 원칙에 따라 필수 데이터만 온체인에 기록하고, 민감한 정보는 로컬에 보관합니다. Forward secrecy를 통해 과거 데이터도 보호합니다. 향후 암호화 키가 유출되더라도 과거 트랜잭션은 비공개로 유지됩니다.
 
 사용자는 selective disclosure로 어떤 정보를 누구에게 공개할지 세밀하게 제어할 수 있습니다. 규제 대상 기관을 위해서는 선택적 컴플라이언스 메커니즘도 제공합니다. 사용자 프라이버시를 침해하거나 비인가자에게 데이터를 노출하지 않으면서도 관계 당국에 필요한 정보를 보고할 수 있습니다.
 
@@ -113,7 +113,7 @@ Midnight은 여러 계층에 걸친 프라이버시 보호를 제공합니다. D
   <FlipCard
     title="헬스케어와 규제 데이터"
     frontContent="개인 정보를 보호하면서 의료 데이터를 공유하고 검증합니다."
-    backContent="Smart contract로 데이터 접근 권한을 제어하고, zero-knowledge proof로 자격과 컴플라이언스를 검증합니다. 민감한 기록은 온체인에 올라가지 않지만, proof로 필요한 조건을 확인할 수 있습니다."
+    backContent="스마트 컨트랙트로 데이터 접근 권한을 제어하고, 영지식 증명으로 자격과 컴플라이언스를 검증합니다. 민감한 기록은 온체인에 올라가지 않지만, 증명으로 필요한 조건을 확인할 수 있습니다."
     height="220px"
   />
 
@@ -127,7 +127,7 @@ Midnight은 여러 계층에 걸친 프라이버시 보호를 제공합니다. D
   <FlipCard
     title="금융과 컴플라이언스 프라이버시"
     frontContent="규제 요구사항을 충족하면서 비공개 전송과 상호작용을 수행합니다."
-    backContent="금융 애플리케이션은 zero-knowledge proof로 잔액이나 transaction 메타데이터를 노출하지 않고도 KYC, 한도, 스크리닝 등의 규칙을 적용합니다. Smart contract가 컴플라이언스를 검증하는 동안 사용자의 민감한 금융 정보는 기밀로 유지됩니다."
+    backContent="금융 애플리케이션은 영지식 증명으로 잔액이나 트랜잭션 메타데이터를 노출하지 않고도 KYC, 한도, 스크리닝 등의 규칙을 적용합니다. 스마트 컨트랙트가 컴플라이언스를 검증하는 동안 사용자의 민감한 금융 정보는 기밀로 유지됩니다."
     height="220px"
   />
 

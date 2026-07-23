@@ -25,7 +25,7 @@ provider는 Midnight.js 패키지가 Midnight Network과 상호작용할 때 사
 
 - `keys/`와 `zkir/` 디렉터리가 생성된, 컴파일된 Compact 스마트 컨트랙트. 아직 없다면 [build your first contract](../getting-started/hello-world) 튜토리얼을 따라 시작하세요.
 - Node.js 22.x 이상이 설치되어 있어야 합니다. [NVM](https://github.com/nvm-sh/nvm)으로 설치하세요.
-- Docker가 설치되어 실행 중이어야 합니다. [proof server](./run-proof-server)를 실행하고 zero-knowledge(ZK) proof를 생성하는 데 필요합니다.
+- Docker가 설치되어 실행 중이어야 합니다. [proof server](./run-proof-server)를 실행하고 영지식(ZK) 증명을 생성하는 데 필요합니다.
 
 ## The `MidnightProviders` type
 
@@ -111,7 +111,7 @@ const privateStateProvider = levelPrivateStateProvider<PrivateStateId, MyPrivate
 
 :::warning Password security
 
-운영 환경에서는 하드코딩된 비밀번호를 사용하지 마세요. wallet 자격 증명이나 안전한 키 관리 시스템에서 파생하세요.
+운영 환경에서는 하드코딩된 비밀번호를 사용하지 마세요. 지갑 자격 증명이나 안전한 키 관리 시스템에서 파생하세요.
 
 :::
 
@@ -146,7 +146,7 @@ Midnight은 개발과 테스트 용도로 로컬 네트워크를 제공합니다
 
 ### `zkConfigProvider`
 
-ZK configuration provider는 proof provider가 zero-knowledge proof를 생성하는 데 필요한 prover key, verifier key, ZKIR artifact를 공급합니다. 적합한 구현은 ZK artifact를 어디에 저장하는지에 따라 달라집니다.
+ZK configuration provider는 proof provider가 영지식 증명을 생성하는 데 필요한 prover key, verifier key, ZKIR artifact를 공급합니다. 적합한 구현은 ZK artifact를 어디에 저장하는지에 따라 달라집니다.
 
 <Tabs groupId="runtime">
 <TabItem value="nodejs" label="Node.js">
@@ -179,7 +179,7 @@ const zkConfigProvider = new FetchZkConfigProvider<'circuitA' | 'circuitB'>('htt
 
 ### `proofProvider`
 
-proof provider는 Midnight proof server를 호출해 아직 증명되지 않은 거래로부터 zero-knowledge proof를 생성합니다. `@midnight-ntwrk/midnight-js-http-client-proof-provider`의 `httpClientProofProvider`를 사용하세요.
+proof provider는 Midnight proof server를 호출해 아직 증명되지 않은 거래로부터 영지식 증명을 생성합니다. `@midnight-ntwrk/midnight-js-http-client-proof-provider`의 `httpClientProofProvider`를 사용하세요.
 
 이 함수는 proof server URL과 `zkConfigProvider` 인스턴스를 받습니다. proof server는 동일한 ZK artifact에 접근해야 하며, 이를 `zkConfigProvider`를 통해 가져옵니다.
 
@@ -244,13 +244,13 @@ class MyWalletProvider implements WalletProvider {
 
 이 클래스는 `WalletFacade` 인스턴스와 함께, wallet seed에서 파생된 `ZswapSecretKeys`와 `DustSecretKey`를 받습니다. SDK가 거래 생애 주기 동안 호출하는 세 가지 메서드를 노출합니다.
 
-- `getCoinPublicKey`: token을 받는 데 쓰이는 shielded 주소를 반환합니다.
+- `getCoinPublicKey`: 토큰을 받는 데 쓰이는 shielded 주소를 반환합니다.
 - `getEncryptionPublicKey`: 들어오는 shielded 거래 데이터를 복호화하는 데 쓰이는 key를 반환합니다.
-- `balanceTx`: 수수료를 충당할 UTXO를 선택하고, 잔돈 출력을 추가하며, proof 생성과 제출이 가능하도록 거래를 마무리합니다.
+- `balanceTx`: 수수료를 충당할 UTXO를 선택하고, 잔돈 출력을 추가하며, 증명 생성과 제출이 가능하도록 거래를 마무리합니다.
 
 :::warning DUST requirements
 
-DUST는 Midnight Network에서 거래를 구동하는 네트워크 리소스입니다. 거래 수수료를 지불하려면 wallet에 DUST가 있어야 합니다. 자세한 내용은 [Generating DUST programmatically](./generating-dust-programmatically) 가이드를 참고하세요.
+DUST는 Midnight Network에서 거래를 구동하는 네트워크 리소스입니다. 거래 수수료를 지불하려면 지갑에 DUST가 있어야 합니다. 자세한 내용은 [Generating DUST programmatically](./generating-dust-programmatically) 가이드를 참고하세요.
 
 :::
 

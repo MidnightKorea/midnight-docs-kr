@@ -17,16 +17,16 @@ Midnight.js API는 컨트랙트와 트랜잭션을 다룰 때 발생하는 실�
 
 | Class | Kind | Trigger |
 | --- | --- | --- |
-| `TxFailedError` | Transaction | 합의 노드가 트랜잭션을 거부하거나 적용에 실패한 경우 |
-| `DeployTxFailedError` | Transaction | 배포 트랜잭션이 실패한 경우 |
-| `CallTxFailedError` | Transaction | 호출 트랜잭션이 실패한 경우 |
-| `ReplaceMaintenanceAuthorityTxFailedError` | Transaction | 유지보수 권한 교체에 실패한 경우 |
-| `RemoveVerifierKeyTxFailedError` | Transaction | 검증자 키 제거에 실패한 경우 |
-| `InsertVerifierKeyTxFailedError` | Transaction | 검증자 키 삽입에 실패한 경우 |
-| `ContractTypeError` | Contract | 배포된 컨트랙트의 타입이나 검증자 키가 예상과 다른 경우 |
+| `TxFailedError` | 트랜잭션 | 합의 노드가 트랜잭션을 거부하거나 적용에 실패한 경우 |
+| `DeployTxFailedError` | 트랜잭션 | 배포 트랜잭션이 실패한 경우 |
+| `CallTxFailedError` | 트랜잭션 | 호출 트랜잭션이 실패한 경우 |
+| `ReplaceMaintenanceAuthorityTxFailedError` | 트랜잭션 | 유지보수 권한 교체에 실패한 경우 |
+| `RemoveVerifierKeyTxFailedError` | 트랜잭션 | 검증자 키 제거에 실패한 경우 |
+| `InsertVerifierKeyTxFailedError` | 트랜잭션 | 검증자 키 삽입에 실패한 경우 |
+| `ContractTypeError` | 컨트랙트 | 배포된 컨트랙트의 타입이나 검증자 키가 예상과 다른 경우 |
 | `IncompleteCallTxPrivateStateConfig` | Configuration | 호출 시 `privateStateId`만 지정하고 `privateStateProvider`를 누락한 경우 |
 | `IncompleteFindContractPrivateStateConfig` | Configuration | 조회 시 `initialPrivateState`만 지정하고 `privateStateId`를 누락한 경우 |
-| `ScopedTransactionIdentityMismatchError` | State / identity | 스코프드 배치가 다른 컨트랙트나 프라이빗 상태의 캐시를 재사용하려는 경우 |
+| `ScopedTransactionIdentityMismatchError` | State / identity | 스코프드 배치가 다른 컨트랙트나 private state의 캐시를 재사용하려는 경우 |
 
 ## Transaction errors
 
@@ -105,8 +105,8 @@ Midnight.js API는 컨트랙트와 트랜잭션을 다룰 때 발생하는 실�
 
 #### Properties
 
-- `privateStateId`: 호출 트랜잭션에 지정된 프라이빗 상태 ID
-- `privateStateProvider`: 호출 트랜잭션에 지정된 프라이빗 상태 프로바이더
+- `privateStateId`: 호출 트랜잭션에 지정된 private state ID
+- `privateStateProvider`: 호출 트랜잭션에 지정된 private state provider
 
 ### Incomplete find contract private state config (`IncompleteFindContractPrivateStateConfig`)
 
@@ -114,8 +114,8 @@ Midnight.js API는 컨트랙트와 트랜잭션을 다룰 때 발생하는 실�
 
 #### Properties
 
-- `initialPrivateState`: 컨트랙트 조회에 지정된 초기 프라이빗 상태
-- `privateStateId`: 컨트랙트 조회에 지정된 프라이빗 상태 ID
+- `initialPrivateState`: 컨트랙트 조회에 지정된 초기 private state
+- `privateStateId`: 컨트랙트 조회에 지정된 private state ID
 
 #### Message
 
@@ -131,12 +131,12 @@ Midnight.js API는 컨트랙트와 트랜잭션을 다룰 때 발생하는 실�
 
 ### Scoped transaction identity mismatch (`ScopedTransactionIdentityMismatchError`)
 
-스코프드 트랜잭션이 다른 컨트랙트 주소나 프라이빗 상태 ID로 캐시된 상태를 재사용하려고 할 때 발생합니다.
+스코프드 트랜잭션이 다른 컨트랙트 주소나 private state ID로 캐시된 상태를 재사용하려고 할 때 발생합니다.
 
 #### Properties
 
-- `cached`: 캐시에 저장된 컨트랙트 주소와 프라이빗 상태 ID
-- `requested`: 요청된 컨트랙트 주소와 프라이빗 상태 ID
+- `cached`: 캐시에 저장된 컨트랙트 주소와 private state ID
+- `requested`: 요청된 컨트랙트 주소와 private state ID
 
 ## Error handling
 

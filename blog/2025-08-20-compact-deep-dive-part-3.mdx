@@ -7,7 +7,7 @@ authors: kevin
 tags: [compact]
 image: /img/blog/zkp.jpg
 date: 2025-08-20
-description: "Compact 컨트랙트의 온체인 런타임과 공개 원장 상태 업데이트 동작 원리를 심층 분석합니다"
+description: "Compact 컨트랙트의 온체인 런타임과 public ledger state 업데이트 동작 원리를 심층 분석합니다"
 ---
 # Compact Deep Dive - Part 3: The on-chain runtime
 
@@ -18,12 +18,12 @@ description: "Compact 컨트랙트의 온체인 런타임과 공개 원장 상�
 - [Part 1: Top-level Contract Structure](https://docs.midnight.network/blog/compact)
 - [Part 2: Circuits and Witnesses](https://docs.midnight.network/blog/compact-2)
 
-이 글에서는 온체인 런타임과 DApp에서 공개 원장 상태 업데이트가 어떻게 이루어지는지 살펴봅니다.
+이 글에서는 온체인 런타임과 DApp에서 공개 ledger state 업데이트가 어떻게 이루어지는지 살펴봅니다.
 
 # The bulletin board's `post` circuit
 
-이전 파트에서는 Bulletin Board 예제 DApp을 통해 컨트랙트 구조와 서킷 및 위트니스 구현을 살펴보았습니다.
-컨트랙트의 내보내기된 서킷(예: Bulletin Board 예제의 `post`)에는 실제 구현을 호출하는 외부 "래퍼"가 있다는 것을 확인했습니다.
+이전 파트에서는 Bulletin Board 예제 DApp을 통해 컨트랙트 구조와 circuit 및 witness 구현을 살펴보았습니다.
+컨트랙트의 내보내기된 circuit(예: Bulletin Board 예제의 `post`)에는 실제 구현을 호출하는 외부 "래퍼"가 있다는 것을 확인했습니다.
 이제 그 실제 구현을 살펴보겠습니다.
 
 `post`의 Compact 구현을 다시 떠올려 보겠습니다:
@@ -37,16 +37,16 @@ export circuit post(newMessage: Opaque<"string">): [] {
 }
 ```
 
-이 서킷은 컨트랙트의 공개 원장 상태에서 `state` 필드를 읽고 게시판이 비어 있는지 확인합니다.
-그런 다음 위트니스 `localSecretKey`를 호출하고 반환 값을 사용하여 게시물 작성자에 대한 커밋먼트인 `poster`를 생성합니다.
-마지막으로 세 개의 원장 필드(`poster`, `message`, `state`)를 업데이트합니다.
+이 circuit은 컨트랙트의 공개 ledger state에서 `state` 필드를 읽고 게시판이 비어 있는지 확인합니다.
+그런 다음 witness `localSecretKey`를 호출하고 반환 값을 사용하여 게시물 작성자에 대한 commitment인 `poster`를 생성합니다.
+마지막으로 세 개의 ledger 필드(`poster`, `message`, `state`)를 업데이트합니다.
 
 컨트랙트는 Compact 컴파일러 버전 0.25.0으로 컴파일했습니다.
 이 시리즈의 파트 1, 2에서 사용한 것과는 다른 버전입니다.
 다른 버전을 사용하면 구현 세부 사항이 달라질 수 있습니다.
 `post`의 구현은 `_post_0`이라는 JavaScript 함수에 있습니다.
 이 함수의 모든 줄에서 Compact의 동작 방식에 대해 새로운 점을 배울 수 있으므로, 한 줄씩 분석해 보겠습니다.
-이 함수의 첫 줄은 Compact 서킷의 첫 줄에 해당합니다:
+이 함수의 첫 줄은 Compact circuit의 첫 줄에 해당합니다:
 
 ```javascript
 _post_0(context, partialProofData, newMessage_0) {
@@ -72,37 +72,37 @@ _post_0(context, partialProofData, newMessage_0) {
 
 (여기서와 이후에서 JavaScript 코드를 화면에 더 잘 맞도록 재포맷했습니다. 변경된 것은 들여쓰기뿐입니다.)
 이 JavaScript 줄을 안쪽부터 바깥쪽으로 읽어보겠습니다.
-Compact `post` 서킷에서 가장 먼저 평가되는 부분식은 단순히 `state`로, 원장의 `state` 필드를 읽는 것입니다.
+Compact `post` circuit에서 가장 먼저 평가되는 부분식은 단순히 `state`로, ledger의 `state` 필드를 읽는 것입니다.
 이것이 JavaScript 구현에서도 가장 먼저 평가되어야 합니다.
 이는 `Contract` 클래스의 컴파일러 생성 정적 메서드 `_query` 호출로 구현됩니다.
 (`Contract._query`는 이 시리즈의 다음 글에서 자세히 살펴보겠습니다.)
 
 `_post_0`이 DApp에서 실행될 때 어떤 일이 일어나는지 떠올려 봅시다.
-JavaScript 코드는 사용자 머신에서 로컬로 실행되며, 위트니스가 사용하는 개인 데이터에 완전히 접근할 수 있습니다.
+JavaScript 코드는 사용자 머신에서 로컬로 실행되며, witness가 사용하는 개인 데이터에 완전히 접근할 수 있습니다.
 코드 실행 후, 프루프 서버가 해당 코드가 실제로 실행되었음을 증명하는 영지식(ZK) 증명을 생성합니다.
 이후 트랜잭션이 Midnight 체인에 제출됩니다.
-체인이 증명을 검증하면, 서킷 구현에서 지정한 대로 공개 원장 상태가 업데이트됩니다.
+체인이 증명을 검증하면, circuit 구현에서 지정한 대로 공개 ledger state가 업데이트됩니다.
 
-Midnight 노드는 공개 원장 상태 업데이트를 수행하기 위해 스택 기반 가상 머신인 [Impact VM](https://docs.midnight.network/develop/how-midnight-works/impact)을 사용합니다.
+Midnight 노드는 공개 ledger state 업데이트를 수행하기 위해 스택 기반 가상 머신인 [Impact VM](https://docs.midnight.network/develop/how-midnight-works/impact)을 사용합니다.
 이 머신은 **Impact**라는 바이트코드 언어로 작성된 프로그램을 실행합니다.
-트랜잭션을 제출하기 전에 DApp에서 공개 상태의 로컬 복사본을 업데이트할 때도 동일한 Impact VM을 사용합니다.
+트랜잭션을 제출하기 전에 DApp에서 public state의 로컬 복사본을 업데이트할 때도 동일한 Impact VM을 사용합니다.
 
 # The on-chain runtime and the Impact VM
 
 Compact 런타임 패키지에는 온체인 런타임의 내장 버전이 포함되어 있습니다.
-Midnight 네트워크 노드에서 원장 구현에 사용되는 것과 정확히 동일한 Rust 코드입니다.
+Midnight 네트워크 노드에서 ledger 구현에 사용되는 것과 정확히 동일한 Rust 코드입니다.
 Compact 런타임용으로는 WebAssembly로 컴파일되어 [온체인 런타임](https://docs.midnight.network/develop/reference/midnight-api/onchain-runtime/) 패키지로 가져옵니다.
 이 패키지를 DApp에서 직접 사용할 수 있으며, 상당 부분은 상위 수준의 Compact 런타임에서 재내보내기됩니다.
 경우에 따라 Compact 런타임은 상위 수준 API로 래핑한 버전을 제공합니다
-(원장의 네이티브 바이너리 표현 대신 JavaScript 표현을 사용).
+(ledger의 네이티브 바이너리 표현 대신 JavaScript 표현을 사용).
 
 :::note
-DApp에서 온체인 런타임 패키지를 직접 사용하는 경우, 공개 상태의 스냅샷으로 작업하고 있다는 점을 반드시 기억하세요.
-이 스냅샷은 Midnight 인덱서에서 가져온 것이지만, DApp이 실행되는 동안 체인 자체는 동일한 컨트랙트에 대한 다른 트랜잭션으로 진행되고 있습니다.
+DApp에서 온체인 런타임 패키지를 직접 사용하는 경우, public state의 스냅샷으로 작업하고 있다는 점을 반드시 기억하세요.
+이 스냅샷은 Midnight indexer에서 가져온 것이지만, DApp이 실행되는 동안 체인 자체는 동일한 컨트랙트에 대한 다른 트랜잭션으로 진행되고 있습니다.
 이것이 DApp이 "탈중앙화"되어 있다는 것의 일부입니다.
 :::
 
-Impact VM은 공개 원장 상태 업데이트를 수행합니다. DApp의 복사본에서는 즉시 수행되고, 이후 트랜잭션이 실행될 때 온체인에서 수행됩니다.
+Impact VM은 공개 ledger state 업데이트를 수행합니다. DApp의 복사본에서는 즉시 수행되고, 이후 트랜잭션이 실행될 때 온체인에서 수행됩니다.
 동일한 VM을 사용하는 이유는 다음과 같습니다:
 
 - 트랜잭션 의미론이 동일합니다.
@@ -111,12 +111,12 @@ Impact VM은 공개 원장 상태 업데이트를 수행합니다. DApp의 복�
 - ZK 증명은 이 **특정** Impact 프로그램에 대한 것입니다.
 
 Impact VM은 스택 기반 머신입니다.
-트랜잭션은 원장의 바이너리 표현으로 인코딩된 값의 스택에서 동작합니다.
+트랜잭션은 ledger의 바이너리 표현으로 인코딩된 값의 스택에서 동작합니다.
 트랜잭션은 항상 스택에 세 개의 값으로 시작합니다:
 
 1. 첫 번째(스택 맨 아래), 트랜잭션의 **컨텍스트** 객체.
 1. 두 번째, 트랜잭션이 수행한 작업을 수집하는 **이펙트** 객체.
-1. 세 번째, 컨트랙트의 공개 상태.
+1. 세 번째, 컨트랙트의 public state.
 
 트랜잭션이 완료되면 이 세 값이 같은 순서로 스택에 남습니다.
 VM 스택의 값은 불변입니다.
@@ -130,7 +130,7 @@ VM 스택의 값은 불변입니다.
 
 # Ledger read operations
 
-위에서 본 `state` 필드의 원장 읽기에 대한 Impact 코드는 다음과 같았습니다:
+위에서 본 `state` 필드의 ledger 읽기에 대한 Impact 코드는 다음과 같았습니다:
 
 ```javascript
 [
@@ -151,17 +151,17 @@ VM 스택의 값은 불변입니다.
 
 `dup N` 명령어는 스택의 값을 **복제**합니다.
 값은 스택 맨 위에서 *N* 요소 아래에 있으므로, *N*=0은 스택 맨 위입니다.
-이것이 `post` 트랜잭션의 첫 번째 Impact 명령어이므로, 스택 맨 위는 공개 원장 상태 값이 됩니다.
+이것이 `post` 트랜잭션의 첫 번째 Impact 명령어이므로, 스택 맨 위는 공개 ledger state 값이 됩니다.
 
 `dup 0` 전에 Impact VM의 스택은 스택 바닥부터 위쪽 순서로 `<context effects ledger0>`이었습니다.
-`ledger0`은 이 트랜잭션의 초기 원장 상태입니다.
-`dup 0` 후에는 원장 상태의 복사본 두 개가 스택 위에 있는 `<context effects ledger0 ledger0>`이 됩니다.
-이를 통해 값을 소비하는 후속 명령어가 공개 원장 상태를 잃지 않고 실행할 수 있습니다.
+`ledger0`은 이 트랜잭션의 초기 ledger state입니다.
+`dup 0` 후에는 ledger state의 복사본 두 개가 스택 위에 있는 `<context effects ledger0 ledger0>`이 됩니다.
+이를 통해 값을 소비하는 후속 명령어가 공개 ledger state를 잃지 않고 실행할 수 있습니다.
 
 두 번째 명령어는 `idx [0]`입니다.
 이 명령어는 스택 맨 위의 값에 **인덱싱**하여 그 일부를 추출합니다.
 스택 맨 위의 값을 제거하고 추출된 부분으로 교체합니다.
-명령어의 피연산자는 경로로, 원장으로 인코딩된 값(또는 특수 태그 `stack`)의 시퀀스입니다.
+명령어의 피연산자는 경로로, ledger로 인코딩된 값(또는 특수 태그 `stack`)의 시퀀스입니다.
 두 가지 서로 다른 값 인코딩과 이들 간의 변환을 수행하는 디스크립터는 [Part 2](https://docs.midnight.network/blog/compact-2#descriptors)에서 설명했습니다.
 여기서 명령어는 `_descriptor_9`를 사용합니다:
 
@@ -172,35 +172,35 @@ const _descriptor_9 = new __compactRuntime.CompactTypeUnsignedInteger(255n, 1);
 이것은 Compact 런타임의 [`CompactTypeUnsignedInteger`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/classes/CompactTypeUnsignedInteger) 인스턴스입니다.
 최대값과 바이트 크기를 인수로 받습니다.
 따라서 이것은 최대값 255인 1바이트 부호 없는 정수(즉, 단순한 부호 없는 바이트)의 디스크립터입니다.
-값 `0n`은 Compact 컴파일러가 `state` 필드에 할당한 공개 원장 상태 인덱스입니다.
+값 `0n`은 Compact 컴파일러가 `state` 필드에 할당한 공개 ledger state 인덱스입니다.
 
 Impact에는 네 가지 서로 다른 인덱싱 명령어가 있습니다: `idx`, `idxc`(캐시됨), `idxp`(경로 푸시), `idxpc`(경로 푸시, 캐시됨).
 JavaScript 명령어 표현에서는 동일한 네 가지 변형을 제공하는 불리언 속성 쌍으로 구분합니다.
 `cached`는 접근 중인 값이 동일한 트랜잭션에서 이미 접근(즉, 읽기 또는 쓰기)된 경우 true입니다.
 이는 캐시된 접근과 캐시되지 않은 접근에 서로 다른 수수료를 부과하는 데 잠재적으로 사용될 수 있습니다.
-여기서는 트랜잭션에서 아직 `state` 원장 필드에 접근하지 않았습니다.
+여기서는 트랜잭션에서 아직 `state` ledger 필드에 접근하지 않았습니다.
 `pushPath`는 후속 쓰기 작업을 위해 경로를 스택에 남겨두는 변형입니다.
 
 `idx [0]` 전에 VM의 스택은 `<context effects ledger0 ledger0>`이었습니다.
-`idx [0]` 후에는 `<context effects ledger0 state>`가 됩니다(`ledger0`은 전체 공개 원장 상태이고 `state`는 해당 이름의 필드 값입니다).
+`idx [0]` 후에는 `<context effects ledger0 state>`가 됩니다(`ledger0`은 전체 공개 ledger state이고 `state`는 해당 이름의 필드 값입니다).
 
 세 번째 명령어는 `popeq`입니다.
 이 명령어는 VM 스택 맨 위의 값을 **팝**합니다.
 Impact VM은 두 가지 모드로 실행될 수 있습니다.
 DApp에서 로컬로 실행될 때는 **수집(gathering)** 모드로 실행됩니다.
-체인에서 컨트랙트의 공개 원장 상태 업데이트를 실행할 때는 **검증(verifying)** 모드로 실행됩니다.
-수집 모드에서는 팝된 값이 수집됩니다(`Contract._query`에서 이 원장 읽기의 결과로 사용됩니다).
+체인에서 컨트랙트의 공개 ledger state 업데이트를 실행할 때는 **검증(verifying)** 모드로 실행됩니다.
+수집 모드에서는 팝된 값이 수집됩니다(`Contract._query`에서 이 ledger 읽기의 결과로 사용됩니다).
 검증 모드에서는 VM이 팝된 값이 명령어의 피연산자와 같은지 확인합니다.
 여기서는 수집 모드로 실행 중이므로 명령어의 `result` 피연산자는 JavaScript의 `undefined` 값입니다.
 
 `popeq` 전에 Impact VM의 스택은 `<context effects ledger0 state>`이었습니다.
 `popeq` 후에는 `<context effects ledger0>`이 됩니다.
 
-이 세 가지 간단한 VM 명령어가 최상위 원장 읽기를 구현합니다.
+이 세 가지 간단한 VM 명령어가 최상위 ledger 읽기를 구현합니다.
 
 # Assert in Circuits
 
-`post` 서킷은 게시판의 상태가 비어 있는지를 확인합니다.
+`post` circuit은 게시판의 상태가 비어 있는지를 확인합니다.
 이는 위의 JavaScript 코드로 구현됩니다(Impact 명령어는 생략):
 
 ```javascript
@@ -215,7 +215,7 @@ __compactRuntime.assert(
   'Attempted to post to an occupied board');
 ```
 
-`Contract._query`는 원장으로 인코딩된 결과를 가진 객체를 반환합니다.
+`Contract._query`는 ledger로 인코딩된 결과를 가진 객체를 반환합니다.
 `_descriptor_0`은 `State` 열거형 타입의 디스크립터이므로, `_descriptor_0.fromValue`를 사용하여 `VACANT=0` 또는 `OCCUPIED=1` 열거형 값 중 하나로 변환합니다.
 이 값은 JavaScript의 엄격한 동등 연산자를 통해 비어 있는 값(0)과 비교됩니다.
 어서션 자체는 Compact 런타임의 `assert` 함수 호출로 구현됩니다.
@@ -229,18 +229,18 @@ DApp을 로컬에서 실행할 때 어서션이 성공하면, ZK 증명은 그�
 따라서 구체적으로, DApp이 성공적으로 `post` 트랜잭션을 구성했다면, 해당 명령어는 `popeq 0`이 됩니다.
 
 이것은 `state` 필드가 0이었다고 확인하는 것과 미묘하게 다릅니다.
-Compact 프로그램에서 `assert`를 제거하고 원장 필드 읽기만 남겨두면,
+Compact 프로그램에서 `assert`를 제거하고 ledger 필드 읽기만 남겨두면,
 온체인에서 실행되는 Impact 프로그램은 DApp이 읽은 실제 값에 따라 `popeq 0` 또는 `popeq 1`이 될 수 있습니다.
 
 # Circuit and Witness Calls
 
-Compact `post` 서킷의 두 번째 줄은 다음과 같습니다:
+Compact `post` circuit의 두 번째 줄은 다음과 같습니다:
 
 ```compact
 poster = disclose(publicKey(localSecretKey(), instance as Field as Bytes<32>));
 ```
 
-이것은 원장의 `poster` 필드에 대한 쓰기입니다.
+이것은 ledger의 `poster` 필드에 대한 쓰기입니다.
 쓰기 연산의 우변은 다음 JavaScript 코드로 구현됩니다:
 
 ```javascript
@@ -266,17 +266,17 @@ const tmp_0 = this._publicKey_0(
 
 컴파일러는 나중에 참조할 수 있도록 이 값을 `tmp_0`이라고 명명했습니다.
 
-위트니스 `localSecretKey` 호출은 컨트랙트의 `_localSecretKey_0` 메서드 호출로 컴파일되었습니다.
-[Part 2](https://docs.midnight.network/blog/compact-2#witnesses)에서 설명한 것처럼, 이 메서드는 DApp이 제공하는 위트니스 구현의 래퍼입니다.
-래퍼는 위트니스 반환 값에 대한 타입 검사를 수행하고, 해당 반환 값을 트랜잭션의 비공개 입력 중 하나로 기록합니다.
+witness `localSecretKey` 호출은 컨트랙트의 `_localSecretKey_0` 메서드 호출로 컴파일되었습니다.
+[Part 2](https://docs.midnight.network/blog/compact-2#witnesses)에서 설명한 것처럼, 이 메서드는 DApp이 제공하는 witness 구현의 래퍼입니다.
+래퍼는 witness 반환 값에 대한 타입 검사를 수행하고, 해당 반환 값을 트랜잭션의 비공개 입력 중 하나로 기록합니다.
 
-위의 Impact 코드는 원장의 `instance` 필드 읽기를 구현합니다.
+위의 Impact 코드는 ledger의 `instance` 필드 읽기를 구현합니다.
 `state` 읽기 코드와 거의 동일합니다.
 차이점은 Compact 컴파일러가 `instance`에 인덱스 2를 할당했다는 것입니다.
 
-`instance` 필드는 `Counter` 원장 타입을 가집니다.
+`instance` 필드는 `Counter` ledger 타입을 가집니다.
 Compact에서 읽으면 [`Uint<64>`를 반환합니다](https://docs.midnight.network/develop/reference/compact/ledger-adt#read-1).
-이 값의 원장 표현은 `_descriptor_1`을 사용하여 JavaScript 표현(`bigint`)으로 변환됩니다:
+이 값의 ledger 표현은 `_descriptor_1`을 사용하여 JavaScript 표현(`bigint`)으로 변환됩니다:
 
 ```javascript
 const _descriptor_1 = new __compactRuntime.CompactTypeUnsignedInteger(18446744073709551615n, 8);
@@ -287,7 +287,7 @@ const _descriptor_1 = new __compactRuntime.CompactTypeUnsignedInteger(1844674407
 # Type Casts in Compact
 
 Compact 코드에는 `instance as Field as Bytes<32>`라는 타입 캐스트 시퀀스가 있습니다.
-`instance`는 `Counter`이고, 원장에서 읽으면 `Uint<64>` 타입의 Compact 값을 제공합니다.
+`instance`는 `Counter`이고, ledger에서 읽으면 `Uint<64>` 타입의 Compact 값을 제공합니다.
 이것은 `Bytes<32>`로 직접 캐스트할 수 없으므로 `Field`를 거치는 중간 캐스트를 사용합니다.
 
 Compact에는 세 가지 종류의 타입 캐스트가 있습니다: 업캐스트, 다운캐스트, 그리고 "크로스 캐스트"입니다.
@@ -302,20 +302,20 @@ Compact에는 세 가지 종류의 타입 캐스트가 있습니다: 업캐스�
 크로스 캐스트는 보통 값의 표현 변경이 필요합니다.
 Compact 런타임 함수 [`convert_bigint_to_Uint8Array`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/functions/convert_bigint_to_Uint8Array)가 이 경우 표현 변경을 수행합니다.
 
-그런 다음 Compact에서 `publicKey` 서킷에 대한 호출이 있었습니다.
-여기서 호출은 내보내기된 서킷의 `publicKey` 래퍼가 아니라 JavaScript 구현 메서드 `_publicKey_0`으로 직접 갑니다.
-[Part 2](https://docs.midnight.network/blog/compact-2#what-are-wrappers-for)에서 설명한 것처럼, 서킷 래퍼는 Compact에서 Compact으로 호출할 때 필요하지 않은 일부 런타임 타입 검사를 수행했습니다
+그런 다음 Compact에서 `publicKey` circuit에 대한 호출이 있었습니다.
+여기서 호출은 내보내기된 circuit의 `publicKey` 래퍼가 아니라 JavaScript 구현 메서드 `_publicKey_0`으로 직접 갑니다.
+[Part 2](https://docs.midnight.network/blog/compact-2#what-are-wrappers-for)에서 설명한 것처럼, circuit 래퍼는 Compact에서 Compact으로 호출할 때 필요하지 않은 일부 런타임 타입 검사를 수행했습니다
 (Compact 타입 시스템이 이러한 검사가 필요 없음을 보장합니다).
-더 중요한 점은, 서킷 래퍼가 트랜잭션을 위한 새 증명 데이터 객체를 생성했다는 것입니다.
+더 중요한 점은, circuit 래퍼가 트랜잭션을 위한 새 증명 데이터 객체를 생성했다는 것입니다.
 `publicKey` 호출은 DApp이 구성 중인 `post` 트랜잭션의 일부이므로, 기존 증명 데이터를 재사용해야 합니다.
 
 Compact의 `disclose` 연산자는 런타임에서 아무것도 하지 않습니다.
-위트니스 `localSecretKey`로부터 계산된 값이 온체인에 노출되었기 때문에 `disclose`가 필요했습니다.
+witness `localSecretKey`로부터 계산된 값이 온체인에 노출되었기 때문에 `disclose`가 필요했습니다.
 이것은 Compact 컴파일러에게 이 값의 노출을 허용하라는 지시이지만, 런타임 효과는 없습니다.
 
 # Ledger Writes
 
-JavaScript에서 `tmp_0`이라고 명명된 우변 값은 원장 필드 `poster`에 기록되어야 합니다.
+JavaScript에서 `tmp_0`이라고 명명된 우변 값은 ledger 필드 `poster`에 기록되어야 합니다.
 이를 수행하는 코드는 JavaScript 코드의 다음 줄에 있습니다:
 
 ```javascript
@@ -335,18 +335,18 @@ Contract._query(
 ```
 
 이것도 부분적인 Impact 프로그램으로 구현됩니다.
-위의 Impact 코드는 원장 셀 쓰기를 구현합니다(위에서 본 읽기와 대조적입니다).
+위의 Impact 코드는 ledger 셀 쓰기를 구현합니다(위에서 본 읽기와 대조적입니다).
 
 첫 번째 명령어는 `push 3`입니다.
 Impact의 `push` 명령어는 `pop` 명령어의 역입니다.
 Impact에는 두 가지 변형이 있습니다: `push`와 `pushs`.
 JavaScript 명령어 표현에서는 불리언 `storage` 속성으로 구분됩니다.
-`storage`가 false이면 값은 Impact VM의 메모리에만 유지되며 원장에 기록되지 않습니다.
+`storage`가 false이면 값은 Impact VM의 메모리에만 유지되며 ledger에 기록되지 않습니다.
 
 두 번째 명령어는 `pushs tmp_0`입니다.
-`storage`가 true이므로 `pushs` 명령어입니다(이 값이 원장에 기록됩니다).
+`storage`가 true이므로 `pushs` 명령어입니다(이 값이 ledger에 기록됩니다).
 명령어의 피연산자는 `tmp_0`의 실제 `Bytes<32>` 값입니다.
-예상할 수 있듯이, `_descriptor_2`는 `Bytes<32>`의 디스크립터로, JavaScript 값을 원장 값으로 변환하는 데 사용됩니다:
+예상할 수 있듯이, `_descriptor_2`는 `Bytes<32>`의 디스크립터로, JavaScript 값을 ledger 값으로 변환하는 데 사용됩니다:
 
 ```javascript
 const _descriptor_2 = new __compactRuntime.CompactTypeBytes(32);
@@ -356,19 +356,19 @@ const _descriptor_2 = new __compactRuntime.CompactTypeBytes(32);
 이 두 명령어를 실행한 후에는 `<context effects ledger0 3 tmp_0>`이 됩니다.
 
 다음 명령어는 VM 스택의 값에 **삽입**하는 `ins 1`입니다.
-Impact의 `ins` 명령어는 원장 읽기에서 본 `idx` 명령어의 역입니다.
+Impact의 `ins` 명령어는 ledger 읽기에서 본 `idx` 명령어의 역입니다.
 삽입할 값은 스택 맨 위에 있습니다(즉, `tmp_0`의 `Bytes<32>` 값).
 그 아래에는 *N* 요소로 구성된 경로가 있으며, *N*은 `ins` 명령어의 피연산자입니다.
 이 경우 경로의 길이는 1이므로 `[3]`이라는 단일 시퀀스입니다.
-이것은 Compact 컴파일러가 최상위 원장 필드 `poster`에 할당한 인덱스입니다.
+이것은 Compact 컴파일러가 최상위 ledger 필드 `poster`에 할당한 인덱스입니다.
 
-삽입 명령어는 경로 아래의 값(즉, 공개 원장 상태)을 제거하고,
+삽입 명령어는 경로 아래의 값(즉, 공개 ledger state)을 제거하고,
 경로가 가리키는 위치가 새 값으로 업데이트된 새 복사본으로 교체합니다.
 
 `ins 1` 전에 Impact VM의 스택은 `<context effects ledger0 3 tmp_0>`이었습니다.
-`ins 1` 후에는 `<context effects ledger1>`이 됩니다. 여기서 `ledger1`은 `poster`에 대한 쓰기를 나타내는 새로운 공개 원장 상태입니다.
+`ins 1` 후에는 `<context effects ledger1>`이 됩니다. 여기서 `ledger1`은 `poster`에 대한 쓰기를 나타내는 새로운 공개 ledger state입니다.
 
-`_post_0`의 나머지에는 두 개의 원장 쓰기와 JavaScript 빈 배열로 표현되는 Compact 빈 튜플의 반환이 있습니다:
+`_post_0`의 나머지에는 두 개의 ledger 쓰기와 JavaScript 빈 배열로 표현되는 Compact 빈 튜플의 반환이 있습니다:
 
 ```javascript
 const tmp_1 = this._some_0(newMessage_0);
@@ -406,7 +406,7 @@ return [];
 # `publicKey`
 
 온체인 런타임이 Compact에서 사용되는 또 하나의 방식이 있습니다.
-`publicKey` 서킷의 구현(내보내기된 서킷의 래퍼가 아닌 실제 구현)을 살펴보면:
+`publicKey` circuit의 구현(내보내기된 circuit의 래퍼가 아닌 실제 구현)을 살펴보면:
 
 ```javascript
 _publicKey_0(sk_0, instance_0) {
@@ -417,9 +417,9 @@ _publicKey_0(sk_0, instance_0) {
 ```
 
 패딩된 문자열 리터럴이 명시적인 `Uint8Array`로 컴파일된 것을 볼 수 있습니다.
-또한 Compact 표준 라이브러리의 [`persistentHash` 서킷](https://docs.midnight.network/develop/reference/compact/compact-std-library/exports#persistenthash)인 `_persistentHash_0` 메서드 호출도 볼 수 있습니다.
+또한 Compact 표준 라이브러리의 [`persistentHash` circuit](https://docs.midnight.network/develop/reference/compact/compact-std-library/exports#persistenthash)인 `_persistentHash_0` 메서드 호출도 볼 수 있습니다.
 
-컴파일러는 이 서킷의 JavaScript 구현을 포함하고 있습니다:
+컴파일러는 이 circuit의 JavaScript 구현을 포함하고 있습니다:
 
 ```javascript
 _persistentHash_0(value_0) {
@@ -430,7 +430,7 @@ _persistentHash_0(value_0) {
 
 이것은 Compact 런타임의 [`persistentHash` 함수](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/functions/persistentHash) 호출입니다.
 Compact 런타임의 이 함수는 온체인 런타임 자체의 [`persistentHash`](https://docs.midnight.network/develop/reference/midnight-api/onchain-runtime/functions/persistentHash)에 대한 얇은 래퍼입니다.
-차이점은 온체인 런타임 버전은 값의 원장 인코딩에서 작동하고,
+차이점은 온체인 런타임 버전은 값의 ledger 인코딩에서 작동하고,
 Compact 런타임 버전은 전달된 디스크립터를 사용하여 관련 변환을 수행한다는 것입니다.
 
 이것이 이 글에서 살펴볼 온체인 런타임의 마지막 기능입니다.

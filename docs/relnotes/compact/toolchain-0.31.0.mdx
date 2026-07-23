@@ -20,7 +20,7 @@ Compact 툴체인 0.31.0은 개발자가 우회하기 까다로웠던 잘못된 
 - 실행되지 않은 분기에 있는 연산이 증명 생성 중 실패하지 않도록 변경됨
 - 언어 레퍼런스가 현재 언어 버전에 맞게 최신화됨
 - `for` 루프의 반복 범위에 제네릭 매개변수를 사용할 수 있음
-- `contract-info.json` 파일에 퍼블릭 원장 상태에 대한 설명이 포함됨
+- `contract-info.json` 파일에 퍼블릭 ledger state에 대한 설명이 포함됨
 
 ## Improvements
 
@@ -28,7 +28,7 @@ Compact 툴체인 0.31.0은 개발자가 우회하기 까다로웠던 잘못된 
 
 ### Operations in untaken branches cannot fail during proof construction
 
-Compact 회로는 오프체인에서, 그리고 트랜잭션 제출 전에 두 번 "실행"됩니다. 첫 번째에는 컴파일된 JavaScript 코드를 실행해 퍼블릭/프라이빗 상태 업데이트를 수집합니다. 두 번째에는 ZKIR 표현과 앞서 계산한 상태 업데이트를 함께 사용해 영지식 증명을 생성합니다.
+Compact 회로는 오프체인에서, 그리고 트랜잭션 제출 전에 두 번 "실행"됩니다. 첫 번째에는 컴파일된 JavaScript 코드를 실행해 퍼블릭/private state 업데이트를 수집합니다. 두 번째에는 ZKIR 표현과 앞서 계산한 상태 업데이트를 함께 사용해 영지식 증명을 생성합니다.
 
 JavaScript 실행 단계에서는 조건식의 값에 따라 Compact 코드의 분기가 실행되거나 실행되지 않습니다. 그러나 증명 생성 단계에서는 조건식의 **양쪽 분기 모두**가 증명 대상 관계의 일부로 다뤄집니다. 이 때문에 실행되지 않은 분기로 인해 증명 생성이 잘못 실패하는 일이 발생할 수 있었습니다.
 
@@ -54,9 +54,9 @@ Compact은 `for (const i of start..end)` 구문으로 자연수 범위 반복을
 
 ### Ledger field layout in `contract-info.json`
 
-컴파일러는 컨트랙트의 컴포넌트 버전, 회로와 위트니스 그리고 그 시그니처 같은 컴파일 결과 정보를 담은 JSON 파일을 생성합니다. 이제 이 파일에 컨트랙트의 퍼블릭 원장 상태에 대한 설명이 포함됩니다.
+컴파일러는 컨트랙트의 컴포넌트 버전, 회로와 witness 그리고 그 시그니처 같은 컴파일 결과 정보를 담은 JSON 파일을 생성합니다. 이제 이 파일에 컨트랙트의 퍼블릭 ledger state에 대한 설명이 포함됩니다.
 
-각 원장 필드는 필드 이름(`name`), 필드 값을 찾기 위한 원장 경로 인덱스(`index`), 필드의 export 여부(`exported`), 원장 상태 타입(`storage`), 원장 상태 타입에 적용된 Compact 타입 인자(`type`)로 구성된 항목을 가집니다.
+각 ledger 필드는 필드 이름(`name`), 필드 값을 찾기 위한 ledger 경로 인덱스(`index`), 필드의 export 여부(`exported`), ledger state 타입(`storage`), ledger state 타입에 적용된 Compact 타입 인자(`type`)로 구성된 항목을 가집니다.
 
 이 정보는 언어에 종속되지 않는 도구(즉, JavaScript뿐만이 아닌 도구)가 컨트랙트의 퍼블릭 상태 레이아웃을 해석하는 데 사용될 수 있습니다.
 

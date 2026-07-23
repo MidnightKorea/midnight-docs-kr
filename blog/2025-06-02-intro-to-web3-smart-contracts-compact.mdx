@@ -11,55 +11,55 @@ date: 2025-06-20
 ---
 # Learning Web3 from the Ground Up: Smart Contracts and the Compact Language
 
-Web3 세계를 탐험하면서 Midnight 같은 프라이버시 우선 플랫폼의 핵심 구성 요소를 하나씩 파고들고 있습니다(이전 글은 Midnight Dev Diaries에서 확인하세요!). 이번 주에는 밀접하게 연관된 두 가지 기초에 집중했습니다: Midnight의 smart contract와 이를 구동하는 Compact 언어입니다.
+Web3 세계를 탐험하면서 Midnight 같은 프라이버시 우선 플랫폼의 핵심 구성 요소를 하나씩 파고들고 있습니다(이전 글은 Midnight Dev Diaries에서 확인하세요!). 이번 주에는 밀접하게 연관된 두 가지 기초에 집중했습니다: Midnight의 스마트 컨트랙트와 이를 구동하는 Compact 언어입니다.
 
-Smart contract 자체는 blockchain에서 새로운 개념이 아니지만, Midnight의 접근 방식은 독특합니다. 코드를 온체인에서 직접 실행하는 대신, smart contract로 규칙만 정의하고 실제 적용은 오프체인에서 zero-knowledge proof를 통해 처리합니다. 이 시스템의 핵심이 바로 [Compact](https://docs.midnight.network/develop/reference/compact/compact-reference)입니다. 프라이버시를 보존하는 contract를 안전하고 실용적으로 작성하기 위해 설계된 전용 언어입니다.
+스마트 컨트랙트 자체는 blockchain에서 새로운 개념이 아니지만, Midnight의 접근 방식은 독특합니다. 코드를 온체인에서 직접 실행하는 대신, 스마트 컨트랙트로 규칙만 정의하고 실제 적용은 오프체인에서 영지식 증명을 통해 처리합니다. 이 시스템의 핵심이 바로 [Compact](https://docs.midnight.network/develop/reference/compact/compact-reference)입니다. 프라이버시를 보존하는 컨트랙트를 안전하고 실용적으로 작성하기 위해 설계된 전용 언어입니다.
 
-실제 작동 방식을 더 잘 이해하기 위해 [Midnight Developer Academy의 Module 2](https://docs.midnight.network/academy/module-2)도 진행했습니다. 이 모듈에서는 contract 구조, circuit 유형, contract와 외부 실행 로직 간의 관계를 다룹니다.
+실제 작동 방식을 더 잘 이해하기 위해 [Midnight Developer Academy의 Module 2](https://docs.midnight.network/academy/module-2)도 진행했습니다. 이 모듈에서는 컨트랙트 구조, circuit 유형, 컨트랙트와 외부 실행 로직 간의 관계를 다룹니다.
 
-이번 글에서는 Midnight의 smart contract가 무엇이 다른지, Compact의 구조는 어떤지, 그리고 이 둘이 어떻게 협력하여 민감한 데이터를 노출하지 않으면서 증명 가능한 로직을 구현하는지 설명하겠습니다.
+이번 글에서는 Midnight의 스마트 컨트랙트가 무엇이 다른지, Compact의 구조는 어떤지, 그리고 이 둘이 어떻게 협력하여 민감한 데이터를 노출하지 않으면서 증명 가능한 로직을 구현하는지 설명하겠습니다.
 
 ## What Is a Smart Contract on Midnight?
 
-큰 그림에서 보면, smart contract는 blockchain에 저장된 자율 프로그램입니다. 상호작용 규칙을 정의하고, 규칙 충족 여부를 확인하며, 결과를 기록합니다. 신뢰할 수 있는 제3자가 필요 없습니다.
+큰 그림에서 보면, 스마트 컨트랙트는 blockchain에 저장된 자율 프로그램입니다. 상호작용 규칙을 정의하고, 규칙 충족 여부를 확인하며, 결과를 기록합니다. 신뢰할 수 있는 제3자가 필요 없습니다.
 
-하지만 Midnight은 일반적인 blockchain이 아닙니다. 컴플라이언스를 고려한 프라이버시 우선 플랫폼이므로, smart contract가 로직 실행 이상의 역할을 해야 합니다. 개인 데이터를 보호하고, selective disclosure를 지원하며, 적대적인 환경에서도 보안과 신뢰를 유지해야 합니다.
+하지만 Midnight은 일반적인 blockchain이 아닙니다. 컴플라이언스를 고려한 프라이버시 우선 플랫폼이므로, 스마트 컨트랙트가 로직 실행 이상의 역할을 해야 합니다. 개인 데이터를 보호하고, selective disclosure를 지원하며, 적대적인 환경에서도 보안과 신뢰를 유지해야 합니다.
 
-이 지점에서 Compact이 등장합니다. Midnight의 smart contract 작성을 위해 설계된 도메인 특화 언어입니다.
+이 지점에서 Compact이 등장합니다. Midnight의 스마트 컨트랙트 작성을 위해 설계된 도메인 특화 언어입니다.
 
-기존 smart contract와 달리 Compact contract는 온체인에서 직접 로직을 실행하지 않습니다. 대신 증명해야 할 로직을 정의합니다. Contract에는 준수해야 할 규칙이 인코딩되어 있고, 이 규칙이 zero-knowledge proof의 기반이 됩니다. 실제 실행(transaction 처리, 자격 증명 생성, 투표 제출 등)은 외부에서 이루어지며, 보통 DApp, 백엔드 서비스, API가 담당합니다.
+기존 스마트 컨트랙트와 달리 Compact contract는 온체인에서 직접 로직을 실행하지 않습니다. 대신 증명해야 할 로직을 정의합니다. 컨트랙트에는 준수해야 할 규칙이 인코딩되어 있고, 이 규칙이 영지식 증명의 기반이 됩니다. 실제 실행(트랜잭션 처리, 자격 증명 생성, 투표 제출 등)은 외부에서 이루어지며, 보통 DApp, 백엔드 서비스, API가 담당합니다.
 
-외부 시스템이 필요한 로직을 실행한 뒤, 암호학적 proof를 생성하여 contract 규칙을 준수했음을 **증명**합니다. Blockchain은 세부 사항을 알 필요 없이 proof의 유효성만 검증하면 됩니다. 이러한 분리 구조 덕분에 Midnight 모델은 확장성과 프라이버시를 동시에 확보할 수 있습니다.
+외부 시스템이 필요한 로직을 실행한 뒤, 암호학적 증명을 생성하여 컨트랙트 규칙을 준수했음을 **증명**합니다. Blockchain은 세부 사항을 알 필요 없이 증명의 유효성만 검증하면 됩니다. 이러한 분리 구조 덕분에 Midnight 모델은 확장성과 프라이버시를 동시에 확보할 수 있습니다.
 
-정리하면, contract가 규칙을 정하고, 앱이 로직을 실행하며, blockchain은 민감한 입력값 없이 결과만 검증합니다.
+정리하면, 컨트랙트가 규칙을 정하고, 앱이 로직을 실행하며, blockchain은 민감한 입력값 없이 결과만 검증합니다.
 
 ## What Is Compact?
 
-Compact은 Midnight 네트워크의 고유한 목표에 맞춰 설계된 정적 타입, 프라이버시 중심 smart contract 언어입니다. JavaScript나 TypeScript 경험이 있다면 꽤 친숙하게 느껴질 것입니다. 정적 타입 circuit을 사용해 오프체인 연산에 매핑되는 zero-knowledge proof 로직을 정의하는 도메인 특화 언어(DSL)입니다. 다만 간결한 문법에 속아서는 안 됩니다. Compact은 내부적으로 zero-knowledge proof(ZKP) 기반의 프라이버시 보존 연산을 위해 설계되었습니다. (더 깊은 기술적 내용은 Kevin Millikin의 Compact Deep Dive를 [여기](https://docs.midnight.network/blog/compact)에서 확인하세요!)
+Compact은 Midnight 네트워크의 고유한 목표에 맞춰 설계된 정적 타입, 프라이버시 중심 스마트 컨트랙트 언어입니다. JavaScript나 TypeScript 경험이 있다면 꽤 친숙하게 느껴질 것입니다. 정적 타입 circuit을 사용해 오프체인 연산에 매핑되는 영지식 증명 로직을 정의하는 도메인 특화 언어(DSL)입니다. 다만 간결한 문법에 속아서는 안 됩니다. Compact은 내부적으로 영지식 증명(ZKP) 기반의 프라이버시 보존 연산을 위해 설계되었습니다. (더 깊은 기술적 내용은 Kevin Millikin의 Compact Deep Dive를 [여기](https://docs.midnight.network/blog/compact)에서 확인하세요!)
 
 Compact contract는 세 가지 핵심 구성요소로 이루어집니다:
 
-- **Ledger**: Contract의 공개적인 온체인 상태입니다.
-- **Circuit**: 데이터를 조작하고, proof를 생성하며, ledger와 상호작용하는 오프체인 로직입니다.
-- **Witness**: 비공개로 보유된 데이터로, contract를 실행하는 주체만 알고 있습니다.
+- **Ledger**: 컨트랙트의 공개적인 온체인 상태입니다.
+- **Circuit**: 데이터를 조작하고, 증명을 생성하며, ledger와 상호작용하는 오프체인 로직입니다.
+- **Witness**: 비공개로 보유된 데이터로, 컨트랙트를 실행하는 주체만 알고 있습니다.
 
 Compact은 [explicit disclosure](https://docs.midnight.network/develop/reference/compact/explicit-disclosure#conclusion)도 지원합니다. 어떤 데이터를 누구에게 공개할지 개발자가 정확히 정의할 수 있습니다. 온체인에서 무엇이 보이고 무엇이 비공개인지 세밀하게 제어할 수 있어, 비공개 자산 전송, 연령 인증 접근, 기밀 투표 등에 필수적입니다.
 
 ## Circuits and Privacy
 
-Midnight Developer Academy Module 2에서 가장 중요한 개념 중 하나가 circuit의 작동 방식입니다. Compact에서 circuit은 사용자나 시스템이 호출하여 작업을 실행하는 함수입니다. 하지만 Web2 API나 EVM contract 함수와 달리, blockchain에서 직접 로직을 실행하지 않습니다. 오프체인에서 실행된 뒤, 로직을 준수했다는 zero-knowledge proof를 생성합니다.
+Midnight Developer Academy Module 2에서 가장 중요한 개념 중 하나가 circuit의 작동 방식입니다. Compact에서 circuit은 사용자나 시스템이 호출하여 작업을 실행하는 함수입니다. 하지만 Web2 API나 EVM contract 함수와 달리, blockchain에서 직접 로직을 실행하지 않습니다. 오프체인에서 실행된 뒤, 로직을 준수했다는 영지식 증명을 생성합니다.
 
 구체적으로는 다음과 같습니다:
 
-- Contract 로직은 공개입니다.
+- 컨트랙트 로직은 공개입니다.
 - 실행 중 사용되는 데이터는 비공개입니다.
-- 로직의 결과(예: "규칙이 준수되었음")는 proof를 사용하여 공개적으로 검증 가능합니다.
+- 로직의 결과(예: "규칙이 준수되었음")는 증명을 사용하여 공개적으로 검증 가능합니다.
 
 이것이 Midnight 모델의 핵심 강점입니다. 실제 데이터를 공개하지 않고도 규칙을 준수했음을 증명할 수 있습니다. 예를 들어, 자신이 누구인지, 무엇에 투표했는지 공개하지 않으면서도 "투표 자격이 있음"을 증명하는 것이 가능합니다.
 
 ## From Theory to Practice
 
-기존 smart contract 플랫폼에서는 데이터, 로직, 입력, 출력 모두 기본적으로 공개됩니다. 투명성 측면에서는 유용하지만, 건강 데이터, 금융 기록, 신원 확인 같은 민감한 사용 사례에는 적합하지 않습니다.
+기존 스마트 컨트랙트 플랫폼에서는 데이터, 로직, 입력, 출력 모두 기본적으로 공개됩니다. 투명성 측면에서는 유용하지만, 건강 데이터, 금융 기록, 신원 확인 같은 민감한 사용 사례에는 적합하지 않습니다.
 
 Midnight은 이 기본값을 뒤집습니다. 프라이버시가 기본으로 내장되어 있고, 개발자가 필요한 경우에만 선택적으로 공개합니다.
 
@@ -71,10 +71,10 @@ Midnight에서 Compact으로 구축할 수 있는 사례는 다음과 같습니�
 
 ## Conclusion
 
-Smart contract는 탈중앙화 애플리케이션의 기반이며, Midnight에서는 프라이버시 우선 미래를 위해 설계되었습니다. 모든 로직을 온체인에서 실행하는 대신, 로직 정의와 실행을 분리합니다. Compact을 통해 개발자는 zero-knowledge proof 시스템의 규칙을 정의하고, 민감한 데이터 없이도 사실을 증명할 수 있는 애플리케이션을 만들 수 있습니다. 이것은 안전하고, 확장 가능하며, 사용자를 보호하는 Web3를 향한 실질적인 전환입니다.
+스마트 컨트랙트는 탈중앙화 애플리케이션의 기반이며, Midnight에서는 프라이버시 우선 미래를 위해 설계되었습니다. 모든 로직을 온체인에서 실행하는 대신, 로직 정의와 실행을 분리합니다. Compact을 통해 개발자는 영지식 증명 시스템의 규칙을 정의하고, 민감한 데이터 없이도 사실을 증명할 수 있는 애플리케이션을 만들 수 있습니다. 이것은 안전하고, 확장 가능하며, 사용자를 보호하는 Web3를 향한 실질적인 전환입니다.
 
 Midnight에서 이것은 이론적 개선이 아닙니다. 플랫폼의 핵심 작동 원리입니다. Compact smart contract로 입력과 실행을 오프체인에 유지하면서 검증 가능하고 감사 가능한 로직을 작성할 수 있습니다. ZKP, shielded transaction과 결합하면 프라이버시와 탈중앙화를 모두 유지하면서 실제 사용 사례를 지원하는 인프라가 완성됩니다.
 
-Web3에서 smart contract 구축법을 배우고 있거나 전체 구조가 어떻게 연결되는지 궁금하다면, [Midnight Developer Academy의 Module 2](https://docs.midnight.network/academy/module-2)와 [Compact Language Reference](https://docs.midnight.network/develop/reference/compact/compact-reference)를 참고하세요. 개념을 단계별로 설명하며, Midnight 아키텍처가 고급 암호학을 실용적인 개발 도구로 어떻게 전환하는지 보여줍니다.
+Web3에서 스마트 컨트랙트 구축법을 배우고 있거나 전체 구조가 어떻게 연결되는지 궁금하다면, [Midnight Developer Academy의 Module 2](https://docs.midnight.network/academy/module-2)와 [Compact Language Reference](https://docs.midnight.network/develop/reference/compact/compact-reference)를 참고하세요. 개념을 단계별로 설명하며, Midnight 아키텍처가 고급 암호학을 실용적인 개발 도구로 어떻게 전환하는지 보여줍니다.
 
 다음 주에도 탈중앙화 세계에서 프라이버시 우선 시스템을 구성하는 요소들을 계속 다루겠습니다.

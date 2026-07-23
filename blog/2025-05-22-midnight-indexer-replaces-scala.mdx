@@ -21,7 +21,7 @@ date: 2025-05-22
 Midnight Indexer는 노드의 원시 데이터를 지갑과 애플리케이션에서 조회 가능한 형태로 변환하는 고성능 모듈형 시스템입니다. 주요 기능은 다음과 같습니다:
 
 * Midnight 노드에서 블록을 가져와 처리
-* Transaction, contract action, event를 인덱싱
+* 트랜잭션, contract action, event를 인덱싱
 * 쿼리, mutation, 실시간 subscription을 지원하는 GraphQL API 제공
 * 지갑과 안전하게 연결하여 세션 범위로 필터링된 데이터 전달
 * PostgreSQL(클라우드)과 SQLite(로컬/독립 실행) 모두 지원
@@ -30,16 +30,16 @@ Midnight Indexer는 노드의 원시 데이터를 지갑과 애플리케이션�
 
 Indexer는 세 가지 핵심 컴포넌트로 구성됩니다:
 
-* **Chain Indexer** - 노드에 연결하여 블록을 가져오고, transaction과 contract 활동을 추출해 데이터베이스에 기록합니다.
+* **Chain Indexer** - 노드에 연결하여 블록을 가져오고, 트랜잭션과 컨트랙트 활동을 추출해 데이터베이스에 기록합니다.
 * **Wallet Indexer** - 활성 지갑을 모니터링하고 관련 event에 연결하여 개인화된 실시간 데이터 피드를 제공합니다.
 * **Indexer API** - 인덱싱된 모든 데이터를 GraphQL로 제공하며 다음을 지원합니다:
-  - 특정 쿼리(블록 높이/해시, tx ID, contract 주소별)
-  - 실시간 subscription(새 블록, 지갑 활동, contract 호출)
+  - 특정 쿼리(블록 높이/해시, tx ID, 컨트랙트 주소별)
+  - 실시간 subscription(새 블록, 지갑 활동, 컨트랙트 호출)
   - 지갑별로 데이터 접근 범위를 제한하는 보안 세션
 
 ## Latest release v2.1.1 highlights
 
-v2.1.1 릴리스에는 Indexer 관련 주요 패치와 내부 개선이 포함되어 있습니다. Transaction 및 contract action 쿼리가 정확한 결과를 반환하도록 수정한 버그 픽스, Chain Indexer의 transaction 적용 로직을 더 자연스러운 구조로 간소화한 리팩터링 등이 있습니다. Midnight Node v0.12, Midnight Wallet v5.0.0 이상, Lace Wallet v3.0.0 이상과 완벽히 호환됩니다.
+v2.1.1 릴리스에는 Indexer 관련 주요 패치와 내부 개선이 포함되어 있습니다. 트랜잭션 및 contract action 쿼리가 정확한 결과를 반환하도록 수정한 버그 픽스, Chain Indexer의 트랜잭션 적용 로직을 더 자연스러운 구조로 간소화한 리팩터링 등이 있습니다. Midnight Node v0.12, Midnight Wallet v5.0.0 이상, Lace Wallet v3.0.0 이상과 완벽히 호환됩니다.
 
 ## What's been added since launch?
 

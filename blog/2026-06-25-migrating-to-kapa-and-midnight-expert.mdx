@@ -18,7 +18,7 @@ image: /img/blog/updates.jpg
 
 ## Kapa: ask Midnight anything, from your editor
 
-아무것도 설치하지 않고도 이미 Kapa를 써봤을 가능성이 높습니다. 이 문서 사이트의 "Ask AI" 버튼이 바로 Kapa이며, 문서만이 아니라 그 이상에서 답을 찾아냅니다. Kapa의 인덱스는 엄선된 Midnight 자료 모음입니다. 공식 문서, ledger·midnight.js·node처럼 손수 고른 핵심 저장소, 그리고 백서 같은 독립 자료까지 포함합니다. 이 페이지에서 열어 무엇이든 물어보세요. MCP 서버가 노출하는 것도 바로 그 지식 베이스입니다.
+아무것도 설치하지 않고도 이미 Kapa를 써봤을 가능성이 높습니다. 이 문서 사이트의 "Ask AI" 버튼이 바로 Kapa이며, 문서만이 아니라 그 이상에서 답을 찾아냅니다. Kapa의 인덱스는 엄선된 Midnight 자료 모음입니다. 공식 문서, ledger·midnight.js·노드처럼 손수 고른 핵심 저장소, 그리고 백서 같은 독립 자료까지 포함합니다. 이 페이지에서 열어 무엇이든 물어보세요. MCP 서버가 노출하는 것도 바로 그 지식 베이스입니다.
 
 MCP가 만들어 내는 차이는 이걸 어디서 쓸 수 있느냐입니다. 문서를 확인하려고 브라우저 탭으로 넘어가는 대신, AI 코딩 어시스턴트가 편집기 안에서 Kapa에 질의하고, 작업을 이어 가는 그대로 맥락에 맞춰 답합니다. DUST 생성이 어떻게 동작하는지, witness를 어떻게 구성하는지, 특정 ledger 타입이 무슨 일을 하는지 물어보면, 낡은 학습 데이터에서 추측한 답이 아니라 현재 문서에 근거한 답이 돌아옵니다.
 
@@ -57,7 +57,7 @@ Cursor, Gemini/Antigravity CLI, GitHub Copilot처럼 JSON 설정에서 remote `m
 
 Kapa가 질문에 답한다면, Midnight Expert는 실제로 일을 합니다. [Claude Code 플러그인 마켓플레이스](https://github.com/devrelaicom/midnight-expert)이며, 기존 서버의 생성·검증·툴링 기능이 이제 더 넓은 커버리지로 자리 잡은 곳입니다.
 
-현재 열다섯 개가 넘는 플러그인을 묶어 제공합니다. 백 개가 넘는 skill, 열두 개 이상의 agent, 그리고 Compact 컨트랙트, TypeScript SDK, 지갑 운영, devnet과 proof 서버 인프라, 코드 품질, 에러 카탈로그를 아우르는 수백 개의 참조 문서가 들어 있습니다. 플러그인이 Claude Code 안에서 실행되기 때문에, 이 기능들은 세션에서 바로 호출할 수 있는 skill과 슬래시 명령으로 나타납니다.
+현재 열다섯 개가 넘는 플러그인을 묶어 제공합니다. 백 개가 넘는 skill, 열두 개 이상의 agent, 그리고 Compact 컨트랙트, TypeScript SDK, 지갑 운영, devnet과 proof server 인프라, 코드 품질, 에러 카탈로그를 아우르는 수백 개의 참조 문서가 들어 있습니다. 플러그인이 Claude Code 안에서 실행되기 때문에, 이 기능들은 세션에서 바로 호출할 수 있는 skill과 슬래시 명령으로 나타납니다.
 
 초반에 자주 쓰게 될 몇 가지를 꼽자면 이렇습니다.
 
@@ -65,9 +65,9 @@ Kapa가 질문에 답한다면, Midnight Expert는 실제로 일을 합니다. [
 - `/midnight-tooling:devnet start`는 Docker Compose 파일을 손수 짜맞추지 않아도 로컬 devnet을 띄워 줍니다.
 - `/midnight-status-codes:lookup`은 Midnight 에러나 상태 코드를 해독하고, 어느 컴포넌트가 그것을 냈는지 알려 줍니다.
 - `/midnight-fact-check:check`는 어시스턴트가 기억하는 내용을 믿는 대신, 콘텐츠를 실제 툴체인에 대조해 확인합니다.
-- `/midnight-expert:doctor`는 컴파일러, proof 서버, 플러그인, 의존성까지 전체 설정을 아우르는 상태 점검을 실행합니다.
+- `/midnight-expert:doctor`는 컴파일러, proof server, 플러그인, 의존성까지 전체 설정을 아우르는 상태 점검을 실행합니다.
 
-커버리지는 컨트랙트 작성을 훨씬 넘어섭니다. `compact-core` 플러그인은 컨트랙트 패턴, 프라이버시 규칙, 리뷰 체크리스트를 담고 있고, `midnight-dapp-dev`는 DApp 프런트엔드를 스캐폴딩해 Midnight SDK를 통해 컨트랙트와 연결하며, `midnight-wallet`은 지갑 구축과 DApp Connector API를 다루고, `compact-cli-dev`는 컨트랙트용 커맨드라인 인터페이스를 생성합니다. 서킷을 다루든, 브라우저 DApp을 만들든, 그 사이의 지갑 연동을 하든, 현재 패턴을 다루는 플러그인이 대개 하나쯤 있습니다.
+커버리지는 컨트랙트 작성을 훨씬 넘어섭니다. `compact-core` 플러그인은 컨트랙트 패턴, 프라이버시 규칙, 리뷰 체크리스트를 담고 있고, `midnight-dapp-dev`는 DApp 프런트엔드를 스캐폴딩해 Midnight SDK를 통해 컨트랙트와 연결하며, `midnight-wallet`은 지갑 구축과 DApp Connector API를 다루고, `compact-cli-dev`는 컨트랙트용 커맨드라인 인터페이스를 생성합니다. circuit을 다루든, 브라우저 DApp을 만들든, 그 사이의 지갑 연동을 하든, 현재 패턴을 다루는 플러그인이 대개 하나쯤 있습니다.
 
 핵심은 최신 상태를 유지하는 것입니다. Compact와 Midnight SDK는 자주 바뀌고, 어느 쪽도 모델의 학습 데이터에 들어 있지 않았습니다. 그래서 가이드 없는 어시스턴트는 빈틈을 추측으로 메우다가 틀립니다. Midnight Expert는 바로 그것을 막기 위해 만들어졌습니다. skill이 어시스턴트를 검증된 패턴 쪽으로 이끌고, `/midnight-verify:verify`와 `/midnight-fact-check:check` 같은 명령은 생성된 코드를 여러분이 보기도 전에 실제 컴파일러·런타임·툴체인에 대조하게 만듭니다. 이 가드레일이 그럴듯해 보이는 코드와 실제로 동작하는 코드를 가릅니다.
 
@@ -123,7 +123,7 @@ Kapa는 AI 어시스턴트가 Compact를 한 번도 담은 적 없는 학습 데
 
 - "DUST 생성은 어떻게 동작하고, 그 뒷받침이 되는 NIGHT을 소비하면 DUST는 어떻게 되나요?"
 - "Compact counter 컨트랙트를 작성하고 컴파일되는지 검증해 줘."
-- "proof 서버 에러가 나고 있어. 무슨 뜻이고 어떻게 고치지?"
+- "proof server 에러가 나고 있어. 무슨 뜻이고 어떻게 고치지?"
 - "로컬 devnet을 시작하고 정상 상태가 되면 알려 줘."
 
 기존 Midnight MCP 서버는 곧 오프라인이 됩니다. 대체 도구는 오늘부터 살아 있으니 미룰 이유가 없습니다. 지금 갈아타고 계속 빌드하세요.

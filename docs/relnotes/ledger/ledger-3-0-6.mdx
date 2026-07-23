@@ -7,7 +7,7 @@ displayed_sidebar: sidebar
 
 # Ledger
 
-Midnight의 원장(ledger)은 컨트랙트 상태와 토큰 상태의 공개 기록으로, Zswap의 암호학적 커밋먼트와 컨트랙트 주소를 해당 상태에 매핑하는 구조로 구성됩니다.
+Midnight의 ledger(ledger)은 컨트랙트 상태와 토큰 상태의 공개 기록으로, Zswap의 암호학적 commitment와 컨트랙트 주소를 해당 상태에 매핑하는 구조로 구성됩니다.
 
 [관련 문서 링크](../../develop/how-midnight-works/semantics)
 
@@ -45,7 +45,7 @@ Midnight Ledger의 최신 업데이트와 개선 사항을 확인하세요. 새�
 ## Bug Fixes
 
 - 인메모리 환경에서 잘못된 정보를 사용하는 Schnorr 증명의 보안 버그를 수정했습니다.
-- 원장에서 발생 가능한 여러 패닉 사례를 제거했습니다.
+- ledger에서 발생 가능한 여러 패닉 사례를 제거했습니다.
 - 잔액 확인의 취약점을 제거했습니다(소수의 트랜잭션에 영향을 미치는 호환성 변경 사항).
 - Schnorr 증명이 직렬화 후 유지되지 않는 문제를 수정했습니다.
 - 인메모리 환경의 Schnorr 증명 관련 보안 문제를 수정했습니다.
@@ -53,7 +53,7 @@ Midnight Ledger의 최신 업데이트와 개선 사항을 확인하세요. 새�
 - WASM `checkProofData` 엔드포인트를 수정했습니다.
 - WASM API `fees` 엔드포인트를 수정했습니다.
 - 유지보수 업데이트의 Schnorr 증명이 직렬화 후 유지되지 않는 문제를 수정했습니다.
-- 증명 서버에서 디버그 로깅이 제거되지 않는 문제를 수정했습니다.
+- proof server에서 디버그 로깅이 제거되지 않는 문제를 수정했습니다.
 
 ### Artifacts
 

@@ -20,7 +20,7 @@ Midnight Network에 대한 일반적인 질문입니다.
 
 네. Midnight은 네트워크 아키텍처와 경제 모델을 다루는 기술 백서를 제공합니다:
 
-- **Nightpaper**: Midnight Network 아키텍처와 프라이버시 보호 smart contract 시스템에 대한 기술 개요입니다.
+- **Nightpaper**: Midnight Network 아키텍처와 프라이버시 보호 스마트 컨트랙트 시스템에 대한 기술 개요입니다.
 - **Tokenomics incentives**: NIGHT 토큰 경제 구조와 네트워크 인센티브 메커니즘을 상세히 설명합니다.
 
 자세한 내용은 [midnight.network/whitepaper](https://midnight.network/whitepaper)를 참고하세요.
@@ -49,7 +49,7 @@ Oracle이 필요한 DApp(가격 데이터나 외부 데이터가 필요한 경�
 
 ### Can I reuse Solidity code on Midnight?
 
-아니요. Midnight DApp은 TypeScript와 Compact로 개발합니다. Compact는 프라이버시 proof를 생성하는 zero-knowledge circuit을 작성하기 위한 전용 프로그래밍 언어입니다.
+아니요. Midnight DApp은 TypeScript와 Compact로 개발합니다. Compact는 프라이버시 증명을 생성하는 zero-knowledge circuit을 작성하기 위한 전용 프로그래밍 언어입니다.
 
 ### What are the key unique concepts or coding patterns I need to know to create DApps on Midnight?
 
@@ -67,12 +67,12 @@ Testnet 블록 타임은 6초입니다. 이 시간은 네트워크 파라미터�
 
 ### I'm getting `ERR_UNSUPPORTED_DIR_IMPORT`. What should I do?
 
-이 에러는 Node.js가 특정 파일 대신 디렉토리를 import하려고 할 때 발생합니다. `~/.zshrc` 수정, Node 버전 변경, 환경 변수 설정 후 터미널 환경이 갱신되지 않은 경우에 흔히 나타납니다.
+이 에러는 Node.js가 특정 파일 대신 디렉토리를 import하려고 할 때 발생합니다. `~/.zshrc` 수정, 노드 버전 변경, 환경 변수 설정 후 터미널 환경이 갱신되지 않은 경우에 흔히 나타납니다.
 
 해결 방법:
 
-* 셸 설정이나 Node 버전을 변경한 후에는 새 터미널 창을 여세요 (`source ~/.zshrc`만으로는 부족합니다).
-* 올바른 Node 버전을 사용하고 있는지 확인하세요 (Midnight은 Node 22 이상이 필요합니다):
+* 셸 설정이나 노드 버전을 변경한 후에는 새 터미널 창을 여세요 (`source ~/.zshrc`만으로는 부족합니다).
+* 올바른 노드 버전을 사용하고 있는지 확인하세요 (Midnight은 노드 22 이상이 필요합니다):
   ```bash
   nvm use
   ```

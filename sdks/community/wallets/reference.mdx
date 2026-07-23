@@ -16,11 +16,11 @@ id: community-wallets-reference
 
 ## Functionality matrix
 
-이것은 [matrix](./wallets-overview.mdx#the-matrix)와 [wallet별 프로필](./wallets-overview.mdx#the-wallets)로 선택을 좁힌 뒤, 마지막 승부를 가르는 세부 기준입니다. 범례: Yes; No; Partial(아래 단서 있음); Not documented(2026년 6월 기준 공개 문서 없음); n/a.
+이것은 [matrix](./wallets-overview.mdx#the-matrix)와 [지갑별 프로필](./wallets-overview.mdx#the-wallets)로 선택을 좁힌 뒤, 마지막 승부를 가르는 세부 기준입니다. 범례: Yes; No; Partial(아래 단서 있음); Not documented(2026년 6월 기준 공개 문서 없음); n/a.
 
 ### Platforms and availability
 
-| Wallet | Browser extension | Mobile app | Midnight-native | Open source |
+| 지갑 | Browser extension | Mobile app | Midnight-native | Open source |
 |---|---|---|---|---|
 | Lace | Yes (Chrome/Edge) | No (Midnight) | No | Yes |
 | 1AM | Yes (Chrome, Firefox) | Yes (beta) | Yes | No |
@@ -32,7 +32,7 @@ id: community-wallets-reference
 
 ### Privacy and assets
 
-| Wallet | NIGHT | DUST | Shielded txns | Unshielded txns | Shielded by default | Selective disclosure |
+| 지갑 | NIGHT | DUST | Shielded txns | Unshielded txns | Shielded by default | Selective disclosure |
 |---|---|---|---|---|---|---|
 | Lace | Yes | Yes | Yes | Yes | No | Not documented |
 | 1AM | Yes | Yes | Yes | Yes | Yes | Yes |
@@ -44,7 +44,7 @@ id: community-wallets-reference
 
 ### Proving and fees
 
-| Wallet | In-browser / on-device proving | Local prover needed | `getProvingProvider` | Gas sponsorship |
+| 지갑 | In-browser / on-device proving | Local prover needed | `getProvingProvider` | Gas sponsorship |
 |---|---|---|---|---|
 | Lace | No | Yes | No | No |
 | 1AM | Yes (WASM; Halo2/BLS12-381) | No | Yes | Not documented |
@@ -56,7 +56,7 @@ id: community-wallets-reference
 
 ### Developer integration
 
-| Wallet | DApp Connector | `signData` | Dedicated SDK | DApp browser | Hardware wallet | Cardano / multi-chain | Staking |
+| 지갑 | DApp Connector | `signData` | Dedicated SDK | DApp browser | Hardware wallet | Cardano / multi-chain | Staking |
 |---|---|---|---|---|---|---|---|
 | Lace | Yes (`mnLace`) | No | No | n/a | Yes (Cardano) | Yes | Yes (Cardano) |
 | 1AM | Yes (`'1am'`) | Not documented | Announced / Not documented | Yes | Not documented | No | Not documented |
@@ -78,14 +78,14 @@ id: community-wallets-reference
 
 ### Developer experience
 
-빌드하는 동안 매일 던지는 질문은 어떤 wallet이 가장 나은 개발 루프를 주느냐입니다. 아래 표는 네 가지 능력을 점수화합니다.
+빌드하는 동안 매일 던지는 질문은 어떤 지갑이 가장 나은 개발 루프를 주느냐입니다. 아래 표는 네 가지 능력을 점수화합니다.
 
 - 로컬 네트워크(`undeployed`, faucet 없이 Docker에 띄우는 일회용 Midnight 스택);
 - 커스텀 서버;
-- 알려진 seed로 재현 가능한 테스트 wallet;
+- 알려진 seed로 재현 가능한 테스트 지갑;
 - 사람이 approve를 누르지 않는 headless CI 실행.
 
-| Wallet | Local network (`undeployed`) | Custom servers | Reproducible test wallets | Headless / CI |
+| 지갑 | Local network (`undeployed`) | Custom servers | Reproducible test wallets | Headless / CI |
 |---|---|---|---|---|
 | wallet CLI | Yes (`localnet up`) | Yes (`config set`) | Yes (seed-based `wallet generate`) | Yes (`serve --approve-all`) |
 | Lace | Partial (local proof server) | Partial (proof-server URL) | No (UI-generated seed) | No (manual pop-up approval) |
@@ -105,16 +105,16 @@ inner 개발 루프에서는 wallet CLI가 모든 열을 커버합니다. 로컬
 | `window.midnight`가 `undefined` | 확장이 설치/활성화되지 않았거나, 로드 후 주입됨 | 설치를 안내한 뒤 새로고침하세요. 자동 재연결은 연결 전에 polling하세요 |
 | `getProvingProvider is not a function` (Lace) | Lace가 이를 구현하지 않음 | feature-detect한 뒤 로컬 proof server를 사용하세요([forum](https://forum.midnight.network/t/lace-wallet-doesnt-implement-getprovingprovider-expected-behavior-or-version-gap/1213)) |
 | `signData` "Method not implemented" (Lace) | Lace에서 미구현 | Lace에서는 서명 기반 인증을 피하고, 먼저 feature-detect하세요([Lace issues](https://github.com/input-output-hk/lace/issues)) |
-| Proof 생성 실패 또는 prover에 닿지 않음 | 로컬 proof server가 꺼졌거나 Brave Shields가 차단 | `localhost:6300`에서 띄우세요. 해당 origin에 대해 Brave Shields를 끄세요 |
-| Network mismatch | DApp과 wallet이 서로 다른 네트워크 | `setNetworkId(...)`로 `getConnectionStatus().networkId`에 맞추세요 |
-| 1AM 첫 proof가 매우 느림 | 수 MB WASM의 cold-start | 미리 데우거나 "loading prover" 상태를 보여주세요 |
-| 시작도 전에 deploy 실패 | wallet이 완전히 sync되지 않음 | deploy 전에 wallet sync가 끝나기를 기다리세요 |
+| 증명 생성 실패 또는 prover에 닿지 않음 | 로컬 proof server가 꺼졌거나 Brave Shields가 차단 | `localhost:6300`에서 띄우세요. 해당 origin에 대해 Brave Shields를 끄세요 |
+| Network mismatch | DApp과 지갑이 서로 다른 네트워크 | `setNetworkId(...)`로 `getConnectionStatus().networkId`에 맞추세요 |
+| 1AM 첫 증명이 매우 느림 | 수 MB WASM의 cold-start | 미리 데우거나 "loading prover" 상태를 보여주세요 |
+| 시작도 전에 deploy 실패 | 지갑이 완전히 sync되지 않음 | deploy 전에 wallet sync가 끝나기를 기다리세요 |
 | CLI `DUST_REQUIRED` (exit 5) | DUST 없음 | `midnight dust register` 후, DUST가 생성되면 다시 시도하세요 |
-| CLI `INSUFFICIENT_BALANCE` (exit 5) | NIGHT 부족 | wallet에 자금을 넣으세요(testnet은 faucet, `airdrop`은 `undeployed`에서만) |
-| CLI `NETWORK_ERROR` (exit 4) | 연결 거부, 타임아웃, 또는 DNS | node와 indexer 엔드포인트를 확인하세요 |
+| CLI `INSUFFICIENT_BALANCE` (exit 5) | NIGHT 부족 | 지갑에 자금을 넣으세요(testnet은 faucet, `airdrop`은 `undeployed`에서만) |
+| CLI `NETWORK_ERROR` (exit 4) | 연결 거부, 타임아웃, 또는 DNS | 노드와 indexer 엔드포인트를 확인하세요 |
 | CLI `PROOF_TIMEOUT` (exit 6) | ZK proof 타임아웃 | proof server가 정상인지 확인하고, 재시도하고, circuit 복잡도를 줄이세요 |
-| CLI `STALE_UTXO` (exit 6) | 다른 transaction이 UTXO를 소비함 | `midnight cache clear` 후 다시 빌드하세요 |
-| CLI `TX_REJECTED` (exit 6) | node가 transaction을 거부(TTL 또는 validity) | 메시지를 확인하고 현재 상태로 다시 빌드하세요 |
+| CLI `STALE_UTXO` (exit 6) | 다른 트랜잭션이 UTXO를 소비함 | `midnight cache clear` 후 다시 빌드하세요 |
+| CLI `TX_REJECTED` (exit 6) | 노드가 트랜잭션을 거부(TTL 또는 validity) | 메시지를 확인하고 현재 상태로 다시 빌드하세요 |
 
 CLI 코드는 문서화된 계약입니다([CLI's JSON-output reference](https://www.npmjs.com/package/midnight-wallet-cli) 참고). Midnight의 표준 error·status code는 `midnight-status-codes` 레퍼런스를 사용하세요.
 
@@ -126,12 +126,12 @@ connector는 신뢰할 수 없는 확장에서 온 데이터를 여러분의 페
 - **`networkId`를 검증하세요**: `getConnectionStatus().networkId`에 맞추고, 불일치는 거부하세요.
 - **주입된 데이터를 권위로 신뢰하지 마세요**: `rdns`와 `name`은 표시와 선택을 위한 것이지 보안 결정을 위한 것이 아닙니다. 기대하는 `rdns`와 매칭하고, 공식 스토어에서만 설치하도록 사용자에게 안내하세요.
 - **witness 데이터를 로컬에 유지하세요**: in-browser proving(1AM)이나 로컬 proof server(Lace)를 선호하세요. hosted prover를 쓴다면, 그 사실을 밝히세요.
-- **fee sponsorship을 확인하세요**: 모든 wallet이 fee를 sponsor하지는 않으므로, "DUST 필요 없음" 경험을 약속하기 전에 대상 네트워크에서 검증하세요.
+- **fee sponsorship을 확인하세요**: 모든 지갑이 fee를 sponsor하지는 않으므로, "DUST 필요 없음" 경험을 약속하기 전에 대상 네트워크에서 검증하세요.
 - **agent(MCP) 접근을 강하게 통제하세요**: 도구 범위를 제한하고, 행위당·하루당 지출에 한도를 두고, 목적지를 allowlist로 관리하고, 되돌릴 수 없는 것에는 사람의 확인을 요구하세요. 무한한 서명 권한을 가진 agent는 이 격자에서 가장 위험이 큰 셀입니다.
 
 ## Broader ecosystem compatibility
 
-[overview](./wallets-overview.mdx#the-wallets)에서 프로필을 다룬 wallet 외에도, token generation event(TGE)와 Glacier Drop 무렵에 더 많은 Cardano wallet이 Midnight·NIGHT 호환성을 발표했습니다. 대부분은 깊은 DApp 연동보다는 NIGHT을 claim하고 보유하는 것을 목표로 하며, self-custody 브라우저·mobile 칸에 항목을 추가합니다.
+[overview](./wallets-overview.mdx#the-wallets)에서 프로필을 다룬 지갑 외에도, token generation event(TGE)와 Glacier Drop 무렵에 더 많은 Cardano wallet이 Midnight·NIGHT 호환성을 발표했습니다. 대부분은 깊은 DApp 연동보다는 NIGHT을 claim하고 보유하는 것을 목표로 하며, self-custody 브라우저·mobile 칸에 항목을 추가합니다.
 
 - **Announced self-custody (pre-mainnet):** Lace, SubWallet, NuFi, Vespr, Gero, Tokeo, Keystone, Yoroi, Begin Wallet. 미래 지향적이므로 발표된 것으로 취급하세요. ([Midnight blog](https://midnight.network/blog/looking-ahead-to-midnight-self-custody-wallet-integrations))
 - **Glacier Drop claim wallets (Cardano side):** Yoroi, Typhon, Gero, Vespr, Eternl(desktop), NuFi. ([compatibility](https://www.midnight.gd/news/glacier-drop-wallets-and-address-type-compatibility))
@@ -142,30 +142,30 @@ connector는 신뢰할 수 없는 확장에서 온 데이터를 여러분의 페
 
 ## Glossary
 
-wallet과 관련된 용어들입니다.
+지갑과 관련된 용어들입니다.
 
 - **Custody model:** 누가 키를 통제하는가. matrix의 행입니다(self-custody, custodial, account abstraction, MPC).
 - **Self-custody / custodial:** 제3자가 서명할 수 없는, 사용자 기기 위의 키 대 키를 보유하고 서명하는 provider.
 - **Account abstraction (AA):** 계정이 프로그래밍 가능한 authorization을 갖춘 on-chain 코드인 것. 2026년 6월 기준 Midnight에 native하지 않습니다.
 - **MPC / threshold (TSS):** 프로토콜이 키를 여러 share로 나누고, *m*-of-*n* 정족수가 전체 키를 재구성하지 않고 서명합니다. 기관 custody의 기반입니다(NIGHT의 Fireblocks).
-- **Interface:** wallet에 어떻게 접근하는가. matrix의 열입니다(browser, mobile, CLI, MCP).
-- **MCP (Model Context Protocol):** AI agent가 도구를 호출하는 표준으로, wallet 도구(자금 이동) 또는 개발자 도구(빌드 지원) 중 하나입니다.
-- **Midnight Passport:** Input Output에서 나온, 발표된 first-party seedless·QR onboarding 소비자 wallet(browser와 mobile)으로, 기기별 하드웨어 상주 키와 trusted-helper 복구를 갖췄습니다. Input Output은 아직 정확한 방식(MPC 대 secure-enclave)을 공개적으로 밝히지 않았습니다([Midnight Passport](./wallets-overview.mdx#midnight-passport-announced) 참고).
+- **Interface:** 지갑에 어떻게 접근하는가. matrix의 열입니다(browser, mobile, CLI, MCP).
+- **MCP (Model Context Protocol):** AI agent가 도구를 호출하는 표준으로, 지갑 도구(자금 이동) 또는 개발자 도구(빌드 지원) 중 하나입니다.
+- **Midnight Passport:** Input Output에서 나온, 발표된 first-party seedless·QR onboarding 소비자 지갑(browser와 mobile)으로, 기기별 하드웨어 상주 키와 trusted-helper 복구를 갖췄습니다. Input Output은 아직 정확한 방식(MPC 대 secure-enclave)을 공개적으로 밝히지 않았습니다([Midnight Passport](./wallets-overview.mdx#midnight-passport-announced) 참고).
 - **Sigil:** [Kuira](./wallets-overview.mdx#kuira)의 identity primitive로, 하나의 생체 인증으로 mint되며 seed phrase가 없는 passkey 유래 DID입니다. SDK는 이를 교체 가능한 `SigilIdentityProvider`로 노출하며, Kuira는 [Midnight Passport](./wallets-overview.mdx#midnight-passport-announced)를 계획된 향후 backend로 지목합니다.
-- **On-device proving:** transaction의 ZK proof를 휴대폰(Kuira, Android)에서 몇 초 만에 생성하는 것. 로컬 proof server가 돌지 않고, 어떤 것도 기기를 떠나지 않습니다. 1AM의 in-browser WASM proving에 대응하는 mobile 버전입니다.
+- **On-device proving:** 트랜잭션의 ZK proof를 휴대폰(Kuira, Android)에서 몇 초 만에 생성하는 것. 로컬 proof server가 돌지 않고, 어떤 것도 기기를 떠나지 않습니다. 1AM의 in-browser WASM proving에 대응하는 mobile 버전입니다.
 - **NIGHT / DUST:** native value token(공개적이며 DUST의 원천) 대 `balance`와 `cap`을 갖는, shielded이고 전송 불가하며 감쇠하는 fee 리소스.
 - **Shielded vs unshielded:** Midnight의 dual ledger, 즉 private 상태 대 public 상태. 1AM과 urble은 기본이 shielded이고, Lace는 opt-in입니다.
 - **Selective disclosure / viewing key:** 전체 데이터를 노출하지 않고 특정 사실만 드러내는 것. auditor를 위한 읽기 전용 키입니다.
-- **DApp Connector / CAIP-372:** wallet이 `window.midnight` 아래에 API를 주입하는 표준입니다.
+- **DApp Connector / CAIP-372:** 지갑이 `window.midnight` 아래에 API를 주입하는 표준입니다.
 - **rdns:** discovery에 쓰이는 reverse-DNS wallet id입니다(`mnLace`, `'1am'`).
-- **Intent:** 종종 balance가 맞지 않는 input과 output의 집합으로, transfer와 swap의 구성 요소입니다.
-- **Sealed vs unsealed tx:** 제출 준비가 된 것(proof에 binding을 더함) 대 binding 이전 상태.
-- **Relayer:** 여러분을 대신해 transaction을 제출하고 그 fee를 지불합니다. "gas sponsorship"의 기반입니다.
-- **Proving provider:** ZK proving을 wallet에 위임하는 추상화(`getProvingProvider`)입니다.
+- **Intent:** 종종 잔액이 맞지 않는 input과 output의 집합으로, transfer와 swap의 구성 요소입니다.
+- **Sealed vs unsealed tx:** 제출 준비가 된 것(증명에 binding을 더함) 대 binding 이전 상태.
+- **Relayer:** 여러분을 대신해 트랜잭션을 제출하고 그 fee를 지불합니다. "gas sponsorship"의 기반입니다.
+- **Proving provider:** ZK proving을 지갑에 위임하는 추상화(`getProvingProvider`)입니다.
 - **Bech32m:** connector가 반환하는 주소 인코딩입니다.
-- **Local proof server:** in-browser proving을 하지 않는 wallet을 위해 ZK proof를 생성하는 native 바이너리(`localhost:6300`)입니다.
+- **Local proof server:** in-browser proving을 하지 않는 지갑을 위해 ZK proof를 생성하는 native 바이너리(`localhost:6300`)입니다.
 - **Wallet-IaaS / Smart Custody:** 위임형 또는 embedded wallet provisioning을 위한 Midnight 인프라로, Wallet-as-a-Service(WaaS)라고도 합니다. 소셜·passkey onboarding의 경로입니다.
-- **DID (decentralized identifier):** 중앙 기관이 발급하지 않는 자기 소유 식별자(예: `did:key:…`)입니다. Kuira에서는 wallet이 passkey로부터 DID를 유도해 Sigil을 형성합니다.
+- **DID (decentralized identifier):** 중앙 기관이 발급하지 않는 자기 소유 식별자(예: `did:key:…`)입니다. Kuira에서는 지갑이 passkey로부터 DID를 유도해 Sigil을 형성합니다.
 
 ## Sources
 

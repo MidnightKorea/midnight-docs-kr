@@ -32,7 +32,7 @@ Compact 컴파일러 버전 0.23.0을 릴리스합니다. Compact 언어 버전�
 
 - 잘못된 `Field` 산술 오버플로 및 언더플로 수정
 - 잘못된 공통 부분식 제거로 인한 크래시 수정
-- 원장 ADT 타입으로의 캐스트 시도 시 크래시 수정
+- ledger ADT 타입으로의 캐스트 시도 시 크래시 수정
 - 큰 정수 리터럴 관련 크래시 수정
 
 컴파일러 개선:
@@ -59,7 +59,7 @@ Midnight 테스트넷 업그레이드에서 ZK 증명 시스템이 변경됩니�
 
 TypeScript는 쉼표로 구분된 목록에서 후행 쉼표를 허용하지만, Compact에서는 모든 위치에서 허용하지 않았습니다. 이번에 대부분의 구문 항목 목록에 후행 쉼표 지원을 추가했습니다. 단, 시퀀스 표현식에서는 허용하지 않습니다(TypeScript와 동일).
 
-아직 회로/위트니스 호출의 인수 목록과 `map`/`fold` 표현식에서는 후행 쉼표가 동작하지 않습니다. 이 버그는 향후 릴리스에서 수정 예정입니다.
+아직 회로/witness 호출의 인수 목록과 `map`/`fold` 표현식에서는 후행 쉼표가 동작하지 않습니다. 이 버그는 향후 릴리스에서 수정 예정입니다.
 
 다음은 후행 쉼표를 보여주는 예시입니다:
 
@@ -100,7 +100,7 @@ export circuit foo(x: Field): [] {
 
 ### Fix for a crash when trying to cast to a ledger ADT type
 
-`Counter`나 `Map` 같은 원장 ADT 타입은 일반 Compact 타입으로 사용할 수 없습니다. 값을 원장 ADT 타입으로 캐스트하면 오류 메시지를 표시해야 하지만, 기존에는 내부 오류로 크래시했습니다. 이제 "invalid context for a ledger ADT type" 오류를 올바르게 표시합니다.
+`Counter`나 `Map` 같은 ledger ADT 타입은 일반 Compact 타입으로 사용할 수 없습니다. 값을 ledger ADT 타입으로 캐스트하면 오류 메시지를 표시해야 하지만, 기존에는 내부 오류로 크래시했습니다. 이제 "invalid context for a ledger ADT type" 오류를 올바르게 표시합니다.
 
 ### Fix for crashes involving large integer literals
 

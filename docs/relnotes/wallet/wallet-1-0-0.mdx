@@ -14,7 +14,7 @@ description: Release notes for the Midnight Wallet SDK 1.0.0
 
 ## High-level summary
 
-Midnight Wallet SDK의 첫 번째 안정 릴리스입니다. Midnight Network을 위한 TypeScript 지갑 구현체로, Midnight의 세 가지 토큰 시스템을 완벽하게 지원합니다: 비차폐 토큰(NIGHT 포함), 영지식 증명을 활용한 차폐 토큰, 수수료 결제를 위한 DUST.
+Midnight Wallet SDK의 첫 번째 안정 릴리스입니다. Midnight Network을 위한 TypeScript 지갑 구현체로, Midnight의 세 가지 토큰 시스템을 완벽하게 지원합니다: unshielded 토큰(NIGHT 포함), 영지식 증명을 활용한 shielded 토큰, 수수료 결제를 위한 DUST.
 
 ---
 
@@ -24,7 +24,7 @@ Midnight Wallet SDK의 첫 번째 안정 릴리스입니다. Midnight Network을
 
 - Midnight Network에서 지갑 기능을 구현하는 경우
 - DApp에 Midnight 토큰 전송을 통합하는 경우
-- 차폐(프라이빗) 및 비차폐 토큰 잔액을 관리해야 하는 경우
+- shielded(프라이빗) 및 unshielded 토큰 잔액을 관리해야 하는 경우
 - 당사자 간 원자적 스왑을 구현하는 경우
 
 ---
@@ -33,8 +33,8 @@ Midnight Wallet SDK의 첫 번째 안정 릴리스입니다. Midnight Network을
 
 이번 릴리스에서 추가된 주요 기능과 개선 사항은 다음과 같습니다.
 
-- 비차폐 토큰(NIGHT 포함) 완벽 지원
-- 영지식 증명을 활용한 차폐 토큰 완벽 지원
+- unshielded 토큰(NIGHT 포함) 완벽 지원
+- 영지식 증명을 활용한 shielded 토큰 완벽 지원
 - 트랜잭션 수수료 결제를 위한 Dust 관리
 - HD 지갑 키 파생
 - Bech32m 주소 인코딩 및 디코딩
@@ -49,16 +49,16 @@ Midnight Wallet SDK의 첫 번째 안정 릴리스입니다. Midnight Network을
 
 ### Wallet facade
 
-차폐, 비차폐, dust 지갑 운영을 단일 인터페이스로 제공하는 통합 API입니다.
+shielded, unshielded, dust 지갑 운영을 단일 인터페이스로 제공하는 통합 API입니다.
 트랜잭션 밸런싱, 전송, 스왑을 처리합니다. 세 가지 개별 지갑 유형을 관리하는 복잡성을 추상화하므로, 대부분의 개발자에게 주요 진입점이 됩니다.
 
 ### Unshielded wallet
 
-Schnorr 서명과 함께 UTxO 모델을 사용하여 NIGHT 및 기타 비차폐 토큰을 관리합니다. UTxO을 추적하고, 스왑을 위한 offer을 생성하며, 트랜잭션 밸런싱을 위한 입력/출력을 제공합니다. 투명한 토큰 운영에 사용하세요.
+Schnorr 서명과 함께 UTxO 모델을 사용하여 NIGHT 및 기타 unshielded 토큰을 관리합니다. UTxO을 추적하고, 스왑을 위한 offer을 생성하며, 트랜잭션 밸런싱을 위한 입력/출력을 제공합니다. 투명한 토큰 운영에 사용하세요.
 
 ### Shielded wallet
 
-Zswap 영지식 증명을 사용하여 프라이버시가 보호되는 차폐 토큰을 관리합니다. ZK 증명 생성, 코인 커밋먼트 추적, 암호화된 출력 복호화를 처리합니다. 토큰 값과 주소가 관찰자에게 숨겨지면서도 검증 가능성은 유지됩니다.
+Zswap 영지식 증명을 사용하여 프라이버시가 보호되는 shielded 토큰을 관리합니다. ZK 증명 생성, 코인 commitment 추적, 암호화된 출력 복호화를 처리합니다. 토큰 값과 주소가 관찰자에게 숨겨지면서도 검증 가능성은 유지됩니다.
 
 ### DUST wallet
 
@@ -66,14 +66,14 @@ NIGHT 보유에서 생성되는 수수료 결제 리소스인 Dust을 관리합�
 
 ### HD wallet
 
-BIP-32/BIP-44/CIP-1852 표준에 따라 시드에서 암호화 키를 파생합니다. 단일 니모닉 또는 시드에서 비차폐(secp256k1), 차폐(JubJub 곡선), Dust(BLS12-381 곡선) 운영을 위한 키를 생성합니다.
+BIP-32/BIP-44/CIP-1852 표준에 따라 시드에서 암호화 키를 파생합니다. 단일 니모닉 또는 시드에서 unshielded(secp256k1), shielded(JubJub 곡선), Dust(BLS12-381 곡선) 운영을 위한 키를 생성합니다.
 
 ### Address format
 
 Bech32m 형식을 사용하여 Midnight 주소를 인코딩하고 디코딩합니다. 네트워크 식별자와 함께 세 가지 주소 유형을 지원합니다:
 
-- `mn_addr` - 비차폐 결제 주소
-- `mn_shield-addr` - 차폐 결제 주소
+- `mn_addr` - unshielded 결제 주소
+- `mn_shield-addr` - shielded 결제 주소
 - `mn_dust-addr` - 수수료 생성을 위한 Dust 주소
 
 ### Transaction balancing
@@ -82,7 +82,7 @@ Bech32m 형식을 사용하여 Midnight 주소를 인코딩하고 디코딩합�
 
 ### Atomic swaps
 
-Midnight의 offer 시스템을 사용하여 당사자 간 신뢰 불필요한 토큰 교환을 가능하게 합니다. Offer을 단일 트랜잭션에 병합하여 교환 금액을 관찰자로부터 숨길 수 있습니다. 현재 차폐 전용 또는 비차폐 전용 스왑을 지원합니다.
+Midnight의 offer 시스템을 사용하여 당사자 간 신뢰 불필요한 토큰 교환을 가능하게 합니다. Offer을 단일 트랜잭션에 병합하여 교환 금액을 관찰자로부터 숨길 수 있습니다. 현재 shielded 전용 또는 unshielded 전용 스왑을 지원합니다.
 
 ---
 
@@ -92,7 +92,7 @@ Midnight의 offer 시스템을 사용하여 당사자 간 신뢰 불필요한 �
 
 ### Prover service connection
 
-차폐 트랜잭션과 Dust 지출을 위한 영지식 증명에는 외부 prover 서비스가 필요합니다. 이 설정 없이는 지갑에서 차폐 트랜잭션을 제출할 수 없습니다.
+shielded 트랜잭션과 Dust 지출을 위한 영지식 증명에는 외부 prover 서비스가 필요합니다. 이 설정 없이는 지갑에서 shielded 트랜잭션을 제출할 수 없습니다.
 
 **필요한 업데이트**:
 - prove server 엔드포인트 URL을 설정하세요.
@@ -108,11 +108,11 @@ Midnight의 offer 시스템을 사용하여 당사자 간 신뢰 불필요한 �
 
 ### Indexer endpoint
 
-지갑은 UTxO, 트랜잭션 이력, 상태 데이터를 동기화하기 위해 인덱서에 연결해야 합니다.
+지갑은 UTxO, 트랜잭션 이력, 상태 데이터를 동기화하기 위해 indexer에 연결해야 합니다.
 
 **필요한 업데이트**:
-- 인덱서 GraphQL 엔드포인트를 설정하세요.
-- 인덱서가 실행 중이고 접근 가능한지 확인하세요.
+- indexer GraphQL 엔드포인트를 설정하세요.
+- indexer가 실행 중이고 접근 가능한지 확인하세요.
 
 ---
 
@@ -128,7 +128,7 @@ Midnight의 offer 시스템을 사용하여 당사자 간 신뢰 불필요한 �
 
 ### Transaction history not implemented for shielded and dust wallets
 
-차폐 지갑과 dust 지갑은 현재 트랜잭션 이력을 추적하지 않습니다. 비차폐 지갑은 트랜잭션 기록을 유지하지만, 차폐 지갑과 dust 지갑은 이력 트랜잭션 데이터 없이 코인 잔액만 추적합니다.
+shielded 지갑과 dust 지갑은 현재 트랜잭션 이력을 추적하지 않습니다. unshielded 지갑은 트랜잭션 기록을 유지하지만, shielded 지갑과 dust 지갑은 이력 트랜잭션 데이터 없이 코인 잔액만 추적합니다.
 
 ---
 
@@ -136,15 +136,15 @@ Midnight의 offer 시스템을 사용하여 당사자 간 신뢰 불필요한 �
 
 | Package                                        | Version | Description                                                                                                                                                             |
 | ---------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@midnight-ntwrk/wallet-sdk-facade`            | 1.0.0   | 차폐, 비차폐, dust 지갑 운영을 단일 인터페이스로 제공하는 통합 API. 트랜잭션 밸런싱, 전송, 스왑을 처리합니다.              |
-| `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | 1.0.0   | NIGHT 및 기타 비차폐 토큰을 관리합니다. UTxO을 추적하고, 스왑을 위한 offer을 생성하며, 트랜잭션 밸런싱을 위한 입력/출력을 제공합니다.                               |
-| `@midnight-ntwrk/wallet-sdk-shielded`   | 1.0.0   | 프라이버시가 보호되는 차폐 토큰을 관리합니다. ZK 증명 생성, 코인 커밋먼트 추적, 암호화된 출력 복호화를 처리합니다.                                     |
+| `@midnight-ntwrk/wallet-sdk-facade`            | 1.0.0   | shielded, unshielded, dust 지갑 운영을 단일 인터페이스로 제공하는 통합 API. 트랜잭션 밸런싱, 전송, 스왑을 처리합니다.              |
+| `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | 1.0.0   | NIGHT 및 기타 unshielded 토큰을 관리합니다. UTxO을 추적하고, 스왑을 위한 offer을 생성하며, 트랜잭션 밸런싱을 위한 입력/출력을 제공합니다.                               |
+| `@midnight-ntwrk/wallet-sdk-shielded`   | 1.0.0   | 프라이버시가 보호되는 shielded 토큰을 관리합니다. ZK 증명 생성, 코인 commitment 추적, 암호화된 출력 복호화를 처리합니다.                                     |
 | `@midnight-ntwrk/wallet-sdk-dust-wallet`       | 1.0.0   | 트랜잭션 수수료를 위한 Dust을 관리합니다. Dust 지정, 잔액 추적, 트랜잭션 밸런싱 중 자동 수수료 결제를 처리합니다.                                  |
-| `@midnight-ntwrk/wallet-sdk-hd`                | 3.0.0   | BIP-32/BIP-44/CIP-1852에 따라 시드에서 암호화 키를 파생합니다. 비차폐(secp256k1), 차폐(JubJub), Dust(BLS12-381) 운영을 위한 키를 생성합니다. |
-| `@midnight-ntwrk/wallet-sdk-address-format`    | 3.0.0   | Bech32m 형식을 사용하여 Midnight 주소를 인코딩/디코딩합니다. 결제 주소, 차폐 주소, 네트워크 식별자가 포함된 Dust 주소를 지원합니다.               |
+| `@midnight-ntwrk/wallet-sdk-hd`                | 3.0.0   | BIP-32/BIP-44/CIP-1852에 따라 시드에서 암호화 키를 파생합니다. unshielded(secp256k1), shielded(JubJub), Dust(BLS12-381) 운영을 위한 키를 생성합니다. |
+| `@midnight-ntwrk/wallet-sdk-address-format`    | 3.0.0   | Bech32m 형식을 사용하여 Midnight 주소를 인코딩/디코딩합니다. 결제 주소, shielded 주소, 네트워크 식별자가 포함된 Dust 주소를 지원합니다.               |
 | `@midnight-ntwrk/wallet-sdk-node-client`       | 1.0.0   | Midnight Node와 통신합니다. 트랜잭션을 제출하고 블록체인 상태를 조회합니다.                                                                                    |
-| `@midnight-ntwrk/wallet-sdk-indexer-client`    | 1.0.0   | WebSocket을 통한 GraphQL로 Midnight 인덱서를 조회합니다. UTxO, 이벤트, 블록 정보를 검색합니다.                                                                 |
-| `@midnight-ntwrk/wallet-sdk-prover-client`     | 1.0.0   | 차폐 트랜잭션과 Dust 지출을 위한 영지식 증명을 생성하기 위해 prover 서비스와 연동합니다.                                                         |
+| `@midnight-ntwrk/wallet-sdk-indexer-client`    | 1.0.0   | WebSocket을 통한 GraphQL로 Midnight indexer를 조회합니다. UTxO, 이벤트, 블록 정보를 검색합니다.                                                                 |
+| `@midnight-ntwrk/wallet-sdk-prover-client`     | 1.0.0   | shielded 트랜잭션과 Dust 지출을 위한 영지식 증명을 생성하기 위해 prover 서비스와 연동합니다.                                                         |
 | `@midnight-ntwrk/wallet-sdk-runtime`           | 1.0.0   | 지갑 라이프사이클과 상태 관리를 조직합니다. 프로토콜 업그레이드를 위한 버전 마이그레이션을 지원합니다.                                                                      |
 | `@midnight-ntwrk/wallet-sdk-capabilities`      | 3.0.0   | 코인 선택 알고리즘과 트랜잭션 밸런싱 로직을 포함한 공유 지갑 기능.                                                                             |
 | `@midnight-ntwrk/wallet-sdk-abstractions`      | 1.0.0   | 모든 패키지에서 사용되는 핵심 인터페이스와 도메인 타입.                                                                                                              |

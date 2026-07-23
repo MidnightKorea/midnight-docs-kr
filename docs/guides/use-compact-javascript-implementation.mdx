@@ -60,7 +60,7 @@ witnesses 객체는 witness 함수 이름을 구현에 매핑합니다. 각 witn
 
 ## Call contract circuits
 
-각 circuit은 `contract.circuits` 또는 `contract.impureCircuits`에 JavaScript 함수로 노출됩니다. 이 래퍼가 입력 준비, JavaScript 구현 실행을 처리하고, 출력, 업데이트된 컨텍스트, proof 데이터가 포함된 결과를 반환합니다.
+각 circuit은 `contract.circuits` 또는 `contract.impureCircuits`에 JavaScript 함수로 노출됩니다. 이 래퍼가 입력 준비, JavaScript 구현 실행을 처리하고, 출력, 업데이트된 컨텍스트, 증명 데이터가 포함된 결과를 반환합니다.
 
 `post` impure circuit 호출 예시:
 
@@ -88,7 +88,7 @@ const { result, context, proofData, gasCost } =
 반환 객체 구성:
 - `result`: circuit의 반환 값 (post의 경우 빈 배열)
 - `context`: 새 ledger 상태가 포함된 업데이트된 circuit 컨텍스트
-- `proofData`: proof 생성을 위한 입력, 출력, 트랜스크립트 데이터
+- `proofData`: 증명 생성을 위한 입력, 출력, 트랜스크립트 데이터
 - `gasCost`: 가스 비용 추적 정보
 
 `publicKey` pure circuit 호출 예시:
@@ -165,9 +165,9 @@ Compact가 JavaScript 구현을 생성하는 이유와, 이 설계가 프라이�
 
 ZK circuit은 강력하지만 복잡하고 불투명하여, 직접 디버깅하거나 테스트하기가 쉽지 않습니다.
 
-JavaScript 구현은 저수준 proof 시스템과 고수준 컨트랙트 로직 사이의 다리 역할을 합니다. `contract.circuits.post(context, "Hello world!")`를 호출하면 ZK circuit이 온체인에서 실행하는 것과 동일한 로직이 실행되지만, Node.js에서 단계별로 실행하고 로그를 남기고 검사할 수 있습니다.
+JavaScript 구현은 저수준 증명 시스템과 고수준 컨트랙트 로직 사이의 다리 역할을 합니다. `contract.circuits.post(context, "Hello world!")`를 호출하면 ZK circuit이 온체인에서 실행하는 것과 동일한 로직이 실행되지만, Node.js에서 단계별로 실행하고 로그를 남기고 검사할 수 있습니다.
 
-따라서 proof를 생성하거나 트랜잭션을 제출하기 전에 로컬에서 컨트랙트 동작을 미리 검증할 수 있습니다.
+따라서 증명을 생성하거나 트랜잭션을 제출하기 전에 로컬에서 컨트랙트 동작을 미리 검증할 수 있습니다.
 
 ### Type safety and consistency across environments
 
@@ -201,7 +201,7 @@ JavaScript에서 직접 사용할 수 있어, 일반 테스트 플로우에서 c
 
 이 설계 덕분에 프라이버시 보호 로직을 다루면서도 TypeScript, Jest, VSCode, Node.js 같은 익숙한 도구를 그대로 사용할 수 있습니다.
 
-전용 proof 환경에 갇히지 않고 다음 작업이 가능합니다:
+전용 증명 환경에 갇히지 않고 다음 작업이 가능합니다:
 
 - 애플리케이션과 동일한 언어로 통합 테스트 작성
 - 오프체인에서 사용자 플로우 시뮬레이션

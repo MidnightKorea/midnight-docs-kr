@@ -18,7 +18,7 @@ displayed_sidebar: sidebar
 - `const` 선언문에서 이제 여러 상수를 선언할 수 있습니다
 - 표준 라이브러리가 블록 시간에 대한 접근을 제공합니다
 - Compact 컴파일러가 이제 파일 이름에 공백이 있는 컨트랙트를 허용합니다
-- 증명 키 생성 실패 시 컴파일러가 메시지를 출력합니다
+- proving key 생성 실패 시 컴파일러가 메시지를 출력합니다
 - 0-9 이외의 유니코드 숫자 문자에 대해 컴파일러가 구문 분석 오류를 출력합니다
 
 
@@ -65,11 +65,11 @@ const x: Uint<8> = 127, y: Bytes<16> = pad(16, "Compact");
 
 ### The standard library provides access to block time
 
-자주 요청되었던 것은 컨트랙트가 시간 개념을 가질 수 있는 것입니다. Compact 0.17에서는 시간을 다루기 위한 새로운 표준 라이브러리 회로와 새로운 원장 커널 연산을 추가했습니다. 이는 "블록 시간" 개념에 기반합니다. DApp에서 트랜잭션을 제출하기 전에 컨트랙트 코드를 실행할 때, 블록 시간은 컨트랙트 진입점을 실행하기 전에 로컬 머신에서 가져온 타임스탬프입니다. 이 시간은 실행 중에 변경되지 않습니다. 온체인에서 상태 업데이트를 실행할 때, 블록 시간은 트랜잭션이 포함되는 블록의 대략적인 시간입니다.
+자주 요청되었던 것은 컨트랙트가 시간 개념을 가질 수 있는 것입니다. Compact 0.17에서는 시간을 다루기 위한 새로운 표준 라이브러리 회로와 새로운 ledger 커널 연산을 추가했습니다. 이는 "블록 시간" 개념에 기반합니다. DApp에서 트랜잭션을 제출하기 전에 컨트랙트 코드를 실행할 때, 블록 시간은 컨트랙트 진입점을 실행하기 전에 로컬 머신에서 가져온 타임스탬프입니다. 이 시간은 실행 중에 변경되지 않습니다. 온체인에서 상태 업데이트를 실행할 때, 블록 시간은 트랜잭션이 포함되는 블록의 대략적인 시간입니다.
 
 Compact 표준 라이브러리는 블록 시간을 특정 시간 값과 비교하는 회로를 제공합니다. `blockTimeGt`(초과) 회로의 시그니처는 `blockTimeGt(time: Uint<64>): Boolean`입니다. `time` 인수는 Unix epoch 이후의 초 단위로 측정됩니다. 이 회로는 현재 블록 시간이 주어진 시간 이후인 경우에만 `true`를 반환합니다. `blockTimeGt`와 동일한 시그니처를 가진 `blockTimeGte`(이상), `blockTimeLt`(미만), `blockTimeLte`(이하) 회로도 표준 라이브러리에 있습니다.
 
-이 기능을 지원하기 위한 새로운 원장 커널 연산 쌍이 있습니다. 원장 커널은 표준 라이브러리에서 `kernel`로 내보내집니다. 새 연산의 시그니처는 `blockTimeGreaterThan(time: Uint<64>): Boolean`과 `blockTimeLessThan(time: Uint<64>): Boolean`입니다. 표준 라이브러리 회로는 이러한 커널 연산으로 간단하게 구현됩니다. 예를 들어, `blockTimeGt(t)`는 `kernel.blockTimeGreaterThan(t)`로 구현되고 `blockTimeLte(t)`는 `!kernel.blockTimeGreaterThan`으로 구현됩니다.
+이 기능을 지원하기 위한 새로운 ledger 커널 연산 쌍이 있습니다. ledger 커널은 표준 라이브러리에서 `kernel`로 내보내집니다. 새 연산의 시그니처는 `blockTimeGreaterThan(time: Uint<64>): Boolean`과 `blockTimeLessThan(time: Uint<64>): Boolean`입니다. 표준 라이브러리 회로는 이러한 커널 연산으로 간단하게 구현됩니다. 예를 들어, `blockTimeGt(t)`는 `kernel.blockTimeGreaterThan(t)`로 구현되고 `blockTimeLte(t)`는 `!kernel.blockTimeGreaterThan`으로 구현됩니다.
 
 따라서 일반적으로 컨트랙트에서 표준 라이브러리가 제공하는 전체 회로 세트를 사용하면 됩니다.
 

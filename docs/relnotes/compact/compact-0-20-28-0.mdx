@@ -31,9 +31,9 @@ Midnight 네트워크의 새 Preprod/Preview 환경 출시에 맞춘 중요한 �
 
 ## Summary of updates
 
-Preprod/Preview 환경은 Midnight 원장 버전 7을 사용합니다(기존 테스트넷은 원장 버전 4). 이 원장 버전에서 네이티브 비차폐(unshielded) 토큰을 새로 지원합니다.
+Preprod/Preview 환경은 Midnight ledger 버전 7을 사용합니다(기존 테스트넷은 ledger 버전 4). 이 ledger 버전에서 네이티브 unshielded(unshielded) 토큰을 새로 지원합니다.
 
-- Compact 표준 라이브러리에 비차폐 토큰용 새 API가 추가되었으며, 기존 API 일부의 이름이 변경되었습니다(호환성을 깨는 변경).
+- Compact 표준 라이브러리에 unshielded 토큰용 새 API가 추가되었으며, 기존 API 일부의 이름이 변경되었습니다(호환성을 깨는 변경).
 - 구조적("투명") 및 명목적("불투명") 타입 별칭 정의를 모두 지원합니다.
 - 선택적 모듈 가져오기와 이름 변경을 지원합니다.
 - `Uint` 범위의 의미가 변경되었습니다.
@@ -61,12 +61,12 @@ Preprod/Preview 환경은 Midnight 원장 버전 7을 사용합니다(기존 테
 
 ### Unshielded tokens
 
-비차폐 토큰을 다루기 위한 새로운 표준 라이브러리 회로와 원장 커널 연산이 있습니다.
+unshielded 토큰을 다루기 위한 새로운 표준 라이브러리 회로와 ledger 커널 연산이 있습니다.
 
-비차폐 토큰의 발행과 전송을 위한 새 회로: `mintUnshieldedToken`, `sendUnshielded`, `receiveUnshielded`.
-비차폐 토큰 잔액을 다루기 위한 새 회로: `unshieldedBalance`, `unshieldedBalanceLt`, `unshieldedBalanceGt`, `unshieldedBalanceLte`, `unshieldedBalanceGte`.
+unshielded 토큰의 발행과 전송을 위한 새 회로: `mintUnshieldedToken`, `sendUnshielded`, `receiveUnshielded`.
+unshielded 토큰 잔액을 다루기 위한 새 회로: `unshieldedBalance`, `unshieldedBalanceLt`, `unshieldedBalanceGt`, `unshieldedBalanceLte`, `unshieldedBalanceGte`.
 
-원장 커널에 새 연산: `mintUnshielded`, `claimUnshieldedCoinSpend`, `incUnshieldedOutputs`, `incUnshieldedInputs`.
+ledger 커널에 새 연산: `mintUnshielded`, `claimUnshieldedCoinSpend`, `incUnshieldedOutputs`, `incUnshieldedInputs`.
 
 비호환성 변경은 아니지만, 아래에 설명하는 호환성을 깨는 이름 변경이 수반됩니다.
 
@@ -135,7 +135,7 @@ import { getMatch, putMatch as originalPutMatch } from Matching prefix M_;
 
 ### The compiler no longer generates ZKIR code and cryptographic keys for some circuits that do not need it
 
-컴파일러는 Midnight 원장을 사용하는 회로에만 ZKIR 코드와 증명자/검증자 키가 필요합니다. 기존에는 순수 회로(원장 미사용 + 위트니스 미호출)에 대해서는 생성하지 않았지만, 위트니스 호출 때문에만 비순수인 회로(원장은 미사용)에 대해서는 불필요하게 생성했습니다.
+컴파일러는 Midnight ledger를 사용하는 회로에만 ZKIR 코드와 증명자/검증자 키가 필요합니다. 기존에는 순수 회로(ledger 미사용 + witness 미호출)에 대해서는 생성하지 않았지만, witness 호출 때문에만 비순수인 회로(ledger는 미사용)에 대해서는 불필요하게 생성했습니다.
 
 이런 회로에 대한 ZKIR/키 생성을 제거했습니다. 키 생성이 컴파일에서 가장 느린 부분이므로, 컴파일 속도가 향상됩니다.
 
@@ -145,9 +145,9 @@ import { getMatch, putMatch as originalPutMatch } from Matching prefix M_;
 
 ### Name changes to APIs for shielded tokens
 
-차폐(shielded) 토큰 관련 표준 라이브러리 회로, 원장 커널 연산, 구조체의 이름이 변경되었습니다. 온체인 런타임 명명과 일치시키고 비차폐 API와의 혼동을 방지하기 위함입니다.
+shielded(shielded) 토큰 관련 표준 라이브러리 회로, ledger 커널 연산, 구조체의 이름이 변경되었습니다. 온체인 런타임 명명과 일치시키고 unshielded API와의 혼동을 방지하기 위함입니다.
 
-**동기:** 이름에 `Shielded`를 포함하여 비차폐 대응물과 명확히 구별합니다.
+**동기:** 이름에 `Shielded`를 포함하여 unshielded 대응물과 명확히 구별합니다.
 
 호환성을 깨는 변경이며, `compact fixup` 도구로 자동 수정할 수 있습니다. Compact devtools 0.3.0 이상이 필요합니다. `compact self update`로 최신 버전으로 업데이트하세요.
 
@@ -181,7 +181,7 @@ fixup 도구는 이름 변경 등으로 포매팅이 깨질 수 있어, 항상 C
 따라서 `Uint<n>`의 `n`의 최대값과 `Uint<0..m>`의 `m`의 최대값이 다음으로 줄었습니다:
 `n`은 248(8 * 31), `m`은 452312848583266388373324160190187140051835877600158453279131187530910662656(2^248).
 
-**동기:** 증명 서버가 이보다 큰 부호 없는 정수를 올바르게 처리하지 못합니다.
+**동기:** proof server가 이보다 큰 부호 없는 정수를 올바르게 처리하지 못합니다.
 이것은 `Uint` 타입에 대한 호환성을 깨는 변경입니다.
 최대 `Field` 값은 변경되지 않았습니다.
 
@@ -189,9 +189,9 @@ fixup 도구는 이름 변경 등으로 포매팅이 깨질 수 있어, 항상 C
 
 컴파일러가 이제 튜플, 벡터(`Vector`), 바이트 값(`Bytes`) 타입에 대해 최대 요소 크기 한계를 부과합니다. 이 최대 요소 크기 한계는 2^24(= 16,777,216)입니다.
 
-또한 `MerkleTree`와 `HistoricMerkleTree` 원장 ADT 타입에 대한 최대 깊이 한계가 있습니다. 이 최대 한계는 깊이 32입니다.
+또한 `MerkleTree`와 `HistoricMerkleTree` ledger ADT 타입에 대한 최대 깊이 한계가 있습니다. 이 최대 한계는 깊이 32입니다.
 
-**동기:** 이 한계를 초과하는 프로그램은 실질적으로 동작하지 않았습니다. 튜플/벡터/바이트 값의 경우 키 생성이 실패하거나 컴파일러가 종료되지 않았고, Merkle 트리 깊이 제한은 Midnight 원장 자체의 제한에 따른 것입니다.
+**동기:** 이 한계를 초과하는 프로그램은 실질적으로 동작하지 않았습니다. 튜플/벡터/바이트 값의 경우 키 생성이 실패하거나 컴파일러가 종료되지 않았고, Merkle 트리 깊이 제한은 Midnight ledger 자체의 제한에 따른 것입니다.
 
 ### The standard library type `CurvePoint` is renamed to `NativePoint`
 

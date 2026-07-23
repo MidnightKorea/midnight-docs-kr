@@ -257,8 +257,8 @@ bun add @midnight-ntwrk/compact-runtime@0.16.0
 - **start**: 컴파일된 프로덕션 앱 실행
 - **test**: Bun 테스트 러너로 테스트 실행
 - **install:midnight**: Bun으로 프로젝트 의존성 설치
-- **compile:contract**: `message.compact`를 contracts/managed로 컴파일
-- **build:contract**: 컨트랙트 컴파일 후 앱 엔트리를 dist 폴더로 번들링
+- **compile:컨트랙트**: `message.compact`를 컨트랙트/managed로 컴파일
+- **build:컨트랙트**: 컨트랙트 컴파일 후 앱 엔트리를 dist 폴더로 번들링
 
 ## Create smart contract with Compact
 
@@ -266,7 +266,7 @@ Midnight 블록체인에 메시지를 저장하고 읽는 간단한 Compact 스�
 
 1. 스마트 컨트랙트 파일을 생성하세요.
 
-contracts 디렉토리에 `message.compact` 파일을 만드세요:
+컨트랙트 디렉토리에 `message.compact` 파일을 만드세요:
 
 ```bash
 touch contracts/message.compact
@@ -294,7 +294,7 @@ export circuit storeMessage(customMessage: Opaque<"string">): [] {
 
 - `pragma language_version 0.23;` -- 이 스마트 컨트랙트에 필요한 Compact 컴파일러 버전을 지정합니다. 0.23 버전은 앞서 설치한 런타임 0.16.0과 호환됩니다.
 - `import CompactStandardLibrary;` -- Midnight 컨트랙트용 표준 함수와 타입을 로드합니다.
-- `export ledger message: Opaque<"string">;` -- 블록체인에 `message`라는 공개 상태 변수를 선언합니다. 값은 누구에게나 공개됩니다.
+- `export ledger message: Opaque<"string">;` -- 블록체인에 `message`라는 public state 변수를 선언합니다. 값은 누구에게나 공개됩니다.
 - `export circuit storeMessage(customMessage: Opaque<"string">): [] { ... }` -- 메시지를 블록체인에 저장하는 circuit입니다. `disclose()`로 메시지를 공개적으로 읽을 수 있게 만듭니다.
 
 3. Compact로 컴파일

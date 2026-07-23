@@ -1,8 +1,8 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-title: Contracts
-description: witness 함수, 토큰 연산, private state 같은 특정 언어 기능을 따로 떼어 보여주는 독립형 Compact 컨트랙트 예제입니다.
+title: 컨트랙트
+description: witness 함수, 토큰 연산, 비공개 상태처럼 개별 언어 기능만 떼어내 보여주는 단독 Compact 컨트랙트 예제입니다.
 sidebar_position: 1
 tags:
   - examples
@@ -12,47 +12,51 @@ tags:
   - witness-functions
 ---
 
-import PersonaTiles from '@site/src/components/PersonaTiles';
+import PersonaTiles from "@site/src/components/PersonaTiles";
 
-# Contract examples
+# 컨트랙트 예제
 
-각각 특정 언어 기능 하나를 보여주는 독립형 Compact 컨트랙트입니다. 프로덕션용 구현은 아닙니다. 직접 만들 컨트랙트에서 여러 패턴을 조합하기 전에, 기능 하나씩 따로 익히는 데 활용하세요.
+각각 하나의 언어 기능을 보여주는 단독 Compact 컨트랙트입니다. 프로덕션에 바로 쓸 수 있는 구현은 아닙니다. 여러 패턴을 직접 조합하기 전에, 기능을 하나씩 떼어놓고 익히는 용도로 활용하세요.
 
-<PersonaTiles tiles={[
-  {
-    title: "Calculator",
-    body: "witness 함수, 그리고 assert 문으로 오프체인 연산을 온체인에서 검증하는 방법을 다룹니다.",
-    to: "/examples/contracts/calculator",
-    cta: "View calculator",
-  },
-  {
-    title: "Token transfers",
-    body: "Compact의 NIGHT 토큰 연산으로 shielded·unshielded 토큰을 발행하고 보내고 받습니다.",
-    to: "/examples/contracts/token-transfers",
-    cta: "View token transfers",
-  },
-  {
-    title: "Private guest list",
-    body: "Set 연산, 네이티브 NIGHT 토큰 처리, 그리고 Midnight DApp의 프라이버시 경계를 다룹니다.",
-    to: "/examples/contracts/private-guest-list",
-    cta: "View guest list",
-  },
-  {
-    title: "Election",
-    body: "private state에 커밋하고, Set·Map 연산을 사용하며, DApp 전용 공개 키를 생성합니다.",
-    to: "/examples/contracts/election",
-    cta: "View election",
-  },
-  {
-    title: "Private reserve auction",
-    body: "공개 원장에서 최저 입찰가를 숨기고, DApp 전용 키로 사용자 추적 가능성을 낮춥니다.",
-    to: "/examples/contracts/private-reserve-auction",
-    cta: "View auction",
-  },
-  {
-    title: "Battleship",
-    body: "명시적 상태 관리, private state 검증, 접근 제어, List 연산, 중간 witness를 다룹니다.",
-    to: "/examples/contracts/battleship-simple",
-    cta: "View Battleship",
-  },
-]} />
+특정 기능을 찾고 있다면, [예제 개요](/examples)에서 모든 예제가 무엇을 보여주는지 한눈에 확인할 수 있습니다.
+
+<PersonaTiles
+  tiles={[
+    {
+      title: "계산기",
+      body: "witness 함수, 그리고 오프체인 연산 결과를 assert 문으로 온체인에서 검증하는 방법을 다룹니다.",
+      to: "/examples/contracts/calculator",
+      cta: "계산기 보기"
+    },
+    {
+      title: "토큰 전송",
+      body: "Compact의 NIGHT 토큰 연산으로 차폐·비차폐 토큰을 발행하고 주고받습니다.",
+      to: "/examples/contracts/token-transfers",
+      cta: "토큰 전송 보기"
+    },
+    {
+      title: "비공개 게스트 리스트",
+      body: "Set 연산, 네이티브 NIGHT 토큰 처리, 그리고 Midnight DApp의 프라이버시 경계를 다룹니다.",
+      to: "/examples/contracts/private-guest-list",
+      cta: "게스트 리스트 보기"
+    },
+    {
+      title: "선거",
+      body: "비공개 상태에 커밋하고, Set과 Map 연산을 사용하며, DApp 전용 공개 키를 생성합니다.",
+      to: "/examples/contracts/election",
+      cta: "선거 보기"
+    },
+    {
+      title: "비공개 최저가 경매",
+      body: "최저 낙찰가를 공개 원장에서 숨기고, DApp 전용 키로 사용자 추적 가능성을 낮춥니다.",
+      to: "/examples/contracts/private-reserve-auction",
+      cta: "경매 보기"
+    },
+    {
+      title: "배틀쉽",
+      body: "명시적 상태 관리, 비공개 상태 검증, 접근 제어, List 연산, 중간 witness를 다룹니다.",
+      to: "/examples/contracts/battleship-simple",
+      cta: "배틀쉽 보기"
+    }
+  ]}
+/>

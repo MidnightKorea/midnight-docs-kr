@@ -1,8 +1,8 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-title: DApps
-description: 컨트랙트 코드, CLI 도구, 배포 절차를 갖춘 종단 간 DApp 예제입니다. 직접 살펴보고 자신의 프로젝트에 응용하세요.
+title: DApp
+description: 컨트랙트 코드, CLI 도구, 배포 절차까지 갖춘 엔드투엔드 DApp 예제입니다. 직접 만들 프로젝트에 그대로 응용할 수 있습니다.
 sidebar_position: 2
 tags:
   - examples
@@ -12,23 +12,27 @@ tags:
   - deployment
 ---
 
-import PersonaTiles from '@site/src/components/PersonaTiles';
+import PersonaTiles from "@site/src/components/PersonaTiles";
 
-# DApp examples
+# DApp 예제
 
-컨트랙트 코드, TypeScript 연동, 배포 절차를 갖춘 완성형 DApp 예제입니다. 아키텍처를 살펴본 뒤 그 패턴을 자신의 프로젝트에 응용하세요.
+컨트랙트 코드, TypeScript 연동, 배포 절차까지 갖춘 완성형 DApp 예제입니다. 구조를 먼저 살펴본 뒤, 거기서 쓰인 패턴을 직접 만들 프로젝트에 응용하세요.
 
-<PersonaTiles tiles={[
-  {
-    title: "Bulletin board DApp",
-    body: "영지식 증명으로 신원을 검증하고 암호학적으로 접근을 제어하는, 프라이버시를 지키는 메시지 게시 DApp입니다.",
-    to: "/examples/dapps/bboard",
-    cta: "View bulletin board DApp",
-  },
-  {
-    title: "ZK Loan DApp",
-    body: "비공개 신용 데이터로 대출 자격을 평가합니다. 신용 점수와 소득은 사용자 기기를 벗어나지 않습니다.",
-    to: "/examples/dapps/zkloan",
-    cta: "View ZK Loan DApp",
-  },
-]} />
+특정 기능을 찾고 있다면, [예제 개요](/examples)에서 모든 예제가 무엇을 보여주는지 한눈에 확인할 수 있습니다.
+
+<PersonaTiles
+  tiles={[
+    {
+      title: "게시판 DApp",
+      body: "신원 검증용 ZK 증명과 암호학적 접근 제어를 갖춘 프라이버시 보존형 메시지 게시 기능입니다.",
+      to: "/examples/dapps/bboard",
+      cta: "게시판 DApp 보기"
+    },
+    {
+      title: "ZK Loan DApp",
+      body: "비공개 신용 데이터로 대출 자격을 판정합니다. 신용점수와 소득은 사용자의 기기를 절대 벗어나지 않습니다.",
+      to: "/examples/dapps/zkloan",
+      cta: "ZK Loan DApp 보기"
+    }
+  ]}
+/>

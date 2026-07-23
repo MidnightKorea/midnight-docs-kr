@@ -29,17 +29,17 @@ _sourcepath_는 Compact 소스 프로그램이 담긴 파일 경로이고, _targ
 
 **compactc**는 소스 파일을 컴파일하여 다음 출력 파일을 생성합니다:
 
-- TypeScript 타입 정의 파일 _targetdir_**/contract/index.d.ts**
+- TypeScript 타입 정의 파일 _targetdir_**/컨트랙트/index.d.ts**
 
-- Javascript 소스 파일 _targetdir_**/contract/index.js**
+- Javascript 소스 파일 _targetdir_**/컨트랙트/index.js**
 
-- Javascript 소스맵 파일 _targetdir_**/contract/index.js.map**
+- Javascript 소스맵 파일 _targetdir_**/컨트랙트/index.js.map**
 
 - 각 내보낸 circuit _circuitname_에 대한 Zk/ir circuit 파일
   _targetdir_**/zkir/**_circuitname_**.zkir**,
   그리고
 
-- 각 내보낸 circuit _circuitname_에 대한 증명 키 쌍
+- 각 내보낸 circuit _circuitname_에 대한 proving key 쌍
   _targetdir_**/keys/**_circuitname_**.prover** 및
   _targetdir_**/keys/**_circuitname_**.verifier**.
 
@@ -98,12 +98,12 @@ FLAGS
 
 **--skip-zk**
 
-컴파일러가 증명 키 생성을 건너뛰도록 합니다.
-증명 키 생성에는 시간이 오래 걸릴 수 있으므로, TypeScript 출력만 디버깅할 때 유용합니다. zkir을 찾을 수 없는 경우에도 컴파일러는 경고를 출력한 후 증명 키 생성을 건너뜁니다.
+컴파일러가 proving key 생성을 건너뛰도록 합니다.
+proving key 생성에는 시간이 오래 걸릴 수 있으므로, TypeScript 출력만 디버깅할 때 유용합니다. zkir을 찾을 수 없는 경우에도 컴파일러는 경고를 출력한 후 proving key 생성을 건너뜁니다.
 
 **--no-communications-commitment**
 
-컨트랙트 간 호출의 데이터 무결성을 보장하는 통신 커밋먼트 생성을 생략합니다.
+컨트랙트 간 호출의 데이터 무결성을 보장하는 통신 commitment 생성을 생략합니다.
 
 **--sourceRoot _sourceRoot-value_**
 

@@ -22,11 +22,11 @@ items.member(f(x));
 others.insert(item2);
 ```
 
-그러나 때로는 공개 상태에서 차폐된 데이터를 참조해야 할 때가 있습니다. 이런 경우 아래 패턴 중 하나가 도움이 됩니다.
+그러나 때로는 public state에서 shielded 데이터를 참조해야 할 때가 있습니다. 이런 경우 아래 패턴 중 하나가 도움이 됩니다.
 
 ## Hashes and commitments
 
-데이터를 공개적으로 저장하면서도 차폐 상태를 유지하는 가장 기본적인 방법은 데이터 전체 대신 해시 또는 commitment만 저장하는 것입니다.
+데이터를 공개적으로 저장하면서도 shielded 상태를 유지하는 가장 기본적인 방법은 데이터 전체 대신 해시 또는 commitment만 저장하는 것입니다.
 
 Compact의 표준 라이브러리는 이를 위한 두 가지 주요 원시형을 제공합니다:
 
@@ -76,7 +76,7 @@ circuit publicKey(sk: Bytes<32>): Bytes<32> {
 
 ## Making use of Merkle trees
 
-Compact에서 `MerkleTree<n, T>` 및 `HistoricMerkleTree<n, T>` 유형으로 제공되는 Merkle 트리는 집합에 포함된 값을 차폐하는 데 매우 유용한 도구입니다. 핵심 기능은 *어떤* 값인지 밝히지 않으면서도 특정 값이 `MerkleTree`에 포함되어 있음을 공개적으로 주장할 수 있다는 것입니다.
+Compact에서 `MerkleTree<n, T>` 및 `HistoricMerkleTree<n, T>` 유형으로 제공되는 Merkle 트리는 집합에 포함된 값을 감추는 데 매우 유용한 도구입니다. 핵심 기능은 *어떤* 값인지 밝히지 않으면서도 특정 값이 `MerkleTree`에 포함되어 있음을 공개적으로 주장할 수 있다는 것입니다.
 
 이는 commitment를 저장하는 `Set<Bytes<32>>`에서 포함 여부를 테스트하는 것보다 강력합니다. `MerkleTree`는 어떤 항목의 소속이 증명되는지 자체를 드러내지 않기 때문입니다. 이 속성을 활용하면, 예를 들어 각 연산에서 어떤 키가 인증에 사용되었는지 노출하지 않으면서 비밀 키 집합이 특정 연산을 수행하도록 인가할 수 있습니다.
 
@@ -113,11 +113,11 @@ function findItem(context: WitnessContext, item: bigint): MerkleTreePath<bigint>
 
 `pathForLeaf`는 가능하면 우선적으로 사용하는 것이 좋습니다. 트리의 *O(n)* 스캔이 필요 없지만, 항목이 원래 어디에 배치되었는지 알고 있어야 합니다.
 
-`MerkleTree<n, T>`와 `HistoricMerkleTree<n, T>`의 차이점은, 후자의 `checkRoot`가 Merkle 트리의 이전 버전에 대해 생성된 proof도 수용한다는 것입니다. 빈번한 삽입으로 오래된 proof가 무효화되는 상황에서 유용하지만, 항목이 자주 제거되거나 교체되는 경우에는 `HistoricMerkleTree`가 적합하지 않습니다. 이미 무효화되어야 할 proof가 여전히 유효한 것으로 인정될 수 있기 때문입니다.
+`MerkleTree<n, T>`와 `HistoricMerkleTree<n, T>`의 차이점은, 후자의 `checkRoot`가 Merkle 트리의 이전 버전에 대해 생성된 증명도 수용한다는 것입니다. 빈번한 삽입으로 오래된 증명이 무효화되는 상황에서 유용하지만, 항목이 자주 제거되거나 교체되는 경우에는 `HistoricMerkleTree`가 적합하지 않습니다. 이미 무효화되어야 할 증명이 여전히 유효한 것으로 인정될 수 있기 때문입니다.
 
 ### The commitment/nullifier pattern
 
-강력한 차폐 패턴 중 하나는 데이터를 두 가지 서로 다른 커밋된 형태("commitment"와 "nullifier")로 유지하는 것입니다. 전자는 Merkle 트리에, 후자는 `Set`에 보관합니다. 이 방식으로 먼저 Merkle 트리에 항목을 생성한 뒤, 사용 시 그 존재를 증명하고 nullifier를 `Set`에 추가하여 아직 사용되지 않았음을 주장함으로써 일회용 인증 토큰을 만들 수 있습니다. 이를 통해 어떤 토큰이 사용되었는지 밝히지 않으면서도 토큰의 재사용을 방지합니다. 이것이 Zerocash와 [Zswap](./zswap.mdx)의 기본 패턴이며, 차폐된 UTXO를 구축하는 데 활용됩니다.
+강력한 shielded 패턴 중 하나는 데이터를 두 가지 서로 다른 커밋된 형태("commitment"와 "nullifier")로 유지하는 것입니다. 전자는 Merkle 트리에, 후자는 `Set`에 보관합니다. 이 방식으로 먼저 Merkle 트리에 항목을 생성한 뒤, 사용 시 그 존재를 증명하고 nullifier를 `Set`에 추가하여 아직 사용되지 않았음을 주장함으로써 일회용 인증 토큰을 만들 수 있습니다. 이를 통해 어떤 토큰이 사용되었는지 밝히지 않으면서도 토큰의 재사용을 방지합니다. 이것이 Zerocash와 [Zswap](./zswap.mdx)의 기본 패턴이며, shielded UTXO를 구축하는 데 활용됩니다.
 
 동일한 비밀 데이터에 대해 commitment와 nullifier가 같은 값을 갖지 않도록 도메인 분리자를 사용하는 것이 중요합니다. 또한 nullifier 생성에 비밀 지식을 요구하도록 설계하면([해시를 사용한 인증 섹션](#authenticating-with-hashes) 참조), 초기 인가자조차 토큰 사용 여부를 식별할 수 없게 됩니다.
 

@@ -20,7 +20,7 @@ Compact 언어 버전 0.23.0, 컴파일러 버전 0.31.0.
 balance(token_type: Either<Bytes<32>, Bytes<32>>): Uint<128>
 ```
 
-현재 컨트랙트에서 지정된 토큰 타입의 비차폐 토큰 잔액을 반환합니다. 이 잔액은 컨트랙트 실행 중 비차폐 송수신에 의해 업데이트되지 않으며, 항상 실행 시작 시점의 값으로 고정됩니다.
+현재 컨트랙트에서 지정된 토큰 타입의 unshielded 토큰 잔액을 반환합니다. 이 잔액은 컨트랙트 실행 중 unshielded 송수신에 의해 업데이트되지 않으며, 항상 실행 시작 시점의 값으로 고정됩니다.
 
 ### balanceGreaterThan
 
@@ -28,7 +28,7 @@ balance(token_type: Either<Bytes<32>, Bytes<32>>): Uint<128>
 balanceGreaterThan(token_type: Either<Bytes<32>, Bytes<32>>, amount: Uint<128>): Boolean
 ```
 
-지정된 타입의 비차폐 토큰 잔액이 지정된 금액보다 큰지 확인합니다.
+지정된 타입의 unshielded 토큰 잔액이 지정된 금액보다 큰지 확인합니다.
 
 ### balanceLessThan
 
@@ -36,7 +36,7 @@ balanceGreaterThan(token_type: Either<Bytes<32>, Bytes<32>>, amount: Uint<128>):
 balanceLessThan(token_type: Either<Bytes<32>, Bytes<32>>, amount: Uint<128>): Boolean
 ```
 
-지정된 타입의 비차폐 토큰 잔액이 지정된 금액보다 작은지 확인합니다.
+지정된 타입의 unshielded 토큰 잔액이 지정된 금액보다 작은지 확인합니다.
 
 ### blockTimeGreaterThan
 
@@ -68,7 +68,7 @@ checkpoint(): []
 claimContractCall(addr: Bytes<32>, entry_point: Bytes<32>, comm: Field): []
 ```
 
-해당 트랜잭션 내에 동일한 주소, 진입점 해시, 통신 커밋먼트를 가진 다른 컨트랙트 호출이 존재해야 하며, 아직 다른 호출에 의해 청구되지 않은 상태여야 합니다.
+해당 트랜잭션 내에 동일한 주소, 진입점 해시, 통신 commitment를 가진 다른 컨트랙트 호출이 존재해야 하며, 아직 다른 호출에 의해 청구되지 않은 상태여야 합니다.
 
 ### claimUnshieldedCoinSpend
 
@@ -76,7 +76,7 @@ claimContractCall(addr: Bytes<32>, entry_point: Bytes<32>, comm: Field): []
 claimUnshieldedCoinSpend(token_type: Either<Bytes<32>, Bytes<32>>, address: Either<ContractAddress, UserAddress>, amount: Uint<128>): []
 ```
 
-비차폐 코인 지출을 청구합니다. 지정된 토큰 타입의 비차폐 코인을 지정된 주소로 전송하도록 승인합니다.
+unshielded 코인 지출을 청구합니다. 지정된 토큰 타입의 unshielded 코인을 지정된 주소로 전송하도록 승인합니다.
 
 ### claimZswapCoinReceive
 
@@ -84,7 +84,7 @@ claimUnshieldedCoinSpend(token_type: Either<Bytes<32>, Bytes<32>>, address: Eith
 claimZswapCoinReceive(note: Bytes<32>): []
 ```
 
-해당 트랜잭션 내에 커밋먼트가 존재해야 하며, 다른 호출이 이를 수신으로 청구하지 않은 상태여야 합니다.
+해당 트랜잭션 내에 commitment가 존재해야 하며, 다른 호출이 이를 수신으로 청구하지 않은 상태여야 합니다.
 
 ### claimZswapCoinSpend
 
@@ -92,7 +92,7 @@ claimZswapCoinReceive(note: Bytes<32>): []
 claimZswapCoinSpend(note: Bytes<32>): []
 ```
 
-해당 트랜잭션 내에 커밋먼트가 존재해야 하며, 다른 호출이 이를 지출로 청구하지 않은 상태여야 합니다.
+해당 트랜잭션 내에 commitment가 존재해야 하며, 다른 호출이 이를 지출로 청구하지 않은 상태여야 합니다.
 
 ### claimZswapNullifier
 
@@ -108,7 +108,7 @@ claimZswapNullifier(nul: Bytes<32>): []
 incUnshieldedInputs(token_type: Either<Bytes<32>, Bytes<32>>, amount: Uint<128>): []
 ```
 
-지정된 토큰 타입의 비차폐 입력을 지정된 금액만큼 증가시킵니다. 토큰 수신 시 사용합니다.
+지정된 토큰 타입의 unshielded 입력을 지정된 금액만큼 증가시킵니다. 토큰 수신 시 사용합니다.
 
 ### incUnshieldedOutputs
 
@@ -116,7 +116,7 @@ incUnshieldedInputs(token_type: Either<Bytes<32>, Bytes<32>>, amount: Uint<128>)
 incUnshieldedOutputs(token_type: Either<Bytes<32>, Bytes<32>>, amount: Uint<128>): []
 ```
 
-지정된 토큰 타입의 비차폐 출력을 지정된 금액만큼 증가시킵니다. 토큰 전송 시 사용합니다.
+지정된 토큰 타입의 unshielded 출력을 지정된 금액만큼 증가시킵니다. 토큰 전송 시 사용합니다.
 
 ### mintShielded
 
@@ -124,7 +124,7 @@ incUnshieldedOutputs(token_type: Either<Bytes<32>, Bytes<32>>, amount: Uint<128>
 mintShielded(domain_sep: Bytes<32>, amount: Uint<64>): []
 ```
 
-컨트랙트 주소에서 파생된 토큰 타입과 지정된 도메인 구분자를 사용하여 지정된 양의 차폐 코인을 발행합니다.
+컨트랙트 주소에서 파생된 토큰 타입과 지정된 도메인 구분자를 사용하여 지정된 양의 shielded 코인을 발행합니다.
 
 ### mintUnshielded
 
@@ -132,7 +132,7 @@ mintShielded(domain_sep: Bytes<32>, amount: Uint<64>): []
 mintUnshielded(domain_sep: Bytes<32>, amount: Uint<64>): []
 ```
 
-컨트랙트 주소에서 파생된 토큰 타입과 지정된 도메인 구분자를 사용하여 지정된 양의 비차폐 코인을 발행합니다.
+컨트랙트 주소에서 파생된 토큰 타입과 지정된 도메인 구분자를 사용하여 지정된 양의 unshielded 코인을 발행합니다.
 
 ### self
 

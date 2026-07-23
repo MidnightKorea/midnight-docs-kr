@@ -9,7 +9,7 @@ import { Link } from '@docusaurus/Link';
 
 # Concepts
 
-zero-knowledge proof, contract, 검증 가능한 연산 등 Midnight의 핵심 개념을 다룹니다.
+영지식 증명, 컨트랙트, 검증 가능한 연산 등 Midnight의 핵심 개념을 다룹니다.
 
 <details>
   <summary><strong>핵심 개념 요약</strong></summary>
@@ -36,7 +36,7 @@ zero-knowledge proof, contract, 검증 가능한 연산 등 Midnight의 핵심 �
         <td><strong>데이터가 어디에 있는가</strong></td>
         <td>
           <strong>Ledger</strong>는 상태를 저장합니다.
-          Midnight은 공개 데이터용 공개 ledger와 차폐 데이터용 비공개 ledger를 운영하며,
+          Midnight은 공개 데이터용 공개 ledger와 shielded 데이터용 비공개 ledger를 운영하며,
           <em>상태의 저장 위치와 접근 권한</em>을 결정합니다.
         </td>
       </tr>
@@ -45,7 +45,7 @@ zero-knowledge proof, contract, 검증 가능한 연산 등 Midnight의 핵심 �
         <td><strong>가치가 어떻게 이동하는가</strong></td>
         <td>
           <strong>UTXO 모델</strong>은 소비 가능한 가치 또는 상태 조각을 정의합니다.
-          Midnight은 이 모델을 비공개 상태 요소로 확장하여,
+          Midnight은 이 모델을 private state 요소로 확장하여,
           <em>시스템 내 가치의 흐름</em>을 관리합니다.
         </td>
       </tr>
@@ -53,15 +53,15 @@ zero-knowledge proof, contract, 검증 가능한 연산 등 Midnight의 핵심 �
       <tr>
         <td><strong>앱이 어떻게 연결되는가</strong></td>
         <td>
-          <strong>Web3</strong>는 지갑, 커넥터, DApp이 contract와 통신하는 방식을 설명합니다.
-          <em>사용자와 애플리케이션이 Midnight와 상호작용하는 구조</em>를 다룹니다.
+          <strong>Web3</strong>는 지갑, 커넥터, DApp이 컨트랙트와 통신하는 방식을 설명합니다.
+          <em>사용자와 애플리케이션이 Midnight과 상호작용하는 구조</em>를 다룹니다.
         </td>
       </tr>
 
       <tr>
         <td><strong>프라이버시가 어떻게 보장되는가</strong></td>
         <td>
-          <strong>Zero-knowledge proof</strong>는 민감한 데이터를 노출하지 않고도 정확성을 검증합니다.
+          <strong>영지식 증명</strong>는 민감한 데이터를 노출하지 않고도 정확성을 검증합니다.
           <em>비공개 행동의 검증 가능성</em>을 보장하는 핵심 기술입니다.
         </td>
       </tr>
@@ -70,7 +70,7 @@ zero-knowledge proof, contract, 검증 가능한 연산 등 Midnight의 핵심 �
         <td><strong>연산이 어떻게 증명되는가</strong></td>
         <td>
           <strong>Kachina</strong>는 Midnight의 증명 시스템입니다.
-          비공개 연산을 검증 가능한 proof로 변환하여,
+          비공개 연산을 검증 가능한 증명으로 변환하여,
           <em>볼 수 없는 실행도 신뢰할 수 있게</em> 만듭니다.
         </td>
       </tr>
@@ -78,7 +78,7 @@ zero-knowledge proof, contract, 검증 가능한 연산 등 Midnight의 핵심 �
       <tr>
         <td><strong>모든 것이 어떻게 결합되는가</strong></td>
         <td>
-          <strong>zswap</strong>은 비공개 상태, proof, 기밀 실행을 활용하여
+          <strong>zswap</strong>은 private state, 증명, 기밀 실행을 활용하여
           이러한 개념을 실제로 적용합니다.
           <em>프라이버시 DApp이 엔드투엔드로 작동하는 방식</em>을 보여주는 사례입니다.
         </td>
@@ -106,19 +106,19 @@ zero-knowledge proof, contract, 검증 가능한 연산 등 Midnight의 핵심 �
 
   <div className="mn-tile">
     <h3>[UTXO 모델](./concepts/utxo)</h3>
-    <p>UTXO가 가치를 어떻게 표현하며, Midnight가 이 모델을 어떻게 확장하는지 살펴봅니다.</p>
+    <p>UTXO가 가치를 어떻게 표현하며, Midnight이 이 모델을 어떻게 확장하는지 살펴봅니다.</p>
     <span className="mn-cta">[읽기 →](./concepts/utxo)</span>
   </div>
 
   <div className="mn-tile">
     <h3>[Web3](./concepts/web3)</h3>
-    <p>Midnight가 지갑, DApp, 기존 도구와 어떻게 연동되는지 알아봅니다.</p>
+    <p>Midnight이 지갑, DApp, 기존 도구와 어떻게 연동되는지 알아봅니다.</p>
     <span className="mn-cta">[읽기 →](./concepts/web3)</span>
   </div>
 
   <div className="mn-tile">
     <h3>[Zero-knowledge proof](./concepts/zero-knowledge-proofs)</h3>
-    <p>ZK proof가 데이터를 보호하면서 정확성을 증명하는 원리를 알아봅니다.</p>
+    <p>ZK 증명이 데이터를 보호하면서 정확성을 증명하는 원리를 알아봅니다.</p>
     <span className="mn-cta">[읽기 →](./concepts/zero-knowledge-proofs)</span>
   </div>
 
@@ -138,7 +138,7 @@ zero-knowledge proof, contract, 검증 가능한 연산 등 Midnight의 핵심 �
 
 ---
 
-Midnight은 zero-knowledge proof를 사용하여 contract 로직을 검증하면서도 민감한 데이터를 비공개로 유지합니다. smart contract는 공개 및 비공개 ledger에서 작동하여 transaction 상관관계를 줄이고, token 및 메타데이터의 안전한 온체인 atomic swap을 지원합니다.
+Midnight은 영지식 증명을 사용하여 컨트랙트 로직을 검증하면서도 민감한 데이터를 비공개로 유지합니다. 스마트 컨트랙트는 공개 및 비공개 ledger에서 작동하여 트랜잭션 상관관계를 줄이고, 토큰 및 메타데이터의 안전한 온체인 atomic swap을 지원합니다.
 
 <div className="mn-grid">
 

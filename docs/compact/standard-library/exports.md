@@ -27,7 +27,7 @@ struct Either<A, B> {
 
 ### `NativePoint`
 
-proof 시스템의 내장 곡선 위의 점으로, 아핀 좌표로 표현됩니다.
+증명 시스템의 내장 곡선 위의 점으로, 아핀 좌표로 표현됩니다.
 
 타원 곡선 연산의 출력만 실제로 곡선 위에 있음이 보장됩니다.
 
@@ -81,7 +81,7 @@ struct ContractAddress { bytes: Bytes<32>; }
 
 ### `ShieldedCoinInfo`
 
-새로 생성된 차폐 코인의 설명으로, 차폐 코인 출력 또는 현재 트랜잭션에서 생성된 차폐 코인의 지출/수신에 사용됩니다.
+새로 생성된 shielded 코인의 설명으로, shielded 코인 출력 또는 현재 트랜잭션에서 생성된 shielded 코인의 지출/수신에 사용됩니다.
 
 `nonce`는 [`evolveNonce`](#evolvenonce)로 결정론적으로 유도할 수 있습니다.
 
@@ -102,7 +102,7 @@ struct ShieldedCoinInfo {
 
 ### `QualifiedShieldedCoinInfo`
 
-ledger에 존재하는 차폐 코인의 설명으로, 지출 준비가 된 상태입니다.
+ledger에 존재하는 shielded 코인의 설명으로, 지출 준비가 된 상태입니다.
 
 사용처:
 - [`sendShielded`](#sendshielded)
@@ -129,7 +129,7 @@ struct ZswapCoinPublicKey { bytes: Bytes<32>; }
 
 ### `ShieldedSendResult`
 
-[`sendShielded`](#sendshielded) 및 [`sendImmediateShielded`](#sendimmediateshielded)의 출력으로, 생성된 차폐 코인과 입력 지출에 따른 잔돈(해당하는 경우)을 상세히 설명합니다.
+[`sendShielded`](#sendshielded) 및 [`sendImmediateShielded`](#sendimmediateshielded)의 출력으로, 생성된 shielded 코인과 입력 지출에 따른 잔돈(해당하는 경우)을 상세히 설명합니다.
 
 ```compact
 struct ShieldedSendResult {
@@ -195,9 +195,9 @@ circuit transientHash<T>(value: T): Field;
 
 ### `transientCommit`
 
-내장 임시 커밋먼트 함수
+내장 임시 commitment 함수
 
-임의 타입에 대한 circuit 효율적 커밋먼트 함수로, 필드 요소 개방에서 필드 요소로 변환합니다. 업그레이드 간 지속이 보장되지 않으므로 상태 데이터 도출에는 사용하지 말고 일관성 검사에만 사용해야 합니다.
+임의 타입에 대한 circuit 효율적 commitment 함수로, 필드 요소 개방에서 필드 요소로 변환합니다. 업그레이드 간 지속이 보장되지 않으므로 상태 데이터 도출에는 사용하지 말고 일관성 검사에만 사용해야 합니다.
 
 `transientHash`와 달리, `rand` 인수가 충분히 무작위적이라면 입력을 공개로부터 보호하기에 충분합니다.
 따라서 입력에 witness 반환 값이 포함되어 있더라도, 결과가 공개 ledger에 저장되거나 export된 circuit에서 반환되거나 크로스 컨트랙트 호출로 전달되는 경우 `disclose` 래퍼를 통한 공개 승인이 필요 없습니다.
@@ -220,9 +220,9 @@ circuit persistentHash<T>(value: T): Bytes<32>;
 
 ### `persistentCommit` {#persistentcommit}
 
-내장 영구 커밋먼트 함수
+내장 영구 commitment 함수
 
-Compact에서 표현 가능한 임의의 값과 256비트 바이트 문자열 개방을 받아 256비트 바이트 문자열을 반환하는 비 circuit 최적화 커밋먼트 함수입니다. 업그레이드 간 지속이 보장되며 SHA-256 알고리즘을 사용합니다. 상태 데이터 도출에 사용*해야 하며*, 가능하면 일관성 검사에는 사용하지 않아야 합니다.
+Compact에서 표현 가능한 임의의 값과 256비트 바이트 문자열 개방을 받아 256비트 바이트 문자열을 반환하는 비 circuit 최적화 commitment 함수입니다. 업그레이드 간 지속이 보장되며 SHA-256 알고리즘을 사용합니다. 상태 데이터 도출에 사용*해야 하며*, 가능하면 일관성 검사에는 사용하지 않아야 합니다.
 
 `transientCommit`의 공개 관련 참고 사항이 이 함수에도 적용됩니다.
 
@@ -316,7 +316,7 @@ circuit tokenType(domainSep: Bytes<32>, contract: ContractAddress): Bytes<32>;
 
 ### `mintShieldedToken`
 
-이 컨트랙트가 발행한 새 차폐 코인을 생성하여 지정된 수신자에게 전송하고, 해당하는 [`ShieldedCoinInfo`](#shieldedcoininfo)를 반환합니다. 안전한 작동을 위해 고유한 nonce가 필요하며, nonce 생성 방법은 사용자가 결정합니다. 현재 컨트랙트에 차폐 토큰을 발행하려면 `recipient`로 `right<ZswapCoinPublicKey, ContractAddress>(kernel.self())`를 전달하세요.
+이 컨트랙트가 발행한 새 shielded 코인을 생성하여 지정된 수신자에게 전송하고, 해당하는 [`ShieldedCoinInfo`](#shieldedcoininfo)를 반환합니다. 안전한 작동을 위해 고유한 nonce가 필요하며, nonce 생성 방법은 사용자가 결정합니다. 현재 컨트랙트에 shielded 토큰을 발행하려면 `recipient`로 `right<ZswapCoinPublicKey, ContractAddress>(kernel.self())`를 전달하세요.
 
 ```compact
 circuit mintShieldedToken(
@@ -340,7 +340,7 @@ circuit evolveNonce(
 
 ### `shieldedBurnAddress`
 
-전송된 차폐 코인이 소각됨을 보장하는 지불 주소를 반환합니다.
+전송된 shielded 코인이 소각됨을 보장하는 지불 주소를 반환합니다.
 
 ```compact
 circuit shieldedBurnAddress(): Either<ZswapCoinPublicKey, ContractAddress>;
@@ -348,7 +348,7 @@ circuit shieldedBurnAddress(): Either<ZswapCoinPublicKey, ContractAddress>;
 
 ### `receiveShielded`
 
-차폐 코인을 수신하며, 이 코인이 이 컨트랙트에 주소가 지정된 출력으로 존재해야 하고 다른 호출에 의해 수신되지 않았어야 한다는 검증 조건을 추가합니다.
+shielded 코인을 수신하며, 이 코인이 이 컨트랙트에 주소가 지정된 출력으로 존재해야 하고 다른 호출에 의해 수신되지 않았어야 한다는 검증 조건을 추가합니다.
 
 ```compact
 circuit receiveShielded(coin: ShieldedCoinInfo): [];
@@ -356,9 +356,9 @@ circuit receiveShielded(coin: ShieldedCoinInfo): [];
 
 ### `sendShielded`
 
-컨트랙트가 보유한 차폐 코인에서 지정된 금액을 수신자에게 전송합니다. 잔돈이 반환되며 컨트랙트에서 관리해야 합니다.
+컨트랙트가 보유한 shielded 코인에서 지정된 금액을 수신자에게 전송합니다. 잔돈이 반환되며 컨트랙트에서 관리해야 합니다.
 
-현재 이 함수는 코인 암호문을 생성하지 않으므로, 현재 사용자가 아닌 다른 사용자의 공개 키로 전송하면 수신자가 전송된 코인에 대한 알림을 받지 못합니다. 현재 컨트랙트에 차폐 토큰을 전송하려면 `recipient`로 `right<ZswapCoinPublicKey, ContractAddress>(kernel.self())`를 전달하세요.
+현재 이 함수는 코인 암호문을 생성하지 않으므로, 현재 사용자가 아닌 다른 사용자의 공개 키로 전송하면 수신자가 전송된 코인에 대한 알림을 받지 못합니다. 현재 컨트랙트에 shielded 토큰을 전송하려면 `recipient`로 `right<ZswapCoinPublicKey, ContractAddress>(kernel.self())`를 전달하세요.
 
 ```compact
 circuit sendShielded(input: QualifiedShieldedCoinInfo, recipient: Either<ZswapCoinPublicKey, ContractAddress>, value: Uint<128>): ShieldedSendResult;
@@ -420,7 +420,7 @@ circuit createZswapOutput(coin: ShieldedCoinInfo, recipient: Either<ZswapCoinPub
 
 ### `mintUnshieldedToken`
 
-이 컨트랙트가 발행한 새로운 비차폐 코인을 생성하고 주어진 수신자에게 전송합니다. 해당하는 코인 색상을 반환합니다. 현재 컨트랙트에 비차폐 토큰을 발행하려면 `recipient`로 `left<ContractAddress, UserAddress>(kernel.self())`를 전달하세요.
+이 컨트랙트가 발행한 새로운 unshielded 코인을 생성하고 주어진 수신자에게 전송합니다. 해당하는 코인 색상을 반환합니다. 현재 컨트랙트에 unshielded 토큰을 발행하려면 `recipient`로 `left<ContractAddress, UserAddress>(kernel.self())`를 전달하세요.
 
 ```compact
 export circuit mintUnshieldedToken(
@@ -432,7 +432,7 @@ export circuit mintUnshieldedToken(
 
 ### `sendUnshielded`
 
-주어진 비차폐 토큰(색상으로 식별)의 주어진 금액을 주어진 수신자에게 전송합니다. 이 함수에서는 잔돈이 반환되지 않습니다. 현재 컨트랙트에 비차폐 토큰을 전송하려면 `recipient`로 `left<ContractAddress, UserAddress>(kernel.self())`를 전달하세요.
+주어진 unshielded 토큰(색상으로 식별)의 주어진 금액을 주어진 수신자에게 전송합니다. 이 함수에서는 잔돈이 반환되지 않습니다. 현재 컨트랙트에 unshielded 토큰을 전송하려면 `recipient`로 `left<ContractAddress, UserAddress>(kernel.self())`를 전달하세요.
 
 ```compact
 export circuit sendUnshielded(color: Bytes<32>, amount: Uint<128>, recipient: Either<ContractAddress, UserAddress>): [];
@@ -440,7 +440,7 @@ export circuit sendUnshielded(color: Bytes<32>, amount: Uint<128>, recipient: Ei
 
 ### `receiveUnshielded`
 
-색상으로 식별되는 비차폐 토큰의 주어진 금액을 수신합니다.
+색상으로 식별되는 unshielded 토큰의 주어진 금액을 수신합니다.
 
 ```compact
 circuit receiveUnshielded(color: Bytes<32>, amount: Uint<128>): [];
@@ -448,7 +448,7 @@ circuit receiveUnshielded(color: Bytes<32>, amount: Uint<128>): [];
 
 ### `unshieldedBalance`
 
-지정된 타입의 비차폐 토큰에 대한 컨트랙트 잔액을 반환합니다. 이 잔액은 컨트랙트 실행 중 비차폐 전송/수신에 의해 업데이트되지 않으며 항상 실행 시작 시점의 값으로 고정됩니다. 또한 이 함수를 사용하면 트랜잭션 구성 시점과 적용 시점의 토큰 잔액이 정확히 일치해야 하며, 그렇지 않으면 트랜잭션이 실패합니다. 이 제약이 필요 없다면 잔액 비교 함수 [`unshieldedBalanceLt`](#unshieldedbalancelt), [`unshieldedBalanceGte`](#unshieldedbalancegte), [`unshieldedBalanceGt`](#unshieldedbalancegt), [`unshieldedBalanceLte`](#unshieldedbalancelte)를 사용하세요.
+지정된 타입의 unshielded 토큰에 대한 컨트랙트 잔액을 반환합니다. 이 잔액은 컨트랙트 실행 중 unshielded 전송/수신에 의해 업데이트되지 않으며 항상 실행 시작 시점의 값으로 고정됩니다. 또한 이 함수를 사용하면 트랜잭션 구성 시점과 적용 시점의 토큰 잔액이 정확히 일치해야 하며, 그렇지 않으면 트랜잭션이 실패합니다. 이 제약이 필요 없다면 잔액 비교 함수 [`unshieldedBalanceLt`](#unshieldedbalancelt), [`unshieldedBalanceGte`](#unshieldedbalancegte), [`unshieldedBalanceGt`](#unshieldedbalancegt), [`unshieldedBalanceLte`](#unshieldedbalancelte)를 사용하세요.
 
 ```compact
 circuit unshieldedBalance(color: Bytes<32>): Uint<128>;
@@ -456,7 +456,7 @@ circuit unshieldedBalance(color: Bytes<32>): Uint<128>;
 
 ### `unshieldedBalanceLt`
 
-주어진 토큰 타입에 대한 컨트랙트의 비차폐 잔액이 주어진 값보다 작으면 true를 반환합니다.
+주어진 토큰 타입에 대한 컨트랙트의 unshielded 잔액이 주어진 값보다 작으면 true를 반환합니다.
 
 ```compact
 circuit unshieldedBalanceLt(color: Bytes<32>, amount: Uint<128>): Boolean;
@@ -464,7 +464,7 @@ circuit unshieldedBalanceLt(color: Bytes<32>, amount: Uint<128>): Boolean;
 
 ### `unshieldedBalanceGte`
 
-주어진 토큰 타입에 대한 컨트랙트의 비차폐 잔액이 주어진 값보다 크거나 같으면 true를 반환합니다.
+주어진 토큰 타입에 대한 컨트랙트의 unshielded 잔액이 주어진 값보다 크거나 같으면 true를 반환합니다.
 
 ```compact
 circuit unshieldedBalanceGte(color: Bytes<32>, amount: Uint<128>): Boolean;
@@ -472,7 +472,7 @@ circuit unshieldedBalanceGte(color: Bytes<32>, amount: Uint<128>): Boolean;
 
 ### `unshieldedBalanceGt`
 
-주어진 토큰 타입에 대한 컨트랙트의 비차폐 잔액이 주어진 값보다 크면 true를 반환합니다.
+주어진 토큰 타입에 대한 컨트랙트의 unshielded 잔액이 주어진 값보다 크면 true를 반환합니다.
 
 ```compact
 circuit unshieldedBalanceGt(color: Bytes<32>, amount: Uint<128>): Boolean
@@ -480,7 +480,7 @@ circuit unshieldedBalanceGt(color: Bytes<32>, amount: Uint<128>): Boolean
 
 ### `unshieldedBalanceLte`
 
-주어진 토큰 타입에 대한 컨트랙트의 비차폐 잔액이 주어진 값보다 작거나 같으면 true를 반환합니다.
+주어진 토큰 타입에 대한 컨트랙트의 unshielded 잔액이 주어진 값보다 작거나 같으면 true를 반환합니다.
 
 ```compact
 circuit unshieldedBalanceLte(color: Bytes<32>, amount: Uint<128>): Boolean;

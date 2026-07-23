@@ -21,7 +21,7 @@ Compact 스마트 컨트랙트는 여러 컨텍스트(온체인 ledger, 영지�
 * **Privacy verification**: 비공개 데이터가 공개 출력으로 새어나가지 않는지 확인합니다.
 * **Authorization testing**: 접근 제어 메커니즘이 권한 없는 작업을 막는지 확인합니다.
 * **Integration testing**: 테스트 네트워크에서 전체 트랜잭션 흐름을 테스트합니다.
-* **Performance testing**: proof 생성이 허용 가능한 시간 안에 완료되는지 확인합니다.
+* **Performance testing**: 증명 생성이 허용 가능한 시간 안에 완료되는지 확인합니다.
 
 ## Input validation patterns
 
@@ -174,7 +174,7 @@ describe('Boundary conditions', () => {
 
 ## Integration test
 
-통합 테스트는 테스트 네트워크(Preview 또는 Preprod)에서 전체 트랜잭션 흐름을 검증합니다. Midnight 블록체인, proof 서버, 그 외 시스템 구성 요소와 컨트랙트가 올바르게 상호작용하는지 확인합니다.
+통합 테스트는 테스트 네트워크(Preview 또는 Preprod)에서 전체 트랜잭션 흐름을 검증합니다. Midnight 블록체인, proof server, 그 외 시스템 구성 요소와 컨트랙트가 올바르게 상호작용하는지 확인합니다.
 
 ### Transaction finalization test
 
@@ -203,11 +203,11 @@ it('should handle transaction finalization correctly', async () => {
 
 ## Privacy verification
 
-프라이버시 테스트는 비공개 witness 데이터가 공개 트랜잭션 출력이나 블록체인 상태에 노출되지 않는지 확인합니다. 영지식 proof가 민감한 정보를 제대로 보호하는지 검증하는 핵심 단계입니다.
+프라이버시 테스트는 비공개 witness 데이터가 공개 트랜잭션 출력이나 블록체인 상태에 노출되지 않는지 확인합니다. 영지식 증명이 민감한 정보를 제대로 보호하는지 검증하는 핵심 단계입니다.
 
 ### Test disclosure behavior
 
-명시적으로 공개된 값만 공개 상태에 노출되는지 검증합니다. Compact의 `disclose()` 함수는 witness 값을 공개 대상으로 표시합니다.
+명시적으로 공개된 값만 public state에 노출되는지 검증합니다. Compact의 `disclose()` 함수는 witness 값을 공개 대상으로 표시합니다.
 
 ```typescript
 import { Contract } from '../managed/bboard/contract/index.js';
@@ -436,9 +436,9 @@ circuit 실행이 실패할 때는 다음 원인을 점검합니다.
 
 ### Proof generation failures
 
-proof 생성이 실패하거나 시간 초과가 발생할 때는 다음 항목을 살펴봅니다.
+증명 생성이 실패하거나 시간 초과가 발생할 때는 다음 항목을 살펴봅니다.
 
-- **Circuit complexity**: circuit 연산 한도가 합리적인지 확인합니다. 지나치게 복잡한 circuit는 proof 서버 용량 한계를 넘을 수 있습니다.
+- **Circuit complexity**: circuit 연산 한도가 합리적인지 확인합니다. 지나치게 복잡한 circuit는 proof server 용량 한계를 넘을 수 있습니다.
 - **Infinite loops**: 종료되지 않을 가능성이 있는 루프를 확인합니다. 종료를 보장하려면 루프 카운터에 한도를 두세요.
 - **Witness data types**: witness 함수가 circuit가 기대하는 형식의 데이터를 반환하는지 확인합니다. `Uint8Array` 값의 크기와 `bigint` 값의 유효 범위를 점검합니다.
 - **Memory constraints**: 메모리 한도를 넘길 수 있는 큰 데이터 구조를 점검합니다. 큰 컬렉션이라면 청크 분할이나 페이지네이션을 검토합니다.

@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 sidebar_label: "Making decision on contract updatability"
-description: Learn about Compact contracts updatability
+description: Compact 컨트랙트의 업데이트 가능성을 어떻게 판단할지 알아봅니다.
 sidebar_position: 40
 ---
 
@@ -45,11 +45,11 @@ CMA는 다음 작업을 수행할 수 있습니다:
 유지보수 authority를 운영하려면 다음이 필요합니다:
 
 - 컨트랙트 배포 시 CMA 설정(위원회 공개 키 세트와 서명 threshold)
-- 위원회 멤버의 개인 키 안전한 보관
+- 위원회 멤버의 비밀 키 안전한 보관
 - 유지보수 트랜잭션을 구성, 서명, 제출하기 위한 도구 사용
 
 :::warning
-DApp 업그레이드를 제어하는 개인 키의 침해는 블록체인 프로토콜에서 가장 흔한 공격 벡터 중 하나입니다. 독립적인 주체 간에 제어를 분산하고 단일 주체가 통제하지 못하도록 하는 등 탈중앙화와 안전을 위한 모범 사례를 따르세요.
+DApp 업그레이드를 제어하는 비밀 키의 침해는 블록체인 프로토콜에서 가장 흔한 공격 벡터 중 하나입니다. 독립적인 주체 간에 제어를 분산하고 단일 주체가 통제하지 못하도록 하는 등 탈중앙화와 안전을 위한 모범 사례를 따르세요.
 :::
 
 Midnight SDK(`@midnight-ntwrk/midnight-js-contracts`)는 컨트랙트 유지보수 authority 관리와 컨트랙트 업데이트를 지원합니다. Verifier key 삽입 및 제거, 유지보수 authority 교체를 위한 인터페이스를 제공하며, 모두 TypeScript API로 트랜잭션을 구성하고 제출합니다.

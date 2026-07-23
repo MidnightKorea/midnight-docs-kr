@@ -127,7 +127,7 @@ Compact에서 진입점은 **circuit**(Solidity 함수와 유사)으로 정의�
 
 ## Allowances (approve / spend / transferFrom)
 
-이 섹션에서는 FungibleToken 컨트랙트의 허용량(allowance) 메커니즘을 다룹니다. 사용자가 다른 주소에 토큰 지출 권한을 위임할 수 있는 circuit들로, 소유자의 개인 키를 직접 노출하지 않고도 대리 전송이 가능합니다.
+이 섹션에서는 FungibleToken 컨트랙트의 허용량(allowance) 메커니즘을 다룹니다. 사용자가 다른 주소에 토큰 지출 권한을 위임할 수 있는 circuit들로, 소유자의 비밀 키를 직접 노출하지 않고도 대리 전송이 가능합니다.
 
 * **`allowance(owner, spender)`**
    중첩된 `_allowances` 맵을 읽으며, 키가 없을 때 `0`을 반환합니다(되돌림 없음).

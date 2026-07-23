@@ -70,6 +70,27 @@
   - `~할 수 있게 해줍니다` → "~할 수 있습니다"
   - 영어 `This is~`를 그대로 옮긴 문두 `이것은/그것은` 지양
 
+## 검사 도구
+
+```bash
+npm run kr-lint                          # 전체 검사
+node scripts/kr-lint.mjs terminology     # 특정 검사만
+node scripts/kr-lint.mjs --path docs/compact
+node scripts/kr-lint.mjs --json
+```
+
+**upstream sync 후 빌드 전에 반드시 실행한다.** 5가지를 검사한다.
+
+| 검사 | 내용 |
+|---|---|
+| `untranslated` | 한글이 거의 없는 문서 (번역 누락) |
+| `english-prose` | 한글 문서에 섞여 들어온 영문 산문 (auto-merge 유입) |
+| `frontmatter` | `title`·`sidebar_label`·`description` 언어 정책 |
+| `terminology` | 위 폐기 표기 |
+| `style` | 직역투 · 조사 규칙 |
+
+발견 건수가 있으면 종료 코드 1을 반환한다.
+
 ## 적용 현황
 
 - **완료** — `title`·`sidebar_label`·본문 H1 영문 통일(2026-07-23). 56개 파일 85곳 수정,

@@ -13,6 +13,7 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
+    "kr-lint": "node scripts/kr-lint.mjs",
     "playwright:build": "docker build -t playwright-tests . ",
     "playwright-snapshots": "docker run -e BASE_URL=$BASE_URL -v $(pwd):/app playwright-tests",
     "playwright-snapshots:update": "docker run -e BASE_URL=$BASE_URL -v $(pwd):/app playwright-tests --update"

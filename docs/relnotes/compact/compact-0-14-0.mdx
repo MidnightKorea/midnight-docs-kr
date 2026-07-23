@@ -9,7 +9,7 @@ displayed_sidebar: sidebar
 
 Compact은 Midnight 전용 스마트 컨트랙트 언어로, 안전하고 효율적인 탈중앙화 애플리케이션 개발을 위해 만들어졌습니다.
 
-Compact 컴파일러는 스마트 컨트랙트 코드를 실행 가능한 바이트코드와 증명 생성 회로로 변환합니다.
+Compact 컴파일러는 스마트 컨트랙트 코드를 실행 가능한 바이트코드와 증명 생성 circuit으로 변환합니다.
 
 ---
 
@@ -41,7 +41,7 @@ Compact 컴파일러 버전 0.21.0을 릴리스합니다. 언어 버전이 0.14.
 - **[호환성을 깨는 변경]** `for` 루프 구문이 TypeScript에 맞춰졌습니다.
 - **[호환성을 깨는 변경]** `Cell` ledger ADT가 이제 암시적입니다.
 - **[호환성을 깨는 변경]** ledger ADT 이름이 이제 표준 라이브러리의 일부입니다.
-- 내보낸 회로가 witness와 동일한 이름을 가질 수 있습니다.
+- 내보낸 circuit이 witness와 동일한 이름을 가질 수 있습니다.
 - 구문 오류 메시지가 개선되었습니다.
 
 ---
@@ -92,7 +92,7 @@ const vector: Vector<3, Uint<8>> = tuple;
 
 ### You Can Use TypeScript-Compatible Destructuring
 
-const 바인딩과 회로 매개변수(화살표 회로 포함)에서 튜플, 벡터, 구조체에 대한 구조 분해를 지원합니다.
+const 바인딩과 circuit 매개변수(화살표 circuit 포함)에서 튜플, 벡터, 구조체에 대한 구조 분해를 지원합니다.
 
 #### Example:
 
@@ -113,7 +113,7 @@ circuit example([a, b]: [Uint<8>, Uint<8>]): Uint<8> {
 
 ### **[Breaking Change]** The `Void` Type Is Removed
 
-`Void` 타입이 빈 튜플 `[]`로 대체되었습니다. 반환 값이 없는 회로나 witness는 이제 `[]`를 반환해야 합니다.
+`Void` 타입이 빈 튜플 `[]`로 대체되었습니다. 반환 값이 없는 circuit나 witness는 이제 `[]`를 반환해야 합니다.
 
 #### Example:
 
@@ -215,7 +215,7 @@ ledger ADT를 사용하는 경우 표준 라이브러리를 가져오세요.
 
 ### Exported Circuits Are Allowed to Have the Same Name as Witnesses
 
-내보낸 회로가 witness와 같은 이름을 가질 수 있습니다. 모호한 경우 컴파일러가 오류를 표시하지만, 대부분의 경우 수정 없이 동작합니다.
+내보낸 circuit이 witness와 같은 이름을 가질 수 있습니다. 모호한 경우 컴파일러가 오류를 표시하지만, 대부분의 경우 수정 없이 동작합니다.
 
 ---
 

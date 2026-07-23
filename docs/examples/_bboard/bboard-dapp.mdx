@@ -109,7 +109,7 @@ private state에 전역 변수를 사용하지 마세요. 항상 witness 함수�
 
 `FoundContract`는 각 컨트랙트 circuit에 대한 함수를 제공하는 `callTx`를 노출하며, 이 함수들이 트랜잭션을 생성하고 제출합니다.
 
-게시판의 `post` 메서드는 circuit를 호출합니다:
+게시판의 `post` 메서드는 circuit을 호출합니다:
 
 ```typescript
 // Compact 컴파일러가 생성한 API는 타입 안전 circuit 호출을 제공합니다
@@ -122,7 +122,7 @@ await this.deployedContract.callTx.post([message]);
 
 `takeDown` 함수는 `api/src/index.ts`에서 `post` 메서드 뒤에 있습니다.
 
-이 메서드는 배포된 컨트랙트의 `callTx` 속성을 통해 `takeDown` circuit를 호출합니다:
+이 메서드는 배포된 컨트랙트의 `callTx` 속성을 통해 `takeDown` circuit을 호출합니다:
 
 ```typescript
 // Compact 컴파일러는 circuit 매개변수에 대한 타입 안전성을 보장합니다

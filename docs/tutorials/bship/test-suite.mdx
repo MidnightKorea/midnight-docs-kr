@@ -10,7 +10,7 @@ toc_max_heading_level: 2
 
 # Battleship tests
 
-스마트 컨트랙트 개발 생명주기의 다음 단계는 프론트엔드 테스트 스위트입니다. 이 단계에서 개발자는 컨트랙트의 다양한 인스턴스에 대해 수많은 테스트 반복을 실행합니다. 퍼블릭 블록체인의 비허가적 특성상 모든 컨트랙트 회로는 사실상 각 컨트랙트 인스턴스의 공개 API로 접근 가능합니다.
+스마트 컨트랙트 개발 생명주기의 다음 단계는 프론트엔드 테스트 스위트입니다. 이 단계에서 개발자는 컨트랙트의 다양한 인스턴스에 대해 수많은 테스트 반복을 실행합니다. 퍼블릭 블록체인의 비허가적 특성상 모든 컨트랙트 circuit은 사실상 각 컨트랙트 인스턴스의 공개 API로 접근 가능합니다.
 
 개발자는 컨트랙트와의 상호작용에 대해 가정하는 모든 것을 테스트해야 하며, 성공하는 호출과 실패하는 호출 모두를 검증해야 합니다. 실패 테스트는 통과 테스트만큼이나 중요한데, 컨트랙트의 취약점을 방어하는 역할을 하기 때문입니다.
 
@@ -628,7 +628,7 @@ ledger 조회를 위한 헬퍼 함수를 작성합니다:
 
 ### Deploying the contract
 
-컨트랙트를 배포하는 것이 논리적으로 첫 번째 작업입니다. 컨트랙트 코드를 네트워크에 전송하고 MidnightJS 호출을 통해 컨트랙트 회로에 접근할 수 있게 합니다. MidnightJS의 `deployContract` 함수를 호출하려면 *배포자 Alice*를 위한 초기 private state를 생성해야 합니다:
+컨트랙트를 배포하는 것이 논리적으로 첫 번째 작업입니다. 컨트랙트 코드를 네트워크에 전송하고 MidnightJS 호출을 통해 컨트랙트 circuit에 접근할 수 있게 합니다. MidnightJS의 `deployContract` 함수를 호출하려면 *배포자 Alice*를 위한 초기 private state를 생성해야 합니다:
 ```typescript
     it('deploys the contract', async () => {
         const aliceSk = randomBytes(32);
@@ -765,7 +765,7 @@ Bob이 게임에 참여할 준비가 되었습니다:
 Bob의 private state는 Alice와 같은 방식으로 설정하지만, MidnightJS 함수의 형태가 약간 다릅니다. `submitCallTx`는 기본 컨트랙트 호출에 사용하는 함수이며 `deployContract`와 비슷한 요구사항이 있습니다. 차이점을 주의 깊게 살펴보세요. `submitCallTx`는 배포된 컨트랙트와 상호작용할 때 사용합니다.
 
 :::note
-`submitCallTx`의 반환값을 `txData`에 캡처하여 보여드립니다. 여기서는 직접 사용하지 않지만, 회로 반환 데이터(status, txId, txHash, 블록 정보, 수수료, unshielded 출력 등)를 검사하는 데 유용합니다.
+`submitCallTx`의 반환값을 `txData`에 캡처하여 보여드립니다. 여기서는 직접 사용하지 않지만, circuit 반환 데이터(status, txId, txHash, 블록 정보, 수수료, unshielded 출력 등)를 검사하는 데 유용합니다.
 :::
 
 ### Alice takes the first shot
@@ -834,7 +834,7 @@ Bob의 private state는 Alice와 같은 방식으로 설정하지만, MidnightJS
 });// end of describe
 ```
 
-이것은 Compact의 명시적 상태 관리를 테스트합니다. `assert` 문이 커스텀 `TurnState`와 함께 올바르게 구현되어 있다면 Bob의 부정행위를 허용하지 않습니다. 테스트를 실행하여 확인해 봅니다:
+이는 Compact의 명시적 상태 관리를 테스트합니다. `assert` 문이 커스텀 `TurnState`와 함께 올바르게 구현되어 있다면 Bob의 부정행위를 허용하지 않습니다. 테스트를 실행하여 확인해 봅니다:
 ```bash
 yarn test:local
 ```
@@ -847,7 +847,7 @@ Bobs shot (out of turn) was rejected!
 
 ### Test yourself
 
-성공하는 호출과 실패하는 호출의 패턴을 확인했으니, 이제 직접 테스트를 작성하여 컨트랙트 상호작용을 진행해 보세요. `.compact` 코드를 다시 살펴보며 특정 회로 실행 후 상태를 확인하고, 각 테스트 끝에서 `queryLedger()`를 통해 검증하세요. (힌트: 인자가 없는 회로에 대한 `submitCallTx` 호출은 `args` 필드를 생략해야 합니다.)
+성공하는 호출과 실패하는 호출의 패턴을 확인했으니, 이제 직접 테스트를 작성하여 컨트랙트 상호작용을 진행해 보세요. `.compact` 코드를 다시 살펴보며 특정 circuit 실행 후 상태를 확인하고, 각 테스트 끝에서 `queryLedger()`를 통해 검증하세요. (힌트: 인자가 없는 circuit에 대한 `submitCallTx` 호출은 `args` 필드를 생략해야 합니다.)
 
 도전 과제로, `submitCallTx`에서 반환되는 `txData`를 활용하여 반환값을 검사하고 활용해 보세요.
 

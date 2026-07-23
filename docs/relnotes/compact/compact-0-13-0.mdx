@@ -9,7 +9,7 @@ displayed_sidebar: sidebar
 
 Compact은 Midnight의 전용 스마트 컨트랙트 프로그래밍 언어로, 안전하고 효율적이며 유연한 탈중앙화 애플리케이션을 구축하기 위해 설계되었습니다.
 
-Compact 컴파일러는 Compact 스마트 컨트랙트 코드를 실행 가능한 바이트코드와 증명 생성 회로로 변환합니다.
+Compact 컴파일러는 Compact 스마트 컨트랙트 코드를 실행 가능한 바이트코드와 증명 생성 circuit으로 변환합니다.
 
 ---
 
@@ -40,14 +40,14 @@ Compact 컴파일러는 Compact 스마트 컨트랙트 코드를 실행 가능�
 - 새로운 구조체 생성 구문이 도입되었습니다.
 - 구조체 생성에서 스프레드 구문을 사용할 수 있습니다.
 - **[호환성을 깨는 변경]** `new`가 제거되었습니다.
-- `map`과 `fold`를 위한 화살표 회로 구문이 도입되었습니다.
-- **[호환성을 깨는 변경]** 익명 회로 구문이 제거되었습니다.
+- `map`과 `fold`를 위한 화살표 circuit 구문이 도입되었습니다.
+- **[호환성을 깨는 변경]** 익명 circuit 구문이 제거되었습니다.
 - 시퀀스("쉼표") 표현식을 괄호 밖에서 사용할 수 있습니다.
 
 ### Compiler Changes
 
 - 오류 보고가 개선되었습니다.
-- 내보낸 회로의 순서가 TypeScript에서도 Compact과 동일합니다.
+- 내보낸 circuit의 순서가 TypeScript에서도 Compact과 동일합니다.
 - `install.sh` 스크립트가 제거되었습니다.
 - 버그 수정.
 
@@ -178,7 +178,7 @@ const cp1 = ColorPoint { ...cp0, color: Color.green }; // 색상만 수정하여
 
 ### Arrow Circuit Syntax for Procedure Calls, Map, and Fold
 
-Compact은 이제 `map`과 `fold` 표현식에서 사용할 수 있는 화살표 회로 구문을 지원합니다. 이 구문은 TypeScript 화살표 함수와 유사합니다:
+Compact은 이제 `map`과 `fold` 표현식에서 사용할 수 있는 화살표 circuit 구문을 지원합니다. 이 구문은 TypeScript 화살표 함수와 유사합니다:
 
 ```compact
 map((x, y) => x + y, [1, 2, 3], [4, 5, 6]);
@@ -189,7 +189,7 @@ fold((x, y): Uint<8> => x * y, 1, [1, 2, 3]);
 
 ### **[Breaking Change]** Anonymous Circuit Syntax Is Removed
 
-이전 익명 회로 구문(`circuit` 키워드 사용)이 제거되었습니다. 화살표 회로 구문으로 대체하세요.
+이전 익명 circuit 구문(`circuit` 키워드 사용)이 제거되었습니다. 화살표 circuit 구문으로 대체하세요.
 
 #### How to Fix Your Code
 
@@ -221,7 +221,7 @@ map((x, y) => x + y, [1, 2], [3, 4]);
 
 ### Exported Circuits Order Matches Between TypeScript and Compact
 
-생성된 TypeScript 인터페이스 파일에서 내보낸 회로의 순서가 이제 Compact 소스 파일의 순서와 일치합니다.
+생성된 TypeScript 인터페이스 파일에서 내보낸 circuit의 순서가 이제 Compact 소스 파일의 순서와 일치합니다.
 
 ---
 
@@ -244,7 +244,7 @@ Compact 언어 0.13.0은 호환성을 깨는 변경과 향상된 기능을 도�
 - **모듈**: 파일에서 직접 가져올 수 있습니다.
 - **표준 라이브러리**: 이제 내장 모듈(`CompactStandardLibrary`)입니다.
 - **구조체**: 새 생성 구문과 스프레드 연산자.
-- **익명 회로**: 화살표 회로 구문으로 대체되었습니다.
+- **익명 circuit**: 화살표 circuit 구문으로 대체되었습니다.
 - **`new`**: 새 구조체 구문으로 대체되어 제거되었습니다.
 - **컴파일러 개선**: 더 나은 오류 메시지와 버그 수정.
 

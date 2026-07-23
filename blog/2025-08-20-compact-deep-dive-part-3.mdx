@@ -169,7 +169,7 @@ VM 스택의 값은 불변입니다.
 const _descriptor_9 = new __compactRuntime.CompactTypeUnsignedInteger(255n, 1);
 ```
 
-이것은 Compact 런타임의 [`CompactTypeUnsignedInteger`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/classes/CompactTypeUnsignedInteger) 인스턴스입니다.
+이는 Compact 런타임의 [`CompactTypeUnsignedInteger`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/classes/CompactTypeUnsignedInteger) 인스턴스입니다.
 최대값과 바이트 크기를 인수로 받습니다.
 따라서 이것은 최대값 255인 1바이트 부호 없는 정수(즉, 단순한 부호 없는 바이트)의 디스크립터입니다.
 값 `0n`은 Compact 컴파일러가 `state` 필드에 할당한 공개 ledger state 인덱스입니다.
@@ -228,7 +228,7 @@ DApp을 로컬에서 실행할 때 어서션이 성공하면, ZK 증명은 그�
 그러나 `popeq` 명령어가 검증 모드에서 실행될 때, DApp에서 로컬로 팝된 실제 값을 나타내는 피연산자를 갖게 됩니다.
 따라서 구체적으로, DApp이 성공적으로 `post` 트랜잭션을 구성했다면, 해당 명령어는 `popeq 0`이 됩니다.
 
-이것은 `state` 필드가 0이었다고 확인하는 것과 미묘하게 다릅니다.
+이는 `state` 필드가 0이었다고 확인하는 것과 미묘하게 다릅니다.
 Compact 프로그램에서 `assert`를 제거하고 ledger 필드 읽기만 남겨두면,
 온체인에서 실행되는 Impact 프로그램은 DApp이 읽은 실제 값에 따라 `popeq 0` 또는 `popeq 1`이 될 수 있습니다.
 
@@ -240,7 +240,7 @@ Compact `post` circuit의 두 번째 줄은 다음과 같습니다:
 poster = disclose(publicKey(localSecretKey(), instance as Field as Bytes<32>));
 ```
 
-이것은 ledger의 `poster` 필드에 대한 쓰기입니다.
+이는 ledger의 `poster` 필드에 대한 쓰기입니다.
 쓰기 연산의 우변은 다음 JavaScript 코드로 구현됩니다:
 
 ```javascript
@@ -288,13 +288,13 @@ const _descriptor_1 = new __compactRuntime.CompactTypeUnsignedInteger(1844674407
 
 Compact 코드에는 `instance as Field as Bytes<32>`라는 타입 캐스트 시퀀스가 있습니다.
 `instance`는 `Counter`이고, ledger에서 읽으면 `Uint<64>` 타입의 Compact 값을 제공합니다.
-이것은 `Bytes<32>`로 직접 캐스트할 수 없으므로 `Field`를 거치는 중간 캐스트를 사용합니다.
+이는 `Bytes<32>`로 직접 캐스트할 수 없으므로 `Field`를 거치는 중간 캐스트를 사용합니다.
 
 Compact에는 세 가지 종류의 타입 캐스트가 있습니다: 업캐스트, 다운캐스트, 그리고 "크로스 캐스트"입니다.
 업캐스트는 하위 타입에서 상위 타입으로의 캐스트입니다.
 컴파일러가 인식하는 정적 타입만 변경되며, 런타임에는 아무 효과가 없습니다.
 예를 들어, `Uint<64>`에서 `Field`로의 캐스트는 업캐스트입니다.
-이 캐스트는 정적으로(즉, 컴파일러에 의해) 수행되었지만, 이를 구현하는 JavaScript 코드는 없습니다.
+이 캐스트는 정적으로, 즉 컴파일러가 처리하지만, 이를 구현하는 JavaScript 코드는 없습니다.
 다운캐스트는 상위 타입에서 하위 타입으로의 캐스트입니다.
 값의 표현은 보통 변경되지 않지만, 컴파일러가 생성한 JavaScript 코드에서 런타임 검사가 필요합니다.
 크로스 캐스트는 서브타이핑 관계에서 관련 없는 타입으로의 캐스트입니다.
@@ -311,7 +311,7 @@ Compact 런타임 함수 [`convert_bigint_to_Uint8Array`](https://docs.midnight.
 
 Compact의 `disclose` 연산자는 런타임에서 아무것도 하지 않습니다.
 witness `localSecretKey`로부터 계산된 값이 온체인에 노출되었기 때문에 `disclose`가 필요했습니다.
-이것은 Compact 컴파일러에게 이 값의 노출을 허용하라는 지시이지만, 런타임 효과는 없습니다.
+이는 Compact 컴파일러에게 이 값의 노출을 허용하라는 지시이지만, 런타임 효과는 없습니다.
 
 # Ledger Writes
 
@@ -360,7 +360,7 @@ Impact의 `ins` 명령어는 ledger 읽기에서 본 `idx` 명령어의 역입�
 삽입할 값은 스택 맨 위에 있습니다(즉, `tmp_0`의 `Bytes<32>` 값).
 그 아래에는 *N* 요소로 구성된 경로가 있으며, *N*은 `ins` 명령어의 피연산자입니다.
 이 경우 경로의 길이는 1이므로 `[3]`이라는 단일 시퀀스입니다.
-이것은 Compact 컴파일러가 최상위 ledger 필드 `poster`에 할당한 인덱스입니다.
+이는 Compact 컴파일러가 최상위 ledger 필드 `poster`에 할당한 인덱스입니다.
 
 삽입 명령어는 경로 아래의 값(즉, 공개 ledger state)을 제거하고,
 경로가 가리키는 위치가 새 값으로 업데이트된 새 복사본으로 교체합니다.
@@ -428,7 +428,7 @@ _persistentHash_0(value_0) {
 }
 ```
 
-이것은 Compact 런타임의 [`persistentHash` 함수](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/functions/persistentHash) 호출입니다.
+이는 Compact 런타임의 [`persistentHash` 함수](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/functions/persistentHash) 호출입니다.
 Compact 런타임의 이 함수는 온체인 런타임 자체의 [`persistentHash`](https://docs.midnight.network/develop/reference/midnight-api/onchain-runtime/functions/persistentHash)에 대한 얇은 래퍼입니다.
 차이점은 온체인 런타임 버전은 값의 ledger 인코딩에서 작동하고,
 Compact 런타임 버전은 전달된 디스크립터를 사용하여 관련 변환을 수행한다는 것입니다.

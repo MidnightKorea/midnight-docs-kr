@@ -344,7 +344,7 @@ proof provider에서 발생한 오류를 감싸는 래퍼입니다.
 |-------|-------|
 | `_tag` | `'Wallet.Proving'` |
 
-**해결 방법**: proof server 연결 상태와 올바른 회로 키를 로드하고 있는지 확인하세요. 래핑된 원인을 검사해 provider의 근본 오류를 파악하세요.
+**해결 방법**: proof server 연결 상태와 올바른 circuit 키를 로드하고 있는지 확인하세요. 래핑된 원인을 검사해 provider의 근본 오류를 파악하세요.
 
 ```typescript
 Effect.catchTag('Wallet.Proving', (e) => ...)

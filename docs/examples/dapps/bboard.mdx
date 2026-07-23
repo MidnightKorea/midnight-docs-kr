@@ -114,7 +114,7 @@ export circuit publicKey(sk: Bytes<32>, sequence: Bytes<32>): Bytes<32> {
 
 ### Circuits
 
-세 개의 export circuit가 컨트랙트의 연산을 정의합니다:
+세 개의 export circuit이 컨트랙트의 연산을 정의합니다:
 
 - `post(newMessage)`: 게시판에 새 메시지를 게시합니다. 게시판이 비어 있는지 확인한 후 메시지를 저장하고 소유권 커밋을 생성합니다.
 - `takeDown()`: 현재 메시지를 제거하고 반환합니다. 호출자의 비밀 키를 소유권 커밋과 대조하여 원래 게시자인지 검증합니다.
@@ -268,7 +268,7 @@ CLI가 새 지갑을 생성하고 정보를 표시합니다:
 ```
 Initializing wallet builder for preprod
 Your wallet seed is: <64자 wallet 시드> and your address is: <wallet 주소>
-Using unshielded address: <비차폐 주소> waiting for funds...
+Using unshielded address: <unshielded 주소> waiting for funds...
 Your wallet initial balance is: 0 (not yet initialized)
 Waiting to receive tokens...
 Syncing wallet...

@@ -9,7 +9,7 @@ displayed_sidebar: sidebar
 
 Compact은 Midnight의 전용 스마트 컨트랙트 프로그래밍 언어로, 안전하고 효율적이며 유연한 탈중앙화 애플리케이션을 구축하기 위해 설계되었습니다.
 
-Compact 컴파일러는 Compact 스마트 컨트랙트 코드를 실행 가능한 바이트코드와 증명 생성 회로로 변환합니다.
+Compact 컴파일러는 Compact 스마트 컨트랙트 코드를 실행 가능한 바이트코드와 증명 생성 circuit으로 변환합니다.
 
 ---
 
@@ -35,7 +35,7 @@ Compact 컴파일러는 Compact 스마트 컨트랙트 코드를 실행 가능�
 
 이 릴리스에는 다음 버그 수정이 포함되어 있습니다:
 
-- `Uint` 회로 매개변수에 대한 ZK 증명 문제 수정
+- `Uint` circuit 매개변수에 대한 ZK 증명 문제 수정
 - ledger ADT에 코인 삽입을 방해하던 문제 수정
 - `MerkleTree`의 `insert_index_default` 컴파일 시 크래시 수정
 - 일부 `Map`의 `insert_default` 컴파일 시 크래시 수정
@@ -47,7 +47,7 @@ Compact 컴파일러는 Compact 스마트 컨트랙트 코드를 실행 가능�
 
 ### Fix for an issue in ZK proofs for `Uint` circuit parameters
 
-회로에 `Uint` 타입의 매개변수가 두 개 이상 있고, 해당 타입의 비트 크기가 2의 거듭제곱이 아닌 경우, ZK 증명을 위한 잘못된 코드가 생성되었습니다. 생성된 JavaScript 코드는 정상이었지만 proof server가 크래시했습니다. 이제 수정되어 proof server가 증명을 정상적으로 수락합니다.
+circuit에 `Uint` 타입의 매개변수가 두 개 이상 있고, 해당 타입의 비트 크기가 2의 거듭제곱이 아닌 경우, ZK 증명을 위한 잘못된 코드가 생성되었습니다. 생성된 JavaScript 코드는 정상이었지만 proof server가 크래시했습니다. 이제 수정되어 proof server가 증명을 정상적으로 수락합니다.
 
 ### Fix for an issue preventing coin insertion into ledger ADTs
 

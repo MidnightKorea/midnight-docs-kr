@@ -73,9 +73,9 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 | 101 | `ContractAlreadyDeployed` | 대상 주소에 이미 컨트랙트가 존재하는 경우 | 다른 컨트랙트 주소를 사용하거나 기존 배포를 확인하세요 |
 | 102 | `ContractNotPresent` | 지정한 주소에 존재하지 않는 컨트랙트를 호출한 경우 | 컨트랙트 주소를 확인하고 먼저 컨트랙트를 배포하세요 |
 | 103 | `Zswap` | Zswap 수준의 트랜잭션 오류 (예: 이중 지출, 알 수 없는 머클 루트) | nullifier 재사용 여부를 확인하고 코인 트리 루트가 최신 상태인지 검증하세요 |
-| 104 | `Transcript` | 노드가 온체인 트랜스크립트 실행을 거부한 경우 | 컨트랙트 로직을 확인하세요. 회로의 온체인 트랜스크립트 실행에 실패했습니다 |
+| 104 | `Transcript` | 노드가 온체인 트랜스크립트 실행을 거부한 경우 | 컨트랙트 로직을 확인하세요. circuit의 온체인 트랜스크립트 실행에 실패했습니다 |
 | 105 | `InsufficientClaimable` | 클레임할 NIGHT 토큰이 부족한 경우 | 해당 작업에 충분한 NIGHT 잔액이 있는지 확인하세요 |
-| 106 | `VerifierKeyNotFound` | 회로 작업에 필요한 검증자 키가 없는 경우 | 회로를 호출하기 전에 검증자 키를 배포하세요 |
+| 106 | `VerifierKeyNotFound` | circuit 작업에 필요한 검증자 키가 없는 경우 | circuit을 호출하기 전에 검증자 키를 배포하세요 |
 | 107 | `VerifierKeyAlreadyPresent` | 해당 작업에 검증자 키가 이미 존재하는 경우 | 키가 이미 배포되어 있으므로 추가 조치가 필요하지 않습니다 |
 | 108 | `ReplayCounterMismatch` | 서명된 카운터가 일치하지 않는 경우 (리플레이 공격 방지) | 현재 리플레이 카운터로 트랜잭션을 다시 빌드하세요 |
 | 109 | `UnknownError` | 분류되지 않은 트랜잭션 무효 오류 | 노드 로그에서 자세한 내용을 확인하세요 |
@@ -96,8 +96,8 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 |------|------|-------------|-------|
 | 110 | `VerifierKeyNotSet` | 필수 검증자 키 없이 컨트랙트가 배포된 경우 | 컨트랙트 배포 시 검증자 키를 포함하세요 |
 | 111 | `TransactionTooLarge` | 트랜잭션이 최대 허용 크기를 초과한 경우 | 트랜잭션 페이로드를 줄이거나 여러 트랜잭션으로 분할하세요 |
-| 112 | `VerifierKeyTooLarge` | 검증자 키가 역직렬화 한도를 초과한 경우 | 더 작은 회로를 사용하거나 Midnight 지원팀에 문의하세요 |
-| 113 | `VerifierKeyNotPresent` | 참조한 검증자 키를 찾을 수 없는 경우 | 회로를 호출하기 전에 검증자 키와 함께 컨트랙트를 배포하세요 |
+| 112 | `VerifierKeyTooLarge` | 검증자 키가 역직렬화 한도를 초과한 경우 | 더 작은 circuit을 사용하거나 Midnight 지원팀에 문의하세요 |
+| 113 | `VerifierKeyNotPresent` | 참조한 검증자 키를 찾을 수 없는 경우 | circuit을 호출하기 전에 검증자 키와 함께 컨트랙트를 배포하세요 |
 | 114 | `ContractNotPresent` | 트랜잭션이 존재하지 않는 컨트랙트를 참조하는 경우 | 컨트랙트 주소를 확인하고 먼저 컨트랙트를 배포하세요 |
 | 115 | `InvalidProof` | 영지식 증명 검증에 실패한 경우 | 증명을 다시 생성하세요. proof server가 호환 버전인지 확인하세요 |
 | 116 | `BindingCommitmentOpeningInvalid` | 바인딩 commitment가 올바르게 열리지 않은 경우 | Zswap 내부 오류 — 트랜잭션을 다시 빌드하세요 |

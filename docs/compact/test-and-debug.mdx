@@ -17,7 +17,7 @@ Compact 스마트 컨트랙트는 여러 컨텍스트(온체인 ledger, 영지�
 
 이 문서에서는 다음과 같은 테스트 전략을 다룹니다.
 
-* **Circuit logic testing**: 개별 circuit가 올바른 출력과 상태 전이를 만들어내는지 검증합니다.
+* **Circuit logic testing**: 개별 circuit이 올바른 출력과 상태 전이를 만들어내는지 검증합니다.
 * **Privacy verification**: 비공개 데이터가 공개 출력으로 새어나가지 않는지 확인합니다.
 * **Authorization testing**: 접근 제어 메커니즘이 권한 없는 작업을 막는지 확인합니다.
 * **Integration testing**: 테스트 네트워크에서 전체 트랜잭션 흐름을 테스트합니다.
@@ -251,7 +251,7 @@ Negative test는 컨트랙트가 잘못된 작업과 권한 없는 접근을 제
 
 ### Test assertion failures
 
-전제 조건이 충족되지 않은 상황에서 circuit가 작업을 거부하는지 테스트합니다. Compact의 assert 구문은 런타임에 불변 조건을 강제합니다.
+전제 조건이 충족되지 않은 상황에서 circuit이 작업을 거부하는지 테스트합니다. Compact의 assert 구문은 런타임에 불변 조건을 강제합니다.
 
 ```typescript
 import { Contract } from '../managed/bboard/contract/index.js';
@@ -438,9 +438,9 @@ circuit 실행이 실패할 때는 다음 원인을 점검합니다.
 
 증명 생성이 실패하거나 시간 초과가 발생할 때는 다음 항목을 살펴봅니다.
 
-- **Circuit complexity**: circuit 연산 한도가 합리적인지 확인합니다. 지나치게 복잡한 circuit는 proof server 용량 한계를 넘을 수 있습니다.
+- **Circuit complexity**: circuit 연산 한도가 합리적인지 확인합니다. 지나치게 복잡한 circuit은 proof server 용량 한계를 넘을 수 있습니다.
 - **Infinite loops**: 종료되지 않을 가능성이 있는 루프를 확인합니다. 종료를 보장하려면 루프 카운터에 한도를 두세요.
-- **Witness data types**: witness 함수가 circuit가 기대하는 형식의 데이터를 반환하는지 확인합니다. `Uint8Array` 값의 크기와 `bigint` 값의 유효 범위를 점검합니다.
+- **Witness data types**: witness 함수가 circuit이 기대하는 형식의 데이터를 반환하는지 확인합니다. `Uint8Array` 값의 크기와 `bigint` 값의 유효 범위를 점검합니다.
 - **Memory constraints**: 메모리 한도를 넘길 수 있는 큰 데이터 구조를 점검합니다. 큰 컬렉션이라면 청크 분할이나 페이지네이션을 검토합니다.
 
 ### State synchronization issues

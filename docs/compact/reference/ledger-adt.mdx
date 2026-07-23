@@ -20,7 +20,7 @@ Compact 언어 버전 0.23.0, 컴파일러 버전 0.31.0.
 balance(token_type: Either<Bytes<32>, Bytes<32>>): Uint<128>
 ```
 
-현재 컨트랙트에서 지정된 토큰 타입의 unshielded 토큰 잔액을 반환합니다. 이 잔액은 컨트랙트 실행 중 unshielded 송수신에 의해 업데이트되지 않으며, 항상 실행 시작 시점의 값으로 고정됩니다.
+현재 컨트랙트에서 지정된 토큰 타입의 unshielded 토큰 잔액을 반환합니다. 이 잔액은 컨트랙트 실행 중 unshielded 송수신으로는 업데이트되지 않으며, 항상 실행 시작 시점의 값으로 고정됩니다.
 
 ### balanceGreaterThan
 
@@ -68,7 +68,7 @@ checkpoint(): []
 claimContractCall(addr: Bytes<32>, entry_point: Bytes<32>, comm: Field): []
 ```
 
-해당 트랜잭션 내에 동일한 주소, 진입점 해시, 통신 commitment를 가진 다른 컨트랙트 호출이 존재해야 하며, 아직 다른 호출에 의해 청구되지 않은 상태여야 합니다.
+해당 트랜잭션 내에 동일한 주소, 진입점 해시, 통신 commitment를 가진 다른 컨트랙트 호출이 존재해야 하며, 아직 다른 호출이 아직 청구하지 않은 상태여야 합니다.
 
 ### claimUnshieldedCoinSpend
 

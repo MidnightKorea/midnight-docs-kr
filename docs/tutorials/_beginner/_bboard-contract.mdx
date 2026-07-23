@@ -54,8 +54,8 @@ import CodeFromGithub from '@site/src/components/CodeFromGithub';
 
 이 ledger 선언에서 사용된 타입에 대해 몇 가지 참고할 점이 있습니다:
 - Compact에서는 게시판의 비어있음/사용중 상태를 표현하는 열거형 타입처럼 새로운 타입을 선언할 수 있습니다. 선언에 `export` 수정자를 추가하면 Compact 컴파일러가 열거형 타입과 그 값에 대한 TypeScript 표현을 자동으로 생성합니다.
-- `STATE`, `Maybe`, `Bytes` 같은 Compact 타입을 가진 ledger 필드는 circuit를 통해 값을 업데이트할 수 있는 가변 셀입니다.
-- `Counter` 타입은 0으로 자동 초기화되며, circuit를 통해 증가시킬 수 있습니다.
+- `STATE`, `Maybe`, `Bytes` 같은 Compact 타입을 가진 ledger 필드는 circuit을 통해 값을 업데이트할 수 있는 가변 셀입니다.
+- `Counter` 타입은 0으로 자동 초기화되며, circuit을 통해 증가시킬 수 있습니다.
 - Compact의 내장 타입인 `Opaque`는 컨트랙트에서 내부 구조가 중요하지 않은 값을 나타냅니다.
 - 표준 라이브러리의 `Maybe` 타입은 값이 있을 수도 없을 수도 있는 선택적 값을 표현합니다. `some` 또는 `none` 생성자로 값을 만듭니다.
 - 소유자의 신원 토큰은 256비트(32바이트) 해시입니다.
@@ -80,11 +80,11 @@ ledger가 생성될 때 컨트랙트가 `owner` 필드를 명시적으로 초기
 />
 
 
-`circuit` 정의는 함수 정의와 매우 유사하며, 입력 매개변수와 반환 값을 지정할 수 있습니다. ledger의 현재 상태는 circuit 정의 내에서 암시적으로 접근할 수 있습니다. `enum STATE` 타입과 마찬가지로 이 정의에도 `export` 수정자가 추가되어 TypeScript에서 `post` circuit를 호출할 수 있습니다.
+`circuit` 정의는 함수 정의와 매우 유사하며, 입력 매개변수와 반환 값을 지정할 수 있습니다. ledger의 현재 상태는 circuit 정의 내에서 암시적으로 접근할 수 있습니다. `enum STATE` 타입과 마찬가지로 이 정의에도 `export` 수정자가 추가되어 TypeScript에서 `post` circuit을 호출할 수 있습니다.
 
 컨트랙트 의무 사항을 시행하기 위해 `assert` 문을 사용합니다. `assert`는 불리언 표현식이 참인지 확인하며, 거짓이면 트랜잭션이 중단되고 지정된 메시지와 함께 실패를 보고합니다. 위의 `assert`는 메시지 게시 시 게시판이 비어 있는지 확인합니다(규칙 1).
 
-`post` circuit가 ledger의 `owner` 필드에 기록하는 이 생성된 '공개 키'는 무엇입니까? 이는 게시물의 순서 번호와 네트워크를 통해 전송되지 않는 사용자의 비밀 키를 포함하는 문자열을 해싱하여 도출됩니다. 위의 코드는 동일한 컨트랙트에 정의된 '헬퍼' circuit `publicKey`에 대한 호출을 사용했습니다. 다음은 그 정의입니다:
+`post` circuit이 ledger의 `owner` 필드에 기록하는 이 생성된 '공개 키'는 무엇입니까? 이는 게시물의 순서 번호와 네트워크를 통해 전송되지 않는 사용자의 비밀 키를 포함하는 문자열을 해싱하여 도출됩니다. 위의 코드는 동일한 컨트랙트에 정의된 '헬퍼' circuit `publicKey`에 대한 호출을 사용했습니다. 다음은 그 정의입니다:
 
 <CodeFromGithub
   url="https://github.com/midnightntwrk/example-bboard/blob/main/contract/src/bboard.compact#L58-L60"
@@ -94,12 +94,12 @@ ledger가 생성될 때 컨트랙트가 `owner` 필드를 명시적으로 초기
 
 이 정의에 대해 세 가지 참고할 점이 있습니다:
 1. `persistentHash` 함수는 Compact 표준 라이브러리에 정의되어 있습니다.
-2. 일반적으로 이런 헬퍼 circuit는 TypeScript에서 호출할 필요가 없으므로 내보내지 않습니다. 이 경우 `publicKey`는 DApp에서 디버깅 시 값을 로깅할 수 있도록 내보냅니다.
-3. 이 circuit의 이름이 `publicKey`이지만, 반환 값이 공개 키 암호화에서 말하는 키 쌍의 한쪽은 *아닙니다*. 다만 영지식 circuit를 공개 키 암호화의 일반화된 형태로 이해할 수 있으며, 이 circuit의 결과가 공개 키와 동일한 역할을 수행하므로 그러한 의미를 떠올릴 수 있도록 이름을 붙인 것입니다.
+2. 일반적으로 이런 헬퍼 circuit은 TypeScript에서 호출할 필요가 없으므로 내보내지 않습니다. 이 경우 `publicKey`는 DApp에서 디버깅 시 값을 로깅할 수 있도록 내보냅니다.
+3. 이 circuit의 이름이 `publicKey`이지만, 반환 값이 공개 키 암호화에서 말하는 키 쌍의 한쪽은 *아닙니다*. 다만 영지식 circuit을 공개 키 암호화의 일반화된 형태로 이해할 수 있으며, 이 circuit의 결과가 공개 키와 동일한 역할을 수행하므로 그러한 의미를 떠올릴 수 있도록 이름을 붙인 것입니다.
 
 ## Accessing private state
 
-그렇다면 `post` circuit에서 필요한 비밀 키를 어떻게 가져올까요? `localSecretKey` 함수는 circuit가 될 수 없습니다. circuit의 반환 값은 공개적으로 검증 가능하기 때문에, 절대 ledger에 노출되어서는 안 되는 이 값을 circuit로 반환할 수 없기 때문입니다.
+그렇다면 `post` circuit에서 필요한 비밀 키를 어떻게 가져올까요? `localSecretKey` 함수는 circuit이 될 수 없습니다. circuit의 반환 값은 공개적으로 검증 가능하기 때문에, 절대 ledger에 노출되어서는 안 되는 이 값을 circuit으로 반환할 수 없기 때문입니다.
 
 이런 종류의 함수를 *witness*라고 합니다. Witness 함수는 각 DApp이 로컬에서 관리하는 private state에 대한 접근을 제공합니다. 컨트랙트에서는 witness의 구현을 정의하지 않고 존재만 선언하며, 실제 구현은 DApp이 담당합니다. 컨트랙트에서의 선언은 다음과 같습니다:
 
@@ -112,7 +112,7 @@ ledger가 생성될 때 컨트랙트가 `owner` 필드를 명시적으로 초기
 
 witness의 반환 값은 비공개 데이터로 취급됩니다. Compact 컴파일러는 프로그램 전체에서 이를 추적하여 공개 ledger 상태에 유출되지 않도록 방지합니다. 구체적으로, `post` circuit에서 `localSecretKey()`의 결과는 비공개로 간주됩니다. 이 값이 `publicKey`에 전달되므로 `publicKey`의 결과도 비공개로 간주됩니다(최소한 비공개 데이터에 기반한 것으로 취급됩니다). 이 값을 공개 ledger 상태에 기록하려고 하면 컴파일러가 오류를 발생시킵니다. 하지만 이 경우, 소유자 신원과 순서 카운터의 해시는 소유자의 신원을 유출하지 않습니다. 공개 키 값을 `disclose`로 감싸면 Compact 컴파일러에게 이 공개가 의도적이라는 것을 알리게 됩니다.
 
-이제 필요한 모든 도구가 갖춰졌으니, 현재 게시물의 소유자만 삭제할 수 있다는 규칙을 시행하는 `takeDown` circuit를 작성할 수 있습니다. 빈 게시판에서 게시물을 삭제하는 것은 의미가 없으므로, circuit는 먼저 게시판이 비어 있지 않은지 확인합니다:
+이제 필요한 모든 도구가 갖춰졌으니, 현재 게시물의 소유자만 삭제할 수 있다는 규칙을 시행하는 `takeDown` circuit을 작성할 수 있습니다. 빈 게시판에서 게시물을 삭제하는 것은 의미가 없으므로, circuit은 먼저 게시판이 비어 있지 않은지 확인합니다:
 
 <CodeFromGithub
   url="https://github.com/midnightntwrk/example-bboard/blob/main/contract/src/bboard.compact#L48-L56"
@@ -120,7 +120,7 @@ witness의 반환 값은 비공개 데이터로 취급됩니다. Compact 컴파�
 />
 
 
-이 circuit는 삭제된 메시지를 반환하여, 공개 circuit도 값을 반환할 수 있음을 보여줍니다.
+이 circuit은 삭제된 메시지를 반환하여, 공개 circuit도 값을 반환할 수 있음을 보여줍니다.
 
 DApp이 `takeDown` 트랜잭션을 Midnight 네트워크에 제출할 때, 다른 참여자가 두 번째 `assert`를 확인하는 데 필요한 비공개 데이터는 포함되지 않습니다. 이 circuit에서는 `publicKey`를 명시적으로 `disclose`할 필요가 없다는 점에 주목하세요. `takeDown` 트랜잭션에는 각 `assert`가 통과되었다는 검증 가능한 증명이 포함됩니다. 컴파일러가 이를 가능하게 하는 모든 자료를 내부적으로 생성하므로, DApp 개발자가 증명 생성 및 전송 코드를 직접 작성할 필요가 없습니다.
 
@@ -144,4 +144,4 @@ compact compile src/bboard.compact src/managed/bboard
 
 컴파일러를 실행하면 각 공개 circuit(`post`, `takeDown`, `publicKey`)에 대한 circuit 복잡도 메시지가 표시됩니다. 오류 메시지가 나타나면 코드에 실수가 없는지 확인하세요. 도움이 필요하면 Midnight 개발자 관계 팀이나 Discord에서 다른 개발자에게 문의하세요.
 
-`src/managed/bboard/contract/index.d.cts`에서 Compact 컴파일러가 컨트랙트에 대해 생성한 TypeScript API를 볼 수 있습니다. DApp은 이 API를 사용하여 컨트랙트를 배포하고 circuit를 호출합니다.
+`src/managed/bboard/contract/index.d.cts`에서 Compact 컴파일러가 컨트랙트에 대해 생성한 TypeScript API를 볼 수 있습니다. DApp은 이 API를 사용하여 컨트랙트를 배포하고 circuit을 호출합니다.

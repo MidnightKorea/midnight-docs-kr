@@ -39,7 +39,7 @@ Midnight.js API는 컨트랙트와 트랜잭션을 다룰 때 발생하는 실�
 #### Properties
 
 - `finalizedTxData`: 실패한 트랜잭션의 최종 데이터
-- `circuitId`(선택): 트랜잭션을 구성할 때 사용된 회로
+- `circuitId`(선택): 트랜잭션을 구성할 때 사용된 circuit
 
 ### Deploy transaction failed (`DeployTxFailedError`)
 
@@ -56,7 +56,7 @@ Midnight.js API는 컨트랙트와 트랜잭션을 다룰 때 발생하는 실�
 #### Properties
 
 - `finalizedTxData`: 실패한 호출 트랜잭션의 최종 데이터
-- `circuitId`: 트랜잭션을 구성할 때 사용된 회로
+- `circuitId`: 트랜잭션을 구성할 때 사용된 circuit
 
 ### Replace maintenance authority transaction failed (`ReplaceMaintenanceAuthorityTxFailedError`)
 
@@ -93,7 +93,7 @@ Midnight.js API는 컨트랙트와 트랜잭션을 다룰 때 발생하는 실�
 #### Properties
 
 - `contractState`: 배포된 컨트랙트 상태
-- `circuitIds`: 정의되지 않았거나 검증자 키가 일치하지 않는 회로
+- `circuitIds`: 정의되지 않았거나 검증자 키가 일치하지 않는 circuit
 
 ## Configuration errors
 

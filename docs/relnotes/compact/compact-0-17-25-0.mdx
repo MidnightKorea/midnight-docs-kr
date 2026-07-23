@@ -35,10 +35,10 @@ Compact에는 부호 없는 크기 `n`으로 매개변수화된 `Bytes<n>` 타�
 `Bytes`에 대한 더 나은 지원을 위한 첫 번째 단계로, `Uint<8>` 요소의 `Vector`와 양방향 캐스트를 도입했습니다. 이를 통해 `Bytes` 타입의 값을 언패킹하고, 요소를 조작하고, 반복할 수 있습니다. 또한 벡터를 생성하고 `Bytes` 값으로 패킹할 수도 있습니다.
 
 :::warning
-`Bytes`와 `Vector` 간의 양방향 캐스트는 결과를 완전히 언패킹하고 패킹합니다. 이를 위해 `Bytes` 또는 `Vector`의 크기에 비례하는 수의 회로 연산이 필요합니다. 증명 시간 면에서 비용이 클 수 있습니다(또는 고정 회로 크기 제한에 도달할 수도 있습니다).
+`Bytes`와 `Vector` 간의 양방향 캐스트는 결과를 완전히 언패킹하고 패킹합니다. 이를 위해 `Bytes` 또는 `Vector`의 크기에 비례하는 수의 circuit 연산이 필요합니다. 증명 시간 면에서 비용이 클 수 있습니다(또는 고정 circuit 크기 제한에 도달할 수도 있습니다).
 :::
 
-이것은 완전히 새로운 기능이며 언어에 대한 **비호환성 변경이 아닙니다**.
+완전히 새로운 기능이며 언어에 대한 **비호환성 변경이 아닙니다**.
 
 ### `const` declaration statements now allow multiple constants
 
@@ -59,21 +59,21 @@ const x: Uint<8> = 127, y: Bytes<16> = pad(16, "Compact");
 
 **동기:** 이 변경은 TypeScript에서 가능한 이러한 선언과 언어를 더 유사하게 만듭니다. TypeScript와 동일한 방식으로 동작하도록 의도되었습니다: 초기화 전에 상수를 참조할 수 없으며, `const` 선언에서 동일한 이름에 대해 둘 이상의 바인딩을 가질 수 없습니다.
 
-이것은 기존 기능에 대한 새로운 능력이며 언어에 대한 **비호환성 변경이 아닙니다**.
+기존 기능에 대한 새로운 능력이며 언어에 대한 **비호환성 변경이 아닙니다**.
 
 ## New standard library and ledger APIs
 
 ### The standard library provides access to block time
 
-자주 요청되었던 것은 컨트랙트가 시간 개념을 가질 수 있는 것입니다. Compact 0.17에서는 시간을 다루기 위한 새로운 표준 라이브러리 회로와 새로운 ledger 커널 연산을 추가했습니다. 이는 "블록 시간" 개념에 기반합니다. DApp에서 트랜잭션을 제출하기 전에 컨트랙트 코드를 실행할 때, 블록 시간은 컨트랙트 진입점을 실행하기 전에 로컬 머신에서 가져온 타임스탬프입니다. 이 시간은 실행 중에 변경되지 않습니다. 온체인에서 상태 업데이트를 실행할 때, 블록 시간은 트랜잭션이 포함되는 블록의 대략적인 시간입니다.
+자주 요청되었던 것은 컨트랙트가 시간 개념을 가질 수 있는 것입니다. Compact 0.17에서는 시간을 다루기 위한 새로운 표준 라이브러리 circuit과 새로운 ledger 커널 연산을 추가했습니다. 이는 "블록 시간" 개념에 기반합니다. DApp에서 트랜잭션을 제출하기 전에 컨트랙트 코드를 실행할 때, 블록 시간은 컨트랙트 진입점을 실행하기 전에 로컬 머신에서 가져온 타임스탬프입니다. 이 시간은 실행 중에 변경되지 않습니다. 온체인에서 상태 업데이트를 실행할 때, 블록 시간은 트랜잭션이 포함되는 블록의 대략적인 시간입니다.
 
-Compact 표준 라이브러리는 블록 시간을 특정 시간 값과 비교하는 회로를 제공합니다. `blockTimeGt`(초과) 회로의 시그니처는 `blockTimeGt(time: Uint<64>): Boolean`입니다. `time` 인수는 Unix epoch 이후의 초 단위로 측정됩니다. 이 회로는 현재 블록 시간이 주어진 시간 이후인 경우에만 `true`를 반환합니다. `blockTimeGt`와 동일한 시그니처를 가진 `blockTimeGte`(이상), `blockTimeLt`(미만), `blockTimeLte`(이하) 회로도 표준 라이브러리에 있습니다.
+Compact 표준 라이브러리는 블록 시간을 특정 시간 값과 비교하는 circuit을 제공합니다. `blockTimeGt`(초과) circuit의 시그니처는 `blockTimeGt(time: Uint<64>): Boolean`입니다. `time` 인수는 Unix epoch 이후의 초 단위로 측정됩니다. 이 circuit은 현재 블록 시간이 주어진 시간 이후인 경우에만 `true`를 반환합니다. `blockTimeGt`와 동일한 시그니처를 가진 `blockTimeGte`(이상), `blockTimeLt`(미만), `blockTimeLte`(이하) circuit도 표준 라이브러리에 있습니다.
 
-이 기능을 지원하기 위한 새로운 ledger 커널 연산 쌍이 있습니다. ledger 커널은 표준 라이브러리에서 `kernel`로 내보내집니다. 새 연산의 시그니처는 `blockTimeGreaterThan(time: Uint<64>): Boolean`과 `blockTimeLessThan(time: Uint<64>): Boolean`입니다. 표준 라이브러리 회로는 이러한 커널 연산으로 간단하게 구현됩니다. 예를 들어, `blockTimeGt(t)`는 `kernel.blockTimeGreaterThan(t)`로 구현되고 `blockTimeLte(t)`는 `!kernel.blockTimeGreaterThan`으로 구현됩니다.
+이 기능을 지원하기 위한 새로운 ledger 커널 연산 쌍이 있습니다. ledger 커널은 표준 라이브러리에서 `kernel`로 내보내집니다. 새 연산의 시그니처는 `blockTimeGreaterThan(time: Uint<64>): Boolean`과 `blockTimeLessThan(time: Uint<64>): Boolean`입니다. 표준 라이브러리 circuit은 이러한 커널 연산으로 간단하게 구현됩니다. 예를 들어, `blockTimeGt(t)`는 `kernel.blockTimeGreaterThan(t)`로 구현되고 `blockTimeLte(t)`는 `!kernel.blockTimeGreaterThan`으로 구현됩니다.
 
-따라서 일반적으로 컨트랙트에서 표준 라이브러리가 제공하는 전체 회로 세트를 사용하면 됩니다.
+따라서 일반적으로 컨트랙트에서 표준 라이브러리가 제공하는 전체 circuit 세트를 사용하면 됩니다.
 
-이것은 표준 라이브러리에 대한 **비호환성 변경이 아닙니다**.
+표준 라이브러리에 대한 **비호환성 변경이 아닙니다**.
 
 ## Changes to generated code
 

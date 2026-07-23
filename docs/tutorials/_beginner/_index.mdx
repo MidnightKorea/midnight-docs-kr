@@ -40,7 +40,7 @@ Midnight 네트워크에서 DApp을 구축하고 배포하는 방법을 설명�
 
 완료하면 개발자는 소스에서 DApp을 빌드하고, 컨트랙트를 배포하며, Midnight 네트워크에 연결된 비투표 Midnight 노드를 실행하게 됩니다.
 
-예제 컨트랙트는 ledger에 카운터를 생성하고 이를 증가시키는 circuit를 제공합니다. 이 컨트랙트는 `Counter` 타입에 의해 암시되는 제약 조건만 적용합니다. 이 예제가 Midnight의 전체 프라이버시 기능을 보여주지는 않지만, Midnight 네트워크에서 컨트랙트를 구축하고 배포하는 기초를 제공합니다.
+예제 컨트랙트는 ledger에 카운터를 생성하고 이를 증가시키는 circuit을 제공합니다. 이 컨트랙트는 `Counter` 타입이 암시하는 제약 조건만 적용합니다. 이 예제가 Midnight의 전체 프라이버시 기능을 보여주지는 않지만, Midnight 네트워크에서 컨트랙트를 구축하고 배포하는 기초를 제공합니다.
 
 
 ## Node
@@ -214,7 +214,7 @@ compact compile src/counter.compact src/managed/counter
 Circuit 'increment' has complexity: 1234 constraints
 ```
 
-이 지표는 증명 생성의 계산 비용을 나타냅니다. 제약 조건 수가 높을수록 증명 생성 시간이 길어지고 리소스 요구사항이 높아집니다. 보안 속성을 유지하면서 제약 조건을 최소화하도록 circuit를 최적화하세요.
+이 지표는 증명 생성의 계산 비용을 나타냅니다. 제약 조건 수가 높을수록 증명 생성 시간이 길어지고 리소스 요구사항이 높아집니다. 보안 속성을 유지하면서 제약 조건을 최소화하도록 circuit을 최적화하세요.
 
 ### Version-specific compilation
 

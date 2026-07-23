@@ -34,7 +34,7 @@ post(context: __compactRuntime.CircuitContext<T>, newMessage_0: string): __compa
 [`CircuitContext`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/interfaces/CircuitContext)와 [`CircuitResults`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/interfaces/CircuitResults) 타입은 컴파일러가 사용하는 Compact 런타임에서 가져온 것임을 기억하세요.
 
 `index.cjs` 파일에서 컴파일러가 이 circuit의 JavaScript 구현을 생성했습니다.
-이것은 컨트랙트의 Compact 소스 코드를 컴파일할 때 `compact` 명령줄에서 지정한 컴파일러 출력 디렉토리의 `contract` 하위 디렉토리에 있습니다.
+이는 컨트랙트의 Compact 소스 코드를 컴파일할 때 `compact` 명령줄에서 지정한 컴파일러 출력 디렉토리의 `contract` 하위 디렉토리에 있습니다.
 
 구현은 `Contract` 클래스의 생성자에서 `circuits` 객체의 속성으로 설치됩니다.
 전체 코드는 다음과 같습니다(이 섹션의 나머지 부분에서 자세히 살펴보겠습니다):
@@ -126,7 +126,7 @@ const partialProofData = {
 };
 ```
 
-이것은 Compact 런타임의 TypeScript 인터페이스 [`ProofData`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/interfaces/ProofData)를 만족하는 JavaScript 값입니다.
+이는 Compact 런타임의 TypeScript 인터페이스 [`ProofData`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/interfaces/ProofData)를 만족하는 JavaScript 값입니다.
 정의를 살펴보겠습니다. Compact 컴파일러 버전 0.24.0이 사용하는 Compact 런타임의 정의는 다음과 같습니다:
 
 ```typescript
@@ -148,7 +148,7 @@ interface ProofData {
 `input`의 초기값은 Compact에서 circuit의 파라미터 수와 타입에 따라 달라집니다:
 
 ProofData의 TypeScript 선언에서 `input`이 `AlignedValue` 타입임을 알 수 있습니다.
-이것은 Compact 런타임의 타입 별칭 [`AlignedValue`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/type-aliases/AlignedValue)입니다.
+이는 Compact 런타임의 타입 별칭 [`AlignedValue`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/type-aliases/AlignedValue)입니다.
 그리고 해당 TypeScript 선언에서 `alignment`과 `value`라는 한 쌍의 속성을 가지고 있음을 알 수 있습니다.
 
 ### Descriptors
@@ -212,7 +212,7 @@ partialProofData.output = { value: [], alignment: [] };
 return { result: result_0, context: context, proofData: partialProofData };
 ```
 
-이것은 `post` circuit의 **실제** 구현을 포함하는 `#_post_0`이라는 컨트랙트 메서드를 호출합니다.
+이는 `post` circuit의 **실제** 구현을 포함하는 `#_post_0`이라는 컨트랙트 메서드를 호출합니다.
 우리가 살펴본 것(`post` 메서드)은 이 구현을 감싸는 대부분 보일러플레이트 래퍼입니다.
 구현 메서드는 context를 받고 우리가 구성한 증명 데이터 객체와 함께 인자를 전달합니다.
 
@@ -229,7 +229,7 @@ partialProofData.output = { value: _descriptor_4.toValue(result_0), alignment: _
 JavaScript의 circuit 구현은 JavaScript 값을 반환하므로, `toValue`와 `alignment`를 사용하여 ledger 표현으로 인코딩해야 합니다.
 
 마지막으로, circuit 호출의 결과를 반환합니다.
-이것은 [`CircuitResults<T, []>`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/interfaces/CircuitResults)였다는 것을 기억하세요(여기서 `T`는 컨트랙트의 private state 타입입니다).
+이는 [`CircuitResults<T, []>`](https://docs.midnight.network/develop/reference/midnight-api/compact-runtime/interfaces/CircuitResults)였다는 것을 기억하세요(여기서 `T`는 컨트랙트의 private state 타입입니다).
 해당 인터페이스는 Compact 런타임에 있으며 다음과 같습니다:
 
 ```typescript
@@ -312,6 +312,6 @@ Circuit으로 들어오는 JavaScript 인자를 검사하는 것과 같은 이�
 Compact의 타입 안전성은 이 런타임 검사에 의존합니다.
 
 마지막으로, 가장 바깥쪽 Compact circuit 호출을 실행하면서 구축 중인 증명 데이터의 private transcript에 witness의 반환값을 기록합니다.
-이것은 private 데이터이므로 ZK proof를 구성할 때 proof server가 이를 알아야 합니다(proof server가 private 데이터를 알고 있음을 증명할 수 있도록).
+이는 private 데이터이므로 ZK proof를 구성할 때 proof server가 이를 알아야 합니다(proof server가 private 데이터를 알고 있음을 증명할 수 있도록).
 
 이 시리즈의 다음 글인 "Compact Deep Dive Part 3: The On-Chain Runtime"에서는 bulletin board contract의 `post` circuit의 실제 구현을 더 자세히 살펴보고 온체인 런타임을 어떻게 사용하는지 알아보겠습니다.

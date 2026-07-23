@@ -15,7 +15,7 @@ copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation
 
 # Midnight opaque data types
 
-Compact의 불투명 타입은 외부 JavaScript 데이터를 DApp 대신 저장, 전달, 검색할 수 있게 해주는 타입 시스템 기능입니다. 다만 Compact 코드 내에서는 해당 데이터를 검사할 수 없습니다.
+Compact의 불투명 타입은 외부 JavaScript 데이터를 DApp을 대신해 저장하고 전달하고 조회하는 타입 시스템 기능입니다. 다만 Compact 코드 내에서는 해당 데이터를 검사할 수 없습니다.
 
 Midnight의 Compact 언어는 현재 `Opaque<'string'>`과 `Opaque<'Uint8Array'>`를 지원하며, 컨트랙트의 public state에 저장할 수 있습니다.
 
@@ -25,6 +25,6 @@ Midnight의 Compact 언어는 현재 `Opaque<'string'>`과 `Opaque<'Uint8Array'>
 
 개발자 튜토리얼의 게시판 예제 DApp에서 불투명 데이터 타입의 사용 예를 확인할 수 있습니다.
 
-* Compact의 post circuit는 DApp에서 호출하여 `Opaque<'string'>`을 전달받는 컨트랙트 진입점입니다. Compact 코드는 이 값의 내부를 볼 수 없지만, 컨트랙트의 public state에 저장합니다.
+* Compact의 post circuit은 DApp에서 호출하여 `Opaque<'string'>`을 전달받는 컨트랙트 진입점입니다. Compact 코드는 이 값의 내부를 볼 수 없지만, 컨트랙트의 public state에 저장합니다.
 
-* 이후 Compact의 take_down circuit가 이 값을 읽어 JavaScript 또는 TypeScript 호출자에게 반환합니다.
+* 이후 Compact의 take_down circuit이 이 값을 읽어 JavaScript 또는 TypeScript 호출자에게 반환합니다.

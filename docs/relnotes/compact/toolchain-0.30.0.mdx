@@ -73,7 +73,7 @@ Compact devtools는 아티팩트를 아티팩트 디렉터리 하위에 압축 �
 
 ## Improvements
 
-언어 레퍼런스 문서가 현재 언어 버전에 맞게 대폭 개정되었습니다. 생성된 TypeScript 코드가 증명자/검증자 키가 있는 회로와 다른 비순수 회로를 구별합니다.
+언어 레퍼런스 문서가 현재 언어 버전에 맞게 대폭 개정되었습니다. 생성된 TypeScript 코드가 증명자/검증자 키가 있는 circuit과 다른 비순수 circuit을 구별합니다.
 
 **개선**: 최신 언어 레퍼런스
 
@@ -81,11 +81,11 @@ https://docs.midnight.network/compact/reference/lang-ref 의 언어 레퍼런스
 
 **개선**: `ProvableCircuits`
 
-**설명**: 생성된 TypeScript 코드에 이제 `ProvableCircuits<PS>` 타입과 `Contract` 클래스의 `provableCircuits` 필드가 포함됩니다. `ProvableCircuits`는 증명자 및 검증자 키가 있는 회로만 포함합니다.
+**설명**: 생성된 TypeScript 코드에 이제 `ProvableCircuits<PS>` 타입과 `Contract` 클래스의 `provableCircuits` 필드가 포함됩니다. `ProvableCircuits`는 증명자 및 검증자 키가 있는 circuit만 포함합니다.
 
-기존에는 TypeScript 코드에 `ImpureCircuits`와 `PureCircuits`만 있었습니다. Midnight.js는 `ImpureCircuits`로 증명이 필요한 회로 목록을 가져왔지만, witness 호출만으로 비순수인 회로(ledger state 미사용)는 증명이 불필요하며, 증명 시도 시 실패했습니다.
+기존에는 TypeScript 코드에 `ImpureCircuits`와 `PureCircuits`만 있었습니다. Midnight.js는 `ImpureCircuits`로 증명이 필요한 circuit 목록을 가져왔지만, witness 호출만으로 비순수인 circuit(ledger state 미사용)는 증명이 불필요하며, 증명 시도 시 실패했습니다.
 
-이제 `ProvableCircuits`로 증명이 필요한 회로만 정확히 구분합니다. `ProvableCircuits`는 항상 비순수이므로 `ImpureCircuits`에도 포함되어, **비호환성** 변경이 아닙니다.
+이제 `ProvableCircuits`로 증명이 필요한 circuit만 정확히 구분합니다. `ProvableCircuits`는 항상 비순수이므로 `ImpureCircuits`에도 포함되어, **비호환성** 변경이 아닙니다.
 
 이 변경으로 Midnight.js의 관련 버그가 수정됩니다.
 
@@ -99,21 +99,21 @@ Compact 표준 라이브러리 타입 `NativePoint`가 `JubjubPoint`로 이름�
 
 ### `NativePoint` is renamed to `JubjubPoint`
 
-**변경 사항**: 표준 라이브러리 타입 `NativePoint`가 `JubjubPoint`로 이름이 변경되었으며, 곡선 포인트를 생성하고 접근하기 위한 표준 라이브러리 회로에도 대응하는 이름 변경이 있습니다.
+**변경 사항**: 표준 라이브러리 타입 `NativePoint`가 `JubjubPoint`로 이름이 변경되었으며, 곡선 포인트를 생성하고 접근하기 위한 표준 라이브러리 circuit에도 대응하는 이름 변경이 있습니다.
 
 **영향**: 이전 이름을 사용하는 코드는 더 이상 컴파일되지 않습니다.
 
 Midnight 네트워크에서 사용하는 네이티브 ZK 효율적 타원 곡선은 [Jubjub](https://github.com/zkcrypto/jubjub)입니다. 현실을 더 명확히 반영하기 위해 `NativePoint` 이름을 `JubjubPoint`로 변경했습니다.
 
-표준 라이브러리 회로 `nativePointX`, `nativePointY`, `constructNativePoint`도 각각 `jubjubPointX`, `jubjubPointY`, `constructJubjubPoint`로 이름이 변경되었습니다.
+표준 라이브러리 circuit `nativePointX`, `nativePointY`, `constructNativePoint`도 각각 `jubjubPointX`, `jubjubPointY`, `constructJubjubPoint`로 이름이 변경되었습니다.
 
-Compact 런타임의 타입 `NativePoint`와 `CompactTypeNativePoint`도 `JubjubPoint`와 `CompactTypeJubjubPoint`로 변경되었습니다. 런타임에는 동일한 이름의 Compact 회로에 대응하는 새 함수 `jubjubPointX`, `jubjubPointY`, `constructJubjubPoint`도 있습니다. 이전 버전은 Compact 표준 라이브러리에서만 구현되었고 Compact 런타임에는 반영되지 않았습니다.
+Compact 런타임의 타입 `NativePoint`와 `CompactTypeNativePoint`도 `JubjubPoint`와 `CompactTypeJubjubPoint`로 변경되었습니다. 런타임에는 동일한 이름의 Compact circuit에 대응하는 새 함수 `jubjubPointX`, `jubjubPointY`, `constructJubjubPoint`도 있습니다. 이전 버전은 Compact 표준 라이브러리에서만 구현되었고 Compact 런타임에는 반영되지 않았습니다.
 
 **필요한 조치**: 이러한 식별자를 사용하는 코드의 이름을 변경하세요. `compact fixup` 도구가 Compact 코드에 이름 변경을 적용할 수 있습니다. 필요한 경우 DApp의 TypeScript 또는 JavaScript 구현을 수동으로 업데이트하세요.
 
 ### It is a compiler error to use `persistentHash` or `persistentCommit` on opaque JavaScript values
 
-**변경 사항**: 불투명 JavaScript 값(`Opaque<'string'>` 또는 `Opaque<'Uint8Array'>`)을 포함하는 Compact 값에 표준 라이브러리 회로 `persistentHash` 또는 `persistentCommit`을 직접 또는 간접적으로(예: 구현에서 `persistentHash`를 사용하는 표준 라이브러리 회로를 통해) 사용하면 이제 컴파일러 오류가 발생합니다. 이는 표준 라이브러리 연산 `merkleTreePathRoot`과 ledger ADT `MerkleTree` 및 `HistoricMerkleTree` 삽입 연산에도 영향을 미칩니다.
+**변경 사항**: 불투명 JavaScript 값(`Opaque<'string'>` 또는 `Opaque<'Uint8Array'>`)을 포함하는 Compact 값에 표준 라이브러리 circuit `persistentHash` 또는 `persistentCommit`을 직접 또는 간접적으로(예: 구현에서 `persistentHash`를 사용하는 표준 라이브러리 circuit을 통해) 사용하면 이제 컴파일러 오류가 발생합니다. 이는 표준 라이브러리 연산 `merkleTreePathRoot`과 ledger ADT `MerkleTree` 및 `HistoricMerkleTree` 삽입 연산에도 영향을 미칩니다.
 
 **영향**: 이전에 컴파일되던 일부 코드에서 이제 컴파일러 오류가 발생합니다.
 
@@ -121,7 +121,7 @@ Compact 런타임의 타입 `NativePoint`와 `CompactTypeNativePoint`도 `Jubjub
 
 이제 Rust 크래시 대신 컴파일러 오류가 발생합니다.
 
-이전에 순수 회로에서 이러한 값을 해시하는 것이 가능했지만 이제 컴파일러 오류가 되므로 호환성을 깨는 변경입니다.
+이전에 순수 circuit에서 이러한 값을 해시하는 것이 가능했지만 이제 컴파일러 오류가 되므로 호환성을 깨는 변경입니다.
 
 ### New search order for included files and modules imported from files
 
@@ -152,12 +152,12 @@ Compact 런타임의 타입 `NativePoint`와 `CompactTypeNativePoint`도 `Jubjub
 
 툴체인 0.30으로 업데이트하면 아래 결함이 수정됩니다. Compact 자체의 버그가 아니라 Midnight 네트워크의 다른 컴포넌트 버그인 경우도 포함되어 있습니다.
 
-- [Issue #40: `Opaque` 타입 값을 특정 표준 라이브러리 회로에 전달하면 컴파일러 오류가 되어야 함](https://github.com/LFDT-Minokawa/compact/issues/40)
+- [Issue #40: `Opaque` 타입 값을 특정 표준 라이브러리 circuit에 전달하면 컴파일러 오류가 되어야 함](https://github.com/LFDT-Minokawa/compact/issues/40)
 - [Issue #81: `v0.28.0`에서 `Vector<32, Uint<8>>`에서 `Bytes<32>`로의 캐스트에 대한 제약 수가 두 배로 됨](https://github.com/LFDT-Minokawa/compact/issues/81)
-- [Issue #107: NullifiersNEClaimedNullifiers로 회로 호출 실패](https://github.com/LFDT-Minokawa/compact/issues/107)
-- [Issue #110: AllCommitmentsSubsetCheckFailure로 회로 호출 실패](https://github.com/LFDT-Minokawa/compact/issues/110)
+- [Issue #107: NullifiersNEClaimedNullifiers로 circuit 호출 실패](https://github.com/LFDT-Minokawa/compact/issues/107)
+- [Issue #110: AllCommitmentsSubsetCheckFailure로 circuit 호출 실패](https://github.com/LFDT-Minokawa/compact/issues/110)
 - [Issue #117: 컨트랙트 생성자에서 shielded 토큰을 발행할 수 없음](https://github.com/LFDT-Minokawa/compact/issues/117)
 - [Issue #139: compactc의 include 및 모듈 파일 검색 순서가 직관적이지 않고 안전하지 않을 수 있음](https://github.com/LFDT-Minokawa/compact/issues/139)
-- [Issue #151: `sendUnshielded`와 `receiveUnshielded` 사용 시 회로 호출 실패](https://github.com/LFDT-Minokawa/compact/issues/151)
+- [Issue #151: `sendUnshielded`와 `receiveUnshielded` 사용 시 circuit 호출 실패](https://github.com/LFDT-Minokawa/compact/issues/151)
 - [Issue #155: 특화되지 않은 제네릭 Uint을 포함하는 타입 선언 실패](https://github.com/LFDT-Minokawa/compact/issues/155)
 - [Issue #187: 피연산자 교환 비교 연산자(`>`와 `<=`)가 피연산자가 같지 않을 때 ZKIR 검증 실패](https://github.com/LFDT-Minokawa/compact/issues/187)

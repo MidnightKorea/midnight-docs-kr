@@ -46,7 +46,7 @@ JavaScript 구문 위에 타입 시스템을 계층화합니다.
   모든 Compact 타입은 컴파일 타임에 고정되는 크기를 가지며, 루프는 상수 바운드 또는
   상수 크기 객체의 크기로 바운드되며, 재귀는 허용되지 않습니다.
 - Compact 숫자 값은 프로그램에서 선언된 범위 또는 대상 proving 시스템의
-  필드 크기에 의해 결정되는 범위의 부호 없는 정수로 제한됩니다.
+  필드 크기가 정하는 범위의 부호 없는 정수로 제한됩니다.
 - Compact는 특정 값을 비공개 데이터를 잠재적으로 포함하는 것으로 구분하며
   일반적으로 보호되어야 하고, `disclose()` 래퍼를 통해 잠재적 비공개 데이터의
   공개를 명시적으로 선언하도록 요구합니다.
@@ -154,7 +154,7 @@ Compact 프로그램의 구문은 다음 표기 규칙을 사용하는 EBNF 문�
 출력을 생성하지 않고 종료합니다.
 
 컴파일러가 생성하는 코드와 사용하는 런타임 라이브러리는
-Compact 외부의 코드에서 잘못된 인수 수 또는 타입으로 Compact circuit를
+Compact 외부의 코드에서 잘못된 인수 수 또는 타입으로 Compact circuit을
 호출하려는 시도나, 부호 없는 값을 해당 값에 비해 너무 작은 부호 없는 타입으로
 캐스트하려는 시도 등 다양한 종류의 *동적 오류*를 감지합니다.
 이러한 오류는 생성된 코드가 실행될 때 보고되며 현재 circuit의
@@ -205,7 +205,7 @@ Compact는 어휘적 스코프를 사용하므로 각 바인딩의 스코프는
 - `for` 루프 헤더의 `const` 바인딩으로 정의된 식별자는 `for` 루프 전체에서 보입니다.
 
 식별자에 대한 모든 참조는 해당 식별자에 대한 바인딩의 스코프 내에 나타나야 합니다.
-이 경우 식별자는 해당 바인딩에 의해 식별자와 연결된 엔티티에 바인딩되었다고 말합니다.
+이 경우 식별자는 해당 바인딩이 식별자와 연결한 엔티티에 바인딩되었다고 말합니다.
 그렇지 않으면 참조는 정적 오류입니다.
 
 예를 들어:
@@ -224,7 +224,7 @@ circuit c(): Field {
 식별자 `c`는 `c`라는 이름의 circuit에 바인딩되며, 이 바인딩은
 컨트랙트 전체에서 보이지만, 예제에서 `c`에 대한 참조는 나타나지 않습니다.
 식별자 `answer`의 첫 번째(외부) 바인딩(값 `42`)은 내부 블록에서
-두 번째(내부) `answer` 바인딩에 의해 섀도잉되는 경우를 제외하고 `c`의 본문 전체에서
+두 번째(내부) `answer` 바인딩이 섀도잉하는 경우를 제외하고 `c`의 본문 전체에서
 보이므로, `return answer`의 `answer` 참조는 `42`로 평가됩니다.
 `answer`의 두 번째(내부) 바인딩(값 `42`)은 내부 블록 전체에서 보이므로,
 `answer != 42`의 `answer` 참조는 `12`로 평가됩니다.
@@ -249,12 +249,12 @@ ledger 필드 이름과 컨트랙트의 (복제된) public state에서 ledger �
 circuit 또는 constructor의 매개변수 바인딩은 circuit 또는
 constructor가 호출될 때 새 수명을 시작하고 circuit 또는
 constructor가 종료될 때 끝납니다.
-`const` 문에 의해 설정된 변수 바인딩은 `const` 문이 평가될 때 새 수명을
+`const` 문이 설정한 변수 바인딩은 `const` 문이 평가될 때 새 수명을
 시작하고 `const` 문을 포함하는 블록이 종료될 때 끝납니다.
-`for` 루프 헤더의 `const` 하위 형식에 의해 설정된 `const` 바인딩은
+`for` 루프 헤더의 `const` 하위 형식이 설정한 `const` 바인딩은
 루프의 각 반복에서 새 수명을 시작하고 해당 반복이 끝날 때 끝납니다.
 
-변수 바인딩은 여러 수명을 가질 수 있습니다. circuit가 여러 번
+변수 바인딩은 여러 수명을 가질 수 있습니다. circuit이 여러 번
 호출될 수 있고, 블록이 여러 번 평가될 수 있으며, `for` 루프가 여러 번
 평가되거나 여러 반복을 가질 수 있기 때문입니다.
 그러나 Compact의 변수는 불변입니다: 변수 바인딩의 전체 수명 동안
@@ -335,14 +335,14 @@ export circuit bar2(): Vector<3, [Boolean, Boolean]> {
 
 circuit `foo`의 본문은 모듈의 타입 매개변수 `T`와 `N` 그리고
 circuit 자체의 매개변수 `A`에 대해 제네릭입니다.
-모듈은 import 시점에서 특수화되고, circuit는 호출 시점에서
+모듈은 import 시점에서 특수화되고, circuit은 호출 시점에서
 (`bar1`과 `bar2` 모두에서) 특수화됩니다.
 
 ## Compact types {#compact-types}
 
 Compact는 *정적 타입*입니다: Compact 프로그램의 모든 표현식은 정적 타입을
 가져야 합니다.
-이름이 지정된 circuit와 witness의 경우, 매개변수와 반환 타입을
+이름이 지정된 circuit과 witness의 경우, 매개변수와 반환 타입을
 명시적으로 선언해야 합니다.
 익명 circuit 표현식의 경우, 매개변수와 반환 타입을 선언할 필요가 없지만
 선언할 수 있습니다.
@@ -663,7 +663,7 @@ new type VField<#N> = Vector<N, Field>;
 타입 주석이 있는 `const` 바인딩 문은 타입 주석의 서브타입인 타입의
 표현식으로 값을 줄 수 있습니다.
 
-서브타이핑은 다음 규칙에 의해서만 정의됩니다:
+서브타이핑은 다음 규칙으로만 정의합니다:
 
 - 모든 타입 *T*는 자기 자신의 서브타입입니다(서브타이핑은 반사적)
 - *n*이 *m*보다 작거나 같으면 `Uint<0..`*n*`>`은 `Uint<0..`*m*`>`의 서브타입입니다
@@ -782,7 +782,7 @@ circuit sumStruct({y, x}: S): Uint<64> {
 }
 ```
 
-기본적으로 패턴에 의해 바인딩되는 이름은 구조체 요소의 이름과 동일합니다.
+기본적으로 패턴이 바인딩하는 이름은 구조체 요소의 이름과 동일합니다.
 이것이 편리하지 않을 때, 구조체 요소에 대해 다른 이름을 선택할 수 있습니다:
 
 ```compact
@@ -897,7 +897,7 @@ Compact 프로그램은 0개 이상의 프로그램 요소의 시퀀스입니다
 - [witness 선언](#declaring-witnesses-for-private-state-management)은 DApp이 제공하는 콜백 함수인 witness를 선언합니다.
 - [ledger 선언](#declaring-and-maintaining-public-state)은 컨트랙트의 public state의 한 필드를 선언합니다.
 - [constructor 정의](#contract-constructor)는 컨트랙트의 constructor를 정의합니다(있는 경우).
-- [circuit 정의](#circuit-definitions)는 circuit를 정의합니다.
+- [circuit 정의](#circuit-definitions)는 circuit을 정의합니다.
 
 프로그램이나 모듈에서 프로그램 요소의 순서는 중요하지 않습니다.
 단, 모듈은 해당 모듈의 import 이전에 정의되어야 하며,
@@ -961,7 +961,7 @@ Compact에서 모듈은 네임스페이스 관리와 프로그램을 여러 파�
 
 모듈 정의는 *module-name*에서 모듈까지의 바인딩을 모듈 정의를 포함하는
 프로그램이나 모듈에서 보이게 만듭니다.
-모듈 내의 프로그램 요소에 의해 설정된 바인딩은 보이게 만들어지지 않습니다.
+모듈 내의 프로그램 요소가 설정한 바인딩은 보이게 만들어지지 않습니다.
 적어도 모듈이 import될 때까지는 그렇습니다.
 
 모듈은 [제네릭 매개변수](#generic-parameters-and-arguments)를 가질 수 있으며,
@@ -969,7 +969,7 @@ Compact에서 모듈은 네임스페이스 관리와 프로그램을 여러 파�
 
 ### Export {#exports}
 
-기본적으로 모듈 본문 내의 프로그램 요소에 의해 생성된 식별자 바인딩은
+기본적으로 모듈 본문 내의 프로그램 요소가 생성한 식별자 바인딩은
 모듈 내에서만 보입니다. 즉, 모듈에서 export되지 않습니다.
 모듈의 최상위에서 정의되거나 import된 식별자는 두 가지 방법 중 하나로
 모듈에서 export할 수 있습니다: (1) 정의 앞에 `export` 키워드를 붙이거나,
@@ -1153,7 +1153,7 @@ export { M1$F, M2$F, M3$F };
 
 Compact의 표준 라이브러리는 `import CompactStandardLibrary`로 import할 수 있습니다.
 표준 라이브러리는 `Counter`, `Map`, `MerkleTree` 등의 ledger 상태 타입과 함께
-유용한 타입과 circuit를 정의합니다.
+유용한 타입과 circuit을 정의합니다.
 
 ### Top-level exports {#top-level-exports}
 
@@ -1163,13 +1163,13 @@ Compact의 표준 라이브러리는 `import CompactStandardLibrary`로 import�
 TypeScript 드라이버에서 보이게 됩니다.
 
 컨트랙트의 최상위(단순히 모듈에서 export된 것이 아닌)에서 export된
-circuit는 컨트랙트의 진입점입니다.
+circuit은 컨트랙트의 진입점입니다.
 (Compact 프로그램에는 "main" 진입점이 없지만, 공통 저장소를 공유하는
 여러 진입점을 포함하는 라이브러리와 더 유사합니다.)
 [함수 오버로딩](#circuit-and-witness-calls)을 지원하기 위해 일반적으로 같은 이름의
-여러 circuit가 허용되지만, 같은 이름의 circuit가 최상위에서 두 개 이상
+여러 circuit이 허용되지만, 같은 이름의 circuit이 최상위에서 두 개 이상
 export되면 정적 오류입니다.
-제네릭 매개변수가 있는 제네릭 circuit가 최상위에서 export되는 것도 정적 오류입니다.
+제네릭 매개변수가 있는 제네릭 circuit이 최상위에서 export되는 것도 정적 오류입니다.
 
 메인 파일의 최상위에서 export된 프로그램 정의 타입은 witness와 export된
 circuit의 인수 및 반환 타입을 설명하는 데 사용할 수 있습니다.
@@ -1216,8 +1216,8 @@ Compact는 프로그램과 모듈을 여러 파일로 분할하고 `include` 형
 
 ## Declaring witnesses for private state management {#declaring-witnesses-for-private-state-management}
 
-사용자의 private state는 스마트 컨트랙트의 TypeScript 드라이버에 의해
-안전한 방식으로 유지되어야 하며, 컨트랙트의 public state에 직접 저장해서는
+사용자의 private state는 스마트 컨트랙트의 TypeScript 드라이버가
+안전하게 관리해야 하며, 컨트랙트의 public state에 직접 저장해서는
 안 됩니다.
 그러나 컨트랙트는 때때로 private state의 일부에 대해 무언가를 proof해야
 하며, private state에 대한 업데이트를 유발해야 합니다.
@@ -1226,7 +1226,7 @@ Compact는 프로그램과 모듈을 여러 파일로 분할하고 `include` 형
 인수를 통해 private state의 일부를 컨트랙트에 제공할 수 있으며,
 export된 circuit의 반환 값에 기반하여 private state를 업데이트할 수 있습니다.
 
-circuit는 연산 중에 *witness*를 통해 private state에 접근하거나
+circuit은 연산 중에 *witness*를 통해 private state에 접근하거나
 업데이트할 수도 있습니다.
 witness는 TypeScript 드라이버가 제공하는 콜백 함수입니다.
 
@@ -1474,9 +1474,9 @@ export circuit readNestedCounter2(b: Boolean, n: Field): Uint<64> {
 모든 ledger 필드는 ledger 필드 선언 앞에 선택적 수정자 `sealed`을
 붙여 *봉인*으로 표시할 수 있습니다.
 봉인된 필드는 컨트랙트 초기화 중에만 설정할 수 있습니다. 즉, 값은
-contract constructor(있는 경우)에 의해서만 수정할 수 있으며,
+contract constructor(있는 경우)만 수정할 수 있으며,
 constructor 본문 내에서 직접 또는 constructor가 호출하는
-헬퍼 circuit를 통해서만 수정할 수 있습니다.
+헬퍼 circuit을 통해서만 수정할 수 있습니다.
 `sealed` 키워드는 `export` 키워드(있는 경우) 뒤에, `ledger` 키워드 앞에
 와야 합니다. 다음 예와 같이:
 
@@ -1494,8 +1494,8 @@ constructor(x: Uint<16>) {
 }
 ```
 
-봉인된 ledger 필드가 export된 circuit에서 도달 가능한 코드에 의해
-업데이트되면 정적 오류입니다.
+봉인된 ledger 필드가 export된 circuit에서 도달 가능한 코드가
+업데이트하면 정적 오류입니다.
 
 ## Contract constructor {#contract-constructor}
 
@@ -1515,7 +1515,7 @@ witness 호출을 통해 private state를 초기화하는 데에도 사용할 �
 컨트랙트에 대해 최대 하나의 constructor를 정의할 수 있으며,
 프로그램 최상위에만 나타나야 합니다. 즉, 모듈 내에서 정의할 수 없습니다.
 모듈 내에서만 보이는 ledger 필드를 초기화하려면 constructor가
-모듈에서 export된 circuit를 호출할 수 있습니다.
+모듈에서 export된 circuit을 호출할 수 있습니다.
 예를 들어:
 
 ```compact
@@ -1547,13 +1547,13 @@ constructor의 반환 타입은 항상 `[]`입니다.
 ## Circuit definitions {#circuit-definitions}
 
 Compact의 기본 운영 요소는 *circuit*입니다.
-이는 대부분의 언어에서 함수와 밀접하게 대응하지만 영지식 circuit로
+이는 대부분의 언어에서 함수와 밀접하게 대응하지만 영지식 circuit으로
 컴파일할 수 있도록 설계되었습니다.
-함수와 비교하여 circuit의 주요 제한은 circuit가
+함수와 비교하여 circuit의 주요 제한은 circuit이
 직접적으로든 간접적으로든 재귀적일 수 없다는 것입니다.
 
-Compact는 두 종류의 circuit를 지원합니다: 명명된 circuit와 익명 circuit.
-명명된 circuit는 여기에서 설명하고, 익명 circuit는
+Compact는 두 종류의 circuit을 지원합니다: 명명된 circuit과 익명 circuit.
+명명된 circuit은 여기에서 설명하고, 익명 circuit은
 [Circuit 및 witness 호출](#circuit-and-witness-calls)에서 설명합니다.
 
 명명된 circuit 정의는 다음 구문을 가집니다:
@@ -1567,19 +1567,19 @@ Compact는 두 종류의 circuit를 지원합니다: 명명된 circuit와 익명
 circuit 정의는 *function-name*을 주어진 매개변수, 반환 타입, 본문을 가진
 circuit에 바인딩합니다.
 선택적 `export` 수정자는 circuit 바인딩이 포함하는 모듈이나
-circuit가 모듈 외부에서 정의된 경우 프로그램 자체에서 export되어야 함을 나타냅니다.
+circuit이 모듈 외부에서 정의된 경우 프로그램 자체에서 export되어야 함을 나타냅니다.
 선택적 `pure` 수정자는
-[circuit가 순수](#pure-and-impure-circuits)함을 나타냅니다.
+[circuit이 순수](#pure-and-impure-circuits)함을 나타냅니다.
 
 제네릭 매개변수가 있으면(*gparams*가 존재하고 비어 있지 않으면),
-circuit는 [제네릭](#generic-parameters-and-arguments)이며 호출 시점에서
+circuit은 [제네릭](#generic-parameters-and-arguments)이며 호출 시점에서
 특수화(제네릭 인수 제공)되어야 합니다.
 
-circuit는 0개 이상의 매개변수를 취할 수 있습니다.
+circuit은 0개 이상의 매개변수를 취할 수 있습니다.
 매개변수는 모두 인수 값의 선택된 부분에 바인딩될 식별자를 포함하는
 [패턴](#patterns-and-destructuring)입니다.
 가장 간단한 경우, 패턴은 식별자이며 인수 값 전체에 바인딩됩니다.
-매개변수에 의해 설정된 바인딩은 circuit의 본문을 구성하는
+매개변수가 설정한 바인딩은 circuit의 본문을 구성하는
 *블록* 내에서(그리고 그 안에서만) 보입니다.
 각 매개변수에는 명시적 타입 주석이 있어야 하며, circuit에 대한 모든 호출
 시점에서 해당 인수 표현식의 타입은 해당 타입의 서브타입이어야 합니다.
@@ -1594,37 +1594,37 @@ circuit sumStruct({x, y}: S): Uint<64> {
 }
 ```
 
-패턴 `{x, y}`에 의해 `x`에 대해 설정된 변수 바인딩은 `Uint<16>` 타입을 가지고,
+패턴 `{x, y}`가 `x`에 대해 설정한 변수 바인딩은 `Uint<16>` 타입을 가지고,
 `y`에 대한 변수 바인딩은 `Uint<32>` 타입을 가집니다.
 
 모든 명명된 circuit의 반환 타입은 명시적으로 선언되어야 하며,
-circuit가 해당 타입의 서브타입이 아닌 값을 반환할 수 있으면 정적 오류입니다.
+circuit이 해당 타입의 서브타입이 아닌 값을 반환할 수 있으면 정적 오류입니다.
 
-본문은 circuit가 호출될 때마다 평가됩니다.
+본문은 circuit이 호출될 때마다 평가됩니다.
 
 ### Pure and impure circuits {#pure-and-impure-circuits}
 
-Compact circuit는 public state(ledger를 통해) 또는 private state(witness를 통해)를
+Compact circuit은 public state(ledger를 통해) 또는 private state(witness를 통해)를
 참조하거나 수정하지 않고 입력에서 출력을 계산하면 *순수*로 간주됩니다.
 실제로, 컴파일러는 circuit의 본문에 ledger 연산, 비순수
 circuit에 대한 호출, 또는 witness 호출이 포함되어 있으면
 비순수로 간주합니다.
 
-`CompactStandardLibrary`에 정의된 일부 외부 circuit는 witness이며,
+`CompactStandardLibrary`에 정의된 일부 외부 circuit은 witness이며,
 이에 대한 호출은 호출자를 비순수로 만듭니다. 나머지는 순수로 간주되므로
 이에 대한 호출은 호출자를 비순수로 만들지 않습니다.
 
 Compact 프로그램은 circuit 정의 앞에 `pure` 수정자를 붙여
-circuit가 순수하다고 선언할 수 있습니다. `pure` 수정자는 존재하는 경우
+circuit이 순수하다고 선언할 수 있습니다. `pure` 수정자는 존재하는 경우
 `export` 수정자 뒤에 와야 합니다. 예:
 
 `pure circuit c(a: Field): Field { `...` }`
 
 `export pure circuit c(a: Field): Field { `...` }`
 
-`pure` 수정자의 유일한 효과는 컴파일러의 자체 분석에서 circuit가
+`pure` 수정자의 유일한 효과는 컴파일러의 자체 분석에서 circuit이
 실제로 비순수하다고 판단하면 선언을 오류로 플래그하는 것입니다.
-pure 수정자를 통해 애플리케이션은 circuit가 `PureCircuits` 타입 선언과
+pure 수정자를 통해 애플리케이션은 circuit이 `PureCircuits` 타입 선언과
 Compact 컴파일러가 (올바른) Compact 프로그램에 대해 생성하는 TypeScript 모듈의
 `pureCircuits` 상수에 있는지 확인할 수 있습니다.
 
@@ -1646,8 +1646,8 @@ Compact 컴파일러가 (올바른) Compact 프로그램에 대해 생성하는 
 항상 블록입니다.
 익명 circuit의 화살표 오른쪽은 블록이나 표현식일 수 있습니다.
 
-블록 내의 문장은 중첩된 스코프를 차지합니다: 블록 내의 `const` 문에 의해
-생성된 변수 바인딩은 블록 외부에서 보이지 않으며, 블록 외부에 있는
+블록 내의 문장은 중첩된 스코프를 차지합니다: 블록 내의 `const` 문이
+생성한 변수 바인딩은 블록 외부에서 보이지 않으며, 블록 외부에 있는
 같은 이름의 식별자 바인딩을 섀도잉할 수 있습니다.
 
 블록 내의 문장이 올바르게 타입이 지정되면 블록은 올바르게 타입이 지정됩니다.
@@ -1748,7 +1748,7 @@ circuit foo(): [Uint<64>, Uint<64>] {
 }
 ```
 
-섀도잉되는 경우를 제외하고, `const` 문에 의해 바인딩된 각 변수의 스코프는
+섀도잉되는 경우를 제외하고, `const` 문이 바인딩한 각 변수의 스코프는
 `const` 문을 포함하는 가장 안쪽 블록 전체입니다.
 그러나 바인딩이 주어지기 전에 참조해서는 안 됩니다.
 그렇게 하려는 시도는 정적 오류입니다.
@@ -1769,8 +1769,8 @@ circuit foo(a: Uint<16>): Field {
 const y = x, x = 7;
 ```
 
-`const` 문은 *cbinding* 하위 형식을 순서대로 평가하여 각 *cbinding*에 의해
-값이 주어진 변수가 뒤따르는 cbinding에서 참조할 수 있도록 합니다.
+`const` 문은 *cbinding* 하위 형식을 순서대로 평가하여 각 *cbinding*이
+값을 부여한 변수가 뒤따르는 cbinding에서 참조할 수 있도록 합니다.
 
 각 *cbinding*의 평가는 `=` 오른쪽 표현식의 값 *v*를 결정한 다음,
 [패턴과 구조 분해](#patterns-and-destructuring)에서 설명한 대로
@@ -1808,8 +1808,8 @@ const y = x, x = 7;
 Compact에서는 대부분의 언어와 달리 반복 횟수를 항상 컴파일 타임에
 결정할 수 있습니다.
 즉, 반복 횟수는 상수 숫자 바운드 또는 상수 크기 객체의 크기로 바운드됩니다.
-이 제한은 컴파일러가 유한한 proving circuit를 생성해야 하는
-필요에 의해 동기 부여됩니다.
+이 제한은 컴파일러가 유한한 proving circuit을 생성해야 한다는
+요구에서 비롯됩니다.
 
 Compact는 두 종류의 `for` 문을 지원합니다.
 첫 번째는 벡터, 튜플, 바이트 벡터를 순회하며 다음 형식을 취합니다:
@@ -2237,10 +2237,10 @@ Compact는 *e*`[`*index*`]` 구문을 통해 시퀀스 값(튜플, 벡터, 바�
 
 *e*의 타입은 시퀀스 타입, 즉 튜플 타입, 벡터 타입, 또는 Bytes 타입이어야 합니다.
 *index*의 타입은 모든 *n*에 대해 `Uint<`*n*`>`이어야 합니다.
-*index*의 최종 상수 값은 타입에 의해 결정되는 시퀀스 값의 길이보다 작아야 합니다.
+*index*의 최종 상수 값은 타입이 정하는 시퀀스 값의 길이보다 작아야 합니다.
 이러한 제약 조건 중 하나라도 위반하면 정적 오류입니다.
 
-*index*의 부호 없는 정수 값은 다음 규칙에 의해 컴파일 타임에 계산 가능해야 하며,
+*index*의 부호 없는 정수 값은 다음 규칙에 따라 컴파일 타임에 계산할 수 있어야 하며,
 그렇지 않으면 정적 오류입니다.
 - 모든 *index*는 상수, 즉 숫자 리터럴이거나 제네릭 자연수 매개변수 참조일 수 있습니다.
 - *e*의 타입이 [벡터 타입을 가지는](#subtyping-and-least-upper-bounds) 튜플 타입이면,
@@ -2347,7 +2347,7 @@ circuit f(x: Uint<32>, y: Boolean, z: Bytes<8>): S {
 
 ### Circuit and witness calls {#circuit-and-witness-calls}
 
-circuit와 witness(통칭 함수)는
+circuit과 witness(통칭 함수)는
 *fun*`(`*e*, ..., *e*`)` 형식의 표현식을 통해 호출됩니다. 여기서 *fun*은 함수
 표현식이고 *e*, ..., *e*는 0개 이상의 쉼표로 구분된 인수 표현식의 시퀀스입니다.
 
@@ -2364,20 +2364,20 @@ circuit와 witness(통칭 함수)는
 | *return-type*          | &xrarr; | `:` [*type*](#primitive-types)                                                                                                                       |
 </div>
 
-가장 간단한 형태에서 *fun*은 witness 또는 명명된 circuit를 참조하는
+가장 간단한 형태에서 *fun*은 witness 또는 명명된 circuit을 참조하는
 식별자 *id*입니다.
-*id*가 제네릭 witness 또는 circuit를 참조하면 제네릭 매개변수를 통해
+*id*가 제네릭 witness 또는 circuit을 참조하면 제네릭 매개변수를 통해
 완전히 특수화되어야 합니다.
 
 *fun*은 *화살표 circuit*라고도 하는 *익명 circuit*일 수도 있습니다.
 이 형태는 매개변수 목록 다음에 선택적 반환 타입 `:` *type*,
 화살표(`=>`), 블록이나 *expr*인 본문으로 구성됩니다.
 
-circuit와 witness는 일급이 아니므로 *fun*은 변수 이름이나
+circuit과 witness는 일급이 아니므로 *fun*은 변수 이름이나
 임의의 표현식이 될 수 없습니다.
 
-익명 circuit는 제네릭 매개변수를 가질 수 없습니다.
-직접 호출되는 컨텍스트에서만 나타나므로, circuit를 즉시 특수화해야 하며,
+익명 circuit은 제네릭 매개변수를 가질 수 없습니다.
+직접 호출되는 컨텍스트에서만 나타나므로, circuit을 즉시 특수화해야 하며,
 이 경우 하나의 특수화만 존재할 수 있어 비제네릭 버전이 더 명확합니다.
 
 함수 호출의 타입 검사는 기본 함수의 형태에 따라 달라집니다.
@@ -2399,7 +2399,7 @@ circuit와 witness는 일급이 아니므로 *fun*은 변수 이름이나
     타입으로 추론됩니다.
 
 호출은 인수 표현식을 왼쪽에서 오른쪽으로 순서대로 평가하여 평가됩니다.
-그런 다음 circuit가 호출되면 circuit 본문의 문장이 매개변수 이름을
+그런 다음 circuit이 호출되면 circuit 본문의 문장이 매개변수 이름을
 해당 인수 값에 바인딩하여 실행됩니다. circuit 호출의 값은 본문 실행에서
 반환된 값입니다. witness가 호출되면 컨트랙트는 외부에서 제공된
 witness 함수를 인수 값으로 호출합니다. witness 호출의 값은
@@ -2776,7 +2776,7 @@ Compact 컴파일러 버전 1.0은 특정 데이터 타입 값과 크기를 제�
 
 - `Field` 값의 최대값은
 52435875175126190479447740508185965837690552500527637822603658699938581184512입니다.
-이 값은 ZK proving 시스템의 스칼라 필드 크기에 의해 결정됩니다.
+이 값은 ZK proving 시스템의 스칼라 필드 크기가 정합니다.
 - `Uint` 값의 최대값은
 452312848583266388373324160190187140051835877600158453279131187530910662655입니다.
 이 값은 256<sup>k</sup>-1이며 여기서 *k*는 `Field`에 맞는 바이트 수(31)입니다.

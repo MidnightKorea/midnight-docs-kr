@@ -83,7 +83,7 @@ Compact는 모든 데이터를 기본적으로 비공개로 취급하지만, 일
 
 ### Access control
 
-Midnight 블록체인 같은 개방형 공개 시스템에서 스마트 컨트랙트를 개발할 때 중요한 요소 중 하나가 circuit 접근 제어입니다. 컨트랙트를 블록체인에 배포하는 순간, 그 circuit는 사실상 *누구나* 호출할 수 있는 공개 API가 됩니다. 안전한 Compact contract라면 특정 사용자나 특정 유형의 사용자만 쓰도록 만든 circuit의 접근을 보호해야 합니다.
+Midnight 블록체인 같은 개방형 공개 시스템에서 스마트 컨트랙트를 개발할 때 중요한 요소 중 하나가 circuit 접근 제어입니다. 컨트랙트를 블록체인에 배포하는 순간, 그 circuit은 사실상 *누구나* 호출할 수 있는 공개 API가 됩니다. 안전한 Compact contract라면 특정 사용자나 특정 유형의 사용자만 쓰도록 만든 circuit의 접근을 보호해야 합니다.
 
 ## Compact tutorial
 
@@ -163,7 +163,7 @@ constructor (partySize: Uint<16>, fee: Uint<16>, _secret: Bytes<32>) {
 }// constructor 끝
 ```
 
-파티가 시작되기 전에 참석자는 참석 의사를 RSVP로 알려야 합니다. 이를 비공개로 처리하는 circuit를 다음과 같이 구현합니다:
+파티가 시작되기 전에 참석자는 참석 의사를 RSVP로 알려야 합니다. 이를 비공개로 처리하는 circuit을 다음과 같이 구현합니다:
 ```compact
 export circuit rsvp(_address: UserAddress, _secret: Bytes<32>): [] {
     const pubKey = getDappPublicKey(_secret);
@@ -177,7 +177,7 @@ export circuit rsvp(_address: UserAddress, _secret: Bytes<32>): [] {
 }// rsvp 끝
 ```
 
-`getDappPublicKey()` circuit는 organizer와 참석자 모두가 privacy를 유지하는 고유 식별자를 만드는 데 그대로 사용할 수 있습니다. 이 circuit에 전달하는 `_secret`이 다르면 반환되는 해시도 달라집니다.
+`getDappPublicKey()` circuit은 organizer와 참석자 모두가 privacy를 유지하는 고유 식별자를 만드는 데 그대로 사용할 수 있습니다. 이 circuit에 전달하는 `_secret`이 다르면 반환되는 해시도 달라집니다.
 
 organizer가 자기 파티에 참석하려는 것이 아닌지 `assert`로 확인한 다음, 컨트랙트가 RSVP를 받을 수 있는 올바른 상태인지 검증합니다.
 
@@ -191,7 +191,7 @@ organizer가 자기 파티에 참석하려는 것이 아닌지 `assert`로 확�
 }// rsvp 끝
 ```
 
-이 패턴에서 circuit 호출자는 제공한 주소를 자신의 secret과 묶어 이 값들에 대한 암호학적 commitment를 만듭니다. `commitAddress()` circuit는 뒤에서 작성하는데, 이 circuit를 사용하면 원본 값들의 privacy를 유지하면서 해시는 공개로 저장할 수 있고, 나중에 이 값들을 다시 확인할 수도 있습니다.
+이 패턴에서 circuit 호출자는 제공한 주소를 자신의 secret과 묶어 이 값들에 대한 암호학적 commitment를 만듭니다. `commitAddress()` circuit은 뒤에서 작성하는데, 이 circuit을 사용하면 원본 값들의 privacy를 유지하면서 해시는 공개로 저장할 수 있고, 나중에 이 값들을 다시 확인할 수도 있습니다.
 
 이 circuit에서 마지막으로 할 일은 리스트가 가득 찼을 때 자동으로 상태를 전환하는 것입니다:
 ```compact
@@ -202,7 +202,7 @@ organizer가 자기 파티에 참석하려는 것이 아닌지 `assert`로 확�
 }// rsvp 끝
 ```
 
-RSVP circuit가 동작하게 되었으니, 이제 organizer가 파티를 시작할 수 있는 기능을 추가합니다:
+RSVP circuit이 동작하게 되었으니, 이제 organizer가 파티를 시작할 수 있는 기능을 추가합니다:
 ```compact
 export circuit startParty(_secret: Bytes<32>): [] {
     const pubKey = getDappPublicKey(_secret);
@@ -214,9 +214,9 @@ export circuit startParty(_secret: Bytes<32>): [] {
 }// startParty 끝
 ```
 
-이 circuit는 호출자의 `pubKey`를 식별하고, 앞서 저장한 organizer의 public key와 일치하는지 확인한 뒤, 컨트랙트 상태가 두 가지 허용 값 중 하나인지 검사하고 나서 상태를 갱신합니다. 컨트랙트 상태가 바뀌면 참석자가 파티에 check-in할 수 있습니다.
+이 circuit은 호출자의 `pubKey`를 식별하고, 앞서 저장한 organizer의 public key와 일치하는지 확인한 뒤, 컨트랙트 상태가 두 가지 허용 값 중 하나인지 검사하고 나서 상태를 갱신합니다. 컨트랙트 상태가 바뀌면 참석자가 파티에 check-in할 수 있습니다.
 
-`checkIn` circuit를 작성합니다:
+`checkIn` circuit을 작성합니다:
 ```compact
 export circuit checkIn(address: UserAddress, _secret: Bytes<32>): [] {
     // 상태 검증 검사
@@ -232,9 +232,9 @@ export circuit checkIn(address: UserAddress, _secret: Bytes<32>): [] {
 }// checkIn 끝
 ```
 
-이 circuit는 이미 RSVP한 참석자만 호출하도록 만들어졌으며, `hashedPartyGoers` 리스트에 있는 사람으로 접근을 제한합니다. 호출자가 이 리스트에 없거나 RSVP 때와 다른 `address` 또는 `_secret`을 제공하면, 그 호출은 호출자 검증을 통과하지 못합니다.
+이 circuit은 이미 RSVP한 참석자만 호출하도록 만들어졌으며, `hashedPartyGoers` 리스트에 있는 사람으로 접근을 제한합니다. 호출자가 이 리스트에 없거나 RSVP 때와 다른 `address` 또는 `_secret`을 제공하면, 그 호출은 호출자 검증을 통과하지 못합니다.
 
-`commitAddress()` circuit는 단방향 결정론적 해시 함수를 사용합니다. 호출자가 이전에 저장된 그 호출자임을 증명하려면 같은 값을 다시 제공해야 하고, 이 값들이 다시 해싱됩니다. 호출자가 같은 값을 제공했다면 두 해시는 일치합니다.
+`commitAddress()` circuit은 단방향 결정론적 해시 함수를 사용합니다. 호출자가 이전에 저장된 그 호출자임을 증명하려면 같은 값을 다시 제공해야 하고, 이 값들이 다시 해싱됩니다. 호출자가 같은 값을 제공했다면 두 해시는 일치합니다.
 
 호출자를 식별했고 상태도 기대한 대로이니, 이제 컨트랙트가 결제를 받을 차례입니다. 파티 입장료는 NIGHT으로 결제하며, NIGHT은 Unshielded token입니다. Unshielded token 거래는 모두 공개됩니다.
 
@@ -272,7 +272,7 @@ export circuit closeEntry(_secret: Bytes<32>): [] {
 }// closeEntry 끝
 ```
 
-컨트랙트는 받은 NIGHT token을 organizer가 청구할 때까지 보관합니다. 이제 organizer가 이 입장료를 청구할 수 있는 circuit가 필요합니다:
+컨트랙트는 받은 NIGHT token을 organizer가 청구할 때까지 보관합니다. 이제 organizer가 이 입장료를 청구할 수 있는 circuit이 필요합니다:
 ```compact
 export circuit claimFees(address: UserAddress, _secret: Bytes<32>): [] {
     const pubKey = getDappPublicKey(_secret);
@@ -296,7 +296,7 @@ export circuit claimFees(address: UserAddress, _secret: Bytes<32>): [] {
 }
 ```
 
-이 circuit는 앞의 circuit들과 구성이 비슷하지만, 토큰을 organizer에게 보내기 전에 사용 가능한 잔액을 계산한다는 점이 다릅니다. `sendUnshielded()` 함수를 거치면서 organizer도 공개됩니다.
+이 circuit은 앞의 circuit들과 구성이 비슷하지만, 토큰을 organizer에게 보내기 전에 사용 가능한 잔액을 계산한다는 점이 다릅니다. `sendUnshielded()` 함수를 거치면서 organizer도 공개됩니다.
 
 `unshieldedBalanceGte()`로 컨트랙트 잔액이 기대한 값인지 확인하는 일은 중요합니다. 잔액이 `sendUnshielded()` 트랜잭션을 수행하기에 부족하면 circuit 실행이 실패합니다.
 
@@ -307,7 +307,7 @@ circuit commitAddress(_address: Bytes<32>, _secret: Bytes<32>): Bytes<32> {
 }
 ```
 
-이 circuit는 `persistentCommit`으로 `_address`를 가립니다. `_address`는 무작위 salt 값, 여기서는 `_secret`과 함께 해싱됩니다. `persistentCommit`의 입력은 쉽게 추측할 수 있는 단순한 값일 수 있으므로, 충분히 무작위적인 salt 값을 항상 사용해야 합니다. salt가 충분히 무작위적이라면 반환된 해시는 공개 영역으로 넘어가기 전에 `disclose()`를 거칠 필요가 없습니다. 이미 안전하다고 간주되기 때문입니다.
+이 circuit은 `persistentCommit`으로 `_address`를 가립니다. `_address`는 무작위 salt 값, 여기서는 `_secret`과 함께 해싱됩니다. `persistentCommit`의 입력은 쉽게 추측할 수 있는 단순한 값일 수 있으므로, 충분히 무작위적인 salt 값을 항상 사용해야 합니다. salt가 충분히 무작위적이라면 반환된 해시는 공개 영역으로 넘어가기 전에 `disclose()`를 거칠 필요가 없습니다. 이미 안전하다고 간주되기 때문입니다.
 
 이제 `getDappPublicKey()` circuit입니다:
 ```compact

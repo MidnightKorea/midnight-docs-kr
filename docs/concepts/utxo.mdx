@@ -48,7 +48,7 @@ Transaction {
 
 ### UTXOs are indivisible
 
-이것은 단순한 설계 선택이 아니라 모델의 핵심 속성입니다. 각 UTXO는 완전한 단위로 처리됩니다:
+이는 단순한 설계 선택이 아니라 모델의 핵심 속성입니다. 각 UTXO는 완전한 단위로 처리됩니다:
 
 ```solidity
 // UTXO 시스템에서 이것은 불가능:
@@ -64,7 +64,7 @@ Transaction {
 }
 ```
 
-이 분할 불가능성은 원자적 트랜잭션, 병렬 처리, 그리고 Midnight의 shielded 토큰 지원을 가능하게 합니다.
+분할할 수 없다는 이 성질 덕분에 원자적 트랜잭션, 병렬 처리, Midnight의 shielded 토큰 지원이 성립합니다.
 
 ### The nullifier set in Midnight
 
@@ -148,7 +148,7 @@ Account 잔액이 언뜻 더 단순해 보일 수 있습니다. 실제로 UTXO �
 
 ### Parallelism as a model property
 
-UTXO 모델은 병렬성을 자연스럽게 가능하게 합니다:
+UTXO 모델에서는 병렬 처리가 자연스럽게 성립합니다:
 
 ```solidity
 // Account 모델: 강제 순차 처리
@@ -164,7 +164,7 @@ Tx2: UTXO_B (30 NIGHT) 소비 → Carol에게 전송
 // 이유? 완전히 독립적인 객체에 접근
 ```
 
-이것은 사소한 최적화가 아닙니다. 고처리량 시나리오에서 이 아키텍처 차이는 처리량을 실질적으로 향상시킬 수 있습니다.
+이는 사소한 최적화가 아닙니다. 고처리량 시나리오에서 이 아키텍처 차이는 처리량을 실질적으로 향상시킬 수 있습니다.
 
 ### Privacy built into the foundation
 
@@ -182,7 +182,7 @@ AliceAccount: {
 UTXO_1: { value: 100, owner: AddressA }  // 급여 수령용
 UTXO_2: { value: 50, owner: AddressB }   // 온라인 쇼핑용
 UTXO_3: { value: 25, owner: AddressC }   // 기부용
-// 차폐 및 비차폐 token UTXO를 필요에 따라 사용 가능
+// shielded 및 unshielded 토큰 UTXO를 필요에 따라 사용 가능
 ```
 
 Midnight에서 토큰 UTXO는 shielded 또는 unshielded가 될 수 있어, account별이 아닌 트랜잭션별로 프라이버시를 선택할 수 있습니다.

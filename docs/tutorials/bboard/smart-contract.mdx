@@ -166,7 +166,7 @@ constructor() {
 
 ### Declare the witness function
 
-circuit를 정의하기 전에 witness 함수를 선언합니다:
+circuit을 정의하기 전에 witness 함수를 선언합니다:
 
 ```compact
 // ... 이전 코드 ...
@@ -180,11 +180,11 @@ witness localSecretKey(): Bytes<32>;
 - `localSecretKey`는 사용자 비밀 키의 32바이트 값을 반환합니다.
 - 반환 값은 기본적으로 private이며 온체인이나 공개 ledger 상태에 나타나지 않습니다.
 
-Witness를 통해 프라이버시를 보호하면서 계산을 수행할 수 있습니다. private 상태 접근이나 값 생성 같은 모든 계산이 가능하며, circuit가 증명 생성에 사용할 결과를 반환합니다.
+Witness를 통해 프라이버시를 보호하면서 계산을 수행할 수 있습니다. private 상태 접근이나 값 생성 같은 모든 계산이 가능하며, circuit이 증명 생성에 사용할 결과를 반환합니다.
 
 ### Create the post circuit
 
-`post` circuit는 사용자가 빈 게시판에 메시지를 게시할 수 있게 합니다:
+`post` circuit은 사용자가 빈 게시판에 메시지를 게시할 수 있게 합니다:
 
 ```compact
 // ... 이전 코드 ...
@@ -197,10 +197,10 @@ export circuit post(newMessage: Opaque<'string'>): [] {
 }
 ```
 
-이 circuit는 다음 작업을 순서대로 처리합니다:
+이 circuit은 다음 작업을 순서대로 처리합니다:
 
 - **게시판 상태 검증**: `assert(state == State.VACANT, ...)`로 게시판이 비어 있을 때만 게시할 수 있도록 합니다.
-- **commitment 생성**: `publicKey()` 헬퍼 circuit를 호출하여 비밀 키와 현재 시퀀스 번호로 암호학적 commitment를 생성합니다. 이를 통해 원래 게시자만 메시지를 제거할 수 있습니다.
+- **commitment 생성**: `publicKey()` 헬퍼 circuit을 호출하여 비밀 키와 현재 시퀀스 번호로 암호학적 commitment를 생성합니다. 이를 통해 원래 게시자만 메시지를 제거할 수 있습니다.
 - **Disclose**: commitment를 `disclose()`로 래핑하여 이 값을 온체인에 공개해도 안전하다고 컴파일러에 알립니다.
 - **메시지 저장**: `message`를 `some(newMessage)`로 설정하고 명시적으로 공개하기 위해 `disclose()`로 래핑합니다.
 - **상태 업데이트**: `state = State.OCCUPIED`로 변경하여 게시판이 점유되었음을 표시합니다.
@@ -214,7 +214,7 @@ export circuit post(newMessage: Opaque<'string'>): [] {
 
 ### Create the takeDown circuit
 
-`takeDown` circuit는 사용자가 자신의 메시지를 제거할 수 있게 합니다:
+`takeDown` circuit은 사용자가 자신의 메시지를 제거할 수 있게 합니다:
 
 ```compact
 // ... 이전 코드 ...
@@ -230,7 +230,7 @@ export circuit takeDown(): Opaque<'string'> {
 }
 ```
 
-이 circuit는 다음 작업을 순서대로 처리합니다:
+이 circuit은 다음 작업을 순서대로 처리합니다:
 
 - **게시판 상태 검증**: 제거를 시도하기 전에 게시판이 점유되어 있는지 확인합니다
 - **commitment 재생성**: 현재 사용자의 비밀 키와 시퀀스 번호로 `publicKey()`를 호출합니다
@@ -247,7 +247,7 @@ export circuit takeDown(): Opaque<'string'> {
 
 ### Create the publicKey helper circuit
 
-`publicKey` circuit는 게시자의 신원에 대한 암호학적 commitment를 생성합니다:
+`publicKey` circuit은 게시자의 신원에 대한 암호학적 commitment를 생성합니다:
 
 ```compact
 // ... 이전 코드 ...
@@ -257,7 +257,7 @@ export circuit publicKey(sk: Bytes<32>, sequence: Bytes<32>): Bytes<32> {
 }
 ```
 
-이 헬퍼 circuit는:
+이 헬퍼 circuit은:
 
 - `pad(32, "bboard:pk:")`를 사용하여 도메인 분리자를 생성합니다
 - 해시할 세 개의 32바이트 값 벡터를 생성합니다
@@ -326,7 +326,7 @@ export circuit publicKey(sk: Bytes<32>, sequence: Bytes<32>): Bytes<32> {
 
 ## Compile the contract
 
-컴파일은 Compact 코드를 ZK circuit로 변환하고 컨트랙트와 상호작용하기 위한 TypeScript API를 생성합니다.
+컴파일은 Compact 코드를 ZK circuit으로 변환하고 컨트랙트와 상호작용하기 위한 TypeScript API를 생성합니다.
 
 ### Run the compiler
 

@@ -44,7 +44,7 @@ Battleship의 핵심은 비공개 데이터(함선)와 공개 데이터(사격, 
 코드를 간결하게 유지하기 위해 이 튜토리얼에서는 단순화된 버전으로 구현합니다. 원래 게임과의 주요 차이점은 다음과 같습니다:
 - 격자 대신 단일 숫자 라인 사용
 - 라인 위의 숫자 하나가 함선의 위치를 나타냄
-- 승리에 필요한 HIT 횟수를 2회로 축소
+- 승리에 필요한 HIT 횟수를 2circuit 축소
 
 ### Operational steps
 
@@ -84,7 +84,7 @@ Battleship에서 가장 흔한 부정행위는 실제로 HIT인 "사격"을 MISS
 - HIT인데 MISS라고 주장
 - 게임 중 함선 위치 변경
 
-스마트 컨트랙트 개발자는 *방어적 프로그래밍에 항상 주의를 기울여야 합니다.* 블록체인의 공개적이고 비허가적인 특성상, 노드 커맨드라인만 있으면 누구든 컨트랙트에 접근할 수 있습니다. 접근 제어, 입력 검증, 명시적 상태 관리를 통해 회로를 의도적으로 보호하면 이러한 고려 없이 작성한 프로그램보다 훨씬 안전한 결과물을 만들 수 있습니다.
+스마트 컨트랙트 개발자는 *방어적 프로그래밍에 항상 주의를 기울여야 합니다.* 블록체인의 공개적이고 비허가적인 특성상, 노드 커맨드라인만 있으면 누구든 컨트랙트에 접근할 수 있습니다. 접근 제어, 입력 검증, 명시적 상태 관리를 통해 circuit을 의도적으로 보호하면 이러한 고려 없이 작성한 프로그램보다 훨씬 안전한 결과물을 만들 수 있습니다.
 
 ### State machines
 
@@ -99,7 +99,7 @@ Compact 컨트랙트는 상태 머신으로 생각하는 것이 가장 적절합
 턴 순서:  
 `PLAYER_1_SHOOT` → `PLAYER_2_CHECK` → `PLAYER_2_SHOOT` → `PLAYER_1_CHECK` → 반복
 
-`PLAYER_1_SHOOT` 회로가 먼저 활성화되고, 나머지 회로는 차단됩니다. 상태 전이가 성공하면 `PLAYER_2_CHECK`가 "잠금 해제"되고 `PLAYER_1_SHOOT`는 비활성화됩니다.
+`PLAYER_1_SHOOT` circuit이 먼저 활성화되고, 나머지 circuit은 차단됩니다. 상태 전이가 성공하면 `PLAYER_2_CHECK`가 "잠금 해제"되고 `PLAYER_1_SHOOT`는 비활성화됩니다.
 
 ## Compact tutorial
 
@@ -157,7 +157,7 @@ export ledger board1HitCount: Counter;
 export ledger board2HitCount: Counter;
 ```
 
-모든 ledger 필드는 공개적으로 볼 수 있습니다. 비공개 데이터를 이러한 필드에 숨기려면 Compact의 해싱 함수를 활용합니다. 구체적인 회로 구현은 나중에 다루겠지만, 우선 이 데이터를 숨기는 전략이 필요하다는 점을 알아두세요.
+모든 ledger 필드는 공개적으로 볼 수 있습니다. 비공개 데이터를 이러한 필드에 숨기려면 Compact의 해싱 함수를 활용합니다. 구체적인 circuit 구현은 나중에 다루겠지만, 우선 이 데이터를 숨기는 전략이 필요하다는 점을 알아두세요.
 
 ### Witness declaration
 
@@ -197,7 +197,7 @@ constructor(_x1: Uint<8>, _x2: Uint<8>) {
 }// end of constructor
 ```
 
-이 패턴은 플레이어의 private state에서 비밀 키를 가져와 도메인 구분자와 함께 해싱하여, 이 DApp 내에서는 사용자 상호작용을 추적하되 다른 DApp에서는 추적할 수 없도록 합니다. `getDappPublicKey` 회로는 나중에 작성합니다.
+이 패턴은 플레이어의 private state에서 비밀 키를 가져와 도메인 구분자와 함께 해싱하여, 이 DApp 내에서는 사용자 상호작용을 추적하되 다른 DApp에서는 추적할 수 없도록 합니다. `getDappPublicKey` circuit은 나중에 작성합니다.
 
 private state 데이터(_x1, _x2)를 공개적으로 저장하려면 해싱이 필요합니다:
 ```compact
@@ -236,7 +236,7 @@ Constructor의 마지막 작업은 public state 할당입니다:
 
 ### Bob joins the game
 
-프로그램 설계에 따르면, 다음으로 `player2`(Bob)가 게임을 수락하고 함선 위치를 설정해야 합니다. `acceptGame` 회로는 두 함선을 인자(비공개)로 받아 Bob에게 이 DApp 전용 ID를 할당합니다. `player1`이 자신과 대전하려는 것은 아닌지도 검증합니다:
+프로그램 설계에 따르면, 다음으로 `player2`(Bob)가 게임을 수락하고 함선 위치를 설정해야 합니다. `acceptGame` circuit은 두 함선을 인자(비공개)로 받아 Bob에게 이 DApp 전용 ID를 할당합니다. `player1`이 자신과 대전하려는 것은 아닌지도 검증합니다:
 ```compact 
 export circuit acceptGame(_x1: Uint<8>, _x2: Uint<8>): [] {
     // caller verification checks
@@ -255,7 +255,7 @@ export circuit acceptGame(_x1: Uint<8>, _x2: Uint<8>): [] {
 }// end of acceptGame
 ```
 
-이 상태는 회로 끝에서 갱신되므로, 컨트랙트 생명주기 동안 이 회로에 다시 접근할 수 없게 됩니다.
+이 상태는 circuit 끝에서 갱신되므로, 컨트랙트 생명주기 동안 이 circuit에 다시 접근할 수 없게 됩니다.
 
 입력값이 범위 내에 있는지 검증합니다:
 ```compact
@@ -307,7 +307,7 @@ export circuit acceptGame(_x1: Uint<8>, _x2: Uint<8>): [] {
 }// end of acceptGame
 ```
 
-이제 두 플레이어 모두 비공개 데이터에 대한 공개 commitment을 갖추었습니다. 이후 `checkBoard` 회로에서 함선 위치에 대해 다른 데이터를 제시하면 프로그램이 이를 감지합니다.
+이제 두 플레이어 모두 비공개 데이터에 대한 공개 commitment을 갖추었습니다. 이후 `checkBoard` circuit에서 함선 위치에 대해 다른 데이터를 제시하면 프로그램이 이를 감지합니다.
 
 ### Hashing circuits
 
@@ -342,7 +342,7 @@ export circuit player1Shoot (x: Uint<8>): [] {
 
 }// end of player1Shoot
 ```
-`_sk`를 `getDappPubKey`로 해싱하여 호출자가 `player1`으로 할당된 사용자와 동일한지 확인하는 같은 패턴을 사용합니다. 해시가 다르면 다른 플레이어가 이 회로를 호출한 것입니다.
+`_sk`를 `getDappPubKey`로 해싱하여 호출자가 `player1`으로 할당된 사용자와 동일한지 확인하는 같은 패턴을 사용합니다. 해시가 다르면 다른 플레이어가 이 circuit을 호출한 것입니다.
 
 호출자가 `player1`임을 확인한 후 상태와 입력값을 검증합니다:
 ```compact
@@ -387,7 +387,7 @@ export circuit player1Shoot (x: Uint<8>): [] {
 
 `player1Shot`은 `List`로, 요소에 순서대로 접근할 수 있습니다. 이 프로그램에서는 `List`의 앞쪽 요소를 현재 사격으로 사용합니다.
 
-`player2`도 `player1`과 같은 기능이 필요하므로, 해당 플레이어에 맞는 식별자만 변경하여 동일한 회로를 구현합니다:
+`player2`도 `player1`과 같은 기능이 필요하므로, 해당 플레이어에 맞는 식별자만 변경하여 동일한 circuit을 구현합니다:
 ```compact
 export circuit player2Shoot(x: Uint<8>): [] {
     // caller verification checks
@@ -414,7 +414,7 @@ export circuit player2Shoot(x: Uint<8>): [] {
 }// end of player2Shoot
 ```
 
-코드가 완성된 상태에서 이 회로를 살펴보세요. "shoot" 회로에서 가장 눈에 띄는 패턴이 무엇인가요? `assert` 문이 코드 연산만큼이나 많습니다! 이것이 안전한 스마트 컨트랙트의 징표입니다.
+코드가 완성된 상태에서 이 circuit을 살펴보세요. "shoot" circuit에서 가장 눈에 띄는 패턴이 무엇인가요? `assert` 문이 코드 연산만큼이나 많습니다! 이것이 안전한 스마트 컨트랙트의 징표입니다.
 
 특정 데이터, 상태, 신원에 대해 *가정하는 모든 것을 항상 `assert`하세요.* 가장 일반적으로는 상태 검증, 권한 검사, 입력 검증 assertion이 이에 해당합니다. 데이터가 기대한 대로인지 철저히 검증한 후에야 해당 데이터를 의도한 함수에서 안심하고 사용할 수 있습니다.
 
@@ -503,7 +503,7 @@ HIT인 경우를 처리합니다:
 
 `board1HitCount`를 증가시키고 성공한 사격을 hits에 추가합니다. 그런 다음 `turn` 상태를 갱신하고 이번 HIT가 게임을 종료하는 것인지 확인합니다.
 
-`player2`도 동일한 기능이 필요하므로, 해당 플레이어에 맞는 식별자로 동일한 회로를 구현합니다:
+`player2`도 동일한 기능이 필요하므로, 해당 플레이어에 맞는 식별자로 동일한 circuit을 구현합니다:
 ```compact
 export circuit checkBoard2(): [] {
     // caller verification
@@ -574,7 +574,7 @@ Compiling 5 circuits:
 Overall progress [====================] 5/5 
 ```
 
-회로 데이터를 더 자세히 검사하려면 zkir linter를 실행하세요(선택사항):
+circuit 데이터를 더 자세히 검사하려면 zkir linter를 실행하세요(선택사항):
 ```bash
 npx compact-zkir-lint -r managed/battleship/zkir
 ```

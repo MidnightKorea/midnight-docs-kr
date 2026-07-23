@@ -6,7 +6,7 @@ displayed_sidebar: sidebar
 ## Compact compiler 0.26.0 (Minokawa language 0.18.0) release notes
 
 오늘 Compact 컴파일러 버전 0.26.0을 릴리스합니다.
-이것은 언어의 새 이름을 사용하는 첫 번째 릴리스입니다.
+언어의 새 이름을 사용하는 첫 번째 릴리스입니다.
 언어의 설계와 구현을 오픈소스화하는 과정에서, [프로젝트를 Linux Foundation Decentralized Trust(LFDT)로 이전했습니다](https://www.lfdecentralizedtrust.org/blog/compact-smart-contract-language-is-now-minokawa-newest-lf-decentralized-trust-project).
 이 이전의 일환으로, 이전에 _Compact_으로 알려진 언어가 _Minokawa_로 이름이 변경됩니다.
 
@@ -45,8 +45,8 @@ Compact 런타임에 호환성을 깨는 이름 변경이 있으며, 런타임 �
 - `Vector`에서 `Bytes`로, `Bytes`에서 `Vector`로의 변환에서 증명 버그를 수정했습니다
 - 중첩된 ledger ADT에서 증명 버그를 수정했습니다
 - `MerkleTree.insertIndexDefault`와 `HistoricMerkleTree.insertIndexDefault`의 버그를 수정했습니다
-- 순수 회로를 매핑하거나 폴딩할 때 JavaScript 코드의 버그를 수정했습니다
-- 회로 최적화 중 발생하는 드문 크래시 버그를 수정했습니다
+- 순수 circuit을 매핑하거나 폴딩할 때 JavaScript 코드의 버그를 수정했습니다
+- circuit 최적화 중 발생하는 드문 크래시 버그를 수정했습니다
 
 오류 메시지도 더 유용하도록 여러 가지 개선이 있습니다.
 
@@ -76,7 +76,7 @@ Minokawa에서 바이트 값과 벡터의 차이는 바이트 값이 증명과 �
 
 Minokawa의 루프 형식이 이제 바이트 값에서도 동작합니다. `Bytes` 타입의 값에 대한 모든 루프 형식에서 요소 타입은 `Uint<8>`입니다. `for` 루프와 `fold`의 타이핑 규칙은 벡터와 정확히 동일합니다. `Bytes`에 대한 `map`의 결과는 동일한 길이의 `Vector` 타입을 가집니다(요소 타입은 매핑된 호출 가능 객체의 반환 타입).
 
-`map` over `Bytes`에서 벡터를 반환하는 이유 중 하나는, 불필요하게 벡터를 바이트 값으로 패킹하는 비용이 큰 작업을 피하기 위함입니다. 바이트 값이 필요한 경우(예: 바이트 값을 인수로 받는 회로를 호출할 때), 벡터 결과를 `Bytes` 대상 타입으로 캐스트할 수 있습니다.
+`map` over `Bytes`에서 벡터를 반환하는 이유 중 하나는, 불필요하게 벡터를 바이트 값으로 패킹하는 비용이 큰 작업을 피하기 위함입니다. 바이트 값이 필요한 경우(예: 바이트 값을 인수로 받는 circuit을 호출할 때), 벡터 결과를 `Bytes` 대상 타입으로 캐스트할 수 있습니다.
 
 이 새 기능은 **비호환성** 변경입니다.
 
@@ -106,7 +106,7 @@ Minokawa의 루프 형식이 이제 바이트 값에서도 동작합니다. `Byt
 
 ### You can use "slice" expressions to extract contiguous subparts of tuples, vectors, and bytes values
 
-이제 `slice` 표현식을 사용하여 튜플, 벡터, 바이트 값의 연속 부분을 추출할 수 있습니다. `slice`는 새 키워드이므로 이것은 호환성을 깨는 변경입니다.
+이제 `slice` 표현식을 사용하여 튜플, 벡터, 바이트 값의 연속 부분을 추출할 수 있습니다. `slice`는 새 키워드이므로 호환성을 깨는 변경입니다.
 
 이 기능을 위해 다양한 구문 아이디어를 실험했으며, 사용하기 쉬우면서도 이러한 표현식에 올바른 정적 타입을 제공할 수 있는 것으로 결정했습니다. 튜플, 벡터, 바이트 값의 부분을 추출하려면 `slice<SIZE>(value, index)`를 작성합니다. 여기서:
 
@@ -134,7 +134,7 @@ circuit add<#N>(x: Uint<32>): Field {
 }
 ```
 
-그러면 `add<3>`은 `(x: Uint<32>): Field => 3 + x`와 동등한 회로가 됩니다.
+그러면 `add<3>`은 `(x: Uint<32>): Field => 3 + x`와 동등한 circuit이 됩니다.
 
 **타입**에서도 제네릭 크기 매개변수로 산술을 수행하고 싶을 수 있지만, 이것은 Minokawa에서 아직 동작하지 않습니다. 즉, 다음과 같이 작성할 수 **없습니다**:
 
@@ -151,8 +151,8 @@ circuit double<#N>(v: Vector<N, Field>): Vector<2 * N, Field> {
 컴파일러는 다음을 사용하여 루프 인덱스의 컴파일 타임 상수 값을 찾으려 합니다:
 
 - **루프 언롤링**: `N`번 반복하는 루프(`map`과 `fold` 표현식 포함)를 루프 본문의 `N`개 별개(특화된) 버전으로 대체
-- **회로 인라이닝**: 회로 호출을 회로 본문의 (특화된) 버전으로 대체
-- **복사 전파**: 회로 매개변수 참조와 `const` 바인딩 참조를 정의로 대체
+- **circuit 인라이닝**: circuit 호출을 circuit 본문의 (특화된) 버전으로 대체
+- **복사 전파**: circuit 매개변수 참조와 `const` 바인딩 참조를 정의로 대체
 - **상수 폴딩**: 상수 피연산자를 가진 표현식을 평가
 
 튜플 및 벡터 인덱싱과 새로운 바이트 값 인덱싱의 정적 타이핑 규칙이 완화되었으며, 다음과 같은 제약이 있습니다.
@@ -211,7 +211,7 @@ export circuit bar(v: Vector<8, Uint<8>>): Uint<8> {
 
 또한 이 함수 모두에 세 번째 인수를 추가했으며, 이는 캐스트의 Minokawa 소스 위치를 설명하는 문자열입니다.
 
-이것은 Compact 런타임에 대한 **호환성을 깨는** 변경입니다. 런타임 버전이 0.9.0으로 올랐습니다. DApp에서 Compact 런타임을 가져와 이 함수를 사용하고 있었다면(가능성은 낮지만), 새 이름을 사용하고 추가 인수로 문자열 값을 제공하도록 변경해야 합니다.
+Compact 런타임에 대한 **호환성을 깨는** 변경입니다. 런타임 버전이 0.9.0으로 올랐습니다. DApp에서 Compact 런타임을 가져와 이 함수를 사용하고 있었다면(가능성은 낮지만), 새 이름을 사용하고 추가 인수로 문자열 값을 제공하도록 변경해야 합니다.
 
 ## Bug fixes and compiler improvements
 
@@ -219,7 +219,7 @@ export circuit bar(v: Vector<8, Uint<8>>): Uint<8> {
 
 ### `transientCommit` and `persistentCommit` are now implicitly disclosing
 
-표준 라이브러리 회로 `transientCommit`과 `persistentCommit`의 문서에는 암시적으로 공개(disclosing)된다고 기술되어 있었습니다. 즉, witness 파생 값을 전달하더라도 이러한 함수의 결과를 명시적으로 `disclose`할 필요가 없어야 했습니다. 그러나 실제로는 암시적으로 공개되지 않았습니다.
+표준 라이브러리 circuit `transientCommit`과 `persistentCommit`의 문서에는 암시적으로 공개(disclosing)된다고 기술되어 있었습니다. 즉, witness 파생 값을 전달하더라도 이러한 함수의 결과를 명시적으로 `disclose`할 필요가 없어야 했습니다. 그러나 실제로는 암시적으로 공개되지 않았습니다.
 
 이제 암시적으로 공개되도록 수정했습니다.
 
@@ -247,13 +247,13 @@ ledger의 `Map`은 값 타입으로 중첩된 ledger ADT 타입을 포함할 수
 
 ### We fixed a bug in the JavaScript code for mapping or folding a pure circuit
 
-컴파일러 버전 `0.25.0`에서 순수 회로의 JavaScript 호출 규약을 변경했습니다. 그러나 비순수 회로에서 사용되는 순수 회로에 대해 `map` 또는 `fold`를 사용할 때 호출 방식을 변경하지 못했습니다. 이 경우, 코드가 런타임에 JavaScript 타입 오류로 실패했습니다.
+컴파일러 버전 `0.25.0`에서 순수 circuit의 JavaScript 호출 규약을 변경했습니다. 그러나 비순수 circuit에서 사용되는 순수 circuit에 대해 `map` 또는 `fold`를 사용할 때 호출 방식을 변경하지 못했습니다. 이 경우, 코드가 런타임에 JavaScript 타입 오류로 실패했습니다.
 
 수정되었습니다.
 
 ### We fixed a rare crash bug triggered by circuit optimization
 
-일부 드문 경우에 회로 최적화에서 내부 컴파일러 오류로 크래시가 발생할 수 있었습니다. `internal error (identifier not bound)` 보고로 나타났습니다. 이는 최적화 컴파일러 패스의 버그 때문이었습니다.
+일부 드문 경우에 circuit 최적화에서 내부 컴파일러 오류로 크래시가 발생할 수 있었습니다. `internal error (identifier not bound)` 보고로 나타났습니다. 이는 최적화 컴파일러 패스의 버그 때문이었습니다.
 
 수정되었습니다.
 

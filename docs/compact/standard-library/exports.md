@@ -348,7 +348,7 @@ circuit shieldedBurnAddress(): Either<ZswapCoinPublicKey, ContractAddress>;
 
 ### `receiveShielded`
 
-shielded 코인을 수신하며, 이 코인이 이 컨트랙트에 주소가 지정된 출력으로 존재해야 하고 다른 호출에 의해 수신되지 않았어야 한다는 검증 조건을 추가합니다.
+shielded 코인을 수신하며, 이 코인이 이 컨트랙트에 주소가 지정된 출력으로 존재해야 하고 다른 호출이 수신하지 않았어야 한다는 검증 조건을 추가합니다.
 
 ```compact
 circuit receiveShielded(coin: ShieldedCoinInfo): [];
@@ -448,7 +448,7 @@ circuit receiveUnshielded(color: Bytes<32>, amount: Uint<128>): [];
 
 ### `unshieldedBalance`
 
-지정된 타입의 unshielded 토큰에 대한 컨트랙트 잔액을 반환합니다. 이 잔액은 컨트랙트 실행 중 unshielded 전송/수신에 의해 업데이트되지 않으며 항상 실행 시작 시점의 값으로 고정됩니다. 또한 이 함수를 사용하면 트랜잭션 구성 시점과 적용 시점의 토큰 잔액이 정확히 일치해야 하며, 그렇지 않으면 트랜잭션이 실패합니다. 이 제약이 필요 없다면 잔액 비교 함수 [`unshieldedBalanceLt`](#unshieldedbalancelt), [`unshieldedBalanceGte`](#unshieldedbalancegte), [`unshieldedBalanceGt`](#unshieldedbalancegt), [`unshieldedBalanceLte`](#unshieldedbalancelte)를 사용하세요.
+지정된 타입의 unshielded 토큰에 대한 컨트랙트 잔액을 반환합니다. 이 잔액은 컨트랙트 실행 중 unshielded 전송/수신으로는 업데이트되지 않으며 항상 실행 시작 시점의 값으로 고정됩니다. 또한 이 함수를 사용하면 트랜잭션 구성 시점과 적용 시점의 토큰 잔액이 정확히 일치해야 하며, 그렇지 않으면 트랜잭션이 실패합니다. 이 제약이 필요 없다면 잔액 비교 함수 [`unshieldedBalanceLt`](#unshieldedbalancelt), [`unshieldedBalanceGte`](#unshieldedbalancegte), [`unshieldedBalanceGt`](#unshieldedbalancegt), [`unshieldedBalanceLte`](#unshieldedbalancelte)를 사용하세요.
 
 ```compact
 circuit unshieldedBalance(color: Bytes<32>): Uint<128>;

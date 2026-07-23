@@ -448,7 +448,7 @@ async function readLedger() {
 logger.info(`initialized at deploy: ${(await readLedger()).initialized}`); // false
 ```
 
-unshielded 튜토리얼과 다른 점은 `initialPrivateState` 값 하나뿐입니다. 빈 객체 대신 `createShieldedTokenPrivateState()`를 넘깁니다. 이것은 witness가 아니라 컨트랙트의 초기 *private state*입니다. `deployContract`는 이 값을 대상으로 constructor를 실행하고, private state provider에 `privateStateId` 키로 저장합니다. 이후 circuit을 호출할 때마다 프레임워크가 현재 private state를 불러와 `WitnessContext.privateState`를 통해 여러분의 witness 구현에 전달하고, 각 witness는 circuit에 넘길 값과 함께 갱신된 private state를 반환합니다. witness는 앞서 작성한 off-chain 함수이고, private state는 그 함수들이 읽는 데이터입니다.
+unshielded 튜토리얼과 다른 점은 `initialPrivateState` 값 하나뿐입니다. 빈 객체 대신 `createShieldedTokenPrivateState()`를 넘깁니다. 이는 witness가 아니라 컨트랙트의 초기 *private state*입니다. `deployContract`는 이 값을 대상으로 constructor를 실행하고, private state provider에 `privateStateId` 키로 저장합니다. 이후 circuit을 호출할 때마다 프레임워크가 현재 private state를 불러와 `WitnessContext.privateState`를 통해 여러분의 witness 구현에 전달하고, 각 witness는 circuit에 넘길 값과 함께 갱신된 private state를 반환합니다. witness는 앞서 작성한 off-chain 함수이고, private state는 그 함수들이 읽는 데이터입니다.
 
 호출 한 번으로 shielded 토큰을 mint해 자기 지갑으로 전달한 다음, 컨트랙트 상태를 다시 읽습니다.
 

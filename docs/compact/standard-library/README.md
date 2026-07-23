@@ -2,7 +2,7 @@
 
 **CompactStandardLibrary** ∙ [상세 API 레퍼런스](exports.md)
 
-이 API는 Compact 프로그램에서 사용할 수 있는 표준 타입과 circuit를 제공합니다.
+이 API는 Compact 프로그램에서 사용할 수 있는 표준 타입과 circuit을 제공합니다.
 API의 주요 부분은 다음과 같습니다:
 
 - 공통 데이터 타입:

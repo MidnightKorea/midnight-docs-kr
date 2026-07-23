@@ -29,7 +29,7 @@ Midnight 노드는 Polkadot SDK의 Rust LibP2P 구현을 기반으로 합니다.
 
 ### Connection establishment
 
-After discovery, peers establish direct connections and negotiate shared protocol capabilities. This stage sets the transport, security, and multiplexing foundation that higher-level sync and gossip protocols rely on.
+피어를 발견하고 나면, 피어끼리 직접 연결을 맺고 공통으로 지원하는 프로토콜을 협상합니다. 이 단계에서 전송, 보안, 멀티플렉싱의 기반이 정해지며, 상위 계층의 동기화·gossip 프로토콜이 그 위에서 동작합니다.
 
 #### Transport layer
 
@@ -46,7 +46,7 @@ After discovery, peers establish direct connections and negotiate shared protoco
 * 암호화는 [Noise Protocol Framework](https://noiseprotocol.org/)를 사용하여 종단 간 기밀성과 무결성을 보장합니다.
 * 스트림 멀티플렉싱은 보통 Yamux를 사용하며, 단일 물리적 연결에서 여러 논리적 스트림(서브스트림)을 동시에 운용할 수 있게 합니다.
 
-Peers negotiate these upgrades using Multistream-Select, which lets them choose compatible encryption and multiplexing options.
+피어는 Multistream-Select로 이 업그레이드를 협상하며, 이 과정에서 서로 호환되는 암호화·멀티플렉싱 옵션을 고릅니다.
 
 #### Substream protocols
 

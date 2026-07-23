@@ -77,7 +77,7 @@ fn get_supported_api_versions(&self) -> RpcResult<Vec<u32>>;
 fn get_ledger_version(&self, at: Option<BlockHash>) -> Result<String, BlockRpcError>;
 ```
 
-Returns the ledger version at the specified block.
+지정한 블록 시점의 ledger 버전을 반환합니다.
 
 ### Polkadot SDK RPC support
 
@@ -86,12 +86,12 @@ Midnight은 다음 기본 Polkadot SDK RPC 메서드도 지원합니다:
 * `system_health`
 * `chain_getBlock`
 * `state_getStorage`
-* `rpc_methods`, which returns a list of all supported RPC endpoints.
+* `rpc_methods` — 지원되는 모든 RPC 엔드포인트 목록을 반환합니다.
 
 `rpc_methods`를 호출하면 노드가 노출하는 전체 메서드 목록을 언제든 동적으로 조회할 수 있습니다.
 
 :::note
-Some RPC methods exposed by Midnight might not appear in the [Polkadot JS web app](https://polkadot.js.org/). For a general reference, see the [Polkadot SDK RPC method documentation](https://polkadot.js.org/docs/substrate/rpc/). Midnight implementations overlap with this list, but support can differ by node version and configuration.
+Midnight이 노출하는 RPC 메서드 중 일부는 [Polkadot JS 웹 앱](https://polkadot.js.org/)에 나타나지 않을 수 있습니다. 일반적인 참고 자료로는 [Polkadot SDK RPC 메서드 문서](https://polkadot.js.org/docs/substrate/rpc/)를 확인하세요. Midnight 구현은 이 목록과 상당 부분 겹치지만, 노드 버전과 설정에 따라 지원 범위가 달라질 수 있습니다.
 :::
 
 ### Partnerchain RPC

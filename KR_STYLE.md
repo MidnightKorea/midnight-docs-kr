@@ -23,7 +23,7 @@
 | 용어 | 비고 |
 |---|---|
 | `ledger` | Compact 키워드. `ledger state`, `public ledger` 등 복합어도 영문 |
-| `circuit` | Compact 키워드. 단 `산술 회로`·`논리 회로` 등 일반 수학·전산 개념어는 한글 `회로` 유지 |
+| `circuit` | Compact 키워드. 조사는 받침형(`circuit은/이/을/과/으로`) — 한국어 발음 "서킷" 기준. 단 `산술 회로`·`논리 회로` 등 일반 수학·전산 개념어는 한글 `회로` 유지 |
 | `witness` | |
 | `private state` / `public state` | `ledger state`와 정렬 |
 | `shielded` / `unshielded` | 반드시 짝으로. `sendShielded`·`unshieldedBalance` 식별자와 정렬 |
@@ -74,5 +74,9 @@
 
 - **완료** — `title`·`sidebar_label`·본문 H1 영문 통일(2026-07-23). 56개 파일 85곳 수정,
   잔여 한글 0건. 값은 upstream 원문에서 가져왔다.
-- **대기** — 위 용어 기준에 따른 본문 치환 약 2,000곳. `회로` 155곳은 문맥 확인이 필요하므로
-  기계 치환하지 않는다.
+- **완료** — 용어 기준에 따른 본문 치환(2026-07-23). docs·sdks·blog 전 구간, 약 2,100곳.
+  잔여 폐기 표기 0건.
+- **완료** — 직역투 정리(2026-07-23). `에 의해` 41곳 능동태 전환, `가능하게 합니다`류 17곳,
+  문두 `이것은` 60곳(릴리스 노트는 주어 생략, 나머지는 `이는`), 하십시오체 2곳.
+- **제외** — `docs/_learn`, `docs/_develop`(upstream deprecated),
+  `compact-keywords.mdx`(자동 생성 + 언어 키워드 목록).

@@ -11,15 +11,15 @@ tags: [tutorials, advanced, zero-knowledge, loan, dapp]
 
 # ZK Loan smart contract
 
-이 튜토리얼에서는 [Midnight Network](/concepts/network-architecture/onchain-logic) 위에서 zero-knowledge(ZK) 대출 애플리케이션을 처음부터 구축합니다. 이 앱은 [ZK proof](/concepts/zero-knowledge-proofs)로 사용자의 신용 데이터(신용 점수, 소득, 재직 기간)를 비공개로 평가하고, 대출 결과만 온체인에 기록합니다. 민감한 금융 데이터는 사용자의 기기를 벗어나지 않습니다.
+이 튜토리얼에서는 [Midnight Network](/concepts/network-architecture/onchain-logic) 위에서 영지식(ZK) 대출 애플리케이션을 처음부터 구축합니다. 이 앱은 [ZK proof](/concepts/zero-knowledge-proofs)로 사용자의 신용 데이터(신용 점수, 소득, 재직 기간)를 비공개로 평가하고, 대출 결과만 온체인에 기록합니다. 민감한 금융 데이터는 사용자의 기기를 벗어나지 않습니다.
 
-기존 대출은 민감한 금융 데이터를 대출 기관, 중개인, 심사자에게 넘겨야 합니다. 이렇게 넘어간 데이터는 저장되고 공유되며 결국 유출됩니다. 2024년 한 해에만 금융 데이터 유출로 수억 건의 기록이 노출되었습니다. ZK proof는 이 구조를 뒤집습니다. 데이터를 보여 주는 대신, 데이터에 관한 명제를 증명합니다. "내 신용 점수는 700점을 넘고, 소득은 월 $2,000을 초과한다"라고 증명하면, verifier는 그 외에는 아무것도 알지 못합니다. Midnight Network는 이를 실용적으로 만들어 줍니다. Midnight은 [데이터 보호](/concepts/how-midnight-works/keeping-data-private)를 목적으로 설계된 블록체인으로, smart contract가 private 입력을 처리하고 그 결과만 온체인에 기록할 수 있습니다.
+기존 대출은 민감한 금융 데이터를 대출 기관, 중개인, 심사자에게 넘겨야 합니다. 이렇게 넘어간 데이터는 저장되고 공유되며 결국 유출됩니다. 2024년 한 해에만 금융 데이터 유출로 수억 건의 기록이 노출되었습니다. ZK proof는 이 구조를 뒤집습니다. 데이터를 보여 주는 대신, 데이터에 관한 명제를 증명합니다. "내 신용 점수는 700점을 넘고, 소득은 월 $2,000을 초과한다"라고 증명하면, verifier는 그 외에는 아무것도 알지 못합니다. Midnight Network는 이를 실용적으로 만들어 줍니다. Midnight은 [데이터 보호](/concepts/how-midnight-works/keeping-data-private)를 목적으로 설계된 블록체인으로, 스마트 컨트랙트가 private 입력을 처리하고 그 결과만 온체인에 기록할 수 있습니다.
 
 이 튜토리얼은 세 부분으로 나뉩니다:
 
-1.  **Smart contract**: [Compact](/compact)(Midnight의 ZK 언어)로 작성합니다. 대출 로직, 자격 등급, 온체인 상태를 정의합니다.
-2.  **Attestation API**: 신용 데이터를 [Schnorr signature](https://en.wikipedia.org/wiki/Schnorr_signature)로 서명하는 서버로, smart contract가 데이터의 출처가 신뢰할 수 있는 곳인지 검증할 수 있게 합니다.
-3.  **CLI**: smart contract를 배포하고, attestation provider를 등록하고, 대출을 요청하고, 시스템과 상호작용하는 명령줄 도구입니다. 모두 Midnight의 로컬 네트워크를 가리킵니다.
+1.  **스마트 컨트랙트**: [Compact](/compact)(Midnight의 ZK 언어)로 작성합니다. 대출 로직, 자격 등급, 온체인 상태를 정의합니다.
+2.  **Attestation API**: 신용 데이터를 [Schnorr signature](https://en.wikipedia.org/wiki/Schnorr_signature)로 서명하는 서버로, 스마트 컨트랙트가 데이터의 출처가 신뢰할 수 있는 곳인지 검증할 수 있게 합니다.
+3.  **CLI**: 스마트 컨트랙트를 배포하고, attestation provider를 등록하고, 대출을 요청하고, 시스템과 상호작용하는 명령줄 도구입니다. 모두 Midnight의 로컬 네트워크를 가리킵니다.
 
 ## Project setup
 
@@ -36,7 +36,7 @@ node --version
 ```
 
 :::caution Node 20 will crash mid-sync
-이 DApp은 `@midnight-ntwrk/wallet-sdk` barrel(shielded wallet을 재export합니다)을 사용하는데, 이 패키지는 shielded wallet 상태에서 `Map.prototype.values().map(...)`을 호출합니다. 여기에는 Node 22에 추가된 [Iterator helpers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator)가 필요합니다. Node 20에서는 wallet이 시작되는 듯 보이다가 첫 sync 업데이트에서 `state.pendingOutputs.values.map is not a function` 오류로 죽습니다. [nvm](https://github.com/nvm-sh/nvm)을 사용한다면 저장소 루트에 `22`(또는 원하는 22 이상 릴리스)가 담긴 `.nvmrc` 파일을 두어 `nvm use`가 자동으로 인식하게 하세요.
+이 DApp은 `@midnight-ntwrk/wallet-sdk` barrel(shielded wallet을 재export합니다)을 사용하는데, 이 패키지는 shielded wallet 상태에서 `Map.prototype.values().map(...)`을 호출합니다. 여기에는 노드 22에 추가된 [Iterator helpers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator)가 필요합니다. 노드 20에서는 지갑이 시작되는 듯 보이다가 첫 sync 업데이트에서 `state.pendingOutputs.values.map is not a function` 오류로 죽습니다. [nvm](https://github.com/nvm-sh/nvm)을 사용한다면 저장소 루트에 `22`(또는 원하는 22 이상 릴리스)가 담긴 `.nvmrc` 파일을 두어 `nvm use`가 자동으로 인식하게 하세요.
 :::
 
 Midnight Compact 컴파일러를 설치하세요. [설치 가이드](/getting-started/installation)의 안내에 따라 시스템에 Compact toolchain을 설치합니다.
@@ -164,13 +164,13 @@ mkdir -p zkloan-credit-scorer-attestation-api/src
 
 ## Write the Schnorr signature module
 
-메인 smart contract를 작성하기 전에, Schnorr signature를 검증하는 모듈이 필요합니다. smart contract는 이 모듈로 신용 데이터가 신뢰할 수 있는 attestation provider의 서명을 거쳤는지 검증합니다.
+메인 스마트 컨트랙트를 작성하기 전에, Schnorr signature를 검증하는 모듈이 필요합니다. 스마트 컨트랙트는 이 모듈로 신용 데이터가 신뢰할 수 있는 attestation provider의 서명을 거쳤는지 검증합니다.
 
 이 서명이 중요한 이유는 근본적인 문제 때문입니다. witness의 데이터는 그 자체로는 신뢰할 수 없습니다. witness는 사용자의 기기에서 실행되므로, 원하는 신용 점수를 무엇이든 넣을 수 있습니다. 신용 점수 750점에 월 소득 $5,000이라고 주장하는 사용자가 있다면, 거짓말을 막을 방법이 없습니다.
 
-attestation 방식이 존재하는 이유가 바로 이것입니다. 신뢰할 수 있는 provider(은행, 신용평가기관, 점수 산정 서비스)가 사용자의 실제 데이터에 암호학적 서명을 합니다. 그러면 smart contract가 ZK circuit 안에서 그 서명을 검증합니다. 데이터가 변조되었다면 서명 검사가 실패하고 트랜잭션이 되돌려집니다.
+attestation 방식이 존재하는 이유가 바로 이것입니다. 신뢰할 수 있는 provider(은행, 신용평가기관, 점수 산정 서비스)가 사용자의 실제 데이터에 암호학적 서명을 합니다. 그러면 스마트 컨트랙트가 ZK circuit 안에서 그 서명을 검증합니다. 데이터가 변조되었다면 서명 검사가 실패하고 트랜잭션이 되돌려집니다.
 
-이를 위해 smart contract는 Midnight의 고유 내부 곡선인 *Jubjub 타원 곡선 위의 Schnorr signature*를 사용합니다.
+이를 위해 스마트 컨트랙트는 Midnight의 고유 내부 곡선인 *Jubjub 타원 곡선 위의 Schnorr signature*를 사용합니다.
 
 :::info
 아래 Schnorr 검증 모듈은 *임시 폴리필*입니다. Midnight 팀은 `jubjubSchnorrVerify`를 [Compact Standard Library](/compact/standard-library/exports)에 직접 넣고 있습니다. 이 기능이 출시되면 이 모듈 전체가 내장 함수 호출 하나로 대체됩니다. 지금은 직접 구현해 보는 것이 ZK circuit 안에서 서명 검증이 어떻게 작동하는지 이해하는 데 좋은 연습이 됩니다.
@@ -260,7 +260,7 @@ Compact 언어 버전 `0.22`부터 두 `JubjubPoint` 값은 `==`로 비교할 �
 
 `schnorrChallenge`는 `pure` circuit입니다(부수 효과 없음, ledger 접근 없음). `schnorrVerify`가 사용하는 것과 동일한 challenge 해시를 계산합니다. attestation API가 서명할 때 동일한 해시를 오프체인에서 계산할 수 있도록 export됩니다.
 
-이로써 준비가 끝났으니, 다음 단계에서 실제 대출 smart contract를 작성합니다.
+이로써 준비가 끝났으니, 다음 단계에서 실제 대출 스마트 컨트랙트를 작성합니다.
 
 ## Write the loan smart contract
 
@@ -344,25 +344,25 @@ export pure circuit deriveAdminPublicKey(sk: UserSecretKey): AdminPublicKey {
 - `LoanApplication`과 `LoanStatus`는 *export됩니다*. `export` 키워드가 이들을 공개로 만드는 것은 아닙니다. 컴파일된 아티팩트에 TypeScript 바인딩을 생성해 DApp이 이 타입을 읽고 만들 수 있게 할 뿐입니다. 이 타입이 온체인에 보이는 이유는 `loans` ledger map에 저장되는 값 타입이자 필드 타입이기 때문입니다. 모든 ledger 상태는 공개이므로 누구나 대출의 status와 승인 금액을 읽을 수 있습니다.
 - `Applicant`는 *export되지 않으므로* TypeScript 바인딩이 생성되지 않습니다. 이 타입이 private으로 유지되는 이유는 `export`가 없어서가 아니라, 오직 witness와 circuit 내부 데이터로만 쓰이고 ledger 상태에는 절대 기록되지 않기 때문입니다. 신용 점수, 소득, 재직 기간은 온체인에 전혀 나타나지 않습니다.
 
-`UserSecretKey`, `UserPublicKey`, `AdminPublicKey`는 각각 `new type`으로 선언합니다. `Bytes<32>`에 대한 *명목적(nominal)* alias입니다. 형식은 `new type X = T;`이고, `T`와 표현은 같지만 별개인 타입을 만듭니다. 셋 다 같은 32바이트 레이아웃을 공유하지만 컴파일러는 서로 다른 타입으로 취급합니다. circuit가 `AdminPublicKey`를 기대하는 자리에 `UserPublicKey`(또는 raw `Bytes<32>`)를 넘기면 거부하고, 그 반대도 마찬가지입니다. 어디서나 그냥 `Bytes<32>`를 써도 컴파일은 되지만, 그러면 user key와 admin key를 서로 바꿔 쓸 수 있게 됩니다. 이 contract의 보안은 바로 그런 혼동을 막는 데 달려 있습니다.
+`UserSecretKey`, `UserPublicKey`, `AdminPublicKey`는 각각 `new type`으로 선언합니다. `Bytes<32>`에 대한 *명목적(nominal)* alias입니다. 형식은 `new type X = T;`이고, `T`와 표현은 같지만 별개인 타입을 만듭니다. 셋 다 같은 32바이트 레이아웃을 공유하지만 컴파일러는 서로 다른 타입으로 취급합니다. circuit가 `AdminPublicKey`를 기대하는 자리에 `UserPublicKey`(또는 raw `Bytes<32>`)를 넘기면 거부하고, 그 반대도 마찬가지입니다. 어디서나 그냥 `Bytes<32>`를 써도 컴파일은 되지만, 그러면 user key와 admin key를 서로 바꿔 쓸 수 있게 됩니다. 이 컨트랙트의 보안은 바로 그런 혼동을 막는 데 달려 있습니다.
 
 `new type`은 기존에 쓰던 단일 필드 wrapper struct(`struct UserPublicKey { bytes: Bytes<32>; }`)보다 가볍습니다. 객체 wrapper를 더하지 않으므로 값은 Compact에서는 그대로 `Bytes<32>`, 생성된 TypeScript에서는 `{ bytes: ... }` 객체가 아닌 일반 `Uint8Array`입니다. `UserPublicKey { ... }`나 `UserPublicKey(...)` 같은 생성자는 없습니다. 타입으로 *들어갈* 때는 `value as UserPublicKey`, 원래 바이트로 *나올* 때는 `pk as Bytes<32>`를 씁니다. exported circuit나 ledger 시그니처에 등장하는 `new type`에는 `export`를 붙여서 컴파일러가 TypeScript 바인딩을 생성하게 하세요.
 
 [ledger](/concepts/ledgers) 선언은 블록체인에 무엇이 올라가는지 정의합니다:
 - `loans`는 *중첩 map*입니다. 바깥 키는 사용자가 도출한 public key 바이트(`Bytes<32>`), 안쪽 키는 대출 ID(`Uint<16>`), 값은 `LoanApplication`입니다. 이 구조로 각 사용자가 여러 건의 대출을 가질 수 있습니다.
-- `providers`는 provider ID를 Jubjub 곡선 점(provider의 public key)에 매핑합니다. smart contract는 등록된 이 key들에 대해 attestation signature를 검증합니다.
+- `providers`는 provider ID를 Jubjub 곡선 점(provider의 public key)에 매핑합니다. 스마트 컨트랙트는 등록된 이 key들에 대해 attestation signature를 검증합니다.
 - `contractAdmin`은 배포자의 *도출된 admin public key*를 저장합니다: `persistentHash("zkloan:admin:pk:v1" || userSecret)`. 배포자는 32바이트 secret을 private 상태에 보관하고, ledger에는 해시만 올라갑니다. 모든 admin circuit는 ZK proof 안에서 caller에게 이 저장 값의 preimage를 안다는 것을 증명하도록 강제합니다.
-- `blacklist`는 wallet 주소가 아니라 도출된 `UserPublicKey` 값을 저장합니다. 특정 PIN에서 사용자의 `UserPublicKey`는 `persistentHash("zkloan:user:pk:v1" || hash(pin) || userSecret)`입니다. 악의적인 caller는 다른 wallet pubkey를 주장해 blacklist 검사를 우회할 수 없습니다. 이 contract에서 caller의 신원은 자신의 witness secret을 해시한 결과 그 자체이기 때문입니다.
+- `blacklist`는 지갑 주소가 아니라 도출된 `UserPublicKey` 값을 저장합니다. 특정 PIN에서 사용자의 `UserPublicKey`는 `persistentHash("zkloan:user:pk:v1" || hash(pin) || userSecret)`입니다. 악의적인 caller는 다른 wallet pubkey를 주장해 blacklist 검사를 우회할 수 없습니다. 이 컨트랙트에서 caller의 신원은 자신의 witness secret을 해시한 결과 그 자체이기 때문입니다.
 - `onGoingPinMigration`은 사용자가 PIN을 바꿀 때 진행 상황을 추적합니다(자세한 내용은 신원 섹션에서 다룹니다).
 - `deriveUserPublicKey(sk, pin)`은 사용자별 신원 도출이고, `deriveAdminPublicKey(sk)`는 admin 도출입니다. 둘 다 동일한 32바이트 witness secret을 사용합니다. 다만 도메인 분리 문자열이 서로 다르므로 두 도출 결과는 서로 연관되지 않습니다.
 
 이 해시들이 만들어지는 방식에서 두 가지를 짚고 갑니다. 첫째, `persistentHash`는 `Vector`만이 아니라 *어떤* 타입이든 해시할 수 있습니다. 여기서는 이종 튜플(`[Bytes<17>, Bytes<32>, UserSecretKey]`)을 받아 `UserSecretKey` 값을 `.bytes` 필드 추출 없이 그대로 해시합니다. 둘째, 도메인 분리 문자열 리터럴은 실제 바이트 길이 그대로 튜플에 들어갑니다. `pad()`는 쓰지 않습니다. 바이트 수는 정확히 세야 합니다. `"zkloan:user:pk:v1"`은 **17바이트**(`Bytes<17>`)이고 `"zkloan:admin:pk:v1"`은 **18바이트**(`Bytes<18>`)입니다. `admin` 부분이 들어가서 한 바이트 더 길어지므로, 다른 곳의 길이를 복사하지 말고 항상 직접 세세요. 각 circuit는 `... as UserPublicKey` / `... as AdminPublicKey`로 끝나는데, 이는 결과 `Bytes<32>`에 시그니처가 약속한 명목 타입을 부여하는 것입니다.
 
 :::note
-이 circuit들이 export를 유지하는 이유는 오프체인 코드가 이를 통해 key를 도출하기 때문입니다. CLI/UI는 사용자별 key를 `pureCircuits.deriveUserPublicKey`로, admin key를 `pureCircuits.deriveAdminPublicKey`로 호출합니다. circuit의 `export`는 필수가 아니라 선택입니다. key를 온체인에서만 도출하는 contract라면 도출 circuit는 export하지 않아도 됩니다. 또 한 가지, `pad()` 제거는 해시 preimage를 바꿉니다(32바이트 zero-padded 문자열 대신 raw 17/18바이트 문자열). 따라서 같은 secret이라도 이전 struct 기반 코드와는 *다른* public key가 도출됩니다. 모든 consumer가 이 하나의 컴파일된 circuit를 통해 도출하므로 서로 간에는 일치하지만, 옛 코드로 이미 배포한 인스턴스는 다른 신원을 도출하므로 새 배포로 취급해야 합니다.
+이 circuit들이 export를 유지하는 이유는 오프체인 코드가 이를 통해 key를 도출하기 때문입니다. CLI/UI는 사용자별 key를 `pureCircuits.deriveUserPublicKey`로, admin key를 `pureCircuits.deriveAdminPublicKey`로 호출합니다. circuit의 `export`는 필수가 아니라 선택입니다. key를 온체인에서만 도출하는 컨트랙트라면 도출 circuit는 export하지 않아도 됩니다. 또 한 가지, `pad()` 제거는 해시 preimage를 바꿉니다(32바이트 zero-padded 문자열 대신 raw 17/18바이트 문자열). 따라서 같은 secret이라도 이전 struct 기반 코드와는 *다른* public key가 도출됩니다. 모든 consumer가 이 하나의 컴파일된 circuit를 통해 도출하므로 서로 간에는 일치하지만, 옛 코드로 이미 배포한 인스턴스는 다른 신원을 도출하므로 새 배포로 취급해야 합니다.
 :::
 
-witness는 두 개입니다. `getAttestedScoringWitness`는 신청자의 신용 프로필과 Schnorr 서명이 된 attestation을 반환합니다. `getUserSecret`은 contract의 모든 신원 — admin 역할과 사용자별 PIN 바인딩 신원 — 을 만들어 내는 32바이트 secret을 반환합니다. TypeScript 구현은 다음 섹션에서 다룹니다.
+witness는 두 개입니다. `getAttestedScoringWitness`는 신청자의 신용 프로필과 Schnorr 서명이 된 attestation을 반환합니다. `getUserSecret`은 컨트랙트의 모든 신원 — admin 역할과 사용자별 PIN 바인딩 신원 — 을 만들어 내는 32바이트 secret을 반환합니다. TypeScript 구현은 다음 섹션에서 다룹니다.
 
 :::note
 아직 파일을 닫지 마세요. 나머지 블록을 이 파일에 이어서 추가합니다.
@@ -370,7 +370,7 @@ witness는 두 개입니다. `getAttestedScoringWitness`는 신청자의 신용 
 
 ### Core loan circuits
 
-이제 smart contract의 핵심인, 대출 요청을 처리하는 circuit를 추가합니다. 아래 코드 스니펫을 사용하세요:
+이제 스마트 컨트랙트의 핵심인, 대출 요청을 처리하는 circuit를 추가합니다. 아래 코드 스니펫을 사용하세요:
 
 ```compact
 export circuit requestLoan(amountRequested: Uint<16>, secretPin: Uint<16>): [] {
@@ -462,7 +462,7 @@ const authorizedAmount = amountRequested > topTierAmount ? topTierAmount : amoun
 
 `requestLoan`은 사용자가 호출하는 메인 진입점입니다. 흐름은 다음과 같습니다:
 
-1.  `deriveUserPublicKey(getUserSecret(), secretPin)`으로 caller의 사용자별 신원을 도출합니다. witness secret이 이 contract에서 유일하게 권위 있는 caller 신원입니다.
+1.  `deriveUserPublicKey(getUserSecret(), secretPin)`으로 caller의 사용자별 신원을 도출합니다. witness secret이 이 컨트랙트에서 유일하게 권위 있는 caller 신원입니다.
 2.  도출된 pubkey를 `disclose()`해서, 컴파일러가 그 값이 ledger 읽기(`blacklist.member`, `onGoingPinMigration.member`)로 흘러가도록 허용하게 합니다. 이 값은 witness에서 도출되었으므로 명시적인 disclosure가 필요합니다.
 3.  사용자가 blacklist에 없고 PIN 변경 중이 아닌지 확인합니다.
 4.  `evaluateApplicant()`를 호출합니다. 비공개 신용 점수 산정이 일어나는 곳입니다. disclose된 pubkey의 `transientHash`가 attestation 메시지가 서명되는 대상인 `userPubKeyHash`가 되어, 오프체인 attestation을 circuit 안의 이 특정 신원에 묶습니다.
@@ -487,7 +487,7 @@ const authorizedAmount = amountRequested > topTierAmount ? topTierAmount : amoun
 
 `createLoan`은 status 로직을 처리합니다. 가능한 결과는 세 가지입니다:
 - **Approved**: 사용자가 자신의 최대 자격 금액 이하를 요청한 경우입니다. 요청한 금액을 그대로 받습니다.
-- **Proposed**: 사용자가 자격 한도보다 많은 금액을 요청한 경우입니다. smart contract가 최대 자격 금액을 제안하고, 사용자가 수락하거나 거절하기를 기다립니다.
+- **Proposed**: 사용자가 자격 한도보다 많은 금액을 요청한 경우입니다. 스마트 컨트랙트가 최대 자격 금액을 제안하고, 사용자가 수락하거나 거절하기를 기다립니다.
 - **Rejected**: 신용 점수가 너무 낮은 경우입니다. 금액 = 0.
 
 `respondToLoan`은 사용자가 *Proposed* 상태의 대출을 수락하거나 거절할 수 있게 합니다. 수락하면 status가 Approved로 바뀝니다. 거절하면 NotAccepted로 바뀌고 승인 금액이 0으로 초기화됩니다.
@@ -500,19 +500,19 @@ const authorizedAmount = amountRequested > topTierAmount ? topTierAmount : amoun
 assert(contractAdmin == deriveAdminPublicKey(getUserSecret()), "Only admin can ...");
 ```
 
-ZK proof 안에서 이 가드는 caller가 `contractAdmin`에 저장된 공개 값의 32바이트 preimage를 안다는 것을 강제합니다. ledger 값만으로는 공격자에게 쓸모가 없습니다. proof 입력에 복사해 넣을 수는 있지만, secret을 모르면 해시가 일치하는 witness를 제출할 수 없습니다.
+ZK proof 안에서 이 가드는 caller가 `contractAdmin`에 저장된 공개 값의 32바이트 preimage를 안다는 것을 강제합니다. ledger 값만으로는 공격자에게 쓸모가 없습니다. 증명 입력에 복사해 넣을 수는 있지만, secret을 모르면 해시가 일치하는 witness를 제출할 수 없습니다.
 
 :::warning Why not `ownPublicKey()`?
 
-이 contract의 예전 버전은 `assert(ownPublicKey() == admin, "...")`을 사용했습니다. 그 패턴은 우회가 가능합니다. `ownPublicKey()`는 prover가 circuit 컨텍스트에 제공하는 값이며, 프로토콜은 이 값을 트랜잭션에 서명한 wallet과 대조하지 않습니다. caller는 그 자리에 어떤 32바이트 값이든 넣을 수 있고 assertion은 그대로 성립합니다. 같은 우회가 `ownPublicKey()`에 의존하는 다른 모든 검사에도 적용됩니다. blacklist 멤버십, PIN 바인딩 신원 도출 등 `ownPublicKey()`의 결과가 보안 관련 판단으로 흘러가는 모든 경우입니다.
+이 컨트랙트의 예전 버전은 `assert(ownPublicKey() == admin, "...")`을 사용했습니다. 그 패턴은 우회가 가능합니다. `ownPublicKey()`는 prover가 circuit 컨텍스트에 제공하는 값이며, 프로토콜은 이 값을 트랜잭션에 서명한 지갑과 대조하지 않습니다. caller는 그 자리에 어떤 32바이트 값이든 넣을 수 있고 assertion은 그대로 성립합니다. 같은 우회가 `ownPublicKey()`에 의존하는 다른 모든 검사에도 적용됩니다. blacklist 멤버십, PIN 바인딩 신원 도출 등 `ownPublicKey()`의 결과가 보안 관련 판단으로 흘러가는 모든 경우입니다.
 
-엄격한 규칙은 이렇습니다: **contract가 shielded 토큰을 대상 wallet으로 보내는 경우가 아니라면, `ownPublicKey()`를 호출하지 마세요.** caller 신원에는 witness에서 도출한 secret을 사용하세요.
+엄격한 규칙은 이렇습니다: **컨트랙트가 shielded 토큰을 대상 지갑으로 보내는 경우가 아니라면, `ownPublicKey()`를 호출하지 마세요.** caller 신원에는 witness에서 도출한 secret을 사용하세요.
 
 :::
 
 다섯 개의 admin circuit는 다음과 같습니다:
 
-*   `blacklistUser` / `removeBlacklistUser`: 도출된 `UserPublicKey`를 blacklist에 추가하거나 제거합니다. admin은 대상의 `UserPublicKey`를 온체인 `loans` map 키(대상이 상호작용할 때마다 거기에 나타납니다)에서 얻거나, 대상에게서 별도 경로로 받습니다. admin은 wallet 주소로 blacklist 처리할 수 없습니다. contract는 `ownPublicKey()`를 신뢰하지 않습니다.
+*   `blacklistUser` / `removeBlacklistUser`: 도출된 `UserPublicKey`를 blacklist에 추가하거나 제거합니다. admin은 대상의 `UserPublicKey`를 온체인 `loans` map 키(대상이 상호작용할 때마다 거기에 나타납니다)에서 얻거나, 대상에게서 별도 경로로 받습니다. admin은 지갑 주소로 blacklist 처리할 수 없습니다. 컨트랙트는 `ownPublicKey()`를 신뢰하지 않습니다.
 
 *   `registerProvider` / `removeProvider`: attestation provider의 public key를 추가하거나 제거합니다.
 
@@ -552,7 +552,7 @@ export circuit rotateAdmin(newAdmin: AdminPublicKey): [] {
 
 이 마지막 블록에는 두 개의 circuit가 있습니다. PIN migration과 Schnorr challenge 재내보내기입니다.
 
-사용자별 신원은 위 헤더 블록에서 정의한 `deriveUserPublicKey(getUserSecret(), pin)`입니다. witness secret과 PIN을 함께 쓰면 결정적인 `UserPublicKey`가 나오고, 그 바이트가 온체인에 나타납니다. secret과 PIN을 둘 다 알지 못하면 wallet 주소를 대출 기록과 연결할 수 없으므로, 사용자에게 추가적인 프라이버시 보호 계층이 생깁니다.
+사용자별 신원은 위 헤더 블록에서 정의한 `deriveUserPublicKey(getUserSecret(), pin)`입니다. witness secret과 PIN을 함께 쓰면 결정적인 `UserPublicKey`가 나오고, 그 바이트가 온체인에 나타납니다. secret과 PIN을 둘 다 알지 못하면 지갑 주소를 대출 기록과 연결할 수 없으므로, 사용자에게 추가적인 프라이버시 보호 계층이 생깁니다.
 
 `changePin`은 가장 복잡한 circuit입니다. 사용자가 PIN을 바꾸면 도출 결과로 새 온체인 신원이 나옵니다. 그런데 기존 대출은 이전 신원에 묶여 있습니다. 모든 대출을 이전 `UserPublicKey`에서 새 `UserPublicKey`로 옮겨야 합니다.
 
@@ -632,7 +632,7 @@ return Schnorr_schnorrChallenge(ann_x, ann_y, pk_x, pk_y, msg);
 
 `schnorrChallenge`는 Schnorr challenge 해시 함수를 `pure` circuit로 재내보냅니다(부수 효과 없음, ledger 접근 없음). attestation API가 서명할 때 동일한 해시를 오프체인에서 계산할 수 있도록, 이 함수는 생성된 TypeScript에서 사용 가능해야 합니다.
 
-이제 smart contract 파일이 완성되었습니다. 다음으로 넘어가기 전에, 무엇이 private이고 무엇이 public인지 정리하면 다음과 같습니다:
+이제 스마트 컨트랙트 파일이 완성되었습니다. 다음으로 넘어가기 전에, 무엇이 private이고 무엇이 public인지 정리하면 다음과 같습니다:
 
 | **Data** | **Visibility** | **Why** |
 | --- | --- | --- |
@@ -642,7 +642,7 @@ return Schnorr_schnorrChallenge(ann_x, ann_y, pk_x, pk_y, msg);
 | Attestation signature | Private (ZK proof 입력) | circuit 안에서 검증됨 |
 | 도출된 `UserPublicKey` (loan map 키) | Public (ledger) | user secret과 PIN을 둘 다 알지 못하면 연결 불가 |
 | 대출 status와 금액 | Public (ledger) | 온체인 결과 |
-| `contractAdmin`, blacklist | Public (ledger) | smart contract 거버넌스 |
+| `contractAdmin`, blacklist | Public (ledger) | 스마트 컨트랙트 거버넌스 |
 
 ## Create the witness function (private data provider)
 
@@ -725,7 +725,7 @@ export const witnesses = {
 
 *   `getSchnorrReduction`: challenge 해시를 2^248로 나눈 몫과 나머지를 계산합니다(Jubjub 스칼라 field 잘라내기).
 
-*   `getUserSecret`: 이 contract의 모든 caller 신원을 만들어 내는 32바이트 secret을 반환합니다. `UserSecretKey`가 이제 `Bytes<32>`에 대한 `new type`이므로, 생성된 TypeScript 타입은 일반 `Uint8Array`입니다. witness는 `{ bytes: ... }` wrapper 없이 secret 자체를 반환합니다. contract는 이 값을 두 개의 pure circuit에 넣습니다. 사용자별 PIN 바인딩 신원을 위한 `deriveUserPublicKey(secret, pin)`과 admin 역할을 위한 `deriveAdminPublicKey(secret)`입니다. 해시했을 때 `contractAdmin`에 저장된 값이 나오는 secret은 배포한 admin의 것뿐입니다. 다른 사람의 `getUserSecret`은 admin 도출 결과가 일치하지 않는 값을 반환하므로 admin assertion을 통과하지 못합니다. 도메인 분리 문자열(`"zkloan:admin:pk:v1"`과 `"zkloan:user:pk:v1"`)이 다르므로 같은 secret에서 나온 두 도출 결과는 서로 연관되지 않습니다. 런타임 길이 검사로 잘못된 형식의 witness는 proof 시점에 거부됩니다.
+*   `getUserSecret`: 이 컨트랙트의 모든 caller 신원을 만들어 내는 32바이트 secret을 반환합니다. `UserSecretKey`가 이제 `Bytes<32>`에 대한 `new type`이므로, 생성된 TypeScript 타입은 일반 `Uint8Array`입니다. witness는 `{ bytes: ... }` wrapper 없이 secret 자체를 반환합니다. 컨트랙트는 이 값을 두 개의 pure circuit에 넣습니다. 사용자별 PIN 바인딩 신원을 위한 `deriveUserPublicKey(secret, pin)`과 admin 역할을 위한 `deriveAdminPublicKey(secret)`입니다. 해시했을 때 `contractAdmin`에 저장된 값이 나오는 secret은 배포한 admin의 것뿐입니다. 다른 사람의 `getUserSecret`은 admin 도출 결과가 일치하지 않는 값을 반환하므로 admin assertion을 통과하지 못합니다. 도메인 분리 문자열(`"zkloan:admin:pk:v1"`과 `"zkloan:user:pk:v1"`)이 다르므로 같은 secret에서 나온 두 도출 결과는 서로 연관되지 않습니다. 런타임 길이 검사로 잘못된 형식의 witness는 증명 시점에 거부됩니다.
 
 ## Create the smart contract TypeScript exports
 
@@ -738,9 +738,9 @@ export * from "./witnesses.js";
 EOF
 ```
 
-이 파일은 (Compact 컴파일러가) 생성한 smart contract 코드와 witness 구현을 함께 재내보냅니다.
+이 파일은 (Compact 컴파일러가) 생성한 스마트 컨트랙트 코드와 witness 구현을 함께 재내보냅니다.
 
-이제 터미널에서 아래 명령으로 smart contract의 `package.json`을 생성합니다:
+이제 터미널에서 아래 명령으로 스마트 컨트랙트의 `package.json`을 생성합니다:
 
 ```shell
 cat > contract/package.json << 'EOF'
@@ -838,7 +838,7 @@ npm run compact
 
 이 명령은 다음을 담은 `src/managed/zkloan-credit-scorer/` 디렉터리를 생성합니다:
 
-*   `contract/` — 생성된 smart contract의 TypeScript 구현
+*   `contract/` — 생성된 스마트 컨트랙트의 TypeScript 구현
 
 *   `keys/` — 각 circuit의 proving 키와 verifying 키
 
@@ -853,7 +853,7 @@ npm run build
 cd ..
 ```
 
-이 시점에서 smart contract 패키지가 컴파일되어, CLI와 attestation API가 사용할 준비가 됩니다.
+이 시점에서 스마트 컨트랙트 패키지가 컴파일되어, CLI와 attestation API가 사용할 준비가 됩니다.
 
 ## What you built in Part 1
 
@@ -864,12 +864,12 @@ cd ..
 *   **Witness implementation**: proving 시점에 private 신용 데이터를 온체인에 노출하지 않고 ZK circuit에 공급하는 TypeScript 코드입니다.
 *   **TypeScript exports and compilation**: 패키지 설정, 컴파일러 출력, 그리고 생성된 ZK circuit·키·바인딩입니다.
 
-smart contract가 컴파일되어 준비를 마쳤습니다. 신용 데이터는 블록체인에 닿지 않으며, 대출 결과만 기록됩니다.
+스마트 컨트랙트가 컴파일되어 준비를 마쳤습니다. 신용 데이터는 블록체인에 닿지 않으며, 대출 결과만 기록됩니다.
 
 ## Next steps
 
-다음 파트에서는 smart contract가 동작하도록 만드는 오프체인 인프라를 구축합니다:
+다음 파트에서는 스마트 컨트랙트가 동작하도록 만드는 오프체인 인프라를 구축합니다:
 
-*   [Attestation API](./attestation-api): 신용 데이터를 Schnorr signature로 서명하는 REST 서버로, smart contract가 검증 대상으로 삼는 신뢰할 수 있는 데이터 provider 역할을 합니다.
+*   [Attestation API](./attestation-api): 신용 데이터를 Schnorr signature로 서명하는 REST 서버로, 스마트 컨트랙트가 검증 대상으로 삼는 신뢰할 수 있는 데이터 provider 역할을 합니다.
 *   **Attestation flow**: 사용자, attestation API, Midnight Network가 처음부터 끝까지 어떻게 상호작용하는지 살펴봅니다.
 *   **Docker setup for the proof server**: 트랜잭션의 ZK proof를 생성하는 로컬 proof server를 설정합니다.

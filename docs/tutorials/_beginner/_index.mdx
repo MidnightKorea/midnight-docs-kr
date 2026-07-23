@@ -45,7 +45,7 @@ Midnight 네트워크에서 DApp을 구축하고 배포하는 방법을 설명�
 
 ## Node
 
-Midnight 테스트넷의 주요 기능은 예제 애플리케이션과 API를 포함하여 TypeScript 패키지로 제공됩니다. 이러한 패키지를 실행하려면 Node.js가 필요하고, 의존성 관리에는 npm을 사용합니다. Node Version Manager(NVM)를 사용하면 프로젝트별로 다른 Node 버전을 전환할 수 있어 Midnight 요구사항과의 호환성을 유지하기 쉽습니다.
+Midnight 테스트넷의 주요 기능은 예제 애플리케이션과 API를 포함하여 TypeScript 패키지로 제공됩니다. 이러한 패키지를 실행하려면 Node.js가 필요하고, 의존성 관리에는 npm을 사용합니다. Node Version Manager(NVM)를 사용하면 프로젝트별로 다른 노드 버전을 전환할 수 있어 Midnight 요구사항과의 호환성을 유지하기 쉽습니다.
 
 설치 및 문제 해결 방법은 [NVM GitHub 사이트](https://github.com/nvm-sh/nvm#installing-and-updating)를 참조하세요. macOS에서 Homebrew로 설치하는 경우, 설치 과정이 표준 스크립트 설치와 약간 다릅니다. Homebrew는 NVM을 다른 디렉터리에 배치하며, 올바른 초기화를 위해 셸 프로필 파일에 별도의 설정이 필요합니다.
 
@@ -65,20 +65,20 @@ nvm install 22 --lts
 
 이 명령은 Node.js 22를 다운로드하고 설치합니다. LTS 버전은 장기간 주요 버그 수정 및 보안 업데이트를 지원하여 프로덕션 환경의 안정성을 보장합니다. Node.js와 npm이 함께 설치됩니다.
 
-새 터미널 세션의 기본 버전으로 Node 22를 설정합니다:
+새 터미널 세션의 기본 버전으로 노드 22를 설정합니다:
 
 ```shell
 nvm alias default 22
 ```
 
-Node 설치를 확인합니다:
+노드 설치를 확인합니다:
 
 ```shell
 node --version
 npm --version
 ```
 
-> **주의**: `~/.zshrc`, `~/.bashrc`를 수정하거나 `nvm`을 사용하여 새 Node 버전을 설치한 후에는 새 터미널 창을 여세요. `source ~/.zshrc`를 실행하면 환경이 완전히 다시 로드되지 않을 수 있으며 `ERR_UNSUPPORTED_DIR_IMPORT`와 같은 문제가 발생할 수 있습니다. 이 오류는 Node.js가 ES 모듈을 가져오려 하지만 환경 변수가 올바르게 구성되지 않은 경우 발생합니다.
+> **주의**: `~/.zshrc`, `~/.bashrc`를 수정하거나 `nvm`을 사용하여 새 노드 버전을 설치한 후에는 새 터미널 창을 여세요. `source ~/.zshrc`를 실행하면 환경이 완전히 다시 로드되지 않을 수 있으며 `ERR_UNSUPPORTED_DIR_IMPORT`와 같은 문제가 발생할 수 있습니다. 이 오류는 Node.js가 ES 모듈을 가져오려 하지만 환경 변수가 올바르게 구성되지 않은 경우 발생합니다.
 
 ## Install the Compact developer tools
 
@@ -111,7 +111,7 @@ compact update
 
 이 명령은 Compact 컴파일러 및 관련 도구의 최신 안정 버전을 다운로드합니다. 다운로드에는 다음이 포함됩니다:
 - Compact 컴파일러 바이너리
-- 영지식 증명 키 생성기 (`zkir`)
+- 영지식 proving key 생성기 (`zkir`)
 - 플랫폼별 런타임 의존성
 - 표준 라이브러리 정의
 
@@ -163,7 +163,7 @@ compact: Latest version available: 0.25.0.
 
 이는 버전 0.25.0이 다운로드 가능함을 나타냅니다. 업데이트에는 다음이 포함될 수 있습니다:
 - Compact 컨트랙트의 새로운 언어 기능
-- proof 생성을 위한 성능 최적화
+- 증명 생성을 위한 성능 최적화
 - 컴파일 시 엣지 케이스에 대한 버그 수정
 - 더 나은 디버깅을 위한 향상된 오류 메시지
 
@@ -198,15 +198,15 @@ compact compile src/counter.compact src/managed/counter
 1. **파싱**: 컴파일러가 Compact 컨트랙트 구문을 읽고 유효성을 검사합니다
 2. **타입 검사**: circuit, witness 및 ledger 연산 전체에서 타입 안전성을 보장합니다
 3. **Circuit 생성**: 고수준 Compact 코드를 영지식 증명 circuit으로 변환합니다
-4. **proving key 생성**: proof를 생성하고 검증하기 위한 암호화 키를 생성합니다
+4. **proving key 생성**: 증명을 생성하고 검증하기 위한 암호화 키를 생성합니다
 5. **TypeScript API 생성**: DApp 통합을 위한 타입 안전 인터페이스를 생성합니다
 
 컴파일은 지정된 디렉터리에 여러 출력 파일을 생성합니다:
 - `contract/index.d.cts` - 컨트랙트 API에 대한 TypeScript 타입 정의
 - `contract/index.cjs` - 컨트랙트의 JavaScript 구현
 - `zkir/` - 영지식 증명 circuit 표현을 포함하는 디렉터리
-- `proving-keys/` - proof 생성을 위한 암호화 키
-- `verifying-keys/` - proof 검증을 위한 공개 키
+- `proving-keys/` - 증명 생성을 위한 암호화 키
+- `verifying-keys/` - 증명 검증을 위한 공개 키
 
 컴파일러는 circuit 복잡도 지표를 보고합니다:
 
@@ -214,7 +214,7 @@ compact compile src/counter.compact src/managed/counter
 Circuit 'increment' has complexity: 1234 constraints
 ```
 
-이 지표는 proof 생성의 계산 비용을 나타냅니다. 제약 조건 수가 높을수록 proof 생성 시간이 길어지고 리소스 요구사항이 높아집니다. 보안 속성을 유지하면서 제약 조건을 최소화하도록 circuit를 최적화하세요.
+이 지표는 증명 생성의 계산 비용을 나타냅니다. 제약 조건 수가 높을수록 증명 생성 시간이 길어지고 리소스 요구사항이 높아집니다. 보안 속성을 유지하면서 제약 조건을 최소화하도록 circuit를 최적화하세요.
 
 ### Version-specific compilation
 
@@ -243,7 +243,7 @@ Midnight 예제 DApp은 역사적으로 구성 및 툴체인 위치를 위해 �
 
 **직접 컴파일러 접근**: 권장되지는 않지만, 설치된 툴체인 바이너리는 `~/.compact/bin/`에 있습니다. 이 디렉터리에는 현재 기본 버전의 바이너리에 대한 심볼릭 링크가 포함됩니다:
 - `compactc` - 메인 컴파일러 실행 파일
-- `zkir` - Zero-knowledge 중간 표현 도구
+- `zkir` - 영지식 중간 표현 도구
 - 지원 라이브러리 및 런타임 파일
 
 직접 호출은 버전 관리 이점을 우회합니다. 다음을 위해 항상 `compact compile` 사용을 권장합니다:

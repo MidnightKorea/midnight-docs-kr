@@ -220,7 +220,7 @@ export circuit verifyOwnership(targetEntryId: Uint<64>): [] {
 }
 ```
 
-호출자는 `ownerCommitment(theirSecretKey)`가 entry에 저장된 `ownerHash`와 일치함을 증명합니다. secret key는 사용자의 기기를 절대 벗어나지 않습니다. proof 서버가 로컬에서 proof를 생성합니다. 이 proof는 상금 수령, 신원 확인, 배지 시스템 제출 등에 사용할 수 있습니다. ledger에는 아무것도 기록하지 않습니다.
+호출자는 `ownerCommitment(theirSecretKey)`가 entry에 저장된 `ownerHash`와 일치함을 증명합니다. secret key는 사용자의 기기를 절대 벗어나지 않습니다. proof server가 로컬에서 증명을 생성합니다. 이 증명은 상금 수령, 신원 확인, 배지 시스템 제출 등에 사용할 수 있습니다. ledger에는 아무것도 기록하지 않습니다.
 
 ## Compile the contract
 

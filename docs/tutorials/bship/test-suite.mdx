@@ -222,7 +222,7 @@ export function getConfig(): NetworkConfig {
 
 이 설정 파일은 로컬 devnet만 지원하지만, 이 패턴을 확장하여 다른 네트워크 설정도 추가할 수 있습니다.
 
-여러 지갑을 생성할 수 있도록 wallet 클래스를 만듭니다:
+여러 지갑을 생성할 수 있도록 지갑 클래스를 만듭니다:
 ```bash
 touch wallet.ts
 ```
@@ -415,14 +415,14 @@ export async function syncWallet(
 }
 ```
 
-이 wallet 클래스는 다른 프로젝트에서도 재사용할 수 있으며, Compact 컨트랙트 구현이 달라져도 크게 변경되지 않습니다.
+이 지갑 클래스는 다른 프로젝트에서도 재사용할 수 있으며, Compact 컨트랙트 구현이 달라져도 크게 변경되지 않습니다.
 
 providers 파일을 생성합니다:
 ```bash
 touch providers.ts
 ```
 
-Provider는 MidnightJS의 핵심 구성 요소로, 비공개 상태, 공개 상태, 지갑 연산 등의 데이터를 설정하고 조회하는 인터페이스입니다. 실제 테스트 파일에서 이를 활용하는 방법을 보여드리겠습니다.
+Provider는 MidnightJS의 핵심 구성 요소로, private state, public state, 지갑 연산 등의 데이터를 설정하고 조회하는 인터페이스입니다. 실제 테스트 파일에서 이를 활용하는 방법을 보여드리겠습니다.
 
 다음 내용으로 채웁니다:
 ```typescript
@@ -520,7 +520,7 @@ const logger = pino({
 });
 ```
 
-로컬 devnet에는 처음 3개 seed 계정에 대한 사전 충전 주소가 제공됩니다. Alice는 1번, Bob은 2번에 할당됩니다. 각 플레이어에게는 비공개 상태를 식별하는 문자열도 필요합니다.
+로컬 devnet에는 처음 3개 seed 계정에 대한 사전 충전 주소가 제공됩니다. Alice는 1번, Bob은 2번에 할당됩니다. 각 플레이어에게는 private state를 식별하는 문자열도 필요합니다.
 
 다음으로 메인 테스트를 설정합니다:
 ```typescript
@@ -539,13 +539,13 @@ describe('Battleship Smart Contract via midnight-js', async () => {
 });// end of describe
 ```
 
-`MidnightWalletProvider`는 `wallet.ts`에서 export한 wallet 클래스가 정의한 타입이고, `BattleshipProviders`는 `providers.ts`의 export에서 가져옵니다.
+`MidnightWalletProvider`는 `wallet.ts`에서 export한 지갑 클래스가 정의한 타입이고, `BattleshipProviders`는 `providers.ts`의 export에서 가져옵니다.
 
 `getConfig()`는 `config.ts`에서 네트워크 설정을 반환하며 현재 `undeployed` 네트워크에서 동작하도록 구성되어 있습니다. 뒤따르는 `const` 할당은 각 플레이어의 함선 위치를 고유하게 지정합니다. 여기서는 프로그래밍 테스트 목적으로 값을 할당하지만, 프로덕션 버전에서는 사용자가 UI 컴포넌트를 통해 이 값을 입력합니다.
 
 ### Ledger queries
 
-원장 조회를 위한 헬퍼 함수를 작성합니다:
+ledger 조회를 위한 헬퍼 함수를 작성합니다:
 ```typescript
     async function queryLedger(providers: BattleshipProviders) {
         const state = await providers.publicDataProvider.queryContractState(contractAddress);
@@ -594,7 +594,7 @@ describe('Battleship Smart Contract via midnight-js', async () => {
 
 `setNetworkId()`는 MidnightJS에서 주소 형식 등을 위해 어떤 네트워크와 상호작용할지 식별하는 데 필요한 호출입니다.
 
-각 사용자는 wallet 클래스의 `build()`를 호출하여 지갑을 준비합니다. 그런 다음 지갑을 시작하고 wallet 클래스의 다른 함수를 호출하여 네트워크와 동기화합니다.
+각 사용자는 지갑 클래스의 `build()`를 호출하여 지갑을 준비합니다. 그런 다음 지갑을 시작하고 지갑 클래스의 다른 함수를 호출하여 네트워크와 동기화합니다.
 
 마지막으로 각 사용자는 `providers.ts`에서 export한 `buildProviders()`를 호출하여 provider(공개, 비공개, 지갑)를 구성합니다.
 
@@ -628,7 +628,7 @@ describe('Battleship Smart Contract via midnight-js', async () => {
 
 ### Deploying the contract
 
-컨트랙트를 배포하는 것이 논리적으로 첫 번째 작업입니다. 컨트랙트 코드를 네트워크에 전송하고 MidnightJS 호출을 통해 컨트랙트 회로에 접근할 수 있게 합니다. MidnightJS의 `deployContract` 함수를 호출하려면 *배포자 Alice*를 위한 초기 비공개 상태를 생성해야 합니다:
+컨트랙트를 배포하는 것이 논리적으로 첫 번째 작업입니다. 컨트랙트 코드를 네트워크에 전송하고 MidnightJS 호출을 통해 컨트랙트 회로에 접근할 수 있게 합니다. MidnightJS의 `deployContract` 함수를 호출하려면 *배포자 Alice*를 위한 초기 private state를 생성해야 합니다:
 ```typescript
     it('deploys the contract', async () => {
         const aliceSk = randomBytes(32);
@@ -663,13 +663,13 @@ describe('Battleship Smart Contract via midnight-js', async () => {
 `deployContract`는 블록체인에 컨트랙트를 배포하는 MidnightJS 함수입니다. 다음 인자를 받습니다:
 - `aliceProviders` -- 호출하는 사용자의 providers 객체
 - `compiledContract` -- `index.ts` 파일에서 가져온 컴파일된 Battleship 컨트랙트
-- `privateStateId` -- 호출자의 비공개 상태에 대한 고유 식별자
-- `initialPrivateState` -- 호출자의 초기 비공개 상태, `createBattlePrivateState` 함수의 반환값
+- `privateStateId` -- 호출자의 private state에 대한 고유 식별자
+- `initialPrivateState` -- 호출자의 초기 private state, `createBattlePrivateState` 함수의 반환값
 - `args` -- 컨트랙트에서 요구하는 constructor 인자
 
 호출이 확정되면 `DeployedContract` 타입의 값을 반환하며, 이를 직접 검사하고 검증할 수 있습니다.
 
-컨트랙트가 배포되었으므로 전역 `contractAddress`와 Alice의 비공개 상태를 설정합니다:
+컨트랙트가 배포되었으므로 전역 `contractAddress`와 Alice의 private state를 설정합니다:
 ```typescript
         contractAddress = deployed.deployTxData.public.contractAddress;      
         aliceProviders.privateStateProvider.setContractAddress(contractAddress);
@@ -684,7 +684,7 @@ describe('Battleship Smart Contract via midnight-js', async () => {
 
 `aliceProviders.privateStateProvider`에 접근하기 전에 `setContractAddress()`를 호출하지 않으면 오류가 발생합니다. 컨트랙트 주소가 확보되는 즉시 반드시 할당하세요.
 
-`createBattlePrivateState`로 Alice의 비공개 상태 객체를 단순히 생성하는 것만으로는 충분하지 않다는 점에 주의하세요. `privateStateProvider.set()`에 전달하여 MidnightJS의 비공개 상태 provider를 초기화해야 합니다. 이후 테스트에서 비공개 상태에 접근할 때 이 provider를 사용합니다.
+`createBattlePrivateState`로 Alice의 private state 객체를 단순히 생성하는 것만으로는 충분하지 않다는 점에 주의하세요. `privateStateProvider.set()`에 전달하여 MidnightJS의 private state provider를 초기화해야 합니다. 이후 테스트에서 private state에 접근할 때 이 provider를 사용합니다.
 
 컨트랙트가 배포되었으므로 constructor가 성공적으로 실행된 결과가 블록체인에 초기 상태로 반영되어야 합니다. `queryLedger()` 함수로 상태가 기대한 대로인지 확인합니다:
 ```typescript
@@ -703,7 +703,7 @@ describe('Battleship Smart Contract via midnight-js', async () => {
 yarn env:up
 ```
 
-로컬 devnet에는 Node, Indexer, Proof server가 로컬에서 실행되어야 하므로, 테스트가 진행되는 동안 이 서비스를 계속 실행해 두고 다음 단계로 진행하기 전에 컨테이너 상태를 확인하세요.
+로컬 devnet에는 노드, Indexer, Proof server가 로컬에서 실행되어야 하므로, 테스트가 진행되는 동안 이 서비스를 계속 실행해 두고 다음 단계로 진행하기 전에 컨테이너 상태를 확인하세요.
 
 *별도의 터미널*에서 로컬 devnet 테스트 스크립트를 실행합니다:
 ```bash
@@ -762,7 +762,7 @@ Bob이 게임에 참여할 준비가 되었습니다:
 });// end of describe
 ```
 
-Bob의 비공개 상태는 Alice와 같은 방식으로 설정하지만, MidnightJS 함수의 형태가 약간 다릅니다. `submitCallTx`는 기본 컨트랙트 호출에 사용하는 함수이며 `deployContract`와 비슷한 요구사항이 있습니다. 차이점을 주의 깊게 살펴보세요. `submitCallTx`는 배포된 컨트랙트와 상호작용할 때 사용합니다.
+Bob의 private state는 Alice와 같은 방식으로 설정하지만, MidnightJS 함수의 형태가 약간 다릅니다. `submitCallTx`는 기본 컨트랙트 호출에 사용하는 함수이며 `deployContract`와 비슷한 요구사항이 있습니다. 차이점을 주의 깊게 살펴보세요. `submitCallTx`는 배포된 컨트랙트와 상호작용할 때 사용합니다.
 
 :::note
 `submitCallTx`의 반환값을 `txData`에 캡처하여 보여드립니다. 여기서는 직접 사용하지 않지만, 회로 반환 데이터(status, txId, txHash, 블록 정보, 수수료, unshielded 출력 등)를 검사하는 데 유용합니다.
@@ -770,7 +770,7 @@ Bob의 비공개 상태는 Alice와 같은 방식으로 설정하지만, Midnigh
 
 ### Alice takes the first shot
 
-컨트랙트가 배포되고 Bob이 게임에 참여했으므로, 원장에 기록된 `turn` 값에 따라 Alice의 사격 차례입니다. 해당 테스트를 작성합니다:
+컨트랙트가 배포되고 Bob이 게임에 참여했으므로, ledger에 기록된 `turn` 값에 따라 Alice의 사격 차례입니다. 해당 테스트를 작성합니다:
 ```typescript
     it('Allows Alice to take the first shot(MISS)', async () => {
         const shot = BigInt(5);// miss
@@ -857,7 +857,7 @@ Bobs shot (out of turn) was rejected!
 
 다음으로 흥미로운 것은 나머지 부정행위 방어 기능입니다. Compact 컨트랙트에 구현된 보호 메커니즘을 강조했는데, 이를 명시적으로 테스트해야 합니다.
 
-Bob(또는 Alice)이 비공개 상태를 악의적으로 변경하려는 시도를 시뮬레이션하려면, 새로운 비공개 상태 객체를 생성하고 비공개 상태 provider에 설정합니다:
+Bob(또는 Alice)이 private state를 악의적으로 변경하려는 시도를 시뮬레이션하려면, 새로운 private state 객체를 생성하고 private state provider에 설정합니다:
 ```typescript
         logger.info(`Bob realizes it is going to be a HIT and tries to cheat...`);
         const bobPrivateState = await bobProviders.privateStateProvider.get(BOB_PRIVATE_ID);
@@ -884,16 +884,16 @@ Bob(또는 Alice)이 비공개 상태를 악의적으로 변경하려는 시도�
         logger.info(`Bob successfully reverted his private state to the original!`);
 ```
 
-- `bobProviders.privateStateProvider.get(BOB_PRIVATE_ID)` -- 현재 비공개 상태 조회
-- `createBattlePrivateState` -- Bob의 함선 위치가 다른 새로운 비공개 상태 객체 생성
-- `bobProviders.privateStateProvider.set()` -- Bob의 비공개 상태를 새 객체로 설정
+- `bobProviders.privateStateProvider.get(BOB_PRIVATE_ID)` -- 현재 private state 조회
+- `createBattlePrivateState` -- Bob의 함선 위치가 다른 새로운 private state 객체 생성
+- `bobProviders.privateStateProvider.set()` -- Bob의 private state를 새 객체로 설정
 - 그런 다음 `submitCallTx` 호출이 `.rejects.toThrow()`를 기대하도록 실행하면 Bob의 시도가 거부됩니다!
-- 이후 호출이 예상대로 성공하려면 Bob의 비공개 상태를 원래 함선 위치로 반드시 되돌려야 합니다
+- 이후 호출이 예상대로 성공하려면 Bob의 private state를 원래 함선 위치로 반드시 되돌려야 합니다
 
 ## Conclusion
 
 Battleship 튜토리얼이 마무리되었습니다. 다음과 같은 핵심 내용을 다루었습니다:
-- MidnightJS에서의 비공개 상태 관리 (설정, 조회, 변경)
+- MidnightJS에서의 private state 관리 (설정, 조회, 변경)
 - Compact 코드에서의 명시적 상태 관리
 - MidnightJS를 통한 컨트랙트 호출
 - 성공/실패 컨트랙트 호출과 테스트

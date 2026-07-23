@@ -20,7 +20,7 @@ toc_max_heading_level: 2
 시작하기 전에 다음 사항을 확인하세요:
 
 - **Compact 툴체인 설치**: 설치 방법은 [툴체인 설치](../../../getting-started/installation) 가이드를 참조하세요
-- **proof 서버 실행 중**: 설치 방법은 [proof 서버 실행](../../../getting-started/installation#set-up-the-proof-server) 가이드를 참조하세요
+- **proof server 실행 중**: 설치 방법은 [proof server 실행](../../../getting-started/installation#set-up-the-proof-server) 가이드를 참조하세요
 - **Node.js 버전 24 이상**: `node --version`으로 확인하세요
 
 ## Set up the project
@@ -180,7 +180,7 @@ witness localSecretKey(): Bytes<32>;
 - `localSecretKey`는 사용자 비밀 키의 32바이트 값을 반환합니다.
 - 반환 값은 기본적으로 private이며 온체인이나 공개 ledger 상태에 나타나지 않습니다.
 
-Witness를 통해 프라이버시를 보호하면서 계산을 수행할 수 있습니다. private 상태 접근이나 값 생성 같은 모든 계산이 가능하며, circuit가 proof 생성에 사용할 결과를 반환합니다.
+Witness를 통해 프라이버시를 보호하면서 계산을 수행할 수 있습니다. private 상태 접근이나 값 생성 같은 모든 계산이 가능하며, circuit가 증명 생성에 사용할 결과를 반환합니다.
 
 ### Create the post circuit
 
@@ -379,7 +379,7 @@ src/managed/bboard/
 
 - `contract/`: DApp이 컨트랙트와 상호작용하는 데 사용하는 생성된 TypeScript API 및 JavaScript 구현을 포함합니다
 - `keys/`: 각 circuit에 대한 ZK proof 생성 및 검증에 사용되는 암호학적 키
-- `zkir/`: proof 서버가 사용하는 중간 circuit 표현
+- `zkir/`: proof server가 사용하는 중간 circuit 표현
 - `compiler/`: circuit, 타입 및 구조에 대한 메타데이터 (JSON 형식)
 
 ## Understand the generated API
@@ -427,12 +427,12 @@ export type Circuits<PS> = {
 - Compact 코드에서 내보낸 circuit에 대응합니다
 - ledger 상태와 witness 함수에 접근할 수 있는 `CircuitContext`를 받습니다
 - Compact circuit 매개변수와 일치하는 매개변수를 받습니다
-- ZK proof를 생성하기 위해 proof 서버로 전송되는 `ProofData`를 포함하는 `CircuitResults`를 반환합니다
+- ZK proof를 생성하기 위해 proof server로 전송되는 `ProofData`를 포함하는 `CircuitResults`를 반환합니다
 - Compact 타입에 적합한 JavaScript 타입(`string`, `Uint8Array`)을 사용합니다
 
 ### Ledger types
 
-`Ledger` 타입은 공개 상태 구조를 정의합니다:
+`Ledger` 타입은 public state 구조를 정의합니다:
 
 ```typescript
 export type Ledger = {

@@ -21,7 +21,7 @@ Midnight의 ledger는 두 가지 항목으로 구성됩니다:
 - [Impact 상태 값](./impact#values)
 - entry point 이름에서 operation으로의 맵. 여기서 entry point는 컨트랙트에서 내보낸 circuit에 해당합니다.
 
-컨트랙트 operation은 해당 컨트랙트와 entry point에 대한 호출을 검증하는 데 사용되는 SNARK verifier key로 구성됩니다.
+contract operation은 해당 컨트랙트와 entry point에 대한 호출을 검증하는 데 사용되는 SNARK verifier key로 구성됩니다.
 
 ## Transaction fallibility
 
@@ -51,8 +51,8 @@ Well-formedness 검사는 트랜잭션이 정규 형식을 따르는지 확인�
 
 ## Phase execution
 
-[트랜잭션 fallibility 섹션](#transaction-fallibility)의 참고 사항 외에, guaranteed phase와 fallible phase는 유사하게 동작하지만, guaranteed phase에서는 다음과 같은 추가 작업이 수행됩니다:
-- 모든 호출에 대한 컨트랙트 operation이 조회되고, 영지식 증명이 이에 대해 검증됩니다
+[transaction fallibility 섹션](#transaction-fallibility)의 참고 사항 외에, guaranteed phase와 fallible phase는 유사하게 동작하지만, guaranteed phase에서는 다음과 같은 추가 작업이 수행됩니다:
+- 모든 호출에 대한 contract operation이 조회되고, 영지식 증명이 이에 대해 검증됩니다
 - fallible Zswap 섹션도 guaranteed 섹션 실행 중에 적용되어, 자체적으로 fallible 섹션을 무효화하는 것을 방지합니다. [^1]
 
 이후 다음 순서로 진행됩니다:

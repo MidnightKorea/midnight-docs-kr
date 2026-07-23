@@ -1291,7 +1291,7 @@ export sealed ledger mapping: Map<Boolean, Field>;
 
 모든 ledger 필드는 해당
 [ledger 상태 타입의 기본값](#default-values-of-a-type)으로 초기화됩니다.
-컨트랙트 constructor가 있으면 기본값이 설정된 후에 실행되어
+contract constructor가 있으면 기본값이 설정된 후에 실행되어
 constructor가 기본값을 재정의할 수 있습니다.
 
 ### Ledger state types {#ledger-state-types}
@@ -1474,7 +1474,7 @@ export circuit readNestedCounter2(b: Boolean, n: Field): Uint<64> {
 모든 ledger 필드는 ledger 필드 선언 앞에 선택적 수정자 `sealed`을
 붙여 *봉인*으로 표시할 수 있습니다.
 봉인된 필드는 컨트랙트 초기화 중에만 설정할 수 있습니다. 즉, 값은
-컨트랙트 constructor(있는 경우)에 의해서만 수정할 수 있으며,
+contract constructor(있는 경우)에 의해서만 수정할 수 있으며,
 constructor 본문 내에서 직접 또는 constructor가 호출하는
 헬퍼 circuit를 통해서만 수정할 수 있습니다.
 `sealed` 키워드는 `export` 키워드(있는 경우) 뒤에, `ledger` 키워드 앞에
@@ -1499,7 +1499,7 @@ constructor(x: Uint<16>) {
 
 ## Contract constructor {#contract-constructor}
 
-컨트랙트는 프로그램의 최상위에서 정의된 컨트랙트
+컨트랙트는 프로그램의 최상위에서 정의된 contract
 constructor를 통해 초기화할 수 있습니다.
 
 <div className="lang-ref-table">
@@ -2693,7 +2693,7 @@ initialState(context: runtime.ConstructorContext<PS>,
              x: T,
              ⋯): runtime.ConstructorResult<PS>
 ```
-여기서 `x` ⋯는 컨트랙트 constructor 매개변수이고, `T` ⋯는 선언된 타입의
+여기서 `x` ⋯는 contract constructor 매개변수이고, `T` ⋯는 선언된 타입의
 [TypeScript 등가물](#typescript-representation-of-compact-types)입니다.
 
 타입 매개변수 `PS`는 컨트랙트의 private state 타입을 나타냅니다.

@@ -27,7 +27,7 @@ import TabItem from '@theme/TabItem';
 
 게시판 CLI는 세 개의 패키지로 구성된 모노레포 구조를 사용합니다:
 
-- **contract**: Compact 스마트 컨트랙트 (이전 튜토리얼에서 작성)
+- **컨트랙트**: Compact 스마트 컨트랙트 (이전 튜토리얼에서 작성)
 - **api**: 컨트랙트 상호작용을 위한 재사용 가능한 추상화 계층
 - **bboard-cli**: 명령줄 애플리케이션
 
@@ -104,10 +104,10 @@ CLI 패키지는 지갑 관리, 사용자 상호작용 및 메인 애플리케�
 }
 ```
 
-workspaces 설정은 npm에게 contract, API, bboard-cli를 연결된 패키지로 관리하도록 지시합니다. 루트 수준에서 정의된 의존성은 모든 workspace에서 공유되어 중복을 줄이고 버전 일관성을 보장합니다.
+workspaces 설정은 npm에게 컨트랙트, API, bboard-cli를 연결된 패키지로 관리하도록 지시합니다. 루트 수준에서 정의된 의존성은 모든 workspace에서 공유되어 중복을 줄이고 버전 일관성을 보장합니다.
 
 :::note Wallet SDK 통합
-Midnight.js 4.1.x는 번들된 `@midnight-ntwrk/wallet-sdk` 패키지와 새로운 `@midnight-ntwrk/midnight-js-protocol` 통합 패키지를 통해 wallet 스택을 사용합니다. 이 통합 패키지는 `@midnight-ntwrk/midnight-js-protocol/ledger`, `@midnight-ntwrk/midnight-js-protocol/compact-runtime` 같은 서브패스 임포트를 제공합니다. 이전 예제에서는 독립형 `@midnight-ntwrk/wallet-sdk-*`와 `@midnight-ntwrk/ledger-v8` 패키지를 직접 사용했습니다.
+Midnight.js 4.1.x는 번들된 `@midnight-ntwrk/wallet-sdk` 패키지와 새로운 `@midnight-ntwrk/midnight-js-protocol` 통합 패키지를 통해 지갑 스택을 사용합니다. 이 통합 패키지는 `@midnight-ntwrk/midnight-js-protocol/ledger`, `@midnight-ntwrk/midnight-js-protocol/compact-runtime` 같은 서브패스 임포트를 제공합니다. 이전 예제에서는 독립형 `@midnight-ntwrk/wallet-sdk-*`와 `@midnight-ntwrk/ledger-v8` 패키지를 직접 사용했습니다.
 :::
 
 :::tip 버전 호환성
@@ -172,7 +172,7 @@ example-bboard/
 
 ## Run the CLI {#run-the-cli}
 
-두 구현 가이드를 모두 완료한 후, 로컬 proof 서버를 시작한 다음 `bboard-cli` 디렉터리에서 CLI를 실행합니다:
+두 구현 가이드를 모두 완료한 후, 로컬 proof server를 시작한 다음 `bboard-cli` 디렉터리에서 CLI를 실행합니다:
 
 ```bash
 docker compose -f proof-server-local.yml up -d

@@ -13,7 +13,7 @@ tags: ["tutorial", "dapp", "leaderboard", "compact", "privacy", "lace", "typescr
 
 이 튜토리얼에서는 Midnight Network에서 풀스택 DApp을 처음부터 끝까지 만듭니다. Compact 스마트 컨트랙트를 작성하고, TypeScript로 연동하고, Lace 지갑을 지원하는 브라우저 프론트엔드를 만든 다음, 완성된 애플리케이션을 프로덕션에 배포합니다.
 
-완료하면 플레이어가 프라이버시 제어와 함께 점수를 제출하고 zero-knowledge proof로 자신의 기록임을 증명하는, 아케이드 스타일의 리더보드가 동작하게 됩니다.
+완료하면 플레이어가 프라이버시 제어와 함께 점수를 제출하고 영지식 증명으로 자신의 기록임을 증명하는, 아케이드 스타일의 리더보드가 동작하게 됩니다.
 
 ## What you learn
 
@@ -36,7 +36,7 @@ tags: ["tutorial", "dapp", "leaderboard", "compact", "privacy", "lace", "typescr
 ### Browser DApp
 
 - DApp Connector API를 통해 Lace 지갑에 연결합니다.
-- proof 생성, indexer 접근, 지갑 작업, ZK config를 위한 provider를 초기화합니다.
+- 증명 생성, indexer 접근, 지갑 작업, ZK config를 위한 provider를 초기화합니다.
 - 지갑 없이 indexer에서 온체인 상태를 직접 읽습니다.
 - ZK proof를 생성하며 브라우저에서 트랜잭션을 제출합니다.
 
@@ -51,22 +51,22 @@ tags: ["tutorial", "dapp", "leaderboard", "compact", "privacy", "lace", "typescr
 
 - [Node.js v22+](https://nodejs.org/) (필요하면 `nvm install 22`을 사용하세요).
 - [Compact 툴체인](https://docs.midnight.network/getting-started/installation#install-compact).
-- [Docker](https://docs.docker.com/desktop/) (로컬 proof 서버용).
+- [Docker](https://docs.docker.com/desktop/) (로컬 proof server용).
 - [Lace 지갑](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) 브라우저 확장.
 
 ### Wallet setup
 
 1. Lace 확장을 설치하고 새 지갑을 만드세요.
 2. 네트워크를 **Preprod**로 설정하세요.
-3. proof 서버를 `http://localhost:6300`으로 설정하세요.
+3. proof server를 `http://localhost:6300`으로 설정하세요.
 4. [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)에서 tNIGHT을 받아 지갑에 충전하세요.
-5. Tokens로 이동해 **Generate tDUST**를 클릭하고 트랜잭션을 확인하세요.
+5. 토큰으로 이동해 **Generate tDUST**를 클릭하고 트랜잭션을 확인하세요.
 
 > **Note:** Preprod에서 트랜잭션 수수료를 내려면 tDUST이 필요합니다. tDUST은 보유한 tNIGHT 잔액에서 생성됩니다.
 
 ## Project structure
 
-완성된 프로젝트는 세 개의 워크스페이스 패키지와 proof 서버용 Docker 설정으로 구성됩니다.
+완성된 프로젝트는 세 개의 워크스페이스 패키지와 proof server용 Docker 설정으로 구성됩니다.
 
 ```text
 midnight-leaderboard/

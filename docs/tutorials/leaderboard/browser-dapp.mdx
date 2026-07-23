@@ -22,7 +22,7 @@ mkdir -p leaderboard-ui/src/contexts leaderboard-ui/src/hooks
 touch leaderboard-ui/package.json
 ```
 
-`leaderboard-contract` workspace 의존성을 통해 UI는 컴파일된 contract 바인딩에 접근합니다. `dev` 스크립트는 circuit 키를 `public/`으로 복사해, 브라우저가 런타임에 가져올 수 있게 합니다.
+`leaderboard-contract` workspace 의존성을 통해 UI는 컴파일된 컨트랙트 바인딩에 접근합니다. `dev` 스크립트는 circuit 키를 `public/`으로 복사해, 브라우저가 런타임에 가져올 수 있게 합니다.
 
 ```json
 {
@@ -177,7 +177,7 @@ touch leaderboard-ui/tsconfig.json
 
 ## Environment variables
 
-로컬 개발용 환경 파일을 생성합니다. `VITE_DEFAULT_CONTRACT`는 이후 단계에서 contract를 배포하기 전까지 비워 두세요.
+로컬 개발용 환경 파일을 생성합니다. `VITE_DEFAULT_CONTRACT`는 이후 단계에서 컨트랙트를 배포하기 전까지 비워 두세요.
 
 ```bash
 touch leaderboard-ui/.env
@@ -252,7 +252,7 @@ createRoot(document.getElementById('root')!).render(
 touch leaderboard-ui/src/in-memory-private-state-provider.ts
 ```
 
-이 provider는 private state와 signing 키를 contract 주소별로 구분해 메모리에 저장합니다. import와 export 동작을 포함한 `PrivateStateProvider` 인터페이스 전체를 구현합니다.
+이 provider는 private state와 signing 키를 컨트랙트 주소별로 구분해 메모리에 저장합니다. import와 export 동작을 포함한 `PrivateStateProvider` 인터페이스 전체를 구현합니다.
 
 ```typescript
 import type { ContractAddress, SigningKey } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
@@ -378,13 +378,13 @@ export const inMemoryPrivateStateProvider = <PSI extends PrivateStateId, PS = un
 
 ## Read on-chain state
 
-이 hook은 GraphQL로 Midnight indexer에 직접 질의하고, contract state를 deserialize한 다음, 컴파일된 contract의 `ledger()` 함수로 파싱합니다. Part 2에서 만든 API utils의 `decodeDisplayName`을 import해 원시 `Bytes<32>`를 읽을 수 있는 이름으로 변환합니다. 15초마다 자동으로 새로고침하며 wallet 연결이 필요 없습니다.
+이 hook은 GraphQL로 Midnight indexer에 직접 질의하고, contract state를 deserialize한 다음, 컴파일된 컨트랙트의 `ledger()` 함수로 파싱합니다. Part 2에서 만든 API utils의 `decodeDisplayName`을 import해 원시 `Bytes<32>`를 읽을 수 있는 이름으로 변환합니다. 15초마다 자동으로 새로고침하며 지갑 연결이 필요 없습니다.
 
 ```bash
 touch leaderboard-ui/src/hooks/useLeaderboard.ts
 ```
 
-이 hook은 indexer에서 contract state를 가져와 컴파일된 contract의 `ledger()` 함수로 deserialize한 뒤, 정렬된 항목 목록을 반환합니다.
+이 hook은 indexer에서 contract state를 가져와 컴파일된 컨트랙트의 `ledger()` 함수로 deserialize한 뒤, 정렬된 항목 목록을 반환합니다.
 
 ```typescript
 import { useState, useEffect, useCallback } from 'react';
@@ -473,11 +473,11 @@ export function useLeaderboard(contractAddress: string | null, refreshInterval =
 
 ## Wallet bridge
 
-`BrowserLeaderboardManager`는 DApp Connector API를 통해 Lace wallet에 연결하고, 모든 provider를 초기화하며, contract 동작을 `LeaderboardAPI`에 위임합니다.
+`BrowserLeaderboardManager`는 DApp Connector API를 통해 Lace wallet에 연결하고, 모든 provider를 초기화하며, 컨트랙트 동작을 `LeaderboardAPI`에 위임합니다.
 
 이 manager는 처음 사용할 때 무작위 32바이트 secret 키를 생성해 `localStorage`에 저장합니다. 이후 방문할 때는 같은 키를 다시 가져옵니다. 덕분에 페이지를 새로고침하거나 브라우저를 재시작한 뒤에도 소유권 검증이 동작합니다.
 
-`walletProvider.balanceTx` 메서드는 DApp과 wallet을 이어 줍니다. DApp은 contract circuit proof가 담긴 미정산(unbalanced) 트랜잭션을 만들어 정산을 위해 Lace로 보냅니다. Lace는 DUST 수수료와 Zswap proof를 추가한 다음, 제출할 수 있는 완성된 트랜잭션을 돌려줍니다.
+`walletProvider.balanceTx` 메서드는 DApp과 지갑을 이어 줍니다. DApp은 contract circuit proof가 담긴 미정산(unbalanced) 트랜잭션을 만들어 정산을 위해 Lace로 보냅니다. Lace는 DUST 수수료와 Zswap proof를 추가한 다음, 제출할 수 있는 완성된 트랜잭션을 돌려줍니다.
 
 provider를 초기화하기 전에 `setNetworkId()`를 먼저 호출하세요.
 
@@ -485,7 +485,7 @@ provider를 초기화하기 전에 `setNetworkId()`를 먼저 호출하세요.
 touch leaderboard-ui/src/contexts/BrowserLeaderboardManager.ts
 ```
 
-이 manager 클래스는 wallet 연결, provider 초기화, secret 키 영속화, contract 배포 또는 합류를 처리합니다.
+이 manager 클래스는 지갑 연결, provider 초기화, secret 키 영속화, 컨트랙트 배포 또는 합류를 처리합니다.
 
 ```typescript
 import { LeaderboardAPI, type LeaderboardCircuitKeys, type LeaderboardProviders } from '../../../api/src/index';
@@ -627,17 +627,17 @@ const connectToWallet = (logger: Logger, networkId: string): Promise<ConnectedAP
 
 ## Application component
 
-`App.tsx` 컴포넌트는 wallet 감지, 클릭 챌린지 게임, 프라이버시 모드 선택을 통한 점수 제출, 리더보드 표시, 소유권 검증을 모두 하나로 묶습니다.
+`App.tsx` 컴포넌트는 지갑 감지, 클릭 챌린지 게임, 프라이버시 모드 선택을 통한 점수 제출, 리더보드 표시, 소유권 검증을 모두 하나로 묶습니다.
 
-UI의 세 가지 프라이버시 모드는 두 개의 contract 경로로 이어집니다. Anonymous는 custom 이름으로 `undefined`를 보내, 해시를 display 이름으로 저장하는 contract의 `else` 분기를 실행합니다. Public과 Custom은 모두 witness를 통해 문자열(wallet 주소 또는 사용자가 입력한 이름)을 보내, contract의 `if` 분기를 실행합니다.
+UI의 세 가지 프라이버시 모드는 두 개의 컨트랙트 경로로 이어집니다. Anonymous는 custom 이름으로 `undefined`를 보내, 해시를 display 이름으로 저장하는 컨트랙트의 `else` 분기를 실행합니다. Public과 Custom은 모두 witness를 통해 문자열(지갑 주소 또는 사용자가 입력한 이름)을 보내, 컨트랙트의 `if` 분기를 실행합니다.
 
-소유권 검증은 API의 `verifyOwnership`을 호출하고, 검증된 항목을 로컬 React state에 기록합니다. 호출자가 소유자가 아니면 contract의 `assert`가 실패하고 네트워크가 트랜잭션을 거부합니다.
+소유권 검증은 API의 `verifyOwnership`을 호출하고, 검증된 항목을 로컬 React state에 기록합니다. 호출자가 소유자가 아니면 컨트랙트의 `assert`가 실패하고 네트워크가 트랜잭션을 거부합니다.
 
 ```bash
 touch leaderboard-ui/src/App.tsx
 ```
 
-이 컴포넌트는 `useRef`로 공유된 `BrowserLeaderboardManager` 인스턴스를 사용해, 한 세션 안의 모든 contract 동작에서 동일한 secret 키와 provider를 쓰도록 보장합니다.
+이 컴포넌트는 `useRef`로 공유된 `BrowserLeaderboardManager` 인스턴스를 사용해, 한 세션 안의 모든 컨트랙트 동작에서 동일한 secret 키와 provider를 쓰도록 보장합니다.
 
 ```tsx
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -936,7 +936,7 @@ export default function App() {
 npm install
 ```
 
-proof 서버를 시작합니다.
+proof server를 시작합니다.
 
 ```bash
 docker run -d -p 6300:6300 midnightntwrk/proof-server:8.0.3 -- midnight-proof-server --network preprod
@@ -953,12 +953,12 @@ Lace가 설치된 Chrome에서 `http://localhost:3000`을 엽니다. 리더보�
 
 ## Deploy a contract
 
-점수를 제출하려면 먼저 배포된 contract가 필요합니다. wallet을 연결한 다음 **Switch Contract**와 **Deploy New**를 차례로 클릭하세요. 그러면 Preprod에 새 리더보드 contract가 생성되고 주소가 클립보드에 복사됩니다.
+점수를 제출하려면 먼저 배포된 컨트랙트가 필요합니다. 지갑을 연결한 다음 **Switch Contract**와 **Deploy New**를 차례로 클릭하세요. 그러면 Preprod에 새 리더보드 컨트랙트가 생성되고 주소가 클립보드에 복사됩니다.
 
-`.env` 파일의 `VITE_DEFAULT_CONTRACT`를 새 contract 주소로 업데이트한 뒤 개발 서버를 다시 시작하면, 다음 방문부터 자동으로 로드됩니다.
+`.env` 파일의 `VITE_DEFAULT_CONTRACT`를 새 컨트랙트 주소로 업데이트한 뒤 개발 서버를 다시 시작하면, 다음 방문부터 자동으로 로드됩니다.
 
 :::warning[tDUST required]
-contract를 배포하려면 wallet에 tDUST가 있어야 합니다. 트랜잭션 제출 오류가 보이면 Lace를 열고 Tokens 탭으로 이동한 뒤 **Generate tDUST**를 클릭하세요.
+contract를 배포하려면 지갑에 tDUST가 있어야 합니다. 트랜잭션 제출 오류가 보이면 Lace를 열고 토큰 탭으로 이동한 뒤 **Generate tDUST**를 클릭하세요.
 :::
 
 배포가 끝나면 클릭 챌린지를 플레이하고, 프라이버시 모드를 고른 뒤, 점수를 체인에 제출하세요.

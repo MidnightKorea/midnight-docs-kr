@@ -22,11 +22,11 @@ Zswap offer는 네 가지 요소로 구성됩니다:
 - [input](#inputs) 코인 집합('spend'라고도 함)
 - [output](#outputs) 코인 집합
 - transient coin 집합
-- 잔액 vector.
+- balance vector.
 
 Transient coin은 동일한 트랜잭션 안에서 생성과 소비가 모두 이루어지는 코인입니다. 불필요해 보일 수 있지만, 컨트랙트의 코인 관리 능력을 확장하는 역할을 합니다. 개념적으로는 [output](#outputs) 바로 뒤에 [input](#inputs)이 따라오는 것이며, 유일한 차이는 인덱스 충돌을 방지하기 위해 input이 전역이 아닌 로컬에서 생성된 coin commitment 집합으로부터 소비한다는 점입니다.
 
-잔액 vector는 해당 offer의 총 가치 벡터입니다. 차원은 가능한 모든 [토큰 유형](#token-types)이며, 각 차원은 고유한 값을 가집니다. 특정 유형의 input은 이 벡터에 양수로 기여하고, output은 음수로 기여합니다. 잔액 vector의 모든 차원이 음이 아닌 값일 때 *균형 잡힌* 상태로 간주됩니다. 일반적으로 균형 여부를 확인하기 전에 토큰 발행과 수수료 차감을 반영하여 *조정*됩니다.
+balance vector는 해당 offer의 총 가치 벡터입니다. 차원은 가능한 모든 [토큰 유형](#token-types)이며, 각 차원은 고유한 값을 가집니다. 특정 유형의 input은 이 벡터에 양수로 기여하고, output은 음수로 기여합니다. balance vector의 모든 차원이 음이 아닌 값일 때 *균형 잡힌* 상태로 간주됩니다. 일반적으로 균형 여부를 확인하기 전에 토큰 발행과 수수료 차감을 반영하여 *조정*됩니다.
 
 ### Output {#outputs}
 

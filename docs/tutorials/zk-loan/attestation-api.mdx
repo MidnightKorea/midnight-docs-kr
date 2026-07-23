@@ -11,19 +11,19 @@ tags: [tutorials, advanced, zero-knowledge, loan, dapp]
 
 # Attestation API
 
-아무도 호출할 수 없는 smart contract는 컴파일러 출력 디렉토리에 놓인 개념 증명일 뿐입니다.
+아무도 호출할 수 없는 스마트 컨트랙트는 컴파일러 출력 디렉토리에 놓인 개념 증명일 뿐입니다.
 
-[Part 1](./smart-contract)에서는 Compact로 영지식(ZK) 대출 평가 smart contract를 구현했습니다. 신용 점수, 소득, 재직 기간은 비공개로 유지되고, 대출 결과만 온체인에 기록됩니다. 또한 사용자가 자신의 신용 데이터를 위조하지 못하게 막는 Schnorr signature 모듈과, prover에 private input을 공급하는 TypeScript witness도 다뤘습니다.
+[Part 1](./smart-contract)에서는 Compact로 영지식(ZK) 대출 평가 스마트 컨트랙트를 구현했습니다. 신용 점수, 소득, 재직 기간은 비공개로 유지되고, 대출 결과만 온체인에 기록됩니다. 또한 사용자가 자신의 신용 데이터를 위조하지 못하게 막는 Schnorr signature 모듈과, prover에 private input을 공급하는 TypeScript witness도 다뤘습니다.
 
-하지만 지금 이 smart contract에는 서명된 신용 데이터를 받거나 ZK proof를 생성할 방법이 없습니다. 이 파트에서는 smart contract를 실제로 동작하게 만드는 두 가지 오프체인 인프라를 구축합니다.
+하지만 지금 이 스마트 컨트랙트에는 서명된 신용 데이터를 받거나 ZK proof를 생성할 방법이 없습니다. 이 파트에서는 스마트 컨트랙트를 실제로 동작하게 만드는 두 가지 오프체인 인프라를 구축합니다.
 
-- **Attestation API**: Jubjub 곡선 위에서 Schnorr signature로 신용 데이터에 서명하는 REST server입니다. 은행이나 신용평가기관을 대신하는 신뢰된 데이터 제공자 역할을 하며, smart contract는 ZK circuit 안에서 이 서명을 검증합니다.
+- **Attestation API**: Jubjub 곡선 위에서 Schnorr signature로 신용 데이터에 서명하는 REST server입니다. 은행이나 신용평가기관을 대신하는 신뢰된 데이터 제공자 역할을 하며, 스마트 컨트랙트는 ZK circuit 안에서 이 서명을 검증합니다.
 
-- **Proof server**: Midnight의 proof 생성 서비스를 로컬에서 실행하는 Docker 컨테이너입니다. smart contract와 상호작용하는 모든 트랜잭션은 ZK proof가 필요하며, 이 서비스가 그 proof를 생성합니다.
+- **Proof server**: Midnight의 증명 생성 서비스를 로컬에서 실행하는 Docker 컨테이너입니다. 스마트 컨트랙트와 상호작용하는 모든 트랜잭션은 ZK proof가 필요하며, 이 서비스가 그 증명을 생성합니다.
 
 이 절에서는 attestation 흐름을 처음부터 끝까지 따라가며, 신용 데이터가 온체인에 전혀 노출되지 않으면서 attestation API에서 ZK proof로 어떻게 전달되는지 보여줍니다.
 
-**Prerequisites**: [Part 1](./smart-contract)을 완료했고, 컴파일된 smart contract 패키지가 `contract/dist/` 디렉토리에 준비되어 있는지 확인하세요.
+**Prerequisites**: [Part 1](./smart-contract)을 완료했고, 컴파일된 스마트 컨트랙트 패키지가 `contract/dist/` 디렉토리에 준비되어 있는지 확인하세요.
 
 ## Build the attestation API
 
@@ -83,7 +83,7 @@ export interface HealthResponse {
 
 ### Schnorr signing implementation
 
-이 서명 모듈은 key pair를 생성하고, 온체인 smart contract가 검증할 수 있는 Schnorr signature를 만듭니다.
+이 서명 모듈은 key pair를 생성하고, 온체인 스마트 컨트랙트가 검증할 수 있는 Schnorr signature를 만듭니다.
 
 `zkloan-credit-scorer-attestation-api/src` 폴더 안에 `signing.ts` 파일을 만들고 다음 코드를 추가하세요.
 
@@ -170,11 +170,11 @@ export function signCreditData(
 
 1.  무작위 nonce `k`를 생성합니다.
 2.  announcement `R = G * k`를 계산합니다(G는 곡선 generator).
-3.  `pureCircuits.schnorrChallenge()`로 challenge 해시를 계산합니다 — 이는 smart contract가 사용하는 것과 동일한 해시 함수이며, 서명이 온체인에서 검증되려면 반드시 같아야 합니다.
+3.  `pureCircuits.schnorrChallenge()`로 challenge 해시를 계산합니다 — 이는 스마트 컨트랙트가 사용하는 것과 동일한 해시 함수이며, 서명이 온체인에서 검증되려면 반드시 같아야 합니다.
 4.  challenge를 248비트로 잘라냅니다: `c = cFull % 2^248`.
 5.  response를 계산합니다: `s = (k + c * sk) mod JUBJUB_ORDER`.
 
-이렇게 만들어진 signature는 `(R, s)`입니다. smart contract는 `G * s == R + publicKey * c`를 확인하여 검증합니다.
+이렇게 만들어진 signature는 `(R, s)`입니다. 스마트 컨트랙트는 `G * s == R + publicKey * c`를 확인하여 검증합니다.
 
 핵심은 3단계입니다. `pureCircuits.schnorrChallenge()` 함수는 [Part 1](./smart-contract)에서 다룬 Compact smart contract의 `pure circuit schnorrChallenge`에서 생성됩니다. 오프체인 서명자와 온체인 검증자가 같은 해시 함수를 쓰기 때문에, 여기서 만든 서명이 ZK circuit 안에서 검증됩니다. 다른 해시를 쓰면 모든 서명이 검증에 실패합니다.
 
@@ -473,8 +473,8 @@ API를 구축했으니, attestation이 세 컴포넌트에 걸쳐 처음부터 �
 
 위 다이어그램의 번호에 맞춰 각 단계를 짚어봅니다.
 
-1. **제공자 등록.** 관리자가 온체인에서 `registerProvider`를 호출해, attestation API의 Jubjub 공개 키를 smart contract의 `providers` 맵에 저장합니다. 블록체인을 건드리는 유일한 설정 단계입니다.
-2. **attestation 요청.** CLI는 사용자의 신용 데이터와 파생된 공개 키 해시를 attestation API로 보냅니다. CLI는 [Part 1](./smart-contract)의 `publicKey` pure circuit으로 사용자 wallet 키와 비밀 PIN에서 공개 키 해시를 계산합니다.
+1. **제공자 등록.** 관리자가 온체인에서 `registerProvider`를 호출해, attestation API의 Jubjub 공개 키를 스마트 컨트랙트의 `providers` 맵에 저장합니다. 블록체인을 건드리는 유일한 설정 단계입니다.
+2. **attestation 요청.** CLI는 사용자의 신용 데이터와 파생된 공개 키 해시를 attestation API로 보냅니다. CLI는 [Part 1](./smart-contract)의 `publicKey` pure circuit으로 사용자 지갑 키와 비밀 PIN에서 공개 키 해시를 계산합니다.
 3. **서명 후 반환.** attestation API는 네 필드(신용 점수, 월 소득, 고객 유지 개월 수, 사용자 공개 키 해시)를 하나의 Schnorr signature로 서명합니다. 서명된 메시지에 공개 키 해시를 포함하면 attestation이 특정 사용자에 묶이므로, 다른 사용자가 이 서명을 재사용할 수 없습니다.
 4. **대출 요청 제출.** CLI는 서명을 사용자의 private state에 저장하고 `requestLoan`을 호출합니다. 서명은 ZK witness의 일부로 proof server에 전달됩니다. 블록체인에 도달하는 트랜잭션 데이터에는 절대 나타나지 않습니다.
 5. **ZK에서 검증.** circuit 안에서 `evaluateApplicant`는 witness에서 서명을 가져오고, ledger에서 제공자의 공개 키를 조회한 뒤 `schnorrVerify`를 실행합니다. 데이터가 변조되었거나, 잘못된 제공자가 서명했거나, attestation이 다른 사용자의 것이면 검증에 실패합니다. 이 경우 assertion이 실패하고 트랜잭션은 되돌려집니다.
@@ -482,7 +482,7 @@ API를 구축했으니, attestation이 세 컴포넌트에 걸쳐 처음부터 �
 
 이를 통해 양방향 프라이버시가 보장됩니다.
 
-*   **사용자는 거짓말할 수 없습니다**: smart contract가 circuit 안에서 attestation 제공자의 서명을 검증하므로, 위조된 신용 데이터는 검증에 실패합니다.
+*   **사용자는 거짓말할 수 없습니다**: 스마트 컨트랙트가 circuit 안에서 attestation 제공자의 서명을 검증하므로, 위조된 신용 데이터는 검증에 실패합니다.
 
 *   **제공자는 결과를 볼 수 없습니다**: ZK proof는 서명된 데이터를 private input으로 다루므로, attestation API는 온체인 활동을 들여다볼 수 없습니다.
 
@@ -492,7 +492,7 @@ API를 구축했으니, attestation이 세 컴포넌트에 걸쳐 처음부터 �
 Preprod 대신 [Midnight Local Dev](/guides/midnight-local-network)로 테스트한다면 이 단계는 건너뛰세요. 로컬 개발 환경에는 이미 `6300` 포트에 proof server가 포함되어 있습니다.
 :::
 
-[proof server](/guides/run-proof-server)는 smart contract와 상호작용하는 모든 트랜잭션의 ZK proof를 생성합니다. Preprod에서는 블록체인 노드와 indexer는 원격(Midnight Network 호스팅)이고, proof server는 Docker로 로컬에서 실행합니다.
+[proof server](/guides/run-proof-server)는 스마트 컨트랙트와 상호작용하는 모든 트랜잭션의 ZK proof를 생성합니다. Preprod에서는 블록체인 노드와 indexer는 원격(Midnight Network 호스팅)이고, proof server는 Docker로 로컬에서 실행합니다.
 
 `zkloan-credit-scorer-cli/proof-server.yml`을 만드세요.
 
@@ -525,7 +525,7 @@ docker compose -f proof-server.yml ps
 
 `6300` 포트에서 `proof-server` 컨테이너가 실행 중인 것을 확인할 수 있습니다. 서버가 응답하는지 확인하려면 호스트에서 `curl http://localhost:6300/version`을 실행하세요. compose 파일에 curl 기반 `healthcheck`는 추가하지 마세요. proof-server 이미지에는 `curl`이 포함되어 있지 않아, 서버가 정상이어도 컨테이너 내부 healthcheck는 실패합니다.
 
-proof server는 이 스택에서 연산 부담이 가장 큰 컴포넌트입니다. [Part 3](./cli)에서 CLI로 트랜잭션을 제출하면, proof server는 circuit 정의, public input(ledger 상태), private input(witness 데이터)을 받습니다. 그런 다음 ZK proof를 만들어 Midnight Network에 제출합니다. 이 proof는 private input을 드러내지 않으면서 연산이 올바르게 수행되었음을 증명합니다.
+proof server는 이 스택에서 연산 부담이 가장 큰 컴포넌트입니다. [Part 3](./cli)에서 CLI로 트랜잭션을 제출하면, proof server는 circuit 정의, public input(ledger 상태), private input(witness 데이터)을 받습니다. 그런 다음 ZK proof를 만들어 Midnight Network에 제출합니다. 이 증명은 private input을 드러내지 않으면서 연산이 올바르게 수행되었음을 증명합니다.
 
 개발 단계에서는 Docker로 로컬에서 실행하는 것으로 충분합니다. 운영 환경에서는 더 많은 연산 자원을 갖춘 전용 인프라에서 proof server를 실행합니다.
 
@@ -533,5 +533,5 @@ proof server는 이 스택에서 연산 부담이 가장 큰 컴포넌트입니�
 
 마지막 파트에서는 CLI를 구축하고 전체 흐름을 처음부터 끝까지 실행합니다.
 
-*   *[CLI](./cli)*: Midnight Preprod 네트워크에서 wallet 생성, smart contract 배포, attestation 제공자 등록, 대출 요청, 온체인 상태 조회를 수행하는 대화형 커맨드 라인 도구입니다.
-*   *End-to-end testing*: tNIGHT로 wallet 생성 및 충전, smart contract 배포, 제공자 등록, 자격 등급별 대출 요청, 그리고 대출 결과만 온체인에 나타나는지 검증합니다.
+*   *[CLI](./cli)*: Midnight Preprod 네트워크에서 지갑 생성, 스마트 컨트랙트 배포, attestation 제공자 등록, 대출 요청, 온체인 상태 조회를 수행하는 대화형 커맨드 라인 도구입니다.
+*   *End-to-end testing*: tNIGHT로 지갑 생성 및 충전, 스마트 컨트랙트 배포, 제공자 등록, 자격 등급별 대출 요청, 그리고 대출 결과만 온체인에 나타나는지 검증합니다.

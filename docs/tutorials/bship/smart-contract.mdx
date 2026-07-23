@@ -13,7 +13,7 @@ toc_max_heading_level: 2
 이 Battleship 튜토리얼은 다음 기능을 다루는 중급 수준의 예제입니다:
 - 상태 머신으로서의 Compact 컨트랙트
 - 명시적 상태 관리
-- 비공개 상태 데이터 (설정, 조회, 갱신, 검증, 악의적 조작)
+- private state 데이터 (설정, 조회, 갱신, 검증, 악의적 조작)
 - `List` 연산
 - 중급 Witness 기능
 - MidnightJS를 활용한 프론트엔드 테스트
@@ -35,9 +35,9 @@ toc_max_heading_level: 2
 
 Battleship(배틀쉽)은 두 명이 즐기는 추측 게임입니다. 각 플레이어는 개별 격자에 자신의 함선을 배치하며, 상대방에게는 함선 위치가 보이지 않습니다. 플레이어는 번갈아 가며 상대 함선을 향해 "사격"하고, 상대 함선을 모두 "격침"하는 것이 목표입니다. 먼저 상대 함선을 모두 맞힌 플레이어가 승리합니다.
 
-Battleship의 핵심은 비공개 데이터(함선)와 공개 데이터(사격, 명중)의 조합입니다. 보드게임 버전은 상당한 신뢰 가정에 의존하기 때문에 악의적 플레이어에 취약합니다. 플레이어가 HIT인데도 MISS라고 거짓 주장할 수 있고, 게임 도중 함선을 이동(비공개 상태 변경)하거나, 상대 함선 위치를 몰래 확인하여 승리를 보장할 수도 있습니다.
+Battleship의 핵심은 비공개 데이터(함선)와 공개 데이터(사격, 명중)의 조합입니다. 보드게임 버전은 상당한 신뢰 가정에 의존하기 때문에 악의적 플레이어에 취약합니다. 플레이어가 HIT인데도 MISS라고 거짓 주장할 수 있고, 게임 도중 함선을 이동(private state 변경)하거나, 상대 함선 위치를 몰래 확인하여 승리를 보장할 수도 있습니다.
 
-블록체인을 활용하면 이러한 신뢰 가정을 온체인으로 옮겨 규칙을 강제할 수 있습니다. Midnight에서는 비공개 데이터를 공개적으로 노출하지 않으면서도 해당 플레이어의 비공개 상태에서 유효성을 검증할 수 있습니다.
+블록체인을 활용하면 이러한 신뢰 가정을 온체인으로 옮겨 규칙을 강제할 수 있습니다. Midnight에서는 비공개 데이터를 공개적으로 노출하지 않으면서도 해당 플레이어의 private state에서 유효성을 검증할 수 있습니다.
 
 ## Program design
 
@@ -70,11 +70,11 @@ Midnight DApp 개발에서 가장 까다로운 부분 중 하나는 공개 데�
 | Shots      | Password     |
 | States     | HIT/MISS     |
 
-게임 규칙을 강제하고 부정행위를 방지하기 위해, 각 플레이어는 함선 위치에 대한 commitment을 생성하고 해당 해시를 원장에 게시합니다. *모든 원장 데이터는 공개*되므로, 나중에 변경 여부를 검증할 수 있도록 비공개 상태 데이터(함선)를 온체인에서 신중하게 관리해야 합니다.
+게임 규칙을 강제하고 부정행위를 방지하기 위해, 각 플레이어는 함선 위치에 대한 commitment을 생성하고 해당 해시를 ledger에 게시합니다. *모든 ledger 데이터는 공개*되므로, 나중에 변경 여부를 검증할 수 있도록 private state 데이터(함선)를 온체인에서 신중하게 관리해야 합니다.
 
 ### Cheating assertions
 
-Battleship에서 가장 흔한 부정행위는 실제로 HIT인 "사격"을 MISS라고 주장하는 것입니다. 이 DApp에서는 플레이어가 비공개 상태 데이터를 악의적으로 조작하려는 시도에 해당합니다.
+Battleship에서 가장 흔한 부정행위는 실제로 HIT인 "사격"을 MISS라고 주장하는 것입니다. 이 DApp에서는 플레이어가 private state 데이터를 악의적으로 조작하려는 시도에 해당합니다.
 
 검증 로직으로 `ShotState`의 유효성을 확인하여 MISS가 실제로 MISS인지 검사할 수 있습니다. Alice나 Bob을 신뢰할 필요가 없으며, Compact 코드로 이를 강제합니다. 프론트엔드 테스트 스위트에서 이러한 방식으로 컨트랙트를 공격하는 테스트를 작성하고, 검증 로직이 이를 올바르게 거부하는지 확인합니다.
 
@@ -139,7 +139,7 @@ export enum WinState {
 }
 ```
 
-다음으로 *공개* 원장 필드를 선언합니다:
+다음으로 *공개* ledger 필드를 선언합니다:
 ```compact
 export ledger player1: Bytes<32>;
 export ledger player2: Bytes<32>;
@@ -157,11 +157,11 @@ export ledger board1HitCount: Counter;
 export ledger board2HitCount: Counter;
 ```
 
-모든 원장 필드는 공개적으로 볼 수 있습니다. 비공개 데이터를 이러한 필드에 숨기려면 Compact의 해싱 함수를 활용합니다. 구체적인 회로 구현은 나중에 다루겠지만, 우선 이 데이터를 숨기는 전략이 필요하다는 점을 알아두세요.
+모든 ledger 필드는 공개적으로 볼 수 있습니다. 비공개 데이터를 이러한 필드에 숨기려면 Compact의 해싱 함수를 활용합니다. 구체적인 회로 구현은 나중에 다루겠지만, 우선 이 데이터를 숨기는 전략이 필요하다는 점을 알아두세요.
 
 ### Witness declaration
 
-비공개 상태 데이터를 설정하고 접근하려면 `witness` 함수를 선언합니다:
+private state 데이터를 설정하고 접근하려면 `witness` 함수를 선언합니다:
 ```compact
 witness localSk(): Bytes<32>;
 witness localSetBoard(_x1: Uint<8>, _x2: Uint<8>): BoardState;
@@ -197,9 +197,9 @@ constructor(_x1: Uint<8>, _x2: Uint<8>) {
 }// end of constructor
 ```
 
-이 패턴은 플레이어의 비공개 상태에서 비밀 키를 가져와 도메인 구분자와 함께 해싱하여, 이 DApp 내에서는 사용자 상호작용을 추적하되 다른 DApp에서는 추적할 수 없도록 합니다. `getDappPublicKey` 회로는 나중에 작성합니다.
+이 패턴은 플레이어의 private state에서 비밀 키를 가져와 도메인 구분자와 함께 해싱하여, 이 DApp 내에서는 사용자 상호작용을 추적하되 다른 DApp에서는 추적할 수 없도록 합니다. `getDappPublicKey` 회로는 나중에 작성합니다.
 
-비공개 상태 데이터(_x1, _x2)를 공개적으로 저장하려면 해싱이 필요합니다:
+private state 데이터(_x1, _x2)를 공개적으로 저장하려면 해싱이 필요합니다:
 ```compact
     // hash the inputs to verify them later, user needs to provide the same value and _sk
     const hash1 = commitBoardSpace(_x1 as Bytes<32>, _sk);
@@ -210,7 +210,7 @@ constructor(_x1: Uint<8>, _x2: Uint<8>) {
 }// end of constructor
 ```
 
-이렇게 저장된 해시로는 공격자가 플레이어의 비공개 상태에 접근하지 않는 한 원본 비공개 데이터를 도출할 수 없습니다. 단방향 결정적 함수이므로 역추적이 불가능합니다. 함선 위치가 변경되지 않았는지 검증하려면 프로그램 후반에 같은 데이터를 다시 제출하도록 요청하고, 다시 해싱하여 해시값을 비교합니다. 해시가 일치하지 않으면 플레이어가 다른 데이터를 제공한 것입니다.
+이렇게 저장된 해시로는 공격자가 플레이어의 private state에 접근하지 않는 한 원본 비공개 데이터를 도출할 수 없습니다. 단방향 결정적 함수이므로 역추적이 불가능합니다. 함선 위치가 변경되지 않았는지 검증하려면 프로그램 후반에 같은 데이터를 다시 제출하도록 요청하고, 다시 해싱하여 해시값을 비교합니다. 해시가 일치하지 않으면 플레이어가 다른 데이터를 제공한 것입니다.
 
 이제 플레이어에게 로컬 보드에 함선 위치를 설정하도록 요청합니다:
 ```compact
@@ -224,7 +224,7 @@ constructor(_x1: Uint<8>, _x2: Uint<8>) {
 
 `localSetBoardState`는 witness 함수이므로 반환값을 신뢰하면 안 되고, `assert`로 강제해야 합니다. 이 오프체인 함수가 완료되면 보드가 설정되었다고 가정하므로, 이를 명시적으로 `assert`합니다. 함선 위치는 플레이어가 보드를 확인할 때 원본과 대조하여 검증합니다.
 
-Constructor의 마지막 작업은 공개 상태 할당입니다:
+Constructor의 마지막 작업은 public state 할당입니다:
 ```compact
     // setting initial states
     board2State = BoardState.UNSET;
@@ -232,7 +232,7 @@ Constructor의 마지막 작업은 공개 상태 할당입니다:
 }// end of constructor
 ```
 
-이러한 공개 상태 값을 통해 특정 함수에 대한 접근을 허용하기 전 `assert`로 상태가 기대한 대로인지 검증할 수 있습니다.
+이러한 public state 값을 통해 특정 함수에 대한 접근을 허용하기 전 `assert`로 상태가 기대한 대로인지 검증할 수 있습니다.
 
 ### Bob joins the game
 
@@ -373,7 +373,7 @@ export circuit player1Shoot (x: Uint<8>): [] {
 }// end of player1Shoot
 ```
 
-`disclose` 키워드 자체가 값을 공개하는 것은 아닙니다. 현재 비공개인 데이터를 공개할 의도가 있음을 프로그래머가 컴파일러에 명시적으로 알리는 수동 요구사항입니다. 일반적으로 원장 값 할당을 통해 공개됩니다.
+`disclose` 키워드 자체가 값을 공개하는 것은 아닙니다. 현재 비공개인 데이터를 공개할 의도가 있음을 프로그래머가 컴파일러에 명시적으로 알리는 수동 요구사항입니다. 일반적으로 ledger 값 할당을 통해 공개됩니다.
 
 온체인 상태와 데이터를 갱신합니다:
 ```compact
@@ -608,7 +608,7 @@ zkir-lint: scanned 5 file(s)
 
 ## Witnesses
 
-Compact 섹션에서 언급했듯이 witness는 Compact에서 선언만 하고, 실제 구현은 TypeScript 프론트엔드에서 합니다. 이를 통해 비용이 많이 드는 연산을 오프체인으로 위임하고 비공개 상태 함수를 격리할 수 있습니다.
+Compact 섹션에서 언급했듯이 witness는 Compact에서 선언만 하고, 실제 구현은 TypeScript 프론트엔드에서 합니다. 이를 통해 비용이 많이 드는 연산을 오프체인으로 위임하고 private state 함수를 격리할 수 있습니다.
 
 TypeScript를 작성하기 전에 설정 파일을 생성합니다:
 ```bash
@@ -651,7 +651,7 @@ import { type Ledger, BoardState, ShotState } from './managed/battleship/contrac
 import { type WitnessContext } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 ```
 
-프로그램에 필요한 비공개 상태 데이터의 커스텀 타입을 정의합니다:
+프로그램에 필요한 private state 데이터의 커스텀 타입을 정의합니다:
 ```typescript
 export type BattlePrivateState = {
     x1: bigint,
@@ -681,9 +681,9 @@ export const createBattlePrivateState = (
 });
 ```
 
-이 함수는 테스트에서 각 플레이어의 비공개 상태를 생성하거나 비공개 상태 조작을 시뮬레이션하는 데 사용됩니다.
+이 함수는 테스트에서 각 플레이어의 private state를 생성하거나 private state 조작을 시뮬레이션하는 데 사용됩니다.
 
-이제 Compact 코드에서 선언한 `witnesses`를 구현합니다. 먼저 비공개 상태 데이터를 가져오는 간단한 "getter"부터:
+이제 Compact 코드에서 선언한 `witnesses`를 구현합니다. 먼저 private state 데이터를 가져오는 간단한 "getter"부터:
 ```typescript
 export const witnesses = {
     localSk: ({
@@ -701,7 +701,7 @@ Witness 함수의 시그니처는 대응하는 Compact 선언과 정확히 일�
 
 다음 두 줄은 함수의 반환 타입을 나타냅니다. Witness 함수는 항상 첫 번째 반환값으로 `privateState`를 전달해야 하고, 그 뒤에 함수 시그니처에 명시된 반환값이 옵니다.
 
-비공개 상태 데이터를 설정하는 "setter"를 구현합니다:
+private state 데이터를 설정하는 "setter"를 구현합니다:
 ```typescript
     localSetBoard: ({
         privateState
@@ -719,7 +719,7 @@ Witness 함수의 시그니처는 대응하는 Compact 선언과 정확히 일�
 
 이 함수의 형태는 `localSk()`와 요구사항이 비슷하지만, `x1`과 `x2`가 입력으로 추가되어 `privateState` 객체에 설정됩니다. 마지막으로 `privateState.boardState`를 갱신한 후 컨트랙트에 반환합니다.
 
-마지막 witness 함수는 플레이어의 비공개 상태 데이터를 확인하는 역할입니다:
+마지막 witness 함수는 플레이어의 private state 데이터를 확인하는 역할입니다:
 ```typescript
     localCheckBoard: ({
         privateState
@@ -737,7 +737,7 @@ Witness 함수의 시그니처는 대응하는 Compact 선언과 정확히 일�
 };//end of witnesses
 ```
 
-Witness 함수 내의 비공개 상태 데이터 연산은 어떤 방식으로도 검증되지 않는다는 점이 중요합니다. DApp 개발자는 witness 함수의 연산이 기대대로 수행되었는지 반드시 `assert` 문으로 검증해야 합니다. `.compact` 코드에 엄격한 검사가 내장되어 있으며, 프론트엔드 테스트 스위트에서 정상 동작을 확인합니다.
+Witness 함수 내의 private state 데이터 연산은 어떤 방식으로도 검증되지 않는다는 점이 중요합니다. DApp 개발자는 witness 함수의 연산이 기대대로 수행되었는지 반드시 `assert` 문으로 검증해야 합니다. `.compact` 코드에 엄격한 검사가 내장되어 있으며, 프론트엔드 테스트 스위트에서 정상 동작을 확인합니다.
 
 오프체인 witness 구현이 모두 완료되었습니다. 이제 컴파일된 컨트랙트를 export 할 수 있습니다.
 

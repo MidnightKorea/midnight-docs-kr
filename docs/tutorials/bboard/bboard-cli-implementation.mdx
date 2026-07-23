@@ -227,7 +227,7 @@ export class PreprodTestEnvironment extends RemoteTestEnvironment {
 }
 ```
 
-세 가지 설정 모두 zero-knowledge(ZK) proof 생성을 위해 로컬 Docker proof 서버를 사용합니다. 로컬 proof 서버는 더 나은 성능을 제공하며 proof 생성에 외부 네트워크 접근이 필요하지 않습니다.
+세 가지 설정 모두 영지식(ZK) 증명 생성을 위해 로컬 Docker proof server를 사용합니다. 로컬 proof server는 더 나은 성능을 제공하며 증명 생성에 외부 네트워크 접근이 필요하지 않습니다.
 
 ## Implement logging utilities
 
@@ -314,7 +314,7 @@ export const getInitialUnshieldedState = async (
 
 ### Sync wallet
 
-`syncWallet` 함수는 세 가지 구성 요소(차폐, 비차폐, DUST) 전체에서 지갑의 동기화 진행률을 모니터링하고 블록체인과 완전히 동기화될 때까지 대기합니다. 지갑 작업을 수행하기 전에 이것이 필수적입니다.
+`syncWallet` 함수는 세 가지 구성 요소(shielded, unshielded, DUST) 전체에서 지갑의 동기화 진행률을 모니터링하고 블록체인과 완전히 동기화될 때까지 대기합니다. 지갑 작업을 수행하기 전에 이것이 필수적입니다.
 
 지갑 동기화 함수를 추가합니다:
 
@@ -379,7 +379,7 @@ export const syncWallet = (logger: Logger, wallet: WalletFacade, throttleTime = 
 
 ### Wait for unshielded funds
 
-컨트랙트를 배포하거나 트랜잭션을 제출하기 전에, 지갑은 네트워크 수수료를 지불하기 위한 DUST를 생성하기 위해 비차폐 tNIGHT 토큰이 필요합니다. 이 함수는 충분한 자금이 사용 가능한지 확인하며, 선택적으로 테스트를 위해 faucet에서 토큰을 요청합니다.
+컨트랙트를 배포하거나 트랜잭션을 제출하기 전에, 지갑은 네트워크 수수료를 지불하기 위한 DUST를 생성하기 위해 unshielded tNIGHT 토큰이 필요합니다. 이 함수는 충분한 자금이 사용 가능한지 확인하며, 선택적으로 테스트를 위해 faucet에서 토큰을 요청합니다.
 
 자금 지원 함수를 추가합니다:
 
@@ -433,7 +433,7 @@ export const waitForUnshieldedFunds = async (
 };
 ```
 
-`waitForUnshieldedFunds`는 wallet이 완전히 동기화되고 **그리고** 요청한 token 유형의 unshielded 잔액이 0보다 커질 때까지 기다립니다 — 이렇게 하면 wallet이 초기 sync를 끝낸 뒤에야 faucet 입금이 관찰되는 race를 피할 수 있습니다.
+`waitForUnshieldedFunds`는 지갑이 완전히 동기화되고 **그리고** 요청한 토큰 유형의 unshielded 잔액이 0보다 커질 때까지 기다립니다 — 이렇게 하면 지갑이 초기 sync를 끝낸 뒤에야 faucet 입금이 관찰되는 race를 피할 수 있습니다.
 
 ## Implement DUST generation
 
@@ -514,11 +514,11 @@ DUST 생성은 tNIGHT 토큰을 지정해 트랜잭션 수수료용 DUST를 자�
 3. recipe를 확정하고 트랜잭션을 네트워크에 제출합니다
 4. DUST 잔액 observable이 0이 아닌 값을 발행할 때까지 대기합니다
 
-wallet SDK 1.0 facade는 이전 wallet 패키지에서 필요했던 intent 구성과 서명 연결을 숨기므로, CLI는 서명 콜백만 제공하면 나머지는 wallet이 처리합니다.
+wallet SDK 1.0 facade는 이전 지갑 패키지에서 필요했던 intent 구성과 서명 연결을 숨기므로, CLI는 서명 콜백만 제공하면 나머지는 지갑이 처리합니다.
 
 ## Implement wallet provider
 
-지갑 프로바이더는 Wallet SDK와 Midnight.js contracts API를 연결하며, 컨트랙트 배포 및 트랜잭션 시스템에 필요한 인터페이스를 구현합니다. 암호학적 키, 트랜잭션 밸런싱, 지갑 생명주기 작업을 관리합니다.
+지갑 provider는 Wallet SDK와 Midnight.js contracts API를 연결하며, 컨트랙트 배포 및 트랜잭션 시스템에 필요한 인터페이스를 구현합니다. 암호학적 키, 트랜잭션 밸런싱, 지갑 생명주기 작업을 관리합니다.
 
 `bboard-cli/src/midnight-wallet-provider.ts`를 생성하고 다음 임포트 및 클래스 정의를 추가합니다:
 
@@ -573,7 +573,7 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
 
 ### Implement key provider methods
 
-이 메서드들은 차폐 자금 수신 및 트랜잭션 데이터 복호화에 필요한 공개 키를 반환합니다:
+이 메서드들은 shielded 자금 수신 및 트랜잭션 데이터 복호화에 필요한 공개 키를 반환합니다:
 
 ```typescript title="bboard-cli/src/midnight-wallet-provider.ts"
   getCoinPublicKey(): CoinPublicKey {
@@ -585,7 +585,7 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
   }
 ```
 
-`getCoinPublicKey()` 메서드는 차폐 토큰을 수신하기 위한 주소를 반환하고, `getEncryptionPublicKey()`는 이 지갑으로 전송된 차폐 트랜잭션 데이터를 복호화하는 키를 반환합니다.
+`getCoinPublicKey()` 메서드는 shielded 토큰을 수신하기 위한 주소를 반환하고, `getEncryptionPublicKey()`는 이 지갑으로 전송된 shielded 트랜잭션 데이터를 복호화하는 키를 반환합니다.
 
 ### Implement transaction methods
 
@@ -607,7 +607,7 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
   }
 ```
 
-`balanceTx()` 메서드는 (입출력이 선택되지 않은) 바인딩되지 않은 트랜잭션을 받아 수수료를 충당할 적절한 UTXO를 선택하고 잔돈 출력을 추가해 밸런싱합니다. 그런 다음 recipe를 확정하기 전에 unshielded keystore로 unshielded intent 페이로드에 서명하도록 wallet에 요청합니다. `submitTx()` 메서드는 확정된 트랜잭션을 네트워크에 제출하고 트랜잭션 해시를 반환합니다.
+`balanceTx()` 메서드는 (입출력이 선택되지 않은) 바인딩되지 않은 트랜잭션을 받아 수수료를 충당할 적절한 UTXO를 선택하고 잔돈 출력을 추가해 밸런싱합니다. 그런 다음 recipe를 확정하기 전에 unshielded keystore로 unshielded intent 페이로드에 서명하도록 지갑에 요청합니다. `submitTx()` 메서드는 확정된 트랜잭션을 네트워크에 제출하고 트랜잭션 해시를 반환합니다.
 
 ### Implement lifecycle methods
 
@@ -666,7 +666,7 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
 
 팩토리 메서드는 네트워크에 따라 달라지는 `additionalFeeOverhead`로 DUST 옵션을 구성합니다. `@midnight-ntwrk/testkit-js`가 제공하는 기본값(`500_000_000_000_000_000n`)은 `undeployed`(standalone) 네트워크에서 필요하며, 더 낮은 값을 쓰면 노드 측에서 `BalanceCheckOverspend`로 실패할 수 있습니다. 원격 테스트넷에서는 이 오버헤드가 지갑이 보통 보유한 것보다 많은 DUST를 요구하므로, CLI는 이를 `1_000n`으로 재정의합니다.
 
-시드가 제공되면 빌더는 기존 지갑을 복원하고, 그렇지 않으면 새로운 랜덤 시드를 생성합니다. 빌더 결과는 unshielded intent 서명을 위해 미리 구성된 `keystore`도 함께 제공합니다. 이 메서드는 사용자 참조를 위해 시드와 shielded 주소를 로깅하고 모든 암호학적 자료를 프로바이더에 저장합니다.
+시드가 제공되면 빌더는 기존 지갑을 복원하고, 그렇지 않으면 새로운 랜덤 시드를 생성합니다. 빌더 결과는 unshielded intent 서명을 위해 미리 구성된 `keystore`도 함께 제공합니다. 이 메서드는 사용자 참조를 위해 시드와 shielded 주소를 로깅하고 모든 암호학적 자료를 provider에 저장합니다.
 
 ## Implement the main CLI logic
 
@@ -1005,7 +1005,7 @@ export const run = async (config: Config, testEnv: TestEnvironment, logger: Logg
 2. **지갑 빌드**: 시드에서 지갑을 생성하거나 복원합니다(standalone에서는 genesis-mint 시드를 사용)
 3. **자금 대기**: 지갑에 수수료용 tNIGHT 토큰이 있는지 확인합니다
 4. **DUST 생성**: DUST 생성을 위해 UTXO를 등록합니다(이미 DUST를 보유한 standalone에서는 건너뜀)
-5. **프로바이더 구성**: 필요한 6개의 프로바이더(private 상태, 공개 데이터, ZK 설정, proof, wallet, midnight)를 모두 설정합니다. Midnight.js 4.x는 private 상태를 컨트랙트 주소별로 범위화하며, (지갑 시드로 설정되는) `accountId` 옵션이 LevelDB 저장소의 키가 되어 같은 머신의 여러 사용자가 상태를 공유하지 않도록 합니다.
+5. **provider 구성**: 필요한 6개의 provider(private 상태, 공개 데이터, ZK 설정, 증명, 지갑, midnight)를 모두 설정합니다. Midnight.js 4.x는 private 상태를 컨트랙트 주소별로 범위화하며, (지갑 시드로 설정되는) `accountId` 옵션이 LevelDB 저장소의 키가 되어 같은 머신의 여러 사용자가 상태를 공유하지 않도록 합니다.
 6. **메인 루프 진입**: 대화형 게시판 세션을 시작합니다
 7. **정리**: 중첩된 `finally` 블록으로 오류가 발생해도 리소스가 반드시 정리됩니다
 
@@ -1081,7 +1081,7 @@ await run(config, testEnvironment, logger);
 
 ## Configure the proof server
 
-로컬 개발용으로 `bboard-cli/proof-server-local.yml`을 생성합니다. 이 파일은 proof 서버를 고정된 호스트 포트로 노출하므로, 한 번 시작해 두고 CLI 실행 사이에 재사용할 수 있습니다:
+로컬 개발용으로 `bboard-cli/proof-server-local.yml`을 생성합니다. 이 파일은 proof server를 고정된 호스트 포트로 노출하므로, 한 번 시작해 두고 CLI 실행 사이에 재사용할 수 있습니다:
 
 ```yaml title="bboard-cli/proof-server-local.yml"
 services:
@@ -1105,7 +1105,7 @@ services:
       - '0:6300'
 ```
 
-CLI를 실행하기 전에 오래 유지되는 로컬 proof 서버를 시작합니다:
+CLI를 실행하기 전에 오래 유지되는 로컬 proof server를 시작합니다:
 
 ```bash
 docker compose -f proof-server-local.yml up -d

@@ -12,7 +12,7 @@ const darkCodeTheme = prismThemes.dracula;
 const config = {
   title: "Midnight Korea Docs",
   tagline: "Midnight DUST is cool",
-  favicon: "img/favicon.ico",
+  favicon: "favicon.ico",
 
   markdown: { mermaid: true },
   themes: [

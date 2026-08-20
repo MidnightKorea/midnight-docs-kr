@@ -1,71 +1,537 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-sidebar_label: "Get faucet tokens"
-description: Midnight Network용 테스트 token을 받는 방법을 알아봅니다.
-toc_max_heading_level: 2
+title: Funding a wallet
+description: "faucet에서 tNIGHT을 받고 Lace 또는 wallet SDK로 DUST 생성을 위해 등록하여, 지갑이 트랜잭션 수수료를 낼 수 있게 합니다."
+sidebar_label: "Fund a wallet"
 sidebar_position: 15
+toc_max_heading_level: 2
+keywords: [midnight, faucet, tnight, tdust, dust, night, funding, wallet, registration]
+tags: [midnight, tokens, dust, night, wallet, funding]
 ---
 
-# Get faucet tokens
+# Funding a wallet
 
-프로덕션 Midnight 네트워크에서 DApp을 실행하려면 지갑에 DUST를 보유하고 트랜잭션마다 소비해야 합니다.
-Midnight DApp을 테스트하려는 개발자를 위해 무료 tDUST가 제공됩니다.
+Midnight의 모든 트랜잭션은 DUST를 소비하며, DUST는 DUST 생성을 위해 등록한 NIGHT에서 나옵니다. 테스트 네트워크에서는 양쪽 모두 무료입니다. faucet이 tNIGHT을 보내주고, 그것을 등록하면 tDUST가 쌓이기 시작합니다. 이 가이드는 전체 경로를 안내합니다. faucet에서 tNIGHT을 요청하고, Lace wallet에서 등록한 다음, 자금 조달을 스크립트화해야 할 때는 wallet SDK로 같은 작업을 프로그래밍 방식으로 수행합니다. 두 토큰 모델이 이렇게 동작하는 이유는 [Funding and transaction cost](./networks-and-environments#funding-and-transaction-cost)를 참고하세요.
 
-:::tip
-로컬 undeployed 네트워크를 사용하는 경우 [로컬 네트워크 faucet](./midnight-local-network#fund-wallets)으로 지갑에 자금을 넣고 tDUST를 생성하세요.
-:::
+문서 전반에 걸쳐 중요한 용어가 하나 있습니다. NIGHT을 DUST 생성을 위해 **등록(register)**한다는 것은, 프로토콜과 SDK도 registration이라 부르는 온체인 연산을 말합니다. Lace는 이 버튼을 **Generate tDUST**로 표시하고, 그 결과를 tNIGHT designation으로 보여줍니다.
 
-## Get tNIGHT
+## Prerequisites
 
-tNIGHT는 Midnight 네트워크의 테스트 토큰으로, tDUST 생성에 사용됩니다. 다음 단계로 tNIGHT를 받으세요:
+이 가이드의 모든 절차에 공통으로 적용됩니다:
 
-1. Lace Midnight 지갑에 로그인하고 Unshielded 지갑 주소를 복사하세요.
+- faucet 및 Lace 절차용으로, 대상 테스트 네트워크에 설정된 [Lace wallet](../getting-started/installation).
+- wallet SDK 절차용으로, Node.js 버전 22 이상. macOS, Linux, 그리고 WSL을 통한 Windows 모두 동작합니다.
+- wallet SDK 절차용으로, `6300` 포트에서 실행되는 로컬 [proof server](./run-proof-server).
+- 검증 테스트를 실행하려면, 아래 나열된 패키지와 함께 [Vitest](https://vitest.dev/).
 
-  :::note Bech32m 주소 형식
-  모든 지갑 주소는 기본적으로 Bech32m 형식으로 표시됩니다. Faucet은 두 형식을 모두 지원하지만, 레거시(HEX) 형식은 향후 버전에서 제거될 예정입니다.
-  :::
+{/* _mod-docs-content-type: PROCEDURE */}
+## Getting tNIGHT from the faucet
 
-2. [Midnight Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)에 접속하여 Unshielded 지갑 주소를 입력하세요.
+개발 대상 네트워크용 무료 테스트 토큰을 요청하세요. faucet은 요청 횟수가 제한되며, 테스트 토큰에는 실질 가치가 없습니다. 로컬 `undeployed` 네트워크에는 faucet이 없고 필요하지도 않습니다. 대신 [local network funding menu](./networks-and-environments#running-a-local-network)를 사용하세요.
 
-![Midnight Preprod faucet](./img/request-tokens.png)
+### Procedure
 
-3. **Request tokens**를 클릭하세요. 처리에 몇 초가 걸리며, 다음과 같은 트랜잭션 해시가 반환됩니다:
+1. **unshielded** 지갑 주소를 복사하세요. Lace에서 Midnight 지갑을 열고 `mn_addr_`로 시작하는 주소를 복사합니다. faucet은 shielded 주소와 DUST 주소를 거부합니다.
 
+   :::note Bech32m address format
+   Lace는 기본적으로 지갑 주소를 Bech32m 형식으로 표시합니다. 주소에는 네트워크가 인코딩되어 있으며, 예를 들어 Preprod에서는 `mn_addr_preprod1...`입니다.
+   :::
+
+2. 사용하는 네트워크의 faucet을 여세요. [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/) 또는 [Preview faucet](https://midnight-tmnight-preview.nethermind.dev/)입니다. [Environment reference](./networks-and-environments#environment-reference)에 둘 다 나와 있습니다.
+
+   ![Midnight preprod faucet](./img/request-tokens.png)
+
+3. 주소를 붙여넣고, captcha를 완료한 뒤, **Request tokens**를 선택하세요. faucet이 제출을 확인해 줍니다:
+
+   ```text
+   Transaction submitted. You will shortly receive 1000 tNight in your wallet. This is the transaction ID: 00f15defb8d3...
+   ```
+
+### Verification
+
+tNIGHT 잔액은 몇 분 안에 지갑에 나타납니다. Preprod faucet 요청당 1,000.0 tNIGHT입니다. Lace에서는 unshielded 잔액이 지갑 메인 화면에서 갱신됩니다. 코드에서는 [Registering NIGHT for DUST generation with the wallet SDK](#registering-night-for-dust-generation-with-the-wallet-sdk)의 잔액 워처가 자금이 도착하는 즉시 resolve됩니다.
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Registering NIGHT for DUST generation in Lace
+
+tNIGHT을 tDUST의 원천으로 바꾸세요. NIGHT을 보유하는 것만으로는 아무것도 생성되지 않습니다. 생성을 시작하는 것은 등록 트랜잭션입니다.
+
+### Prerequisites
+
+- [Getting tNIGHT from the faucet](#getting-tnight-from-the-faucet)에서 받은, 지갑 안의 tNIGHT.
+
+### Procedure
+
+1. Lace에서 Midnight 지갑을 열고 **Generate tDUST**를 선택하세요.
+
+   ![The Lace wallet tokens view with the Generate tDUST button](./img/delegate-dust.png)
+
+2. 입력 필드에 tDUST 주소가 채워집니다. **Review transaction**을 선택한 다음 **Confirm**을 선택해 등록을 제출하세요.
+
+   ![The Generate tDUST dialog with the address filled in and the Review transaction button](./img/review-transaction.png)
+
+### Verification
+
+tDUST 탱크가 차기 시작하며, 등록한 NIGHT 양이 정한 상한까지 시간이 지나며 계속 쌓입니다.
+
+![The Lace tDUST tank generating tokens after registration](./img/dust-tank-generation.png)
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Setting up the wallet SDK project
+
+Midnight 네트워크와 통신할 수 있는 TypeScript 프로젝트를 준비하세요. 이렇게 하면 다음 두 절차의 지갑 코드가 실행될 자리가 생깁니다. 이어지는 세 절차는 하나의 스크립트를 한 부분씩 쌓아 올립니다.
+
+wallet SDK는 단일 barrel 패키지 `@midnightntwrk/wallet-sdk`로 제공되며, 모든 지갑 하위 패키지를 다시 export합니다. 이 scope에는 옆에 있는 `@midnight-ntwrk/` 패키지들과 달리 하이픈이 없습니다.
+
+### Procedure
+
+1. 프로젝트를 생성하고 버전이 맞춰진 의존성을 설치하세요. 버전이 바뀌면 [support matrix](../relnotes/support-matrix)를 확인하세요:
+
+   ```json title="package.json"
+   {
+     "type": "module",
+     "scripts": {
+       "start": "tsx src/index.ts"
+     },
+     "dependencies": {
+       "@midnight-ntwrk/midnight-js-network-id": "4.1.1",
+       "@midnight-ntwrk/midnight-js-protocol": "4.1.1",
+       "@midnight-ntwrk/midnight-js-utils": "4.1.1",
+       "@midnightntwrk/wallet-sdk": "1.2.0",
+       "rxjs": "^7.8.1",
+       "ws": "^8.19.0"
+     },
+     "devDependencies": {
+       "@types/ws": "^8.18.1",
+       "tsx": "^4.19.0"
+     }
+   }
+   ```
+
+   그런 다음 `npm install`을 실행하세요.
+
+2. 로컬 [proof server](./run-proof-server)를 시작하고 `6300` 포트에서 응답하는지 확인하세요:
+
+   ```bash
+   curl http://localhost:6300/health
+   ```
+
+3. `src/index.ts`를 만들고 import와 설정을 추가하세요. 스크립트는 지갑 코드가 실행되기 전에 `ws` 패키지를 전역 WebSocket으로 지정하며, 이는 Node 버전 간 WebSocket 동작을 일관되게 유지해 줍니다. endpoint는 [Environment reference](./networks-and-environments#environment-reference)에서 가져옵니다:
+
+   ```typescript
+   import { WebSocket } from 'ws';
+   (globalThis as any).WebSocket = WebSocket;
+
+   import { Buffer } from 'buffer';
+   import * as Rx from 'rxjs';
+   import {
+     HDWallet,
+     Roles,
+     generateRandomSeed,
+     WalletFacade,
+     ShieldedWallet,
+     DustWallet,
+     UnshieldedWallet,
+     createKeystore,
+     PublicKey,
+     NoOpTransactionHistoryStorage,
+     DustAddress,
+     MidnightBech32m,
+   } from '@midnightntwrk/wallet-sdk';
+   import { toHex } from '@midnight-ntwrk/midnight-js-utils';
+   import * as ledger from '@midnight-ntwrk/midnight-js-protocol/ledger';
+   import { unshieldedToken } from '@midnight-ntwrk/midnight-js-protocol/ledger';
+   import { setNetworkId, getNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
+
+   setNetworkId('preprod');
+
+   const CONFIG = {
+     indexerHttpUrl: 'https://indexer.preprod.midnight.network/api/v4/graphql',
+     indexerWsUrl: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
+     node: 'https://rpc.preprod.midnight.network',
+     proofServer: 'http://localhost:6300',
+   };
+   ```
+
+### Verification
+
+proof server가 health check에 응답하며, 이는 이 프로젝트가 public endpoint 외에 필요로 하는 유일한 외부 의존성입니다:
+
+```bash
+curl http://localhost:6300/health
 ```
-Transaction submitted. You will receive 1000 tNight, this should take about 2 mins. Its id is 00ec3ff48b7...
+
+```text
+{"status":"ok","timestamp":"2026-08-07 11:29:05.352783759 +00:00:00"}
 ```
 
-Faucet에서 1000.0 tNIGHT가 입금됩니다. 지갑에서 잔액을 확인하세요.
+{/* _mod-docs-content-type: PROCEDURE */}
+## Building a wallet from a seed
 
-## Delegate
+seed를 실행 중인 지갑으로 바꾸세요. Midnight 지갑은 하나의 seed에서 파생된 shielded, unshielded, DUST 세 개의 하위 지갑으로 이루어지며, `WalletFacade` 뒤에서 하나로 통합됩니다. 등록 절차가 다루는 대상이 바로 이 facade입니다.
 
-tNIGHT를 받은 후 tDUST 생성을 위해 위임해야 합니다. Lace 지갑에서의 절차:
+### Prerequisites
 
-1. Lace 지갑에 로그인하고 **Generate tDUST**를 클릭하세요. 입력 필드에 tDUST 주소가 자동으로 채워집니다.
+- [Setting up the wallet SDK project](#setting-up-the-wallet-sdk-project)에서 만든 프로젝트.
 
-![tDUST 생성](./img/delegate-dust.png)
+### Procedure
 
-2. **Review transaction**을 클릭한 후 **Confirm**으로 트랜잭션을 제출하세요.
+1. seed에서 지갑의 세 가지 키 role을 파생하세요. 하나의 seed가 계층적 결정론적(HD) 파생을 통해 shielded(`Zswap`), unshielded(`NightExternal`), `Dust` 키 세트를 만들어냅니다. 재실행 시 같은 지갑을 재사용하도록 seed를 환경에서 읽고, 최초 실행에서만 새로 생성하세요:
 
-![트랜잭션 검토](./img/review-transaction.png)
+   :::warning Save the seed
+   seed는 지갑을 복원하는 유일한 수단입니다. 매 실행마다 새 seed를 생성하는 스크립트는 실행할 때마다 비어 있는 새 지갑을 만들고, 이전 지갑에 자금을 방치하게 됩니다.
+   :::
 
-tDUST 탱크가 지갑용 테스트 토큰을 생성하는 것을 확인할 수 있습니다.
+   ```typescript
+   const seed = process.env.WALLET_SEED ?? toHex(Buffer.from(generateRandomSeed()));
+   if (!process.env.WALLET_SEED) {
+     console.log(`New wallet seed, save this and set WALLET_SEED to reuse it: ${seed}`);
+   }
 
-![트랜잭션 확인](./img/dust-tank-generation.png)
+   const deriveKeys = (seed: string) => {
+     const hd = HDWallet.fromSeed(Buffer.from(seed, 'hex'));
+     if (hd.type !== 'seedOk') throw new Error('Invalid seed');
+     const result = hd.hdWallet
+       .selectAccount(0)
+       .selectRoles([Roles.Zswap, Roles.NightExternal, Roles.Dust])
+       .deriveKeysAt(0);
+     if (result.type !== 'keysDerived') throw new Error('Key derivation failed');
+     hd.hdWallet.clear();
+     return result.keys;
+   };
 
-## Troubleshooting
+   const keys = deriveKeys(seed);
+   ```
 
-Faucet 사용 시 자주 발생하는 문제와 해결 방법입니다.
+2. 세 개의 하위 지갑을 만들고 `WalletFacade` 뒤에서 통합하세요. DUST 지갑에는 `costParameters`가 필요합니다. `feeBlocksMargin`은 수수료 추정이 몇 블록의 확정 시간을 감안할지를 정하고, `additionalFeeOverhead`는 계산된 수수료 위에 더하는 선택적 버퍼로, 생략하면 `0n`이 기본값입니다:
 
-### Provided address is invalid
+   ```typescript
+   const shieldedSecretKeys = ledger.ZswapSecretKeys.fromSeed(keys[Roles.Zswap]);
+   const dustSecretKey = ledger.DustSecretKey.fromSeed(keys[Roles.Dust]);
+   const unshieldedKeystore = createKeystore(keys[Roles.NightExternal], getNetworkId());
 
-- **오류**: `Provided address is invalid`
+   const shieldedConfig = {
+     networkId: getNetworkId(),
+     indexerClientConnection: {
+       indexerHttpUrl: CONFIG.indexerHttpUrl,
+       indexerWsUrl: CONFIG.indexerWsUrl,
+     },
+     provingServerUrl: new URL(CONFIG.proofServer),
+     relayURL: new URL(CONFIG.node.replace(/^http/, 'ws')),
+   };
+   const unshieldedConfig = {
+     networkId: getNetworkId(),
+     indexerClientConnection: {
+       indexerHttpUrl: CONFIG.indexerHttpUrl,
+       indexerWsUrl: CONFIG.indexerWsUrl,
+     },
+     txHistoryStorage: new NoOpTransactionHistoryStorage(),
+   };
+   const dustConfig = {
+     ...shieldedConfig,
+     costParameters: {
+       // Optional buffer added on top of the computed fee. Defaults to 0n.
+       additionalFeeOverhead: 300_000_000_000_000n, // 0.3 DUST
+       // Blocks to allow for finalization when estimating the fee.
+       feeBlocksMargin: 5,
+     },
+   };
 
-- **해결 방법**: 올바른 주소인지 확인하세요. Lace Midnight 지갑의 Unshielded 주소여야 합니다.
+   const wallet = await WalletFacade.init({
+     configuration: { ...shieldedConfig, ...unshieldedConfig, ...dustConfig },
+     shielded: (cfg) => ShieldedWallet(cfg).startWithSecretKeys(shieldedSecretKeys),
+     unshielded: (cfg) => UnshieldedWallet(cfg).startWithPublicKey(PublicKey.fromKeyStore(unshieldedKeystore)),
+     dust: (cfg) =>
+       DustWallet(cfg).startWithSecretKey(dustSecretKey, ledger.LedgerParameters.initialParameters().dust),
+   });
+   await wallet.start(shieldedSecretKeys, dustSecretKey);
+   ```
 
-### Request limit exceeded
+### Verification
 
-- **오류**: `{"status":"rate_limit_error","message":"Reached maximum number of requests for this address"}`
+키 파생은 결정론적이고, 주소는 네트워크의 prefix를 담으며, facade는 세 하위 지갑을 모두 Preprod에 연결합니다. 이 연결 테스트는 connected와 synced를 의도적으로 구분합니다. 지갑은 몇 초 만에 연결되지만 sync는 훨씬 나중에 끝납니다.
 
-- **해결 방법**: 몇 시간 후 다시 시도하세요. 문제가 계속되면 [Midnight Service Desk](https://midnightntwrk.github.io/servicedesk/)에 티켓을 등록하거나 [Midnight Discord](https://discord.gg/midnightnetwork)에서 도움을 요청하세요.
+```typescript title="wallet-construction.test.ts"
+import { describe, it, expect, afterAll } from 'vitest';
+import { WebSocket } from 'ws';
+(globalThis as any).WebSocket = WebSocket;
+import { Buffer } from 'buffer';
+import * as Rx from 'rxjs';
+import {
+  HDWallet,
+  Roles,
+  generateRandomSeed,
+  WalletFacade,
+  ShieldedWallet,
+  DustWallet,
+  UnshieldedWallet,
+  createKeystore,
+  PublicKey,
+  NoOpTransactionHistoryStorage,
+  DustAddress,
+  MidnightBech32m,
+} from '@midnightntwrk/wallet-sdk';
+import { toHex } from '@midnight-ntwrk/midnight-js-utils';
+import * as ledger from '@midnight-ntwrk/midnight-js-protocol/ledger';
+import { setNetworkId, getNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
+
+setNetworkId('preprod');
+
+const CONFIG = {
+  indexerHttpUrl: 'https://indexer.preprod.midnight.network/api/v4/graphql',
+  indexerWsUrl: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
+  node: 'https://rpc.preprod.midnight.network',
+  proofServer: 'http://localhost:6300',
+};
+
+const deriveKeys = (seed: string) => {
+  const hd = HDWallet.fromSeed(Buffer.from(seed, 'hex'));
+  if (hd.type !== 'seedOk') throw new Error('Invalid seed');
+  const result = hd.hdWallet
+    .selectAccount(0)
+    .selectRoles([Roles.Zswap, Roles.NightExternal, Roles.Dust])
+    .deriveKeysAt(0);
+  if (result.type !== 'keysDerived') throw new Error('Key derivation failed');
+  hd.hdWallet.clear();
+  return result.keys;
+};
+
+let wallet: any;
+
+afterAll(async () => {
+  if (wallet) await wallet.stop();
+});
+
+describe('building a funding wallet', () => {
+  it('derives the three key roles deterministically from one seed', () => {
+    const seed = toHex(Buffer.from(generateRandomSeed()));
+    const first = deriveKeys(seed);
+    const second = deriveKeys(seed);
+    expect(Buffer.from(first[Roles.NightExternal])).toEqual(Buffer.from(second[Roles.NightExternal]));
+    expect(Buffer.from(first[Roles.Zswap])).toEqual(Buffer.from(second[Roles.Zswap]));
+    expect(Buffer.from(first[Roles.Dust])).toEqual(Buffer.from(second[Roles.Dust]));
+  });
+
+  it('encodes a preprod unshielded address with the mn_addr_preprod prefix', () => {
+    const keys = deriveKeys(toHex(Buffer.from(generateRandomSeed())));
+    const keystore = createKeystore(keys[Roles.NightExternal], getNetworkId());
+    expect(String(keystore.getBech32Address())).toMatch(/^mn_addr_preprod1/);
+  });
+
+  it('builds the wallet facade and connects all three wallets to preprod', { timeout: 120_000 }, async () => {
+    const keys = deriveKeys(toHex(Buffer.from(generateRandomSeed())));
+    const shieldedSecretKeys = ledger.ZswapSecretKeys.fromSeed(keys[Roles.Zswap]);
+    const dustSecretKey = ledger.DustSecretKey.fromSeed(keys[Roles.Dust]);
+    const unshieldedKeystore = createKeystore(keys[Roles.NightExternal], getNetworkId());
+
+    const shieldedConfig = {
+      networkId: getNetworkId(),
+      indexerClientConnection: {
+        indexerHttpUrl: CONFIG.indexerHttpUrl,
+        indexerWsUrl: CONFIG.indexerWsUrl,
+      },
+      provingServerUrl: new URL(CONFIG.proofServer),
+      relayURL: new URL(CONFIG.node.replace(/^http/, 'ws')),
+    };
+    const unshieldedConfig = {
+      networkId: getNetworkId(),
+      indexerClientConnection: {
+        indexerHttpUrl: CONFIG.indexerHttpUrl,
+        indexerWsUrl: CONFIG.indexerWsUrl,
+      },
+      txHistoryStorage: new NoOpTransactionHistoryStorage(),
+    };
+    const dustConfig = {
+      ...shieldedConfig,
+      costParameters: { additionalFeeOverhead: 300_000_000_000_000n, feeBlocksMargin: 5 },
+    };
+
+    wallet = await WalletFacade.init({
+      configuration: { ...shieldedConfig, ...unshieldedConfig, ...dustConfig },
+      shielded: (cfg: any) => ShieldedWallet(cfg).startWithSecretKeys(shieldedSecretKeys),
+      unshielded: (cfg: any) => UnshieldedWallet(cfg).startWithPublicKey(PublicKey.fromKeyStore(unshieldedKeystore)),
+      dust: (cfg: any) => DustWallet(cfg).startWithSecretKey(dustSecretKey, ledger.LedgerParameters.initialParameters().dust),
+    });
+    await wallet.start(shieldedSecretKeys, dustSecretKey);
+
+    const connected = await Rx.firstValueFrom(
+      wallet.state().pipe(
+        Rx.filter(
+          (s: any) =>
+            s.shielded.state.progress.isConnected &&
+            s.unshielded.state.progress.isConnected &&
+            s.dust.state.progress.isConnected,
+        ),
+      ),
+    );
+    expect(connected.isSynced).toBe(false);
+    expect(connected.dust.balance(new Date())).toBe(0n);
+
+    const dustAddress = DustAddress.encodePublicKey(getNetworkId(), connected.dust.publicKey);
+    expect(String(dustAddress)).toMatch(/^mn_dust_preprod1/);
+    expect(MidnightBech32m.parse(String(dustAddress)).decode(DustAddress, getNetworkId())).toBeDefined();
+  });
+});
+```
+
+```text
+ ✓ wallet-construction.test.ts > building a funding wallet > derives the three key roles deterministically from one seed
+ ✓ wallet-construction.test.ts > building a funding wallet > encodes a preprod unshielded address with the mn_addr_preprod prefix
+ ✓ wallet-construction.test.ts > building a funding wallet > builds the wallet facade and connects all three wallets to preprod
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+```
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Registering NIGHT for DUST generation with the wallet SDK
+
+Lace 절차가 UI로 하는 일을 코드로 수행하세요. 지갑에 자금을 넣고, 그 NIGHT UTXO를 DUST 생성을 위해 등록하고, DUST가 쌓이는 것을 지켜봅니다. CI와 프로비저닝 작업이 필요로 하는 부분이 바로 이것이므로, 스크립트로 만들 가치가 있습니다.
+
+### Prerequisites
+
+- [Building a wallet from a seed](#building-a-wallet-from-a-seed)에서 실행 중인 지갑.
+
+### Procedure
+
+1. unshielded 주소를 출력하고, [faucet](#getting-tnight-from-the-faucet)에서 자금을 넣은 뒤, 자금 도착을 지켜보세요. 지갑이 아직 sync 중이어도 잔액은 스트리밍으로 들어오며, 잔액은 블록 확정된 트랜잭션의 UTXO만 집계합니다. 따라서 갓 자금을 넣은 지갑에서 잔액이 양수라는 것은 sync가 아직 진행 중이더라도 토큰이 이미 도착했다는 뜻입니다.
+
+   잔액은 최소 단위의 `bigint` 값으로 도착합니다. NIGHT은 10<sup>6</sup> STAR로 나뉘므로, faucet의 1,000 tNIGHT은 `1000000000`으로 읽힙니다. DUST는 10<sup>15</sup> SPECK으로 나뉩니다. 표시하기 전에 변환하세요:
+
+   ```typescript
+   const formatNight = (raw: bigint) =>
+     `${raw / 1_000_000n}.${(raw % 1_000_000n).toString().padStart(6, '0')}`;
+
+   const formatDust = (raw: bigint) =>
+     `${raw / 1_000_000_000_000_000n}.${(raw % 1_000_000_000_000_000n).toString().padStart(15, '0')}`;
+
+   console.log(`Send tNIGHT to: ${unshieldedKeystore.getBech32Address()}`);
+
+   const nightBalance = await Rx.firstValueFrom(
+     wallet.state().pipe(
+       Rx.throttleTime(10_000),
+       Rx.map((state) => state.unshielded.balances[unshieldedToken().raw] ?? 0n),
+       Rx.filter((balance) => balance > 0n),
+     ),
+   );
+   console.log(`tNIGHT received: ${formatNight(nightBalance)}`);
+   ```
+
+2. 지갑이 sync되기를 기다린 다음, 등록되지 않은 NIGHT UTXO를 DUST 생성을 위해 등록하세요. 등록에는 완전히 sync된 지갑이 필요하므로 `waitForSyncedState`가 이 단계를 막습니다. 재시작한 스크립트는 처음부터 다시 sync하므로 프로세스를 계속 실행해 두세요. 등록은 recipe로 구성되어, unshielded keystore로 서명되고, finalize된 뒤, 제출됩니다. 생성된 DUST를 다른 지갑으로 보내려면, 그 지갑의 DUST 주소를 receiver로 디코딩하세요:
+
+   ```typescript
+   const state = await wallet.waitForSyncedState();
+
+   const unregistered = state.unshielded.availableCoins.filter(
+     (coin) => coin.meta?.registeredForDustGeneration !== true,
+   );
+
+   if (unregistered.length === 0) {
+     console.log('All NIGHT is already registered for DUST generation.');
+   } else {
+     // Send the DUST elsewhere by replacing this with another wallet's address.
+     const target = String(DustAddress.encodePublicKey(getNetworkId(), state.dust.publicKey));
+     const dustReceiver = MidnightBech32m.parse(target).decode(DustAddress, getNetworkId());
+
+     const recipe = await wallet.registerNightUtxosForDustGeneration(
+       unregistered,
+       unshieldedKeystore.getPublicKey(),
+       (payload) => unshieldedKeystore.signData(payload),
+       dustReceiver,
+     );
+     const finalized = await wallet.finalizeRecipe(recipe);
+     await wallet.submitTransaction(finalized);
+   }
+   ```
+
+   `MidnightBech32m.parse(...).decode(DustAddress, ...)`는 검증 단계이기도 합니다. 현재 네트워크의 DUST 주소가 아닌 것에는 모두 예외를 던지므로, 실수로 붙여넣은 shielded 또는 unshielded 주소는 쓸모없는 곳으로 DUST를 보내는 등록을 만들어내는 대신 이 지점에서 실패합니다.
+
+3. DUST 잔액이 양수가 되는 것을 지켜보세요. 생성은 등록 트랜잭션이 온체인에 올라간 순간 시작됩니다:
+
+   ```typescript
+   await Rx.firstValueFrom(
+     wallet.state().pipe(
+       Rx.throttleTime(5_000),
+       Rx.filter((s) => s.isSynced),
+       Rx.filter((s) => s.dust.balance(new Date()) > 0n),
+     ),
+   );
+   const dustBalance = (await Rx.firstValueFrom(wallet.state())).dust.balance(new Date());
+   console.log(`DUST balance: ${formatDust(dustBalance)}`);
+   await wallet.stop();
+   ```
+
+   DUST는 지속적으로 쌓이므로, 이 잔액은 확인 사이에도 등록한 NIGHT이 정한 상한에 도달할 때까지 증가합니다.
+
+### Verification
+
+저장한 seed는 같은 지갑을 복원하고, 단위는 예상대로 변환되며, 잘못 입력한 receiver는 등록되기 전에 실패합니다. 아래 assertion은 이 가이드 앞부분에서 보인 import, `deriveKeys` 헬퍼, 두 개의 포매터를 공유하는 두 번째 테스트 파일에서 가져온 것입니다:
+
+```typescript title="funding-helpers.test.ts"
+describe('restored capabilities', () => {
+  it('restores the same wallet from a saved seed', () => {
+    const seed = toHex(Buffer.from(generateRandomSeed()));
+    const addrOf = (s: string) =>
+      String(createKeystore(deriveKeys(s)[Roles.NightExternal], getNetworkId()).getBech32Address());
+    expect(addrOf(seed)).toBe(addrOf(seed));
+    expect(addrOf(seed)).not.toBe(addrOf(toHex(Buffer.from(generateRandomSeed()))));
+  });
+
+  it('formats the faucet amount in NIGHT and DUST denominations', () => {
+    expect(formatNight(1000000000n)).toBe('1000.000000');
+    expect(formatDust(405083000000n)).toBe('0.000405083000000');
+  });
+
+  it('rejects a non-DUST address when decoding a DUST receiver', () => {
+    const keys = deriveKeys(toHex(Buffer.from(generateRandomSeed())));
+    const unshielded = String(createKeystore(keys[Roles.NightExternal], getNetworkId()).getBech32Address());
+    expect(unshielded).toMatch(/^mn_addr_preprod1/);
+    expect(() => MidnightBech32m.parse(unshielded).decode(DustAddress, getNetworkId())).toThrow();
+  });
+});
+```
+
+```text
+ ✓ funding-helpers.test.ts > restored capabilities > restores the same wallet from a saved seed
+ ✓ funding-helpers.test.ts > restored capabilities > formats the faucet amount in NIGHT and DUST denominations
+ ✓ funding-helpers.test.ts > restored capabilities > rejects a non-DUST address when decoding a DUST receiver
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+```
+
+전체 절차를 Preprod에 대해 실행하면 제출된 등록을 거쳐 DUST 잔액까지 이어집니다. 같은 지갑에 대해 재실행하면, 첫 실행에서 이미 등록이 완료된 상태로 다음이 출력됩니다:
+
+```text
+Send tNIGHT to: mn_addr_preprod1857k0p0nmd7g6788h6pr30lkdncg8zt097eq8cl57tx78gwhqlsqnr8r65
+tNIGHT received: 1000.000000
+All NIGHT is already registered for DUST generation.
+DUST balance: 2485.035398999999999
+```
+
+DUST는 등록한 NIGHT이 정한 상한을 향해 지속적으로 쌓이므로, 이 잔액은 실행 사이에도 증가합니다. 마지막 단계의 잔액 확인 코드로, 또는 Lace의 tDUST 탱크에서 지켜보세요.
+
+{/* _mod-docs-content-type: REFERENCE */}
+## Funding troubleshooting
+
+자금 조달 경로에서 독자가 가장 자주 부딪히는 실패 유형과 그 해결책입니다.
+
+| Symptom | Fix |
+|---|---|
+| Faucet says `Provided address is invalid` | 주변 공백 없이 **unshielded** 주소(`mn_addr_...`)를 사용하세요. faucet은 shielded 주소와 DUST 주소를 거부합니다. |
+| Faucet says `rate_limit_error` or `Reached maximum number of requests` | 몇 시간 기다렸다 다시 시도하세요. 계속되면 [Midnight Service Desk](https://midnightntwrk.github.io/servicedesk/)에 티켓을 열거나 [Discord](https://discord.gg/midnightnetwork)에서 문의하세요. |
+| `Cannot find module` when running the script | 먼저 `npm install`을 실행하세요. 계속되면 `node_modules`와 `package-lock.json`을 삭제한 뒤 다시 설치하세요. |
+| Connection refused on port 6300 | proof server가 실행되고 있지 않습니다. [Run the proof server](./run-proof-server)를 참고하세요. |
+| Balance stays zero after the faucet confirms | 몇 분 기다리세요. 지갑은 다음 sync 후에 자금을 감지합니다. 붙여넣은 주소가 출력된 주소와 정확히 일치하는지 확인하세요. |
+| DUST stays zero after registration | 등록이 온체인에 올라갈 시간을 준 다음, proof server가 `http://localhost:6300/health`에서 응답하는지 확인하세요. |
+| `Invalid dust address` when directing DUST elsewhere | DUST 주소는 `mn_dust_` 뒤에 네트워크 이름이 붙습니다. shielded(`mn_shield-addr_...`)와 unshielded(`mn_addr_...`) 주소는 서로 다른 유형입니다. |
+
+## Additional resources
+
+- [Funding and transaction cost](./networks-and-environments#funding-and-transaction-cost): NIGHT이 DUST를 생성하는 이유와 트랜잭션이 소비하는 것.
+- [Environment reference](./networks-and-environments#environment-reference): 네트워크별 faucet과 endpoint.
+- [Run the proof server](./run-proof-server): SDK 경로가 의존하는 로컬 proof server.
+- [Wallet developer guide](/sdks/official/wallet-developer-guide): facade 뒤에 있는 전체 wallet SDK 표면.
+- [Support matrix](../relnotes/support-matrix): 어떤 wallet SDK 버전이 어떤 네트워크 구성 요소와 짝을 이루는지.
+- [Tokens on Midnight](../tokens/overview): NIGHT과 DUST 모델 심화.

@@ -3,13 +3,85 @@ SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Transactions
 sidebar_label: Transactions
-description: Midnight 노드의 트랜잭션에 대한 참조 문서.
+description: Midnight 트랜잭션 형식, 그 분류 어휘, 그리고 노드가 소유하는 non-ledger 트랜잭션 범주에 대한 참조 문서.
 keywords: [node]
 ---
 
 # Transactions
 
 Midnight 노드는 Polkadot SDK가 제공하는 표준 트랜잭션 형식을 지원하지만, 이 기본 형식의 트랜잭션은 실제 온체인 활동에서 일반적으로 사용되지 않습니다. Midnight이 Midnight Ledger 설계와 긴밀히 결합된 증명 기반 검증 모델에 의존하기 때문입니다.
+
+블록은 extrinsic의 순서 있는 목록입니다. 다른 [Substrate](/concepts/network-architecture/onchain-logic) 체인과 마찬가지로, 이 extrinsic은 두 종류로 나뉩니다. 하나는 사용자나 도구가 트랜잭션 풀에 제출하는 트랜잭션이고, 다른 하나는 블록 작성자가 직접 주입하는 inherent입니다. inherent는 서명이 없고 gossip으로 전파되지 않으며, 다른 모든 노드가 다시 검증합니다. Midnight은 여기에 두 번째 구분을 얹습니다. 바로 ledger 트랜잭션과 non-ledger 트랜잭션의 구분이며, 이 페이지가 그 내용을 다룹니다.
+
+## The transaction format and its classification
+
+체인에서 트랜잭션을 디코딩할 때는, 노드가 런타임 메타데이터를 통해 공개하는 정해진 어휘에 맞춰 트랜잭션을 분류합니다. `TransactionTypeV2` 열거형은 디코더가 기대할 수 있는 범주들의 이름을 정의합니다:
+
+- `MidnightTx`: ledger 페이로드를 담은 트랜잭션. 불투명한 ledger 페이로드와 그것을 디코딩한 결과를 함께 보유합니다.
+- `TimestampTx`: 블록 타임스탬프. 일급 트랜잭션 값으로 표면화됩니다.
+- `UnknownTx`: 분류기가 인식하지 못하는 모든 트랜잭션. 예를 들어 미래의 변형이나 알 수 없는 변형입니다.
+
+:::info
+이 분류는 노드 외부 소비자를 위한 어휘입니다. indexer, toolkit, 기타 다운스트림 도구가 런타임 메타데이터를 통해 이를 읽어 디코딩한 트랜잭션에 라벨을 붙입니다. 노드는 트랜잭션 처리 방식을 결정할 때 이 범주들에 매칭하지 **않습니다**. 디스패치는 이 열거형이 아니라 런타임의 pallet 호출과 inherent를 통해 이루어집니다. 이전의 `TransactionType` 열거형은 선택적 디코딩 트랜잭션을 담았는데, `TransactionTypeV2`는 전체 디코딩 결과를 담아 이를 대체하므로 소비자가 페이로드 디코딩이 실패한 이유까지 확인할 수 있습니다.
+:::
+
+## The ledger and non-ledger boundary
+
+노드와 ledger는 트랜잭션의 서로 다른 부분을 소유하며, 그 경계는 명확합니다:
+
+- **노드**는 트랜잭션을 프레이밍·검증·가중·라우팅합니다. extrinsic 형태, 검증·가중 규칙, 방출하는 이벤트, 그리고 위의 분류 어휘를 소유합니다.
+- **ledger**는 불투명한 페이로드를 디코딩·해석합니다. ledger 트랜잭션은 바이트 벡터로서 ledger에 넘어가며, Midnight Ledger가 그 페이로드 내부의 모든 것을 소유·해석합니다. 여기에는 shielded·unshielded 상태 변경, 증명, 컨트랙트 연산이 포함됩니다.
+
+**ledger 트랜잭션**은 이 불투명한 페이로드가 담고 있는 증명 기반 상태 변경입니다. 노드는 `pallet-midnight`을 통해 이를 적용하고 ledger 이벤트(컨트랙트 호출, 컨트랙트 배포, applied-transaction 마커 등)를 방출하지만, 페이로드 내용은 결코 들여다보지 않습니다.
+
+**non-ledger 트랜잭션**은 그 외 노드가 정의한 모든 extrinsic 또는 inherent입니다. 시스템 트랜잭션, bridge 전송 흐름, cNIGHT observation inherent, 타임스탬프, 그리고 분류 봉투 자체가 여기에 해당합니다. 이 페이지의 나머지는 이 범주들을 다룹니다.
+
+:::info
+ledger 팀이 ledger 트랜잭션 페이로드의 내용을 문서화합니다. shielded·unshielded 트랜잭션 모델은 [ledgers 개념 페이지](/concepts/ledgers)와 [ledger API 레퍼런스](/api-reference/ledger/)를 참고하세요. 이 페이지는 노드 경계에서 멈추며 페이로드 내부는 설명하지 않습니다.
+:::
+
+## Non-ledger transaction categories
+
+각 non-ledger 범주는 서로 다른 출처(origin)와 권한(privilege)을 가집니다. 아래 표가 이를 요약하고, 이어지는 섹션이 세부 내용을 설명합니다. 출처와 권한은 핵심 정보로 다루세요. 범주들은 구조적으로 다르며, 특히 bridge 전송은 사용자가 제출한 트랜잭션과 동급이 아닙니다.
+
+| Category | Origin | Privilege | Owning component | Observable effect |
+| --- | --- | --- | --- | --- |
+| Ledger transaction | 사용자 또는 도구(풀) | 서명 없음, 증명으로 검증 | `pallet-midnight`(봉투) | ledger 이벤트(컨트랙트 호출·배포·applied) |
+| System transaction | 거버넌스 | root, 거버넌스 게이트 | `pallet-midnight-system` | `SystemTransactionApplied` 이벤트 |
+| Timestamp | 블록 작성자(inherent) | inherent | `pallet-timestamp` | `TimestampTx`로 분류됨 |
+| Unknown | 분류기 폴백 | 없음(노드 외부 라벨) | 분류 어휘 | `UnknownTx`로 디코딩됨 |
+| cNIGHT observation | 블록 작성자(inherent) | inherent | `pallet-cnight-observation` | 기록된 Cardano 토큰 이동 |
+| Bridge transfer | 블록 작성자(inherent) 이후 시스템 트랜잭션 | inherent 이후 root 경로 | `pallet-c2m-bridge` | bridge 전송 이벤트와 시스템 트랜잭션 |
+
+### System transaction
+
+시스템 트랜잭션은 사용자 트랜잭션 풀이 아니라 권한이 부여된 감사 대상 채널을 통해 ledger에 상태 변경을 적용합니다. 거버넌스가 root origin으로 제출하고, 노드는 적용 전에 allow-check로 이를 게이트하므로, 거버넌스가 허용한 시스템 트랜잭션만 ledger에 도달할 수 있습니다. 노드가 하나를 적용하면 트랜잭션 해시와 직렬화된 형태를 담은 `SystemTransactionApplied` 이벤트를 방출하며, 덕분에 indexer는 ledger에 미친 영향을 원래 호출과 연결할 수 있습니다.
+
+시스템 트랜잭션은 세 가지 면에서 ledger 트랜잭션과 다릅니다. 출처(사용자가 아니라 거버넌스), 권한(root와 거버넌스 allow-check), 그리고 이벤트입니다. 둘 다 결국 ledger의 apply 경로에 도달하지만, 이 권한 채널을 거치는 것은 시스템 트랜잭션뿐입니다.
+
+### Timestamp
+
+블록 작성자가 블록 타임스탬프를 inherent로 제공하고, 표준 timestamp pallet이 이를 적용합니다. 분류 어휘는 이를 `TimestampTx`로 표면화하므로, 다운스트림 디코더는 블록의 타임스탬프를 일급 트랜잭션 값으로 읽을 수 있습니다. 타임스탬프는 별도로 제출되는 트랜잭션이 아니라, inherent 값을 분류한 것입니다.
+
+### Unknown
+
+`UnknownTx`는 온체인 객체가 아니라 분류기 폴백입니다. 인코딩된 트랜잭션이 ledger 페이로드 범주와도 타임스탬프 범주와도 일치하지 않을 때, 예를 들어 미래 런타임이 도입한 변형에 대해 디코더가 이를 내놓습니다. 이는 상위 호환성을 나타냅니다. 소비자는 트랜잭션을 해석하지 못하더라도 그것이 존재한다는 사실은 인식할 수 있습니다.
+
+### cNIGHT observation
+
+노드는 Cardano에서 일어나는 cNIGHT 토큰 이동을 관측하고 inherent를 통해 Midnight에 기록합니다. 블록 작성자가 관측된 이동을 주입하고, 다른 모든 노드가 블록을 검증할 때 이를 다시 도출해 비교하므로, 이 관측은 사용자가 제출한 주장이 아니라 합의로 검증된 사실입니다. 이 inherent는 cNIGHT observation pallet이 소유하는 등록과 DUST 생성 추적의 토대가 됩니다.
+
+### Bridge transfer
+
+bridge 전송은 Cardano에서 Midnight으로 토큰을 이동시킵니다. 이는 사용자가 제출할 수 있는 트랜잭션이 **아니며** ledger 트랜잭션과 동급이 아닙니다. 블록 작성자가 관측된 Cardano 전송을 inherent로 주입하고, bridge 핸들러가 이를 승인된 전송 목록과 대조해 검증한 뒤(재생 공격 방지를 위해 일회용), 대응하는 ledger 시스템 트랜잭션을 구성해 시스템 트랜잭션 경로로 적용합니다.
+
+따라서 ledger에 미치는 최종 효과는 시스템 트랜잭션으로 도착하며, bridge는 자체 이벤트(사용자 전송, reserve 전송, 무효 전송 등)를 방출해 indexer가 Cardano 측 이동을 Midnight 측 결과와 연결할 수 있게 합니다. bridge 전송은 독립적인 트랜잭션 유형이 아니라 시스템 트랜잭션을 만들어내는 inherent로 모델링하세요.
+
+## Consensus inherents
+
+위 범주들 외에도, 블록 작성자는 Cardano Partner-Chains SDK가 제공하는 합의 inherent도 주입합니다. 여기에는 AURA 슬롯, 메인체인 해시, authority 선택이 포함됩니다. 이들은 Midnight 트랜잭션 범주가 아니라 합의 인프라입니다. 이들이 블록 생산과 최종성에 어떻게 맞물리는지는 [on-chain logic and state](/concepts/network-architecture/onchain-logic)와 [consensus](/concepts/network-architecture/consensus)를 참고하세요.
+
+## The ledger transaction lifecycle
 
 Midnight의 대부분의 트랜잭션은 서명되지 않으며, Midnight Ledger 자체가 정의한 형식을 따릅니다. 기존의 서명 기반 인가 대신, 특정 액션의 유효성을 증명하는 암호학적 증명을 트랜잭션에 내장합니다. 이 액션은 컨트랙트 호출, 컨트랙트 배포, 또는 ZSwap 트랜잭션일 수 있습니다. 증명이 내장되어 있으므로 네트워크는 민감한 데이터나 서명을 직접 노출하지 않고도 상태 전환을 검증할 수 있습니다.
 

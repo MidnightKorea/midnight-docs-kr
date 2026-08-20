@@ -1,6 +1,6 @@
 ---
 title: Fix package repository access failures
-description: Midnight npm 패키지 설치 시 발생하는 403 Forbidden 에러를 해결하는 방법입니다.
+description: npm에서 @midnight-ntwrk 패키지 설치 시 발생하는 403 Forbidden 및 인증 에러를 해결합니다. registry, 네트워크, 설정, 토큰 관련 해결책을 다룹니다.
 sidebar_label: Fix package repository issues
 sidebar_position: 25
 tags: [npm, installation, errors]
@@ -191,6 +191,80 @@ npm install @midnight-ntwrk/compact-runtime
 ```
 
 **확인**: 패키지가 정상 설치되면 성공입니다.
+
+</Step>
+
+</StepsProvider>
+
+## Solution 4: Authenticate to GitHub Package Registry
+
+앞선 해결책으로 문제가 풀리지 않는다면, 원인은 npm registry 설정 오류가 아니라 GitHub Package Registry 인증일 수 있습니다. Midnight은 `@midnight-ntwrk/*` 패키지를 `https://npm.pkg.github.com/`에 게시하는데, 이곳은 public 패키지라도 인증을 요구합니다. 이 해결책은 `.yarnrc.yml` 파일을 사용하는 Yarn Berry(v2+) 프로젝트에 적용됩니다.
+
+토큰을 설정하지 않으면 모든 설치 시도가 다음과 같이 실패합니다:
+
+```text
+@midnight-ntwrk/ledger@npm:4.0.0::__archiveUrl=...: Invalid authentication (as an unknown user)
+```
+
+이를 해결하려면 `.yarnrc.yml`에 `npmAuthToken`을 설정하세요. 또한 `read:packages` scope를 가진 GitHub personal access token이 필요하며, 이를 `GITHUB_TOKEN` 환경 변수로 제공합니다.
+
+<StepsProvider>
+
+<Step>
+
+### Generate a GitHub personal access token
+
+`https://github.com/settings/tokens/new`에서 `read:packages` scope를 가진 classic personal access token(PAT)을 생성하세요. **Packages: Read** 권한을 가진 fine-grained 토큰도 동작합니다.
+
+:::info[Organization access]
+조직이 소유한 패키지의 경우, 토큰이 `midnightntwrk` 조직에 대한 접근 권한도 가져야 합니다.
+:::
+
+</Step>
+
+<Step>
+
+### Update `.yarnrc.yml`
+
+`midnight-ntwrk` scope 아래에 `npmAuthToken` 필드를 추가하고 `GITHUB_TOKEN` 환경 변수를 가리키게 하세요:
+
+```yaml
+npmScopes:
+  midnight-ntwrk:
+    npmAlwaysAuth: true
+    npmRegistryServer: "https://npm.pkg.github.com/"
+    npmAuthToken: "${GITHUB_TOKEN}"
+```
+
+:::tip[Token security]
+Yarn은 설치 시점에 환경에서 `${GITHUB_TOKEN}`을 대입하므로, 토큰이 `.yarnrc.yml`에 직접 저장되지 않습니다.
+:::
+
+</Step>
+
+<Step>
+
+### Export the token
+
+yarn이 설치 시점에 대입할 수 있도록 `GITHUB_TOKEN` 변수를 export하세요:
+
+```bash
+export GITHUB_TOKEN=<your-github-token>
+```
+
+환경 변수를 전역으로 설정하고 싶지 않다면, 같은 줄에서 설치 명령 앞에 붙이세요: `GITHUB_TOKEN=<your-github-token> yarn install`.
+
+</Step>
+
+<Step>
+
+### Test installation
+
+```bash
+yarn install @midnight-ntwrk/compact-runtime
+```
+
+**Verification**: `Invalid authentication` 에러 없이 설치가 완료되고 `@midnight-ntwrk/*` 패키지가 `npm.pkg.github.com`에서 해석됩니다.
 
 </Step>
 

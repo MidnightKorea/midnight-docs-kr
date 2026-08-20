@@ -18,7 +18,7 @@ DUST 아키텍처를 이해할 때는 다음 비유가 도움이 됩니다.
 
 ## DUST and network usage
 
-DUST는 [Zswap](https://github.com/midnightntwrk/midnight-ledger/blob/main/spec/zswap.md)과 비슷하게 동작하지만 별도로 운영됩니다. DUST는 Midnight의 리소스 크레딧 시스템 역할을 합니다.
+DUST는 [Zswap](https://github.com/midnightntwrk/midnight-ledger/blob/main/spec/zswap.md)과 비슷하게 동작하지만 별도로 운영되며, Midnight의 리소스 크레딧 시스템 역할을 합니다. DUST는 다음과 같은 속성을 가집니다:
 
 - **shielded 및 양도 불가**: DUST는 가스 *전용*으로 쓰이는 shielded 용량 리소스입니다. 사용자 간 전송은 불가능합니다.
 - **동적 용량**: DUST UTXO에서 사용 가능한 가스는 연관된 NIGHT UTXO를 기반으로 동적으로 계산됩니다.
@@ -49,7 +49,7 @@ DUST의 "소비(spend)"는 1대1 "전송"(자기 전송, Self-Spend)입니다.
 
 ### Lifecycle: NIGHT generates DUST
 
-개념적으로 DUST를 보유한 NIGHT UTXO는 시간이 지남에 따라 DUST를 생성합니다. 백킹 NIGHT UTXO가 소비되지 않는 한, 연관된 DUST UTXO는 상한($\rho$)까지 가치를 생성합니다. 백킹 NIGHT이 소비되면 DUST UTXO는 0으로 "소멸(decay)"됩니다.
+개념적으로 DUST를 보유한 NIGHT UTXO는 시간이 지남에 따라 DUST를 생성합니다. 백킹 NIGHT UTXO가 소비되지 않는 한, 연관된 DUST UTXO는 `N × ρ` 상한까지 가치를 생성합니다. 백킹 NIGHT이 소비되면 DUST UTXO는 0으로 "소멸(decay)"됩니다.
 
 다음 다이어그램은 이 라이프사이클을 보여 줍니다.
 
@@ -82,7 +82,24 @@ flowchart TD
     class Empty danger
 ```
 
-생성 속도는 보유한 NIGHT 양($N$), DUST 상한과 NIGHT 보유량의 비율($\rho$), "상한까지 도달하는 시간"($\Delta$)에 따라 결정됩니다.
+생성 속도는 보유한 NIGHT 양(`N`), DUST 상한과 NIGHT 보유량의 비율(`ρ`), "상한까지 도달하는 시간"(`Δ`)에 따라 결정됩니다.
+
+#### Generation rate and capacity
+
+두 개의 ledger 파라미터가 DUST가 쌓이는 속도와 누적될 수 있는 최대량을 결정합니다(초기값은 아래 [Initial DUST parameters](#initial-dust-parameters)에 나옵니다):
+
+- `generation_decay_rate`: 백킹 NIGHT 1 Star당, 초당 생성되는 DUST의 Speck 수. 백킹 NIGHT이 소비된 뒤에는 같은 속도가 반대로 적용되며, 이것이 이름에 담긴 "decay(감쇠)"의 의미입니다.
+- `night_dust_ratio`: 백킹 NIGHT 1 Star당 DUST의 최대 Speck 수.
+
+백킹 NIGHT UTXO가 소비되지 않은 동안, UTXO 생성 시점으로부터 `t`초가 지난 시점의 연관 DUST 값(Speck 단위)은 `N × g × t`와 `N × ρ` 중 더 작은 값입니다. 여기서 `N`은 UTXO의 Star 단위 값, `g`는 `generation_decay_rate`, `ρ`는 `night_dust_ratio`입니다.
+
+속도와 상한이 모두 `N`에 선형 비례하므로, 상한에 도달하는 시간은 NIGHT 양과 무관하게 동일합니다: `Δ = ρ ÷ g = 5,000,000,000 ÷ 8,267 ≈ 604,800`초. 여기서 "약 일주일"이라는 생성 시간이 나옵니다.
+
+예를 들어, 등록된 DUST 주소를 가진 100 NIGHT(100,000,000 Star)짜리 NIGHT UTXO 하나를 보유한다고 합시다:
+
+- DUST 잔액은 초당 약 827억 Speck, 대략 초당 0.00083 DUST, 즉 하루 71 DUST씩 증가합니다.
+- 약 일주일 뒤 상한에 도달하며, 총 500 DUST, 즉 NIGHT당 5 DUST가 됩니다.
+- 같은 100 NIGHT을 여러 UTXO로 나눠도 총량은 달라지지 않습니다. 각 UTXO는 자기 값에 비례해 생성되고 상한에 도달합니다.
 
 #### Spending rules
 
@@ -171,10 +188,20 @@ struct DustActions<S, P> {
 
 ### Registrations and fees
 
-`DustRegistration`은 NIGHT 키를 DUST 키에 연결합니다.
+`DustRegistration`은 NIGHT 키를 DUST 키에 연결합니다. 등록은 순차적으로 처리됩니다.
 
-  * 등록은 순차적으로 처리됩니다.
-  * 등록 트랜잭션이 *아직 DUST를 생성하지 않은* NIGHT 입력(즉, 이전 등록 기록이 없는 입력)을 사용하는 경우, 시스템은 해당 입력이 *생성했을* DUST로 가스 비용을 지불하도록 등록을 "소급 적용"할 수 있습니다.
+최초 `DustRegistration`에는 부트스트랩 문제가 있습니다. 트랜잭션 자체에 DUST가 들지만, 지갑은 NIGHT 키가 등록되기 전까지 DUST를 보유할 수 없습니다. ledger는 이를 *소급 생성(retroactive generation)*으로 해결합니다.
+
+아직 DUST를 생성하지 않는 NIGHT UTXO도 생성 중인 UTXO와 동일한 속도·상한 공식에 따라, 그 UTXO 자신의 생성 시점부터 DUST를 "가상으로" 축적해 온 것으로 봅니다. 등록은 fee allowance(`allow_fee_payment`)를 선언해 이 소급 DUST를 끌어다 자기 가스 비용을 지불할 수 있습니다. 기존 DUST나 두 번째 지갑이 필요하지 않습니다.
+
+자체 조달 경로에는 두 가지 제한이 적용됩니다:
+
+- 등록 트랜잭션의 [guaranteed section](./how-midnight-works/semantics.mdx)에서 소비된, 아직 생성 중이 아닌 NIGHT UTXO만 소급 allowance에 산입됩니다.
+- 선언한 allowance는 그 입력들이 축적한 양을 초과할 수 없습니다. 더 많이 요청하는 트랜잭션은 `InsufficientDustForRegistrationFee`로 검증에 실패합니다.
+
+소급 DUST는 각 UTXO의 생성 시점부터 축적되므로, 갓 받은 NIGHT UTXO는 거의 아무것도 축적하지 못한 상태입니다. 소급 DUST가 아직 등록 수수료를 감당하지 못한다면, 더 축적될 때까지 기다리거나 이미 등록된 지갑에서 수수료를 조달하세요.
+
+등록 이후 NIGHT UTXO를 다시 소비하면 새 등록 아래 생성 중인 UTXO로 재생성됩니다. 등록 트랜잭션이 보통 지갑의 NIGHT을 자기 자신에게 소비하는 이유가 이것입니다. 지속적인 DUST 생성은 그 재소비에서 시작됩니다.
 
 ## Generate DUST
 
@@ -247,7 +274,7 @@ flowchart LR
 지갑은 다음 과정으로 자금을 복구합니다.
 
 - 보유 중인 NIGHT UTXO를 식별합니다(체인의 시작점).
-- 시퀀스 번호($0, 1, 2...$)에 대응하는 commitment를 선형적으로 탐색합니다.
+- 시퀀스 번호(`0, 1, 2, ...`)에 대응하는 commitment를 선형적으로 탐색합니다.
 - **프라이버시**: 지갑은 인덱싱 서비스에 대한 프라이버시를 보호하기 위해, 정확한 조회 대신 비트 접두사 기반(확률적 필터링) 쿼리를 사용해야 합니다.
 
 ## The implementation

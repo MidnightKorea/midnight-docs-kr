@@ -90,7 +90,7 @@ Proof server는 Docker 기반 백그라운드 서비스로 실행됩니다. 다�
 터미널에서 proof server를 시작하세요:
 
 ```bash
-docker run -p 6300:6300 midnightntwrk/proof-server:latest midnight-proof-server -v
+docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0 midnight-proof-server -v
 ```
 
 이 명령어는 실행 중인 동안 터미널을 점유합니다.
@@ -151,7 +151,7 @@ Error: bind: address already in use
 포트 6300을 사용 중인 프로세스를 중지하거나, 다른 포트에서 proof server를 실행하세요:
 
 ```bash
-docker run -p 6301:6300 midnightntwrk/proof-server:latest midnight-proof-server -v
+docker run -p 6301:6300 midnightntwrk/proof-server:8.1.0 midnight-proof-server -v
 ```
 
 애플리케이션 설정에서 새 포트로 변경하는 것도 잊지 마세요.

@@ -111,7 +111,7 @@ cat > package.json << 'EOF'
     "ws": "^8.18.3"
   },
   "overrides": {
-    "smoldot": "npm:@aspect-build/empty@0.0.0",
+    "smoldot": "npm:empty-npm-package@1.0.0",
     "@midnight-ntwrk/ledger-v8": "8.1.0",
     "@midnight-ntwrk/midnight-js-network-id": "4.1.1"
   },
@@ -196,7 +196,7 @@ struct SchnorrHashInput<#n> {
     msg: Vector<n, Field>;
 }
 
-witness getSchnorrReduction(challengeHash: Field): [Field, Uint<248>];
+witness getSchnorrReduction(challengeHash: Field): [Uint<7>, Uint<248>];
 
 export circuit schnorrVerify<#n>(msg: Vector<n, Field>, signature: SchnorrSignature, pk: JubjubPoint): [] {
 
@@ -212,6 +212,7 @@ export circuit schnorrVerify<#n>(msg: Vector<n, Field>, signature: SchnorrSignat
     const TWO_248: Field = 452312848583266388373324160190187140051835877600158453279131187530910662656 as Field;
 
     const [q, cTruncated] = getSchnorrReduction(cFull);
+    assert(disclose(q) < 116, "Schnorr quotient out of range");
     assert(disclose(q) * TWO_248 + (disclose(cTruncated) as Field) == cFull, "Invalid challenge reduction");
 
     const c: Field = disclose(cTruncated) as Field;
@@ -257,6 +258,10 @@ Compact 언어 버전 `0.22`부터 두 `JubjubPoint` 값은 `==`로 비교할 �
 :::
 
 이 잘라내기에는 *witness*(`getSchnorrReduction`)를 사용합니다. TypeScript 코드가 2^248로 나눈 몫과 나머지를 제공하고, circuit은 `q * 2^248 + r == cFull`을 검증합니다. 이는 ZK 시스템에서 흔한 패턴으로, 비용이 큰 계산은 prover가 오프체인에서 처리하게 하고 그 결과만 온체인에서 저렴하게 검증합니다.
+
+:::caution Constrain witness values fully
+reduction 등식만으로는 충분하지 않습니다. circuit 산술은 BLS12-381 스칼라 소수를 법으로 하는 모듈러 연산이고, 2^248은 그 field에서 역원을 가집니다. 따라서 몫이 제약 없는 `Field`라면, 악의적인 prover는 잘라낸 challenge `r`을 *아무 값이나* 고른 뒤 그에 맞는 `q`를 풀어낼 수 있습니다. 등식은 만족하면서도 challenge를 해시와 분리해 버리는 것입니다. 이렇게 되면 provider의 비밀 키 없이도 attestation 서명을 위조할 수 있습니다. 몫을 `Uint<7>`로 타이핑하고 `q < 116`을 assert하면(정직한 몫의 최댓값은 `floor((p - 1) / 2^248) = 115`) 등식이 *정수* 위에서 성립하도록 강제되어, `r`이 자유 선택값이 아니라 해시에 묶입니다. 일반화하면 이렇습니다. witness 값은 prover가 통제하는 입력이므로, 정직한 값만 circuit을 만족할 수 있을 때까지 제약해야 합니다.
+:::
 
 `schnorrChallenge`는 `pure` circuit입니다(부수 효과 없음, ledger 접근 없음). `schnorrVerify`가 사용하는 것과 동일한 challenge 해시를 계산합니다. attestation API가 서명할 때 동일한 해시를 오프체인에서 계산할 수 있도록 export됩니다.
 
@@ -723,7 +728,7 @@ export const witnesses = {
 
 *   `getAttestedScoringWitness`: private 상태에서 신용 프로필, attestation signature, provider ID를 추출합니다.
 
-*   `getSchnorrReduction`: challenge 해시를 2^248로 나눈 몫과 나머지를 계산합니다(Jubjub 스칼라 field 잘라내기).
+*   `getSchnorrReduction`: challenge 해시를 2^248로 나눈 몫과 나머지를 계산합니다(Jubjub 스칼라 field 잘라내기). circuit은 몫을 `Uint<7>`로 선언하고 116 미만임을 assert하므로, reduction이 field 소수를 법으로 하는 대신 정수 위에서 검증됩니다. 정직한 몫은 항상 [0, 115] 범위에 있으므로 TypeScript 구현에서 별도 처리는 필요하지 않습니다.
 
 *   `getUserSecret`: 이 컨트랙트의 모든 caller 신원을 만들어 내는 32바이트 secret을 반환합니다. `UserSecretKey`가 이제 `Bytes<32>`에 대한 `new type`이므로, 생성된 TypeScript 타입은 일반 `Uint8Array`입니다. witness는 `{ bytes: ... }` wrapper 없이 secret 자체를 반환합니다. 컨트랙트는 이 값을 두 개의 pure circuit에 넣습니다. 사용자별 PIN 바인딩 신원을 위한 `deriveUserPublicKey(secret, pin)`과 admin 역할을 위한 `deriveAdminPublicKey(secret)`입니다. 해시했을 때 `contractAdmin`에 저장된 값이 나오는 secret은 배포한 admin의 것뿐입니다. 다른 사람의 `getUserSecret`은 admin 도출 결과가 일치하지 않는 값을 반환하므로 admin assertion을 통과하지 못합니다. 도메인 분리 문자열(`"zkloan:admin:pk:v1"`과 `"zkloan:user:pk:v1"`)이 다르므로 같은 secret에서 나온 두 도출 결과는 서로 연관되지 않습니다. 런타임 길이 검사로 잘못된 형식의 witness는 증명 시점에 거부됩니다.
 

@@ -102,7 +102,7 @@ async fn main() {
 
 ## Public network endpoints
 
-Midnight은 현재 개발 및 테스트를 위해 두 개의 활성 테스트 네트워크를 운영합니다.
+Midnight은 두 개의 테스트 네트워크(Preview·Preprod)와 프로덕션 네트워크인 Mainnet에 대한 public endpoint를 제공합니다. indexer·faucet·proof server endpoint를 포함한 네트워크별 전체 레퍼런스는 [Networks and environments](../guides/networks-and-environments)를 참고하세요.
 
 <Tabs>
 <TabItem value="preview" label="Preview">
@@ -125,6 +125,17 @@ Mainnet 배포 전 최종 테스트를 위한 pre-production 환경입니다.
 | RPC endpoint | `https://rpc.preprod.midnight.network/` |
 | WebSocket | `wss://rpc.preprod.midnight.network/` |
 | Explorer | [https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.preprod.midnight.network#/explorer](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.preprod.midnight.network#/explorer) |
+</TabItem>
+
+<TabItem value="mainnet" label="Mainnet">
+
+프로덕션 네트워크입니다.
+
+| Service | URL |
+| ------- | --- |
+| RPC endpoint | `https://rpc.mainnet.midnight.network/` |
+| WebSocket | `wss://rpc.mainnet.midnight.network/` |
+| Explorer | [https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.mainnet.midnight.network#/explorer](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.mainnet.midnight.network#/explorer) |
 </TabItem>
 </Tabs>
 

@@ -1,0 +1,42 @@
+---
+title: AI integration
+description: 생성된 코드를 실제 컴파일러와 소스에 대조 검증하는 AI 코딩 어시스턴트로 Midnight 위에서 개발하여, 환각이 아니라 실제로 동작하는 코드를 출시하세요.
+id: index
+tags: [ai, developer-tools, compact, midnight-expert, claude]
+---
+
+import PersonaTiles from '@site/src/components/PersonaTiles';
+
+# AI integration
+
+AI 코딩 어시스턴트는 빠르지만 Midnight에서는 환각을 일으킵니다. Compact과 Midnight SDK는 학습 데이터에 거의 포함되어 있지 않아, 혼자 두면 어시스턴트가 없는 문법을 지어내고 존재하지 않는 함수를 호출하며 컴파일 단계에서 실패하는 코드를 내놓습니다.
+
+이 섹션에서는 그 간극을 메우는 도구들을 다룹니다. 방향을 정하고 승인하는 주도권은 여러분에게 두면서, 어시스턴트는 자신의 출력을 실제 Compact 컴파일러·SDK·소스에 대조 검증합니다. 지어낸 코드를 디버깅하는 시간은 줄고, 실제로 만드는 시간은 늘어납니다.
+
+## What you can do
+
+- 실제 컴파일러로 검증하여, 환각 문법 없이 Compact 스마트 컨트랙트를 작성합니다.
+- DApp 프런트엔드를 스캐폴딩하고 컨트랙트 및 Lace wallet과 연결합니다.
+- 로컬 devnet(노드, indexer, proof server)을 띄우고 상태를 점검합니다.
+- push하기 전에 프라이버시 누출이 없는지 자신의 컨트랙트를 직접 리뷰합니다.
+
+## Start here
+
+<PersonaTiles tiles={[
+  {
+    title: "Midnight Expert",
+    body: "Midnight 위에서 개발하기 위한 Claude Code 플러그인 모음. 설치하고 doctor를 실행한 뒤 몇 분 만에 검증된 첫 컨트랙트를 컴파일하세요.",
+    to: "/ai-integration/midnight-expert",
+    cta: "Get started",
+  },
+  {
+    title: "Midnight Academy",
+    body: "Midnight이 처음이신가요? selective disclosure, ZK 증명, 그리고 개발 방법을 가이드가 있는 인터랙티브 레슨으로 배우세요.",
+    to: "https://academy.midnight.network/",
+    cta: "Start learning",
+  },
+]} />
+
+## More coming
+
+Midnight Expert는 여기서 다루는 첫 도구일 뿐, 마지막은 아닙니다. Midnight Manual과 Compass P를 비롯해 더 많은 first-party AI integration 도구가 준비되고 있습니다. 각 도구는 준비되는 대로 여기에 quick start를 싣고 자체 문서로 링크를 연결합니다.

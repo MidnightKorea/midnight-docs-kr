@@ -1,0 +1,249 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of Midnight Docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+sidebar_label: Index contract state with EffectStream
+title: Index contract state with EffectStream
+description: "Midnight 컨트랙트를 감시하는 EffectStream 노드를 실행하고, 스키마로 public ledger를 디코딩하며, 그 결과를 HTTP로 제공합니다."
+sidebar_position: 48
+toc_max_heading_level: 2
+keywords: [midnight, effectstream, indexing, indexer, ledger schema, dapp, cross-chain, preview]
+tags: [midnight, effectstream, indexing, dapp, ledger]
+---
+
+# Index contract state with EffectStream
+
+이 가이드로 Midnight 컨트랙트용 indexer를 구축하세요. indexer는 컨트랙트의 public state를 감시하고 자체 기록을 유지하며, 체인이 답하지 못하는 질문에 답합니다.
+
+여기의 절차는 `preview` 네트워크와, 배포할 필요 없는 컨트랙트를 대상으로 하므로, 가이드 전체가 로컬 스택 없이 실행됩니다. 체인 하나를 읽는 것은 [EffectStream](https://effectstream.github.io/docs/)이 하는 가장 작은 일입니다. cross-chain 경로는 [Additional resources](#additional-resources)에서 안내합니다.
+
+## Prerequisites
+
+이 가이드의 모든 절차에 공통으로 적용됩니다.
+
+- [Bun](https://bun.sh). EffectStream은 TypeScript를 직접 실행하고 Bun을 패키지 매니저로 사용합니다. [Set up Bun for Midnight development](./install-bun-runtime-midnight)를 참고하세요.
+- [환경 레퍼런스](./networks-and-environments#environment-reference)에 나열된 호스팅형 `preview` indexer에 대한 네트워크 접근.
+- 검증 단계에서 사용할 `curl` 또는 임의의 HTTP 클라이언트.
+
+이 절차들은 HTTPS로 호스팅형 indexer에서 읽어오므로, Docker·Midnight node·proof server·Compact Toolchain이 필요하지 않습니다.
+
+:::note The compatibility matrix does not cover EffectStream
+
+EffectStream 패키지는 어떤 `@midnight-ntwrk/*` 패키지에도 의존하지 않으므로, [support matrix](../relnotes/support-matrix)는 프로젝트에서 컨트랙트 쪽 절반을 관장할 뿐 이쪽 절반은 관장하지 않습니다.
+
+:::
+
+{/* _mod-docs-content-type: CONCEPT */}
+## Why a DApp needs an indexer
+
+Midnight 컨트랙트는 현재 public state만 저장하고 그 외에는 아무것도 저장하지 않습니다. 최고 점수는 누가 보유하고 있나요? 지난 한 시간 동안 무엇이 바뀌었나요? 체인은 어느 쪽도 답하지 않습니다. 질의할 수 있는 이력을 남기지 않고, 어떤 합계도 계산하지 않습니다.
+
+indexer가 그 질문에 답합니다. state 변경을 감시하고, 각 변경에 여러분이 작성한 함수를 적용해 그 결과를 여러분이 통제하는 데이터베이스에 저장합니다. 변경을 체인 순서대로 처리하므로, 같은 이력을 재생하면 같은 데이터베이스가 다시 만들어집니다.
+
+Midnight은 이미 indexer를 운영하며, 이 가이드는 그것을 대체하는 대신 그것에 연결합니다. Midnight indexer는 체인이 보유한 내용을 보고하고, 여러분의 DApp은 [Deploying and operating a contract](./deploy-and-operate#the-transaction-pipeline-and-its-providers)의 `publicDataProvider`를 통해 여기에 접근합니다. EffectStream은 그 indexer에서 읽어와 그 위에 여러분만의 파생 state를 구축합니다.
+
+ledger를 읽는 데에는 두 가지 결과가 따릅니다. 변경은 여러 블록의 확정을 거친 뒤에야 여러분 코드에 도달하므로, 체인 재구성이 일어나도 체인이 나중에 버리는 state를 여러분 데이터베이스가 붙들고 있을 일이 없습니다. 그리고 여러분 코드는 컨트랙트가 공개하는 것만 정확히 보게 되므로, [What the ledger schema can read](#what-the-ledger-schema-can-read)는 컨트랙트가 내리는 결정이 됩니다.
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Run the indexer
+
+Midnight 컨트랙트를 감시하며 각 state 변경을 출력하는 노드를 만들고 실행합니다. 여기서 사용하는 컨트랙트는 이미 `preview`에서 동작 중인 counter이므로, 아무것도 배포하지 않습니다.
+
+### Procedure
+
+1. 빈 프로젝트 디렉터리를 만들고, EffectStream 노드에 필요한 단 하나의 의존성을 담은 `package.json`을 추가합니다. 버전은 import 문이 아니라 여기서 고정하세요.
+
+   ```json title="package.json"
+   {
+     "name": "midnight-indexer",
+     "private": true,
+     "scripts": {
+       "start": "bun index.ts"
+     },
+     "dependencies": {
+       "@effectstream/node-sdk": "0.104.0"
+     }
+   }
+   ```
+
+2. Bun으로 설치합니다. auto-install 캐시에 기대는 대신 실제 install을 실행하세요. SDK는 자기 자신을 이름으로 import하는 패키지에 접근하는데, 그런 import를 해석하려면 캐시가 결코 만들지 않는 `node_modules` 디렉터리가 필요합니다.
+
+   ```bash
+   bun install
+   ```
+
+3. `package.json` 옆에 `index.ts`를 만듭니다. `runNode` 호출 하나가 노드 전체를 기술하며, 이름·데이터베이스·감시할 source들·source별 transition 함수 하나를 받습니다.
+
+   ```ts title="index.ts"
+   import { midnightContract, pglite, runNode } from "@effectstream/node-sdk";
+
+   await runNode({
+     appName: "midnight-indexer",
+     database: pglite(),
+     sources: {
+       counter: midnightContract({
+         network: "preview",
+         address: "c1a9ec7c4d2566f59456fd915a0438bf4dc9b8671d4c2308d30af796c51ad20f",
+         startBlockHeight: "latest",
+         ledger: { round: "uint128" },
+       }),
+     },
+     transitions: {
+       counter: ({ state, blockHeight }) => {
+         console.log(`round ${state.round} at block ${blockHeight}`);
+       },
+     },
+   });
+   ```
+
+   `pglite()`는 노드에 임베디드 PostgreSQL 호환 데이터베이스를 제공하며, `dataDir`를 넘기지 않는 한 메모리에 유지됩니다. `sources` 키(여기서는 `counter`)는 여러분이 정하는 것이고, `transitions`가 이를 재사용해 둘이 짝을 이룹니다. `network`를 설정하면 호스팅형 indexer가 선택되고, `address`는 `0x` 접두사 없는 컨트랙트의 64자 hex 주소를 받습니다. [What the ledger schema can read](#what-the-ledger-schema-can-read)에서 `ledger` 옵션과, 그것이 여러분이 생각하는 컨트랙트에서 동작하는지를 다룹니다.
+
+4. 노드를 시작합니다.
+
+   ```bash
+   bun start
+   ```
+
+5. transition에서 디코딩된 state를 읽습니다. transition은 객체를 받습니다. 부호 없는 정수는 `uint128`이 JavaScript number에 들어가지 않으므로 십진 문자열로 도착하고, 바이트 필드와 map 키는 `0x` 접두사 hex 문자열로 도착합니다. 산술이 필요하면 `BigInt(state.round)`로 변환하세요.
+
+:::tip Replay history to confirm the wiring
+
+transition은 블록이 아니라 state 변경에 발동하므로, 조용한 컨트랙트는 아무것도 출력하지 않습니다. 과거 변경을 재생하려면 `startBlockHeight`를 낮은 블록 번호로 설정하세요.
+
+:::
+
+### Verification
+
+노드는 preview에 연결해, 가져오는 각 블록을 다음과 같이 로그로 남깁니다.
+
+```text
+[Midnight:preview] Fetching blocks from 456487 to 456487.
+04:28:20 INFO effectstream-sync-block-merge: finalized block 20 @ undefined... | {"clock":[20,20]}
+04:28:21 INFO effectstream-sync-block-merge: finalized block 21 @ undefined... | {"clock":[21,21],"midnight-counter":[456486,456486]}
+```
+
+`round N at block M` 줄은 컨트랙트의 state가 바뀔 때마다 나타납니다. 아무도 호출하지 않는 컨트랙트는 그런 줄을 만들지 않으며, 위 팁이 다루는 상황이 바로 이것입니다.
+
+{/* _mod-docs-content-type: CONCEPT */}
+## What the ledger schema can read
+
+`ledger` 옵션은 public state를 디코딩하는 방법을 선언하며, 그래서 노드에 컴파일된 컨트랙트 아티팩트가 필요 없습니다. 이 옵션은 노드가 애초에 어떤 컨트랙트를 읽을 수 있는지도 결정하므로, 여기에 맞춰 계획을 세우기 전에 여러분 컨트랙트와 대조해 확인하세요.
+
+EffectStream은 스키마 키를 ledger 필드에 위치로 매칭합니다. 첫 번째 키가 첫 번째 필드를, 두 번째 키가 두 번째 필드를 읽고, 스키마가 소진될 때까지 이어집니다. 스키마는 다음 타입을 받습니다.
+
+- `"uint8"`부터 `"uint128"`까지, little-endian으로 십진 문자열로 디코딩
+- `"bytes"`, `0x` 접두사 hex 문자열로 디코딩
+- `"boolean"`
+- `{ type: "map", value: <type> }`, 임의로 중첩 가능하며 키는 `0x` hex 문자열
+- `{ type: "option", value: <type> }`, 값이 없으면 `null`로 디코딩
+
+`struct`, `Vector`, `enum`은 parse 단계에서 실패합니다. 매칭이 위치 기반이므로, 읽을 수 없는 필드 하나가 그 뒤의 모든 필드를 막습니다. ledger에서 세 번째에 놓인 struct는 네 번째 필드와 다섯 번째 필드까지 잃게 만듭니다.
+
+:::caution Some contracts need the compiler-generated decoder instead
+
+스키마는 struct·enum·wrapped 타입을 표현할 수 없는데, Compact 컨트랙트는 이 셋을 모두 사용합니다. 컨트랙트의 ledger가 상단 가까이에 이런 것을 하나라도 두고 있다면, EffectStream의 전체 설정 API를 대신 사용하세요. 이 API는 Compact 컴파일러가 생성하는 디코더를 받아 언어가 표현할 수 있는 모든 것을 읽습니다. [EffectStream documentation](https://effectstream.github.io/docs/home/chains/midnight)을 참고하세요.
+
+:::
+
+컨트랙트를 여러분이 통제한다면, 스키마가 읽을 수 있도록 ledger를 설계할 수 있습니다. indexer가 필요로 하는 필드는 상단에 두고, struct와 digest는 하단에 두세요. 인덱싱이 필요한 struct는 같은 방식으로 키가 매겨진 형제 최상위 선언들로 평탄화하세요. 작은 숫자 네 개를 담은 `Map<Bytes<32>, GameState>`는 `Map<Bytes<32>, Uint<8>>` 선언 네 개가 되며, 이는 온체인에서 아무 비용도 들지 않습니다.
+
+```compact
+// An indexer reads these, in this order.
+export ledger status: Map<Bytes<32>, Uint<8>>;
+export ledger winner: Map<Bytes<32>, Uint<8>>;
+export ledger scores: Map<Bytes<32>, Map<Uint<16>, Uint<8>>>;
+
+// Structs and digests go last.
+export ledger commitments: Map<Bytes<32>, GameKeys>;
+```
+
+여기에 대응하는 스키마는 struct가 시작되는 지점에서 멈춥니다.
+
+```ts
+ledger: {
+  status: { type: "map", value: "uint8" },
+  winner: { type: "map", value: "uint8" },
+  scores: { type: "map", value: { type: "map", value: "uint8" } },
+}
+```
+
+어떤 필드를 상단에 둘지는 [Security and best practices](./security-best-practices#on-chain-visibility)가 `disclose()`에 대해 던지는 질문과 같습니다. 공개 독자가 무엇을 봐야 하는가? identity commitment과 Merkle root는 in-circuit 검사에 쓰이므로 하단에 두는 것이 맞습니다.
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Serve indexed state over HTTP
+
+노드가 기록하는 내용을 노출해 애플리케이션의 나머지 부분이 읽을 수 있게 합니다. `runNode`는 HTTP 서버를 호스팅합니다.
+
+### Prerequisites
+
+- [Run the indexer](#run-the-indexer)에서 만든, 실행 중인 노드.
+
+### Procedure
+
+1. `index.ts`를 이 버전으로 교체합니다. 값을 로그로 남기는 대신 변수에 기록하고, 그것을 제공하는 `api` 함수를 추가합니다.
+
+   ```ts title="index.ts"
+   import { midnightContract, pglite, runNode } from "@effectstream/node-sdk";
+
+   let round = "waiting for the next contract update";
+
+   await runNode({
+     appName: "midnight-indexer",
+     database: pglite(),
+     sources: {
+       counter: midnightContract({
+         network: "preview",
+         address: "c1a9ec7c4d2566f59456fd915a0438bf4dc9b8671d4c2308d30af796c51ad20f",
+         startBlockHeight: "latest",
+         ledger: { round: "uint128" },
+       }),
+     },
+     transitions: {
+       counter: ({ state }) => {
+         round = state.round;
+       },
+     },
+     api: async (server) => {
+       server.get("/round", async (_request, reply) => reply.send({ round }));
+     },
+   });
+   ```
+
+2. 노드를 재시작하고 엔드포인트를 요청합니다. `runNode`에 `apiPort`를 설정하지 않는 한 서버는 9999 포트에서 대기합니다.
+
+:::caution Choose the database mode deliberately
+
+`pglite()`는 기본적으로 데이터를 메모리에 유지하므로, 실행할 때마다 체인 tip에서 시작하고 노드가 꺼져 있던 동안 일어난 일은 놓칩니다. `pglite({ dataDir: "./data" })`를 넘기면 데이터베이스가 영속화되고, 노드는 기록해 둔 블록 높이에서 재개합니다.
+
+:::
+
+### Verification
+
+엔드포인트는 마지막 transition이 기록한 값으로 응답하며, 아직 transition이 발동하지 않았다면 시작 값으로 응답합니다.
+
+```bash
+curl http://localhost:9999/round
+```
+
+```json
+{"round":"waiting for the next contract update"}
+```
+
+{/* _mod-docs-content-type: REFERENCE */}
+## Indexer troubleshooting
+
+이 가이드 경로에서 발생하는 실패와 그 해결책입니다.
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| 자기 이름으로 자신을 import하는 패키지를 해석하다 install 실패 | Bun의 auto-install 캐시가 `node_modules` 앵커를 만들지 않음 | `bun start` 전에 `bun install`을 실행하세요 |
+| 첫 transition이 예상보다 훨씬 오래 걸림 | EffectStream은 각 변경을 여러 블록의 확정 동안 붙들어 둠 | 기다리세요. 이 지연이 데이터베이스를 확정된 state와 일관되게 유지합니다 |
+| 디코딩된 숫자와의 비교가 결코 일치하지 않음 | 부호 없는 정수는 number가 아니라 십진 문자열로 디코딩됨 | 비교 전에 `BigInt(state.field)`로 변환하세요 |
+| scalar가 있어야 할 자리에 array가 있다는 parse 오류 | `struct`·`enum`·`Vector`가 스키마 위치에 놓임 | 컴파일러 생성 디코더를 사용하거나, 컨트랙트를 통제한다면 ledger를 재정렬하세요. [What the ledger schema can read](#what-the-ledger-schema-can-read)를 참고하세요 |
+
+## Additional resources
+
+- [EffectStream documentation](https://effectstream.github.io/docs/): 전체 API와, Midnight을 EVM 체인·Bitcoin·Cardano와 짝짓는 cross-chain 템플릿.
+- [Deploying and operating a contract](./deploy-and-operate): DApp이 Midnight indexer에 직접 접근할 때 쓰는 provider들과, 인덱싱할 자신의 컨트랙트를 배포하는 방법.
+- [Networks and environments](./networks-and-environments): 모든 엔드포인트, 네트워크 ID, 그리고 로컬 스택.
+- [Security and best practices](./security-best-practices): 체인 관찰자가 보는 것과, `disclose()`가 그것을 결정하는 방식.
+- [Support matrix](../relnotes/support-matrix): 프로젝트에서 컨트랙트 쪽 절반을 관장하는 버전들.

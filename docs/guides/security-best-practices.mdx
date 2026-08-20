@@ -1,0 +1,644 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of Midnight Docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+sidebar_label: Security and best practices
+title: Security and best practices
+description: "Midnight DApp 보안: 인증, 접근 제어, 산술, 마감 시한, replay, 키, 증명, 프라이버시에 관한 개념·절차·참조 자료."
+sidebar_position: 30
+toc_max_heading_level: 2
+keywords: [midnight, security, best practices, viewing keys, access control, key management, nullifiers, front-running]
+tags: [midnight, security, privacy, compact, smart-contracts, dapp]
+---
+
+# Security and best practices
+
+이 가이드로 Compact 컨트랙트와 그 주변 DApp을 견고하게 만드세요. 각 섹션은 순서에 상관없이 읽어도 됩니다. 위협이나 메커니즘을 설명하는 섹션, 하나의 작업을 단계별로 안내하고 그것이 제대로 동작하는지 확인하는 테스트로 마무리하는 섹션, 조회용 표를 제공하는 섹션이 섞여 있습니다.
+
+이 문서 전반의 판단은 세 가지 공격자를 전제로 합니다. **체인 관찰자**는 public ledger를 읽습니다. **악의적 prover**는 자신의 프런트엔드를 제어하며 모든 witness 값을 직접 공급합니다. indexer나 proof server 같은 **오프체인 인프라 운영자**는 여러분이 보낸 데이터를 봅니다. 이런 패턴 뒤에 있는 언어 수준 보안 모델은 [Smart contract security](../compact/smart-contract-security)를 참고하세요.
+
+## Prerequisites
+
+이 가이드의 모든 절차에 공통으로 적용됩니다:
+
+- 보안을 적용할, 컴파일된 Compact 컨트랙트. 처음부터 시작한다면 [build your first contract](../getting-started/hello-world)를 따라 하세요.
+- [Compact CLI](../getting-started/installation)가 설치되어 있고 `compact compile`이 동작하는 상태.
+- 검증 테스트용으로 [Vitest](https://vitest.dev/)와 `@midnight-ntwrk/compact-runtime`을 갖춘 Node.js.
+- witness와 `disclose()`에 대한 이해. 둘 중 하나라도 낯설다면 먼저 [Smart contract security](../compact/smart-contract-security)를 읽으세요.
+
+{/* _mod-docs-content-type: CONCEPT */}
+## The Midnight security threat model
+
+Compact 컨트랙트의 모든 보안 통제는 세 공격자 중 하나를 방어합니다. 특정 circuit이 어느 공격자를 상대하는지 알면 어떤 통제가 필요한지 알 수 있습니다.
+
+**체인 관찰자**는 public ledger를 읽습니다. 영지식 증명이 witness 데이터를 숨기지만, 트랜잭션은 여전히 여러분이 호출한 circuit과 컨트랙트, ledger 연산의 인자, 여러분이 disclose하는 값, 그리고 그 시점을 드러냅니다. 정확히 무엇이 노출되고 무엇이 노출되지 않는지는 [On-chain visibility](#on-chain-visibility) 참조 자료에 정리되어 있습니다.
+
+**악의적 prover**는 자신의 프런트엔드를 제어하며 `ownPublicKey()`의 결과를 포함해 모든 witness 값을 직접 공급합니다. 프로토콜은 이 값들을 트랜잭션에 서명한 지갑과 대조해 검증하지 않으므로, 거짓말하는 prover를 제약하는 것은 오직 circuit 안의 `assert` 문뿐입니다. 여러분이 제약하지 않은 것은 무엇이든 prover가 마음대로 정합니다.
+
+**오프체인 인프라 운영자**는 여러분이 보낸 것을 봅니다. viewing key를 가진 indexer는 여러분의 shielded 내역을 읽을 수 있고, proof server는 증명을 만들기 위해 여러분의 비공개 witness 입력을 처리합니다. 둘 다 신뢰에 관한 결정이며, [Viewing keys](#viewing-keys)와 [Proving and private data](#proving-and-private-data)에서 다룹니다.
+
+{/* _mod-docs-content-type: REFERENCE */}
+## On-chain visibility
+
+체인 관찰자가 임의의 트랜잭션에서 볼 수 있는 것과 볼 수 없는 것. circuit이 무엇을 안전하게 노출해도 되는지 판단할 때 참고하세요.
+
+| 관찰자가 보는 것 | 온체인에 보이는가? |
+|---|---|
+| 여러분이 호출한 exported circuit | 예, 진입점은 트랜잭션의 일부입니다 |
+| 여러분이 호출한 컨트랙트 | 예, 컨트랙트 주소는 공개됩니다 |
+| ledger 연산의 인자(`Set`·`Map`의 키와 값, `Counter` 수량) | 예 |
+| public 위치로 disclose하는 값(ledger 쓰기, exported circuit 반환값, 컨트랙트 간 호출) | 예 |
+| 트랜잭션이 온체인에 반영된 시점 | 예, 블록 타이밍은 관찰 가능합니다 |
+| witness 함수의 반환값 | 아니요, public 위치로 disclose하지 않는 한 |
+| circuit 내부 연산 | 아니요 |
+| `MerkleTree`나 `HistoricMerkleTree`에 삽입된 leaf | 아니요, 인자를 숨기는 유일한 ledger 연산입니다 |
+
+값을 `disclose()`로 감싼다고 해서 그 값이 공개되는 것은 아닙니다. `disclose()`는 컴파일러의 비공개 데이터 검사를 통과시켜 값이 public 경계를 넘을 수 있게 할 뿐입니다. 값은 ledger 쓰기, exported circuit의 반환, 컨트랙트 간 호출을 통해 실제로 경계를 넘을 때 비로소 보이게 됩니다.
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Authenticating a caller with a derived identity
+
+`ownPublicKey()`를 신뢰하는 대신, 호출자가 반드시 알아야 하는 비밀에서 호출자의 신원을 유도해 오직 한 명의 호출자만 circuit을 실행할 수 있도록 제한하세요. `ownPublicKey()`는 prover가 제어하는 witness입니다.
+
+### Procedure
+
+1. 호출자의 비밀이 private state에 머무르도록 secret witness를 선언합니다:
+
+   ```compact
+   pragma language_version 0.23.0;
+   import CompactStandardLibrary;
+
+   export ledger owner: Bytes<32>;
+
+   witness secretKey(): Bytes<32>;
+   ```
+
+2. 도메인 구분자와 함께 비밀을 해싱해 공개 신원을 유도합니다. 해시는 단방향이므로 그 값을 공개해도 비밀에 관해서는 아무것도 드러나지 않습니다:
+
+   ```compact
+   circuit derivePublicKey(sk: Bytes<32>): Bytes<32> {
+     return persistentHash<Vector<2, Bytes<32>>>([pad(32, "myapp:owner"), sk]);
+   }
+   ```
+
+3. commitment은 설정 시점에 한 번만 저장합니다. 유도한 신원을 ledger에 쓰는 것은 비공개 값을 public 위치로 옮기는 일이며, 그래서 `disclose()`가 필요합니다:
+
+   ```compact
+   export circuit claimOwnership(): [] {
+     owner = disclose(derivePublicKey(secretKey()));
+   }
+   ```
+
+4. 신원을 다시 유도해 일치하는지 assert하여 circuit을 제한합니다. 비밀을 아는 호출자만 일치하는 해시를 만들 수 있습니다:
+
+   ```compact
+   export circuit withdraw(): [] {
+     assert(derivePublicKey(secretKey()) == owner, "not owner");
+     // ... privileged action ...
+   }
+   ```
+
+5. TypeScript에서 witness를 구현하되, 암호학적으로 안전한 소스로 비밀을 생성해 private state에 저장합니다:
+
+   ```typescript
+   const sk = new Uint8Array(32);
+   crypto.getRandomValues(sk); // never Math.random()
+
+   export const witnesses = {
+     secretKey: ({ privateState }) => [privateState, privateState.sk],
+   };
+   ```
+
+:::warning ownPublicKey()로 절대 인증하지 마세요
+
+`ownPublicKey()`는 witness입니다. prover가 그 반환값을 정하고 프로토콜은 이를 서명 지갑과 대조하지 않으므로, `assert(ownPublicKey().bytes == owner)`는 prover가 제어하는 두 값을 비교하는 셈이라 우회할 수 있습니다. 값을 호출자에게 *전달*하는 경우에만 안전하며, [shielded token tutorial](../tokens/shielded-token)이 그 예입니다.
+
+:::
+
+:::note Witness 또는 circuit 인자
+
+비밀을 비공개로 유지하는 방법이 witness만 있는 것은 아닙니다. circuit 입력도 기본적으로 비공개이므로, 비밀을 인자로 넘겨 같은 신원을 유도할 수도 있습니다:
+
+```compact
+export circuit withdraw(sk: Bytes<32>): [] {
+  assert(derivePublicKey(sk) == owner, "not owner");
+}
+```
+
+witness는 기기의 컨트랙트 private state에서 비밀을 읽고, 인자는 호출마다 호출자가 비밀을 공급하게 합니다. 둘 다 비밀을 오프체인에 둡니다. 비밀이 컨트랙트 상태와 함께 유지되어야 하면 witness를, 호출자가 이미 비밀을 가지고 있으면 인자를 선택하세요.
+
+:::
+
+### Verification
+
+소유자는 성공하고, 저장된 키를 위조한 private state에 복사한 공격자는 컨트랙트가 거부합니다.
+
+```typescript title="access-control.test.ts"
+import { describe, it, expect, beforeEach } from 'vitest';
+import * as RT from '@midnight-ntwrk/compact-runtime';
+import { Contract } from '../managed/access-control/contract/index.js';
+
+const COIN = '0'.repeat(64);
+const ADDR = RT.sampleContractAddress();
+const key = (n) => { const a = new Uint8Array(32); a[31] = n; return a; };
+const OWNER = key(1), ATTACKER = key(2);
+
+describe('access control', () => {
+  let contract, ctx;
+  beforeEach(() => {
+    contract = new Contract({ secretKey: (w) => [w.privateState, w.privateState.sk] });
+    const ctor = contract.initialState(RT.createConstructorContext({ sk: OWNER }, COIN));
+    ctx = RT.createCircuitContext(ADDR, COIN, ctor.currentContractState, { sk: OWNER });
+    ctx = contract.impureCircuits.claimOwnership(ctx).context;
+  });
+
+  it('lets the owner withdraw', () => {
+    expect(() => contract.impureCircuits.withdraw(ctx)).not.toThrow();
+  });
+
+  it('rejects an attacker who forges the stored owner key', () => {
+    const attackerCtx = { ...ctx, currentPrivateState: { sk: ATTACKER } };
+    expect(() => contract.impureCircuits.withdraw(attackerCtx)).toThrow('not owner');
+  });
+});
+```
+
+```text
+ ✓ access-control.test.ts > access control > lets the owner withdraw
+ ✓ access-control.test.ts > access control > rejects an attacker who forges the stored owner key
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+```
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Restricting a circuit to a group
+
+Merkle 멤버십 증명을 검증하고 이를 호출자에 바인딩해 다른 누구도 replay할 수 없게 함으로써, 그룹의 어떤 구성원이든 어느 구성원인지 드러내지 않고 circuit을 실행할 수 있게 하세요.
+
+### Prerequisites
+
+- [Authenticating a caller with a derived identity](#authenticating-a-caller-with-a-derived-identity)의 유도 신원 패턴.
+
+### Procedure
+
+1. 구성원 신원을 `HistoricMerkleTree`에 저장합니다. 이 자료구조는 증명이 어느 leaf를 가리키는지 숨기고 이전 root에 대한 증명도 받아들입니다. 관리자가 구성원의 신원을 계산해 등록할 수 있도록 유도 함수를 export하세요:
+
+   ```compact
+   pragma language_version 0.23.0;
+   import CompactStandardLibrary;
+
+   export ledger members: HistoricMerkleTree<10, Bytes<32>>;
+   export ledger actions: Counter;
+
+   witness secretKey(): Bytes<32>;
+
+   export circuit derivePublicKey(sk: Bytes<32>): Bytes<32> {
+     return persistentHash<Vector<2, Bytes<32>>>([pad(32, "myapp:member"), sk]);
+   }
+
+   export circuit addMember(pk: Bytes<32>): [] {
+     members.insert(disclose(pk));
+   }
+   ```
+
+2. 멤버십 증명을 검증하고 호출자에 바인딩합니다. 이 바인딩 assert가 보안상 핵심 라인입니다. 이것이 없으면 public 트랜잭션에서 유효한 path를 관찰한 사람은 누구나 그것을 replay할 수 있습니다:
+
+   ```compact
+   export circuit act(path: MerkleTreePath<10, Bytes<32>>): [] {
+     assert(members.checkRoot(disclose(merkleTreePathRoot<10, Bytes<32>>(path))),
+       "not a member");
+     assert(path.leaf == derivePublicKey(secretKey()), "path not bound to caller");
+     actions.increment(1);
+   }
+   ```
+
+멤버십 증명은 다른 구성원들 사이에서만 여러분을 숨겨주므로, leaf가 세 개뿐인 트리는 프라이버시를 거의 제공하지 않습니다. 의존하기 전에 집합을 키우고, 추측 가능한 원본 키 대신 commitment을 저장하세요. 어떤 속성만 증명하면 될 때는 값이 아니라 불리언 결과를 disclose하세요: `disclose(age >= 18)`. `>=` 같은 비교는 `Field`가 아니라 `Uint<N>`에서 동작합니다. [Explicit disclosure](../compact/reference/explicit-disclosure)를 참고하세요.
+
+### Verification
+
+구성원은 자신의 path로 동작하고, 바인딩 assert는 그 path를 replay하는 비구성원을 거부합니다.
+
+```typescript title="group-access.test.ts"
+import { describe, it, expect, beforeEach } from 'vitest';
+import * as RT from '@midnight-ntwrk/compact-runtime';
+import { Contract, ledger, pureCircuits } from '../managed/group-access/contract/index.js';
+
+const COIN = '0'.repeat(64);
+const ADDR = RT.sampleContractAddress();
+const key = (n) => { const a = new Uint8Array(32); a[31] = n; return a; };
+const ALICE = key(1), MALLORY = key(2);
+
+describe('group membership', () => {
+  let contract, ctx, alicePath;
+  beforeEach(() => {
+    contract = new Contract({ secretKey: (w) => [w.privateState, w.privateState.sk] });
+    const ctor = contract.initialState(RT.createConstructorContext({ sk: ALICE }, COIN));
+    ctx = RT.createCircuitContext(ADDR, COIN, ctor.currentContractState, { sk: ALICE });
+    ctx = contract.impureCircuits.addMember(ctx, pureCircuits.derivePublicKey(ALICE)).context;
+    alicePath = ledger(ctx.currentQueryContext.state)
+      .members.findPathForLeaf(pureCircuits.derivePublicKey(ALICE));
+  });
+
+  it('lets a member act with their own path', () => {
+    expect(() => contract.impureCircuits.act(ctx, alicePath)).not.toThrow();
+  });
+
+  it("rejects a non-member replaying a member's path", () => {
+    const malloryCtx = { ...ctx, currentPrivateState: { sk: MALLORY } };
+    expect(() => contract.impureCircuits.act(malloryCtx, alicePath)).toThrow('path not bound to caller');
+  });
+});
+```
+
+```text
+ ✓ group-access.test.ts > group membership > lets a member act with their own path
+ ✓ group-access.test.ts > group membership > rejects a non-member replaying a member's path
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+```
+
+{/* _mod-docs-content-type: REFERENCE */}
+## Compact arithmetic behavior
+
+Compact가 정수 오버플로와 언더플로를 처리하는 방식. 일부 언어와 달리 조용히 wrap하지 않습니다.
+
+| 연산 | 동작 | 여러분의 책임 |
+|---|---|---|
+| `b > a`인 뺄셈 `a - b` | `result of subtraction would be negative`와 함께 런타임에 중단 | 먼저 범위를 assert해 실패가 명확한 메시지를 담도록 합니다 |
+| 덧셈 `a + b` | 결과 타입이 피연산자 폭을 넘어 넓어지므로, 같은 폭의 필드에 다시 대입할 수 없습니다 | 범위를 assert한 뒤 캐스트로 좁히거나(`(a + b) as Uint<64>`) 더 넓은 필드에 저장합니다 |
+| 모든 circuit 입력 | 기본적으로 비공개이며 검증되지 않음 | 사용하기 전에 범위, 0이 아닌 값, 상태 전제조건을 assert합니다 |
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Validating inputs before computing
+
+검사하지 않은 입력으로는 절대 계산하지 마세요. Compact는 산술에서 안전하게 실패하지만, 그래도 도메인 규칙을 강제하고 명확한 메시지와 함께 실패하도록 입력을 검증하세요.
+
+### Procedure
+
+1. 내장 가드를 알아두세요. 음수가 될 뺄셈은 wrap하지 않고 런타임에 중단됩니다:
+
+   ```compact
+   pragma language_version 0.23.0;
+   import CompactStandardLibrary;
+
+   export ledger balance: Uint<64>;
+
+   constructor() { balance = 5; }
+
+   export circuit unsafeSub(amount: Uint<64>): [] {
+     balance = balance - disclose(amount);
+   }
+   ```
+
+2. 실패가 명시적으로 드러나도록 자신의 전제조건을 assert하고, 도메인 한도처럼 언어가 알 수 없는 규칙을 강제하세요:
+
+   ```compact
+   export circuit safeSub(amount: Uint<64>): [] {
+     const amt = disclose(amount);
+     assert(amt <= balance, "insufficient balance");
+     balance = balance - amt;
+   }
+   ```
+
+검증 패턴 전체는 [input validation and access control](../compact/smart-contract-security#input-validation-and-access-control)를 참고하세요. 덧셈과 뺄셈이 어떻게 실패하는지는 [Compact arithmetic behavior](#compact-arithmetic-behavior)를 참고하세요.
+
+### Verification
+
+언더플로는 중단되고, 가드가 있는 circuit은 명확한 오류를 내며, 유효한 금액은 적용됩니다.
+
+```typescript title="arithmetic.test.ts"
+import { describe, it, expect } from 'vitest';
+import * as RT from '@midnight-ntwrk/compact-runtime';
+import { Contract, ledger } from '../managed/arithmetic/contract/index.js';
+
+const COIN = '0'.repeat(64);
+const ADDR = RT.sampleContractAddress();
+const fresh = () => {
+  const contract = new Contract({});
+  const ctor = contract.initialState(RT.createConstructorContext({}, COIN));
+  return { contract, ctx: RT.createCircuitContext(ADDR, COIN, ctor.currentContractState, {}) };
+};
+
+describe('arithmetic safety', () => {
+  it('traps on subtraction underflow instead of wrapping', () => {
+    const { contract, ctx } = fresh();
+    expect(() => contract.impureCircuits.unsafeSub(ctx, 10n))
+      .toThrow('result of subtraction would be negative');
+  });
+  it('rejects an over-balance amount with a clear message', () => {
+    const { contract, ctx } = fresh();
+    expect(() => contract.impureCircuits.safeSub(ctx, 10n)).toThrow('insufficient balance');
+  });
+  it('applies a valid subtraction', () => {
+    const { contract, ctx } = fresh();
+    const r = contract.impureCircuits.safeSub(ctx, 3n);
+    expect(ledger(r.context.currentQueryContext.state).balance).toBe(2n);
+  });
+});
+```
+
+```text
+ ✓ arithmetic.test.ts > arithmetic safety > traps on subtraction underflow instead of wrapping
+ ✓ arithmetic.test.ts > arithmetic safety > rejects an over-balance amount with a clear message
+ ✓ arithmetic.test.ts > arithmetic safety > applies a valid subtraction
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+```
+
+{/* _mod-docs-content-type: REFERENCE */}
+## Block-time predicates
+
+블록 시간을 다루기 위한 표준 라이브러리 술어들입니다. 각 술어는 Unix epoch 이후의 초를 나타내는 `Uint<64>` 값을 받아 `Boolean`을 반환합니다. 원시 블록 시간 접근자는 없습니다.
+
+| 술어 | true를 반환하는 경우 |
+|---|---|
+| `blockTimeLt(time)` | 현재 블록 시간이 `time` 이전일 때 |
+| `blockTimeLte(time)` | 현재 블록 시간이 `time`와 같거나 그 이전일 때 |
+| `blockTimeGt(time)` | 현재 블록 시간이 `time` 이후일 때 |
+| `blockTimeGte(time)` | 현재 블록 시간이 `time`와 같거나 그 이후일 때 |
+
+블록 시간은 블록마다 한 단계씩 나아가고, 생산자가 프로토콜이 강제하는 범위 안에서 타임스탬프를 설정합니다. 시간 게이트는 초 단위가 아니라 블록 단위의 정확도로 여기고, 블록 시간을 무작위성의 원천으로는 절대 사용하지 마세요.
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Enforcing a deadline
+
+차단 시점 이전에만 동작을 허용합니다.
+
+### Procedure
+
+1. 차단 시점을 저장하고 `sealed`로 표시해 이후 어떤 circuit도 그것을 바꾸지 못하게 합니다. sealed 필드는 생성 시점에 한 번만 설정됩니다:
+
+   ```compact
+   pragma language_version 0.23.0;
+   import CompactStandardLibrary;
+
+   export sealed ledger deadline: Uint<64>;
+   export ledger claimed: Boolean;
+
+   constructor(deadlineTime: Uint<64>) {
+     deadline = disclose(deadlineTime);
+     claimed = false;
+   }
+   ```
+
+2. 블록 시간을 기준으로 동작을 제한합니다. 노드는 해당 트랜잭션을 포함하는 블록을 기준으로 술어를 평가합니다:
+
+   ```compact
+   export circuit claim(): [] {
+     assert(blockTimeLt(deadline), "expired");
+     claimed = true;
+   }
+   ```
+
+사용할 수 있는 술어는 [Block-time predicates](#block-time-predicates)를 참고하세요.
+
+### Verification
+
+circuit 컨텍스트에서 블록 시간(`createCircuitContext`의 일곱 번째 인자)을 설정해 마감 시한의 양쪽 경우를 모두 시험합니다.
+
+```typescript title="deadline.test.ts"
+import { describe, it, expect } from 'vitest';
+import * as RT from '@midnight-ntwrk/compact-runtime';
+import { Contract } from '../managed/deadline/contract/index.js';
+
+const COIN = '0'.repeat(64);
+const ADDR = RT.sampleContractAddress();
+const DEADLINE = 2_000_000_000; // seconds since the epoch
+
+const claimAt = (time) => {
+  const contract = new Contract({});
+  const ctor = contract.initialState(RT.createConstructorContext({}, COIN), BigInt(DEADLINE));
+  const ctx = RT.createCircuitContext(ADDR, COIN, ctor.currentContractState, {}, undefined, undefined, time);
+  return () => contract.impureCircuits.claim(ctx);
+};
+
+describe('deadline', () => {
+  it('allows the claim before the deadline', () => {
+    expect(claimAt(DEADLINE - 100)).not.toThrow();
+  });
+  it('rejects the claim at or after the deadline', () => {
+    expect(claimAt(DEADLINE + 100)).toThrow('expired');
+  });
+});
+```
+
+```text
+ ✓ deadline.test.ts > deadline > allows the claim before the deadline
+ ✓ deadline.test.ts > deadline > rejects the claim at or after the deadline
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+```
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Preventing replay attacks
+
+일회성 동작이 정확히 한 번만 일어나도록 허용합니다. nullifier는 그 뒤에 있는 비밀을 드러내지 않으면서 동작이 일어났음을 기록합니다.
+
+### Procedure
+
+1. 도메인이 구분된 `persistentHash`로 비밀에서 nullifier를 유도하되, 같은 비밀이 라운드마다 한 번씩 동작할 수 있도록 라운드 번호를 함께 넣고, 사용한 nullifier는 `Set`에 저장합니다:
+
+   ```compact
+   pragma language_version 0.23.0;
+   import CompactStandardLibrary;
+
+   export ledger spent: Set<Bytes<32>>;
+
+   witness secretKey(): Bytes<32>;
+
+   circuit nullifier(round: Uint<64>, sk: Bytes<32>): Bytes<32> {
+     const roundBytes = round as Field as Bytes<32>;
+     return persistentHash<Vector<3, Bytes<32>>>([pad(32, "myapp:nul"), roundBytes, sk]);
+   }
+   ```
+
+2. nullifier가 아직 존재하지 않는지 assert한 뒤 삽입합니다. 같은 라운드와 비밀로 다시 시도하면 동일한 nullifier가 만들어져 실패합니다:
+
+   ```compact
+   export circuit act(round: Uint<64>): [] {
+     const nul = nullifier(round, secretKey());
+     assert(!spent.member(disclose(nul)), "already acted this round");
+     spent.insert(disclose(nul));
+     // ... one-time action ...
+   }
+   ```
+
+nullifier의 도메인 구분자는 어떤 commitment의 것과도 달라야 합니다. 그렇지 않으면 같은 비밀에 대해 두 해시가 같아져 관찰자가 둘을 연결할 수 있습니다. **front-running**에 대한 순서 방어로는, 먼저 `persistentCommit(move, rand)`를 공개한 뒤 두 번째 트랜잭션에서 실제 값을 공개하고 그 공개를 nullifier로 보호하세요. 시퀀스 카운터 변형은 [the commitment/nullifier pattern](../concepts/how-midnight-works/keeping-data-private#the-commitmentnullifier-pattern)과 [the bulletin board tutorial](../tutorials/bboard/smart-contract)를 참고하세요.
+
+### Verification
+
+컨트랙트는 같은 라운드의 replay를 거부하고, 새 라운드는 성공합니다.
+
+```typescript title="replay.test.ts"
+import { describe, it, expect } from 'vitest';
+import * as RT from '@midnight-ntwrk/compact-runtime';
+import { Contract } from '../managed/replay/contract/index.js';
+
+const COIN = '0'.repeat(64);
+const ADDR = RT.sampleContractAddress();
+const SK = (() => { const a = new Uint8Array(32); a[31] = 1; return a; })();
+
+const setup = () => {
+  const contract = new Contract({ secretKey: (w) => [w.privateState, w.privateState.sk] });
+  const ctor = contract.initialState(RT.createConstructorContext({ sk: SK }, COIN));
+  const ctx = RT.createCircuitContext(ADDR, COIN, ctor.currentContractState, { sk: SK });
+  return { contract, ctx: contract.impureCircuits.act(ctx, 1n).context };
+};
+
+describe('replay protection', () => {
+  it('rejects a replay in the same round', () => {
+    const { contract, ctx } = setup();
+    expect(() => contract.impureCircuits.act(ctx, 1n)).toThrow('already acted this round');
+  });
+  it('allows an action in a new round', () => {
+    const { contract, ctx } = setup();
+    expect(() => contract.impureCircuits.act(ctx, 2n)).not.toThrow();
+  });
+});
+```
+
+```text
+ ✓ replay.test.ts > replay protection > rejects a replay in the same round
+ ✓ replay.test.ts > replay protection > allows an action in a new round
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+```
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Rotating an owner key
+
+키 보유자에게 새 키로 옮겨 갈 방법을 제공하세요. witness 비밀은 로컬 private state에만 존재하므로, 그것을 잃거나 탈취당하면 온체인 commitment은 영구적으로 남습니다. 회전 경로는 필요해지기 전에 만들어 두세요.
+
+### Prerequisites
+
+- [Authenticating a caller with a derived identity](#authenticating-a-caller-with-a-derived-identity)의 유도 신원 패턴.
+
+### Procedure
+
+1. 현재 소유자가 제어권을 증명한 뒤 새 소유자 commitment을 쓰는 회전 circuit을 추가합니다. 새로 들어오는 소유자는 자신의 비밀을 로컬에서 생성하고 유도한 공개 값만 공유하므로, 어떤 비밀도 네트워크를 건너가지 않습니다:
+
+   ```compact
+   export circuit rotateOwner(newOwner: Bytes<32>): [] {
+     assert(derivePublicKey(secretKey()) == owner, "not owner");
+     owner = disclose(newOwner);
+   }
+   ```
+
+:::warning 기본적으로 복구 수단은 없습니다
+
+witness 비밀은 체인에서 복구할 수 없습니다. 어떤 역할의 유일한 보유자가 비밀을 잃었는데 회전 경로나 백업을 만들어 두지 않았다면, 그 역할을 영구히 잃습니다. 배포하기 전에 복구 모델을 정하세요: 인가된 키를 여러 개 두기, 별도의 비밀로 제한한 복구 circuit, 또는 guardian 정족수.
+
+:::
+
+### Verification
+
+회전 후에는 새 키가 동작하고 예전 키는 더 이상 동작하지 않습니다.
+
+```typescript title="rotation.test.ts"
+import { describe, it, expect, beforeEach } from 'vitest';
+import * as RT from '@midnight-ntwrk/compact-runtime';
+import { Contract, pureCircuits } from '../managed/rotation/contract/index.js';
+
+const COIN = '0'.repeat(64);
+const ADDR = RT.sampleContractAddress();
+const key = (n) => { const a = new Uint8Array(32); a[31] = n; return a; };
+const OLD = key(1), NEW = key(2);
+
+describe('key rotation', () => {
+  let contract, ctx;
+  beforeEach(() => {
+    contract = new Contract({ secretKey: (w) => [w.privateState, w.privateState.sk] });
+    const ctor = contract.initialState(RT.createConstructorContext({ sk: OLD }, COIN));
+    ctx = RT.createCircuitContext(ADDR, COIN, ctor.currentContractState, { sk: OLD });
+    ctx = contract.impureCircuits.claimOwnership(ctx).context;
+    ctx = contract.impureCircuits.rotateOwner(ctx, pureCircuits.derivePublicKey(NEW)).context;
+  });
+
+  it('lets the new key act after rotation', () => {
+    expect(() => contract.impureCircuits.withdraw({ ...ctx, currentPrivateState: { sk: NEW } })).not.toThrow();
+  });
+  it('rejects the old key after rotation', () => {
+    expect(() => contract.impureCircuits.withdraw({ ...ctx, currentPrivateState: { sk: OLD } })).toThrow('not owner');
+  });
+});
+```
+
+```text
+ ✓ rotation.test.ts > key rotation > lets the new key act after rotation
+ ✓ rotation.test.ts > key rotation > rejects the old key after rotation
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+```
+
+{/* _mod-docs-content-type: CONCEPT */}
+## Durable and bounded on-chain state
+
+컨트랙트가 테스트에서는 여전히 잘 동작하는 동안에도 놓치기 쉬운 장기적 특성이 두 가지 있습니다.
+
+**지속 가능한 해시만 저장하세요.** Compact는 해시와 commitment 함수에 persistent 변형과 transient 변형을 제공합니다. transient 변형은 circuit에 최적화되어 있고 그 알고리즘이 컴파일러 버전마다 바뀔 수 있으므로, 오늘 온체인에 저장한 값이 업그레이드 후 다시 계산한 값과 일치하지 않을 수 있습니다. ledger에 쓰는 것에는 `persistentHash`와 `persistentCommit`을 사용하고, transient 변형은 circuit 내부 중간값에만 쓰세요. [Cryptographic primitive selection](#cryptographic-primitive-selection)을 참고하세요.
+
+**증가에 한계를 두세요.** ledger 컬렉션은 끝없이 커지고 모든 항목이 공개됩니다. nullifier `Set`은 동작할 때마다 항목이 늘고 절대 줄지 않으며, 사용자를 키로 하는 `Map`은 사용자 기반과 함께 커집니다. 오래 유지되는 컨트랙트라면 한계 없이 쌓지 말고 그 증가의 범위를 정하세요: epoch마다 nullifier를 유도해 오래된 집합을 폐기하거나, 만료될 수 있도록 상태에 키를 부여하세요. public 상태는 나중에 소급해서 줄일 수 없으므로, 처음부터 한계를 설계에 넣으세요.
+
+{/* _mod-docs-content-type: REFERENCE */}
+## Cryptographic primitive selection
+
+어떤 해싱·commitment 프리미티브를 쓸지 정리합니다. ledger에는 persistent 변형만 저장하세요.
+
+| 함수 | 출력 | 업그레이드 간 안정성 | 추측 없이 입력을 숨김 |
+|---|---|---|---|
+| `persistentHash<T>` | `Bytes<32>` | 예 (SHA-256) | 아니요, 누구나 추측한 입력을 확인할 수 있습니다 |
+| `persistentCommit<T>` | `Bytes<32>` | 예 | 예, 무작위성이 witness 오염을 제거합니다 |
+| `transientHash<T>` | `Field` | 아니요 | 아니요 |
+| `transientCommit<T>` | `Field` | 아니요 | 예, 단 온체인에 저장하지 마세요 |
+
+값을 숨겼다가 나중에 공개해야 할 때는 `persistentCommit`을, 바인딩만으로 충분한 신원과 nullifier에는 `persistentHash`를 사용하세요. commitment의 무작위성을 여러 값에 걸쳐 재사용하지 마세요.
+
+{/* _mod-docs-content-type: CONCEPT */}
+## Proving and private data
+
+영지식 증명을 생성하려면 여러분의 비공개 witness 값이 필요합니다. proof server는 그 값들을 직접 대상으로 산술을 수행하므로, 증명을 수행하는 proof server가 무엇이든 그 값을 평문으로 받습니다. 증명 자체는 아무것도 드러내지 않기 때문에 이 신뢰 경계는 흔히 눈에 띄지 않지만, 증명을 만드는 기계는 모든 것을 봅니다.
+
+proof server를 로컬에서, 포트 6300의 Docker로 실행하면 비공개 입력이 여러분 자신의 기계에 머물러 외부의 누구도 보지 못합니다. 이 방식이 안전한 기본값입니다. 반면 원격이나 공유 proof server는 증명을 계산하기 위해 여러분의 witness 데이터 전부를 받습니다. 전송 암호화는 네트워크 도청자가 전송 중인 페이로드를 읽는 것은 막지만, 운영자는 여전히 여러분의 비공개 값을 복호화해 처리합니다. 원격 서버를 선택하는 것은 전송 설정이 아니라 운영자에 대한 신뢰 결정입니다.
+
+지갑 위임 증명에서는 DApp이 만들어진 증명 프리이미지를 지갑에 넘기고, 지갑은 자신이 실행하는 proof server를 사용해 증명을 만듭니다. DApp은 여전히 witness 값을 스스로 계산하며, 위임은 증명 단계만 옮길 뿐입니다. 민감한 데이터를 이 방식에 맡기기 전에 지갑이 최종적으로 어디서 증명하는지 확인하세요.
+
+{/* _mod-docs-content-type: CONCEPT */}
+## Viewing keys
+
+viewing key는 지갑 수준의 키로, Bech32m으로 인코딩되며 여러분의 spending key와는 별도로 wallet seed에서 유도됩니다. viewing key는 여러분의 shielded 트랜잭션 데이터를 복호화해 소프트웨어가 잔액과 내역을 표시할 수 있게 하지만, 지출은 할 수 없습니다.
+
+viewing key는 내역을 복호화하기 때문에, 그것을 가진 사람은 누구나 여러분의 shielded 트랜잭션 내역 전체를 읽을 수 있습니다. Midnight indexer의 `connect` 뮤테이션은 viewing key를 받아 체인에서 여러분의 트랜잭션을 훑는 세션을 여는데, 그래서 서드파티 indexer에 연결하는 것이 신뢰 결정이 됩니다. 잘 동작하는 indexer는 연결된 viewing key를 저장 시 암호화하지만, 그래도 여러분은 운영자를 신뢰하는 것입니다.
+
+viewing key 회전은 없습니다. viewing key는 wallet seed에 묶여 있어 따로 폐기할 수 없으므로, 한 번 공유하면 그 보유자가 여러분의 내역을 무기한 읽을 수 있다고 가정하세요. 사용자의 viewing key를 지갑과 그것이 연결하는 indexer 바깥에 절대 로그로 남기거나 전송하거나 보관하지 마세요. 그리고 민감한 애플리케이션에서는 자체 indexer를 운영하세요.
+
+{/* _mod-docs-content-type: REFERENCE */}
+## Pre-deployment security checklist
+
+메인넷 전에 이 목록을 하나씩 점검하세요. 각 항목은 그것을 설명하는 모듈로 연결됩니다.
+
+- [ ] **witness 데이터에 대한 모든 가정을 assert하세요.** 여러분이 제약하지 않은 witness 값은 prover가 정하는 값입니다. [The Midnight security threat model](#the-midnight-security-threat-model)을 참고하세요.
+- [ ] **계산하기 전에 입력을 검증하세요.** 경계, 범위, 0이 아닌 값, 상태 전제조건을 확인하세요. [Validating inputs before computing](#validating-inputs-before-computing)을 참고하세요.
+- [ ] **악의적 private state로 테스트하세요.** 일부러 잘못된 witness 값을 공급해 여러분의 assert가 그것을 거부하는지 확인하세요. [Battleship tutorial](../tutorials/bship/test-suite)에 완전한 적대적 테스트 스위트가 나와 있습니다.
+- [ ] **모든 `disclose()`를 점검하세요.** 무엇이 언제 공개되는지, 그리고 그것이 circuit에 필요한 최소한인지 확인하세요.
+- [ ] **도메인 구분자를 확인하세요.** 모든 commitment과 nullifier 유도는 서로 다른 도메인 문자열을 쓰고, 어떤 commitment도 자신의 nullifier와 도메인을 공유하지 않아야 합니다.
+- [ ] **지속 가능한 해시만 저장하고** **상태 증가에 한계를 두세요.** [Durable and bounded on-chain state](#durable-and-bounded-on-chain-state)를 참고하세요.
+- [ ] **오류 메시지가 아무것도 누출하지 않는지 확인하세요.** assert 메시지에 private state를 담아서는 안 됩니다.
+- [ ] **키 복구 경로를 제공하세요.** 비밀 하나를 잃었다고 해서 어떤 역할도 영구히 잠기지 않는지 확인하세요. [Rotating an owner key](#rotating-an-owner-key)를 참고하세요.
+- [ ] **어디서 증명할지 정하세요.** 비공개 witness 입력이 여러분이 신뢰하는 proof server로만 전송되는지 확인하세요. [Proving and private data](#proving-and-private-data)를 참고하세요.
+- [ ] **viewing key 처리 방식을 정하세요.** 사용자 viewing key를 지갑과 그 indexer 바깥에 로그로 남기거나 전송하거나 보관하지 않는지 확인하세요. [Viewing keys](#viewing-keys)를 참고하세요.
+- [ ] **업그레이드 키의 보관 방식을 정하세요.** 컨트랙트가 업그레이드 가능하다면 제어권을 독립적인 여러 당사자에게 분산하세요. [Contract updatability and the maintenance authority](./deploy-and-operate#contract-updatability-and-the-maintenance-authority)를 참고하세요.
+- [ ] **외부 검토를 받으세요.** 아무리 스스로 테스트해도, 보안이 중요한 컨트랙트를 다른 사람의 눈으로 한 번 더 보는 것을 대신할 수는 없습니다.
+
+## Additional resources
+
+- [Smart contract security](../compact/smart-contract-security): 언어 수준 보안 모델, sealed 필드, 암호 프리미티브.
+- [Private data](../concepts/how-midnight-works/keeping-data-private): commitment, nullifier, Merkle 트리를 깊이 있게 다룹니다.
+- [Explicit disclosure](../compact/reference/explicit-disclosure): 컴파일러가 비공개 데이터를 어떻게 추적하고 언제 `disclose()`를 요구하는지 설명합니다.
+- [OpenZeppelin Compact contracts](/sdks/community/openzeppelin-compact-contracts): 유도 신원 패턴 위에 세워진 `Ownable`·`AccessControl` 등의 모듈을 참고하세요. 이 라이브러리는 보안 감사를 받지 않았다는 점에 유의하세요.
+- [Test and debug](../compact/test-and-debug): Compact 컨트랙트를 위한 더 넓은 테스트 전략.
+- [Deploying and operating a contract](./deploy-and-operate): DApp이 사용하는 indexer와 private-state provider를 연결하고, 배포 후 컨트랙트를 유지 관리하는 방법.

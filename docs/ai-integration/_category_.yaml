@@ -1,0 +1,9 @@
+position: 7.5
+label: 'AI integration'
+collapsible: true # make the category collapsible
+collapsed: true # keep the category closed by default
+link:
+  type: doc
+  id: index
+customProps:
+  description: 생성된 코드를 실제 컴파일러와 소스에 대조 검증하는 AI 코딩 어시스턴트로 Midnight 위에서 개발하세요.

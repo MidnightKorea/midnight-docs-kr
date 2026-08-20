@@ -1,0 +1,88 @@
+---
+title: Midnight Expert
+description: Midnight Expert는 Compact 작성·리뷰, DApp 스캐폴딩, 생성된 코드를 실제 컴파일러에 대조 검증하는 것을 돕는 Claude Code 플러그인 모음입니다.
+tags: [ai, developer-tools, compact, claude, midnight-expert]
+sidebar_position: 1
+---
+
+# Midnight Expert
+
+Midnight Expert는 Midnight 위에서 개발하기 위한 Claude Code 플러그인 모음입니다. human-in-the-loop 코딩 어시스턴트로 동작합니다. 방향을 정하고 승인하는 것은 여러분이 하고, 어시스턴트는 Compact을 작성·리뷰하고 DApp을 스캐폴딩하며 자신의 출력을 실제 컴파일러와 소스에 대조 검증합니다. 바로 그 마지막 부분이 핵심으로, 환각 대신 실제로 동작하는 코드를 얻게 됩니다. 현재는 Claude Code 플러그인 형태로 제공됩니다.
+
+이 quick start는 설치부터 첫 컴파일된 컨트랙트까지 몇 분 만에 안내합니다.
+
+## Prerequisites
+
+- Claude Code(CLI 또는 IDE 익스텐션).
+- macOS 또는 Linux. Windows에서는 모든 작업을 [WSL2](https://learn.microsoft.com/windows/wsl/) 안에서 실행하세요.
+- `jq`와 GitHub CLI. 설치 프로그램이 이들을 확인하고 빠진 것이 있으면 설치를 돕습니다.
+- Compact toolchain. 아직 없다면 Step 2에서 설정하므로 Step 3에서 컴파일할 수 있습니다.
+
+## Step 1: install the plugins
+
+가이드 설치 프로그램을 실행하세요. 마켓플레이스를 등록하고 플러그인을 활성화하며 필요한 것이 모두 갖춰졌는지 확인합니다.
+
+```bash
+curl -fsSL https://midnightntwrk.expert/install.sh | bash
+```
+
+:::info[Other install methods]
+Claude Code 안에서 `/plugin`을 실행하고 `https://midnightntwrk.expert`를 붙여넣어 마켓플레이스를 추가하거나, 커맨드라인에서 `claude plugin marketplace add https://midnightntwrk.expert`로 추가할 수도 있습니다. 세션 도중에 설치한 플러그인의 슬래시 명령어는 Claude Code를 재시작해야 나타납니다. skill과 agent는 즉시 활성화됩니다.
+:::
+
+## Step 2: check your setup
+
+`/midnight-expert:doctor`를 실행해 환경이 준비되었는지 확인하세요. 플러그인 설치, 외부 도구, 연결 상태를 보고합니다. Compact CLI나 proof server가 빠졌다고 표시되면 어시스턴트에게 설치를 요청한 뒤 doctor를 다시 실행하세요.
+
+## Step 3: your first verified result
+
+빈 폴더에서 Claude Code를 열고 다음을 입력하세요.
+
+> Write a minimal Compact counter contract in `contracts/Counter.compact` and compile it.
+
+다음과 같은 일이 벌어집니다.
+
+1. 플러그인은 어시스턴트가 신뢰하기 어려운 학습 데이터 대신 검증된 Compact 지식과 실제 컴파일러를 바탕으로 작업하도록 유도합니다.
+2. `Counter.compact`을 작성합니다. `Counter` ledger 필드, `increment` circuit, 그리고 값을 반환하는 `read` circuit이 들어갑니다.
+3. 실제 Compact CLI로 파일을 컴파일합니다. 방금 작성하거나 변경한 컨트랙트를 컴파일하지 않고 끝내려 하면, 검사가 이를 잡아내 먼저 컴파일하도록 유도합니다.
+4. 컴파일이 실패하면 실제 컴파일러 오류를 읽고 소스를 고친 뒤 다시 컴파일합니다.
+
+**여러분이 보게 되는 것:** 리포지토리 안의 `Counter.compact` 파일과 성공적인 컴파일, 그리고 출력 디렉터리에 생성된 TypeScript 타입과 ZK 아티팩트. 한 줄짜리 프롬프트에서 컴파일되는 컨트랙트까지 도달한 것입니다.
+
+검증 과정을 직접 보고 싶다면 어시스턴트에게 사실 하나를 확인하도록 요청하세요.
+
+```text
+/midnight-verify:verify "A Compact Counter ledger field supports increment and read"
+```
+
+작은 테스트 컨트랙트를 컴파일·실행한 뒤 Confirmed, Refuted, Inconclusive 중 하나를 근거와 함께 반환합니다.
+
+:::tip[If something breaks]
+컴파일이 실패하거나 어시스턴트가 추측하는 것처럼 보이면, 생태계 전반은 `/midnight-expert:doctor`를, Compact CLI 자체는 `/midnight-tooling:doctor`를 실행하세요.
+:::
+
+## Next steps
+
+만들려는 것에 맞는 경로를 고르세요. 목표를 평이한 말로 설명하면 알맞은 플러그인이 알아서 활성화됩니다.
+
+- **Smart contracts.** "Write a Compact contract for a sealed-bid voting system and walk me through the disclosure rules." 자세한 내용은 [`compact-core` README](https://github.com/midnightntwrk/midnight-expert/tree/main/plugins/compact-core)를 참고하세요.
+- **DApp frontends.** "Scaffold a Vite and React DApp wired to my counter contract and connect it to the Lace wallet." 자세한 내용은 [`midnight-dapp-dev` README](https://github.com/midnightntwrk/midnight-expert/tree/main/plugins/midnight-dapp-dev)를 참고하세요.
+
+이런 것도 시도해 볼 만합니다.
+
+- 로컬 devnet을 실행하고 상태를 점검하기: "Is my local proof server healthy, and is the indexer caught up to the node?"
+- 오류 코드 찾아보기: "The node rejected my transaction with code 166. What does that mean?"
+- push하기 전에 자신의 컨트랙트 리뷰하기: "Review `contracts/Report.compact` for potential privacy leaks before I push."
+
+플러그인·skill·agent 전체 목록은 [마켓플레이스](https://midnightntwrk.expert/)나 [GitHub 리포지토리](https://github.com/midnightntwrk/midnight-expert)에서 둘러보세요. 각 플러그인에는 상세한 README가 포함되어 있습니다.
+
+## Go deeper
+
+- [Midnight Expert 마켓플레이스](https://midnightntwrk.expert/): 설치 방법과 개요.
+- [GitHub 리포지토리](https://github.com/midnightntwrk/midnight-expert): 소스, 플러그인별 README, 이슈.
+- `/midnight-expert:feedback`으로 버그나 요청을 제출하세요.
+- `/midnight-tooling:install-statusline-script`으로 proof server와 Compact CLI 상태를 상태 바에 표시하세요.
+
+:::tip[Get updates sooner]
+업데이트는 머지된 뒤 3~5일이 지나 마켓플레이스에 도달하며, 이는 커뮤니티가 테스트할 시간을 줍니다. 최신 상태를 곧바로 쓰고 싶다면 마켓플레이스 주소로 GitHub 리포지토리 `midnightntwrk/midnight-expert`를 대신 사용하세요.
+:::

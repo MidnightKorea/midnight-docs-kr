@@ -1,0 +1,82 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Midnight Indexer v4.3.0 release notes
+displayed_sidebar: sidebar
+description: Release notes for Midnight Indexer v4.3.0, adding the SPO indexer to standalone mode, --version without config, dtime updates in the dustGenerations subscription, and three bug fixes.
+toc_max_heading_level: 2
+---
+
+* **Version**: v4.3.0
+* **Date**: April 30, 2026
+* **Paired node**: 1.0.0 (0.22.x also supported)
+* **Paired ledger**: 8.1
+
+---
+
+## High-level summary
+
+Midnight Indexer 4.3.0은 Midnight 1.1 번들의 indexer 구성 요소로, 노드 1.0.0 및 ledger 8.1 트랙에 속합니다. SPO indexer를 standalone SQLite 배포로 가져오고, CLI가 설정 파일 없이도 버전을 출력하도록 하며, `dustGenerations` 구독에서 `DustGenerationDtimeUpdate` 항목을 내보냅니다. 버그 수정 3건은 인메모리 pub/sub drain 작업, dust 구독 입력 검증, 알 수 없는 `/api/v3` 및 `/api/v4` 경로의 리다이렉트 루프를 다룹니다. GraphQL 스키마 breaking change는 없습니다.
+
+노드 0.22.x를 사용하는 운영자는 4.0.x 유지보수 라인에 머물러야 합니다.
+
+---
+
+## Audience
+
+이번 릴리스 노트는 다음 대상에게 해당됩니다.
+
+- 노드 1.0.0 이상에 맞춰 Midnight Indexer를 운영하는 운영자, 특히 SPO 데이터가 필요한 standalone 배포 운영자
+- `dustGenerations` 구독을 사용하는 지갑 통합 담당자
+- Indexer API에 통합하는 개발자
+
+---
+
+## What changed
+
+- `indexer-standalone`(SQLite 모드)에 SPO indexer 추가 — hlolli의 커뮤니티 기여 ([#979](https://github.com/midnightntwrk/midnight-indexer/pull/979))
+- 설정 파일 없이도 `--version`이 동작하도록 함 ([#1083](https://github.com/midnightntwrk/midnight-indexer/pull/1083))
+- `dustGenerations` 구독에서 `DustGenerationDtimeUpdate` 항목 내보냄 ([#1080](https://github.com/midnightntwrk/midnight-indexer/pull/1080))
+- standalone 인메모리 pub/sub drain 작업이 lag 이벤트에도 유지되도록 함 ([#1063](https://github.com/midnightntwrk/midnight-indexer/pull/1063))
+- dust 구독 입력 검증 강화 ([#1090](https://github.com/midnightntwrk/midnight-indexer/pull/1090))
+- 알 수 없는 `/api/v3` 및 `/api/v4` 경로에서 발생하던 무한 리다이렉트 루프 수정 ([#1093](https://github.com/midnightntwrk/midnight-indexer/pull/1093))
+
+---
+
+## New features
+
+### SPO indexer in standalone SQLite mode
+
+단일 바이너리 SQLite 배포인 `indexer-standalone`이 이제 chain-indexer, indexer-api, wallet-indexer와 함께 SPO indexer를 번들로 포함합니다. standalone 운영자는 별도의 `spo-indexer` 바이너리, PostgreSQL, NATS로 구성된 클라우드 모드 스택 없이도 SPO 데이터를 생성할 수 있습니다.
+
+### `--version` without configuration
+
+`indexer --version`과 각 바이너리별 CLI가 유효한 설정 파일 없이도 버전을 출력하므로, CI와 컨테이너 점검에서 발생하던 실패 요인이 사라집니다.
+
+### `DustGenerationDtimeUpdate` in `dustGenerations`
+
+`dustGenerations` 구독이 기존 dust generation 이벤트와 함께 `DustGenerationDtimeUpdate` 이벤트를 내보내므로, 지갑 통합 담당자는 폴링 대신 스트림을 통해 dtime 진행을 받습니다.
+
+---
+
+## Breaking changes
+
+없습니다. 이미 4.x 개발 라인에 있는 운영자는 그대로 업그레이드할 수 있으며, GraphQL 스키마는 v4에서 변경되지 않았습니다.
+
+---
+
+## Bug fixes
+
+- standalone 모드의 인메모리 broadcast drain 작업이 lag 이벤트 후 종료되어 구독자가 더 이상 메시지를 받지 못할 수 있었습니다. 이제 lag이 발생해도 유지됩니다 ([#1063](https://github.com/midnightntwrk/midnight-indexer/pull/1063))
+- dust 구독이 잘못된 형식의 입력을 받아들였습니다. 검증을 강화했습니다 ([#1090](https://github.com/midnightntwrk/midnight-indexer/pull/1090))
+- `/api/v3`와 `/api/v4` 아래의 알 수 없는 하위 경로가 더 이상 루프 형태로 리다이렉트되지 않습니다 ([#1093](https://github.com/midnightntwrk/midnight-indexer/pull/1093))
+
+---
+
+## Links and references
+
+- **GitHub release**: [v4.3.0 on GitHub](https://github.com/midnightntwrk/midnight-indexer/releases/tag/v4.3.0)
+- **Full changelog**: [CHANGELOG.md at v4.3.0](https://github.com/midnightntwrk/midnight-indexer/blob/v4.3.0/CHANGELOG.md)
+- **Schema**: [Indexer API v4 schema](https://github.com/midnightntwrk/midnight-indexer/blob/v4.3.0/indexer-api/graphql/schema-v4.graphql)
+- **API reference**: [Midnight Indexer API v4](/api-reference/midnight-indexer/)
+- **Docker images**: [Chain Indexer](https://hub.docker.com/r/midnightntwrk/chain-indexer), [Indexer API](https://hub.docker.com/r/midnightntwrk/indexer-api), [Wallet Indexer](https://hub.docker.com/r/midnightntwrk/wallet-indexer), [Indexer Standalone](https://hub.docker.com/r/midnightntwrk/indexer-standalone), [SPO Indexer](https://hub.docker.com/r/midnightntwrk/spo-indexer)

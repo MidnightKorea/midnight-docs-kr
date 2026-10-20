@@ -1,0 +1,116 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Node v1.0.2 release notes
+description: Node is a core component of the Midnight Network, responsible for syncing, validating transactions, and maintaining the chain state.
+displayed_sidebar: sidebar
+---
+
+- **Version**: v1.0.2
+- **Date**: September 18, 2026
+- **Components**: `node-1.0.2`, `toolkit-1.0.0`, `runtime-1.0.0`
+
+:::warning[Use node and toolkit v1.0.300 or later on public networks]
+Preview, Preprod, Mainnet은 이제 런타임 1.0.300(`spec_version` `1_000_300`)을 실행합니다. 이 런타임은 node v1.0.2가 제공하지 않는 버전 2 `Ledger8Bridge` host function을 import하므로, v1.0.2 노드는 해당 런타임 업그레이드 이후의 블록을 import할 수 없습니다. 이번 릴리스와 함께 배포되는 toolkit 1.0.0도 그 런타임이 만든 블록에서 `UnsupportedBlockVersion(1000300)`으로 실패합니다. 이들 네트워크에서는 node와 toolkit v1.0.300 이상을 실행하세요. 최신 버전은 [node v1.0.400](/relnotes/node/node-1-0-400)입니다. 두 버전 모두 이번 릴리스의 모든 변경 사항을 포함합니다.
+:::
+
+---
+
+## Docker images
+
+```shell
+docker pull midnightntwrk/midnight-node:1.0.2
+docker pull midnightntwrk/midnight-node-toolkit:1.0.0
+```
+
+toolkit 버전 번호는 그대로이지만, `midnight-node-toolkit:1.0.0` 이미지는 이번 릴리스를 위해 다시 빌드되었고 아래에서 설명하는 의존성 수정을 담고 있습니다. 이를 반영하려면 태그를 다시 pull하세요.
+
+---
+
+## High-level summary
+
+Node v1.0.2는 [v1.0.0 GA 라인](/relnotes/node/node-1-0-0)의 작은 의존성·보안 패치입니다. ledger 8 의존성을 [ledger 8.1.2 보안 릴리스](/relnotes/ledger/ledger-8-1-2)로 옮깁니다. 또한 toolkit 이미지의 `npm audit` 발견 사항을 해소하고, Node.js 24.15 이상에서 발생하던 `toolkit-js` 스택 오버플로를 수정합니다.
+
+pallet이나 런타임 코드는 바뀌지 않았습니다. 런타임은 `spec_version` `1_000_000`, `transaction_version` `3`과 함께 1.0.0에 머무르므로, 이번 릴리스는 런타임 업그레이드나 governance 조치가 없는 바이너리 전용 업그레이드입니다.
+
+아래 변경 사항은 v1.0.1 대비 델타입니다. 전체 diff는 [두 태그 간 비교](https://github.com/midnightntwrk/midnight-node/compare/node-1.0.1...node-1.0.2)를 참고하세요.
+
+---
+
+## Audience
+
+이 릴리스 노트는 다음에 해당하는 사용자에게 유효합니다.
+
+- 1.0.x 라인에서 노드를 운영하며 v1.0.1과 v1.0.2 사이에 무엇이 바뀌었는지 알고 싶은 사용자.
+- node toolkit 이미지를 운영하며 npm 권고를 스캔하는 사용자.
+- 이전에 스택이 오버플로되던 Node.js 24.15 이상에서 소스로부터 `toolkit-js`를 빌드하거나 실행하는 사용자.
+
+DApp 개발자는 이번 릴리스에 대해 별도 조치가 필요 없습니다.
+
+---
+
+## What changed (Summary of updates)
+
+아래 업데이트는 이번 릴리스의 주요 변경 사항입니다.
+
+- ledger 8 의존성을 8.1.1에서 8.1.2로 옮겼습니다. 이 보안 릴리스는 비정규(non-canonical) 인코딩과 타입 불변식을 위반하는 값을 거부합니다.
+- ledger 8.1.2 crate 세트를 반영했습니다. 직접 의존성인 `midnight-zswap` 8.1.2, `midnight-onchain-runtime` 3.1.1, `midnight-storage` 2.0.3, `midnight-storage-core` 1.2.1, `midnight-serialize` 1.1.1을 포함합니다.
+- toolkit 이미지의 JavaScript 의존성에서 `npm audit` 발견 사항을 해소했습니다. override를 통한 `toml` 4.3.0, `nanoid` 3.3.19, `turbo` 2.9.14, `vitest` 4.1.11입니다.
+- Node.js 24.15 이상에서 모듈 resolve 훅이 자기 자신으로 재진입하던 `toolkit-js` 스택 오버플로를 수정했습니다.
+- 런타임을 1.0.0에 그대로 두어, 런타임 업그레이드가 필요하지 않습니다.
+
+---
+
+## New features
+
+이번 릴리스에는 새 기능이 없습니다.
+
+---
+
+## Breaking changes
+
+노드 인터페이스에는 호환성을 깨는 변경이 없습니다. 런타임은 1.0.0에 머무르므로 런타임 업그레이드가 필요하지 않습니다.
+
+ledger 8.1.2는 더 엄격하게 디코딩하므로, 8.1.2 노드는 8.1.1 노드가 수용하던 일부 데이터를 거부합니다. 이 더 엄격한 디코딩은 악의적으로 구성된 트랜잭션에만 영향을 주며, indexer, 지갑, SDK가 이미 수집한 데이터는 아무것도 거부하지 않습니다. 8.1.1과 8.1.2 노드가 섞인 validator 세트도 안전합니다. crate별 규칙은 [ledger v8.1.2 릴리스 노트](/relnotes/ledger/ledger-8-1-2)를 참고하세요.
+
+---
+
+## Bug fixes and quality improvements
+
+### Ledger 8.1.2
+
+ledger 8 핀이 8.1.1에서 8.1.2로 옮겨집니다. 이 릴리스는 다음을 수행합니다.
+
+- `serialize`, `base-crypto`, `storage`, `onchain-state`, `onchain-vm`, `transient-crypto` crate 전반에서 저수준 역직렬화를 강화합니다.
+- `generation_decay_rate`가 0일 때에 대비해 `DustParameters::time_to_cap`을 보호합니다.
+- DUST 시퀀스 증가와 `normalize_deltas`의 델타 누적에 saturating 산술을 사용합니다.
+- witness가 없는 proof preimage에서 Zswap binding 랜덤성 추출이 panic하지 않도록 합니다.
+- 컨트랙트 호출의 public input을 구체화하는 대신 `ContractCall::public_inputs_len`을 통해 셉니다.
+
+### Toolkit dependency advisories
+
+[#2179](https://github.com/midnightntwrk/midnight-node/pull/2179)는 toolkit 이미지에 포함된 JavaScript 의존성의 `npm audit` 발견 사항을 해소합니다. `toml`은 npm override를 통해 4.3.0(GHSA-82x6-q7mm-w9cf, GHSA-v5mp-jgw5-2x6j)으로, `nanoid`는 3.3.19(GHSA-2v37-7h3g-55p8)로, `turbo`는 2.9.14로, `vitest`는 4.1.11로 옮겨집니다.
+
+### Toolkit resolve hook on Node.js 24.15 and later
+
+`toolkit-js`의 빌드·테스트 단계가 Node.js 23.11.0에서 Node.js 24.21.0으로 옮겨집니다. Node.js 24.15부터 `toolkit-js` 내부의 CommonJS `require.resolve` 호출이 `module.registerHooks`를 거치게 되어, resolve 훅이 동일한 bare specifier에 대해 자기 자신으로 재진입하다가 스택이 오버플로되었습니다. 이제 훅은 이미 resolve 중인 specifier에 대해서는 가로채기를 건너뛰어 기본 resolution이 완료되도록 합니다. 배포된 toolkit 이미지는 영향 범위 밖인 Node.js 22.22.0으로 실행됩니다. ([#2179](https://github.com/midnightntwrk/midnight-node/pull/2179))
+
+---
+
+## Known issues
+
+- Node v1.0.2는 Preview, Preprod, Mainnet이 이제 사용하는 런타임 1.0.300을 실행할 수 없습니다. 이들 네트워크에서는 node v1.0.300 이상을 실행하세요. 최신 버전은 [node v1.0.400](/relnotes/node/node-1-0-400)입니다.
+- toolkit 1.0.0은 런타임 1.0.300이 생성한 블록에서 `UnsupportedBlockVersion(1000300)`으로 실패합니다. Preview, Preprod, Mainnet에서는 toolkit 1.0.300 이상을 사용하세요. 최신 버전은 toolkit 1.0.400입니다.
+- [midnight-node#1924](https://github.com/midnightntwrk/midnight-node/issues/1924)에 대한 블록 타임스탬프(`tblock`) 보정은 이번 릴리스에 포함되지 않습니다. 이는 node v1.0.300에서 배포되며, 거기서는 on-chain 런타임 버전이 적용 시점을 제어합니다.
+
+---
+
+## Links and references
+
+- [GitHub release: node-1.0.2](https://github.com/midnightntwrk/midnight-node/releases/tag/node-1.0.2)
+- [Comparison from node-1.0.1 to node-1.0.2](https://github.com/midnightntwrk/midnight-node/compare/node-1.0.1...node-1.0.2)
+- [OpenRPC specification at node-1.0.2](https://github.com/midnightntwrk/midnight-node/blob/node-1.0.2/docs/openrpc.json)
+- [Midnight node on Docker Hub](https://hub.docker.com/r/midnightntwrk/midnight-node)
+- [Node toolkit on Docker Hub](https://hub.docker.com/r/midnightntwrk/midnight-node-toolkit)
+- [Ledger v8.1.2 release notes](/relnotes/ledger/ledger-8-1-2)
+- [Node v1.0.1 release notes](/relnotes/node/node-1-0-1)

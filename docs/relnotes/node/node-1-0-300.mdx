@@ -1,0 +1,126 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Node v1.0.300 release notes
+description: Node is a core component of the Midnight Network, responsible for syncing, validating transactions, and maintaining the chain state.
+displayed_sidebar: sidebar
+---
+
+- **Version**: v1.0.300
+- **Date**: September 22, 2026
+- **Components**: `node-1.0.300`, `toolkit-1.0.300`, `runtime-1.0.300`
+
+:::warning[Upgrade to node v1.0.400]
+Node v1.0.400이 이번 릴리스를 대체합니다. 노드를 ledger 8.1.3으로 옮겨 치명적 권고 [GHSA-wr7g-rr4v-jmj8](https://github.com/midnightntwrk/midnight-ledger/security/advisories/GHSA-wr7g-rr4v-jmj8)을 수정합니다. 또한 [Known issues](#known-issues)에서 설명하는 Mainnet 동기화 중단에 대한 수정도 포함합니다. [node v1.0.400 릴리스 노트](/relnotes/node/node-1-0-400)를 참고하세요.
+:::
+
+---
+
+## Docker images
+
+```shell
+docker pull midnightntwrk/midnight-node:1.0.300
+docker pull midnightntwrk/midnight-node-toolkit:1.0.300
+```
+
+---
+
+## High-level summary
+
+Node v1.0.300은 런타임 1.0.300을 배포하는, [v1.0.0 GA 라인](/relnotes/node/node-1-0-0)의 패치 릴리스입니다. Preview, Preprod, Mainnet이 이 런타임을 실행하며, 이 런타임은 `apply_transaction`과 `validate_guaranteed_execution` ledger host function의 버전 2를 호출합니다. Node v1.0.2 이하는 이 함수들을 제공하지 않으므로, 이들 네트워크의 모든 노드는 블록을 계속 import하려면 v1.0.300을 실행해야 합니다.
+
+이번 릴리스는 또한 genesis부터 동기화하는 노드가 일부 과거 블록을 import할 수 있도록 블록 타임스탬프(`tblock`) 보정을 추가하고, 새 런타임에 대한 toolkit 지원을 추가하며, 노드와 toolkit Docker 이미지에서 `gdb`를 제거합니다. genesis부터 Mainnet을 동기화하는 노드는 여전히 블록 1788979에서 멈춥니다. [Known issues](#known-issues)를 참고하세요.
+
+아래 변경 사항은 [두 태그 간 비교](https://github.com/midnightntwrk/midnight-node/compare/node-1.0.2...node-1.0.300)에서 가져온 v1.0.2 대비 델타입니다.
+
+---
+
+## Audience
+
+이 릴리스 노트는 다음에 해당하는 사용자에게 유효합니다.
+
+- Preview, Preprod, Mainnet에서 Midnight node를 운영하는 사용자. 이들 네트워크는 node v1.0.2 이하가 로드할 수 없는 런타임 1.0.300을 실행합니다.
+- node toolkit으로 Preview, Preprod, Mainnet의 블록을 fetch하거나 재생하는 사용자.
+- 노드나 toolkit 컨테이너 안에서 `gdb`를 사용하는 사용자. 이미지에는 이제 `gdb`가 포함되지 않습니다.
+
+DApp 개발자는 이번 릴리스에 대해 별도 조치가 필요 없습니다. `transaction_version`은 `3`에 그대로 머무르며, 런타임 메타데이터는 버전 번호만 바뀝니다.
+
+---
+
+## What changed (Summary of updates)
+
+아래 업데이트는 이번 릴리스의 주요 변경 사항입니다.
+
+- 런타임을 1.0.300으로 올렸습니다. `spec_version`은 `1_000_000`에서 `1_000_300`으로, `system_version`은 `1`에서 `3`으로 옮겨집니다. `transaction_version`은 `3`에 머무릅니다.
+- `Ledger8Bridge`의 `apply_transaction`과 `validate_guaranteed_execution` host function의 버전 2를 추가했습니다. 런타임 1.0.300이 이를 호출하므로 더 오래된 노드 바이너리는 실행할 수 없습니다.
+- 더 이른 런타임에서 생성된 블록에 대한 블록 타임스탬프(`tblock`) 보정을 추가했습니다. 노드는 그러한 블록의 첫 ledger 트랜잭션을 부모 블록 시간에 12초를 더한 시점을 기준으로 검증합니다.
+- `spec_version` `1_000_300`과 그 메타데이터에 대한 toolkit 지원을 추가하여, toolkit이 새 런타임이 생성한 블록을 처리할 수 있도록 했습니다.
+- 노드와 toolkit 이미지에서 `gdb`를 제거했습니다.
+
+---
+
+## New features
+
+이번 릴리스에는 새 기능이 없습니다.
+
+---
+
+## Breaking changes
+
+### Upgrade every node to v1.0.300
+
+세 공개 네트워크 모두 이제 런타임 1.0.300을 실행합니다.
+
+| Network | Runtime upgrade block | Time (UTC) |
+|---|---|---|
+| Preprod | 2648468 | 21 September 2026, 15:12 |
+| Mainnet | 2738210 | 25 September 2026, 15:08 |
+| Preview | 1074620 | 29 September 2026, 07:16 |
+
+새 런타임은 `apply_transaction`과 `validate_guaranteed_execution` ledger host function의 버전 2를 호출합니다. Node v1.0.2 이하는 이를 제공하지 않으므로, 더 오래된 버전의 full, RPC, boot, validator 노드는 런타임을 로드할 수 없고 업그레이드 블록 이후 블록 import를 멈춥니다. 이때 `runtime requires function imports which are not present on the host`를 포함하는 오류를 로깅합니다. 노드 바이너리나 Docker 이미지를 v1.0.300으로 업그레이드하고 노드를 재시작하세요.
+
+이번 릴리스는 Preview, Preprod, Mainnet의 chain specification이나 genesis를 바꾸지 않으므로, 노드를 리셋하거나 다시 동기화할 필요가 없습니다.
+
+노드가 새 런타임을 따르는지 확인하려면 `state_getRuntimeVersion`을 호출하세요. `specVersion` `1000300`, `transactionVersion` `3`, `systemVersion` `3`을 반환합니다.
+
+### Upgrade the toolkit to v1.0.300
+
+1.0.300보다 오래된 toolkit 버전은 런타임 1.0.300이 생성한 블록을 처리할 수 없으며 `UnsupportedBlockVersion(1000300)`으로 실패합니다. `midnightntwrk/midnight-node-toolkit:1.0.300` 이미지나 릴리스에 첨부된 toolkit 바이너리를 사용하세요.
+
+---
+
+## Bug fixes and quality improvements
+
+### Block timestamp correction for historical blocks
+
+트랜잭션이 mempool에 들어오면, 노드는 부모 블록보다 12초(두 슬롯) 뒤의 타임스탬프를 기준으로 트랜잭션을 검증하고 그 결과를 캐시합니다. 블록 생산자는 블록의 첫 트랜잭션에 대해 그 캐시된 결과를 재사용했고, 그 결과 일부 과거 블록에는 그 더 늦은 타임스탬프를 기준으로만 유효한 첫 트랜잭션이 들어 있습니다. 그러한 블록을 블록 자체의 타임스탬프로 검증하는 노드, 예컨대 genesis부터 동기화하는 노드는 이를 거부할 수 있습니다 ([#1924](https://github.com/midnightntwrk/midnight-node/issues/1924)).
+
+Node v1.0.300은 1.0.300보다 이른 런타임에서 생성된 블록을 재생할 때에 한해, 블록의 첫 ledger 트랜잭션을 부모 블록 타임스탬프에 12초를 더한 시점을 기준으로 검증합니다. 런타임 업그레이드 이후부터는 모든 트랜잭션을 블록 자체의 타임스탬프를 기준으로 검증합니다. 노드는 12초 오프셋을 하드코딩하며, 이에 대한 설정 값은 없습니다. ([#1932](https://github.com/midnightntwrk/midnight-node/pull/1932), [#1965](https://github.com/midnightntwrk/midnight-node/pull/1965), [#2002](https://github.com/midnightntwrk/midnight-node/pull/2002))
+
+### Runtime `system_version` 3
+
+런타임 1.0.300은 `system_version`을 `1`에서 `3`으로 올립니다. 이 변경으로, 이후의 `set_code`는 새 런타임을 먼저 pending code로 저장하므로, RPC 쿼리 같은 off-chain 런타임 API 호출이 아직 마이그레이션하지 않은 스토리지에 대해 새 런타임을 실행하지 않게 됩니다. 별도 조치는 필요 없습니다. ([#1900](https://github.com/midnightntwrk/midnight-node/pull/1900))
+
+### Debugger removed from the node and toolkit images
+
+`midnight-node`와 `midnight-node-toolkit` Docker 이미지에서 `gdb`를 제거했습니다. 문제 해결을 위한 `strace`, `procps-ng`, `vim`, `jq`, `tree`는 그대로 남아 있습니다. ([#2187](https://github.com/midnightntwrk/midnight-node/pull/2187))
+
+### Release re-issued on 30 September 2026
+
+`node-1.0.300` 태그는 2026년 9월 30일에, 소스 코드 변경 없이 `Cargo.lock`에서 런타임 빌드 의존성을 고정하는 커밋으로 옮겨졌습니다 ([#2224](https://github.com/midnightntwrk/midnight-node/pull/2224)). 노드 팀은 같은 날 릴리스 바이너리, 런타임 파일, `1.0.300` Docker 이미지를 다시 게시했으며, 그 결과 checksum과 digest가 9월 22일에 게시된 것과 다릅니다. 2026년 10월 2일 기준으로 GitHub 릴리스 설명에는 여전히 9월 22일 값이 나열되어 있습니다. 대신 릴리스에 첨부된 `SHA256SUMS`와 `srtool-digest.json` 파일로 다운로드를 대조하세요. 릴리스에 첨부된 압축 런타임 `midnight_node_runtime-1.0.300.compact.compressed.wasm`의 BLAKE2-256 해시는 `0x39568eeb0802fa59d74ac0bc5c7ab62fc05c23ea947937458a4b011558516138`이며, 이는 Preview, Preprod, Mainnet에서 `:code` 키(`0x3a636f6465`)에 대해 `state_getStorageHash`가 반환하는 해시와 동일합니다.
+
+---
+
+## Known issues
+
+v1.0.300으로 genesis부터 Mainnet을 동기화하는 노드는 블록 1788979에서 멈추며 블록 1788980을 import할 수 없습니다. 노드는 `Intent TTL has expired`를 포함하는 오류를 로깅합니다. 이미 블록 1788980을 지난 노드는 영향을 받지 않습니다. Node v1.0.400에 수정이 포함되어 있으며, [v1.0.400 릴리스 노트](/relnotes/node/node-1-0-400)에서 설명합니다. ([#2229](https://github.com/midnightntwrk/midnight-node/issues/2229))
+
+---
+
+## Links and references
+
+- [GitHub release: node-1.0.300](https://github.com/midnightntwrk/midnight-node/releases/tag/node-1.0.300)
+- [Comparison from node-1.0.2 to node-1.0.300](https://github.com/midnightntwrk/midnight-node/compare/node-1.0.2...node-1.0.300)
+- [Midnight node on Docker Hub](https://hub.docker.com/r/midnightntwrk/midnight-node)
+- [Node toolkit on Docker Hub](https://hub.docker.com/r/midnightntwrk/midnight-node-toolkit)
+- [Node v1.0.2 release notes](/relnotes/node/node-1-0-2)

@@ -1,0 +1,72 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Midnight Indexer v4.2.0 release notes
+displayed_sidebar: sidebar
+description: Release notes for Midnight Indexer v4.2.0, adding the dustGenerationMerkleTreeUpdate query, dust generation fields, a block fullness fix, and faster chain indexing.
+toc_max_heading_level: 2
+---
+
+* **Version**: v4.2.0
+* **Date**: April 23, 2026
+* **Paired node**: 1.0.0
+* **Paired ledger**: 8.1
+* **API version**: v4
+
+---
+
+## High-level summary
+
+Midnight Indexer 4.2.0은 노드 1.0.0과 짝을 이루는 개발 라인을 이어갑니다. `dustGenerationMerkleTreeUpdate` 쿼리와 이를 뒷받침하는 dust generation 필드·인덱스를 추가하고, 블록 fullness 값을 노드와 일치하도록 수정하며, chain indexer의 역방향 순회를 블록 높이 기준 순방향 반복으로 교체합니다.
+
+노드 0.22.x를 사용하는 운영자는 4.0.x 유지보수 라인에 머물러야 합니다.
+
+---
+
+## Audience
+
+이번 릴리스 노트는 다음 대상에게 해당됩니다.
+
+- 노드 1.0.0에 맞춰 Midnight Indexer를 운영하는 운영자
+- Indexer API를 통해 DUST generation 상태를 동기화하는 지갑 개발자
+
+---
+
+## What changed
+
+- `dustGenerationMerkleTreeUpdate` 쿼리 추가 ([#1062](https://github.com/midnightntwrk/midnight-indexer/pull/1062))
+- dust generation 필드와 generation tree 인덱스 추가 ([#1059](https://github.com/midnightntwrk/midnight-indexer/pull/1059))
+- 노드와 일치하도록 `post_block_update`에서 `block_fullness`를 clamp 처리 ([#1061](https://github.com/midnightntwrk/midnight-indexer/pull/1061))
+- chain indexer에서 역방향 순회를 블록 높이 기준 순방향 반복으로 교체 ([#1038](https://github.com/midnightntwrk/midnight-indexer/pull/1038))
+
+---
+
+## New features
+
+### `dustGenerationMerkleTreeUpdate`
+
+`zswapMerkleTreeCollapsedUpdate`와 동일한 패턴을 따르는 DUST generation Merkle tree의 collapsed 업데이트로, 지갑이 히스토리를 다시 재생하지 않고도 generation tree를 동기화할 수 있습니다.
+
+---
+
+## Breaking changes
+
+없습니다. 4.1.0에서 그대로 업그레이드할 수 있습니다.
+
+---
+
+## Bug fixes
+
+### Block fullness matches the node
+
+`post_block_update`에서 `block_fullness`를 clamp하여, indexer가 기록하는 값이 노드 자체의 집계와 일치하도록 했습니다. 이 값은 수수료 계산에도 사용됩니다. ([#1061](https://github.com/midnightntwrk/midnight-indexer/pull/1061))
+
+---
+
+## Links and references
+
+- **GitHub release**: [v4.2.0 on GitHub](https://github.com/midnightntwrk/midnight-indexer/releases/tag/v4.2.0)
+- **Full changelog**: [CHANGELOG.md at v4.2.0](https://github.com/midnightntwrk/midnight-indexer/blob/v4.2.0/CHANGELOG.md)
+- **Schema**: [Indexer API v4 schema](https://github.com/midnightntwrk/midnight-indexer/blob/v4.2.0/indexer-api/graphql/schema-v4.graphql)
+- **API reference**: [Midnight Indexer API v4](/api-reference/midnight-indexer/)
+- **Docker images**: [Chain Indexer](https://hub.docker.com/r/midnightntwrk/chain-indexer), [Indexer API](https://hub.docker.com/r/midnightntwrk/indexer-api), [Wallet Indexer](https://hub.docker.com/r/midnightntwrk/wallet-indexer), [Indexer Standalone](https://hub.docker.com/r/midnightntwrk/indexer-standalone)

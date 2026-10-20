@@ -1,0 +1,78 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Midnight Indexer v3.1.0 release notes
+displayed_sidebar: sidebar
+description: Release notes for Midnight Indexer v3.1.0, adding Node 0.21 support, SPO indexing, ledger storage for ledger state, and wallet streaming fixes.
+toc_max_heading_level: 2
+---
+
+* **Version**: v3.1.0
+* **Date**: February 24, 2026
+* **Paired node**: 0.21
+* **API version**: v3
+
+---
+
+## High-level summary
+
+Midnight Indexer 3.1.0은 노드 0.21 지원을 추가하고, SPO indexer를 메인 리포지토리로 통합하며, indexer가 내부적으로 ledger state를 저장하는 방식을 변경합니다. Indexer API v3 라인의 마지막 마이너 릴리스로, 이후 4.0.0 릴리스에서 API v4와 노드 0.22로 전환되었습니다.
+
+---
+
+## Audience
+
+이번 릴리스 노트는 다음 대상에게 해당됩니다.
+
+- 노드 0.21에 맞춰 Midnight Indexer를 운영하는 운영자
+- Indexer API v3에 통합하는 개발자
+
+---
+
+## What changed
+
+- 노드 0.21 지원 추가 ([#761](https://github.com/midnightntwrk/midnight-indexer/pull/761))
+- SPO indexer를 midnight-indexer에 통합하고 ([#735](https://github.com/midnightntwrk/midnight-indexer/pull/735)), docker-compose를 사전 빌드된 GHCR 이미지로 전환하면서 사용하지 않는 NATS 의존성 제거 ([#752](https://github.com/midnightntwrk/midnight-indexer/pull/752), [#754](https://github.com/midnightntwrk/midnight-indexer/pull/754))
+- ledger state 저장에 ledger storage 사용 ([#694](https://github.com/midnightntwrk/midnight-indexer/pull/694))
+- chain-indexer에서 genesis cNIGHT 등록 정보를 pallet 스토리지에서 가져옴 ([#733](https://github.com/midnightntwrk/midnight-indexer/pull/733))
+- block 쿼리에 ledger 파라미터 포함 ([#745](https://github.com/midnightntwrk/midnight-indexer/pull/745))
+- CVE-2025-15467 해결을 위해 `debian:trixie-slim` 베이스 이미지 업데이트 ([#801](https://github.com/midnightntwrk/midnight-indexer/pull/801))
+
+---
+
+## New features
+
+### Node 0.21 support
+
+indexer가 노드 0.21의 블록을 읽어 적용합니다. 노드를 0.21로 업그레이드하는 운영자는 이 릴리스 이상이 필요합니다.
+
+### SPO indexer
+
+스테이크 풀 운영자를 추적하는 SPO indexer가 midnight-indexer 리포지토리로 옮겨져 같은 릴리스에서 함께 배포됩니다. docker-compose 설정이 사전 빌드된 이미지를 받아옵니다.
+
+### Ledger parameters on `Block`
+
+이제 block 쿼리가 해당 블록에서 적용되는 ledger 파라미터를 노출합니다.
+
+---
+
+## Breaking changes
+
+GraphQL API에는 breaking change가 없습니다. ledger state 저장 방식 변경은 내부적인 사항입니다.
+
+---
+
+## Bug fixes
+
+- indexer API가 활성 wallet과 관련된 트랜잭션만 스트리밍합니다 ([#743](https://github.com/midnightntwrk/midnight-indexer/pull/743))
+- `stakePoolOperators` 쿼리에서 varchar 컬럼에 대한 `encode()` 호출 제거 ([#753](https://github.com/midnightntwrk/midnight-indexer/pull/753))
+
+---
+
+## Links and references
+
+- **GitHub release**: [v3.1.0 on GitHub](https://github.com/midnightntwrk/midnight-indexer/releases/tag/v3.1.0)
+- **Full changelog**: [CHANGELOG.md at v3.1.0](https://github.com/midnightntwrk/midnight-indexer/blob/v3.1.0/CHANGELOG.md)
+- **Schema**: [Indexer API v3 schema](https://github.com/midnightntwrk/midnight-indexer/blob/v3.1.0/indexer-api/graphql/schema-v3.graphql)
+- **API reference**: [Midnight Indexer API v4](/api-reference/midnight-indexer/)
+- **Docker images**: [Chain Indexer](https://hub.docker.com/r/midnightntwrk/chain-indexer), [Indexer API](https://hub.docker.com/r/midnightntwrk/indexer-api), [Wallet Indexer](https://hub.docker.com/r/midnightntwrk/wallet-indexer), [Indexer Standalone](https://hub.docker.com/r/midnightntwrk/indexer-standalone)

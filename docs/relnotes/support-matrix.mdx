@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Compatibility matrix
+description: Compatibility matrix, or support matrix, of the Midnight node, Compact, SDK, indexer, and proof server versions tested on Preview, Preprod, and Mainnet.
 displayed_sidebar: sidebar
 hide_table_of_contents: true
 sidebar_position: 10
@@ -11,19 +12,17 @@ sidebar_position: 10
 
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+이 호환성 매트릭스는 support matrix라고도 하며, [Preview](#preview-support-matrix), [Preprod](#preprod-support-matrix), [Mainnet](#mainnet-support-matrix)에서 테스트한 Midnight 컴포넌트 버전을 정리한 것입니다. 이 버전들과 동작하지 않는 릴리스는 [Known incompatible combinations](#known-incompatible-combinations)를 참고하세요.
 
 :::note
 최신 테스트 완료 버전만 반영합니다. 이전 버전도 동작할 수 있지만, 호환성이나 지원을 보장하지 않습니다.
 :::
 
-<Tabs>
-<TabItem value="preview" label="Preview" default>
+## Preview support matrix
 
 | Functional area            | Component                             | Version   | Notes                                       |
 |----------------------------|---------------------------------------|-----------|---------------------------------------------|
-| Network                    | 노드 (Midnight)                       | 1.0.1     | Preview 네트워크 노드                       |
+| Network                    | 노드 (Midnight)                       | 1.0.400   | Preview 네트워크 노드                       |
 | Runtime and contracts      | Compact devtools (`compact`)          | 0.5.1     | 컴파일러 설치 및 컨트랙트 컴파일            |
 |                            | Compact toolchain (`compact compile`) | 0.31.1    | Midnight용 컨트랙트 컴파일러                |
 |                            | Compact runtime                       | 0.16.0    | 컨트랙트용 런타임 라이브러리                |
@@ -35,14 +34,13 @@ import TabItem from '@theme/TabItem';
 |                            | testkit-js                            | 4.1.1     | E2E 테스트 프레임워크                       |
 |                            | DApp Connector API                    | 4.0.1     | DApp과 지갑 간 인터페이스                   |
 | Indexing and data          | Midnight Indexer                      | 4.3.5     | Preview Indexer                             |
-| ZK and proving services    | Proof server                          | 8.1.0     | ZKP 증명 생성 처리                          |
+| ZK and proving services    | Proof server                          | 8.1.3     | ZKP 증명 생성 처리                          |
 
-</TabItem>
-<TabItem value="preprod" label="Preprod">
+## Preprod support matrix
 
 | Functional area            | Component                             | Version   | Notes                                       |
 |----------------------------|---------------------------------------|-----------|---------------------------------------------|
-| Network                    | 노드 (Midnight)                       | 1.0.1 (5edf8ddd)     | Preprod 네트워크 노드                       |
+| Network                    | 노드 (Midnight)                       | 1.0.400   | Preprod 네트워크 노드                       |
 | Runtime and contracts      | Compact devtools (`compact`)          | 0.5.1     | 컴파일러 설치 및 컨트랙트 컴파일            |
 |                            | Compact toolchain (`compact compile`) | 0.31.1    | Midnight용 컨트랙트 컴파일러                |
 |                            | Compact runtime                       | 0.16.0    | 컨트랙트용 런타임 라이브러리                |
@@ -53,15 +51,14 @@ import TabItem from '@theme/TabItem';
 |                            | Midnight.js                           | 4.1.1     | DApp 프레임워크: 컨트랙트, 타입, provider |
 |                            | testkit-js                            | 4.1.1     | E2E 테스트 프레임워크                       |
 |                            | DApp Connector API                    | 4.0.1     | DApp과 지갑 간 인터페이스                   |
-| Indexing and data          | Midnight Indexer                      | 4.3.3-hotfix     | Preprod Indexer                             |
-| ZK and proving services    | Proof server                          | 8.1.0     | ZKP 증명 생성 처리                          |
+| Indexing and data          | Midnight Indexer                      | 4.3.302   | Preprod Indexer. 4.3.302는 아직 공개 태그·릴리스·이미지가 없음 |
+| ZK and proving services    | Proof server                          | 8.1.3     | ZKP 증명 생성 처리                          |
 
-</TabItem>
-<TabItem value="mainnet" label="Mainnet">
+## Mainnet support matrix
 
 | Functional area            | Component                             | Version   | Notes                                       |
 |----------------------------|---------------------------------------|-----------|---------------------------------------------|
-| Network                    | 노드 (Midnight)                       | 1.0.1 (5edf8ddd)     | Mainnet 네트워크 노드                       |
+| Network                    | 노드 (Midnight)                       | 1.0.400   | Mainnet 네트워크 노드                       |
 | Runtime and contracts      | Compact devtools (`compact`)          | 0.5.1     | 컴파일러 설치 및 컨트랙트 컴파일            |
 |                            | Compact toolchain (`compact compile`) | 0.31.1    | Midnight용 컨트랙트 컴파일러                |
 |                            | Compact runtime                       | 0.16.0    | 컨트랙트용 런타임 라이브러리                |
@@ -72,8 +69,18 @@ import TabItem from '@theme/TabItem';
 |                            | Midnight.js                           | 4.1.1     | DApp 프레임워크: 컨트랙트, 타입, provider |
 |                            | testkit-js                            | 4.1.1     | E2E 테스트 프레임워크                       |
 |                            | DApp Connector API                    | 4.0.1     | DApp과 지갑 간 인터페이스                   |
-| Indexing and data          | Midnight Indexer                      | 4.3.3-hotfix     | Mainnet Indexer                             |
-| ZK and proving services    | Proof server                          | 8.1.0     | ZKP 증명 생성 처리                          |
+| Indexing and data          | Midnight Indexer                      | 4.3.302   | Mainnet Indexer. 4.3.302는 아직 공개 태그·릴리스·이미지가 없음 |
+| ZK and proving services    | Proof server                          | 8.1.3     | ZKP 증명 생성 처리                          |
 
-</TabItem>
-</Tabs>
+## Known incompatible combinations
+
+Preview, Preprod, Mainnet은 ledger 8을 실행합니다. Compact toolchain 0.34.0과 0.35.0은 ledger 9를 대상으로 하며, Compact runtime 0.19.0과 0.20.0도 마찬가지입니다. 이들은 이 매트릭스의 버전과 함께 동작하지 않습니다.
+
+| Combination | Result |
+|-------------|--------|
+| Compact runtime 0.19.0 또는 0.20.0 + Midnight.js 4.1.1 | Midnight.js 4.1.1은 `@midnight-ntwrk/compact-runtime`을 0.16.0에, `@midnight-ntwrk/onchain-runtime-v3`를 3.0.0에 고정합니다. 반면 Compact runtime 0.19.0과 0.20.0은 `@midnightntwrk/onchain-runtime-v4`에 의존합니다. toolchain과 runtime이 일치하더라도 `deployContract`는 `Failed to configure constructor context with coin public key` 오류를 던집니다. 원인은 coin public key가 아니라, Midnight.js 4.1.1이 ledger 9용으로 컴파일된 컨트랙트를 지원하지 않기 때문입니다. |
+| Compact toolchain 0.34.0 또는 0.35.0 + Compact runtime 0.16.0 | 컴파일된 컨트랙트를 import하면 `Version mismatch: compiled code expects 0.19.0, runtime is 0.16.0` 오류가 발생합니다. toolchain 0.35.0의 경우 기대 버전은 0.20.0입니다. |
+| Compact toolchain 0.31.1 + Compact runtime 0.19.0 또는 0.20.0 | 컴파일된 컨트랙트를 import하면 `Version mismatch: compiled code expects 0.16.0, runtime is 0.20.0` 오류가 발생합니다. Compact runtime 0.19.0의 경우 메시지가 `runtime is 0.19.0`으로 끝납니다. |
+| Compact toolchain 0.34.0 또는 0.35.0으로 컴파일해 Preview, Preprod, Mainnet에 배포한 컨트랙트 | 이 toolchain들은 ledger 9용으로 컴파일합니다. ledger 8은 이런 컨트랙트의 초기 상태를 읽을 수 없으므로, 해당 네트워크에 배포할 수 없습니다. |
+
+`compact update`를 인자 없이 실행하면 최신 toolchain이 설치되고 기본값으로 지정됩니다. Compact runtime이 아직 명시되지 않은 프로젝트에서 버전 없이 `npm install @midnight-ntwrk/compact-runtime`을 실행하면 최신 runtime이 추가됩니다. 이 매트릭스의 버전을 유지하려면 `compact update <version>`과 `npm install @midnight-ntwrk/compact-runtime@<version>`을 실행하세요.

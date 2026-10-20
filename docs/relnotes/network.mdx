@@ -1,12 +1,24 @@
 ---
 title: "Environments and endpoints"
 sidebar_label: "Environments and endpoints"
-description: "Environments and endpoints for Midnight."
-keywords: [environments, endpoints]
+description: "Midnight Preview, Preprod, and Mainnet endpoints, including the Blockfrost Preprod and Mainnet indexer and node RPC that need a project token."
+keywords: [environments, endpoints, blockfrost, mainnet, preview, preprod, indexer, rpc, project_id]
 sidebar_position: 15
 ---
 
 # Environments and endpoints
+
+:::warning Preprod 및 Mainnet indexer와 RPC가 Blockfrost로 이전됨
+
+Midnight이 호스팅하던 Mainnet 엔드포인트 `rpc.mainnet.midnight.network`와 `indexer.mainnet.midnight.network`는 2026년 9월 30일 22:00 UTC에 폐기되었습니다. 이제 [Blockfrost](https://blockfrost.io)가 Mainnet indexer와 node RPC의 주요 공개 provider이며, 모든 요청에는 Blockfrost **Midnight Mainnet** 프로젝트 토큰이 필요합니다. 기존 DApp을 이전하려면 [Migrating from the Midnight-hosted endpoints](../guides/networks-and-environments#migrating-from-the-midnight-hosted-mainnet-endpoints)를 참고하세요.
+
+Midnight이 호스팅하던 Preprod 엔드포인트 `rpc.preprod.midnight.network`와 `indexer.preprod.midnight.network`는 2026년 10월 9일 22:00 UTC에 폐기되었습니다. 이제 Blockfrost가 Preprod indexer와 node RPC도 제공하며, 모든 요청에는 Blockfrost **Midnight Preprod** 프로젝트 토큰이 필요합니다. Preprod 토큰은 Mainnet에서 동작하지 않으며, 그 반대도 마찬가지입니다.
+
+2026년 10월 13일부로 폐기된 두 indexer 호스트명은 모든 요청에 HTTP `410`과 `ENDPOINT_DECOMMISSIONED` 오류로 응답합니다. 폐기된 두 RPC 엔드포인트는 아직 요청에 응답하지만 언제든 중단될 수 있으므로 사용하지 마세요.
+
+Preview 엔드포인트는 그대로 유지됩니다.
+
+:::
 
 Midnight은 Preview, Preprod, Mainnet 환경에서 DApp 개발과 상호작용을 지원하기 위해 RPC 노드, indexer API, proof server 등의 전용 네트워크 서비스를 운영합니다. 
   
@@ -17,8 +29,8 @@ Preview 환경은 초기 단계 개발 및 실험을 위한 환경입니다.
 
 | Service | URL |
 | --- | --- |
-| Node RPC | https://rpc.preview.midnight.network |
-| Indexer (GraphQL) | https://indexer.preview.midnight.network/api/v4/graphql |
+| Node RPC | `https://rpc.preview.midnight.network` |
+| Indexer (GraphQL) | `https://indexer.preview.midnight.network/api/v4/graphql` |
 | Faucet UI | https://midnight-tmnight-preview.nethermind.dev/ |
 | Block explorers | https://preview.midnightexplorer.com/ |
 |                 | https://midnight-preview.subscan.io/ |
@@ -27,27 +39,31 @@ Preview 환경은 초기 단계 개발 및 실험을 위한 환경입니다.
 ## Preprod
 
 Preprod 환경은 mainnet 배포 전 최종 테스트를 위한 환경입니다. 
-다음 엔드포인트를 사용하여 DApp을 Midnight Preprod 환경에 연결하세요. 
+다음 엔드포인트를 사용하여 DApp을 Midnight Preprod 환경에 연결하세요. 공개 Preprod indexer와 node RPC는 Blockfrost가 제공합니다. [blockfrost.io](https://blockfrost.io)에서 **Midnight Preprod** 프로젝트를 생성하고 각 Node RPC 및 Indexer URL에 `?project_id=<token>`을 덧붙이세요. [Blockfrost: the Preprod and Mainnet indexer and RPC provider](../guides/networks-and-environments#blockfrost-the-mainnet-indexer-and-rpc-provider)를 참고하세요.
 
 | Service | URL |
 | --- | --- |
-| Node RPC | https://rpc.preprod.midnight.network |
-| Indexer (GraphQL) | https://indexer.preprod.midnight.network/api/v4/graphql |
+| Node RPC | `https://rpc.midnight-preprod.blockfrost.io` |
+| Node RPC (WebSocket) | `wss://rpc.midnight-preprod.blockfrost.io` |
+| Indexer (GraphQL) | `https://midnight-preprod.blockfrost.io/api/v0` |
+| Indexer (WebSocket) | `wss://midnight-preprod.blockfrost.io/api/v0/ws` |
 | Faucet UI | https://midnight-tmnight-preprod.nethermind.dev/ |
 | Block explorers | https://preprod.midnightexplorer.com/ |
 |                 | https://midnight-preprod.subscan.io/  |
 |                 | https://explorer.1am.xyz/?network=preprod      |
+
 ## Mainnet
 
 Mainnet 환경은 프로덕션 네트워크입니다.
-다음 엔드포인트를 사용하여 DApp을 Midnight Mainnet에 연결하세요.
+다음 엔드포인트를 사용하여 DApp을 Midnight Mainnet에 연결하세요. 공개 Mainnet indexer와 node RPC는 Blockfrost가 제공합니다. [blockfrost.io](https://blockfrost.io)에서 **Midnight Mainnet** 프로젝트를 생성하고 각 Node RPC 및 Indexer URL에 `?project_id=<token>`을 덧붙이세요. [Blockfrost: the Preprod and Mainnet indexer and RPC provider](../guides/networks-and-environments#blockfrost-the-mainnet-indexer-and-rpc-provider)를 참고하세요.
 
 | Service | URL |
 | --- | --- |
-| Node RPC | https://rpc.mainnet.midnight.network |
-| Indexer (GraphQL) | https://indexer.mainnet.midnight.network/api/v4/graphql |
+| Node RPC | `https://rpc.midnight-mainnet.blockfrost.io` |
+| Node RPC (WebSocket) | `wss://rpc.midnight-mainnet.blockfrost.io` |
+| Indexer (GraphQL) | `https://midnight-mainnet.blockfrost.io/api/v0` |
+| Indexer (WebSocket) | `wss://midnight-mainnet.blockfrost.io/api/v0/ws` |
 | Block explorers | https://midnightexplorer.com/ |
 |                 | https://midnight.subscan.io/  |
 |                 | https://explorer.1am.xyz      |
 | cNgD DApp | https://midnight-dust-mainnet.nethermind.io/ |
-

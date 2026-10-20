@@ -1,0 +1,54 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Wallet SDK v1.2.0 release notes
+displayed_sidebar: sidebar
+description: Release notes for the Midnight Wallet SDK 1.2.0
+---
+
+* **Version**: v1.2.0
+* **Date**: 1 July, 2026
+* **Environment**: Mainnet, Preprod, Preview
+
+---
+
+## High-level summary
+
+Wallet SDK 1.2.0은 DUST 등록을 수수료 과소추정에 대해 강화하고, 등록 전에 DUST가 적립되기를 기다리는 방법을 호출자에게 제공하는 minor 릴리스입니다. 이 버전부터 패키지는 `@midnightntwrk` npm 스코프로 배포됩니다(이전에는 `@midnight-ntwrk`).
+
+---
+
+## Audience
+
+이번 릴리스는 다음에 해당하는 개발자에게 관련이 깊습니다.
+
+- 지갑이나 DApp에서 DUST 생성을 위해 NIGHT UTXO를 등록하는 개발자
+- DUST provisioning 플로우를 자동화하며 등록 시점을 조절해야 하는 개발자
+
+---
+
+## What changed (Summary of updates)
+
+- `WalletFacade.registerNightUtxosForDustGeneration`에서 등록의 `allow_fee_payment`가 자체 수수료보다 낮아져 체인이 `BalanceCheckOverspend`로 제출을 거부하던 race를 수정했습니다. 이제 지갑은 빌드 시점에 수수료를 추정하고, 예약을 되돌린 뒤 제출 전에 예외를 던집니다.
+- `WalletFacade.waitForGeneratedDust(utxos, requiredAmount, opts?)`를 추가하여, 호출자가 충분한 DUST가 적립될 때까지 등록을 미룰 수 있게 했습니다. `estimateRegistration`과 함께 사용해 임계값을 정하세요.
+- SDK는 이제 `@midnightntwrk` npm 스코프로 배포됩니다. 버전 1.2.0은 두 스코프 모두에서 제공되며, 이후 버전은 새 스코프를 대상으로 합니다.
+
+---
+
+## Breaking changes or required actions
+
+breaking API 변경은 없습니다. 업데이트할 때 새 스코프를 따르도록 의존성을 `@midnightntwrk/wallet-sdk`로 옮기는 것을 고려하세요.
+
+---
+
+## Known issues
+
+이번 릴리스에는 새로운 알려진 이슈가 없습니다.
+
+---
+
+## Links and references
+
+- [GitHub release: Wallet SDK 1.2.0](https://github.com/midnightntwrk/midnight-wallet/releases/tag/%40midnightntwrk%2Fwallet-sdk%401.2.0)
+- [`@midnightntwrk/wallet-sdk` on npm](https://www.npmjs.com/package/@midnightntwrk/wallet-sdk/v/1.2.0)
+- [Wallet SDK v1.1.0 release notes](/relnotes/wallet/wallet-sdk-1-1-0)

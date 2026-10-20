@@ -1,0 +1,144 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact toolchain 0.35.0 release notes
+description: Compact toolchain 0.35.0 targets ledger 9 and adds P256, Curve25519, Ed25519, sha512, kernel.caller(), and run-time cross-contract module resolution.
+displayed_sidebar: sidebar
+---
+
+# Compact toolchain 0.35.0
+
+- **Date:** 2026-09-28
+- **Language version:** 0.27.0
+- **Compact runtime version:** 0.20.0
+- **Environment:** 이 릴리스는 Midnight ledger 9 블록체인에서 동작합니다. 전체 호환성 매트릭스는 [릴리스 노트 개요](https://docs.midnight.network/relnotes/overview)를 참조하세요
+
+:::warning[Not for the current public networks]
+툴체인 0.35.0은 ledger 버전 9를 대상으로 하며, 이 버전은 아직 Preview, Preprod, Mainnet에 배포되지 않았습니다. 이 툴체인으로 컴파일한 컨트랙트는 Compact 런타임 0.20.x가 필요하며, npm의 `@midnight-ntwrk/compact-runtime` `latest` 태그는 이제 0.20.0을 가리킵니다. 공개 네트워크용 컨트랙트를 빌드하려면 `compact update 0.31`을 실행하고 [호환성 매트릭스](/relnotes/support-matrix)에 명시된 Compact 런타임 버전으로 고정하세요.
+:::
+
+## High-level summary
+
+Compact 툴체인 0.35.0은 메이저 릴리스입니다. 아직 Midnight Mainnet에 배포되지 않은 Midnight ledger 9를 대상으로 합니다. 현재(9월 28일 기준) Midnight Mainnet에 배포할 컨트랙트를 빌드한다면 Compact 툴체인 0.31.x를 계속 사용하세요.
+
+이 릴리스는 0.34.0을 기반으로 합니다. secp256r1(P256)과 Curve25519 곡선, P256 상의 ECDSA 검증, Ed25519 서명 검증, `sha512` 해싱을 추가하며, 이들은 모두 `--feature-zkir-v3` 플래그가 필요합니다. 또한 `kernel.caller()` ledger 연산을 추가하고, 크로스 컨트랙트 호출이 이제 피호출자의 구현을 런타임에 해석하므로 Compact 런타임의 크로스 컨트랙트 API가 바뀝니다. 여러 변경이 호환성을 깨며, 아래 항목에서 해당 변경을 표시합니다.
+
+Compact devtools로 버전 0.35.0으로 업데이트할 수 있습니다. `compact update`는 최신 릴리스 버전으로 업데이트하고, `compact update 0.35`는 툴체인 0.35의 최신 패치 릴리스로 업데이트합니다. `compact update 0.31`로 툴체인 버전 0.31.x(Midnight ledger 8 블록체인용)로 되돌릴 수도 있습니다.
+
+## Audience
+
+이 릴리스 노트는 Compact 스마트 컨트랙트 개발자와 Compact 런타임을 사용하는 DApp 개발자를 대상으로 합니다.
+
+## What changed
+
+## New features
+
+### The caller of a circuit is available to the circuit
+
+circuit의 호출자를 아래 설명대로 반환하는 새 ledger 연산 `kernel.caller()`이 추가되었습니다. 반환값은 `Maybe<PublicAddress>`이며, `PublicAddress`는 `Either<ContractAddress, UserAddress>`에 대한 표준 라이브러리 별칭입니다.
+
+주소가 `addr`인 컨트랙트가 circuit을 호출하면 결과는 `some(left(addr))`입니다. 최상위 circuit 호출이고 그것을 담은 intent의 unshielded 입력이 모두 주소 `addr`인 사용자 소유일 때는 `some(right(addr))`입니다. 그 외에는 `none()`이며, 생성자에서는 항상 `none()`입니다.
+
+ledger는 지갑이 트랜잭션을 밸런싱할 때 추가하는 intent의 unshielded 입력에서 호출자 값을 도출합니다. 이 과정은 오프체인 증명 구성 **이후**에 일어납니다. 오프체인 실행은 사용자의 최상위 호출에 대해 `none()`을 기록하므로, 밸런싱된 intent의 unshielded 입력이 모두 같은 사용자 소유일 때 그런 호출은 ledger 읽기 불일치로 온체인에서 실패합니다.
+
+최상위 호출자 설정을 허용하도록 ledger이 변경되기 전까지는, 호출이 컨트랙트에서 온다는 것을 확실히 아는 곳에서만 `kernel.caller()`을 읽어야 합니다.
+
+### sha512 hashing
+
+SHA-512 해싱 알고리즘을 사용하는 새 제네릭 표준 라이브러리 circuit `sha512<T>`이 추가되었습니다. `persistentHash<T>`(SHA-256) 및 `keccak256<T>` circuit과 동일한 API를 가집니다.
+
+**이 기능은 `--feature-zkir-v3` 플래그가 필요합니다.**
+
+### Secp256r1 (P256) and Curve25519 foreign curves and fields
+
+표준 라이브러리가 이제 `Secp256r1Point`과 `Curve25519Point` foreign 곡선 점, 그리고 함께 쓰이는 field 타입 `Secp256r1Base`, `Secp256r1Scalar`, `Curve25519Base`, `Curve25519Scalar`를 지원합니다. secp256k1 곡선 및 field과 유사하게 동작합니다.
+
+field 타입은 동등 및 비동등 비교와 Compact 산술 연산 `+`, (이항) `-`, `*`, `neg`, `inv` 전체를 지원합니다. field 타입은 `Bytes<32>` 바이트 벡터로의/로부터의 캐스팅도 지원합니다. 바이트 표현은 값의 32바이트 리틀 엔디언 이진 인코딩입니다. 바이트 벡터로 캐스팅했다가 되돌리면 항상 원래 field 값이 됩니다. 범위를 벗어난 unsigned 정수를 나타내는 바이트 벡터에서 캐스팅해도 실패하지 않고, 대신 field 모듈러스로 모듈러 축약합니다. `Curve25519Scalar`(만)은 `Bytes<32>`과 같은 규칙으로 `Bytes<64>`로의/로부터의 캐스팅도 지원합니다. Curve25519 스칼라의 64바이트 표현은 `Bytes<32>`과 같은 리틀 엔디언 인코딩에 0으로 패딩한 것입니다.
+
+점 타입은 Compact 코드에서 생성할 수 없습니다. X 좌표와 Y 좌표에 대한 접근자가 있습니다. 점 타입은 동등 및 비동등 비교, `ecAdd`, `ecMul`, `ecMulGenerator`를 지원합니다.
+
+Compact 런타임은 TypeScript 코드에서 사용할 `Secp256r1Point`과 `Curve25519Point` 인터페이스를 내보냅니다. Compact 런타임에는 타입 디스크립터와 산술 연산도 있고, field 모듈러스와 최대 field 값 상수도 있습니다.
+
+**이 기능은 `--feature-zkir-v3` 플래그가 필요합니다.**
+
+### ECDSA signature verification over secp256r1 (P256)
+
+Compact 표준 라이브러리가 secp256r1(P256으로도 알려짐) 곡선 상의 ECDSA 서명을 검증하고 검증 성공 여부를 알려주는 불리언 값을 반환하는 새 circuit `secp256r1EcdsaVerify`를 내보냅니다. `secp256k1EcdsaVerify`처럼 공개 키가 항등점이 아님을 assert합니다.
+
+Compact 런타임에는 DApp의 JavaScript 또는 TypeScript 코드에서 circuit 바깥으로 공개 키를 복구하는 데 쓸 수 있는 새 함수 `secp256r1EcdsaRecover`이 있습니다.
+
+**이 기능은 `--feature-zkir-v3` 플래그가 필요합니다.**
+
+### Ed25519 signature verification
+
+Compact 표준 라이브러리가 `n`바이트 메시지의 Ed25519(RFC 8032) 서명을 검증하고 검증 성공 여부를 알려주는 불리언 값을 반환하는 새 제네릭 circuit `ed25519Verify<#n>`을 내보냅니다. 챌린지는 circuit 내부에서 `sha512`로 해시됩니다. 이 circuit은 공개 키가 항등이 아님을 assert합니다.
+
+**이 기능은 `--feature-zkir-v3` 플래그가 필요합니다.**
+
+### The compiler now generates ZKIR 3.1
+
+`--feature-zkir-v3` 기능 플래그가 전달되면 컴파일러가 이제 ZKIR 3.0 대신 ZKIR 3.1을 생성합니다. 이 ZKIR 형식 버전에는 이번 Compact 릴리스에서 도입된 새 언어 기능을 지원하는 새 명령이 있습니다. ZKIR 3.1 형식을 지원할 수 있는 proof server가 필요합니다.
+
+ZKIR 3.1은 마이너 버전 릴리스이므로 ZKIR 3.0 대비 호환성을 깨지 않는 변경만 포함합니다. ZKIR 3.1 proof server는 ZKIR 3.0 파일도 처리할 수 있도록 의도되었습니다.
+
+## Improvements
+
+### Cross-contract calls resolve the callee at runtime
+
+크로스 컨트랙트 호출이 이제 호출된 컨트랙트의 구현을 TypeScript 컴파일 시점에 import하지 않고 DApp의 런타임에 해석합니다. 이는 크로스 컨트랙트 호출 런타임 API에 대한 상당하고 **호환성을 깨는** 변경입니다.
+
+생성되는 모든 컨트랙트 모듈에는 두 개의 새 테이블이 있습니다. 호출되는 각 컨트랙트 타입에 대한 `declaredInterfaces`와 내보낸 각 circuit에 대한 `circuitSignatures`입니다. 이들은 생성된 `.d.ts` 인터페이스 파일에 나타납니다. 크로스 컨트랙트 호출의 런타임 타입 검사에 사용됩니다.
+
+이처럼 더 유연한 크로스 컨트랙트 호출을 지원하는 새 런타임 API가 있습니다. DApp 개발자에게 가장 중요한 것은 `ContractModuleProvider`로, `ContractAddress`를 `ModuleThunk`에 매핑하는 (사용자가 제공하는) `resolve` 메서드를 가진 TypeScript 인터페이스입니다.
+
+크로스 컨트랙트 호출에는 다수의 개선 사항이 있으며 그중 일부는 호환성을 깨는 변경입니다. 자세한 내용은 이 변경이 도입된 툴체인 버전 0.24.101의 Compact [`CHANGELOG.md`](https://github.com/LFDT-Minokawa/compact/blob/main/CHANGELOG.md) 항목을 참조하세요.
+
+### Improvements to encoding and decoding public state
+
+Compact 런타임의 ledger public state 값 디코딩이 개선되고 견고해졌습니다.
+
+- `Opaque<'Uint8Array'>`과 `Opaque<'string'>`을 디코딩할 때 입력이 잘려 있으면 이제 `CompactError`를 던집니다. 이전에는 유효하지 않은 값을 반환했습니다.
+- Compact `Bytes` 값을 디코딩하면 이제 값의 복사본을 반환합니다. 이전에는 기반 바이트를 별칭으로 참조해, 디코딩된 값이 변경되면 의도치 않은 변경이 발생할 수 있었습니다.
+- 범위를 벗어난 `enum` 타입을 디코딩하면 이제 `Enum`을 언급하는 예외를 던집니다. 이전에는 예외가 `UnsignedInteger`를 기대했다고 주장했습니다.
+- `Secp256k1Point`을 디코딩할 때 항등 플래그가 0이나 1이 아닌 인코딩된 값을 이제 거부합니다. 이전에는 1을 `true`로, 그 외 값을 `false`로 취급했습니다.
+
+### The toolchain version string is improved
+
+이전에는 devtools를 통해 `compact compile --version`으로, 또는 컴파일러 바이너리를 직접 `compactc --version`으로 얻은 툴체인 버전이 `-rc.N`이나 `-alpha.N` 같은 다른 표기 없이 `MAJOR.MINOR.PATCH` 버전 문자열만 보고했습니다. 이 때문에 각각 같은 버전이라 주장하는 서로 다른 바이너리 아티팩트가 여러 개 존재했습니다. 이제 버전 문자열에는 `-rc.N`이나 `-alpha.N` 같은 표기가 포함되고, GitHub 커밋 해시와 빌드 날짜도 식별됩니다. 예를 들면 다음과 같습니다.
+
+```shell
+% compact compile --version
+0.35.0-rc.0 (0e7a4b677 2026-09-28)
+```
+
+## Breaking changes
+
+### Signature verification rejects the identity point
+
+서명 검증 circuit `jubjubSchnorrVerify`와 `secp256k1EcdsaVerify`가 이제 항등점을 공개 키로 거부합니다. 이전에는 이를 허용했는데, 그러면 사용자가 실제 비밀 키를 몰라도 임의의 사용자가 메시지에 서명한 것으로 만들 수 있었습니다.
+
+### New runtime type checks on foreign curves
+
+곡선 점에 대한 런타임 타입 검사가 이제 좌표가 범위 안에 있고 점이 곡선 위에 있는지도 확인합니다. 이 타입 검사는 circuit 및 생성자 인자와 witness 반환값에 적용됩니다. 이전에는 범위가 아니라 타입만 검사했습니다. 유효하지 않은 점은 ledger에 기록될 때, 또는 경우에 따라 증명이 구성될 때 인코딩에 실패했습니다. 이제 실패가 더 일찍, 문제 지점에 더 가까이서 발생하며, ledger에 기록되지 않는 값에 대해서도 발생합니다. 이는 호환성을 깨는 변경입니다.
+
+### Some ledger encodings are more strict
+
+`Uint`, `enum`, `Bytes` 타입을 인코딩할 때 이제 충실하게 인코딩할 수 없는 인자를 거부합니다. 이전에는 입력을 검증하지 않았지만, 유효하지 않은 인코딩은 디코딩할 때 실패했습니다. 즉 ledger에 기록했지만 되읽을 수 없는 값을 쓸 수 있었습니다. 이는 (경미하게) 호환성을 깨는 변경입니다.
+
+### Deserialization of `Boolean` values is more strict
+
+내장 `deserialize` circuit은 `Boolean`에 대해 이제 직렬화된 표현이 0 또는 1 바이트여야 합니다. 이전에는 다른 바이트 값도 허용해, 1은 `true`로, 그 외 값은 `false`로 역직렬화했습니다.
+
+## Known issues
+
+### The ZKIR v3 ledger version is printed incorrectly
+
+`compact compile --feature-zkir-v3 --ledger-version`을 실행하면 ledger 버전 문자열이 아니라 ZKIR 버전 3 버전 문자열이 출력됩니다. `compact compile --ledger-version`은 ZKIR 버전 2와 버전 3 모두에 대해 올바른 ledger 버전을 출력합니다.
+
+## Links and references
+
+## Fixed defect list
+
+Compact 툴체인 0.35로 업데이트하면 아래 결함이 수정됩니다.
+
+- 생성된 ZKIR 코드의 타입 오류로 인해, circuit에서 `default<Secp256k1Base>`과 `default<Secp256k1Scalar>`를 사용하면 `zkir` 크래시(키 생성 실패)가 발생했습니다. 이 문제가 수정되었습니다.

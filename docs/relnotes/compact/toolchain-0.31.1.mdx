@@ -1,0 +1,38 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact toolchain 0.31.1
+description: Release notes for Compact toolchain 0.31.1 (language 0.23.0), a patch release on the 0.31 line that fixes code generation for certain casts.
+displayed_sidebar: sidebar
+---
+
+# Compact toolchain 0.31.1
+
+- **Date**: 2026-06-25
+- **Language version:** 0.23.0
+- **Compact runtime version:** 0.16.0
+- **Environment**: 릴리스 시점 기준 모든 공개 Midnight 환경. 전체 호환성 매트릭스는 [릴리스 노트 개요](https://docs.midnight.network/relnotes/overview)를 참조하세요
+
+## High-level summary
+
+Compact 툴체인 0.31.1은 0.31 라인의 패치 릴리스로, 일부 캐스트의 코드 생성 문제를 수정합니다. 언어 버전과 Compact 런타임 버전은 바뀌지 않았으므로, 컨트랙트는 0.31.0과 동일한 런타임을 대상으로 컴파일됩니다. `compact update 0.31`로 이 버전으로 업데이트할 수 있습니다.
+
+## Audience
+
+이 릴리스 노트는 Compact 스마트 컨트랙트 개발자를 대상으로 합니다.
+
+## What changed
+
+- 일부 캐스트의 코드 생성 문제 수정
+
+## Bug fixes
+
+### Code generation for certain casts
+
+컴파일러의 공통 부분식(common-subexpression) 매칭이 가드된(안전한) unsigned 다운캐스트와 같은 값에 대한 가드 없는 다운캐스트를 동일한 연산으로 취급했고, 그 결과 생성된 circuit에서 한쪽이 다른 쪽으로 치환될 수 있었습니다. 이제 `safe` 플래그가 비교와 해시의 일부로 포함되어 두 형태가 서로 구분된 상태로 유지됩니다.
+
+## Links and references
+
+- [Compact toolchain 0.31.1 on GitHub](https://github.com/midnightntwrk/compact/releases/tag/compactc-v0.31.1)
+- [Changelog in the Compact repository](https://github.com/LFDT-Minokawa/compact/blob/compactc-v0.31.1/CHANGELOG.md)
+- [Compact toolchain 0.31.0 release notes](/relnotes/compact/toolchain-0.31.0)

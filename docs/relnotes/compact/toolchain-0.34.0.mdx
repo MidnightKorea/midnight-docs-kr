@@ -1,0 +1,128 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact toolchain 0.34.0
+description: Release notes for Compact toolchain 0.34.0 (language 0.26.0), a major release for ledger 9 that lets cross-contract callees perform shielded coin operations.
+displayed_sidebar: sidebar
+---
+
+# Compact toolchain 0.34.0
+
+- **Date:** 2026-08-18
+- **Language version:** 0.26.0
+- **Compact runtime version:** 0.19.0
+- **Environment:** 이 릴리스는 Midnight ledger 9 블록체인에서 동작합니다. 전체 호환성 매트릭스는 [릴리스 노트 개요](https://docs.midnight.network/relnotes/overview)를 참조하세요
+
+## High-level summary
+
+Compact 툴체인 0.34.0은 메이저 릴리스입니다.
+
+이 릴리스는 ledger 버전 9 지원, 크로스 컨트랙트 호출, 이벤트, Compact 값의 직렬화/역직렬화, ZKIR 버전 3 지원을 추가한 0.33.0을 기반으로 합니다.
+
+ledger 버전 9는 Midnight Mainnet에 배포될 예정이지만 아직 배포되지 않았습니다. 현재(8월 18일 기준) Midnight Mainnet에 배포할 컨트랙트를 빌드한다면 Compact 툴체인 0.31.x를 계속 사용하세요.
+
+Compact devtools로 버전 0.34.0으로 업데이트할 수 있습니다. `compact update`는 최신 릴리스 버전으로 업데이트하고, `compact update 0.34`는 툴체인 0.34의 최신 패치 릴리스로 업데이트합니다. `compact update 0.31`로 툴체인 버전 0.31.x로 되돌릴 수도 있습니다.
+
+## Audience
+
+이 릴리스 노트는 Compact 스마트 컨트랙트 개발자와 Compact 런타임을 사용하는 DApp 개발자를 대상으로 합니다.
+
+## What changed
+
+## New features
+
+### Shielded (Zswap) coin operations by cross-contract callees
+
+크로스 컨트랙트 피호출자가 이제 shielded(Zswap) 코인 연산을 수행할 수 있습니다. 세 가지 Zswap 네이티브 `ownPublicKey`, `createZswapInput`, `createZswapOutput`을 모두 포함합니다. `ownPublicKey()`는 호출한 컨트랙트가 아니라 항상 트랜잭션 제출자를 가리킨다는 점에 유의하세요. 호출자에게 되갚으려는 피호출자는 `ownPublicKey()`가 아니라 그 호출자의 `ContractAddress`를 사용해야 합니다.
+
+### Infix arithmetic extended to `Secp256k1Base` and `Secp256k1Scalar`
+
+이진 산술 연산자 `+`, `-`, `*`이 이제 `Secp256k1Base`과 `Secp256k1Scalar`에도 동작합니다. 두 피연산자는 같은 타입이어야 하며 결과도 그 타입이 됩니다. 이 타입들의 뺄셈을 수행하는 새 런타임 함수가 추가되었습니다.
+
+### `--feature-zkir-v3` and `--no-communications-commitment`
+
+ZKIR v3 프린터가 이제 `--no-communications-commitment` 플래그를 따릅니다.
+
+### `Uint<0>` is now a valid type
+
+이전에는 컴파일러 오류였던 `Uint<0>` 타입이 이제 허용됩니다. 규칙상 그리고 2^0이 1이라는 사실상 `Uint<0..1>`과 동등합니다. `Uint<0..1>`이 허용되므로, 그다지 유용하지는 않더라도 `Uint<0>`을 금지할 이유가 없습니다.
+
+### Compact runtime `secp256k1EcdsaRecover` function
+
+Compact JavaScript 런타임이 이제 `secp256k1EcdsaRecover`를 내보냅니다. 32바이트 메시지 해시, ECDSA 서명, 복구 ID가 주어지면 대응하는 secp256k1 공개 키를 반환합니다.
+
+복구는 circuit 바깥에서 실행됩니다. 의도된 패턴은 키를 circuit 바깥에서 복구한 뒤 witness나 인자로 circuit에 전달하고, 표준 라이브러리의 `secp256k1EcdsaVerify`로 그 안에서 제약을 거는 것입니다.
+
+`secp256k1EcdsaVerify`는 low-s 서명과 high-s 서명을 모두 받습니다. [FIPS 186-5](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) 6.4.2절이 `s`를 `[1, n - 1]`로만 제약하기 때문입니다.
+
+### Support for `Secp256k1Point` identity and comparisons
+
+컴파일러가 이제 secp256k1 항등점(identity point)을 지원합니다.
+
+항등점은 `default<Secp256k1Point>`로 얻을 수 있습니다.
+
+항등점끼리는 서로 같고, 항등점이 아닌 점은 아핀 X 좌표와 Y 좌표가 같으면 서로 같습니다.
+
+표준 라이브러리의 `secp256k1EthereumAddress` circuit은 이제 입력이 secp256k1 항등점이 아님을 assert합니다. 항등점에는 대응하는 이더리움 주소가 없기 때문입니다.
+
+### Compact runtime `toBinaryRepr` function
+
+새 Compact 런타임 함수 `toBinaryRepr`은 온체인 Rust `binary_repr`의 효과를 그대로 재현합니다. 런타임은 `keccak_256` 함수의 인자에 이 함수를 사용해 circuit 내부 구현을 정확히 재현합니다. 덕분에 바이트 벡터의 끝에 붙은 0바이트가 circuit에서와 마찬가지로 JS에서도 보존되고 해시됩니다.
+
+### Modular reduction in casts to foreign fields
+
+바이트 벡터를 foreign field로 캐스팅할 때, 이제 범위를 벗어난 값을 인코딩한 바이트 벡터에서 실패하는 대신 field 모듈러스로 모듈러 축약을 수행합니다. 네이티브 field에 대해서는 지금 당장의 호환성 깨짐을 피하기 위해 기존의 실패 동작을 유지합니다.
+
+### Faster manifest-file hash computation
+
+컴파일러가 이제 매니페스트 파일을 가능한 경우 Common Crypto(OSX)나 OpenSSL을 사용해 프로세스 내부에서 해시합니다. 해시 계산마다 셸 명령을 실행하는 것보다 대개 훨씬 빠릅니다. Common Crypto와 OpenSSL을 모두 사용할 수 없으면 `sha256sum`을 먼저 실행하고, 그다음 `shasum -a 256`을 실행합니다.
+
+## Breaking changes
+
+### Changes to point and scalar types
+
+`JubjubPoint`과 `Secp256k1Point` 타입은 더 이상 opaque 타입에 대한 명목적(nominal) 타입 별칭이 아니라, 내부적으로 처리되는 타입에 대한 표준 라이브러리 이름입니다. 이 타입들은 더 이상 컨트랙트 최상위에서 내보낼 수 없습니다.
+
+마찬가지로 `JubjubScalar`, `Secp256k1Base`, `Secp256k1Scalar` 타입도 더 이상 내장 타입이 아니라 내부적으로 처리되는 타입에 대한 표준 라이브러리 이름입니다. 이제 이 타입들을 사용하려면 프로그램이 CompactStandardLibrary에서 import해야 합니다.
+
+### Run-time checks for opaque types
+
+생성된 JS 코드에 이제 JS opaque 타입 `Opaque<'string'>`과 `Opaque<'Uint8Array'>`에 대한 circuit 인자 및 witness 반환값 타입 검사가 포함됩니다. 이전에는 어떤 값이든 전달하거나 반환할 수 있었습니다. 예를 들어 임의의 JS 값을 `Opaque<'string'>`으로 저장할 수 있다는 점에 의존하던 프로그램에는 호환성을 깨는 변경입니다.
+
+### Equality of `Opaque<'Uint8Array'>` values
+
+`Opaque<'Uint8Array'>`의 동등성은 이제 (1) 길이가 같고 (2) 원소별로 엄격 동등(`===`)한지로 판정합니다. 이전에는 단순 엄격 동등이었으며, 타입 배열에서는 이것이 객체 참조 동등성을 뜻했습니다.
+
+이는 언어의 호환성을 깨는 변경입니다. 이전에는 Compact에서 같지 않던 `Uint8Array`들이 이제 같다고 비교될 수 있기 때문입니다.
+
+이 변경으로 JS 의미론이 타입 배열 내용의 Poseidon 해시 동등성을 사용하는 ZKIR 의미론과 사실상 일치하게 됩니다.
+
+### Secp256k1Point accessor change
+
+접근자 `secp256k1PointX`와 `secp256k1PointY`의 JavaScript 구현은 이제 항등(`default`) 점이 전달되면 `CompactError`로 실패합니다. 이 연산이 실패하는 ZKIR 동작과 일치합니다.
+
+이전에는 이 접근자들이 JS 객체의 x 좌표 또는 y 좌표에 저장된 값을 그대로 반환했습니다. 그 값은 이 점에 유효한 좌표가 아니었고, 현재 항등점을 정규화하지 않기 때문에 0 같은 센티넬 값조차 아니었습니다.
+
+이는 증명이 필요 없어서 달리 실패하지 않았을 circuit에는 호환성을 깨는 변경입니다.
+
+### Compact runtime cleanup
+
+Compact 런타임에서 이전에 내보내던, 사용되지 않고 불필요한 일부 export 타입과 디스크립터가 삭제되었습니다. 프로그램이 이 타입과 디스크립터에 접근했을 가능성은 낮지만, 접근하던 프로그램에는 호환성을 깨는 변경입니다.
+
+### Standard-library `add` and `mul` have been removed
+
+이제 `Secp256k1Base`과 `Secp256k1Scalar` 값에 중위 연산자 `+`, `*`(그리고 `-`)을 사용할 수 있으므로, 표준 라이브러리 circuit `add`와 `mul`은 제거되었습니다.
+
+## Fixed defect list
+
+Compact 툴체인 0.34로 업데이트하면 아래 결함이 수정됩니다.
+
+[Issue #588: persistentHash of a struct with a 0-bit field (single-variant enum / `Uint{maxval:0}`) emits inconsistent zkir](https://github.com/LFDT-Minokawa/compact/issues/588)
+
+[Issue #590: midnight-events.ss: ShieldedReceive field order does not match CoIP-442 / MIP-0002](https://github.com/LFDT-Minokawa/compact/issues/590)
+
+[Issue #608: `keccak256<Secp256k1Point>` crashes the compiler](https://github.com/LFDT-Minokawa/compact/issues/608)
+
+[Issue #609: two secp256k1EcdsaVerify calls in one circuit crash the compiler](https://github.com/LFDT-Minokawa/compact/issues/609)
+
+[Issue #704: ZKIR v3 internal error when nesting JubjubPoint within Map or a structured Compact type in the ledger](https://github.com/LFDT-Minokawa/compact/issues/704)

@@ -1,0 +1,29 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Compact developer tools 0.5.2
+description: The Compact developer tools provide the compact CLI for installing toolchains and compiling, formatting, and fixing up Compact smart contracts.
+displayed_sidebar: sidebar
+---
+
+## Compact developer tools 0.5.2 release notes
+
+Compact developer tools(devtools) 0.5.2는 소규모 유지 보수 릴리스입니다. 사용자에게 드러나는 변경은 `compact compile --help`가 이제 기반 컴파일러로 전달되어, 선택한 툴체인의 전체 컴파일러 옵션 집합을 도움말에 보여준다는 점입니다.
+
+기존 devtools 설치가 있다면 `compact self update` 명령으로 업데이트할 수 있습니다.
+
+기존 devtools 설치가 없다면 [릴리스 페이지](https://github.com/midnightntwrk/compact/releases/tag/compact-v0.5.2)에 표시된 셸 명령으로 버전 0.5.2를 설치할 수 있습니다.
+
+## Improvements
+
+### `compact compile --help` shows the full compiler help
+
+이전에는 `compact compile --help`가 devtools 자체 옵션만 보여주고 `--feature-zkir-v3` 같은 컴파일러 플래그는 생략했습니다. 이제 이 명령이 선택한 툴체인 버전의 기반 `compactc`로 전달되므로, 도움말에 컴파일러가 받는 모든 플래그가 나열됩니다([issue #648](https://github.com/LFDT-Minokawa/compact/issues/648)).
+
+## Breaking changes
+
+없음.
+
+## Known issues
+
+없음.

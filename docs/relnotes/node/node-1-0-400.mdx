@@ -1,0 +1,131 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Node v1.0.400 release notes
+description: Node is a core component of the Midnight Network, responsible for syncing, validating transactions, and maintaining the chain state.
+displayed_sidebar: sidebar
+---
+
+- **Version**: v1.0.400
+- **Date**: October 6, 2026
+- **Components**: `node-1.0.400`, `toolkit-1.0.400`, `runtime-1.0.300`
+
+---
+
+## Docker images
+
+```shell
+docker pull midnightntwrk/midnight-node:1.0.400
+docker pull midnightntwrk/midnight-node-toolkit:1.0.400
+```
+
+---
+
+## High-level summary
+
+Node v1.0.400은 [v1.0.0 GA 라인](/relnotes/node/node-1-0-0)의 보안 패치입니다. 노드의 ledger 8 의존성을 8.1.2에서 8.1.3으로 옮기며, 이는 치명적 권고 [GHSA-wr7g-rr4v-jmj8](https://github.com/midnightntwrk/midnight-ledger/security/advisories/GHSA-wr7g-rr4v-jmj8)을 수정합니다. 블록 생산자부터 시작해 모든 노드를 업그레이드하세요.
+
+이번 릴리스는 또한 genesis부터 Mainnet을 동기화하는 노드가 블록 1788979에서 멈추던 [v1.0.300](/relnotes/node/node-1-0-300)의 known issue에 대한 수정을 포함합니다. 런타임은 1.0.300에 머무르므로, 이번 릴리스는 런타임 업그레이드, governance 조치, 리셋, 재동기화가 없는 바이너리 전용 업그레이드입니다.
+
+아래 변경 사항은 [두 태그 간 비교](https://github.com/midnightntwrk/midnight-node/compare/node-1.0.300...node-1.0.400)에서 가져온 v1.0.300 대비 델타입니다.
+
+---
+
+## Audience
+
+이 릴리스 노트는 다음에 해당하는 사용자에게 유효합니다.
+
+- Preview, Preprod, Mainnet에서 Midnight node를 운영하는 사용자, 특히 블록 생산자. v1.0.400 노드는 v1.0.300 노드가 수용하는 일부 컨트랙트 호출을 거부합니다.
+- genesis부터 Mainnet 노드를 동기화하는 사용자. indexer에 데이터를 공급하는 노드도 포함됩니다.
+- node toolkit으로 트랜잭션을 빌드하거나 재생하는 사용자.
+- 키에 `Field`가 포함된 set이나 map으로 payout, 출금, mint를 보호하는 스마트 컨트랙트를 유지보수하는 사용자.
+
+DApp 개발자는 트랜잭션을 빌드하는 방식을 바꿀 필요가 없습니다. [호환성 매트릭스](/relnotes/support-matrix)의 Compact 컴파일러 및 Midnight.js 버전으로 빌드한 트랜잭션에는 ledger 8.1.3이 거부하는 값이나 연산이 들어 있지 않습니다.
+
+---
+
+## What changed (Summary of updates)
+
+아래 업데이트는 이번 릴리스의 주요 변경 사항입니다.
+
+- ledger 8 의존성을 8.1.2에서 8.1.3으로 옮겼습니다. 이 보안 릴리스는 transcript에 비정규(non-canonical) 값이나 연산이 담긴 컨트랙트 호출을 거부합니다. 치명적 권고 GHSA-wr7g-rr4v-jmj8을 수정합니다.
+- ledger 8.1.3 crate 세트를 반영했습니다. `midnight-ledger`와 `midnight-zswap` 8.1.3, `midnight-onchain-runtime` 3.1.2, `midnight-onchain-state` 3.0.2, `midnight-onchain-vm` 3.1.2, `midnight-base-crypto` 1.0.2입니다.
+- 블록 타임스탬프(`tblock`) 보정에 폴백을 추가하여, genesis부터 Mainnet을 동기화하는 노드가 블록 1788979를 지나가도록 했습니다.
+- toolkit을 동일한 ledger crate 위에서 1.0.400으로 옮기고, toolkit 이미지에서 `shx`와 `shelljs` npm 패키지를 제거했습니다.
+- 런타임을 1.0.300에 그대로 두어, 런타임 업그레이드가 필요하지 않습니다. 변경되는 RPC 메서드, 설정 값, chain specification이 없습니다.
+
+---
+
+## New features
+
+이번 릴리스에는 새 기능이 없습니다.
+
+---
+
+## Breaking changes
+
+### Stricter contract call checks
+
+ledger 8.1.3은 well-formed 컨트랙트 호출로 간주하는 범위를 좁힙니다. v1.0.400 노드는 transcript에 비정규 값이나 연산이 담긴 컨트랙트 호출을 거부하는 반면, v1.0.300 노드는 이를 수용합니다. 따라서 서로 다른 버전의 블록 생산자는 어떤 블록이 유효한지를 두고 불일치할 수 있으므로, 모든 블록 생산자를 함께 v1.0.400으로 옮기세요. 정확한 규칙은 [ledger v8.1.3 릴리스 노트](/relnotes/ledger/ledger-8-1-3)를 참고하세요.
+
+노드 인터페이스는 그대로입니다. 이번 릴리스는 RPC 메서드, 설정 값, chain specification을 변경하지 않습니다.
+
+### Upgrade to v1.0.400
+
+노드를 리셋하거나 다시 동기화할 필요가 없으며, 런타임 업그레이드나 governance 조치도 없습니다.
+
+1. `midnightntwrk/midnight-node:1.0.400`을 pull하거나, [node-1.0.400 릴리스](https://github.com/midnightntwrk/midnight-node/releases/tag/node-1.0.400)에서 사용하는 아키텍처용 노드 tarball을 다운로드하고 `SHA256SUMS` 파일로 대조하세요.
+2. 새 이미지나 바이너리로 노드를 재시작하세요.
+3. toolkit을 사용한다면 `midnightntwrk/midnight-node-toolkit:1.0.400`이나 같은 릴리스의 toolkit tarball로 전환하세요.
+
+업그레이드를 확인하려면 노드에서 다음 RPC 메서드를 호출하세요.
+
+- `system_version`은 `1.0.400`으로 시작하는 값을 반환합니다.
+- `state_getRuntimeVersion`은 여전히 `specVersion` `1000300`, `transactionVersion` `3`, `systemVersion` `3`을 반환합니다.
+- `midnight_ledgerVersion`은 `=8.1.3`을 반환합니다. 이 메서드는 노드 바이너리에 컴파일된 ledger 8 버전을 보고합니다. 이는 on-chain 런타임의 속성이 아니므로, 각 노드는 자신의 빌드를 보고합니다.
+
+---
+
+## Bug fixes and quality improvements
+
+### Ledger 8.1.3 security fix
+
+치명적 권고 [GHSA-wr7g-rr4v-jmj8](https://github.com/midnightntwrk/midnight-ledger/security/advisories/GHSA-wr7g-rr4v-jmj8)은 ledger 8.1.2 이하에 영향을 줍니다. 컨트랙트 호출이, proof는 동일하다고 취급하지만 컨트랙트의 on-chain state는 서로 다르다고 취급하는 값을 담을 수 있었습니다. 영향을 받는 스마트 컨트랙트에서는, 호출자가 이를 이용해 컨트랙트가 한 번만 허용하는 동작(예: payout)을 반복할 수 있었습니다. ledger 8.1.3은 transcript에 이러한 비정규 값이 담긴 컨트랙트 호출을 거부합니다. ([#2238](https://github.com/midnightntwrk/midnight-node/pull/2238))
+
+노드는 ledger 8을 on-chain 런타임이 아니라 네이티브 host function에서 실행하므로, 노드 바이너리가 이 수정을 담고 있습니다.
+
+이 수정은 비정규 값이 담긴 새 컨트랙트 호출을 막지만, 이전 트랜잭션이 기록한 컨트랙트 state를 복구하지는 않습니다. 스마트 컨트랙트가 키에 `Field`가 포함된 set이나 map으로 payout, 출금, mint를 보호한다면, 권고를 읽고 컨트랙트의 state를 점검하세요.
+
+### Mainnet sync from genesis
+
+Node v1.0.300은 런타임 1.0.300 업그레이드 이전에 생성된 블록에 대한 블록 타임스탬프(`tblock`) 보정을 추가했습니다 ([#1924](https://github.com/midnightntwrk/midnight-node/issues/1924)). 노드는 그러한 블록 각각의 첫 ledger 트랜잭션을 부모 블록 시간에 12초를 더한 시점을 기준으로 검증합니다. Mainnet 블록 1788980의 첫 ledger 트랜잭션은 이 검사를 통과하지 못합니다. v1.0.300에서는 genesis부터 Mainnet을 동기화하는 노드가 `Intent TTL has expired`와 함께 블록 1788979에서 멈춥니다 ([#2229](https://github.com/midnightntwrk/midnight-node/issues/2229)).
+
+보정된 검사가 실패하면, node v1.0.400은 블록 자체의 타임스탬프로 트랜잭션을 재시도하므로 동기화가 블록 1788979를 지나갑니다. 런타임 업그레이드 이후에 생성된 블록(Mainnet에서는 블록 2738210에서 적용)은 결코 이 경로를 타지 않습니다. ([#2238](https://github.com/midnightntwrk/midnight-node/pull/2238))
+
+v1.0.300에서 노드가 블록 1788979에서 멈췄다면, v1.0.400으로 재시작하세요.
+
+### Toolkit 1.0.400
+
+toolkit 1.0.400은 이번 릴리스와 함께 `midnightntwrk/midnight-node-toolkit:1.0.400` 이미지 및 GitHub 릴리스의 tarball로 배포됩니다. 노드와 동일한 ledger 8.1.3 crate를 사용하므로, 트랜잭션을 빌드하거나 재생할 때 동일한 규칙을 적용합니다. toolkit 1.0.300도 변경되지 않은 런타임의 블록을 여전히 읽지만, node v1.0.400에는 toolkit 1.0.400을 사용하세요.
+
+toolkit `version` 커맨드는 `Node: 1.0.400`, `Ledger: =7.0.3`, `Compactc: 0.30.0`을 출력합니다. `Ledger` 줄은 toolkit에 함께 포함된 ledger 7 버전을 나타내며, ledger 8.1.3이 아닙니다.
+
+toolkit 이미지는 더 이상 `shx`와 `shelljs` npm 패키지나 그들만 사용하던 의존성을 포함하지 않습니다. toolkit JavaScript harness에서 `shx` 개발 의존성을 제거하면 그것이 발생시키던 `npm audit` 발견 사항이 해소됩니다. ([#2238](https://github.com/midnightntwrk/midnight-node/pull/2238))
+
+---
+
+## Known issues
+
+이번 릴리스에는 known issue가 없습니다. v1.0.400에서 genesis부터 Mainnet을 동기화하는 노드가 이후 블록에서 멈춘다면, [midnight-node 이슈 트래커](https://github.com/midnightntwrk/midnight-node/issues)에 보고하세요.
+
+---
+
+## Links and references
+
+- [GitHub release: node-1.0.400](https://github.com/midnightntwrk/midnight-node/releases/tag/node-1.0.400)
+- [Comparison from node-1.0.300 to node-1.0.400](https://github.com/midnightntwrk/midnight-node/compare/node-1.0.300...node-1.0.400)
+- [Security advisory GHSA-wr7g-rr4v-jmj8](https://github.com/midnightntwrk/midnight-ledger/security/advisories/GHSA-wr7g-rr4v-jmj8)
+- [Midnight node on Docker Hub](https://hub.docker.com/r/midnightntwrk/midnight-node)
+- [Node toolkit on Docker Hub](https://hub.docker.com/r/midnightntwrk/midnight-node-toolkit)
+- [Ledger v8.1.3 release notes](/relnotes/ledger/ledger-8-1-3)
+- [Node v1.0.300 release notes](/relnotes/node/node-1-0-300)

@@ -1,0 +1,57 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Wallet SDK v1.1.0 release notes
+displayed_sidebar: sidebar
+description: Release notes for the Midnight Wallet SDK 1.1.0
+---
+
+* **Version**: v1.1.0
+* **Date**: 26 May, 2026
+* **Environment**: Mainnet, Preprod, Preview
+
+---
+
+## High-level summary
+
+Wallet SDK 1.1.0은 DUST 관련 동시성·패키징 문제 두 가지를 수정하고 SDK를 ledger 8.1.0으로 이전하는 유지보수 릴리스입니다. 핵심 수정은 DUST 등록 또는 등록 해제가, 진행 중인 다른 트랜잭션이 이미 사용 중이던 NIGHT UTXO를 중복 사용할 수 있던 race를 제거한 것입니다. 이 릴리스는 또한 Vite와 esbuild 빌드를 깨뜨리던 의존성 선언을 수정합니다.
+
+---
+
+## Audience
+
+이번 릴리스는 다음에 해당하는 개발자에게 관련이 깊습니다.
+
+- DUST 생성을 위해 NIGHT UTXO를 등록하는 지갑이나 DApp을 만드는 개발자
+- wallet SDK를 Vite나 esbuild로 번들링하는 개발자
+- 의존성 트리에서 ledger 버전을 고정하는 개발자
+
+---
+
+## What changed (Summary of updates)
+
+- DUST 등록 또는 등록 해제가, 진행 중인 다른 트랜잭션이 이미 사용하려던 NIGHT UTXO를 중복 사용하던 race를 수정했습니다. 이제 빌드 플로우가 빌드 시점에 선택된 NIGHT UTXO를 예약(pending 상태로 표시)하므로, 충돌하는 동시 빌드는 제출 시점이 아니라 즉시 `SpendUtxoError`로 실패합니다.
+- split 빌드를 지원하기 위해 `UnshieldedWallet.rotateUtxos`, `DustWallet.splitNightUtxosForDustRegistration`, `DustWallet.attachDustRegistration`을 추가했습니다.
+- 런타임에 import됨에도 devDependency로 선언되어 있던 `@midnight-ntwrk/wallet-sdk-abstractions`를 수정했습니다. 이제 설치 시 소비자에게 함께 제공되어, `No matching export ... for import "TransactionHistoryStorage"` 같은 Vite·esbuild 의존성 최적화 실패가 해결됩니다.
+- `@midnight-ntwrk/ledger-v8`을 `^8.0.3`에서 `^8.1.0`으로 올렸습니다. 내부 balancing 플로우는 이제 구성 후 필드 변경 대신 ledger 8.1.0 builder API(`Transaction.addIntent`, `Transaction.addZswapOffer`)를 사용합니다.
+- 내부 `@midnight-ntwrk/wallet-sdk-*` 의존성 범위를 정확 버전에서 caret 범위로 넓혀, 소비자가 공유되는 형제(sibling) 패키지를 설치된 단일 사본으로 dedupe할 수 있게 했습니다.
+
+---
+
+## Breaking changes or required actions
+
+public API 변경은 없습니다. 소비자는 `@midnight-ntwrk/ledger-v8`을 `>=8.1.0`으로 해석해야 합니다.
+
+---
+
+## Known issues
+
+이번 릴리스에는 새로운 알려진 이슈가 없습니다.
+
+---
+
+## Links and references
+
+- [GitHub release: Wallet SDK 1.1.0](https://github.com/midnightntwrk/midnight-wallet/releases/tag/%40midnight-ntwrk%2Fwallet-sdk%401.1.0)
+- [`@midnight-ntwrk/wallet-sdk` on npm](https://www.npmjs.com/package/@midnight-ntwrk/wallet-sdk/v/1.1.0)
+- [Ledger v8.1.0 release notes](/relnotes/ledger/ledger-8-1-0)

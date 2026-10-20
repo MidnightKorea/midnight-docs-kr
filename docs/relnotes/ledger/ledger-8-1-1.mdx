@@ -1,0 +1,75 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Ledger v8.1.1 release notes
+description: The Midnight Ledger is the core library for transaction construction, ZKP proving, and on-chain state management on the Midnight Network.
+displayed_sidebar: sidebar
+---
+
+* **Version**: v8.1.1
+* **Date**: July 31, 2026
+
+---
+
+## High-level summary
+
+Ledger 8.1.1은 8.1.0에 대한 패치 릴리스입니다. 배열 처리에 대한 테스트 커버리지를 추가하고, clippy 1.97 lint 정리와 함께 현재의 ledger-8 CI 및 릴리스 자동화를 포함합니다. well-formed 트랜잭션에 대한 프로토콜, 직렬화, API 동작 변경은 없습니다.
+
+개발자가 조치해야 할 사항은 npm 스코프 변경 하나입니다. ledger 패키지는 이제 `@midnight-ntwrk` 대신 `@midnightntwrk` 스코프로 배포됩니다.
+
+## Audience
+
+이번 릴리스 노트는 다음 개발자에게 가장 관련이 깊습니다.
+
+- 노드 개발자
+- ledger WASM 바인딩을 사용하는 개발자
+
+## Summary of updates
+
+- 배열 처리에 대한 테스트 커버리지 추가
+- 워크스페이스 전반의 clippy 1.97 `useless_borrows_in_formatting` lint 정리. `base-crypto`의 `AlignedValue` 포맷 인자 포함
+- ledger-8 CI 및 릴리스 자동화 업데이트
+
+---
+
+## New features
+
+이번 릴리스에는 새로운 기능이 없습니다.
+
+## New features requiring configuration updates
+
+이번 릴리스에는 해당 사항이 없습니다.
+
+## Deprecations
+
+이번 릴리스에는 deprecation이 없습니다.
+
+---
+
+## Breaking changes or required actions
+
+### npm packages move to the `@midnightntwrk` scope
+
+npm 패키지는 이제 기존 `@midnight-ntwrk` 대신 `@midnightntwrk` 스코프로 배포됩니다. `package.json`의 의존성을 이에 맞춰 수정하세요. 예를 들어 `@midnight-ntwrk/ledger-v8`은 `@midnightntwrk/ledger-v8`이 됩니다. API 변경은 없으며 패키지 이름만 바뀝니다.
+
+---
+
+## Bug fixes and quality improvements
+
+| Component | Description |
+|-----------|-------------|
+| ledger | 배열 처리 개선 |
+
+---
+
+## Known issues
+
+이번 릴리스에는 새로운 알려진 이슈가 없습니다.
+
+---
+
+## Links and references
+
+- [GitHub release: ledger-8.1.1](https://github.com/midnightntwrk/midnight-ledger/releases/tag/ledger-8.1.1)
+- [`@midnightntwrk/ledger-v8` on npm](https://www.npmjs.com/package/@midnightntwrk/ledger-v8)
+- [Ledger v8.1.0 release notes](/relnotes/ledger/ledger-8-1-0)

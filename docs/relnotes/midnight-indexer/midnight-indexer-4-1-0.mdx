@@ -1,0 +1,91 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Midnight Indexer v4.1.0 release notes
+displayed_sidebar: sidebar
+description: Release notes for Midnight Indexer v4.1.0, adding Node 1.0 and ledger 8.1 support, the zswapMerkleTreeCollapsedUpdate query, dust wallet sync endpoints, the shieldedNullifierTransactions subscription, and a fee field.
+toc_max_heading_level: 2
+---
+
+* **Version**: v4.1.0
+* **Date**: April 20, 2026
+* **Paired node**: 1.0.0 (노드 0.20·0.21 지원 제거됨)
+* **Paired ledger**: 8.1
+* **API version**: v4
+
+---
+
+## High-level summary
+
+Midnight Indexer 4.1.0은 노드 1.0.0 및 ledger 8.1과 짝을 이루는 개발 라인의 첫 릴리스입니다. 지갑이 shielded 상태와 DUST 상태를 효율적으로 동기화하는 데 필요한 쿼리와 구독을 추가하고, 트랜잭션에 `fee` 필드를 노출하며(`estimatedFees`와 `fees` 래퍼는 deprecated), 가장 흔한 조회에 DataLoader 배치 처리를 도입하고, 노드 0.20과 0.21 지원을 제거합니다.
+
+노드 0.22.x를 사용하는 운영자는 4.0.x 유지보수 라인에 머물러야 합니다.
+
+---
+
+## Audience
+
+이번 릴리스 노트는 다음 대상에게 해당됩니다.
+
+- 노드 1.0.0에 맞춰 Midnight Indexer를 운영하는 운영자
+- Indexer API를 통해 shielded 상태와 DUST 상태를 동기화하는 지갑 개발자
+- Indexer API에서 트랜잭션 수수료를 읽는 DApp 개발자
+
+---
+
+## What changed
+
+- `zswapMerkleTreeCollapsedUpdate` 쿼리 ([#982](https://github.com/midnightntwrk/midnight-indexer/pull/982))와 `Block`의 Zswap Merkle tree root 추가 ([#988](https://github.com/midnightntwrk/midnight-indexer/pull/988))
+- generation별 용량 계산과 커서 페이지네이션을 갖춘 효율적인 dust 지갑 동기화 엔드포인트 추가 ([#980](https://github.com/midnightntwrk/midnight-indexer/pull/980), [#997](https://github.com/midnightntwrk/midnight-indexer/pull/997))
+- `shieldedNullifierTransactions` 구독 추가 ([#996](https://github.com/midnightntwrk/midnight-indexer/pull/996))
+- 트랜잭션에 `fee` 필드를 추가하고 `estimatedFees`와 `fees` 래퍼를 deprecated 처리 ([#1036](https://github.com/midnightntwrk/midnight-indexer/pull/1036)); 수수료는 ledger의 `Transaction::fees()` API로 계산 ([#1031](https://github.com/midnightntwrk/midnight-indexer/pull/1031))
+- 노드 1.0 ([#985](https://github.com/midnightntwrk/midnight-indexer/pull/985))과 ledger 8.1 ([#1033](https://github.com/midnightntwrk/midnight-indexer/pull/1033)) 지원; 노드 0.20과 0.21 지원 제거 ([#986](https://github.com/midnightntwrk/midnight-indexer/pull/986), [#1042](https://github.com/midnightntwrk/midnight-indexer/pull/1042))
+- block-by-hash, transactions-by-block, transaction-by-id, contract-actions-by-transaction 조회에 DataLoader 배치 처리 도입 ([#1018](https://github.com/midnightntwrk/midnight-indexer/pull/1018), [#1022](https://github.com/midnightntwrk/midnight-indexer/pull/1022), [#1027](https://github.com/midnightntwrk/midnight-indexer/pull/1027), [#1030](https://github.com/midnightntwrk/midnight-indexer/pull/1030))
+- `dustCommitmentMerkleTreeUpdate`를 `zswapMerkleTreeCollapsedUpdate` 패턴에 맞춤 ([#1023](https://github.com/midnightntwrk/midnight-indexer/pull/1023))
+- `connect` 및 `disconnect` 뮤테이션에서 wallet ID를 로깅하고 ([#935](https://github.com/midnightntwrk/midnight-indexer/pull/935)), async-graphql 트레이싱을 fastrace로 연결 ([#1037](https://github.com/midnightntwrk/midnight-indexer/pull/1037))
+
+---
+
+## New features
+
+### Zswap Merkle tree collapsed update
+
+`zswapMerkleTreeCollapsedUpdate` 쿼리는 두 인덱스 사이의 collapsed Merkle tree 업데이트를 반환하므로, 지갑이 모든 트랜잭션을 다시 재생하지 않고도 로컬 Zswap tree를 최신 상태로 맞출 수 있습니다. 이제 `Block`도 Zswap Merkle tree root를 함께 담습니다.
+
+### Dust wallet synchronisation endpoints
+
+새 엔드포인트를 통해 지갑이 generation별 용량 계산과 커서 페이지네이션으로 DUST generation 상태를 효율적으로 동기화할 수 있습니다.
+
+### `shieldedNullifierTransactions` subscription
+
+지갑은 모든 shielded 트랜잭션을 스캔하는 대신, 지정한 prefix 집합과 일치하는 nullifier를 소비하는 트랜잭션을 구독할 수 있습니다.
+
+### `fee` on transactions
+
+`Transaction`에 ledger 자체 fee API로 계산한 `fee` 필드가 추가됩니다. `estimatedFees`와 `fees` 래퍼는 deprecated되었으며 한 번의 릴리스 주기 동안 계속 사용할 수 있습니다.
+
+---
+
+## Breaking changes
+
+- 노드 0.20과 0.21은 더 이상 지원하지 않습니다. 해당 노드 버전을 사용하는 운영자는 4.1.0을 실행할 수 없습니다.
+- `estimatedFees`와 `fees` 래퍼는 `fee`로 대체되어 deprecated되었습니다. 이번 릴리스에서는 여전히 동작합니다.
+
+---
+
+## Bug fixes
+
+- 블록에 메타데이터가 없으면 chain indexer가 부모 블록의 메타데이터로 폴백합니다 ([#970](https://github.com/midnightntwrk/midnight-indexer/pull/970))
+- standalone SQLite의 SPO 쿼리가 PostgreSQL 결과와 일치합니다 ([#977](https://github.com/midnightntwrk/midnight-indexer/pull/977))
+- docker-compose의 PostgreSQL healthcheck에 `start_period` 추가 ([#936](https://github.com/midnightntwrk/midnight-indexer/pull/936))
+- shielded 트랜잭션에 대한 불필요한 스캔 방지 ([#1039](https://github.com/midnightntwrk/midnight-indexer/pull/1039))
+
+---
+
+## Links and references
+
+- **GitHub release**: [v4.1.0 on GitHub](https://github.com/midnightntwrk/midnight-indexer/releases/tag/v4.1.0)
+- **Full changelog**: [CHANGELOG.md at v4.1.0](https://github.com/midnightntwrk/midnight-indexer/blob/v4.1.0/CHANGELOG.md)
+- **Schema**: [Indexer API v4 schema](https://github.com/midnightntwrk/midnight-indexer/blob/v4.1.0/indexer-api/graphql/schema-v4.graphql)
+- **API reference**: [Midnight Indexer API v4](/api-reference/midnight-indexer/)
+- **Docker images**: [Chain Indexer](https://hub.docker.com/r/midnightntwrk/chain-indexer), [Indexer API](https://hub.docker.com/r/midnightntwrk/indexer-api), [Wallet Indexer](https://hub.docker.com/r/midnightntwrk/wallet-indexer), [Indexer Standalone](https://hub.docker.com/r/midnightntwrk/indexer-standalone)

@@ -1,51 +1,47 @@
 ---
 SPDX-License-Identifier: Apache-2.0
-copyright: This file is part of midnight-docs. Copyright (C) 2026 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+copyright: This file is part of midnight-examples. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 sidebar_label: "Attestation API"
 title: "Attestation API"
-description: "Midnight Network에서 영지식 loan DApp을 위한 attestation API와 proof server를 구축합니다."
+description: "ZK 대출 DApp의 attestation API를 읽어 봅니다. 신용 데이터에 Schnorr 서명을 해서 컨트랙트가 proof 안에서 검증할 수 있게 하는 REST 서버입니다."
 sidebar_position: 20
-toc_max_heading_level: 2
-tags: [tutorials, advanced, zero-knowledge, loan, dapp]
+toc_max_heading_level: 3
 ---
 
 # Attestation API
 
-아무도 말을 걸 수 없는 스마트 컨트랙트는 컴파일러 출력 디렉터리에 놓인 개념 증명에 불과합니다.
+[컨트랙트](/tutorials/zk-loan/smart-contract)는 등록된 provider가 서명한 신용 프로필만 신뢰합니다.
+이 파트에서는 그 provider, 즉 `examples/zk-loan/attestation-api/`의 attestation API를 살펴봅니다.
+Jubjub 곡선 위의 Schnorr signature로 신용 데이터에 서명하는 작은 REST 서버입니다. 실제 환경에서는
+은행이나 신용평가 기관의 서비스가 되겠지만, 여기서는 그것을 대신합니다.
 
-[Part 1](./smart-contract)에서는 Compact으로 영지식(ZK) loan 스코어링 스마트 컨트랙트를 구현했습니다. 신용 점수, 소득, 재직 기간은 비공개로 유지되고, loan 결과만 온체인에 기록됩니다. 또한 사용자가 자기 신용 데이터를 위조하지 못하게 막는 Schnorr 서명 모듈과, prover에 private 입력을 공급하는 TypeScript witness도 다뤘습니다.
+## Prerequisites
 
-하지만 지금 이 스마트 컨트랙트는 서명된 신용 데이터를 받거나 ZK 증명을 생성할 방법이 없습니다. 이 파트에서는 스마트 컨트랙트를 실제로 작동하게 만드는 두 가지 오프체인 인프라를 구축합니다:
+- 이 튜토리얼의 [ZK Loan contract](/tutorials/zk-loan/smart-contract) 파트.
 
-- **Attestation API**: Jubjub 곡선 위에서 신용 데이터에 Schnorr 서명을 하는 REST 서버입니다. 신뢰할 수 있는 데이터 provider 역할을 하며, 은행이나 신용평가 기관을 대신합니다. 스마트 컨트랙트는 ZK circuit 안에서 이 서명을 검증합니다.
-
-- **Proof server**: Midnight의 증명 생성 서비스를 로컬에서 실행하는 Docker 컨테이너입니다. 스마트 컨트랙트에 접근하는 모든 트랜잭션에는 ZK 증명이 필요하며, 이 서비스가 그것을 생성합니다.
-
-이 섹션에서는 attestation 흐름을 처음부터 끝까지 살펴보며, 신용 데이터가 attestation API에서 ZK 증명으로 흘러가는 동안 온체인에는 결코 노출되지 않는 과정을 보여줍니다.
-
-**사전 준비**: [Part 1](./smart-contract)을 완료하고, 컴파일된 스마트 컨트랙트 패키지를 `contract/dist/` 디렉터리에 준비해 두세요.
-
-## Build the attestation API
-
-attestation API는 신용 데이터에 Schnorr 서명을 하는 신뢰 서비스입니다. 실제 환경에서는 은행이나 신용평가 기관의 API가 이 역할을 합니다. 이 튜토리얼에서는 Restify로 REST 서버를 구축합니다.
+## The endpoints
 
 이 API에는 세 개의 endpoint가 있습니다:
 
-*   `POST /attest`: 신용 데이터와 사용자의 공개 키 해시를 받아 Schnorr 서명을 반환합니다.
+- `POST /attest`는 신용 데이터와 차입자 신원의 해시를 받아, 그에 대한 Schnorr signature를 반환합니다.
+- `GET /provider-info`는 provider의 ID와 public key를 반환합니다. admin은 이를 `registerProvider`로
+  온체인에 등록합니다.
+- `GET /health`는 서버 상태를 반환합니다.
 
-*   `GET /provider-info`: provider의 ID와 공개 키를 반환합니다. CLI는 이 값들로 provider를 온체인에 등록합니다.
+## Wire types
 
-*   `GET /health`: 서버 상태를 반환합니다.
+`attestation-api/types.ts`는 요청과 응답의 형태를 정의합니다:
 
-### Type definitions
+```typescript title="attestation-api/types.ts"
+// Wire types for the attestation API. JSON has no bigint, so every field-sized
+// value travels as a decimal string; clients convert with BigInt(...).
 
-먼저 요청과 응답의 형태를 정의합니다. `zkloan-credit-scorer-attestation-api/src` 폴더 안에 `types.ts` 파일을 만들고 다음 코드를 추가하세요:
-
-```typescript
 export interface AttestationRequest {
   creditScore: number;
   monthlyIncome: number;
   monthsAsCustomer: number;
+  // transientHash(deriveUserPublicKey(secret, pin)) as a decimal string. The
+  // borrower computes it locally, so the API never learns the secret or PIN.
   userPubKeyHash: string;
 }
 
@@ -73,120 +69,130 @@ export interface HealthResponse {
 }
 ```
 
-이 타입들에 대해 몇 가지 짚어둘 점이 있습니다:
+- `AttestationRequest`는 신용 데이터를 숫자로, `userPubKeyHash`를 문자열로 받습니다. 이 해시는 field
+  원소라 JSON 숫자로 담기엔 너무 크므로, 십진 문자열로 전달됩니다.
+- `AttestationResponse`는 같은 이유로 서명의 announcement 점과 response 스칼라를 문자열로
+  반환합니다. `message`는 서명된 내용을 그대로 돌려줍니다.
 
-*   `AttestationRequest`는 숫자형 신용 데이터와 문자열화된 `userPubKeyHash`를 받습니다. 이 해시는 내부적으로 `bigint`이지만, JSON은 임의 정밀도 정수를 지원하지 않으므로 문자열로 직렬화됩니다.
+차입자는 자신의 secret과 PIN에서 `userPubKeyHash`를 로컬로 계산하므로, provider는 둘 중 어느 것도
+알지 못합니다.
 
-*   `AttestationResponse`는 같은 이유로 Schnorr 서명 구성 요소(announcement 점과 스칼라 response)를 문자열로 반환합니다.
+## Signing
 
-*   `message` 필드는 서명된 데이터를 다시 돌려주어, 호출자가 서명을 검증할 수 있게 합니다.
+`attestation-api/signing.ts`는 `contract/schnorr.compact`의 오프체인 쪽 절반입니다. 두 개의 상수로
+시작합니다. Jubjub 부분군의 위수와, challenge 잘라내기에 쓰는 2^248입니다.
 
-### Schnorr signing implementation
-
-서명 모듈은 키 쌍을 생성하고, 온체인 스마트 컨트랙트가 검증할 수 있는 Schnorr 서명을 만들어냅니다.
-
-`zkloan-credit-scorer-attestation-api/src` 폴더 안에 `signing.ts` 파일을 만들고 다음 코드를 추가하세요:
-
-```typescript
+```typescript title="attestation-api/signing.ts"
+import * as crypto from 'node:crypto';
 import { ecMulGenerator, type JubjubPoint } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
-import { ZKLoanCreditScorer } from 'zkloan-credit-scorer-contract';
-const { pureCircuits } = ZKLoanCreditScorer;
+import { pureCircuits, type Schnorr_SchnorrSignature } from '../contract/index.js';
 
-type SchnorrSignature = {
-  announcement: JubjubPoint;
-  response: bigint;
-};
-import * as crypto from 'crypto';
+// Order of the Jubjub prime-order subgroup. Scalars passed to ecMulGenerator
+// must be below this or it throws "out of bounds for prime field".
+export const JUBJUB_ORDER = 6554484396890773809930967563523245729705921265872317281365359162392183254199n;
+// The circuit truncates the BLS12-381 challenge hash to 248 bits so it is a
+// valid Jubjub scalar; the signer must truncate the same way.
+export const TWO_248 = 452312848583266388373324160190187140051835877600158453279131187530910662656n;
 
-const JUBJUB_ORDER = 6554484396890773809930967563523245729705921265872317281365359162392183254199n;
-const TWO_248 = 452312848583266388373324160190187140051835877600158453279131187530910662656n;
+const reduce = (x: bigint): bigint => ((x % JUBJUB_ORDER) + JUBJUB_ORDER) % JUBJUB_ORDER;
+```
 
+서명자는 `contract/index.ts`에서 `pureCircuits`를 import합니다. 이는 컴파일러가 컨트랙트의 pure
+circuit에서 생성한 TypeScript이며, `schnorrChallenge`도 여기에 포함됩니다.
+
+키 생성은 Jubjub 위수보다 작은 무작위 스칼라를 고릅니다:
+
+```typescript title="attestation-api/signing.ts"
+// A uniformly-ish random scalar. 256 random bits reduced mod the ~2^252 order
+// has negligible bias for a demo; a production signer would use rejection
+// sampling and HSM-held keys.
 function randomScalar(): bigint {
-  const bytes = crypto.randomBytes(32);
-  let val = BigInt('0x' + bytes.toString('hex'));
-  return val % JUBJUB_ORDER;
+  return BigInt('0x' + crypto.randomBytes(32).toString('hex')) % JUBJUB_ORDER;
 }
 
 export function generateKeyPair(): { sk: bigint; pk: JubjubPoint } {
   const sk = randomScalar();
-  const pk = ecMulGenerator(sk);
-  return { sk, pk };
+  return { sk, pk: ecMulGenerator(sk) };
 }
 
 export function getPublicKey(sk: bigint): JubjubPoint {
-  return ecMulGenerator(((sk % JUBJUB_ORDER) + JUBJUB_ORDER) % JUBJUB_ORDER);
-}
-
-export function sign(
-  sk: bigint,
-  msg: bigint[],
-): SchnorrSignature {
-  sk = ((sk % JUBJUB_ORDER) + JUBJUB_ORDER) % JUBJUB_ORDER;
-  const pk = ecMulGenerator(sk);
-  const k = randomScalar();
-  const R = ecMulGenerator(k);
-  // pureCircuits.schnorrChallenge returns the full transientHash output.
-  // The circuit truncates it to 248 bits (mod 2^248) before using in EC ops.
-  const cFull = pureCircuits.schnorrChallenge(R.x, R.y, pk.x, pk.y, msg);
-  const c = cFull % TWO_248;
-  // Compute response: s = (k + c * sk) mod JUBJUB_ORDER
-  const s = ((k + c * sk) % JUBJUB_ORDER + JUBJUB_ORDER) % JUBJUB_ORDER;
-  return { announcement: R, response: s };
-}
-
-export function signCreditData(
-  sk: bigint,
-  creditScore: number,
-  monthlyIncome: number,
-  monthsAsCustomer: number,
-  userPubKeyHash: bigint,
-): SchnorrSignature {
-  const msg: bigint[] = [
-    BigInt(creditScore),
-    BigInt(monthlyIncome),
-    BigInt(monthsAsCustomer),
-    userPubKeyHash,
-  ];
-  return sign(sk, msg);
+  return ecMulGenerator(reduce(sk));
 }
 ```
 
-#### How the signing works
+그다음은 서명 자체입니다:
 
-서명에는 Jubjub 타원 곡선(Midnight의 네이티브 내부 곡선)을 사용합니다. Schnorr 서명 흐름을 단계별로 살펴보면 다음과 같습니다:
+```typescript title="attestation-api/signing.ts"
+// Sign a 4-element message. The nonce k is fresh per signature — reusing a
+// nonce across two messages leaks the secret key.
+export function sign(sk: bigint, msg: bigint[]): Schnorr_SchnorrSignature {
+  sk = reduce(sk);
+  const pk = ecMulGenerator(sk);
+  const k = randomScalar();
+  const R = ecMulGenerator(k);
+  // pureCircuits.schnorrChallenge returns the full transientHash output; the
+  // circuit reduces it mod 2^248 before the EC ops, so do the same here.
+  const c = pureCircuits.schnorrChallenge(R.x, R.y, pk.x, pk.y, msg) % TWO_248;
+  // s must be reduced mod the Jubjub order (not the BLS12-381 field), because
+  // the circuit feeds it to ecMulGenerator.
+  const s = reduce(k + c * sk);
+  return { announcement: R, response: s };
+}
+```
 
-1.  비밀 키를 Jubjub 스칼라 field로 정규화합니다: `sk = ((sk % JUBJUB_ORDER) + JUBJUB_ORDER) % JUBJUB_ORDER`.
-2.  무작위 nonce `k`를 생성합니다.
-3.  announcement `R = G * k`를 계산합니다(여기서 G는 곡선 생성원).
-4.  `pureCircuits.schnorrChallenge()`로 challenge 해시를 계산합니다. 이는 스마트 컨트랙트가 사용하는 것과 동일한 해시 함수이며, 서명이 온체인에서 검증되려면 반드시 일치해야 합니다.
-5.  challenge를 248비트로 잘라냅니다: `c = cFull % 2^248`.
-6.  response를 계산합니다: `s = (k + c * sk) mod JUBJUB_ORDER`.
+단계별로 보면:
 
-결과 서명은 `(R, s)`입니다. 스마트 컨트랙트는 `G * s == R + publicKey * c`를 확인해 이를 검증합니다.
+1. `reduce`로 비밀 키를 Jubjub 스칼라 field로 줄입니다. `ecMulGenerator`는 Jubjub 위수보다 작은
+   스칼라만 받고, 그렇지 않으면 "out of bounds for prime field" 오류를 던집니다. 그래서 보통 위수보다
+   큰 임의의 32바이트 값에서 로드한 키도 정상 동작합니다.
+2. 새로운 무작위 nonce `k`를 고르고, announcement `R = k*G`를 계산합니다.
+3. circuit이 쓰는 것과 같은 해시인 `pureCircuits.schnorrChallenge`로 challenge를 계산하고,
+   248비트로 잘라냅니다.
+4. response `s = k + c*sk`를 계산하되 Jubjub 위수를 법으로 줄입니다. circuit이 `s`를
+   `ecMulGenerator`에 넘기기 때문입니다.
 
-1단계는 보기보다 중요합니다. `ecMulGenerator`는 Jubjub 곡선 위수(order)보다 작은 스칼라만 받으며, 그렇지 않으면 "out of bounds for prime field" 에러를 던집니다. `sign`과 `getPublicKey`는 모두 키를 먼저 `JUBJUB_ORDER`로 나눈 나머지로 줄이므로, 임의의 32바이트 값(보통 ~252비트 곡선 위수보다 큽니다)에서 로드한 키도 정상 동작합니다.
+그러면 circuit은 `s*G == R + c*pk`를 검사합니다. 3단계가 핵심입니다. 서명자가 컨트랙트가 직접
+컴파일한 `schnorrChallenge`를 호출하므로, circuit과 똑같은 해시를 계산합니다. 다른 해시를 썼다면 모든
+서명이 검증에 실패했을 것입니다.
 
-핵심 세부는 4단계입니다. `pureCircuits.schnorrChallenge()` 함수는 [Part 1](./smart-contract)에서 다룬 Compact 스마트 컨트랙트의 `pure circuit schnorrChallenge`에서 생성됩니다. 오프체인 서명자와 온체인 검증자가 같은 해시 함수를 사용하므로, 여기서 만든 서명이 ZK circuit 안에서 검증됩니다. 다른 해시를 썼다면 모든 서명이 검증에 실패했을 것입니다.
+:::caution
+nonce를 재사용하지 마세요. 같은 `k`로 서로 다른 메시지에 서명한 두 서명은 비밀 키를 드러냅니다.
+`sign`은 매번 새 `k`를 뽑습니다.
+:::
 
-`signCreditData` 함수는 편의 래퍼입니다. 네 개의 신용 데이터 필드(신용 점수, 월 소득, 고객 유지 개월 수, 사용자 공개 키 해시)를 받아 `bigint`으로 변환한 뒤 범용 `sign` 함수에 전달합니다.
+`signCreditData`는 `evaluateApplicant`이 circuit 안에서 다시 만드는 것과 정확히 같은 배치로 메시지를
+구성합니다:
 
-### REST server
+```typescript title="attestation-api/signing.ts"
+// The exact message layout `evaluateApplicant` rebuilds in-circuit:
+// [creditScore, monthlyIncome, monthsAsCustomer, userPubKeyHash]. The last
+// element binds the attestation to one borrower identity, so it cannot be
+// replayed by anyone else.
+export function signCreditData(
+  sk: bigint,
+  creditScore: number | bigint,
+  monthlyIncome: number | bigint,
+  monthsAsCustomer: number | bigint,
+  userPubKeyHash: bigint,
+): Schnorr_SchnorrSignature {
+  return sign(sk, [BigInt(creditScore), BigInt(monthlyIncome), BigInt(monthsAsCustomer), userPubKeyHash]);
+}
+```
 
-서버는 세 개의 endpoint를 노출하고 이들을 서명 로직에 연결합니다.
+마지막 원소 `userPubKeyHash`는 서명을 하나의 차입자 신원에 묶습니다. 다른 차입자는 자신의 신원이 다른
+값으로 해시되므로 이 서명을 재사용할 수 없습니다.
 
-`zkloan-credit-scorer-attestation-api/src/server.ts`를 만드세요:
+## The REST server
 
-```typescript
-import restify from 'restify';
-import { signCreditData, getPublicKey } from './signing.js';
-import type { AttestationRequest, AttestationResponse, ProviderInfoResponse, HealthResponse } from './types.js';
-import type { JubjubPoint } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
+`attestation-api/server.ts`는 endpoint를 서명자에 연결합니다. [Restify](https://restify.com/)를
+사용하고 모든 origin을 허용하므로, 브라우저 DApp이 직접 호출할 수 있습니다:
 
+```typescript title="attestation-api/server.ts"
 export function createServer(providerSk: bigint, providerId: number): restify.Server {
   const server = restify.createServer({ name: 'zkloan-attestation-api' });
   server.use(restify.plugins.bodyParser());
 
-  // CORS support for browser-based UI
+  // Permissive CORS so a browser DApp can call the API directly.
   server.pre((req: restify.Request, res: restify.Response, next: restify.Next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -199,19 +205,29 @@ export function createServer(providerSk: bigint, providerId: number): restify.Se
   });
 
   const providerPk: JubjubPoint = getPublicKey(providerSk);
+```
 
+`POST /attest`는 네 필드가 모두 있는지 확인하고, provider의 비밀 키로 서명한 뒤, 모든 bigint을 십진
+문자열로 담아 서명과 서명된 메시지를 반환합니다:
+
+```typescript title="attestation-api/server.ts"
   server.post('/attest', (req: restify.Request, res: restify.Response, next: restify.Next) => {
     try {
       const body = req.body as AttestationRequest;
 
-      if (body.creditScore == null || body.monthlyIncome == null ||
-          body.monthsAsCustomer == null || body.userPubKeyHash == null) {
-        res.send(400, { error: 'Missing required fields: creditScore, monthlyIncome, monthsAsCustomer, userPubKeyHash' });
+      if (
+        body?.creditScore == null ||
+        body.monthlyIncome == null ||
+        body.monthsAsCustomer == null ||
+        body.userPubKeyHash == null
+      ) {
+        res.send(400, {
+          error: 'Missing required fields: creditScore, monthlyIncome, monthsAsCustomer, userPubKeyHash',
+        });
         return next();
       }
 
       const userPubKeyHash = BigInt(body.userPubKeyHash);
-
       const signature = signCreditData(
         providerSk,
         body.creditScore,
@@ -235,31 +251,29 @@ export function createServer(providerSk: bigint, providerId: number): restify.Se
           userPubKeyHash: userPubKeyHash.toString(),
         },
       };
-
       res.send(200, response);
-    } catch (err: any) {
-      res.send(500, { error: err.message });
+    } catch (err) {
+      res.send(500, { error: err instanceof Error ? err.message : String(err) });
     }
     return next();
   });
+```
 
+`GET /provider-info`는 admin이 이 provider를 온체인에 등록하는 데 필요한 값을 반환하고,
+`GET /health`는 표준 health check입니다:
+
+```typescript title="attestation-api/server.ts"
   server.get('/provider-info', (_req: restify.Request, res: restify.Response, next: restify.Next) => {
     const response: ProviderInfoResponse = {
       providerId,
-      publicKey: {
-        x: providerPk.x.toString(),
-        y: providerPk.y.toString(),
-      },
+      publicKey: { x: providerPk.x.toString(), y: providerPk.y.toString() },
     };
     res.send(200, response);
     return next();
   });
 
   server.get('/health', (_req: restify.Request, res: restify.Response, next: restify.Next) => {
-    const response: HealthResponse = {
-      status: 'ok',
-      providerId,
-    };
+    const response: HealthResponse = { status: 'ok', providerId };
     res.send(200, response);
     return next();
   });
@@ -268,143 +282,138 @@ export function createServer(providerSk: bigint, providerId: number): restify.Se
 }
 ```
 
-각 endpoint가 하는 일은 다음과 같습니다:
+:::warning Demo-grade
+이 서버는 받은 신용 데이터라면 무엇이든 서명합니다. 실제 provider라면 요청 본문을 믿는 대신 호출자를
+인증하고 수치를 자체 기록에서 조회할 것입니다. 컨트랙트는 *이* provider가 데이터를 보증했다는 것만
+증명하므로, provider가 신뢰의 기준점입니다.
+:::
 
-*   `POST /attest`는 핵심 endpoint입니다. 신용 데이터와 사용자 공개 키 해시를 받아, provider의 비밀 키로 데이터에 서명하고 Schnorr 서명을 반환합니다. `userPubKeyHash`는 서명된 메시지에 포함됩니다. 이것이 attestation을 특정 사용자 신원에 묶어, 한 사용자가 다른 사용자의 attestation을 재사용하지 못하게 막습니다.
+## The entry point
 
-*   `GET /provider-info`는 provider의 ID와 공개 키 좌표를 반환합니다. CLI는 이 endpoint로 온체인 provider 등록에 필요한 값을 얻습니다.
+`attestation-api/index.ts`는 provider 키를 로드하거나 생성하고 서버를 시작합니다:
 
-*   `GET /health`는 표준 health check입니다.
+```typescript title="attestation-api/index.ts"
+setNetworkId(process.env['NETWORK_ID'] || 'undeployed');
 
-### Entry point
-
-진입점은 키 관리를 처리하고 서버를 시작합니다.
-
-`zkloan-credit-scorer-attestation-api/src` 폴더 안에 `index.ts` 파일을 만들고 다음 코드를 추가하세요:
-
-```typescript
-import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
-import { createServer } from './server.js';
-import { generateKeyPair, getPublicKey } from './signing.js';
-
-setNetworkId(process.env.NETWORK_ID || 'undeployed');
-
-const PORT = parseInt(process.env.PORT || '4000', 10);
-const PROVIDER_ID = parseInt(process.env.PROVIDER_ID || '1', 10);
-
-// Jubjub scalar field order — the generator's scalar must be reduced mod this
-// or ecMulGenerator throws "out of bounds for prime field".
-const JUBJUB_ORDER = 6554484396890773809930967563523245729705921265872317281365359162392183254199n;
+const PORT = parseInt(process.env['PORT'] || '4000', 10);
+const PROVIDER_ID = parseInt(process.env['PROVIDER_ID'] || '1', 10);
 
 let providerSk: bigint;
-
-if (process.env.PROVIDER_SECRET_KEY) {
-  const raw = BigInt('0x' + process.env.PROVIDER_SECRET_KEY);
-  providerSk = raw % JUBJUB_ORDER;
+const secretHex = process.env['PROVIDER_SECRET_KEY'];
+if (secretHex) {
+  // Reduce so any 32-byte hex value is a valid Jubjub scalar.
+  providerSk = BigInt('0x' + secretHex) % JUBJUB_ORDER;
   console.log('Loaded provider secret key from environment');
 } else {
-  const keyPair = generateKeyPair();
-  providerSk = keyPair.sk;
+  providerSk = generateKeyPair().sk;
   console.log('Generated ephemeral provider key pair');
 }
 
 const pk = getPublicKey(providerSk);
 console.log(`Provider ID: ${PROVIDER_ID}`);
-console.log(`Provider public key:`);
+console.log('Provider public key:');
 console.log(`  x: ${pk.x}`);
 console.log(`  y: ${pk.y}`);
 console.log(`Register this provider on-chain with: registerProvider(${PROVIDER_ID}, {x: ${pk.x}n, y: ${pk.y}n})`);
 
-const server = createServer(providerSk, PROVIDER_ID);
-server.listen(PORT, () => {
+createServer(providerSk, PROVIDER_ID).listen(PORT, () => {
   console.log(`Attestation API listening on port ${PORT}`);
 });
 ```
 
-진입점은 두 가지 모드를 지원합니다:
+환경 변수 네 개를 읽습니다:
 
-*   **Ephemeral mode**(기본값): 시작 시 새 키 쌍을 생성합니다. 개발과 테스트에는 유용하지만 서버를 재시작할 때마다 키가 바뀝니다. 재시작할 때마다 provider를 온체인에 다시 등록해야 합니다.
+- `PORT`: 리스닝 포트. 기본값 4000.
+- `PROVIDER_ID`: 키가 등록되는 온체인 ID. 기본값 1.
+- `PROVIDER_SECRET_KEY`: 16진수 Jubjub 비밀 키. 이 값이 없으면 서버는 시작할 때마다 새 키를
+  생성하고, 그 키를 다시 온체인에 등록해야 합니다. 이 값이 있으면 public key가 재시작을 거쳐도
+  동일하게 유지됩니다. 무작위 32바이트 값은 대부분 위수보다 크므로, 이 값은 먼저 Jubjub 위수를 법으로
+  줄여집니다.
+- `NETWORK_ID`: 기본값은 로컬 네트워크인 `undeployed`입니다. `preprod` 같은 다른 네트워크를 대상으로
+  하려면 설정하세요.
 
-*   **Persistent mode**: `PROVIDER_SECRET_KEY` 환경 변수에 16진수로 인코딩된 비밀 키를 설정합니다. 서버는 시작 시 이 키를 로드하므로 공개 키가 재시작 후에도 동일하게 유지됩니다. 원시 값은 사용 전에 `JUBJUB_ORDER`로 나눈 나머지로 줄여집니다. 무작위 32바이트 키는 대부분 ~252비트 곡선 위수보다 크고, 줄이지 않은 스칼라에서는 `ecMulGenerator`가 에러를 던지기 때문입니다.
+## Run it
 
-network ID는 기본값이 `undeployed`(로컬 네트워크)입니다. Preprod 같은 다른 네트워크를 대상으로 할 때는 `NETWORK_ID` 환경 변수를 설정하세요.
+`examples/zk-loan`에서:
 
-서버가 시작되면 provider의 공개 키 좌표와 바로 쓸 수 있는 `registerProvider` 명령을 출력합니다. 이 값들을 복사해 두세요. [Part 3](./cli)에서 CLI로 provider를 등록할 때 필요합니다.
+```bash
+yarn attestation:start
+```
 
-### Package configuration
+서버는 자신의 키와 바로 쓸 수 있는 `registerProvider` 호출을 출력합니다:
 
-루트 `zkloan-credit-scorer-attestation-api` 폴더 안에 `package.json` 파일을 만들고 다음 코드를 추가하세요:
+```
+Generated ephemeral provider key pair
+Provider ID: 1
+Provider public key:
+  x: 34011401554120741160298202835178627774966657519840293748374731768831074333877
+  y: 20561868703134644164447864025937537271049689058944105758742005191640850207216
+Register this provider on-chain with: registerProvider(1, {x: 34011401554120741160298202835178627774966657519840293748374731768831074333877n, y: 20561868703134644164447864025937537271049689058944105758742005191640850207216n})
+Attestation API listening on port 4000
+```
+
+키는 새로 생성되므로 사람마다 다릅니다. 두 번째 터미널에서 endpoint를 확인하세요:
+
+```bash
+curl http://localhost:4000/health
+curl http://localhost:4000/provider-info
+```
+
+```
+{"status":"ok","providerId":1}
+{"providerId":1,"publicKey":{"x":"34011401554120741160298202835178627774966657519840293748374731768831074333877","y":"20561868703134644164447864025937537271049689058944105758742005191640850207216"}}
+```
+
+그다음 서명을 요청합니다. 여기서는 `userPubKeyHash`로 어떤 십진 문자열이든 쓸 수 있습니다. 실제로는
+차입자가 자기 신원의 해시를 보냅니다.
+
+```bash
+curl -X POST http://localhost:4000/attest \
+  -H 'Content-Type: application/json' \
+  -d '{"creditScore": 720, "monthlyIncome": 2500, "monthsAsCustomer": 24, "userPubKeyHash": "12345"}'
+```
+
+응답은 서명을 담고 서명된 메시지를 그대로 돌려줍니다:
 
 ```json
 {
-  "name": "zkloan-credit-scorer-attestation-api",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "tsx src/index.ts",
-    "test": "vitest run"
+  "signature": {
+    "announcement": {
+      "x": "31540621476077479166376266535540036184142785888380769319902548457379701327240",
+      "y": "44823578977567077845389280972004925387492839733725374129431623294795868131990"
+    },
+    "response": "6414907552153898933550119210015492650698244154133242502297393619952011729853"
   },
-  "dependencies": {
-    "zkloan-credit-scorer-contract": "0.1.0",
-    "@midnight-ntwrk/midnight-js-network-id": "4.1.1",
-    "@midnight-ntwrk/midnight-js-protocol": "4.1.1",
-    "restify": "^11.1.0"
-  },
-  "devDependencies": {
-    "@types/restify": "^8.5.12",
-    "tsx": "^4.19.0",
-    "vitest": "^4.0.15"
+  "message": {
+    "creditScore": "720",
+    "monthlyIncome": "2500",
+    "monthsAsCustomer": "24",
+    "userPubKeyHash": "12345"
   }
 }
 ```
 
-attestation API는 `@midnight-ntwrk/midnight-js-protocol/compact-runtime`에서 `ecMulGenerator`와 `JubjubPoint` 타입을 가져오므로, `midnight-js-protocol`이 여기서 직접 의존성입니다. `@midnight-ntwrk/compact-runtime`에 대한 직접 의존성은 없다는 점에 유의하세요. 생성된 컨트랙트 코드는 런타임에 이를 필요로 하지만, 이는 `contract` 패키지가 선언하고 `zkloan-credit-scorer-contract`를 통해 해석되므로, 이 패키지가 다시 선언하지 않습니다.
+Ctrl+C로 서버를 멈춥니다. 다음 파트에서는 서버를 띄워 둘 필요가 없습니다. 테스트 스위트가 같은 서버를
+자체적으로 빈 포트에 in-process로 띄웁니다.
 
-다음으로 `zkloan-credit-scorer-attestation-api/tsconfig.json`을 다음 코드로 만드세요:
+이 API에는 HTTP 핸들러와 서명자를 위한 자체 단위 테스트가 있습니다. 네트워크가 필요 없습니다:
 
-```json
-{
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "declaration": true,
-    "lib": ["ESNext"],
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "allowJs": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": true,
-    "strict": true,
-    "isolatedModules": true,
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
-  },
-  "include": ["src/**/*.ts"]
-}
+```bash
+yarn test src/test/attestation-api
 ```
 
-`moduleResolution`은 (레거시 `node`가 아니라) `bundler`입니다. 그래야 TypeScript가 `@midnight-ntwrk/midnight-js-protocol`이 `/compact-runtime`, `/ledger`, `/compact-js`를 게시하는 데 쓰는 `exports` 하위 경로 맵을 읽을 수 있습니다. `node16`과 `nodenext`도 동작합니다.
+## The attestation flow
 
-## Understanding the attestation flow
-
-API를 구축했으니, 세 구성 요소에 걸쳐 attestation이 처음부터 끝까지 어떻게 동작하는지 살펴봅니다:
+세 당사자에 걸쳐 attestation이 어떻게 동작하는지 보면 다음과 같습니다:
 
 ```plaintext
 ┌──────────┐     ┌────────────────┐     ┌───────────────┐
-│   User   │     │ Attestation    │     │   Midnight    │
-│  (CLI)   │     │    API         │     │   Network     │
+│ Borrower │     │  Attestation   │     │   Midnight    │
+│ (DApp)   │     │      API       │     │   Network     │
 └────┬─────┘     └───────┬────────┘     └───────┬───────┘
      │                   │                      │
      │  1. Admin registers provider PK on-chain │
-     │──────────────────────────────────────────>│
+     │─────────────────────────────────────────>│
      │                   │                      │
      │  2. POST /attest  │                      │
      │  {creditScore,    │                      │
@@ -420,79 +429,45 @@ API를 구축했으니, 세 구성 요소에 걸쳐 attestation이 처음부터 
      │  4. Submit loan request with signature   │
      │  (signature in private state, never      │
      │   visible on-chain)                      │
-     │──────────────────────────────────────────>│
+     │─────────────────────────────────────────>│
      │                   │                      │
-     │                   │  5. ZK circuit        │
-     │                   │  verifies signature   │
-     │                   │  against registered   │
-     │                   │  PK (all in zero-     │
-     │                   │  knowledge)           │
+     │                   │  5. ZK circuit       │
+     │                   │  verifies signature  │
+     │                   │  against registered  │
+     │                   │  PK (all in zero-    │
+     │                   │  knowledge)          │
      │                   │                      │
      │  6. Only loan status + amount on ledger  │
      │<─────────────────────────────────────────│
 ```
 
-다이어그램의 번호에 맞춰 각 단계를 짚어봅니다:
+1. **provider 등록.** admin이 `registerProvider`를 호출해 API의 public key를 컨트랙트의
+   `providers` map에 저장합니다. 설정 단계 중 체인에 닿는 것은 이 단계뿐입니다.
+2. **attestation 요청.** 차입자는 private state의 secret과 PIN에서 `deriveUserPublicKey` pure
+   circuit으로 신원을 도출한 뒤 이를 해시합니다. 그 해시와 신용 데이터를 API로 보냅니다.
+3. **서명과 반환.** API는 네 값을 하나의 Schnorr signature로 서명합니다. 신원 해시를 포함하면
+   attestation이 이 차입자에 묶입니다.
+4. **대출 요청 제출.** 차입자는 서명을 private state에 저장하고 `requestLoan`을 호출합니다. 서명은
+   witness의 일부로 proof server에 전달됩니다. 체인에 도달하는 트랜잭션에는 결코 나타나지 않습니다.
+5. **ZK에서 검증.** circuit 안에서 `evaluateApplicant`이 witness에서 서명을 가져오고, ledger에서
+   provider의 public key를 조회한 뒤 `schnorrVerify`를 실행합니다. 데이터가 변조됐거나, 다른
+   provider가 서명했거나, attestation이 다른 사람의 것이면 assert가 실패하고 트랜잭션이 제출되지
+   않습니다.
+6. **결과 기록.** 대출의 status와 승인 금액만 ledger에 기록됩니다. 신용 점수, 소득, 재직 기간, PIN,
+   서명은 비공개로 유지됩니다.
 
-1. **provider 등록.** admin이 온체인에서 `registerProvider`를 호출해 attestation API의 Jubjub 공개 키를 스마트 컨트랙트의 `providers` 맵에 저장합니다. 블록체인에 접근하는 설정 단계는 이것뿐입니다.
-2. **attestation 요청.** CLI는 사용자의 신용 데이터와 파생된 공개 키 해시를 attestation API로 보냅니다. CLI는 [Part 1](./smart-contract)의 `deriveUserPublicKey` pure circuit을 사용해, 사용자의 로컬 32바이트 비밀 키(private state에 보관되며 지갑 키는 신원에 절대 쓰이지 않습니다)와 비밀 PIN에서 공개 키를 계산한 뒤, 그 공개 키를 해시합니다.
-3. **서명과 반환.** attestation API는 네 필드(신용 점수, 월 소득, 고객 유지 개월 수, 사용자 공개 키 해시)를 하나의 Schnorr 서명으로 서명합니다. 공개 키 해시를 서명된 메시지에 포함하면 attestation이 특정 사용자에 묶입니다. 다른 사용자는 이 서명을 재사용할 수 없습니다.
-4. **loan 요청 제출.** CLI는 서명을 사용자의 private state에 저장하고 `requestLoan`을 호출합니다. 서명은 ZK witness의 일부로 proof server에 전송됩니다. 블록체인에 도달하는 트랜잭션 데이터에는 결코 나타나지 않습니다.
-5. **ZK에서 검증.** circuit 안에서 `evaluateApplicant`가 witness로부터 서명을 가져오고, ledger에서 provider의 공개 키를 조회한 뒤 `schnorrVerify`를 실행합니다. 데이터가 변조됐거나, 잘못된 provider가 서명했거나, attestation이 다른 사용자의 것이면 검증이 실패합니다. 그럴 경우 assertion이 실패하고 트랜잭션이 되돌려집니다.
-6. **결과 기록.** loan 상태(Approved, Proposed, Rejected)와 승인 금액만 [`disclose()`](/compact/reference/explicit-disclosure)를 통해 ledger에 기록됩니다. 신용 점수, 소득, 재직 기간, PIN, attestation 서명은 비공개로 유지됩니다.
+각 당사자가 알게 되는 것:
 
-이로써 양방향 프라이버시 보장이 성립합니다:
+- **차입자는 거짓말할 수 없다.** 컨트랙트가 circuit 안에서 provider의 서명을 검증하므로, 지어낸 신용
+  데이터는 실패합니다.
+- **체인은 결과만 안다.** 신용 데이터와 서명은 proof의 private 입력입니다. 관찰자는 도출된 key 아래의
+  대출 status와 금액만 볼 뿐, 그 외에는 아무것도 보지 못합니다.
+- **provider는 자신이 서명하는 것을 보며, 그것을 연결할 수 있다.** provider는 이미 그 수치를 알고
+  있습니다. 바로 그 출처이기 때문입니다. 차입자의 secret이나 PIN은 결코 알지 못합니다. 하지만
+  `userPubKeyHash`는 차입자가 도출한 key의 단순 해시이고, 그 key는 `loans`에 공개되어 있습니다.
+  따라서 ledger를 지켜보는 provider는 자신의 attestation을 차입자의 대출과 맞춰 볼 수 있습니다.
 
-*   **사용자는 거짓말할 수 없다**: 스마트 컨트랙트가 circuit 안에서 attestation provider의 서명을 검증하므로, 위조된 신용 데이터는 검증에 실패합니다.
+## Next
 
-*   **provider는 결과를 볼 수 없다**: ZK 증명은 서명된 데이터를 private 입력으로 취급하므로, attestation API는 온체인 활동을 전혀 볼 수 없습니다.
-
-## Set up Docker for the proof server
-
-:::note
-Preprod 대신 [Midnight Local Dev](/guides/networks-and-environments#running-a-local-network)로 테스트한다면 이 단계는 건너뛰세요. 로컬 개발 환경에는 이미 `6300` 포트에 proof server가 포함되어 있습니다.
-:::
-
-[proof server](/guides/run-proof-server)는 스마트 컨트랙트와 상호작용하는 모든 트랜잭션에 대해 ZK 증명을 생성합니다. Preprod의 경우, 블록체인 노드와 indexer는 원격(Midnight Network 호스팅)에 두고 proof server는 Docker로 로컬에서 실행합니다.
-
-`zkloan-credit-scorer-cli/proof-server.yml`을 만드세요:
-
-```yaml
-services:
-  proof-server:
-    image: "midnightntwrk/proof-server:8.1.0"
-    ports:
-      - "6300:6300"
-    environment:
-      RUST_BACKTRACE: "full"
-```
-
-:::note
-proof server의 최신 버전을 사용하고 있는지 확인하세요. [호환성 매트릭스](/relnotes/support-matrix)에서 SDK에 맞는 올바른 버전을 확인하세요.
-:::
-
-proof server를 시작하세요:
-
-```bash
-cd zkloan-credit-scorer-cli
-docker compose -f proof-server.yml up -d
-```
-
-실행 중인지 확인하세요:
-
-```bash
-docker compose -f proof-server.yml ps
-```
-
-`proof-server` 컨테이너가 `6300` 포트에서 실행 중인 것을 볼 수 있습니다. 서버가 응답하는지 확인하려면 호스트에서 `curl http://localhost:6300/version`을 실행하세요. compose 파일에 curl 기반 `healthcheck`를 추가하지 마세요. proof-server 이미지에는 `curl`이 들어 있지 않아, 서버가 정상이어도 컨테이너 내부 healthcheck가 실패합니다.
-
-proof server는 이 스택에서 연산 부담이 가장 큰 구성 요소입니다. [Part 3](./cli)에서 CLI로 트랜잭션을 제출하면, proof server는 circuit 정의, public 입력(ledger 상태), private 입력(witness 데이터)을 받습니다. 그런 다음 ZK 증명을 생성해 Midnight Network에 제출합니다. 이 증명은 private 입력을 드러내지 않고도 계산이 올바르게 수행됐음을 입증합니다.
-
-개발 단계에서는 Docker로 로컬에서 실행하는 것으로 충분합니다. 프로덕션에서는 proof server를 더 많은 연산 자원을 갖춘 전용 인프라에서 실행하게 됩니다.
-
-## Next steps
-
-마지막 파트에서는 CLI를 구축하고 전체 흐름을 처음부터 끝까지 실행합니다:
-
-*   *[CLI](./cli)*: 지갑 생성, 스마트 컨트랙트 배포, attestation provider 등록, loan 요청, Midnight Preprod 네트워크의 온체인 상태 조회를 위한 대화형 커맨드라인 도구입니다.
-*   *End-to-end testing*: 지갑 생성과 tNIGHT 자금 지원, 스마트 컨트랙트 배포, provider 등록, 여러 자격 등급에 걸친 loan 요청, 그리고 loan 결과만 온체인에 나타나는지 검증합니다.
+[ZK Loan tests](/tutorials/zk-loan/test-suite)는 전체 흐름을 로컬 devnet에서 실행합니다. 컨트랙트를
+배포하고, 이 API의 키를 등록하고, 대출을 받고, 모든 부정 시도가 거부되는지 확인합니다.

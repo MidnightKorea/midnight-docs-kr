@@ -99,6 +99,22 @@ API 패키지와 UI 패키지가 같은 컨트랙트 타입을 사용한다면, 
 
    :::
 
+   :::note Browser environments
+
+   `levelPrivateStateProvider`는 브라우저 환경에서 동작합니다. SDK가 crypto
+   백엔드를 자동으로 선택합니다. `crypto.subtle`을 쓸 수 있는 곳에서는 Web Crypto를 사용하고,
+   그렇지 않은 곳에서는 순수 JS 구현으로 대체합니다. `cryptoBackend`를 설정하지 않는 편이 더 안전한
+   기본값인데, `'webcrypto'`를 명시적으로 요청하면 Web Crypto API를 쓸 수 없을 때 대체가 아니라
+   오류를 던지기 때문입니다. 이는 loopback이 아닌 호스트에서 평문 `http://`로 제공되는 페이지 같은
+   비보안 컨텍스트, 그리고 React Native에서 문제가 됩니다.
+
+   `level` 패키지는 package.json의 `browser` 필드를 통해 브라우저 번들에서 `browser-level`(IndexedDB)로
+   해석되며, Vite와 webpack이 이를 자동으로 따르므로 추가 저장소 설정이 필요하지 않습니다. private state
+   접근은 클라이언트에 두세요. Next.js 서버 컴포넌트, API 라우트, Edge 함수처럼 브라우저 번들 밖에서
+   실행되는 코드는 네이티브 `classic-level`로 해석됩니다.
+
+   :::
+
 4. indexer의 query·subscription endpoint로 public data provider를 만듭니다:
 
    ```typescript
@@ -142,7 +158,7 @@ API 패키지와 UI 패키지가 같은 컨트랙트 타입을 사용한다면, 
      type UnboundTransaction,
    } from '@midnight-ntwrk/midnight-js-types';
    import { ttlOneHour } from '@midnight-ntwrk/midnight-js-utils';
-   import { type WalletFacade } from '@midnight-ntwrk/wallet-sdk';
+   import { type WalletFacade } from '@midnightntwrk/wallet-sdk';
 
    class BBoardWalletProvider implements WalletProvider, MidnightProvider {
      constructor(
@@ -174,7 +190,7 @@ API 패키지와 UI 패키지가 같은 컨트랙트 타입을 사용한다면, 
    }
    ```
 
-   `getCoinPublicKey`와 `getEncryptionPublicKey`는 shielded 출력을 수신하고 복호화하는 키를 노출하고, `balanceTx`는 수수료를 충당할 DUST를 선택해 트랜잭션을 확정하며, `submitTx`는 그것을 네트워크로 보냅니다. `WalletFacade`를 만들고 동기화하는 과정과 secret key를 도출하는 과정은 [Funding a wallet](./acquire-tokens)에서 다룹니다.
+   `getCoinPublicKey`와 `getEncryptionPublicKey`는 shielded 출력을 수신하고 복호화하는 키를 노출하고, `balanceTx`는 수수료를 충당할 DUST를 선택해 트랜잭션을 확정하며, `submitTx`는 그것을 네트워크로 보냅니다. `WalletFacade`를 만들고 동기화하는 과정과 secret key를 도출하는 과정은 [Funding a wallet](./acquire-tokens)에서 다루며, 이는 wallet SDK를 `@midnightntwrk/wallet-sdk`로 설치하는 프로젝트를 기준으로 합니다. midnight-local-dev 클론은 이를 `@midnight-ntwrk/wallet-sdk`로 설치하므로, 거기서는 `WalletFacade`를 그 이름에서 import하세요.
 
 8. `walletProvider`와 `midnightProvider`에 같은 인스턴스를 전달해 객체를 조립합니다:
 
@@ -770,7 +786,7 @@ describe('operating a maintenance authority', () => {
 {/* _mod-docs-content-type: REFERENCE */}
 ## Provider implementations
 
-각 provider 슬롯을 환경별로 어떤 구현이 채우는지 정리합니다. 패키지는 `@midnight-ntwrk/` scope 아래에 있으며, 버전은 [support matrix](../relnotes/support-matrix)에 나와 있습니다.
+각 provider 슬롯을 환경별로 어떤 구현이 채우는지 정리합니다. Midnight.js 패키지는 `@midnight-ntwrk/` scope 아래에, `wallet-sdk`는 `@midnightntwrk/`(하이픈 없음) 아래에 있으며, 버전은 [support matrix](../relnotes/support-matrix)에 나와 있습니다.
 
 | Slot | Implementation | Package | Notes |
 |---|---|---|---|
@@ -780,6 +796,45 @@ describe('operating a maintenance authority', () => {
 | `zkConfigProvider` | `FetchZkConfigProvider` | `midnight-js-fetch-zk-config-provider` | 같은 아티팩트를 HTTP로 가져옵니다. 브라우저와 호스팅 환경용입니다 |
 | `proofProvider` | `httpClientProofProvider` | `midnight-js-http-client-proof-provider` | proof server URL과 `zkConfigProvider`를 받습니다 |
 | `walletProvider`, `midnightProvider` | `WalletFacade`를 감싼 사용자 클래스 | `wallet-sdk` | [Configuring providers for a contract](#configuring-providers-for-a-contract)에서처럼 하나의 인스턴스가 두 슬롯을 모두 채울 수 있습니다 |
+
+### Verifying passwords early with a canary value
+
+명시적인 검사가 없으면 잘못된 password는 앱이 실제 private state 데이터를 복호화하려 할 때까지 잡히지 않는데, 이는 트랜잭션 흐름 깊숙한 곳에서 일어날 수 있습니다. 실패 양상도 활성 백엔드에 따라 다릅니다. Web Crypto는 `OperationError`라는 이름의 `DOMException`으로 reject하고, 순수 JS 백엔드는 평범한 `Error`를 던집니다.
+
+계정 생성 시 기록해 둔 canary 값을 쓰면 unlock 시점에 명확한 메시지와 함께 잘못된 password를 잡을 수 있습니다. 프로비저닝과 검증을 분리하세요. 읽기 시점에는 canary가 없는 경우와 password가 틀린 경우를 구분할 수 없으므로, `null` 읽기에서 canary를 bootstrap하면 그 검사가 잡으려던 실패를 오히려 통과시키게 됩니다.
+
+```typescript
+import type { PrivateStateProvider } from '@midnight-ntwrk/midnight-js-types';
+
+const CANARY_KEY = '__canary__';
+const CANARY_VALUE = 'midnight-verified';
+
+// Call once, when the account's store is created, using a password you know is correct.
+// Never call this to repair a missing canary: at that point a missing canary and a wrong
+// password look identical, and you would be storing the wrong password as the reference.
+async function provisionCanary(provider: PrivateStateProvider): Promise<void> {
+  await provider.set(CANARY_KEY, CANARY_VALUE);
+}
+
+// Call on every later unlock.
+async function verifyPassword(provider: PrivateStateProvider): Promise<void> {
+  let stored: unknown;
+  try {
+    stored = await provider.get(CANARY_KEY);
+  } catch (cause) {
+    // Decryption failed, so the AES-GCM authentication tag did not verify.
+    // Other faults reach here too, such as an unavailable crypto backend,
+    // so keep the original error attached.
+    throw new Error('Incorrect password: private state could not be decrypted', { cause });
+  }
+  if (stored === null) {
+    throw new Error('No canary stored for this account. Provision one when the store is created.');
+  }
+  if (stored !== CANARY_VALUE) {
+    throw new Error('Canary mismatch: private state may be corrupt.');
+  }
+}
+```
 
 {/* _mod-docs-content-type: REFERENCE */}
 ## Deployment troubleshooting

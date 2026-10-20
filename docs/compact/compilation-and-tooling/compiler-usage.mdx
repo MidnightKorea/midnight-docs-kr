@@ -29,19 +29,24 @@ _sourcepath_는 Compact 소스 프로그램이 담긴 파일 경로이고, _targ
 
 **compactc**는 소스 파일을 컴파일하여 다음 출력 파일을 생성합니다:
 
-- TypeScript 타입 정의 파일 _targetdir_**/contract/index.d.ts**
+- TypeScript 타입 정의 파일 _targetdir_**/contract/index.d.ts**,
 
-- Javascript 소스 파일 _targetdir_**/contract/index.js**
+- Javascript 소스 파일 _targetdir_**/contract/index.js**,
 
-- Javascript 소스맵 파일 _targetdir_**/contract/index.js.map**
+- Javascript 소스맵 파일 _targetdir_**/contract/index.js.map**,
 
-- 각 내보낸 circuit _circuitname_에 대한 Zk/ir circuit 파일
-  _targetdir_**/zkir/**_circuitname_**.zkir**,
+- contract 정보 파일 _targetdir_**/compiler/contract-info.json**,
+
+- 증명이 필요한 각 circuit _circuitname_에 대한 Zk/ir circuit 파일
+  _targetdir_**/zkir/**_circuitname_**.zkir**과
+  바이너리 Zk/ir circuit 파일 _targetdir_**/zkir/**_circuitname_**.bzkir**,
+
+- 증명이 필요한 각 circuit _circuitname_에 대한 proving key 쌍
+  _targetdir_**/keys/**_circuitname_**.prover** 및
+  _targetdir_**/keys/**_circuitname_**.verifier**,
   그리고
 
-- 각 내보낸 circuit _circuitname_에 대한 proving key 쌍
-  _targetdir_**/keys/**_circuitname_**.prover** 및
-  _targetdir_**/keys/**_circuitname_**.verifier**.
+- 위에서 식별한 생성 파일들을 디렉토리별로 정리하여 각 파일의 크기와 SHA-256 체크섬과 함께 나열하는 manifest 파일 _targetdir_**/compiler/contract-manifest.json**.
 
 Compact 소스 파일은 **include** 형식을 통해 다른 Compact 소스 파일을 포함할 수 있습니다:
 
@@ -78,7 +83,11 @@ FLAGS
 
 **--version**
 
-컴파일러 버전을 출력하고 종료합니다.
+컴파일러 버전을 출력하고 종료합니다. 커밋을 기록한 빌드라면 버전 뒤에 해당 커밋과 커밋 날짜를 괄호에 담아 덧붙입니다.
+
+**--verbose**
+
+**--version**과 함께(순서는 무관) 주면 버전, 커밋, 커밋 날짜, 언어 및 런타임 버전을 각각 별도 필드로 출력하며, 빌드가 기록하지 않은 항목은 _unknown_으로 표시합니다.
 
 **--language-version**
 
@@ -91,6 +100,10 @@ FLAGS
 **--ledger-version**
 
 컴파일러가 요구하는 ledger 버전을 출력하고 종료합니다.
+
+**--feature-zkir-v3**
+
+컴파일러가 기본값(버전 2) 대신 ZKIR 버전 3을 사용하여 circuit을 생성하도록 합니다.
 
 **--vscode**
 
@@ -136,9 +149,12 @@ compactc src/test.compact obj/test
 obj/test/contract/index.d.ts
 obj/test/contract/index.js
 obj/test/contract/index.js.map
-obj/test/contract/contract-info.json
+
+obj/test/compiler/contract-info.json
+obj/test/compiler/contract-manifest.json
 
 obj/test/zkir/foo.zkir
+obj/test/zkir/foo.bzkir
 
 obj/test/keys/foo.prover
 obj/test/keys/foo.verifier
@@ -151,3 +167,8 @@ compactc --skip-zk src/test.compact obj/test
 ```
 
 명령은 키 파일을 제외하고 동일한 결과를 생성합니다.
+
+EXIT STATUS
+===========
+
+**compactc**는 성공하면 상태 0으로, 실패하면 0이 아닌 상태로 종료합니다. 특히 명령줄이 잘못된 경우 상태 1로 종료합니다.

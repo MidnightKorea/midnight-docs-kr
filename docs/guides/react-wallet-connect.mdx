@@ -41,6 +41,39 @@ cd my-wallet-app
 npm install @midnight-ntwrk/dapp-connector-api
 ```
 
+### Configure Vite for Midnight packages
+
+이 가이드의 wallet connector는 WASM을 싣지 않는 DApp Connector API만 사용합니다. 앱이 컨트랙트를 다루기 위해 Midnight의 SDK 패키지, 예를 들어 Midnight.js와 그 ledger 바인딩을 들여오는 순간, 그 wasm-bindgen 모듈에는 특정 Vite 설정이 필요해집니다. 이 설정이 없으면 앱은 개발 중에 빈 페이지를 렌더링하거나 `Cannot access '__wbindgen_start' before initialization`로 실패합니다. 지금 설정을 추가해 두면 그 단계에 대비한 프로젝트가 됩니다.
+
+`vite.config.ts`를 열고 내용을 다음으로 교체하세요:
+
+```typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  optimizeDeps: {
+    // Midnight WASM packages use top-level init calls that break
+    // when Vite pre-bundles them in dev mode. Excluding them
+    // preserves the correct module init order.
+    exclude: [
+      '@midnight-ntwrk/ledger-v8',
+      '@midnight-ntwrk/onchain-runtime-v3',
+      '@midnight-ntwrk/zkir-v2',
+    ],
+  },
+});
+```
+
+패키지 이름에는 ledger와 runtime 버전이 들어 있으므로, SDK 릴리스마다 바뀝니다. 예를 들어 `@midnight-ntwrk/compact-runtime` 0.20은 `@midnight-ntwrk/onchain-runtime-v3`이 아니라 `@midnightntwrk/onchain-runtime-v4`를 설치합니다. 업그레이드 후에는 `node_modules`를 확인해 여러분 버전이 설치하는 WASM 패키지를 나열하세요.
+
+:::caution Why this matters
+Vite의 dev-server 의존성 optimizer는 의존성을 단일 모듈로 적극적으로 번들링합니다. Midnight의 WASM glue 코드는 초기화 중 모듈 최상위에서 `__wbindgen_start()`를 호출합니다. 사전 번들링은 이 초기화 순서를 뒤섞으므로, 페이지가 빈 채로 남고 브라우저 콘솔에 `__wbindgen_start` 오류가 나타납니다. `optimizeDeps.exclude` 설정은 이 패키지들을 번들링하지 않고 제공하도록 Vite에 알려, 올바른 초기화 순서를 보존합니다. 이 설정은 dev 서버에만 적용되므로 프로덕션 빌드는 바뀌지 않습니다. Vite 8.1 이상은 플러그인 없이 WASM 모듈을 로드합니다. Vite 7과 8.0에서는 `vite-plugin-wasm`도 설치하고 `plugins`에 `wasm()`을 추가하세요.
+:::
+
+여러 패키지가 `@midnight-ntwrk/compact-runtime`에 의존하는 monorepo에서 작업한다면, WASM 이중 인스턴스화를 막기 위해 `resolve.dedupe`도 추가하세요(자세한 내용은 [Vite WASM resolution guide](https://github.com/midnightntwrk/midnight-js/blob/main/docs/guides/vite-wasm-resolution.md) 참고).
+
 이 튜토리얼을 마치면 다음 내용을 이해할 수 있습니다:
 
 - Midnight 지갑 연결 흐름

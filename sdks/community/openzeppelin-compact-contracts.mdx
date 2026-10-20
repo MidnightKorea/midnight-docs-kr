@@ -17,11 +17,11 @@ id: openzeppelin-compact-contracts
 
 라이브러리는 모듈식입니다. 베이스 컨트랙트를 상속하는 대신, 개별 모듈을 prefix와 함께 자신의 `.compact` 소스로 import하고 그 circuit을 빌딩 블록으로 호출합니다.
 
-:::danger[Experimental - alpha, not audited]
+:::danger[Experimental, not for production]
 
-라이브러리는 현재 `v0.0.1-alpha.1` 버전입니다. 프로젝트의 README에 따르면 보안 취약점에 대해 감사를 받거나 면밀히 검토된 적이 없으며, 유지보수자들은 다음과 같이 분명히 밝히고 있습니다. <strong>DO NOT USE IT IN PRODUCTION.</strong>
+라이브러리는 현재 `0.2.0` 버전입니다. 프로젝트의 README는 이 코드를 매우 실험적이라고 설명하며, 유지보수자들은 다음과 같이 분명히 밝히고 있습니다. <strong>DO NOT USE IT IN PRODUCTION.</strong> 저장소의 [audits 폴더](https://github.com/OpenZeppelin/compact-contracts/tree/main/audits)에는 `0.1.0` 버전에 대한 OpenZeppelin의 감사 보고서가 있습니다. `0.2.0` 버전에는 그 감사 이후에 적용된 변경 사항이 포함되어 있습니다.
 
-이 컨트랙트들은 프로토타이핑, 학습, Testnet 개발에만 사용하세요.
+이 컨트랙트들은 프로토타이핑, 학습, 그리고 Preview·Preprod 개발에만 사용하세요.
 
 :::
 
@@ -30,16 +30,16 @@ id: openzeppelin-compact-contracts
 라이브러리를 사용하기 전에 다음을 갖췄는지 확인하세요.
 
 - [Compact developer tools](../../getting-started/installation) 설치.
-- [Node.js](https://nodejs.org/)와 [yarn](https://yarnpkg.com/getting-started/install) 사용 가능.
+- [Node.js](https://nodejs.org/) 22 이상과 [Yarn](https://yarnpkg.com/getting-started/install) 사용 가능.
 - [Compact 모듈 import](/compact/reference/compact-reference)와 `prefix` 문법에 대한 충분한 이해.
 
 ## Compatibility
 
-아래 표는 라이브러리가 대상으로 하는 Compact 컴파일러와 런타임 버전입니다. 통합하기 전에 로컬 toolchain과 대조해 확인하세요.
+아래 표는 라이브러리가 대상으로 하는 Compact 컴파일러와 언어 버전입니다. 통합하기 전에 로컬 toolchain과 대조해 확인하세요.
 
 | Component | Version | Notes |
 |---|---|---|
-| Library version | `v0.0.1-alpha.1` | 알파. 빠른 변경이 예상됩니다. |
+| Library version | `0.2.0` | `yarn add @openzeppelin/compact-contracts`로 설치되는 릴리스입니다. 빠른 변경이 예상됩니다. |
 | Compact compiler | `0.29.0` | 라이브러리의 CI 배지로 고정. |
 | Compact language | `>= 0.21.0` | 모든 소스 파일의 `pragma` 기준. |
 | Token amounts | `Uint<128>` (`Uint<256>` 아님) | Midnight 인코딩 한계. `Uint<256>`은 Compact 컴파일러가 지원하지 않습니다. |
@@ -47,45 +47,49 @@ id: openzeppelin-compact-contracts
 
 :::note[Compiler version mismatch]
 
-OpenZeppelin 라이브러리는 현재 컴파일러를 `0.29.0`에 고정해 두었지만, 공식 Midnight Toolchain은 그보다 새로운 버전을 출시했습니다. pragma `>= 0.21.0`이 소스 수준의 호환성을 유지해 주긴 하지만, 문제를 제보하기 전에 로컬의 `compact compile --version`을 확인하세요.
+`0.2.0` 버전에는 컴파일러 `0.29.0` 이상이 필요합니다. OpenZeppelin은 `0.29.0`으로 빌드하고 테스트하지만, 공식 Midnight Toolchain은 그보다 새로운 버전을 출시했습니다. pragma `>= 0.21.0`이 소스 수준의 호환성을 유지해 주며, 이 페이지의 예제는 컴파일러 `0.31.1`, `0.34.0`, `0.35.0`에서도 컴파일됩니다.
+
+컴파일러는 컴파일된 컨트랙트가 어느 ledger version을 대상으로 할지도 결정합니다. 컴파일러 `0.29.0`은 ledger version 7을, `0.31.1`은 ledger version 8을 대상으로 합니다. 컴파일러 `0.34.0`과 `0.35.0`은 ledger version 9를 대상으로 합니다. 배포하려면 [compatibility matrix](/relnotes/support-matrix)가 대상 네트워크에 대해 명시하는 toolchain으로 컴파일하세요. 문제를 제보하기 전에 로컬의 `compact compile --version`을 확인하세요.
+
+npm `beta` 태그와 저장소의 `main` 브랜치에는 컴파일러 `0.34.0`과 `pragma language_version >= 0.26.0`을 대상으로 하는 프리릴리스가 있습니다. 이 페이지에서는 다루지 않습니다.
 
 :::
 
 ## Modules
 
-라이브러리는 모듈을 네 가지 계열로 나눕니다. 대부분의 모듈은 조합을 위해 `Initializable`(일회성 초기화 가드)과 `Utils`(zero-address 및 Either 헬퍼)를 import합니다.
+라이브러리는 모듈을 네 가지 계열로 나눕니다. 대부분의 모듈은 조합을 위해 `Utils`(zero-address 및 Either 헬퍼)를 import합니다.
 
-### Access control · `src/access/`
+### Access control · `access/`
 
 이 모듈들은 컨트랙트의 특정 circuit을 누가 호출할 수 있는지를 제어합니다. 가장 단순한 것부터 복잡한 것 순으로, 단일 소유자, 역할 기반, 그리고 그 프라이버시 보존 변형 순으로 나열되어 있습니다.
 
 | Module | Purpose | OpenZeppelin docs |
 |---|---|---|
-| `Ownable` | 단일 소유자 권한. 소유자를 `Either<ZswapCoinPublicKey, ContractAddress>`로 저장합니다. 소유권 이전, 포기, 그리고 contract-address 소유자를 위한 safe/unsafe 변형을 지원합니다. | [Guide](https://docs.openzeppelin.com/contracts-compact/ownable) · [API](https://docs.openzeppelin.com/contracts-compact/api/ownable) |
-| `AccessControl` | admin 계층을 갖춘 역할 기반 권한. 역할은 `Bytes<32>` 식별자입니다. 각 역할에는 부여와 회수를 제어하는 설정 가능한 admin 역할이 있습니다. | [Guide](https://docs.openzeppelin.com/contracts-compact/accessControl) · [API](https://docs.openzeppelin.com/contracts-compact/api/accessControl) |
-| `ShieldedAccessControl` | *프라이버시 보존형* 역할 기반 접근 제어. 역할 commitment를 `MerkleTree<20>`에 저장하고 nullifier로 회수하므로, 역할 소속을 영지식으로 증명할 수 있습니다. | _아직 OpenZeppelin 문서 사이트에 없습니다. [소스](https://github.com/OpenZeppelin/compact-contracts/blob/main/contracts/src/access/ShieldedAccessControl.compact)를 참고하세요._ |
+| `Ownable` | 단일 소유자 권한. 소유자를 `Either<Bytes<32>, ContractAddress>`로 저장합니다. 소유권 이전, 포기, 그리고 contract-address 소유자를 위한 safe/unsafe 변형을 지원합니다. | [Guide](https://docs.openzeppelin.com/contracts-compact/ownable) · [API](https://docs.openzeppelin.com/contracts-compact/api/ownable) |
+| `AccessControl` | admin 계층을 갖춘 역할 기반 권한. 역할은 `Bytes<32>` 식별자입니다. 각 역할에는 부여와 회수를 제어하는 설정 가능한 admin 역할이 있습니다. | [Guide](https://docs.openzeppelin.com/contracts-compact/access-control) · [API](https://docs.openzeppelin.com/contracts-compact/api/access-control) |
+| `ShieldedAccessControl` | *프라이버시 보존형* 역할 기반 접근 제어. 역할 commitment를 `MerkleTree<20>`에 저장하고 nullifier로 회수하므로, 역할 소속을 영지식으로 증명할 수 있습니다. | [Guide](https://docs.openzeppelin.com/contracts-compact/shielded-access-control) · [API](https://docs.openzeppelin.com/contracts-compact/api/shielded-access-control) |
 | `ZOwnablePK` | *프라이버시 보존형* 단일 소유자 권한. 소유자를 public key 대신 commitment 해시로 저장하므로, 온체인 데이터가 소유자가 누구인지 드러내지 않습니다. | [Ownable](https://docs.openzeppelin.com/contracts-compact/ownable)과 함께 문서화됨 |
 
-### Security · `src/security/`
+### Security · `security/`
 
 이 모듈들은 컨트랙트에 라이프사이클 및 운영 가드를 적용합니다.
 
 | Module | Purpose | OpenZeppelin docs |
 |---|---|---|
-| `Initializable` | 일회성 초기화 가드. 컨트랙트가 두 번 이상 초기화되는 것을 막습니다. 다른 대부분의 모듈이 이것에 의존합니다. | [Guide](https://docs.openzeppelin.com/contracts-compact/security) · [API](https://docs.openzeppelin.com/contracts-compact/api/security) |
+| `Initializable` | 일회성 초기화 가드. 컨트랙트가 두 번 이상 초기화되는 것을 막습니다. 라이브러리의 다른 모듈은 이것을 import하지 않으며, 초기화가 필요한 모듈은 각자 자체 플래그를 추적합니다. OpenZeppelin은 최상위 컨트랙트에서만 사용할 것을 권장합니다. | [Guide](https://docs.openzeppelin.com/contracts-compact/security) · [API](https://docs.openzeppelin.com/contracts-compact/api/security) |
 | `Pausable` | 비상 정지 스위치. `assertNotPaused()` 뒤에서 circuit 실행을 통제합니다. `_pause()`와 `_unpause()`는 직접 만든 권한 로직으로 감싸세요. | [Guide](https://docs.openzeppelin.com/contracts-compact/security) · [API](https://docs.openzeppelin.com/contracts-compact/api/security) |
 
-### Tokens · `src/token/`
+### Tokens · `token/`
 
 이 모듈들은 Compact에 맞게 조정한 표준 토큰 인터페이스를 구현합니다.
 
 | Module | Purpose | OpenZeppelin docs |
 |---|---|---|
-| `FungibleToken` | ERC-20 방식의 대체 가능 토큰. `transfer`, `approve`, `transferFrom`, `mint`, `burn`을 지원합니다. 잔액은 `Uint<128>`을 사용합니다(`Uint<256>` 아님 - [Compatibility](#compatibility) 참고). safe·unsafe transfer 변형을 포함합니다. | [Guide](https://docs.openzeppelin.com/contracts-compact/fungibleToken) · [API](https://docs.openzeppelin.com/contracts-compact/api/fungibleToken) |
-| `NonFungibleToken` | ERC-721 방식의 대체 불가능 토큰. 소유권, 승인, operator 승인, token URI를 추적합니다. 토큰 ID는 `Uint<128>`을 사용합니다. | [Guide](https://docs.openzeppelin.com/contracts-compact/nonFungibleToken) · [API](https://docs.openzeppelin.com/contracts-compact/api/nonFungibleToken) |
-| `MultiToken` | ERC-1155 방식의 멀티 토큰. 하나의 컨트랙트에서 여러 토큰 유형을 관리합니다. 일괄 연산은 지원하지 않습니다(Compact에 동적 배열이 없습니다). | [Guide](https://docs.openzeppelin.com/contracts-compact/multitoken) · [API](https://docs.openzeppelin.com/contracts-compact/api/multitoken) |
+| `FungibleToken` | ERC-20 방식의 대체 가능 토큰. `transfer`, `approve`, `transferFrom`, `_mint`, `_burn`을 지원합니다. 잔액은 `Uint<128>`을 사용합니다(`Uint<256>` 아님 - [Compatibility](#compatibility) 참고). safe·unsafe transfer 변형을 포함합니다. | [Guide](https://docs.openzeppelin.com/contracts-compact/fungible-token) · [API](https://docs.openzeppelin.com/contracts-compact/api/fungible-token) |
+| `NonFungibleToken` | ERC-721 방식의 대체 불가능 토큰. 소유권, 승인, operator 승인, token URI를 추적합니다. 토큰 ID는 `Uint<128>`을 사용합니다. | [Guide](https://docs.openzeppelin.com/contracts-compact/non-fungible-token) · [API](https://docs.openzeppelin.com/contracts-compact/api/non-fungible-token) |
+| `MultiToken` | ERC-1155 방식의 멀티 토큰. 하나의 컨트랙트에서 여러 토큰 유형을 관리합니다. 일괄 연산은 지원하지 않습니다(Compact에 동적 배열이 없습니다). | [Guide](https://docs.openzeppelin.com/contracts-compact/multi-token) · [API](https://docs.openzeppelin.com/contracts-compact/api/multi-token) |
 
-### Utilities · `src/utils/`
+### Utilities · `utils/`
 
 타입 안전성과 입력 검증을 위한 헬퍼 함수입니다.
 
@@ -95,41 +99,46 @@ OpenZeppelin 라이브러리는 현재 컴파일러를 `0.29.0`에 고정해 두
 
 ## Installation
 
-라이브러리는 현재 Git submodule 형태로 제공됩니다. OpenZeppelin 팀은 프로젝트 [README](https://github.com/OpenZeppelin/compact-contracts#readme)에서 밝혔듯이 이를 npm에 게시할 계획입니다.
+라이브러리는 npm 패키지 [`@openzeppelin/compact-contracts`](https://www.npmjs.com/package/@openzeppelin/compact-contracts)로 제공됩니다. `latest` 태그는 이 페이지에서 설명하는 릴리스인 `0.2.0` 버전을 설치합니다.
 
-새 프로젝트에 라이브러리를 추가하려면 submodule로 클론한 뒤 컨트랙트를 컴파일하세요.
+새 프로젝트에 라이브러리를 추가하려면 프로젝트를 만들고 패키지를 설치하세요.
 
 ```bash
 mkdir my-project && cd my-project
-git init
-git submodule add https://github.com/OpenZeppelin/compact-contracts.git
-nvm install
-yarn
-SKIP_ZK=true yarn compact
+yarn init -y
+yarn add @openzeppelin/compact-contracts
 ```
+
+패키지에는 각 모듈의 Compact 소스가 `access/`, `security/`, `token/`, `utils/` 폴더에 들어 있습니다.
+
+:::caution[Yarn Plug'n'Play]
+
+컨트랙트의 import는 `node_modules` 안의 파일을 가리킵니다. Yarn 2 이상은 기본적으로 Plug'n'Play를 사용하며, 이 폴더를 만들지 않습니다. 설치 후 프로젝트에 `node_modules` 폴더가 없으면 `yarn config set nodeLinker node-modules`를 실행한 뒤 `yarn install`을 실행하세요. 또는 `npm install @openzeppelin/compact-contracts`로 패키지를 설치하세요.
+
+:::
 
 ## Compose a contract
 
 개별 모듈을 prefix와 함께 `.compact` 소스로 import한 뒤, 그 circuit을 빌딩 블록으로 호출하세요. `prefix Pausable_;` 관례에 유의하세요. prefix 자체가 `_`로 끝납니다. 내부적으로 underscore가 붙은 `_pause` circuit을 호출하면 `Pausable__pause()`가 되는데, 이중 underscore는 의도된 것입니다.
 
-```compact
+```compact nocompile
 pragma language_version >= 0.21.0;
 
 import CompactStandardLibrary;
-import "./compact-contracts/node_modules/@openzeppelin/compact-contracts/src/access/Ownable"
+import "./node_modules/@openzeppelin/compact-contracts/access/Ownable"
   prefix Ownable_;
-import "./compact-contracts/node_modules/@openzeppelin/compact-contracts/src/security/Pausable"
+import "./node_modules/@openzeppelin/compact-contracts/security/Pausable"
   prefix Pausable_;
-import "./compact-contracts/node_modules/@openzeppelin/compact-contracts/src/token/FungibleToken"
+import "./node_modules/@openzeppelin/compact-contracts/token/FungibleToken"
   prefix FungibleToken_;
 
 constructor(
   _name: Opaque<"string">,
   _symbol: Opaque<"string">,
   _decimals: Uint<8>,
-  _recipient: Either<ZswapCoinPublicKey, ContractAddress>,
+  _recipient: Either<Bytes<32>, ContractAddress>,
   _amount: Uint<128>,
-  _initOwner: Either<ZswapCoinPublicKey, ContractAddress>,
+  _initOwner: Either<Bytes<32>, ContractAddress>,
 ) {
   Ownable_initialize(_initOwner);
   FungibleToken_initialize(_name, _symbol, _decimals);
@@ -137,7 +146,7 @@ constructor(
 }
 
 export circuit transfer(
-  to: Either<ZswapCoinPublicKey, ContractAddress>,
+  to: Either<Bytes<32>, ContractAddress>,
   value: Uint<128>,
 ): Boolean {
   Pausable_assertNotPaused();
@@ -153,11 +162,15 @@ export circuit unpause(): [] {
   Ownable_assertOnlyOwner();
   Pausable__unpause();
 }
+
+export pure circuit computeAccountId(secretKey: Bytes<32>): Bytes<32> {
+  return Ownable_computeAccountId(secretKey);
+}
 ```
 
-:::note[Why import through `node_modules`]
+:::note[Account identifiers and witnesses]
 
-OpenZeppelin 팀은 공유 의존성 간의 상태 충돌을 피하기 위해, submodule 경로 대신 `compact-contracts/node_modules/@openzeppelin/compact-contracts/...`를 통해 import할 것을 권장합니다. 자세한 내용은 프로젝트 [README](https://github.com/OpenZeppelin/compact-contracts#readme)를 참고하세요.
+각 주소의 `Bytes<32>` 쪽에는 지갑 public key가 아니라 계정 식별자가 담깁니다. `Ownable`과 `FungibleToken`은 이를 호출자 비밀 키의 `persistentHash`로 유도하며, 각각 이를 계산하는 pure `computeAccountId` circuit을 export합니다. 이 예제는 `Ownable`의 circuit을 자체 `computeAccountId` circuit으로 감쌉니다. DApp은 컴파일된 출력에서 `pureCircuits.computeAccountId(secretKey)`를 호출해, 생성자와 `transfer`가 받는 식별자를 얻을 수 있습니다. 컴파일된 컨트랙트는 witness `wit_OwnableSK`와 `wit_FungibleTokenSK`를 선언하며, DApp이 이를 구현해 해당 32바이트 비밀 키를 반환합니다. 패키지에는 witness 구현이 포함되어 있지 않습니다. 자세한 내용은 OpenZeppelin의 [Ownable guide](https://docs.openzeppelin.com/contracts-compact/ownable)를 참고하세요.
 
 :::
 
@@ -169,17 +182,19 @@ Compact 컴파일러를 실행해 컨트랙트로부터 TypeScript 바인딩과 
 compact compile MyContract.compact artifacts/MyContract
 ```
 
-컴파일에 성공하면 각 circuit과 그 proving-system 크기가 함께 표시됩니다.
+컴파일에 성공하면 각 circuit과 그 proving-system 크기가 함께 표시됩니다. 이 출력은 컴파일러 `0.31.1`에서 나온 것이며, row 수는 컴파일러 버전마다 다릅니다.
 
 ```text
 Compiling 3 circuits:
-  circuit "pause"   (k=10, rows=125)
-  circuit "transfer"(k=11, rows=1180)
-  circuit "unpause" (k=10, rows=121)
+  circuit "pause" (k=13, rows=2362)
+  circuit "transfer" (k=13, rows=3855)
+  circuit "unpause" (k=13, rows=2359)
 Overall progress [====================] 3/3
 ```
 
-`k`는 domain 크기(circuit이 `2^k`개의 row에 배치됩니다)이고, `rows`는 그중 circuit이 실제로 사용하는 row 수입니다. circuit이 작을수록 증명과 검증이 빠릅니다. 더 자세한 설명은 OpenZeppelin의 [ZK Circuits 101](https://docs.openzeppelin.com/contracts-compact/zkCircuits101)을 참고하세요.
+pure `computeAccountId` circuit은 증명이 필요 없으므로 출력에 나열되지 않습니다.
+
+`k`는 domain 크기(circuit이 `2^k`개의 row에 배치됩니다)이고, `rows`는 그중 circuit이 실제로 사용하는 row 수입니다. circuit이 작을수록 증명과 검증이 빠릅니다. 더 자세한 설명은 OpenZeppelin의 [ZK Circuits 101](https://docs.openzeppelin.com/contracts-compact/zk-circuits-101)을 참고하세요.
 
 ## Patterns to know
 
@@ -189,13 +204,13 @@ Overall progress [====================] 3/3
 
 - <strong>prefix를 통한 조합</strong>: `import ... prefix X_;` 문법은 각 모듈에 네임스페이스를 부여해, 식별자 충돌 없이 여러 모듈이 한 컨트랙트에 공존할 수 있게 합니다. 이름이 `_`로 시작하는 circuit은 호출 지점에서 `X__name` 형태로 나타납니다.
 
-- <strong>초기화는 명시적이다</strong>: 대부분의 모듈은 `Initializable`을 import하며, 생성자에서 명시적인 `initialize` 호출을 요구합니다. `Initializable_assertNotInitialized()`와 `Initializable_assertInitialized()`가 이를 강제합니다. `initialize` 전에 다른 circuit을 호출하면 런타임에 실패합니다.
+- <strong>초기화는 명시적이다</strong>: `Ownable`, `ZOwnablePK`, `ShieldedAccessControl`, 그리고 세 가지 토큰 모듈은 각각 자체 초기화 플래그를 추적합니다. 각 모듈은 생성자에서 명시적인 `initialize` 호출을 요구합니다. 그 호출이 실행되기 전까지, 가드가 걸린 circuit은 런타임에 `contract not initialized` 오류로 실패합니다.
 
-- <strong>contract-address 수신자는 제한된다</strong>: Compact은 아직 컨트랙트 간 호출을 지원하지 않으므로, 모든 모듈의 safe 경로(예: `Ownable.transferOwnership`, `AccessControl.grantRole`, `FungibleToken.transfer`)는 `ContractAddress` 수신자를 거부합니다. 각 모듈은 safe 변형과 함께, 위험이 드러나도록 명시적으로 이름 붙인 `_unsafe*` circuit을 짝지어 제공합니다. 유지보수자들은 Compact이 컨트랙트 간 호출을 지원하게 되면 unsafe 변형을 deprecate할 계획입니다.
+- <strong>safe circuit은 contract-address 수신자를 거부한다</strong>: `0.2.0` 버전은 컴파일러 `0.29.0`을 대상으로 하는데, 이 컴파일러는 [cross-contract calls](/compact/reference/compact-reference#cross-contract-calls)(ledger version 9와 함께 도입됨)보다 앞섭니다. 따라서 모든 모듈의 safe 경로(예: `Ownable.transferOwnership`, `AccessControl.grantRole`, `FungibleToken.transfer`)는 `ContractAddress` 수신자를 거부합니다. 각 모듈은 safe 변형과 함께, 위험이 드러나도록 명시적으로 이름 붙인 `_unsafe*` circuit을 짝지어 제공합니다. 유지보수자들은 라이브러리가 cross-contract call을 지원하게 되면 unsafe 변형을 deprecate할 계획입니다.
 
-- <strong>호출자 권한 확인에는 두 가지 방식이 있다</strong>: `Ownable`과 `AccessControl`은 `ownPublicKey()`를 직접 사용해 호출자를 확인합니다. `ZOwnablePK`와 `ShieldedAccessControl`은 witness에서 유도한 비밀을 해싱·instance salt와 결합해 commitment로 호출자를 검증하며, public key를 온체인에 절대 노출하지 않습니다. 컨트랙트가 소유자나 역할 보유자가 누구인지 드러내지 않아야 한다면 프라이버시 보존형 변형을 권장합니다.
+- <strong>호출자 권한 확인에는 두 가지 방식이 있다</strong>: `Ownable`, `AccessControl`, 그리고 토큰 모듈들은 계정 식별자로 호출자를 식별합니다. 이 식별자는 각 모듈이 `wit_OwnableSK` 같은 자체 witness에서 읽어 오는 비밀 키의 `persistentHash`입니다. 이들은 [derived-identity 패턴](/guides/security-best-practices#authenticating-a-caller-with-a-derived-identity)에 맞춰 `ownPublicKey()`에 의존하지 않습니다. 다만 그 가이드의 예제와 달리, 이 해시에는 도메인 구분자가 없습니다. 어느 쪽도 컨트랙트별 salt를 쓰지 않으므로, 같은 키를 사용하는 모든 컨트랙트에서 식별자가 동일합니다. 식별자가 서로 연결되지 않아야 한다면 컨트랙트마다 다른 키를 사용하세요. `ZOwnablePK`와 `ShieldedAccessControl`은 witness에서 유도한 비밀을 해싱·instance salt와 결합해 commitment로 호출자를 검증하며, public key를 온체인에 절대 노출하지 않습니다. `ZOwnablePK`는 여전히 `ownPublicKey()`를 소유자 식별자로 해싱하므로, 호출자를 인증하는 것은 그 `wit_secretNonce` witness에서 오는 비밀 nonce입니다. 컨트랙트가 소유자나 역할 보유자가 누구인지 드러내지 않아야 한다면 프라이버시 보존형 변형을 권장합니다.
 
-- <strong>`Either<ZswapCoinPublicKey, ContractAddress>`는 표준 주소 타입이다</strong>: `Utils.canonicalize` 헬퍼는 `Either`에서 사용하지 않는 쪽을 0으로 만들어, 양쪽 모두에 데이터가 담기는 조작된 입력 공격을 막습니다.
+- <strong>`Either<Bytes<32>, ContractAddress>`는 표준 주소 타입이다</strong>: `Utils.canonicalize` 헬퍼는 `Either`에서 사용하지 않는 쪽을 0으로 만들어, 양쪽 모두에 데이터가 담기는 조작된 입력 공격을 막습니다.
 
 ## Resources
 
@@ -204,8 +219,8 @@ Overall progress [====================] 3/3
 - [Project repository](https://github.com/OpenZeppelin/compact-contracts) - README, 소스, 기여 가이드.
 - [OpenZeppelin documentation site](https://docs.openzeppelin.com/contracts-compact/) - Overview, Learn, Modules, API Reference로 구성된 프로젝트 자체 레퍼런스.
 - [Module/Contract pattern](https://docs.openzeppelin.com/contracts-compact/extensibility) - `internal`, `public`, `external` circuit의 공식 용어와 안전한 조합 규칙.
-- [ZK Circuits 101](https://docs.openzeppelin.com/contracts-compact/zkCircuits101) - 컴파일 출력의 `k=N, rows=N` 숫자가 무엇을 뜻하고 circuit 크기가 왜 중요한지에 대한 짧은 입문서.
-- [Building a fungible-token contract with OpenZeppelin and Compact](/blog/fungible-token-contract-open-zeppelin) - `FungibleToken`을 다루는 Dev Diaries 가이드.
+- [ZK Circuits 101](https://docs.openzeppelin.com/contracts-compact/zk-circuits-101) - 컴파일 출력의 `k=N, rows=N` 숫자가 무엇을 뜻하고 circuit 크기가 왜 중요한지에 대한 짧은 입문서.
+- [Building a fungible-token contract with OpenZeppelin and Compact](/blog/fungible-token-contract-open-zeppelin) - `FungibleToken`을 다루는 Dev Diaries 가이드. 라이브러리의 이전 릴리스를 기준으로 작성되었습니다.
 
 ## Reporting issues
 

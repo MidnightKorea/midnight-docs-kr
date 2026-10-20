@@ -34,7 +34,7 @@ type InitialAPI = {
 };
 ```
 
-두 가지 discovery 경로를 모두 지원하세요. Lace나 1AM 같은 지갑은 고정된 친숙한 키 아래에 주입합니다(`window.midnight.mnLace`, `window.midnight['1am']`). 반면 v4 명세는 각 지갑을 자체 키 아래에 설치하고 안정적인 `rdns` 필드를 노출합니다. 지갑을 찾으려면 `Object.values(window.midnight)`를 훑어 `rdns`나 `name`으로 매칭하세요. 지갑을 사용하기 전에 그 `apiVersion`이 DApp이 지원하는 범위와 맞는지 확인하세요. 명세는 Ethereum의 EIP-6963 같은 이벤트 기반 discovery를 향후 추가 가능성으로 언급하지만, 현재 메커니즘은 공유된 `window.midnight` 객체입니다. ([React wallet-connect guide](https://docs.midnight.network/guides/react-wallet-connect))
+고정된 키에 의존하지 마세요. v4 명세는 각 지갑이 자신의 Initial API를 새로 생성한 UUID 키 아래에 설치하고 안정적인 `rdns` 필드를 노출하도록 합니다. 현재 Lace 빌드가 이렇게 동작합니다. 키는 페이지를 로드할 때마다 바뀌고, `mnLace`를 설정하지 않으며, `rdns`는 `io.lace.wallet`입니다. 1AM은 고정 키 `window.midnight['1am']`을 유지하며, `rdns`는 `com.midnight.1am`입니다. 지갑을 찾으려면 `Object.values(window.midnight)`를 훑어 `rdns`로 매칭하고, 지갑이 둘 이상이면 사용자가 고르게 하세요. 지갑을 사용하기 전에 그 `apiVersion`이 DApp이 지원하는 범위와 맞는지 확인하세요. 명세는 Ethereum의 EIP-6963 같은 이벤트 기반 discovery를 향후 추가 가능성으로 언급하지만, 현재 메커니즘은 공유된 `window.midnight` 객체입니다. ([React wallet-connect guide](https://docs.midnight.network/guides/react-wallet-connect))
 
 ## Connect and the ConnectedAPI surface
 
@@ -54,7 +54,7 @@ type InitialAPI = {
 
 :::warning[Feature-detect, because coverage varies]
 
-connector는 일종의 계약이지만, 모든 지갑이 모든 메서드를 구현하지는 않습니다. Lace는 `getProvingProvider()`나 `signData()`를 구현하지 않습니다(자세한 내용은 [Lace](./wallets-overview.mdx#lace) 참고). 호출하기 전에 항상 확인하세요. 예를 들어 `typeof api.getProvingProvider === "function"`처럼요.
+connector는 일종의 계약이지만, 모든 지갑이 모든 메서드를 구현하지는 않습니다. 예를 들어 Lace 2.4.2는 `hintUsage`를 undefined로 두고, `getTxHistory()` 호출을 `Method not implemented.` 오류로 거부합니다(자세한 내용은 [Lace](./wallets-overview.mdx#lace) 참고). 2.1.0 이전의 Lace 빌드에는 `getProvingProvider()`도 없습니다. 호출하기 전에 항상 확인하세요. 예를 들어 `typeof api.getProvingProvider === "function"`처럼요. 거부도 잡아야 합니다. 지갑이 메서드를 노출하면서도 구현하지 않을 수 있기 때문입니다.
 
 :::
 
@@ -68,9 +68,9 @@ Lace는 실제 authorization 팝업을 엽니다. 브라우저가 transient user
 
 모든 Midnight transaction에는 ZK proof가 필요합니다. 그 증명을 누가 생성하느냐가 지갑 사이의 핵심 차이이며, 이는 custody 모델과 맞물립니다.
 
-- **Local proof server (Lace).** Lace는 로컬 proof server를 요구합니다(Settings → Midnight → Local, `http://localhost:6300`). witness 데이터는 사용자의 기기에 머물지만, server를 직접 띄워야 합니다. Lace는 `getProvingProvider()`를 노출하지 않으므로, DApp이 proving을 Lace에 위임할 수 없습니다.
+- **Local proof server (Lace).** Lace는 로컬 proof server를 요구합니다(Settings → Midnight → Local, `http://localhost:6300`). witness 데이터는 사용자의 기기에 머물지만, server를 직접 띄워야 합니다. Lace 2.1.0 이상은 `getProvingProvider()`를 노출하며, 이때 반환되는 provider는 각 proof 요청을 바로 그 server로 보냅니다.
 - **In-browser WASM (1AM).** 1AM은 Midnight의 prover, 즉 BLS12-381 곡선 위의 Halo2 기반 zk-SNARK를 수 MB의 WASM으로 컴파일해 탭 안에서 proving합니다. 별도 프로세스가 없지만, proving 시간은 여전히 circuit 크기와 일회성 cold-start 키 로딩에 좌우됩니다. 1AM은 `getProvingProvider()`를 구현하며 hosted Proof Station을 제공합니다.
-- **Delegated (`getProvingProvider`).** v4 connector는 proving을 이 메서드 뒤로 추상화하며, 옛 `Configuration.proverServerUri`는 deprecate합니다. 가능하면 지갑에서 proving provider를 얻고, Lace의 경우 설정된 proof server로 fall back하세요.
+- **Delegated (`getProvingProvider`).** v4 connector는 proving을 이 메서드 뒤로 추상화하며, 옛 `Configuration.proverServerUri`는 deprecate합니다. 가능하면 지갑에서 proving provider를 얻고, 없으면 설정된 proof server로 fall back하세요.
 
 ## Fees and DUST
 
@@ -84,7 +84,7 @@ fee는 DUST로 지불하며, 지갑은 NIGHT을 보유함으로써 DUST를 생�
 import { setNetworkId } from "@midnight-ntwrk/midnight-js-network-id";
 import type { InitialAPI, ConnectedAPI } from "@midnight-ntwrk/dapp-connector-api";
 
-// 1. Discover (friendly key first, then the v4 rdns scan)
+// 1. Discover: scan window.midnight (keys are not stable, so do not hardcode one)
 const wallets = Object.values(window.midnight ?? {})
   .filter((w): w is InitialAPI => !!w?.name && !!w?.apiVersion);
 
@@ -105,8 +105,8 @@ async function connect(w: InitialAPI, networkId = "preprod"): Promise<ConnectedA
 
 connector 사이의 이런 차이를 처리하세요.
 
-- **Proving:** `getProvingProvider`를 feature-detect하세요. 1AM은 있지만 Lace는 없으므로, 로컬 proof server로 fall back하고 deprecate된 `proverServerUri`를 하드코딩하지 마세요.
-- **`signData`:** Lace에는 없으므로, 서명 기반 인증을 하기 전에 feature-detect하세요.
+- **Proving:** `getProvingProvider`를 feature-detect하세요. 1AM에는 있고, Lace도 2.1.0부터 있으며, 이때 반환되는 provider는 proof 요청을 지갑에 설정된 proof server로 보냅니다. 메서드가 없으면 로컬 proof server로 fall back하고, deprecate된 `proverServerUri`를 하드코딩하지 마세요.
+- **`signData`:** Lace는 이를 구현하며, 요청마다 사용자가 팝업에서 확인하도록 합니다. 명세가 요구하는 대로, Lace 2.4.0 이상은 `midnight_signed_message:<size>:` 뒤에 데이터를 붙여 서명하며, 여기서 `<size>`는 디코딩된 데이터의 바이트 길이입니다. 서명은 이 접두어가 붙은 바이트를 상대로 검증하세요. 다른 지갑에서는 서명 기반 인증을 하기 전에 feature-detect하세요.
 - **Pop-up:** Lace는 auth 팝업을 여므로 `connect()`를 동기적으로 유지하세요. 재연결 경로에는 제스처가 없으므로, `window.midnight`를 polling한 뒤 연결하세요.
 - **Network:** 항상 DApp을 `getConnectionStatus().networkId`에 맞추세요.
 - **DUST:** `getDustBalance()`를 읽고, `{ balance: 0n }`과 `cap`을 모두 처리하며, sponsor된 fee를 가정하지 마세요.
@@ -116,6 +116,8 @@ connector 사이의 이런 차이를 처리하세요.
 
 Edda Labs midnight-starter-template(데모는 `counter.nebula.builders`)는 Lace와 1AM을 복사·붙여넣기 가능한 wallet widget으로 연결합니다. 로직을 다시 유도하지 말고 이것을 사용하세요.
 
+widget의 `connectWallet`에는 지갑의 `window.midnight` 키가 아니라 `rdns`를 넘기세요. 현재 Lace 빌드는 페이지를 로드할 때마다 새 UUID 키 아래에 connector를 설치하고 `mnLace`를 설정하지 않는 반면, 1AM은 고정 키 `1am`을 유지합니다. widget은 넘겨받은 값을 저장했다가 새로고침 후 재연결에 재사용하므로, 저장된 UUID 키는 더 이상 매칭되지 않습니다. discovery 규칙은 [React wallet-connect guide](https://docs.midnight.network/guides/react-wallet-connect)를 참고하세요. 이 버튼은 호환되는 지갑을 모두 나열해 사용자가 하나를 고를 수 있게 합니다.
+
 ```tsx
 import { useWallet } from "@/modules/midnight/wallet-widget/hooks/useWallet";
 
@@ -123,7 +125,22 @@ function ConnectButton() {
   const { connectWallet, disconnect, status, dustBalance } = useWallet();
   if (status?.status === "connected")
     return <button onClick={() => disconnect()}>Connected · DUST {String(dustBalance?.balance)}</button>;
-  return <button onClick={() => connectWallet("mnLace", "preprod")}>Connect Lace</button>;
+
+  // List compatible wallets instead of hardcoding a key, and connect by rdns.
+  // The widget saves that value, so auto-reconnect still works after a reload.
+  const wallets = Object.values(window.midnight ?? {}).filter(
+    (w) => w?.rdns && w?.apiVersion?.startsWith("4."),
+  );
+  if (wallets.length === 0) return <button disabled>No Midnight wallet</button>;
+  return (
+    <>
+      {wallets.map((w) => (
+        <button key={w.rdns} onClick={() => connectWallet(w.rdns, "preprod")}>
+          Connect {w.name}
+        </button>
+      ))}
+    </>
+  );
 }
 ```
 

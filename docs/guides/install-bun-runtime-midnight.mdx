@@ -137,7 +137,7 @@ curl --proto '=https' --tlsv1.2 -LsSf \
 이 튜토리얼에서 사용하는 버전으로 업데이트하세요:
 
 ```bash
-compact update
+compact update 0.31.1
 ```
 
 3. 설치 확인
@@ -151,8 +151,11 @@ compact check
 성공하면 다음과 유사한 출력이 표시됩니다:
 
 ```bash
-compact: aarch64-darwin -- Up to date -- 0.31.0
+compact: aarch64-darwin -- Update Available -- 0.31.1
+compact: Latest version available: 0.35.0.
 ```
+
+`Update Available`은 설치가 실패했다는 뜻이 아니라 더 새로운 toolchain 릴리스가 존재한다는 뜻입니다. [호환성 매트릭스](../relnotes/support-matrix)에 나온 버전을 유지하세요. 더 새로운 릴리스는 공개 네트워크가 아직 실행하지 않는 ledger 버전을 대상으로 할 수 있습니다.
 
 4. "command not found" 수정 (PATH 문제)
 
@@ -292,7 +295,7 @@ export circuit storeMessage(customMessage: Opaque<"string">): [] {
 
 코드 설명:
 
-- `pragma language_version 0.23;` -- 이 스마트 컨트랙트에 필요한 Compact 컴파일러 버전을 지정합니다. 0.23 버전은 앞서 설치한 런타임 0.16.0과 호환됩니다.
+- `pragma language_version 0.23;` -- 이 스마트 컨트랙트가 요구하는 Compact 언어 버전을 지정합니다. toolchain 0.31.1은 언어 버전 0.23을 지원하며, 그것이 생성하는 코드는 앞서 설치한 런타임 0.16.0에서 실행됩니다.
 - `import CompactStandardLibrary;` -- Midnight 컨트랙트용 표준 함수와 타입을 로드합니다.
 - `export ledger message: Opaque<"string">;` -- 블록체인에 `message`라는 public state 변수를 선언합니다. 값은 누구에게나 공개됩니다.
 - `export circuit storeMessage(customMessage: Opaque<"string">): [] { ... }` -- 메시지를 블록체인에 저장하는 circuit입니다. `disclose()`로 메시지를 공개적으로 읽을 수 있게 만듭니다.
@@ -535,19 +538,25 @@ compact compile contracts/message.compact contracts/managed
 
 ```bash
 Exception: message.compact line 1 char 1:
-  language version 0.22.0 mismatch
+  language version 0.27.0 mismatch
 ```
 
 해결 방법:
 
-스마트 컨트랙트의 언어 버전을 정확히 지정하세요:
+이 메시지의 버전은 여러분 스마트 컨트랙트의 버전이 아니라, 컴파일러가 지원하는 언어 버전입니다. 예를 들어 toolchain 0.35.0은 `0.27.0`을 보고합니다. 이 가이드의 컨트랙트는 `pragma language_version 0.23;`을 선언하며, 이는 toolchain 0.31.1이 지원합니다. 그 toolchain 버전을 설치하세요:
 
-```compact
-pragma language_version 0.23;
+```bash
+compact update 0.31.1
+```
+
+그런 다음 스마트 컨트랙트를 다시 컴파일하세요:
+
+```bash
+compact compile contracts/message.compact contracts/managed
 ```
 
 :::note
-범위 대신 정확한 버전 번호(예: 0.22)를 사용하면 서로 다른 컴파일러 버전 간 호환성 문제를 방지할 수 있습니다.
+컴파일러가 지원하는 언어 버전을 확인하려면 `compact compile --language-version`을 실행하세요.
 :::
 
 4. Compact 컴파일러 설치 문제
@@ -567,7 +576,7 @@ compact --version
 - 명령을 찾을 수 없으면 PATH에 수동 추가하세요:
 
 ```bash
-export PATH="$HOME/.compact/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
 - 재설치를 시도하세요:
@@ -583,4 +592,4 @@ Bun 설정이 완료되었으니 Midnight에서 DApp을 빌드할 수 있습니�
 
 - [DApp connector](/api-reference/dapp-connector)
 - [컨트랙트 배포](../guides/deploy-and-operate)
-- [컨트랙트와 상호작용](../guides/interact-with-mn-app)
+- [첫 Midnight contract 만들기](/getting-started/hello-world)

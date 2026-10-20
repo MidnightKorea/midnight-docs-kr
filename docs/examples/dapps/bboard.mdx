@@ -128,7 +128,7 @@ export circuit publicKey(sk: Bytes<32>, sequence: Bytes<32>): Bytes<32> {
 
 게시판 예제를 시작하기 전에 다음 사항을 확인하세요:
 
-- Node.js 버전 22 이상
+- 저장소의 `.nvmrc`와 `engines` 필드에 고정된 버전의 Node.js
 - Docker Desktop 설치 및 실행 중
 - Compact 툴체인 설치 완료
 - 커맨드 라인 사용 경험
@@ -165,7 +165,7 @@ proof server는 개인 데이터 보호를 위해 트랜잭션의 영지식 증�
 다음 명령으로 proof server를 시작합니다:
 
 ```bash
-docker run -p 6300:6300 midnightntwrk/proof-server:8.0.3 -- midnight-proof-server -v
+docker run -p 6300:6300 -e MIDNIGHT_PROOF_SERVER_VERBOSE=true midnightntwrk/proof-server:8.0.3
 ```
 
 :::tip
@@ -233,19 +233,20 @@ npm install
 
 `bboard-cli` 폴더의 `package.json`에 Preprod 네트워크용 `preprod-remote` 스크립트가 정의되어 있습니다.
 
-다음 명령으로 CLI를 시작합니다:
+Blockfrost가 Preprod indexer와 노드 RPC를 제공하므로, 이 스크립트에는 Blockfrost **Midnight Preprod** 프로젝트 토큰이 필요합니다. [Getting a Blockfrost project token](../../guides/networks-and-environments#getting-a-blockfrost-project-token)을 참조하세요. 토큰을 `BLOCKFROST_PROJECT_ID`에 넣어 `preprod-remote` 스크립트를 실행해 CLI를 시작합니다:
 
 ```bash
-npm run preprod-remote
+BLOCKFROST_PROJECT_ID=<your Midnight Preprod project ID> npm run preprod-remote
 ```
 
 CLI가 시작되고 Preprod 네트워크에 연결됩니다. 다음과 같은 출력이 표시됩니다:
 
-```
- Starting test environment...
+```text
+ Starting test environment... 
  Performing env health check
- Connected to indexer https://indexer.preprod.midnight.network/ready: ""
- Connected to proof server http://127.0.0.1:6300/health: {"status":"ok"}
+ Connected to node https://rpc.midnight-preprod.blockfrost.io/health: {"peers":28,"isSyncing":false,"shouldHavePeers":true}
+ Connected to indexer https://midnight-preprod.blockfrost.io/ready: 
+ Connected to proof server http://localhost:32769/health: {"status":"ok","timestamp":"2026-10-08 21:29:21.264663515 +00:00:00"}
  Environment started with configuration
 
 You can do one of the following:
@@ -254,6 +255,8 @@ You can do one of the following:
   3. Exit
 Which would you like to do?
 ```
+
+proof server 포트는 실행할 때마다 바뀝니다. CLI는 전체 설정을 터미널과 `logs/` 아래 파일에 기록하는데, 여기에는 각 Blockfrost URL에 담긴 토큰이 포함되므로 이 로그를 공유하지 마세요.
 
 ### Set up your wallet
 

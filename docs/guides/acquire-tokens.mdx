@@ -14,15 +14,16 @@ tags: [midnight, tokens, dust, night, wallet, funding]
 
 Midnight의 모든 트랜잭션은 DUST를 소비하며, DUST는 DUST 생성을 위해 등록한 NIGHT에서 나옵니다. 테스트 네트워크에서는 양쪽 모두 무료입니다. faucet이 tNIGHT을 보내주고, 그것을 등록하면 tDUST가 쌓이기 시작합니다. 이 가이드는 전체 경로를 안내합니다. faucet에서 tNIGHT을 요청하고, Lace wallet에서 등록한 다음, 자금 조달을 스크립트화해야 할 때는 wallet SDK로 같은 작업을 프로그래밍 방식으로 수행합니다. 두 토큰 모델이 이렇게 동작하는 이유는 [Funding and transaction cost](./networks-and-environments#funding-and-transaction-cost)를 참고하세요.
 
-문서 전반에 걸쳐 중요한 용어가 하나 있습니다. NIGHT을 DUST 생성을 위해 **등록(register)**한다는 것은, 프로토콜과 SDK도 registration이라 부르는 온체인 연산을 말합니다. Lace는 이 버튼을 **Generate tDUST**로 표시하고, 그 결과를 tNIGHT designation으로 보여줍니다.
+문서 전반에 걸쳐 중요한 용어가 하나 있습니다. NIGHT을 DUST 생성을 위해 **등록**한다는 것은, 프로토콜과 SDK도 registration이라 부르는 온체인 연산을 말합니다. Lace는 이 버튼을 **Generate tDUST**로 표시하고, 그 결과를 tNIGHT designation으로 보여줍니다.
 
 ## Prerequisites
 
 이 가이드의 모든 절차에 공통으로 적용됩니다:
 
-- faucet 및 Lace 절차용으로, 대상 테스트 네트워크에 설정된 [Lace wallet](../getting-started/installation).
+- faucet 및 Lace 절차용으로, 대상 테스트 네트워크에 설정된 [Lace wallet](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk).
 - wallet SDK 절차용으로, Node.js 버전 22 이상. macOS, Linux, 그리고 WSL을 통한 Windows 모두 동작합니다.
 - wallet SDK 절차용으로, `6300` 포트에서 실행되는 로컬 [proof server](./run-proof-server).
+- wallet SDK 절차용으로, `BLOCKFROST_PROJECT_ID` 환경 변수에 담긴 Blockfrost **Midnight Preprod** project token. Preprod indexer와 node RPC는 Blockfrost가 제공합니다. [Getting a Blockfrost project token](./networks-and-environments#getting-a-blockfrost-project-token)을 참고하세요.
 - 검증 테스트를 실행하려면, 아래 나열된 패키지와 함께 [Vitest](https://vitest.dev/).
 
 {/* _mod-docs-content-type: PROCEDURE */}
@@ -45,12 +46,12 @@ Midnight의 모든 트랜잭션은 DUST를 소비하며, DUST는 DUST 생성을 
 3. 주소를 붙여넣고, captcha를 완료한 뒤, **Request tokens**를 선택하세요. faucet이 제출을 확인해 줍니다:
 
    ```text
-   Transaction submitted. You will shortly receive 1000 tNight in your wallet. This is the transaction ID: 00f15defb8d3...
+   Transaction submitted. You will shortly receive 5000 tNight in your wallet. This is the transaction ID: 00f15defb8d3...
    ```
 
 ### Verification
 
-tNIGHT 잔액은 몇 분 안에 지갑에 나타납니다. Preprod faucet 요청당 1,000.0 tNIGHT입니다. Lace에서는 unshielded 잔액이 지갑 메인 화면에서 갱신됩니다. 코드에서는 [Registering NIGHT for DUST generation with the wallet SDK](#registering-night-for-dust-generation-with-the-wallet-sdk)의 잔액 워처가 자금이 도착하는 즉시 resolve됩니다.
+tNIGHT 잔액은 몇 분 안에 지갑에 나타납니다. faucet 요청당 5,000 tNIGHT입니다. Lace에서는 unshielded 잔액이 지갑 메인 화면에서 갱신됩니다. 코드에서는 [Registering NIGHT for DUST generation with the wallet SDK](#registering-night-for-dust-generation-with-the-wallet-sdk)의 잔액 워처가 자금이 도착하는 즉시 resolve됩니다.
 
 {/* _mod-docs-content-type: PROCEDURE */}
 ## Registering NIGHT for DUST generation in Lace
@@ -117,7 +118,7 @@ wallet SDK는 단일 barrel 패키지 `@midnightntwrk/wallet-sdk`로 제공되�
    curl http://localhost:6300/health
    ```
 
-3. `src/index.ts`를 만들고 import와 설정을 추가하세요. 스크립트는 지갑 코드가 실행되기 전에 `ws` 패키지를 전역 WebSocket으로 지정하며, 이는 Node 버전 간 WebSocket 동작을 일관되게 유지해 줍니다. endpoint는 [Environment reference](./networks-and-environments#environment-reference)에서 가져옵니다:
+3. `src/index.ts`를 만들고 import와 설정을 추가하세요. 스크립트는 지갑 코드가 실행되기 전에 `ws` 패키지를 전역 WebSocket으로 지정하며, 이는 Node 버전 간 WebSocket 동작을 일관되게 유지해 줍니다. endpoint는 [Environment reference](./networks-and-environments#environment-reference)에서 가져오며, 스크립트는 `BLOCKFROST_PROJECT_ID`에서 Blockfrost token을 읽어 각 endpoint에 덧붙입니다:
 
    ```typescript
    import { WebSocket } from 'ws';
@@ -146,10 +147,15 @@ wallet SDK는 단일 barrel 패키지 `@midnightntwrk/wallet-sdk`로 제공되�
 
    setNetworkId('preprod');
 
+   // The Preprod indexer and node RPC are served by Blockfrost and need a project token.
+   const projectId = process.env.BLOCKFROST_PROJECT_ID?.trim();
+   if (!projectId) throw new Error('BLOCKFROST_PROJECT_ID is not set.');
+   const withBlockfrostKey = (url: string) => `${url}?project_id=${encodeURIComponent(projectId)}`;
+
    const CONFIG = {
-     indexerHttpUrl: 'https://indexer.preprod.midnight.network/api/v4/graphql',
-     indexerWsUrl: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
-     node: 'https://rpc.preprod.midnight.network',
+     indexerHttpUrl: withBlockfrostKey('https://midnight-preprod.blockfrost.io/api/v0'),
+     indexerWsUrl: withBlockfrostKey('wss://midnight-preprod.blockfrost.io/api/v0/ws'),
+     node: withBlockfrostKey('https://rpc.midnight-preprod.blockfrost.io'),
      proofServer: 'http://localhost:6300',
    };
    ```
@@ -204,7 +210,7 @@ seed를 실행 중인 지갑으로 바꾸세요. Midnight 지갑은 하나의 se
    const keys = deriveKeys(seed);
    ```
 
-2. 세 개의 하위 지갑을 만들고 `WalletFacade` 뒤에서 통합하세요. DUST 지갑에는 `costParameters`가 필요합니다. `feeBlocksMargin`은 수수료 추정이 몇 블록의 확정 시간을 감안할지를 정하고, `additionalFeeOverhead`는 계산된 수수료 위에 더하는 선택적 버퍼로, 생략하면 `0n`이 기본값입니다:
+2. 세 개의 하위 지갑을 만들고 `WalletFacade` 뒤에서 통합하세요. DUST 지갑에는 `costParameters`가 필요합니다. `feeBlocksMargin`은 수수료 추정이 몇 블록의 확정 시간을 감안할지를 정하고, `additionalFeeOverhead`는 지갑이 선언하는 모든 수수료에 더하는 선택적 금액으로, 생략하면 `0n`이 기본값입니다. DUST spend에는 환불이 없으므로 지갑은 overhead를 포함해 선언된 수수료 전액을 씁니다:
 
    ```typescript
    const shieldedSecretKeys = ledger.ZswapSecretKeys.fromSeed(keys[Roles.Zswap]);
@@ -231,7 +237,7 @@ seed를 실행 중인 지갑으로 바꾸세요. Midnight 지갑은 하나의 se
    const dustConfig = {
      ...shieldedConfig,
      costParameters: {
-       // Optional buffer added on top of the computed fee. Defaults to 0n.
+       // Optional amount added to every fee the wallet declares. A DUST spend does not return it. Defaults to 0n.
        additionalFeeOverhead: 300_000_000_000_000n, // 0.3 DUST
        // Blocks to allow for finalization when estimating the fee.
        feeBlocksMargin: 5,
@@ -278,10 +284,15 @@ import { setNetworkId, getNetworkId } from '@midnight-ntwrk/midnight-js-network-
 
 setNetworkId('preprod');
 
+// The Preprod indexer and node RPC are served by Blockfrost and need a project token.
+const projectId = process.env.BLOCKFROST_PROJECT_ID?.trim();
+if (!projectId) throw new Error('BLOCKFROST_PROJECT_ID is not set.');
+const withBlockfrostKey = (url: string) => `${url}?project_id=${encodeURIComponent(projectId)}`;
+
 const CONFIG = {
-  indexerHttpUrl: 'https://indexer.preprod.midnight.network/api/v4/graphql',
-  indexerWsUrl: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
-  node: 'https://rpc.preprod.midnight.network',
+  indexerHttpUrl: withBlockfrostKey('https://midnight-preprod.blockfrost.io/api/v0'),
+  indexerWsUrl: withBlockfrostKey('wss://midnight-preprod.blockfrost.io/api/v0/ws'),
+  node: withBlockfrostKey('https://rpc.midnight-preprod.blockfrost.io'),
   proofServer: 'http://localhost:6300',
 };
 
@@ -397,7 +408,7 @@ Lace 절차가 UI로 하는 일을 코드로 수행하세요. 지갑에 자금�
 
 1. unshielded 주소를 출력하고, [faucet](#getting-tnight-from-the-faucet)에서 자금을 넣은 뒤, 자금 도착을 지켜보세요. 지갑이 아직 sync 중이어도 잔액은 스트리밍으로 들어오며, 잔액은 블록 확정된 트랜잭션의 UTXO만 집계합니다. 따라서 갓 자금을 넣은 지갑에서 잔액이 양수라는 것은 sync가 아직 진행 중이더라도 토큰이 이미 도착했다는 뜻입니다.
 
-   잔액은 최소 단위의 `bigint` 값으로 도착합니다. NIGHT은 10<sup>6</sup> STAR로 나뉘므로, faucet의 1,000 tNIGHT은 `1000000000`으로 읽힙니다. DUST는 10<sup>15</sup> SPECK으로 나뉩니다. 표시하기 전에 변환하세요:
+   잔액은 최소 단위의 `bigint` 값으로 도착합니다. NIGHT은 10<sup>6</sup> STAR로 나뉘므로, faucet의 5,000 tNIGHT은 `5000000000`으로 읽힙니다. DUST는 10<sup>15</sup> SPECK으로 나뉩니다. 표시하기 전에 변환하세요:
 
    ```typescript
    const formatNight = (raw: bigint) =>
@@ -418,7 +429,7 @@ Lace 절차가 UI로 하는 일을 코드로 수행하세요. 지갑에 자금�
    console.log(`tNIGHT received: ${formatNight(nightBalance)}`);
    ```
 
-2. 지갑이 sync되기를 기다린 다음, 등록되지 않은 NIGHT UTXO를 DUST 생성을 위해 등록하세요. 등록에는 완전히 sync된 지갑이 필요하므로 `waitForSyncedState`가 이 단계를 막습니다. 재시작한 스크립트는 처음부터 다시 sync하므로 프로세스를 계속 실행해 두세요. 등록은 recipe로 구성되어, unshielded keystore로 서명되고, finalize된 뒤, 제출됩니다. 생성된 DUST를 다른 지갑으로 보내려면, 그 지갑의 DUST 주소를 receiver로 디코딩하세요:
+2. 지갑이 sync되기를 기다린 다음, 등록되지 않은 NIGHT UTXO를 DUST 생성을 위해 등록하세요. 등록에는 완전히 sync된 지갑이 필요하므로 `waitForSyncedState`가 이 단계를 막습니다. 재시작한 스크립트는 처음부터 다시 sync하므로 프로세스를 계속 실행해 두세요. 첫 등록은 NIGHT이 도착한 뒤 생성했을 DUST에서 자체 수수료를 지불합니다. `estimateRegistration`은 도달해야 할 금액을 반환하고, `waitForGeneratedDust`는 UTXO가 그만큼 생성할 때까지 기다립니다. 이 대기 없이 자금 도착 직후에 등록을 구성하면 지갑이 서명하기도 전에 예외가 발생합니다. [Registration rules](./manage-dust#registration-rules)에서 너무 작거나 너무 새로운 UTXO를 다룹니다. 등록은 recipe로 구성되어, unshielded keystore로 서명되고, finalize된 뒤, 제출됩니다. 생성된 DUST를 다른 지갑으로 보내려면, 그 지갑의 DUST 주소를 receiver로 디코딩하세요:
 
    ```typescript
    const state = await wallet.waitForSyncedState();
@@ -433,6 +444,10 @@ Lace 절차가 UI로 하는 일을 코드로 수행하세요. 지갑에 자금�
      // Send the DUST elsewhere by replacing this with another wallet's address.
      const target = String(DustAddress.encodePublicKey(getNetworkId(), state.dust.publicKey));
      const dustReceiver = MidnightBech32m.parse(target).decode(DustAddress, getNetworkId());
+
+     // Wait until the NIGHT has generated enough DUST to pay the registration's own fee.
+     const { fee } = await wallet.estimateRegistration(unregistered);
+     await wallet.waitForGeneratedDust(unregistered, fee);
 
      const recipe = await wallet.registerNightUtxosForDustGeneration(
        unregistered,
@@ -479,7 +494,7 @@ describe('restored capabilities', () => {
   });
 
   it('formats the faucet amount in NIGHT and DUST denominations', () => {
-    expect(formatNight(1000000000n)).toBe('1000.000000');
+    expect(formatNight(5000000000n)).toBe('5000.000000');
     expect(formatDust(405083000000n)).toBe('0.000405083000000');
   });
 
@@ -501,7 +516,7 @@ describe('restored capabilities', () => {
       Tests  3 passed (3)
 ```
 
-전체 절차를 Preprod에 대해 실행하면 제출된 등록을 거쳐 DUST 잔액까지 이어집니다. 같은 지갑에 대해 재실행하면, 첫 실행에서 이미 등록이 완료된 상태로 다음이 출력됩니다:
+전체 절차를 Preprod에 대해 실행하면 제출된 등록을 거쳐 DUST 잔액까지 이어집니다. 같은 지갑에 대해 재실행하면, 첫 실행에서 이미 등록이 완료된 상태로 다음이 출력됩니다. 이 실행의 지갑은 1,000 tNIGHT을 보유하고 있습니다. faucet 요청 한 번으로 자금을 받은 지갑은 `5000.000000`을 표시합니다:
 
 ```text
 Send tNIGHT to: mn_addr_preprod1857k0p0nmd7g6788h6pr30lkdncg8zt097eq8cl57tx78gwhqlsqnr8r65
@@ -522,6 +537,7 @@ DUST는 등록한 NIGHT이 정한 상한을 향해 지속적으로 쌓이므로,
 | Faucet says `Provided address is invalid` | 주변 공백 없이 **unshielded** 주소(`mn_addr_...`)를 사용하세요. faucet은 shielded 주소와 DUST 주소를 거부합니다. |
 | Faucet says `rate_limit_error` or `Reached maximum number of requests` | 몇 시간 기다렸다 다시 시도하세요. 계속되면 [Midnight Service Desk](https://midnightntwrk.github.io/servicedesk/)에 티켓을 열거나 [Discord](https://discord.gg/midnightnetwork)에서 문의하세요. |
 | `Cannot find module` when running the script | 먼저 `npm install`을 실행하세요. 계속되면 `node_modules`와 `package-lock.json`을 삭제한 뒤 다시 설치하세요. |
+| `BLOCKFROST_PROJECT_ID is not set.` 또는 지갑 sync 중 HTTP `403` 오류 | `BLOCKFROST_PROJECT_ID`를 Blockfrost의 **Midnight Preprod** project ID로 설정하세요. Mainnet project의 token은 Preprod에서 `403`을 받습니다. 각 `403` 메시지는 [Migrating from the Midnight-hosted endpoints](./networks-and-environments#migrating-from-the-midnight-hosted-mainnet-endpoints)를 참고하세요. |
 | Connection refused on port 6300 | proof server가 실행되고 있지 않습니다. [Run the proof server](./run-proof-server)를 참고하세요. |
 | Balance stays zero after the faucet confirms | 몇 분 기다리세요. 지갑은 다음 sync 후에 자금을 감지합니다. 붙여넣은 주소가 출력된 주소와 정확히 일치하는지 확인하세요. |
 | DUST stays zero after registration | 등록이 온체인에 올라갈 시간을 준 다음, proof server가 `http://localhost:6300/health`에서 응답하는지 확인하세요. |
@@ -529,6 +545,7 @@ DUST는 등록한 NIGHT이 정한 상한을 향해 지속적으로 쌓이므로,
 
 ## Additional resources
 
+- [Managing DUST for transaction fees](./manage-dust): DUST 파라미터와 잔액 읽기, 수수료 추정, 지갑에 DUST가 생긴 뒤 여러 트랜잭션 보내기.
 - [Funding and transaction cost](./networks-and-environments#funding-and-transaction-cost): NIGHT이 DUST를 생성하는 이유와 트랜잭션이 소비하는 것.
 - [Environment reference](./networks-and-environments#environment-reference): 네트워크별 faucet과 endpoint.
 - [Run the proof server](./run-proof-server): SDK 경로가 의존하는 로컬 proof server.

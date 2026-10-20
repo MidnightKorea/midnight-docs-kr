@@ -84,6 +84,21 @@ flowchart TD
 
 생성 속도는 보유한 NIGHT 양(`N`), DUST 상한과 NIGHT 보유량의 비율(`ρ`), "상한까지 도달하는 시간"(`Δ`)에 따라 결정됩니다.
 
+#### Units and denominations
+
+두 토큰 모두 고정된 원자 단위를 가지며, ledger 소스(`ledger/src/structure.rs`)에 상수로 정의되어 있습니다:
+
+- **Star**: NIGHT의 원자 단위. `STARS_PER_NIGHT = 1,000,000`이므로 1 NIGHT = 10<sup>6</sup> Star입니다.
+- **Speck**: DUST의 원자 단위. `SPECKS_PER_DUST = 1,000,000,000,000,000`이므로 1 DUST = 10<sup>15</sup> Speck입니다.
+
+`night_dust_ratio`의 초기값은 ledger 소스에서 이 상수들로부터 유도됩니다: `5 × (SPECKS_PER_DUST ÷ STARS_PER_NIGHT) = 5,000,000,000` Specks per Star이며, 이 페이지 전체에서 사용하는 NIGHT당 5 DUST 상한이 바로 이 값입니다.
+
+:::note
+
+토크노믹스 백서를 포함한 이전 자료에서는 1 DUST가 10<sup>6</sup> Speck이라고 설명합니다. 위의 ledger 상수가 기준입니다. 올바른 비율은 10<sup>15</sup>입니다.
+
+:::
+
 #### Generation rate and capacity
 
 두 개의 ledger 파라미터가 DUST가 쌓이는 속도와 누적될 수 있는 최대량을 결정합니다(초기값은 아래 [Initial DUST parameters](#initial-dust-parameters)에 나옵니다):
@@ -93,7 +108,7 @@ flowchart TD
 
 백킹 NIGHT UTXO가 소비되지 않은 동안, UTXO 생성 시점으로부터 `t`초가 지난 시점의 연관 DUST 값(Speck 단위)은 `N × g × t`와 `N × ρ` 중 더 작은 값입니다. 여기서 `N`은 UTXO의 Star 단위 값, `g`는 `generation_decay_rate`, `ρ`는 `night_dust_ratio`입니다.
 
-속도와 상한이 모두 `N`에 선형 비례하므로, 상한에 도달하는 시간은 NIGHT 양과 무관하게 동일합니다: `Δ = ρ ÷ g = 5,000,000,000 ÷ 8,267 ≈ 604,800`초. 여기서 "약 일주일"이라는 생성 시간이 나옵니다.
+속도와 상한이 모두 `N`에 선형 비례하므로, 상한에 도달하는 시간은 NIGHT 양과 무관하게 동일합니다: `Δ = ρ ÷ g = 5,000,000,000 ÷ 8,267`이며, ledger는 이를 604,815초로 올림합니다. 여기서 "약 일주일"이라는 생성 시간이 나옵니다.
 
 예를 들어, 등록된 DUST 주소를 가진 100 NIGHT(100,000,000 Star)짜리 NIGHT UTXO 하나를 보유한다고 합시다:
 
@@ -161,10 +176,7 @@ struct DustUtxoState {
 
 ## Initial DUST parameters
 
-DUST와 NIGHT은 서로 다른 단위를 사용합니다. 각 단위와 초기 파라미터는 다음과 같습니다.
-
-* **NIGHT 단위**: `Star (1 NIGHT = 10^6 Stars)`
-* **DUST 단위**: `Speck (1 DUST = 10^15 Specks)`
+DUST와 NIGHT은 서로 다른 단위를 사용하며, 위의 [Units and denominations](#units-and-denominations)에 정의되어 있습니다. 초기 파라미터는 다음과 같습니다:
 
 ```rust
 const INITIAL_DUST_PARAMETERS: DustParameters = {
@@ -302,7 +314,7 @@ flowchart TD
         M2 --> M4{Determine UTXO Type};
 
         M4 -- AssetCreate (cNIGHT Received) --> M5[Handle Create: DUST UTXO Creation];
-        M4 -- AssetSpend (cNIGHT Spent) --> M6[Handle Spend: DUST UTXO Destruction];
+        M4 -- AssetSpend (cNIGHT Spent) --> M6[Handle Spend: DUST UTXO Decay];
 
         M5 --> M7(Collect CNightGeneratesDustEvents);
         M6 --> M7;
@@ -332,11 +344,11 @@ flowchart TD
 
 3–4/ Midnight 팔레트는 정확히 하나의 유효한 등록이 존재하는지 검증한 뒤 cNIGHT 활동을 관찰합니다.
 
-5–6/ 수신(생성)인지 전송(소멸)인지 판별하여 그에 해당하는 DUST 생성 또는 소멸 이벤트를 만듭니다.
+5–6/ 해당 주소가 cNIGHT을 수신했는지 소비했는지 판별하여 그에 해당하는 이벤트를 만듭니다. `Create` 이벤트는 DUST UTXO를 생성합니다. `Destroy` 이벤트는 DUST UTXO를 제거하지 않습니다. cNIGHT이 소비된 시각을 기록하고, DUST UTXO는 그 시점부터 소멸합니다.
 
 7–9/ 한 블록 내의 모든 이벤트를 모아 LedgerApi를 통해 단일 시스템 트랜잭션으로 래핑하고, 이를 Midnight ledger에서 실행합니다.
 
-→ **최종 결과**: DUST 공급량과 UTXO가 Cardano의 cNIGHT 이동과 1:1로 동기화됩니다.
+→ **최종 결과**: 등록된 주소에서 생성된 각 cNIGHT UTXO는 Midnight에서 DUST UTXO 하나를 받으며, 그 DUST UTXO는 cNIGHT UTXO가 소비될 때 소멸을 시작합니다.
 
 ## Next steps
 

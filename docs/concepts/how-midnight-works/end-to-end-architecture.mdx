@@ -69,7 +69,7 @@ flowchart TB
 
 | Layer | 볼 수 있는 것 | 볼 수 없는 것 |
 |---|---|---|
-| 체인 관찰자(누구나) | 컨트랙트 주소, 트랜잭션이 호출한 circuit, public transcript, ledger 연산 인자, 공개된 값, commitment, nullifier, 블록 타이밍 | witness 반환값(공개 위치로 disclose되지 않은 한), private state, 내부 연산, Compact `MerkleTree`에 삽입된 값(엔트로피가 낮으면 추측 가능), 주어진 nullifier가 어떤 commitment을 소비하는지 |
+| 체인 관찰자(누구나) | 컨트랙트 주소, 트랜잭션이 호출한 circuit, public transcript, ledger 연산 인자, circuit이 disclose하여 ledger에 쓰는 값, commitment, nullifier, 블록 타이밍 | witness 반환값(disclose되어 ledger 연산에 사용되지 않은 한), exported circuit의 반환값, private state, 내부 연산, Compact `MerkleTree`에 삽입된 값(엔트로피가 낮으면 추측 가능), 주어진 nullifier가 어떤 commitment을 소비하는지 |
 | 노드(밸리데이터) | 체인 관찰자와 동일, 여기에 mempool 타이밍 추가 | 체인 관찰자와 동일 |
 | Indexer | 체인상의 모든 것(공개 데이터를 인덱싱함) | private state, witness 값. commitment을 열 수 없음 |
 | Indexer(여러분의 viewing key 사용 시) | 여러분 자신의 shielded 트랜잭션 이력(복호화 전용 접근. indexer 운영자도 이를 알게 됨) | 다른 사용자의 shielded 데이터. viewing key로는 소비하거나 서명할 수 없음 |

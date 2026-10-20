@@ -20,7 +20,7 @@ Midnight Foundation은 여기 나열된 프로젝트를 유지보수하지 않�
 
 :::
 
-이 가이드는 DApp, backend, agent, 또는 개인 용도에 맞는 지갑을 고르도록 돕습니다. 그런 다음 그것을 연동하는 코드로 안내합니다. 전체 지형을 두 가지 질문으로 분류합니다. 누가 키를 통제하는가(custody), 그리고 지갑에 어떻게 접근하는가(interface)입니다.
+이 가이드는 DApp, backend, agent, 또는 개인 용도에 맞는 지갑을 고르도록 돕습니다. 그런 다음 그것을 연동하는 코드로 안내합니다. 전체 지형을 두 가지 질문으로 분류합니다. 누가 키를 통제하는가, 그리고 지갑에 어떻게 접근하는가입니다.
 
 :::note[Accurate as of June 2026]
 
@@ -41,7 +41,7 @@ Midnight wallet 생태계는 빠르게 움직입니다. 일부 연동은 출시�
 - 기본값으로 privacy: 1AM(기본 shielded, in-browser proving).
 - mobile 우선 또는 embedded wallet: Kuira(Android SDK, on-device proving; [Kuira](#kuira) 참고).
 - 멀티체인 지갑 하나: Ctrl(connector를 feature-detect).
-- 향후 소비자 onboarding: Midnight Passport(발표됨; [Midnight Passport](#midnight-passport-announced) 참고).
+- 향후 소비자 onboarding: Midnight Passport(개발 중; [Midnight Passport](#midnight-passport) 참고).
 
 urble은 소비자용 privacy 저축 앱이지, DApp 연동 대상이 아닙니다.
 
@@ -58,7 +58,7 @@ Midnight에서의 custody:
 
 - **Self-custody:** 키가 최종 사용자의 기기, 확장, mobile secure storage, 또는 하드웨어에 머물고, 제3자는 서명할 수 없습니다. 거의 모든 Midnight wallet이 여기에 속합니다: Lace, 1AM, Kuira, Ctrl, Gero, SubWallet, NuFi.
 - **Custodial:** provider가 키를 보유하고 서명합니다. 아직 first-party 소비자 custodial wallet을 문서화한 곳은 없으며, 단기 경로는 기관용 MPC에 거래소 또는 Wallet-IaaS provisioning을 더한 형태입니다.
-- **스마트 컨트랙트 / account abstraction:** 계정이 프로그래밍 가능한 authorization(multisig, 소셜 복구, session key)을 갖춘 on-chain 코드입니다. Midnight에는 native account abstraction이 없어, 이 행은 비어 있습니다.
+- **스마트 컨트랙트 / account abstraction:** 계정이 프로그래밍 가능한 authorization(multisig, 소셜 복구, session key)을 갖춘 on-chain 코드입니다. Midnight에는 native account abstraction이 없습니다. 여기 속하는 유일한 지갑은 Midnight Passport로, 개발 중이며 계정을 Compact contract로 만듭니다.
 - **MPC / threshold:** *m*-of-*n* 정족수가 전체 키를 재구성하지 않고 서명합니다. Midnight에서는 NIGHT을 위한 Fireblocks가 이끄는 기관용 경로입니다.
 
 ### The matrix
@@ -67,12 +67,12 @@ Midnight에서의 custody:
 
 | Custody / Interface | Browser | Mobile | CLI (SDK / CI) | MCP (AI agents) |
 |---|---|---|---|---|
-| **Self-custody** | Available: Lace, 1AM, Ctrl, Gero, SubWallet, NuFi | Available: 1AM (beta), urble, Kuira (Android, alpha) | Available: midnight-wallet-cli (`midnight serve`) | Available: midnight-wallet-cli MCP server |
+| **Self-custody** | Available: Lace, 1AM, Ctrl, Gero, SubWallet, NuFi | Available: 1AM (iOS, Android), urble, Kuira (Android, alpha) | Available: midnight-wallet-cli (`midnight serve`) | Available: midnight-wallet-cli MCP server |
 | **Custodial** | Not yet (*CEX web wallets*) | Not yet (*CEX apps*) | Not yet (*exchange custody APIs*) | Not yet (*provider agent tooling*) |
-| **스마트 컨트랙트 / AA** | Not yet (*Safe, ERC-4337*) | Not yet | Not yet | Not yet |
-| **MPC / threshold** | Emerging: *Midnight Passport*; institutional console | Emerging: *Midnight Passport* | Emerging: Fireblocks (institutional); Dynamic (Midnight not documented) | Emerging: MPC plus agent custody (*industry*) |
+| **스마트 컨트랙트 / AA** | Emerging: Midnight Passport | Emerging: Midnight Passport | Not yet | Not yet |
+| **MPC / threshold** | Emerging: institutional console | Not yet | Emerging: Fireblocks (institutional); Dynamic (Midnight not documented) | Emerging: MPC plus agent custody (*industry*) |
 
-self-custody 행은 오늘날 네 가지 interface 모두에서 가동 중이며, 대부분의 DApp은 self-custody 브라우저·mobile wallet을 대상으로 합니다. account-abstraction 행은 Midnight에 native smart account가 없어서 비어 있습니다. MPC 행은 대체로 기관용이며, 소비자용으로는 Midnight Passport 하나가 출시를 앞두고 있습니다.
+self-custody 행은 오늘날 네 가지 interface 모두에서 가동 중이며, 대부분의 DApp은 self-custody 브라우저·mobile wallet을 대상으로 합니다. account-abstraction 행에는 개발 중인 Midnight Passport 하나만 있습니다. MPC 행은 대체로 기관용입니다.
 
 ## Choose by scenario
 
@@ -104,31 +104,32 @@ Lace, 1AM, Kuira는 전체 프로필을 다루고, 나머지는 더 짧습니다
 ### Lace
 
 **Best for:** 사용자가 로컬 proof server를 실행할 수 있는 표준 DApp.
-**Status:** 가동 중, 부분 `ConnectedAPI`(아직 `getProvingProvider`나 `signData` 없음). 오픈소스.
+**Status:** 가동 중, 부분 `ConnectedAPI`. 2.4.2 기준으로 Lace는 `hintUsage`를 undefined로 두고 `getTxHistory()`를 구현하지 않습니다. `signData`는 구현하며, 2.1.0 이상은 `getProvingProvider`를 노출합니다. 오픈소스.
 
-- **Overview:** Input Output의 멀티체인 지갑(Cardano, Bitcoin, Midnight). Midnight에서는 Lace mobile 앱이 아니라 Chrome과 Edge 확장입니다. ([lace.io/midnight](https://www.lace.io/midnight), [docs](https://docs.midnight.network/guides/lace-wallet), [GitHub](https://github.com/input-output-hk/lace))
+- **Overview:** Input Output의 멀티체인 지갑(Cardano, Bitcoin, Midnight). Midnight에서는 Lace mobile 앱이 아니라 Chrome과 Edge 확장입니다. ([lace.io](https://www.lace.io/), [proof server setup](/getting-started/installation#set-up-the-proof-server), [GitHub](https://github.com/input-output-hk/lace))
 - **Supports:**
   - NIGHT 관리.
   - Dust Generation DApp을 통한 DUST 생성(초기화에 약 12시간; [Fees and DUST](./integration.mdx#fees-and-dust) 참고).
   - shielded와 unshielded transaction, privacy는 opt-in.
   - Cardano 쪽의 Cardano 자산, staking, 하드웨어 지갑.
-  - `window.midnight.mnLace`의 표준 connector.
-- **Limitations:** in-browser proving이 없어 로컬 proof server가 필요합니다. `getProvingProvider()`와 `signData()`가 구현되어 있지 않으므로 feature-detect한 뒤 fall back하세요([Where wallets diverge](./integration.mdx#where-wallets-diverge) 참고). Brave에서는 DApp이 로컬 proof server에 닿을 수 있도록 Shields를 끄세요.
-- **Known issues:** [Midnight forum](https://forum.midnight.network/t/lace-wallet-doesnt-implement-getprovingprovider-expected-behavior-or-version-gap/1213)에서 누락된 `getProvingProvider`를 다룹니다. "Unable to get wallet address"는 보통 확장이 설치되어 있지 않거나 페이지를 새로고침해야 한다는 뜻입니다([forum](https://forum.midnight.network/t/unable-to-get-wallet-address-from-lace-wallet/922)). [Lace issue tracker](https://github.com/input-output-hk/lace/issues)는 빌드별 버그를 추적합니다. 오래된 Firefox 빌드, shielded 전송을 막는 일부 2.0 빌드, Preprod에서 실패하는 대형 컨트랙트 배포 등이 있습니다. Input Output이 유지보수합니다.
+  - `window.midnight`의 표준 connector(v4). 페이지를 로드할 때마다 새 UUID 키 아래에 들어갑니다. 현재 빌드는 `mnLace`를 설정하지 않으므로, Lace는 reverse-DNS id인 `rdns: "io.lace.wallet"`로 찾으세요([React wallet-connect guide](https://docs.midnight.network/guides/react-wallet-connect) 참고).
+- **Limitations:** in-browser proving이 없어 로컬 proof server가 필요합니다. `getProvingProvider()`가 반환하는 provider는 proof 요청을 그 server로 보냅니다. 2.1.0 이전의 Lace 빌드는 이 메서드를 노출하지 않으므로, feature-detect한 뒤 fall back하세요([Where wallets diverge](./integration.mdx#where-wallets-diverge) 참고). Brave에서는 DApp이 로컬 proof server에 닿을 수 있도록 Shields를 끄세요.
+- **Known issues:** [Midnight forum](https://forum.midnight.network/t/lace-wallet-doesnt-implement-getprovingprovider-expected-behavior-or-version-gap/1213)에서 2.1.0 이전의 Lace 빌드에 `getProvingProvider`가 없는 문제를 다룹니다. "Unable to get wallet address"는 보통 확장이 설치되어 있지 않거나 페이지를 새로고침해야 한다는 뜻입니다([forum](https://forum.midnight.network/t/unable-to-get-wallet-address-from-lace-wallet/922)). [Lace issue tracker](https://github.com/input-output-hk/lace/issues)는 빌드별 버그를 추적합니다. 오래된 Firefox 빌드, shielded 전송을 막는 일부 2.0 빌드, Preprod에서 실패하는 대형 컨트랙트 배포 등이 있습니다. Input Output이 유지보수합니다.
 
 ### 1AM
 
 **Best for:** Midnight을 우선으로 새로 만드는 DApp, 그리고 기본 shielded에 더해 mobile을 원하는 사용자.
 **Status:** 가동 중, `getProvingProvider`(in-browser proving) 구현. 오픈소스: 아니오(소스 미공개).
 
-- **Overview:** Midnight을 위해 특별히 만들어졌습니다. Chrome과 Firefox 확장은 가동 중이고, iOS와 Android는 beta(Android 패키지 `com.webisoft.oneam`)이며, 팀은 Safari를 곧 출시 예정으로 안내합니다. Non-custodial이며 mobile 키는 기기 secure storage에 둡니다. ([1am.xyz](https://1am.xyz/), [Chrome](https://chromewebstore.google.com/detail/1am/bphnkdkcnfhompoegfpgnkidcjfbojjp), [Play](https://play.google.com/store/apps/details?id=com.webisoft.oneam&hl=en_GB), [forum guide](https://forum.midnight.network/t/a-comprehensive-guide-to-the-1am-crypto-wallet-on-the-midnight-network/1173))
+- **Overview:** Midnight을 위해 특별히 만들어졌습니다. Chrome과 Firefox 확장은 가동 중이고, iOS와 Android 앱은 App Store와 Google Play에 있습니다(Android 패키지 `com.webisoft.oneam`). 팀은 Safari를 곧 출시 예정으로 안내합니다. Non-custodial이며 mobile 키는 기기 secure storage에 둡니다. ([1am.xyz](https://1am.xyz/), [Chrome](https://chromewebstore.google.com/detail/1am/bphnkdkcnfhompoegfpgnkidcjfbojjp), [App Store](https://apps.apple.com/app/id6761093596), [Play](https://play.google.com/store/apps/details?id=com.webisoft.oneam&hl=en_GB), [forum guide](https://forum.midnight.network/t/a-comprehensive-guide-to-the-1am-crypto-wallet-on-the-midnight-network/1173))
 - **Supports:**
   - NIGHT과 DUST, 실시간 regeneration 추적.
   - 기본 shielded, selective disclosure 지원.
   - in-browser WASM proving에 더해 hosted Proof Station([Where ZK proofs come from](./integration.mdx#where-zk-proofs-come-from) 참고).
   - `getProvingProvider`, 내장 DApp 브라우저, 작은 first-party 앱 생태계.
-  - `window.midnight['1am']`에 주입(표준 connector v4).
-- **Not documented:** Cardano 또는 멀티체인 지원, 그리고 하드웨어 지원. 1AM 사이트는 코드 스니펫과 함께 "Proof Station SDK"를 광고하지만, 1AM은 npm 패키지나 문서를 공개하지 않았습니다. 문서화된 것이 아니라 발표된 것으로 취급하고, 1AM은 표준 connector를 통해 연동하세요.
+  - `window.midnight['1am']`에 주입(표준 connector v4, name `1AM`, rdns `com.midnight.1am`)하며, `signData`를 포함합니다.
+  - Cardano: 브라우저 확장은 `window.cardano['1am']`(별칭 `window.cardano.app`)에 CIP-30 provider도 주입하며, CIP-8 `signData`를 제공합니다.
+- **Not documented:** 하드웨어 지원. 1AM 사이트는 코드 스니펫과 함께 "Proof Station SDK"를 광고하지만, 1AM은 npm 패키지나 문서를 공개하지 않았습니다. 문서화된 것이 아니라 발표된 것으로 취급하고, 1AM은 표준 connector를 통해 연동하세요.
 
 :::note[Fee sponsorship]
 
@@ -148,7 +149,7 @@ Lace, 1AM, Kuira는 전체 프로필을 다루고, 나머지는 더 짧습니다
   - 앱 자체 프로세스 안의 embedded self-custody wallet.
   - DUST regeneration과 indexer sync.
   - 예제 앱: Kuira Starter counter, 그리고 공유 on-chain 게시판인 BBoard.
-- **Identity (the "Sigil"):** 사용자의 identity는 seed phrase 대신 passkey에 지문을 더한 것으로, Kuira는 이를 Sigil이라고 부릅니다. 하나의 생체 인증으로 mint되는 passkey 유래 DID(decentralized identifier)이므로, onboarding이 seedless입니다. 복구는 같은 Google 계정에 로그인한 어떤 기기에서든 동작합니다. `SigilIdentityProvider`는 교체 가능하며, Kuira는 [Midnight Passport](#midnight-passport-announced)를 계획된 identity backend로 지목하므로, 발표된 Passport와 이 mobile 칸이 수렴할 수 있습니다.
+- **Identity (the "Sigil"):** 사용자의 identity는 seed phrase 대신 passkey에 지문을 더한 것으로, Kuira는 이를 Sigil이라고 부릅니다. 하나의 생체 인증으로 mint되는 passkey 유래 DID(decentralized identifier)이므로, onboarding이 seedless입니다. 복구는 같은 Google 계정에 로그인한 어떤 기기에서든 동작합니다. `SigilIdentityProvider`는 교체 가능하며, Kuira는 [Midnight Passport](#midnight-passport)를 계획된 identity backend로 지목합니다.
 - **Limitations:**
   - 오늘날 Android 전용(Kuira는 2026년 후반에 iOS와 React Native를 계획)이므로, 당분간 SDK 경로는 플랫폼에 묶여 있습니다.
   - 브라우저 DApp Connector는 문서화되어 있지 않습니다. `connector` 모듈은 존재하지만, `window.midnight` 표준과의 적합성은 공개적으로 명시되어 있지 않습니다.
@@ -170,6 +171,8 @@ Self-custody, mobile. Brick Towers가 만든 Midnight 위의 소비자용 privac
 
 Self-custody, 브라우저에 더해 mobile; 벤더가 Midnight 연동을 발표했거나 진행 중입니다. "zkFiat" 로드맵을 가진 privacy 중심 Cardano 멀티체인 지갑이며, Cardano 쪽에서 유효한 Glacier Drop·NIGHT claim wallet입니다. Midnight 페이지는 ZK proof, shielded transaction, selective disclosure, anonymous staking을 광고합니다. 그러나 아직 NIGHT, DUST, Midnight connector를 언급하지 않고 출시 날짜도 주지 않으므로, 이를 벤더 주장으로 취급하세요. 오늘은 Gero를 검증된 connector가 아니라 NIGHT claim wallet으로 사용하세요. ([Midnight page](https://gerowallet.io/midnight-wallet/), [Glacier Drop](https://www.midnight.gd/news/glacier-drop-wallets-and-address-type-compatibility))
 
-### Midnight Passport (announced)
+### Midnight Passport
 
-MPC/threshold 행, 브라우저에 더해 mobile(잠정 배치이며, 정확한 키 방식은 아직 공개되지 않음). 발표됐지만 아직 가동되지 않았으며, Input Output에서 나왔고 2026년 Charles Hoskinson이 소개했습니다. seedless, QR onboarding 방식의 소비자 지갑으로, 새 사용자에게 60초 안에 작동하는 지갑, name service, 멀티체인 접근을 제공하는 것을 목표로 합니다. 종이 백업 대신 trusted-helper 복구가 있는 기기별 하드웨어 상주 키, selective disclosure, 그리고 chain abstraction(`.night` name service를 통해 `alice.midnight`로 전송)을 사용합니다. Midnight에서 단순한 self-custody를 넘어선 custody의 첫 소비자 사례이기 때문에 MPC 행에 자리합니다. Input Output은 아직 전체 키 방식을 상세히 밝히지 않았습니다. 아직 연동에 사용할 수 없으며, 이 페이지는 소비자 onboarding이 향하는 방향을 보여주는 신호로 이를 포함합니다. 업데이트는 Midnight의 공식 채널을 팔로우하세요.
+스마트 컨트랙트 / account abstraction, 브라우저에 더해 mobile(설치 가능한 웹 앱). Midnight Passport는 Input Output이 Midnight용으로 만드는 신원·계정 레이어입니다. seed phrase 대신 passkey로 가입합니다. 그 설계에서는 Compact contract가 사용자의 자산을 보관하고, 사용자의 각 기기가 자체 키를 갖습니다. 컨트랙트는 자산을 내주기 전에 그 키 중 하나의 서명을 검사합니다. 계정 설계의 핵심은 두 Midnight Improvement Proposal(MIP)에 담겨 있습니다. 컨트랙트 custody를 다루는 [MIP-0012](https://github.com/midnightntwrk/midnight-improvement-proposals/blob/main/mips/mip-0012-native-asset-custody.md)와 multi-key authorization을 다루는 [MIP-0013](https://github.com/midnightntwrk/midnight-improvement-proposals/blob/main/mips/mip-0013-account-authorisation.md)입니다. MIP-0013은 threshold(MPC) 위원회가 하나의 기기처럼 동작하는 프로필도 정의합니다.
+
+**Status(2026년 10월 3일):** 개발 중. MIP-0012와 MIP-0013은 MIP 절차의 Proposed 단계로, 아직 채택 전입니다. Passport SDK는 계획·명세 단계이며 공개된 패키지가 없습니다. [midnightpassport.com](https://midnightpassport.com)의 데모는 Preview, Preprod, Mainnet이 아니라 Stagenet에서만 동작합니다. Stagenet은 Preview·Preprod보다 최신 ledger를 돌리는 permissioned Midnight 테스트 네트워크입니다. 데모는 DApp Connector를 구현하지 않으며, 앱은 자체 `postMessage` bridge로 데모에 접근합니다. 계획과 최신 상태는 [Midnight Passport site](https://midnightntwrk.github.io/passport/)를 참고하세요. [Midnight Passport docs](https://docs.midnightpassport.com/)는 데모와 그 app bridge를 다룹니다.

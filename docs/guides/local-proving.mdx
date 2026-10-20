@@ -93,7 +93,9 @@ proof server는 시작 시 딱 한 번 바깥으로 나갑니다. https://srs.mi
 
 :::tip Offline and mirrored parameters
 
-시작 시 다운로드를 건너뛰려면 `--no-fetch-params`를 전달하고, `MIDNIGHT_PARAM_SOURCE`가 여러분 자신의 mirror를 가리키도록 설정하세요.
+proof server는 내려받은 것을 컨테이너 안 `/.cache/midnight`에 보관합니다. 거기에 볼륨을 마운트하세요. 예: `-v midnight-zk-params:/.cache/midnight`. 그러면 이후 컨테이너는 아무것도 내려받지 않고 캐시에서 시작합니다.
+
+여러분 자신의 mirror에서 내려받으려면 `MIDNIGHT_PARAM_SOURCE`를 설정하세요. `MIDNIGHT_PROOF_SERVER_NO_FETCH_PARAMS=true`를 설정하면 시작 시 다운로드를 건너뛰지만, proof server가 오프라인으로 동작하게 되는 것은 아닙니다. 캐시에 없는 것은 proof가 그것을 처음 필요로 할 때 내려받습니다.
 
 :::
 
@@ -118,19 +120,21 @@ Docker는 취향의 문제가 아닙니다. 세 운영체제에 걸쳐 개발자
 ## Run the proof server
 
 ```bash
-docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0 midnight-proof-server -v
+docker run -p 6300:6300 -e MIDNIGHT_PROOF_SERVER_VERBOSE=true midnightntwrk/proof-server:8.1.3
 ```
+
+`MIDNIGHT_PROOF_SERVER_VERBOSE=true`는 디버그 로그를 켭니다. proof server는 거부된 요청의 이유를 이 레벨에서만 로그로 남기므로, 개발 중에는 켜 두세요.
 
 또는 Docker Compose로 실행하세요. 다음을 `proof-server.yml`로 저장합니다:
 
 ```yaml
 services:
   proof-server:
-    image: 'midnightntwrk/proof-server:8.1.0'
-    command: ['midnight-proof-server', '-v']
+    image: 'midnightntwrk/proof-server:8.1.3'
     ports:
       - '127.0.0.1:6300:6300'
     environment:
+      MIDNIGHT_PROOF_SERVER_VERBOSE: 'true'
       RUST_BACKTRACE: 'full'
     healthcheck:
       test: ['CMD-SHELL', 'echo > /dev/tcp/127.0.0.1/6300']
@@ -156,18 +160,18 @@ starting service: "actix-web-service-0.0.0.0:6300", workers: 12, listening on: 0
 
 :::info Pin the version tag
 
-이 글을 쓰는 시점에 8.1.0이 현재 stable 태그입니다. `latest` 태그도 존재하지만 뒤처져 있습니다. 마지막으로 다시 배포된 것이 2026년 5월인데, 8.1.0과 9.0.0 릴리스 후보는 그 뒤에 나왔습니다. 버전을 고정하면 proof server가 node·indexer 버전과도 맞춰집니다. 대상 네트워크에 맞춰 테스트된 버전은 [compatibility matrix](../relnotes/support-matrix)에서 확인하세요.
+이 글을 쓰는 시점에 8.1.3이 현재 stable 태그입니다. `latest` 태그도 존재하지만, 예고 없이 더 새로운 이미지로 옮겨 갑니다. 버전을 고정하면 proof server가 node·indexer 버전과도 맞춰집니다. 대상 네트워크에 맞춰 테스트된 버전은 [compatibility matrix](../relnotes/support-matrix)에서 확인하세요.
 
 :::
 
 ### A note on port 6300
 
-proof server에는 `--port` 플래그와 `MIDNIGHT_PROOF_SERVER_PORT` 환경 변수가 있어 포트를 설정할 수 있습니다.
+컨테이너 안에서 proof server는 `PORT` 환경 변수에 지정된 포트에서 수신 대기하며, 기본값은 6300입니다. 이미지는 proof server를 `--port $PORT`로 시작하므로, 거기서는 `MIDNIGHT_PROOF_SERVER_PORT`를 설정해도 효과가 없습니다.
 
-그래도 6300에 두세요. Lace는 Undeployed 네트워크에 대해 `localhost:6300`을 하드코딩하고, 여러분이 복사해 쓸 예제들도 이를 전제합니다. 호스트에서 6300이 실제로 점유되어 있다면, 호스트 쪽만 다시 매핑하고 DApp 설정을 그에 맞춰 갱신하세요:
+6300에 두세요. Lace는 Undeployed 네트워크에 대해 `localhost:6300`을 하드코딩하고, 여러분이 복사해 쓸 예제들도 이를 전제합니다. 호스트에서 6300이 실제로 점유되어 있다면, 호스트 쪽만 다시 매핑하고 DApp 설정을 그에 맞춰 갱신하세요:
 
 ```bash
-docker run -p 6301:6300 midnightntwrk/proof-server:8.1.0 midnight-proof-server -v
+docker run -p 6301:6300 -e MIDNIGHT_PROOF_SERVER_VERBOSE=true midnightntwrk/proof-server:8.1.3
 ```
 
 {/* _mod-docs-content-type: PROCEDURE */}
@@ -180,13 +184,13 @@ curl http://localhost:6300/health
 # {"status":"ok","timestamp":"..."}
 
 curl http://localhost:6300/version
-# 8.1.0
+# 8.1.3
 
 curl http://localhost:6300/ready
 # {"status":"ok","jobsProcessing":0,"jobsPending":0,"jobCapacity":0,"timestamp":"..."}
 ```
 
-개발 중에는 `/ready`가 가장 유용합니다. `jobsProcessing`은 그대로인데 `jobsPending`이 늘어난다면 proving 작업이 대기열에 쌓이는 중입니다. 서버는 작은 proving worker 풀을 유지하며, 기본값은 2개이고 `--num-workers`로 조정할 수 있습니다.
+개발 중에는 `/ready`가 가장 유용합니다. `jobsProcessing`은 그대로인데 `jobsPending`이 늘어난다면 proving 작업이 대기열에 쌓이는 중입니다. 서버는 작은 proving worker 풀을 유지하며, 기본값은 2개이고 `MIDNIGHT_PROOF_SERVER_NUM_WORKERS` 환경 변수로 조정할 수 있습니다.
 
 :::info HTTP workers versus proving workers
 
@@ -260,7 +264,7 @@ prover는 proof를 반환하기 전에 자신의 proof를 검증합니다. 키�
 | Preprod | `preprod` | Mainnet 전 최종 테스트를 위한 라이브 pre-production 네트워크 | 프로덕션에 가까운 동작을 검증할 때. |
 | Mainnet | `mainnet` | 프로덕션 | 출시할 때. |
 
-Undeployed에서 시작하세요. tDUST가 몇 시간이 아니라 몇 분이면 생성되고, faucet 대기열이 없으며, 컨테이너를 재시작해 체인 전체를 초기화할 수 있습니다. 통제할 수 없는 인프라를 대상으로 테스트해야 할 때 Preview나 Preprod로 옮기세요.
+Undeployed에서 시작하세요. genesis 지갑이 이미 tNIGHT과 tDUST를 보유하고 있고, faucet 대기열이 없으며, 컨테이너를 재시작해 체인 전체를 초기화할 수 있습니다. 통제할 수 없는 인프라를 대상으로 테스트해야 할 때 Preview나 Preprod로 옮기세요.
 
 어느 쪽을 고르든, 명시적으로 설정하세요.
 
@@ -286,13 +290,20 @@ import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 
 setNetworkId('preprod');
 
+// The Preprod indexer and node RPC are served by Blockfrost and need a project token.
+const projectId = process.env.BLOCKFROST_PROJECT_ID?.trim();
+if (!projectId) throw new Error('BLOCKFROST_PROJECT_ID is not set.');
+const withBlockfrostKey = (url: string) => `${url}?project_id=${encodeURIComponent(projectId)}`;
+
 export const CONFIG = {
-  indexer: 'https://indexer.preprod.midnight.network/api/v4/graphql',
-  indexerWS: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
-  node: 'https://rpc.preprod.midnight.network',
+  indexer: withBlockfrostKey('https://midnight-preprod.blockfrost.io/api/v0'),
+  indexerWS: withBlockfrostKey('wss://midnight-preprod.blockfrost.io/api/v0/ws'),
+  node: withBlockfrostKey('https://rpc.midnight-preprod.blockfrost.io'),
   proofServer: 'http://127.0.0.1:6300',
 };
 ```
+
+Preprod indexer와 node RPC는 `BLOCKFROST_PROJECT_ID`에 담긴 Blockfrost **Midnight Preprod** project token이 필요합니다. [Getting a Blockfrost project token](./networks-and-environments#getting-a-blockfrost-project-token)을 참고하세요.
 
 **Preview:**
 
@@ -324,14 +335,16 @@ DUST는 전송할 수도 없고 구매할 수도 없습니다. 보유한 NIGHT�
 
 - NIGHT과 DUST는 서로 다른 키를 쓰므로, 등록 테이블이 NIGHT public key를 DUST 주소에 연결합니다. 이 단계를 *designation*이라고 합니다.
 - NIGHT UTXO는 보유한 NIGHT에 비례하는 캡을 향해 DUST를 생성합니다. 초기 파라미터에서는 NIGHT당 5 DUST이며, 약 일주일이면 전체 캡에 도달합니다.
-- 생성은 0에서부터 선형이므로, 캡에 도달하기 훨씬 전부터 쓸 수 있는 DUST가 생깁니다. 라이브 네트워크의 새 지갑에서는 대략 12시간, 로컬 네트워크에서는 약 5분을 예상하세요.
+- 생성은 0에서부터 선형이므로, 캡에 도달하기 훨씬 전부터 쓸 수 있는 DUST가 생깁니다. Midnight에서 등록한 tNIGHT은 등록 트랜잭션이 확정될 때 생성을 시작합니다. DUST가 수수료를 충당하기까지 얼마나 걸리는지는 NIGHT 양과 수수료에 달려 있습니다. Cardano에 보유한 NIGHT에서 나오는 DUST는 더 늦게 시작하는데, Midnight은 Cardano 등록의 Cardano 블록이 안정된 뒤에야 그 등록을 처리하기 때문입니다. [DUST from NIGHT held on Cardano](./manage-dust#dust-from-night-held-on-cardano)를 참고하세요.
 - DUST를 쓰면 다시 생성됩니다. 뒷받침하는 NIGHT을 쓰면 DUST는 0으로 감쇠합니다.
 
 ### Why tDUST looks stuck at zero
 
 새로 만든 지갑에서 가장 흔히 나오는 보고인데, 대개는 멈춘 게 아닙니다. 애초에 시작되지 않은 것입니다.
 
-DUST UTXO는 NIGHT UTXO가 생성되고 **또한** 그 키에 이미 등록 테이블 항목이 있을 때만 만들어집니다. designation은 소급 적용되지 않으므로, DUST 주소를 designate하기 전에 도착한 tNIGHT은 아무것도 생성하지 않습니다.
+ledger는 트랜잭션이 NIGHT UTXO를 생성하고 **또한** 그 UTXO의 키에 등록 테이블 항목이 있을 때만 DUST UTXO를 만듭니다. tNIGHT을 보유하는 것만으로는 그 항목이 기록되지 않으므로, DUST 주소를 designate하지 않은 지갑은 아무것도 생성하지 않습니다.
+
+등록 트랜잭션이 그 항목을 기록합니다. wallet SDK로 구성한 등록은, Lace도 이를 사용하는데, 넘겨받은 NIGHT UTXO를 쓰고 다시 만듭니다. 그 결과, 등록하기 전에 받은 tNIGHT은 등록이 확정될 때 생성을 시작합니다. 첫 등록은 그 UTXO 중 하나가 도착한 뒤 생성했을 양도, 그 캡까지 함께 셈합니다. ledger가 그 양에서 등록 수수료를 가져가고, 나머지가 새 DUST UTXO의 시작 값이 됩니다.
 
 순서가 중요합니다:
 
@@ -339,11 +352,11 @@ DUST UTXO는 NIGHT UTXO가 생성되고 **또한** 그 키에 이미 등록 테�
 2. faucet에서 tNIGHT을 요청합니다.
 3. DUST 주소를 designate합니다.
 
-지갑에 먼저 자금을 넣고 지금 0 잔액을 보고 있다면, 새 지갑이 필요하지는 않습니다. DUST 주소를 designate한 뒤, 자신에게 tNIGHT을 보내 새 tNIGHT UTXO를 만드세요. 새 UTXO는 정상적으로 생성합니다.
+지갑에 자금을 넣고 지금 0 잔액을 보고 있다면, 새 지갑이 필요하지는 않습니다. [Funding a wallet](./acquire-tokens)에서처럼 DUST 주소를 designate하세요. 등록한 뒤에 받는 tNIGHT은 추가 단계 없이 DUST를 생성합니다. 등록에 포함되지 않은 tNIGHT UTXO는 등록하기 전까지 미등록 상태로 남습니다. 자신에게 tNIGHT을 보내는 것은 그 단계를 대신하지 못하는데, 전송은 지갑이 그 미등록 UTXO를 선택할 때만 그것을 쓰기 때문입니다.
 
 순서 외에도 다음을 확인하세요:
 
-- **생각보다 짧게 기다리고 있습니다.** 라이브 네트워크에서는 몇 분이 아니라 몇 시간을 잡으세요.
+- **생각보다 짧게 기다리고 있습니다.** Cardano에 보유한 NIGHT에서 나오는 DUST는 Cardano 등록이 안정된 뒤에야 나타나므로, 라이브 네트워크에서는 그에 대해 몇 분이 아니라 몇 시간을 잡으세요.
 - **다른 네트워크의 지갑을 보고 있습니다.** Preview와 Preprod는 faucet도 잔액도 별개인 별도의 체인입니다.
 - **트랜잭션이 너무 오래 방치되었습니다.** DUST 지출에는 타임스탬프와 약 3시간의 유예 기간이 붙습니다. 만들어 두고 밤새 방치한 트랜잭션은 거부됩니다.
 
@@ -357,7 +370,7 @@ proof server는 부수적인 도구가 아닙니다. Midnight의 핵심 트레�
 - 세 운영체제에 걸쳐 네이티브 암호 서비스를 버전 고정하며 배포하는 가장 깔끔한 방법이므로 Docker로 배포됩니다.
 - 태그를 고정하고, 계속 실행해 두고, 모든 것을 `localhost:6300`으로 향하게 하세요.
 
-Undeployed에서 시작하고, 지갑에 자금을 넣기 전에 DUST 주소를 designate하세요. 그러면 처음 10분이 더는 어려운 부분이 아니게 됩니다.
+Undeployed에서 시작하고, 지갑에 자금을 넣은 다음 DUST 주소를 designate하세요. 그러면 처음 10분이 더는 어려운 부분이 아니게 됩니다.
 
 ## Additional resources
 

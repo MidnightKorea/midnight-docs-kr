@@ -69,7 +69,7 @@ CLI 패키지는 지갑 관리, 사용자 상호작용 및 메인 애플리케�
     "@midnight-ntwrk/midnight-js-types": "4.1.1",
     "@midnight-ntwrk/midnight-js-utils": "4.1.1",
     "@midnight-ntwrk/testkit-js": "4.1.1",
-    "@midnight-ntwrk/wallet-sdk": "1.0.0",
+    "@midnight-ntwrk/wallet-sdk": "1.2.0",
     "axios": "^1.17.0",
     "buffer": "^6.0.3",
     "fp-ts": "^2.16.11",
@@ -100,6 +100,9 @@ CLI 패키지는 지갑 관리, 사용자 상호작용 및 메인 애플리케�
     "vite": "^8.0.14",
     "vite-plugin-top-level-await": "^1.6.0",
     "vite-plugin-wasm": "^3.6.0"
+  },
+  "resolutions": {
+    "@midnight-ntwrk/wallet-sdk": "1.2.0"
   }
 }
 ```
@@ -181,7 +184,7 @@ docker compose -f proof-server-local.yml up -d
 <Tabs>
   <TabItem value="preprod">
 ```bash
-npm run preprod-remote
+BLOCKFROST_PROJECT_ID=<your Midnight Preprod project ID> npm run preprod-remote
 ```
 </TabItem>
 <TabItem value="preview">
@@ -196,7 +199,7 @@ npm run standalone
 </TabItem>
 </Tabs>
 
-`preprod-remote`와 `preview-remote` 명령은 CLI를 시작하고 해당하는 Midnight 원격 testnet에 연결하며, `standalone` 명령은 genesis-mint wallet seed를 사용하여 로컬 Midnight 네트워크에서 실행합니다.
+`preprod-remote`와 `preview-remote` 명령은 CLI를 시작하고 해당하는 Midnight 원격 testnet에 연결하며, `standalone` 명령은 genesis-mint wallet seed를 사용하여 로컬 Midnight 네트워크에서 실행합니다. Blockfrost가 Preprod indexer와 node RPC를 제공하므로, `preprod-remote`에는 **Midnight Preprod** 프로젝트 토큰을 `BLOCKFROST_PROJECT_ID`에 넣어야 합니다. [Getting a Blockfrost project token](../../guides/networks-and-environments#getting-a-blockfrost-project-token)을 참고하세요.
 
 다음과 같은 출력이 표시됩니다:
 

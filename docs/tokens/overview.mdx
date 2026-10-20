@@ -25,10 +25,10 @@ Midnight에는 네이티브 토큰 NIGHT 하나와 네이티브 리소스 DUST �
 
 Midnight의 이중 ledger에서는 토큰이 두 가지 형태로 존재할 수 있습니다.
 
-- **Shielded**: 지갑 주소와 트랜잭션 세부 정보가 비공개로 유지되는 private 상태입니다. 1AM과 urble은 기본적으로 shielded를 사용합니다.
-- **Unshielded**: ledger에 공개되어 누구나 볼 수 있는 public 상태로, 투명한 블록체인과 비슷합니다. Lace에서는 shielded를 선택적으로(opt-in) 사용할 수 있습니다.
+- **Shielded**: 지갑 주소와 트랜잭션 세부 정보가 비공개로 유지되는 private 상태입니다. DUST는 항상 shielded이며, `mintShieldedToken`으로 mint한 토큰도 마찬가지입니다.
+- **Unshielded**: ledger에 공개되어 누구나 볼 수 있는 public 상태로, 투명한 블록체인과 비슷합니다. NIGHT은 항상 unshielded이며, `mintUnshieldedToken`으로 mint한 토큰도 마찬가지입니다.
 
-NIGHT과 custom token 모두 shielded 상태와 unshielded 상태 사이를 오갈 수 있습니다. Compact에서의 shielded·unshielded 토큰 전송 코드 예시는 [Token transfers](/examples/contracts/token-transfers)를 참고하세요.
+토큰의 프라이버시는 그 토큰을 보유한 주소가 아니라 토큰 유형에서 비롯됩니다. NIGHT은 unshielded 토큰이라 잔액과 전송이 항상 공개되며, shielded 주소에 NIGHT을 보유해도 비공개가 되지는 않습니다. 토큰을 shielded 상태와 unshielded 상태 사이로 옮기는 수단은 없습니다. shielded 토큰과 unshielded 토큰은 서로 다른 토큰 유형이며 별도의 풀에서 추적됩니다. Compact에서의 shielded·unshielded 토큰 전송 코드 예시는 [Token transfers](/examples/contracts/token-transfers)를 참고하세요.
 
 ## Custom tokens
 
@@ -41,6 +41,7 @@ Compact로 직접 fungible 토큰과 non-fungible 토큰을 만들 수 있습니
 Midnight의 모든 트랜잭션에는 DUST가 필요합니다. 새 지갑에서는 NIGHT을 어떻게 등록하느냐에 따라 DUST 생성 방식이 달라집니다. 현재 대부분의 NIGHT은 cross-chain 경로(Cardano의 cNIGHT)를 통해 Midnight에 도달합니다. 이 등록은 Cardano에서 확정된 뒤 Midnight 노드까지 전달되어야 하며, 약 12시간이 걸립니다. 로컬 네트워크에서는 DUST가 약 5분이면 생성됩니다. 네이티브 mNIGHT이 출시되면 이 지연은 사라집니다. 시작하려면:
 
 - [Fund a wallet](/guides/acquire-tokens) (faucet tNIGHT, Lace 등록, wallet SDK 경로)
+- [Manage DUST](/guides/manage-dust) (파라미터, 잔액, 수수료 추정, 한 지갑에서 보내는 여러 트랜잭션)
 
 ## Further reading
 

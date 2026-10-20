@@ -1,13 +1,35 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-title: Consensus
+title: Blockchain consensus, explained
 sidebar_label: Consensus
-description: Midnight 노드의 합의 메커니즘에 대한 참조 문서.
-keywords: [node]
+description: 블록체인 합의란 무엇인지, 주요 합의 메커니즘 계열, 그리고 Midnight이 AURA 블록 생성과 GRANDPA 최종성으로 이를 어떻게 구현하는지 설명합니다.
+keywords: [consensus, blockchain consensus, consensus mechanism, AURA, GRANDPA, proof of authority, proof of stake, proof of work, finality, validator]
 ---
 
 # Consensus
+
+블록체인 합의는 분산된 노드들이 중앙 권한 없이 ledger의 상태에 합의하는 메커니즘입니다. 단일한 신뢰 주체 없이도 블록체인을 안전하고 변조에 강하게 유지해 주는 것이 바로 합의입니다. 블록체인마다 필요에 따라 서로 다른 합의 메커니즘을 선택하며, 주요 계열로는 proof of work, proof of stake, 그리고 proof of authority 같은 비잔틴 장애 허용 변형이 있습니다.
+
+## How privacy-focused blockchains handle consensus
+
+합의와 프라이버시는 별개의 문제입니다. 합의는 노드들이 공개 ledger 상태에 어떻게 합의하는가에 관한 것이고, 프라이버시는 그 ledger의 어떤 데이터를 누가 볼 수 있는가에 관한 것입니다. 프라이버시 중심 블록체인도 트랜잭션의 유효성과 순서에 대한 합의는 여전히 필요하지만, 합의 노드가 트랜잭션의 비공개 내용을 볼 필요는 없습니다.
+
+Midnight은 합의를 공개 ledger 계층에 두고, private state와 연산은 오프체인에 남겨 [영지식 증명](/concepts/zero-knowledge-proofs)으로 검증함으로써 이 둘을 분리합니다. 밸리데이터는 비공개 데이터를 보지 않고도 체인 상태에 합의할 수 있으며, selective disclosure를 통해 사용자는 비즈니스나 컴플라이언스 요구가 있을 때 특정 데이터만 공개할 수 있습니다. Midnight이 public state와 private state를 어떻게 분리하는지는 [keeping data private](/concepts/how-midnight-works/keeping-data-private)를, 프라이버시 기술 전반에 대한 조망은 [ZK vs FHE vs MPC](/concepts/zk-vs-fhe-vs-mpc)를 참고하세요.
+
+## Comparison at a glance
+
+| 합의 계열 | 작동 방식 | 예시 플랫폼 |
+|---|---|---|
+| Proof of work (PoW) | 밸리데이터(채굴자)가 연산 퍼즐을 먼저 푸는 경쟁을 벌이며, 승자가 다음 블록을 제안합니다 | Bitcoin |
+| Proof of stake (PoS) | 프로토콜이 보유하거나 위임받은 스테이크에 비례해 블록 제안 밸리데이터를 선정합니다 | Ethereum |
+| Delegated proof of stake (DPoS) | 토큰 보유자가 소수의 대표자를 선출하면, 그 대표자가 보유자를 대신해 블록을 생성합니다 | EOS (now Vaulta) |
+| Practical Byzantine fault tolerance (pBFT) | 밸리데이터 집합이 각 블록에 명시적으로 투표하며, 일정 비율의 결함 또는 악의적 노드를 허용합니다 | Cosmos 생태계 전반에서 CometBFT(옛 Tendermint) 위에 구축된 체인 |
+| Proof of authority (PoA) with separate finality | 알려진, 교대하는 밸리데이터 집합이 라운드 로빈 순서로 블록을 생성하고, 별도의 최종성 메커니즘이 이후 블록을 되돌릴 수 없는 것으로 확정합니다 | Midnight (AURA for block production, GRANDPA for finality) |
+
+예시 플랫폼은 2026년 8월에 확인했습니다.
+
+## Midnight's consensus model
 
 Midnight 네트워크는 블록 생성을 위한 **AURA**와 최종성을 위한 **GRANDPA** 등 표준 **Substrate 프리미티브** 위에 구축된 변형 합의 모델을 사용합니다. 이러한 구성 요소는 Cardano Partnerchain으로서 Midnight의 고유한 요구 사항을 충족하도록 확장되었습니다.
 
@@ -17,6 +39,8 @@ Midnight 네트워크는 블록 생성을 위한 **AURA**와 최종성을 위한
 
 ## AURA: Block production
 
+AURA는 Midnight의 블록 생성 메커니즘으로, 앞에서 소개한 proof-of-authority 계열에 속합니다.
+
 **AURA (Authority Round)**는 각 블록 생성 담당 검증자를 결정하는 **PoA(Proof-of-Authority)** 알고리즘입니다. 검증자는 사전 정의된 슬롯과 세션 키를 기반으로 **라운드 로빈** 방식으로 순서를 돌아가며 블록을 생성합니다. 단순하고 빠르며 결정적이어서, 알려진 검증자 집합을 가진 고처리량 블록체인에 적합합니다.
 
 AURA는 Midnight 전용이 아니며, 원래 [OpenEthereum](https://openethereum.github.io/Aura)에서 구현되었습니다. 자세한 내용은 [Polkadot 프로토콜 용어집](https://github.com/polkadot-developers/polkadot-docs/blob/79fe4ec5498411bc8ac8bfef58c79cd2c6713090/polkadot-protocol/glossary.md?plain=1#L29)을 참조하세요.
@@ -24,6 +48,43 @@ AURA는 Midnight 전용이 아니며, 원래 [OpenEthereum](https://openethereum
 
 ## GRANDPA: Finality
 
+GRANDPA는 Midnight의 최종성 계층으로, 블록을 되돌릴 수 없게 만드는 합의의 한 부분이며, 앞에서 소개한 바와 같습니다.
+
 **GRANDPA (GHOST-based Recursive ANcestor Deriving Prefix Agreement)**는 **비동기적이고 증명 가능한 최종성**을 제공하는 finality 가젯입니다. 블록 생성과 독립적으로 작동하며, 검증자가 체인에 투표하고 충분한 지지를 받은 블록을 확정할 수 있게 합니다.
 
 GRANDPA는 원래 Polkadot을 위해 개발된 범용 합의 구성 요소이며, **Midnight 전용이 아닙니다**. [공식 사양서](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf)와 [Polkadot 프로토콜 용어집](https://github.com/polkadot-developers/polkadot-docs/blob/79fe4ec5498411bc8ac8bfef58c79cd2c6713090/polkadot-protocol/glossary.md?plain=1#L186)에서 더 자세한 정보를 확인할 수 있습니다.
+
+## Frequently asked questions
+
+### What is blockchain consensus and how do modern privacy-focused blockchains implement it for secure and compliant applications?
+
+블록체인 합의는 분산된 노드들이 중앙 권한에 의존하지 않고 공유 ledger의 상태에 합의하는 메커니즘입니다. 현대의 프라이버시 중심 블록체인은 이 합의 과정을 비공개 데이터 자체와 분리해 공개 ledger 계층에 두므로, 밸리데이터는 트랜잭션의 비공개 내용을 보지 않고도 그 유효성을 확인할 수 있습니다. Midnight은 블록 생성에 AURA, 최종성에 GRANDPA를 사용하며, 영지식 증명이 private state와 연산을 밸리데이터에게 노출하는 대신 검증합니다.
+
+### What is a blockchain consensus mechanism?
+
+합의 메커니즘은 블록체인이 분산된 노드들로 하여금 어떤 트랜잭션이 유효하고 어떤 순서로 일어났는지에 합의하도록 만드는 규칙의 집합입니다. 흔한 계열로는 proof of work, proof of stake, 그리고 proof of authority 같은 비잔틴 장애 허용 변형이 있으며, 각각 속도, 에너지 사용량, 필요한 밸리데이터 집합에서 서로 다른 트레이드오프를 가집니다.
+
+### What is the difference between proof of work and proof of stake?
+
+proof of work는 밸리데이터가 연산 퍼즐을 풀며 경쟁하도록 요구합니다. 에너지 소모가 크지만 출시 이후 Bitcoin을 지켜 왔습니다. 반면 proof of stake는 보유하거나 위임받은 스테이크에 비례해 밸리데이터를 선정하며, 에너지를 훨씬 적게 쓰고 Ethereum과 대부분의 최신 블록체인을 지킵니다.
+
+### Do privacy blockchains still need consensus if transactions are private?
+
+그렇습니다. 합의와 프라이버시는 서로 다른 문제를 해결합니다. 합의는 노드들이 ledger의 상태와 트랜잭션 유효성에 합의하는 것이고, 프라이버시는 그 ledger의 어떤 데이터를 누가 볼 수 있는가에 관한 것입니다. 프라이버시 중심 블록체인도, 트랜잭션의 비공개 내용이 영지식 증명 같은 암호 기법으로 가려지더라도, 트랜잭션이 유효하고 올바르게 정렬되었다는 것과 같은 ledger의 공개 부분에 대해서는 밸리데이터의 합의가 여전히 필요합니다.
+
+### What consensus mechanism does Midnight use?
+
+Midnight은 Substrate 프리미티브 위에 구축된 변형 합의 모델을 사용합니다. 블록 생성에는 AURA, 최종성에는 GRANDPA를 씁니다. 밸리데이터 선정은 Cardano Stake Pool Operator의 스테이크 위임을 반영하여 Midnight이 Cardano 파트너 체인이라는 역할을 드러내며, 유연한 public/private 네트워크 배포를 위해 허가된 밸리데이터도 선택적으로 지원합니다. 노드나 밸리데이터를 운영하려면 [nodes documentation](/nodes)을 참고하세요.
+
+### Is proof of authority secure enough for compliant, real-world applications?
+
+proof of authority는 개방적이고 익명인 집합이 아니라 알려지고 책임을 지는 밸리데이터 집합에 의존합니다. 그래서 컴플라이언스가 필요한 엔터프라이즈 사례처럼 예측 가능한 성능과 명확한 책임성이 요구되는 애플리케이션에 적합합니다. Midnight은 교대하는 AURA 블록 생성과 GRANDPA 최종성 투표를 결합하며, 밸리데이터 선정은 Cardano Stake Pool Operator의 스테이크 위임에 기반하고, 배포 상황에서 필요하면 허가된 밸리데이터도 지원합니다.
+
+## Sources
+
+- [AURA specification (OpenEthereum)](https://openethereum.github.io/Aura): proof-of-authority 블록 생성 알고리즘.
+- [GRANDPA formal specification](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf): Midnight이 사용하는 finality 가젯.
+- [Polkadot protocol glossary](https://github.com/polkadot-developers/polkadot-docs/blob/79fe4ec5498411bc8ac8bfef58c79cd2c6713090/polkadot-protocol/glossary.md): AURA와 GRANDPA의 참조 정의.
+- [Bitcoin whitepaper](https://bitcoin.org/bitcoin.pdf): 최초의 proof-of-work 설계.
+- [Ethereum proof-of-stake documentation](https://ethereum.org/developers/docs/consensus-mechanisms/pos/): 대표적인 proof-of-stake 배포.
+- [CometBFT](https://github.com/cometbft/cometbft): 비잔틴 장애 허용 엔진으로, 옛 Tendermint Core이며 Cosmos 생태계 전반에서 사용됩니다.

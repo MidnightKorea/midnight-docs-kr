@@ -60,4 +60,8 @@ docker run -p 6300:6300 midnightnetwork/proof-server -- midnight-proof-server --
 
 기존 방법으로 컨트랙트를 배포하거나, [이 예시](https://github.com/midnightntwrk/example-counter/blob/1babbcb377317ba705c26545a6808deea7a39975/counter-cli/src/api.ts#L90)의 deploy 함수를 참고하여 Midnight 테스트넷에 스마트 컨트랙트를 배포하세요.
 
+:::info Update - October 2026
+Midnight은 `example-counter` 리포지토리를 보관 처리했고 이 글에서 설명하는 테스트넷도 폐지했습니다. 현재 배포 흐름은 [`example-bboard`](https://github.com/midnightntwrk/example-bboard) 컨트랙트를 사용하는 [컨트랙트 배포 및 운영](/guides/deploy-and-operate)을 참고하세요. 이 예시로 새 프로젝트를 시작하려면 `npx create-mn-app my-app --template bboard`를 실행하세요.
+:::
+
 Bech32m 주소를 지원하는 [최신 MidnightJS](https://docs.midnight.network/relnotes/midnight-js)를 사용하여 컨트랙트를 배포하세요.

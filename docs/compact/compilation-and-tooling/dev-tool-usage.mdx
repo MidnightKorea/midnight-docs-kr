@@ -69,12 +69,12 @@ OPTIONS
 
 **--directory _directorypath_**
 
-Compact 아티팩트 디렉토리를 설정한 뒤 종료합니다.
+Compact 아티팩트 디렉토리를 설정합니다.
 
 기본값은 `$HOME/.compact`입니다. 디렉토리가 없으면 자동으로 생성됩니다. 환경 변수로도 설정할 수 있습니다.
           
 [env: COMPACT_DIRECTORY=]
-[default: /Users/username/.compact]
+[default: $HOME/.compact]
 
 **--help**
 
@@ -82,7 +82,7 @@ Compact 아티팩트 디렉토리를 설정한 뒤 종료합니다.
 
 **--version**
 
-도구의 버전 또는 _command_의 버전을 출력한 뒤 종료합니다.
+버전을 출력한 뒤 종료합니다. **compile**에서는 이 플래그가 설치된 컴파일러로 전달되어 컴파일러 버전을 출력하고, **format**과 **fixup**에서는 툴체인 버전을 출력합니다.
 
 CHECK
 =====
@@ -258,7 +258,7 @@ compact compile +version --help
 compact compile --help
 ```
 
-Compact 커맨드라인 도구에 지정된 컴파일러 도움말을 출력합니다.
+이 플래그를 설치된 컴파일러로 전달하여 **compactc** 자체의 도움말 텍스트를 반환합니다. 컴파일러가 설치되지 않은 경우 도움말을 출력하는 대신 오류를 보고합니다.
 
 FORMAT
 ======
@@ -277,7 +277,11 @@ Synopsis: **compact** **format** _options_ _files_
 
 처리된 각 파일과 결과(**formatted**, **unchanged** 또는 오류)를 출력합니다. 이 플래그가 없으면 실패만 보고됩니다.
 
-포매터 도구 자체에도 추가 플래그가 있습니다. 자세한 내용은 [포매터 사용법 페이지](formatter-usage.mdx)를 참고하세요.
+**--version**, **--language-version**
+
+툴체인 버전, 또는 툴체인이 지원하는 언어 버전을 출력하고 종료합니다.
+
+참고로 **compact format**은 하위 format-compact 도구로 플래그를 전달하지 않으며 파일 경로만 넘깁니다. 따라서 **--line-length**나 **--vscode** 같은 플래그는 여기서 거부됩니다. 이런 플래그를 쓰려면 format-compact를 직접 호출하세요. 이 도구에 대한 자세한 설명은 [포매터 사용법 페이지](formatter-usage.mdx)를 참고하세요.
 
 아래에 간단한 사용 예시를 소개합니다.
 **src/**에 올바른 Compact 소스 파일이 있다고 가정하고, 모든 파일을 in-place로 포매팅합니다:
@@ -319,7 +323,23 @@ Synopsis: **compact** **fixup** _options_ _files_
 
 파일을 수정하지 않고 fixup이 필요한지 확인합니다. 변경이 필요한 파일에 대해 diff를 출력하고 0이 아닌 상태 코드로 종료합니다. CI 파이프라인에서 소스 파일이 최신 상태인지 검증할 때 유용합니다.
 
-fixup 도구 자체에도 추가 플래그가 있습니다. 자세한 내용은 [fixup 사용법 페이지](fixup-usage.mdx)를 참고하세요.
+**--update-Uint-ranges**
+
+크기가 상수 끝점을 가진 범위로 지정된 각 `Uint`의 끝점을 조정하고, 범위 끝점이 제네릭 변수 참조인 각 `Uint`에 대해 경고합니다. 하위 fixup-compact 도구로 전달됩니다.
+
+**--vscode**
+
+오류 메시지를 한 줄로 출력하도록 하여 VS Code 확장 프로그램에 맞춥니다. 하위 fixup-compact 도구로 전달됩니다.
+
+**--verbose**
+
+처리된 각 파일과 그 결과를 출력합니다. 이 플래그가 없으면 실패만 보고됩니다.
+
+**--version**, **--language-version**
+
+툴체인 버전, 또는 툴체인이 지원하는 언어 버전을 출력하고 종료합니다.
+
+하위 fixup-compact 도구로 전달되는 것은 **--update-Uint-ranges**와 **--vscode**뿐이며, **--compact-path**, **--trace-search**, **--line-length** 같은 플래그는 이 command를 통해 전달할 수 없습니다. 이런 플래그를 쓰려면 fixup-compact를 직접 호출하세요. 이 도구에 대한 자세한 설명은 [fixup 사용법 페이지](fixup-usage.mdx)를 참고하세요.
 
 아래에 간단한 사용 예시를 소개합니다.
 **src/**에 올바른 Compact 소스 파일이 있다고 가정하고, **src/**의 모든 파일에 fixup을 in-place로 적용합니다:
@@ -403,7 +423,7 @@ CLEAN
 
 Synopsis: **compact** **clean** _options_
 
-옵션을 지정하지 않으면 로컬에 설치된 모든 Compact 툴체인 버전을 삭제합니다. **--cache**를 지정하면 캐시 디렉토리도 함께 삭제합니다. **--keep-current**를 지정하면 현재 default로 설정된 버전을 유지합니다.
+옵션을 지정하지 않으면 로컬에 설치된 모든 Compact 툴체인 버전을 삭제합니다. **--cache**를 지정하면 캐시 파일도 함께 삭제합니다. **--keep-current**를 지정하면 현재 default로 설정된 버전을 유지합니다.
 
 버전 디렉토리 삭제 외에도, `compact clean`은 bin 디렉토리에서 compactc, format-compact, fixup-compact 심볼릭 링크를 제거합니다. **--keep-current** 없이 `compact clean`을 실행하면 `compact update`로 버전을 다시 설치하기 전까지 툴체인을 사용할 수 없습니다. **--keep-current**를 사용하면 유지되는 버전과 함께 심볼릭 링크도 보존됩니다.
 
@@ -411,7 +431,7 @@ Synopsis: **compact** **clean** _options_
 
 **--cache**
 
-캐시 디렉토리도 함께 삭제합니다.
+캐시 파일(`github_cache.json`)도 함께 삭제합니다.
 
 **--keep-current**
 

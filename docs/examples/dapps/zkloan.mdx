@@ -19,183 +19,97 @@ ZK Loan 예제는 신용 데이터가 사용자 기기를 벗어나지 않은 �
 이 예제는 [Bulletin board](./bboard) DApp보다 의도적으로 규모가 큽니다 — 여러 Midnight 구성 요소를 한곳에 엮어냅니다.
 
 - **Witness가 제공하는 private input**: TypeScript 코드가 proving 시점에 신용 데이터를 영지식 prover에 공급하되 온체인에는 노출하지 않습니다.
-- **circuit 안에서의 Schnorr-on-Jubjub 서명 검증**: 직접 작성한 Compact 모듈(표준 라이브러리에 `jubjubSchnorrVerify`가 추가되면 교체 가능)이 신용 데이터가 등록된 attestation 제공자에게서 왔음을 증명합니다.
-- **PIN에서 파생한 온체인 신원**: witness가 공급한 사용자 secret을 비밀 PIN과 함께 해싱해 사용자별 공개 키를 만듭니다. 따라서 secret과 PIN을 둘 다 알지 못하면 같은 사용자를 여러 대출에 걸쳐 연결할 수 없습니다.
+- **circuit 안에서의 Schnorr-on-Jubjub 서명 검증**: 직접 작성한 Compact 모듈(표준 라이브러리에 검증기가 추가되면 교체할 예정)이 신용 데이터가 등록된 attestation 제공자에게서 왔음을 증명합니다.
+- **PIN에서 파생한 온체인 신원**: witness가 공급한 사용자 secret을 비밀 PIN과 함께 해싱해 사용자별 공개 키를 만듭니다. 이 키는 secret도 PIN도 드러내지 않지만, 연결 불가능한 신원이 아니라 가명입니다. 한 사용자의 모든 대출은 `loans` 안에서 그 하나의 키 아래 모이고, attestation 제공자는 신용 데이터와 함께 그 키의 해시에 서명하며, `changePin`은 같은 트랜잭션에서 이전 키와 새 키를 함께 지정합니다.
 - **2단계 승인 흐름**: 사용자 등급 한도를 넘는 요청은 `Proposed`로 저장되며, 수락하거나 거절하려면 이어서 `respondToLoan`을 호출해야 합니다.
 - **Witness에서 파생한 관리자와 신원**: 호출자 신원(관리자와 사용자 모두)은 32바이트 witness secret에서 파생됩니다. 컨트랙트는 `ownPublicKey()`를 사용하지 않습니다. 관리자 secret 보유자만 제공자를 등록하거나, 사용자를 차단하거나, 관리자 역할을 교체할 수 있습니다. 사용자 secret 보유자만 해당 사용자의 대출을 요청하거나 수락하거나 거절할 수 있습니다.
 
 ## Project structure
 
-이 저장소는 컨트랙트, CLI, attestation API, 그리고 선택적 UI까지 네 개의 workspace로 구성된 단일 모노레포입니다.
+이 예제는 midnight-examples 모노레포의 [`examples/zk-loan`](https://github.com/midnightntwrk/midnight-examples/tree/main/examples/zk-loan)에 있습니다.
 
 ```
-zkloan-credit-scorer/
-├── contract/                              # Compact smart contract
-│   └── src/
-│       ├── zkloan-credit-scorer.compact   # 대출 로직, 자격 등급, ledger
-│       ├── schnorr.compact                # circuit 내 서명 검증
-│       └── witnesses.ts                   # private state (TypeScript)
-├── zkloan-credit-scorer-cli/              # 대화형 CLI (배포 + 트랜잭션)
-│   ├── src/{api,cli,...}.ts
-│   └── standalone.yml                     # 로컬 노드 + indexer + proof server
-├── zkloan-credit-scorer-attestation-api/  # 신용 데이터에 서명하는 REST server
-│   └── src/{signing,server,index}.ts
-└── zkloan-credit-scorer-ui/               # React + Vite UI (Preprod 전용)
-    └── src/{components,contexts,...}
+examples/zk-loan/
+├── contract/
+│   ├── zk-loan.compact        # 대출 로직, 자격 등급, ledger
+│   ├── schnorr.compact        # circuit 내 서명 검증
+│   ├── witnesses.ts           # private state와 witness (TypeScript)
+│   └── index.ts               # witness를 붙여 컴파일한 컨트랙트
+├── attestation-api/           # 신용 데이터에 서명하는 REST server
+│   └── {signing,server,index,types}.ts
+├── src/
+│   ├── test/zk-loan.test.ts   # Midnight 네트워크 대상 엔드투엔드 스위트
+│   ├── test/zk-loan.sim.test.ts  # 컨트랙트 단위 테스트, 인메모리 시뮬레이터
+│   └── {config,providers,wallet}.ts  # 공용 테스트 하네스
+├── ui/                        # React + Vite UI (Lace wallet, 기본값 Preprod)
+└── compose.yml                # 로컬 노드 + indexer + proof server
 ```
 
 ## Prerequisites
 
-- **Node.js** v22 이상 — SDK가 Iterator helper를 사용하므로, 노드 20은 첫 동기화에서 크래시합니다
-- **npm** v10 이상
-- **Docker와 Docker Compose** — 로컬 standalone 네트워크용
-- **Compact toolchain** — `compact` devtool로 설치한 뒤 `compact update`를 실행하고 `compact compile --version`으로 확인하세요(마지막 검증 버전은 `0.31.1`)
-- **Midnight Lace wallet** — Preprod(원격) 흐름에서만 필요합니다. [설치 가이드](/getting-started/installation)를 참조하세요
+- **Node.js 22**: SDK가 Iterator helper를 사용하므로, 노드 20은 첫 동기화에서 크래시합니다
+- **Corepack** — Yarn 4용: `corepack enable`
+- **Docker와 Docker Compose** — 로컬 네트워크용
+- **Compact toolchain**: `compact` devtool로 설치한 뒤 `compact update 0.31.1`을 실행하고 `compact compile --version`으로 확인하세요
+- **Midnight Lace wallet** — UI에서만 필요합니다. [설치 가이드](/getting-started/installation)를 참조하세요
 
-**Versions targeted** — 이 저장소는 ledger v8과 4.x Midnight JS SDK에 고정되어 있습니다.
-
-| Component | Version |
-| --- | --- |
-| `@midnight-ntwrk/midnight-js-protocol` (provides the `/ledger`, `/compact-runtime`, `/compact-js` subpaths) | `4.1.1` |
-| ↳ wrapped ledger (`@midnight-ntwrk/midnight-js-protocol/ledger`) | `8.1.0` |
-| `@midnight-ntwrk/compact-runtime` | `0.16.0` |
-| `@midnight-ntwrk/midnight-js-*` | `4.1.1` |
-| `@midnight-ntwrk/dapp-connector-api` | `4.0.1` |
-| `@midnight-ntwrk/wallet-sdk` (single barrel — replaces `-facade`/`-hd`/`-shielded`/`-dust-wallet`/`-unshielded-wallet`) | `1.2.0` |
-| `@midnight-ntwrk/wallet-sdk-address-format` | `3.1.2` |
-| Compact toolchain (`compact compile`) | `0.31.1` |
-| Compact language pragma | `>= 0.22 && <= 0.23` |
-| Proof-server image | `midnightntwrk/proof-server:8.1.0` |
-| Indexer image | `midnightntwrk/indexer-standalone:4.3.3` |
-| Node image | `midnightntwrk/midnight-node:1.0.0` |
-
-`@midnight-ntwrk/wallet-sdk`는 버전을 정확히 고정해 두세요. npm의 `latest` dist-tag가 아직 `1.1.0`을 가리키기 때문에, 캐럿(`^`) 범위를 쓰거나 `npm install @midnight-ntwrk/wallet-sdk`를 새로 실행하면 구버전이 설치됩니다.
+이 예제는 Compact 언어 `0.23`, 컴파일러 `0.31.1`, `@midnight-ntwrk/midnight-js-*` `4.1.1`, wallet SDK `1.2.0`으로 검증되었습니다. `compose.yml`의 로컬 네트워크는 `midnightntwrk/midnight-node:1.0.0`, `midnightntwrk/indexer-standalone:4.3.3`, `midnightntwrk/proof-server:8.1.0`을 실행합니다.
 
 ## Set it up
 
-결국 최대 네 개의 터미널을 동시에 실행하게 됩니다: docker 네트워크, attestation API, CLI, 그리고 (선택적으로) UI입니다. 단계를 순서대로 따라가세요 — 각 단계가 다음 단계에 필요한 것을 만들어냅니다.
-
-### 1. Install dependencies
+### 1. Install and compile
 
 ```bash
-git clone https://github.com/midnightntwrk/example-zkloan.git zkloan-credit-scorer
-cd zkloan-credit-scorer
-npm install
+git clone https://github.com/midnightntwrk/midnight-examples.git
+cd midnight-examples
+yarn install && yarn compile
+cd examples/zk-loan
 ```
 
-네 개의 workspace가 모두 설치됩니다.
+`yarn compile`은 `contract/managed/zk-loan/`을 생성합니다 — JavaScript 바인딩, prover 및 verifier 키, ZK IR입니다.
 
-### 2. Compile and build the contract
+### 2. Run the full flow on a local network
 
 ```bash
-cd contract
-npm run compact   # src/managed/ 생성 (JS 바인딩 + prover/verifier 키 + ZK IR)
-npm run build     # CLI와 UI가 사용하는 dist/ 생성
-cd ..
+yarn env:up      # node, indexer and proof server from compose.yml
+yarn wait:dust   # wait until the test wallet can pay fees
+yarn test:local
 ```
 
-### 3. Configure the CLI environment
+이 스위트는 attestation API를 인프로세스로 띄운 뒤 컨트랙트를 배포하고, API의 키를 관리자로 등록하고, 두 차입자에게 여러 등급의 대출을 요청하며, 변조된 신용 데이터·관리자가 아닌 호출·차단된 차입자·전임 관리자가 거부되는지 확인합니다. 성공하는 호출마다 실제 증명을 생성하므로 몇 분이 걸립니다. 네트워크는 `yarn env:down`으로 중지하세요.
 
-CLI의 [`level-private-state-provider`](https://www.npmjs.com/package/@midnight-ntwrk/midnight-js-level-private-state-provider)는 컨트랙트의 private state를 디스크에 암호화해 저장하며, 강력한 비밀번호 없이는 실행을 거부합니다.
+컨트랙트의 시뮬레이터 테스트는 네트워크가 필요 없습니다.
 
 ```bash
-cd zkloan-credit-scorer-cli
-cp .env.example .env
-# .env를 열어 MIDNIGHT_STORAGE_PASSWORD를 설정하세요
+yarn test:sim
 ```
 
-비밀번호 규칙(provider v4가 강제):
-
-- 최소 16자
-- 대문자, 소문자, 숫자, 기호 중 최소 세 가지 종류 포함
-- 동일한 문자를 4개 이상 연속 사용 금지
-- `abcd`나 `1234`처럼 4개 이상 연속된 문자 코드 금지
-
-이 비밀번호를 잃어버리면 암호화된 private state에 접근할 수 없으며, 복구 방법은 없습니다.
-
-### 4. Start the local standalone network
-
-Preprod(원격) 흐름만 사용할 계획이라면 이 단계는 건너뛰세요.
-
-CLI workspace에는 위 버전에 고정된 `standalone.yml`이 포함되어 있습니다.
-
-```bash
-# Terminal A
-cd zkloan-credit-scorer-cli
-docker compose -f standalone.yml up -d
-```
-
-서비스는 `ws://127.0.0.1:9944`(노드), `http://127.0.0.1:8088`(indexer), `http://127.0.0.1:6300`(proof server)에 올라옵니다. 노드가 정상 상태가 될 때까지 약 15~20초 기다리세요: `docker compose -f standalone.yml ps`. 새로 만든 체인에서는 노드가 첫 블록을 생성하기 전에 indexer가 연결되면서 한 번 종료될 수 있습니다. `standalone.yml`에 `restart: on-failure`가 설정되어 있어 알아서 복구되니, 문제가 생겼다고 판단하기 전에 한두 번 재시작될 여지를 두세요.
-
-### 5. Start the attestation API
+### 3. Run the attestation API
 
 attestation API는 Jubjub 위에서 Schnorr signature로 신용 데이터에 서명하고, 컨트랙트는 ZK circuit 안에서 그 서명을 검증합니다.
 
 ```bash
-# Terminal B — 열어둔 채로 두세요
-cd zkloan-credit-scorer-attestation-api
 PROVIDER_SECRET_KEY="$(node -e 'console.log(require("crypto").randomBytes(32).toString("hex"))')" \
-PORT=4000 \
-npm run dev
+yarn attestation:start
 ```
 
-시작 시 다음 단계에서 필요한 세 값을 출력합니다: **Provider ID**(기본값 `1`), **public key x**, **public key y**. 생성된 `PROVIDER_SECRET_KEY`를 안전한 곳에 저장하세요 — 이 키 없이 재시작하면 매번 새 Jubjub 키가 생성되어 온체인 등록이 무효화됩니다.
+이 API는 `4000` 포트에서 수신하며(`PORT`로 변경), **Provider ID**(기본값 `1`)와 공개 키의 **x**, **y** 값을 출력합니다. 이 값들은 관리자가 `registerProvider`로 온체인에 등록하는 값입니다. `PROVIDER_SECRET_KEY`는 잘 보관하세요. 이 키가 없으면 재시작할 때마다 새 키가 생성되어 온체인 등록이 무효화됩니다.
 
-### 6. Run the CLI
+### 4. Run the UI
 
-두 가지 옵션이 있습니다. 둘 다 3단계의 `.env`를 사용합니다.
-
-**Option A — Standalone (local docker)** — 4단계가 필요합니다.
+`ui/`의 UI는 Midnight Lace wallet을 통해 연결하며, 기본값은 Preprod입니다. Lace는 로컬 `undeployed` 체인의 트랜잭션 잔액을 맞추거나 서명할 수 없으므로, 로컬에서 반복 작업을 할 때는 테스트 스위트를 사용하세요.
 
 ```bash
-# Terminal C
-cd zkloan-credit-scorer-cli
-npm run standalone
+cd ui
+yarn dev     # http://localhost:5173
 ```
 
-CLI는 로컬 `undeployed` 네트워크에서 미리 자금이 충전된 16진수 시드를 사용하므로, faucet이나 지갑 확장 프로그램이 필요하지 않습니다.
+이 UI는 컨트랙트를 배포하거나 참여하고, (3단계의 attestation API에서 서명을 받아) 대출을 요청하고, 제안을 수락하거나 거절할 수 있습니다. 다만 attestation 제공자는 등록할 수 없습니다. UI에서 직접 배포한 컨트랙트에서는 다른 무엇으로도 등록할 수 없습니다. 관리자 역할은 그 브라우저 탭 메모리에만 존재하는 secret에서 나오고, UI는 이를 내보낼 수 없기 때문입니다. 그래서 UI로 배포한 컨트랙트에서는 모든 대출 요청이 `Attestation provider not registered`로 실패합니다. 대출이 처음부터 끝까지 진행되는 과정을 보려면 2단계의 테스트 스위트를 사용하세요. 페이지를 새로고침해도 secret이 사라지며, 그와 함께 대출 내역과 관리자 역할도 사라집니다. 설정과 브라우저별 세부 사항은 [UI README](https://github.com/midnightntwrk/midnight-examples/blob/main/examples/zk-loan/ui/README.md)를 참조하세요.
 
-**Option B — Preprod (remote)** — [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)에서 tDUST로 자금을 충전한 Preprod wallet의 24단어 BIP-39 니모닉이 필요하며, `6300` 포트에 로컬 proof server가 있어야 합니다(4단계를 했다면 이미 실행 중이고, 아니면 `docker run --rm -p 6300:6300 midnightntwrk/proof-server:8.1.0 midnight-proof-server -v`).
+## Learn how it works
 
-```bash
-# 먼저 zkloan-credit-scorer-cli/.env에 WALLET_MNEMONIC="…"을 추가하세요
-cd zkloan-credit-scorer-cli
-npm run preprod-remote
-```
+3부작 튜토리얼이 이 예제의 코드를 차례로 설명합니다: witness/disclose 분리, circuit 내 Schnorr 검증, PIN에서 파생한 신원, 온체인 테스트 스위트입니다.
 
-지갑이 동기화된 뒤에는 다음 작업을 순서대로 먼저 수행하세요 — 2단계를 끝내기 전까지는 모든 대출 요청이 `evaluateApplicant` 안에서 실패합니다.
-
-1. **Deploy**(옵션 1). 출력된 컨트랙트 주소를 저장하세요.
-2. **attestation 제공자 등록**(관리자 메뉴 → 옵션 8). 5단계의 Provider ID, x, y를 붙여넣으세요.
-
-그다음에는 대출 요청, 제안 응답, PIN 변경, 상태 표시, 그 밖의 관리자 작업을 수행할 수 있습니다.
-
-### 7. Run the UI (Preprod only)
-
-UI는 Preprod 전용입니다 — Lace는 로컬 `undeployed` 체인의 트랜잭션 잔액을 맞추거나 서명할 수 없으므로, 로컬에서 반복 작업을 할 때는 CLI를 사용하세요.
-
-```bash
-# Terminal D
-cd zkloan-credit-scorer-ui
-npm run dev              # http://localhost:5173에 dev 서버 실행
-npm run build            # 프로덕션 번들 생성
-```
-
-연결 방법:
-
-1. Midnight Lace wallet 확장 프로그램을 설치하고 Preprod 네트워크로 전환하세요.
-2. [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)에서 tDUST로 지갑에 자금을 충전하세요.
-3. 5단계와 6단계(Preprod 옵션)가 이미 실행되었는지 확인하세요 — attestation API가 떠 있고, Preprod 컨트랙트가 배포되었으며, 제공자가 그 컨트랙트에 등록된 상태여야 합니다.
-4. UI를 열고 **Connect Lace wallet**을 클릭한 뒤, **01 · 컨트랙트**에 컨트랙트 주소를 붙여넣고 **Connect**를 클릭하세요.
-
-대출을 제출하기 전에 Lace의 동기화가 끝날 때까지 기다리세요(확장 프로그램에 `Wallet syncing (…%)` 배너가 표시됩니다) — 동기화 도중에 제출하면 "Transaction submission failed"라는 일반 오류로 실패합니다.
-
-## Build it from scratch
-
-각 조각이 *왜* 그런 모습인지 이해하고 싶다면, 이 DApp을 빈 디렉토리에서부터 만드는 3부작 튜토리얼을 따라가 보세요. witness/disclose 분리, circuit 내 Schnorr 검증, PIN에서 파생한 신원, 지갑과 제공자 연결을 차례로 다룹니다.
-
-- [Part 1 — ZK Loan smart contract](../../tutorials/zk-loan/smart-contract): Compact 컨트랙트, Schnorr 검증 모듈, witness 구현, 컨트랙트 컴파일 + 빌드.
-- [Part 2 — Attestation API](../../tutorials/zk-loan/attestation-api): 오프체인 Schnorr 서명자, REST endpoint, proof server Docker 설정.
-- [Part 3 — CLI and end-to-end testing](../../tutorials/zk-loan/cli): 지갑 파생, 제공자 연결, 대화형 메뉴, 전체 로컬 개발 안내.
-
-이 튜토리얼은 저장소의 모든 파일을 한 줄씩 다루며, 설계 선택에 대한 해설을 곁들입니다.
+- [Part 1: ZK Loan contract](/tutorials/zk-loan/smart-contract): Compact 컨트랙트, Schnorr 검증 모듈, witness.
+- [Part 2: Attestation API](/tutorials/zk-loan/attestation-api): 오프체인 Schnorr 서명자, REST endpoint, attestation 흐름.
+- [Part 3: ZK Loan tests](/tutorials/zk-loan/test-suite): 로컬 네트워크에서의 전체 흐름과 컨트랙트가 거부하는 공격들.

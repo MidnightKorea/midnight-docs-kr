@@ -74,7 +74,7 @@ Compact 컴파일러는 다음 오류 심각도 수준을 사용합니다.
 
 **Triggers**: 숫자 리터럴이 표현 가능한 최대 Field 값을 초과한 경우입니다.
 
-**Fix**: 더 작은 숫자를 사용하세요. Field 값은 ZK 증명 시스템에 사용되는 소수(prime)로 그 범위가 제한됩니다.
+**Fix**: 더 작은 숫자를 사용하세요. Field 값은 ZK 증명 시스템에 사용되는 소수로 그 범위가 제한됩니다.
 
 ### Invalid digit in binary literal
 
@@ -161,13 +161,13 @@ disclose(witnessValue)
 
 타입 검사를 마친 AST에서 컴파일러가 ZK 중간 표현(ZKIR)을 생성할 때 발생하는 오류입니다.
 
-### Cross-contract calls not yet supported
+### Cross-contract calls not supported by this toolchain
 
 **Message**: `"cross-contract calls are not yet supported"`
 
-**Triggers**: 컨트랙트가 cross-contract 호출을 시도했으나 ZKIR 출력 단계가 아직 이를 지원하지 않는 경우입니다.
+**Triggers**: 컨트랙트가 ledger 버전 9 이전을 대상으로 컴파일하거나 ZKIR v2 출력으로 컴파일하면서 cross-contract 호출을 하는 경우입니다. cross-contract 호출은 ledger 버전 9과 ZKIR v3(toolchain 0.33.0 이상)에서 도입되었습니다.
 
-**Fix**: 현재 컴파일러의 제약 사항입니다. 해당 기능이 제공될 때까지 cross-contract 호출을 사용하지 않도록 구조를 바꾸세요.
+**Fix**: 대상 네트워크가 운영하는 ledger 버전을 [compatibility matrix](../relnotes/support-matrix)에서 확인하세요. 9 이전이면 cross-contract 호출을 쓰지 않도록 컨트랙트 구조를 바꾸세요. 9 이상이면 이를 지원하는 toolchain을 사용하고 `--feature-zkir-v3`로 컴파일하세요. 언어 레퍼런스의 [Cross-contract calls](../compact/reference/compact-reference#cross-contract-calls)와 [Compact release notes](../relnotes/compact)를 참고하세요.
 
 ### ZKIR non-zero exit status
 

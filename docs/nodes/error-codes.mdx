@@ -17,9 +17,15 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 팔렛 수준의 `DispatchError::Module`은 인덱스 5 (`pallet_midnight`) 또는 6 (`pallet_midnight_system`)으로 표면화되며, 내부 오류를 디코딩해야 합니다. 내부 오류 디코딩 방법은 [Decode 1010 transaction rejection errors](/how-to/decode-1010-transaction-rejection-errors) 문제 해결 가이드를 참조하세요.
 :::
 
+:::tip[Errors from the wallet or SDK]
+오류가 지갑이나 SDK 호출에서 발생했다면, 예컨대 `SubmissionError: Transaction submission error`라면 [Transaction submission errors](#transaction-submission-errors)부터 보세요. 이 섹션은 SDK 오류 안에서 노드 코드를 찾는 방법을 보여줍니다.
+:::
+
 ## Error tables by code range
 
 아래는 유형 및 상태 코드별로 분류된 Midnight 노드 전용 오류 목록입니다. 오류 테이블은 코드 범위별로 오류를 그룹화하여 오류 유형을 식별하는 데 도움을 줍니다.
+
+이 표는 노드 버전 1.0.x가 반환하는 코드를 나열합니다. 코드 번호는 노드 릴리스마다 바뀔 수 있습니다. 네트워크가 실행하는 노드 버전은 [compatibility matrix](../relnotes/support-matrix.mdx)에서 확인하세요.
 
 ### Deserialization errors (0–11)
 
@@ -100,14 +106,14 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 | 113 | `VerifierKeyNotPresent` | 참조한 검증자 키를 찾을 수 없는 경우 | circuit을 호출하기 전에 검증자 키와 함께 컨트랙트를 배포하세요 |
 | 114 | `ContractNotPresent` | 트랜잭션이 존재하지 않는 컨트랙트를 참조하는 경우 | 컨트랙트 주소를 확인하고 먼저 컨트랙트를 배포하세요 |
 | 115 | `InvalidProof` | 영지식 증명 검증에 실패한 경우 | 증명을 다시 생성하세요. proof server가 호환 버전인지 확인하세요 |
-| 116 | `BindingCommitmentOpeningInvalid` | 바인딩 commitment가 올바르게 열리지 않은 경우 | Zswap 내부 오류 — 트랜잭션을 다시 빌드하세요 |
+| 116 | `BindingCommitmentOpeningInvalid` | 바인딩 commitment가 올바르게 열리지 않은 경우 | Zswap 내부 오류: 트랜잭션을 다시 빌드하세요 |
 | 117 | `NotNormalized` | 트랜잭션이 정규 형식이 아닌 경우 | SDK로 다시 빌드하세요. 제출 전 트랜잭션을 정규화하세요 |
 | 118 | `FallibleWithoutCheckpoint` | 폴러블 트랜스크립트에 초기 체크포인트가 없는 경우 | 폴러블 섹션 시작 부분에 `kernel.checkpoint()`를 추가하세요 |
 | 119 | `ClaimReceiveFailed` | 코인 commitment 수신 클레임에 실패한 경우 | 코인 commitment 형식 오류 — 트랜잭션을 다시 빌드하세요 |
 | 120 | `ClaimSpendFailed` | 코인 commitment 지출 클레임에 실패한 경우 | 코인 commitment 형식 오류 — 트랜잭션을 다시 빌드하세요 |
 | 121 | `ClaimNullifierFailed` | nullifier 클레임에 실패한 경우 | nullifier 형식 오류 — 트랜잭션을 다시 빌드하세요 |
 | 122 | `ClaimCallFailed` | 컨트랙트 호출 클레임에 실패한 경우 | 컨트랙트 호출 형식 오류 — 트랜잭션을 다시 빌드하세요 |
-| 123 | `InvalidSchnorrProof` | Fiat-Shamir Schnorr 증명 검증에 실패한 경우 | 서명 오류 — 트랜잭션 서명을 다시 생성하세요 |
+| 123 | `InvalidSchnorrProof` | Fiat-Shamir Schnorr 증명 검증에 실패한 경우 | 서명 오류: 트랜잭션 서명을 다시 생성하세요 |
 | 124 | `UnclaimedCoinCom` | 컨트랙트 소유 출력이 클레임되지 않은 채로 남아 있는 경우 | 트랜잭션 제출 전 모든 컨트랙트 출력을 클레임하세요 |
 | 125 | `UnclaimedNullifier` | 컨트랙트 소유 코인 입력이 승인되지 않은 경우 | 모든 컨트랙트 입력을 반드시 승인하세요 |
 | 126 | `Unbalanced` | 특정 토큰 타입에서 잔액이 음수가 된 경우 | 트랜잭션 잔액이 맞지 않습니다. 토큰 수량을 확인하세요 |
@@ -128,10 +134,10 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 | 167 | `IllegallyDeclaredGuaranteed`  | 허용되지 않는 위치에 보장 세그먼트(0)가 사용된 경우 | 인텐트에는 `segment_id` 0을 사용하지 마세요 |
 | 168 | `FeeCalculation` | 수수료 계산 오류 | 트랜잭션 크기 또는 타이밍 파라미터가 유효하지 않습니다 |
 | 169 | `InvalidDustRegistrationSignature` | DUST 등록 서명 검증에 실패한 경우 | 올바른 키로 DUST 등록을 다시 생성하세요 |
-| 170 | `InvalidDustSpendProof` | DUST 지출 증명 검증에 실패한 경우 | DUST 지출 증명을 다시 생성하세요 |
-| 171 | `OutOfDustValidityWindow` | DUST가 유효 시간 창 밖에 있는 경우 | DUST 생성 시간이 허용 범위를 벗어났습니다. 더 최신의 DUST를 사용하세요 |
+| 170 | `InvalidDustSpendProof` | 트랜잭션이 선언한 시각 기준으로 노드의 DUST 상태에 대해 DUST 지출 증명 검증에 실패한 경우 | 모든 DUST 이벤트를 동기화하기 전에 트랜잭션을 빌드하는 지갑에서 이 오류가 발생합니다. 지갑이 동기화될 때까지 기다린 뒤, 새 트랜잭션을 빌드·증명·제출하세요. [DUST troubleshooting](../guides/manage-dust.mdx#dust-troubleshooting)을 참조하세요 |
+| 171 | `OutOfDustValidityWindow` | 트랜잭션이 DUST 동작에 대해 선언한 시각이 블록 시각보다 늦거나, DUST grace period가 허용하는 것보다 오래된 경우 | wallet SDK는 등록에는 시스템 클럭 시각을, 수수료 지불에는 indexer의 최신 블록 시각을 선언합니다. 클럭이 체인보다 앞서 있지 않은지, indexer가 체인을 따라잡았는지 확인한 뒤 트랜잭션을 다시 빌드하세요 |
 | 172 | `MultipleDustRegistrationsForKey` | 하나의 인텐트에 동일한 키에 대한 DUST 등록이 여러 개인 경우 | 인텐트당 키 하나에 DUST 등록은 하나만 허용됩니다 |
-| 173 | `InsufficientDustForRegistrationFee` | 등록 수수료를 지불할 DUST가 부족한 경우 | 등록 전에 더 많은 DUST를 확보하세요 |
+| 173 | `InsufficientDustForRegistrationFee` | 등록이 허용하는 수수료 지불액이, 해당 NIGHT UTXO가 생성된 이후 만들어 냈을 DUST보다 큰 경우 | NIGHT이 수수료만큼 DUST를 생성할 때까지 기다린 뒤 등록을 다시 빌드하세요. 지갑이 이미 보유한 DUST는 이 검사에 포함되지 않습니다. [Registration rules](../guides/manage-dust.mdx#registration-rules)를 참조하세요 |
 | 174 | `MalformedContractDeploy` | 컨트랙트 배포의 구조가 유효하지 않은 경우 | 배포 시 잔액이 0이 아니거나 충전 상태가 잘못되었는지 확인하세요 |
 | 175 | `IntentSignatureVerificationFailure` | 인텐트 서명 검증에 실패한 경우 | 인텐트 서명을 다시 생성하세요 |
 | 176 | `IntentSignatureKeyMismatch` | 서명 키가 verifier key와 일치하지 않는 경우 | 인텐트에 올바른 서명 키를 사용하세요 |
@@ -140,10 +146,10 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 | 179 | `UnsupportedProofVersion` | 지원되지 않는 증명 버전인 경우 | SDK 또는 proof server를 호환 버전으로 업데이트하세요 |
 | 180 | `GuaranteedTranscriptVersion` | 보장 트랜스크립트 버전이 지원되지 않는 경우 | 호환되는 레저/SDK 버전으로 업데이트하세요 |
 | 181 | `FallibleTranscriptVersion` | 폴러블 트랜스크립트 버전이 지원되지 않는 경우 | 호환되는 레저/SDK 버전으로 업데이트하세요 |
-| 182 | `TransactionApplicationError` | 인텐트 TTL 만료, 너무 먼 미래 설정, 또는 중복인 경우 | 인텐트 타이밍을 확인하고 동일한 인텐트를 재제출하지 마세요 |
+| 182 | `TransactionApplicationError` | 인텐트 TTL이 만료되었거나 너무 먼 미래인 경우 | 새 TTL로 트랜잭션을 다시 빌드하고 TTL이 지나기 전에 제출하세요 |
 | 183 | `BalanceCheckOutOfBounds` | 세그먼트에서 잔액 오버플로우 또는 언더플로우가 발생한 경우 | 세그먼트 내 토큰 수량이 표현 가능한 범위를 초과합니다 |
 | 184 | `BalanceCheckConversionFailure` | 잔액을 i128로 변환하는 데 실패한 경우 | 토큰 수량이 내부 표현에 비해 너무 큽니다 |
-| 185 | `PedersenCheckFailure` | 바인딩 commitment 불일치 | 내부 암호화 오류 — 트랜잭션을 다시 빌드하세요 |
+| 185 | `PedersenCheckFailure` | 바인딩 commitment 불일치 | 내부 암호화 오류: 트랜잭션을 다시 빌드하세요 |
 | 186 | `EffectsCheckFailure` | 트랜잭션 이펙트 검증에 실패한 경우 | 선언된 이펙트가 계산된 이펙트와 일치하지 않습니다 |
 | 187 | `DisjointCheckFailure` | 입력/출력 집합이 분리되어 있지 않은 경우 | shielded 및 트랜지언트 입력/출력은 서로 겹치지 않아야 합니다 |
 | 188 | `SequencingCheckFailure` | 호출 그래프의 순서 조건이 위반된 경우 | 컨트랙트 호출은 순서 제약을 준수해야 합니다 |
@@ -166,7 +172,7 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 | 155 | `FeeCalculationError` | 수수료 계산에 실패한 경우 | 내부 수수료 모델 오류 |
 | 165 | `GetTransactionContextError` | 트랜잭션 컨텍스트 조회에 실패한 경우 | 노드 내부 오류 |
 
-### System transaction errors (201–210)
+### System transaction errors (201–211)
 
 거버넌스 및 브릿지 시스템 트랜잭션에서 노드가 오류를 만날 때 발생하는 오류입니다. 이는 네트워크 거버넌스 메커니즘이 제출하는 특수 트랜잭션입니다.
 
@@ -182,6 +188,7 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 | 208 | `InvalidBasisPoints` | 브릿지 수수료 베이시스 포인트가 10,000 이상인 경우 | 베이시스 포인트는 0에서 9,999 사이여야 합니다 |
 | 209 | `InvariantViolation` | 프로토콜 수준의 불변 조건이 위반된 경우 | 해당 트랜잭션은 근본적인 프로토콜 규칙을 위반합니다 |
 | 210 | `TreasuryDisabled` | 비활성화된 재무부에 접근하려는 경우 | 재무부 기능이 활성화되어 있지 않습니다 |
+| 211 | `MerkleTreeError` | 시스템 트랜잭션을 적용하는 중 머클 트리 업데이트에 실패한 경우 | 내부 ledger 오류입니다. 노드 로그를 확인하세요 |
 
 ### Host API error (255)
 
@@ -221,7 +228,7 @@ Midnight 노드 오류는 `LedgerApiError` 코드를 `u8` (0–255)로 매핑한
 | 0 | `NewStateOutOfBounds` | 새 레저 상태가 허용 범위를 벗어난 경우 |
 | 1 | `Deserialization` | DeserializationError (코드 0–11)를 래핑합니다 |
 | 2 | `Serialization` | SerializationError (코드 50–63)를 래핑합니다 |
-| 3 | `Transaction` | TransactionError (코드 100–210)를 래핑합니다 |
+| 3 | `Transaction` | TransactionError (코드 100–211)를 래핑합니다 |
 | 4 | `LedgerCacheError` | 레저 캐시 오염 (코드 150) |
 | 5 | `NoLedgerState` | 레저 상태 없음 (코드 151) |
 | 6 | `LedgerStateScaleDecodingError` | SCALE 디코딩 실패 (코드 152) |
@@ -297,3 +304,58 @@ Midnight 노드는 `jsonrpsee` 크레이트의 표준 JSON-RPC 2.0 오류 코드
 |------|------|---------|-------------|
 | -32602 | `INVALID_PARAMS` | State RPC, Block RPC, Events, Peer Info | 잘못된 컨트랙트 주소, 계정 주소, 블록 해시, 피어 ID 또는 기타 유효하지 않은 파라미터 |
 | -32603 | `INTERNAL_ERROR` | Peer Info RPC, System Parameters RPC | 내부 요청 전송/수신 실패, 런타임 API 오류 |
+
+## Transaction submission errors
+
+DApp이나 지갑이 트랜잭션을 제출하면, 노드의 오류는 코드에 도달하기 전에 여러 소프트웨어 레이어를 거칩니다. 각 레이어는 아래 레이어의 오류를 감싸고 자신의 메시지를 덧붙입니다. 가장 먼저 보이는 메시지는 보통 근본 원인이 아니라 가장 바깥쪽 래퍼입니다.
+
+### How the error layers fit together
+
+노드는 제출된 각 트랜잭션을 ledger에 대해 검증합니다. 검증에 실패하면 노드는 ledger 오류를 [error tables](#error-tables-by-code-range)의 `u8` 코드 중 하나로 변환합니다. 그다음 Substrate 트랜잭션 풀이 그 코드를 JSON-RPC 오류 `1010`으로 반환합니다.
+
+```json
+{ "code": 1010, "message": "Invalid Transaction", "data": "Custom error: 196" }
+```
+
+Midnight wallet SDK로 제출하면, SDK 레이어가 다음 순서로 오류를 감쌉니다.
+
+1. Polkadot.js API 클라이언트가 응답을 `1010: Invalid Transaction: Custom error: 196` 메시지의 `RpcError`로 바꿉니다.
+2. wallet SDK 노드 클라이언트(`@midnightntwrk/wallet-sdk-node-client`)가 그 `RpcError`를 `Transaction submission failed` 메시지의 `SubmissionError`로 감쌉니다.
+3. wallet SDK 제출 서비스(`@midnightntwrk/wallet-sdk-capabilities`)가 그 오류를 다시 `Transaction submission error` 메시지의 또 다른 `SubmissionError`로 감쌉니다.
+4. promise 기반 API가 이름이 `(FiberFailure) SubmissionError`인 Effect `FiberFailure`로 reject합니다. `WalletFacade.submitTransaction`은 지갑의 shielded, unshielded, DUST 상태에서 트랜잭션을 되돌린 뒤 이 오류를 다시 throw합니다.
+5. Midnight.js `submitCallTx`가 그 오류를 메시지가 `Unexpected error submitting scoped transaction`으로 시작하고 감싸진 오류의 텍스트를 포함하는 일반 `Error`로 감쌉니다.
+
+`FiberFailure`의 `message` 속성에는 가장 바깥쪽 텍스트만 담기고, `FiberFailure`는 `error.cause`를 설정하지 않습니다. `Custom error: N`을 포함한 전체 체인을 보려면 `String(error)`로 오류를 문자열로 변환하거나, Node.js에서는 `console.error(error)`로 기록하세요. 브라우저 콘솔은 바깥쪽 메시지만 보여주므로 거기서도 `String(error)`를 사용하세요. `JSON.stringify(error)`는 노드 오류 텍스트를 버립니다.
+
+노드를 직접 운영한다면 노드 로그에도 원인이 기록됩니다. 제출 시점의 거부는 `Rejected transaction <hash> from mempool`이 포함된 줄에, 노드가 블록을 빌드하는 중에 버린 트랜잭션은 `Rejecting transaction <hash> at pre-dispatch`가 포함된 줄에 있습니다.
+
+DApp이 DApp Connector API로 브라우저 지갑을 통해 제출한다면, 지갑이 제출을 수행하고 `code`와 `reason` 필드가 있는 오류를 반환합니다. API는 지갑이 노드의 응답을 포함하도록 요구하지 않습니다. `reason` 텍스트에 `Custom error: N`이 포함되어 있으면 [error tables](#error-tables-by-code-range)에서 `N`을 찾아보세요.
+
+:::info[Codes above 255]
+노드 ledger 코드는 `u8` 값이므로 항상 0에서 255 사이입니다. 그보다 큰 숫자, 예컨대 다섯 자리 코드가 보인다면 이 페이지의 노드 오류 표에서 온 것이 아닙니다. 오류 체인의 다른 곳에서 `1010` 응답이나 `Custom error: N` 텍스트를 찾거나 노드 로그를 확인하세요.
+:::
+
+### Submission error messages
+
+아래 표는 제출이 실패할 때 볼 수 있는 메시지, 각 메시지를 만들어 내는 레이어, 그리고 다음에 할 일을 정리한 것입니다.
+
+| Message or error | Origin | Description | How to fix |
+|------------------|--------|-------------|------------|
+| `1010: Invalid Transaction: Custom error: N` | 노드(Substrate 트랜잭션 풀) | 노드의 ledger가 코드 `N`으로 트랜잭션을 거부한 경우 | [error tables](#error-tables-by-code-range)에서 `N`을 찾아보세요 |
+| `Custom error: N`이 없는 `1010: Invalid Transaction` | 노드(Substrate 트랜잭션 풀) | Substrate의 weight 검사가 트랜잭션을 한 블록에 담기에 너무 무겁다고 거부한 경우. `data` 필드에는 Substrate의 텍스트가 담기며, 보통 `Transaction would exhaust the block limits`입니다 | [When 1010 has no inner u8](/how-to/decode-1010-transaction-rejection-errors#when-1010-has-no-inner-u8)을 참조하세요 |
+| `SubmissionError: Transaction submission failed` | wallet SDK 노드 클라이언트 | 트랜잭션을 노드로 보내는 호출이 실패한 경우. 노드의 응답은 `cause`에 있습니다 | `1010` 응답을 보려면 `cause`를 읽으세요 |
+| `TransactionInvalidError: Transaction is invalid and was rejected by the node` | wallet SDK 노드 클라이언트 | 노드가 트랜잭션을 풀에 받아들였다가, 현재 상태에 대한 ledger 검사를 더 이상 통과하지 못해 나중에 버린 경우. 재현된 사례에서는 노드가 블록을 빌드하는 중에 버렸습니다. 클라이언트에는 코드가 전달되지 않습니다. 직접 운영하는 노드라면 `Rejecting transaction <hash> at pre-dispatch` 또는 `Rejected transaction <hash> from mempool`이 포함된 로그 줄에서 원인을 알 수 있습니다 | 재현된 원인은 하나의 seed를 쓰는 두 지갑 인스턴스가 첫 번째 트랜잭션이 아직 대기 중일 때 같은 DUST를 지출한 것입니다. seed마다 지갑 인스턴스를 하나만 실행하고, 다음 트랜잭션을 제출하기 전에 대기 중인 트랜잭션이 확정될 때까지 기다리세요. 첫 번째 트랜잭션이 블록에 들어가면 같은 지출은 대신 `Custom error: 196`을 반환합니다 |
+| `SubmissionError: Transaction submission error` | wallet SDK 제출 서비스 | 제출 중 발생한 모든 노드 클라이언트 오류. 노드 거부, 연결 끊김, 또는 노드가 버렸거나 유효하지 않다고 보고한 트랜잭션을 포함합니다 | 전체 오류 체인을 출력해 가장 안쪽 오류를 찾으세요 |
+| `(FiberFailure) SubmissionError` | wallet SDK (Effect 런타임) | promise 기반 wallet SDK API가 앞 행에서 설명한 `SubmissionError`로 reject한 경우 | `String(error)`로 전체 cause 체인을 출력하세요 |
+| `Unexpected error submitting scoped transaction '<name>': ...` | Midnight.js | 트랜잭션이 블록에 도달하기 전에 `submitCallTx`가 실패한 경우. 메시지에는 기저 오류의 텍스트가 포함됩니다 | 메시지에서 `Custom error: N`을 찾아 `N`을 조회하세요 |
+| `CallTxFailedError` | Midnight.js | 트랜잭션이 블록에 도달했지만 상태가 `SucceedEntirely`가 아닌 경우 | 오류의 `finalizedTxData.status`를 확인해 트랜잭션의 어느 부분이 실패했는지 보세요 |
+| `Failed to decode ledger event payload` | wallet SDK shielded 지갑 | 동기화 중 지갑이 indexer에서 받은 ledger 이벤트를 역직렬화하지 못한 경우. 한 가지 원인은 wallet SDK에 번들된 ledger 버전과 네트워크가 실행하는 ledger 버전의 불일치입니다. indexer가 지갑이 디코딩할 수 없는 페이로드를 반환해도 같은 메시지가 나타납니다 | 네트워크에 맞는 wallet SDK와 Midnight.js 버전을 [compatibility matrix](../relnotes/support-matrix.mdx)에서 확인해 사용하세요 |
+
+### Common submission codes
+
+다음 노드 코드는 제출 오류 안에서 자주 나타납니다. 그 의미는 노드 버전 1.0.x에 적용됩니다.
+
+| Code | Name | Description | How to fix |
+|------|------|-------------|------------|
+| 103 | `Zswap` | 트랜잭션의 shielded(Zswap) 부분이 ledger 상태와 충돌하는 경우. 코인의 nullifier가 이미 지출되었거나, 새 코인 commitment가 이미 존재하거나, 증명이 노드가 인식하지 못하는 코인 트리 루트를 참조하거나, 머클 트리 업데이트가 실패할 때 노드가 이 오류를 보고합니다. 노드는 과거 코인 트리 루트를 약 1시간 동안 보관하므로, 그보다 오래된 루트를 증명에 사용한 트랜잭션은 거부합니다 | 지갑이 동기화를 마치도록 둔 뒤 트랜잭션을 다시 빌드해 재제출하세요. 같은 shielded 코인을 지출하는 트랜잭션을 여러 개 동시에 제출하지 마세요 |
+| 196 | `DustDoubleSpend` | 트랜잭션 수수료를 지불하는 DUST UTXO가 이미 지출된 경우. 그 nullifier가 이미 ledger의 DUST nullifier 집합에 있습니다 | 지갑이 앞선 트랜잭션을 동기화하도록 둔 뒤 다시 빌드해 재제출하세요. 같은 seed에서 지갑 인스턴스를 둘 이상 동시에 실행하지 말고, 이미 블록에 들어가 있을 수 있는 트랜잭션을 재제출하지 마세요 |

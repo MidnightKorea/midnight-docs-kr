@@ -1,6 +1,6 @@
 ---
 SPDX-License-Identifier: Apache-2.0
-copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+copyright: This file is part of midnight-docs. Copyright (C) 2025 Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Writing a contract
 sidebar_position: 01
 ---
@@ -20,7 +20,7 @@ Midnight의 표준 라이브러리를 가져오고,
 현재 상태를 나타내는 `enum`을 선언합니다:
 
 ```compact title=lock.compact
-pragma language_version 0.16;
+pragma language_version 0.26;
 
 import CompactStandardLibrary;
 
@@ -136,7 +136,7 @@ export circuit clear(): [] {
 모두 합치면, 전체 예제는 다음과 같습니다:
 
 ```compact title=lock.compact
-pragma language_version 0.16;
+pragma language_version 0.26;
 
 import CompactStandardLibrary;
 
@@ -190,19 +190,39 @@ export circuit clear(): [] {
 }
 ```
 
-## Basic confidentiality
+## Confidentiality
 
-이 예제에서 무엇이 기밀로 유지되고 무엇이 강제되는지 바로
-파악하기 어려울 수 있습니다. 다행히 둘 다 명확하게 정의되어 있습니다:
-- ledger 필드가 아니고 ledger 연산의 인수나 반환 값이 아닌 모든 데이터는 기밀로 유지됩니다
-- `witness` 함수 외부에서 수행되는 모든 계산은 정확성이 강제됩니다.
+이 예제에서 어떤 데이터가 비공개이고, 그 비공개 데이터 중 무엇이 기밀로 남으며,
+반대로 무엇이 공개되는지는 바로 파악하기 어려울 수 있습니다. 다행히 이는 명확하게
+정의되어 있습니다. 비공개 데이터란 circuit 인수와 witness 반환 값에 담겨 있거나
+그로부터 파생된 데이터를 말합니다. 비공개 데이터는 다음의 경우에만 공개된 것으로
+간주됩니다. ledger 연산에 전달될 때, exported circuit에서 반환될 때, cross-contract
+호출로 다른 컨트랙트에 전달될 때, `assert` 하위 표현식의 boolean 값을 계산하는 데
+쓰일 때, 그리고 조건부로 실행되는 ledger 연산·cross-contract 호출·exported circuit
+반환으로 이어지는 제어 흐름을 결정하는 데 쓰일 때입니다. 한 가지 예외로, exported
+circuit의 인수에 담긴 데이터가 그 circuit에서 반환되는 경우는 공개로 보지 않습니다.
+호출자가 이미 알고 있는 값이기 때문입니다. 대부분의 경우
+[비공개 데이터의 공개는 `disclose()` 래퍼로 명시적으로 선언해야 합니다](explicit-disclosure).
+유일한 예외는 assert 하위 표현식의 값을 계산하는 데 비공개 데이터를 쓰는 경우로,
+비공개 데이터의 속성을 단언하는 데 워낙 자주 쓰이므로 암묵적 공개가 허용됩니다.
+컨트랙트는 `disclose()` 래퍼를 어디에 둘지 상당한 재량을 갖습니다. 항상은 아니지만
+대개 공개 지점에 최대한 가까운 곳이 가장 좋습니다. 공개하면 안 되는 경로에서까지
+공개 대상으로 표시될 수 있는 지점에서 데이터를 너무 일찍 공개하는 것은 대체로
+좋지 않습니다.
 
-구체적으로, `secretKey`의 출력은 기밀로 유지되면서
-`clear`할 때 *해시*가 올바른 값인지가 강제됩니다.
+위 예제에서 `v` 매개변수의 값은 비공개 데이터를 담은 것으로 간주되며, 이 값을 ledger
+`value` 필드에 저장하는 지점에서 그 공개를 `disclose(v)`로 명시적으로 선언해야 하고
+또 그렇게 하고 있습니다. `secretKey` witness의 값도 비공개 데이터를 담은 것으로
+간주되며, 이를 담은 struct의 persistent hash를 ledger `authority` 필드에 저장하는
+지점에서 그 공개를 명시적으로 선언합니다. `secretKey()`의 값은 `clear`의 `assert`를
+통해 암묵적으로도 공개됩니다.
 
-`round` 매개변수가 필요한 이유도 여기에 있습니다. `pk` "공개 키"는
-기밀이 *아니므로*, 동일한 사용자가 여러 라운드에 걸쳐 데이터를 게시하면
-서로 연결될 수 있습니다. 공개 키 계산에 라운드 매개변수를 포함하면
+`secretKey()`가 반환하는 비밀 키가 완전히 기밀로 유지되지는 않지만, 비밀 키를 담은
+값의 해시만 공개되므로 부분적인 기밀성은 지켜집니다.
+
+`round` 매개변수를 공개되는 값에 비밀 키와 함께 포함하는 이유도 여기에 있습니다.
+비밀 키의 해시만 단독으로 노출하면 동일한 사용자가 여러 라운드에 걸쳐 데이터를
+게시할 때 서로 연결될 수 있습니다. 공개 키 계산에 라운드 매개변수를 포함하면
 이러한 연결 가능성이 사라집니다.
 
 "비밀 키"와 "공개 키"라는 용어를 사용하지만, 이 키들은 공개 키 암호화와는
@@ -220,7 +240,7 @@ commitment끼리 연결될 수 있습니다.) 이후에 값과 nonce를 공개�
 `assert`로 증명할 수 있으며, 이때 실제 값은 공개되지 않습니다.
 
 `CompactStandardLibrary` 모듈은 이러한 용도를 위해 다음 circuit을 제공합니다:
-```compact title=standard-library.compact
+```compact
 circuit transientHash<T>(value: T): Field;
 circuit transientCommit<T>(value: T, rand: Field): Field;
 circuit persistentHash<T>(value: T): Bytes<32>;
@@ -231,6 +251,14 @@ circuit persistentCommit<T>(value: T, rand: Bytes<32>): Bytes<32>;
 commitment 함수입니다. `transient*` 함수는 값이 상태에 보관되지 *않을* 때만
 사용해야 하며, `persistent*` 출력은 컨트랙트의 `ledger` 상태에
 저장하기에 적합합니다.
+
+## Proof of in-circuit computations
+
+**in circuit**에서 수행되는 계산은 '정확'하다고 증명됩니다. 애플리케이션이 변조된
+계산을 사용하려 하면, 컨트랙트 배포 시점에 저장된 verifier key에 대해 검증을 통과하지
+못하는 proof가 나온다는 의미입니다. Compact circuit 안에 텍스트로 나타나는 모든 코드는
+**in circuit**입니다. circuit 밖에서 실행되는 코드는, circuit에서 호출된 witness 함수
+내부를 포함해 **in circuit**으로 보지 않습니다.
 
 ## Next steps
 

@@ -30,7 +30,7 @@ tags: [midnight, security, privacy, compact, smart-contracts, dapp]
 
 Compact 컨트랙트의 모든 보안 통제는 세 공격자 중 하나를 방어합니다. 특정 circuit이 어느 공격자를 상대하는지 알면 어떤 통제가 필요한지 알 수 있습니다.
 
-**체인 관찰자**는 public ledger를 읽습니다. 영지식 증명이 witness 데이터를 숨기지만, 트랜잭션은 여전히 여러분이 호출한 circuit과 컨트랙트, ledger 연산의 인자, 여러분이 disclose하는 값, 그리고 그 시점을 드러냅니다. 정확히 무엇이 노출되고 무엇이 노출되지 않는지는 [On-chain visibility](#on-chain-visibility) 참조 자료에 정리되어 있습니다.
+**체인 관찰자**는 public ledger를 읽습니다. 영지식 증명이 witness 데이터를 숨기지만, 트랜잭션은 여전히 여러분이 호출한 circuit과 컨트랙트, ledger 연산의 인자, 여러분이 disclose해서 ledger에 쓰는 값, 그리고 그 시점을 드러냅니다. 정확히 무엇이 노출되고 무엇이 노출되지 않는지는 [On-chain visibility](#on-chain-visibility) 참조 자료에 정리되어 있습니다.
 
 **악의적 prover**는 자신의 프런트엔드를 제어하며 `ownPublicKey()`의 결과를 포함해 모든 witness 값을 직접 공급합니다. 프로토콜은 이 값들을 트랜잭션에 서명한 지갑과 대조해 검증하지 않으므로, 거짓말하는 prover를 제약하는 것은 오직 circuit 안의 `assert` 문뿐입니다. 여러분이 제약하지 않은 것은 무엇이든 prover가 마음대로 정합니다.
 
@@ -46,13 +46,14 @@ Compact 컨트랙트의 모든 보안 통제는 세 공격자 중 하나를 방�
 | 여러분이 호출한 exported circuit | 예, 진입점은 트랜잭션의 일부입니다 |
 | 여러분이 호출한 컨트랙트 | 예, 컨트랙트 주소는 공개됩니다 |
 | ledger 연산의 인자(`Set`·`Map`의 키와 값, `Counter` 수량) | 예 |
-| public 위치로 disclose하는 값(ledger 쓰기, exported circuit 반환값, 컨트랙트 간 호출) | 예 |
+| 여러분이 disclose해서 ledger에 쓰는 값 | 예 |
+| exported circuit의 반환값 | 아니요, 트랜잭션은 호출의 입력과 출력에 대한 무작위화된 commitment만 담습니다. circuit이 ledger에서 읽거나 ledger에 쓴 값은 그 ledger 연산을 통해 여전히 보입니다. |
 | 트랜잭션이 온체인에 반영된 시점 | 예, 블록 타이밍은 관찰 가능합니다 |
-| witness 함수의 반환값 | 아니요, public 위치로 disclose하지 않는 한 |
+| witness 함수의 반환값 | 아니요, disclose해서 그 값이 ledger에 도달하지 않는 한. ledger 연산의 인자로 쓰이거나, 어떤 ledger 연산이 실행될지 결정하는 분기를 통해 도달하는 경우입니다 |
 | circuit 내부 연산 | 아니요 |
 | `MerkleTree`나 `HistoricMerkleTree`에 삽입된 leaf | 아니요, 인자를 숨기는 유일한 ledger 연산입니다 |
 
-값을 `disclose()`로 감싼다고 해서 그 값이 공개되는 것은 아닙니다. `disclose()`는 컴파일러의 비공개 데이터 검사를 통과시켜 값이 public 경계를 넘을 수 있게 할 뿐입니다. 값은 ledger 쓰기, exported circuit의 반환, 컨트랙트 간 호출을 통해 실제로 경계를 넘을 때 비로소 보이게 됩니다.
+값을 `disclose()`로 감싼다고 해서 그 값이 공개되는 것은 아닙니다. `disclose()`는 컴파일러의 비공개 데이터 검사를 통과시켜, 값이 ledger 쓰기, exported circuit의 반환, 컨트랙트 간 호출을 통해 circuit을 떠날 수 있게 할 뿐입니다. ledger 쓰기는 온체인에 보입니다. 반환값은 ledger에 쓰이지도 트랜잭션에서 읽히지도 않으며, 호출의 입력과 출력에 대한 무작위화된 commitment만 남습니다. 그래도 컴파일러는 witness 함수에서 온 값을 반환할 때 `disclose()`를 요구하는데, 그 값이 여러분의 DApp이나 호출하는 컨트랙트로 circuit을 떠나기 때문입니다.
 
 {/* _mod-docs-content-type: PROCEDURE */}
 ## Authenticating a caller with a derived identity
@@ -173,7 +174,7 @@ describe('access control', () => {
 {/* _mod-docs-content-type: PROCEDURE */}
 ## Restricting a circuit to a group
 
-Merkle 멤버십 증명을 검증하고 이를 호출자에 바인딩해 다른 누구도 replay할 수 없게 함으로써, 그룹의 어떤 구성원이든 어느 구성원인지 드러내지 않고 circuit을 실행할 수 있게 하세요.
+Merkle 멤버십 증명을 검증하고 이를 호출자에 바인딩해 다른 누구도 쓸 수 없게 함으로써, 그룹의 어떤 구성원이든 어느 구성원인지 드러내지 않고 circuit을 실행할 수 있게 하세요.
 
 ### Prerequisites
 
@@ -201,7 +202,7 @@ Merkle 멤버십 증명을 검증하고 이를 호출자에 바인딩해 다른 
    }
    ```
 
-2. 멤버십 증명을 검증하고 호출자에 바인딩합니다. 이 바인딩 assert가 보안상 핵심 라인입니다. 이것이 없으면 public 트랜잭션에서 유효한 path를 관찰한 사람은 누구나 그것을 replay할 수 있습니다:
+2. 멤버십 증명을 검증하고 호출자에 바인딩합니다. 이 바인딩 assert가 보안상 핵심 라인입니다. 호출자가 `path`를 공급하는데, 어떤 구성원의 공개 키를 아는 사람은 누구나 ledger 상태에서 그 구성원의 path를 계산할 수 있습니다. 이 assert가 없으면 비구성원이 구성원의 path로 멤버십 검사를 통과할 수 있습니다:
 
    ```compact
    export circuit act(path: MerkleTreePath<10, Bytes<32>>): [] {
@@ -216,7 +217,7 @@ Merkle 멤버십 증명을 검증하고 이를 호출자에 바인딩해 다른 
 
 ### Verification
 
-구성원은 자신의 path로 동작하고, 바인딩 assert는 그 path를 replay하는 비구성원을 거부합니다.
+구성원은 자신의 path로 동작하고, 바인딩 assert는 그 path를 제출하는 비구성원을 거부합니다.
 
 ```typescript title="group-access.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -243,7 +244,7 @@ describe('group membership', () => {
     expect(() => contract.impureCircuits.act(ctx, alicePath)).not.toThrow();
   });
 
-  it("rejects a non-member replaying a member's path", () => {
+  it("rejects a non-member using a member's path", () => {
     const malloryCtx = { ...ctx, currentPrivateState: { sk: MALLORY } };
     expect(() => contract.impureCircuits.act(malloryCtx, alicePath)).toThrow('path not bound to caller');
   });
@@ -252,7 +253,7 @@ describe('group membership', () => {
 
 ```text
  ✓ group-access.test.ts > group membership > lets a member act with their own path
- ✓ group-access.test.ts > group membership > rejects a non-member replaying a member's path
+ ✓ group-access.test.ts > group membership > rejects a non-member using a member's path
 
  Test Files  1 passed (1)
       Tests  2 passed (2)
@@ -623,7 +624,7 @@ viewing key 회전은 없습니다. viewing key는 wallet seed에 묶여 있어 
 
 - [ ] **witness 데이터에 대한 모든 가정을 assert하세요.** 여러분이 제약하지 않은 witness 값은 prover가 정하는 값입니다. [The Midnight security threat model](#the-midnight-security-threat-model)을 참고하세요.
 - [ ] **계산하기 전에 입력을 검증하세요.** 경계, 범위, 0이 아닌 값, 상태 전제조건을 확인하세요. [Validating inputs before computing](#validating-inputs-before-computing)을 참고하세요.
-- [ ] **악의적 private state로 테스트하세요.** 일부러 잘못된 witness 값을 공급해 여러분의 assert가 그것을 거부하는지 확인하세요. [Battleship tutorial](../tutorials/bship/test-suite)에 완전한 적대적 테스트 스위트가 나와 있습니다.
+- [ ] **악의적 private state로 테스트하세요.** 일부러 잘못된 witness 값을 공급해 여러분의 assert가 그것을 거부하는지 확인하세요. [Battleship tutorial](../tutorials/battleship/test-suite)에 완전한 적대적 테스트 스위트가 나와 있습니다.
 - [ ] **모든 `disclose()`를 점검하세요.** 무엇이 언제 공개되는지, 그리고 그것이 circuit에 필요한 최소한인지 확인하세요.
 - [ ] **도메인 구분자를 확인하세요.** 모든 commitment과 nullifier 유도는 서로 다른 도메인 문자열을 쓰고, 어떤 commitment도 자신의 nullifier와 도메인을 공유하지 않아야 합니다.
 - [ ] **지속 가능한 해시만 저장하고** **상태 증가에 한계를 두세요.** [Durable and bounded on-chain state](#durable-and-bounded-on-chain-state)를 참고하세요.

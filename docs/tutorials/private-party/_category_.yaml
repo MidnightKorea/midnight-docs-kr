@@ -1,6 +1,6 @@
 position: 20
 label: 'Private Party'
-description: "입문: Midnight의 프라이버시를 배웁니다."
+description: "입문: 프라이버시 경계. salt를 더한 commitment 뒤에 숨긴 비공개 RSVP와 공개 NIGHT 입장료로 배웁니다."
 collapsible: true # make the category collapsible
 collapsed: true # keep the category closed by default
 link:

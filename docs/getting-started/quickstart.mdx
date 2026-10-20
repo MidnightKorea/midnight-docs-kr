@@ -162,7 +162,7 @@ npm run test:e2e
 
 ### Deploy to a public testnet
 
-기본값은 local devnet입니다. 공개 testnet은 선택 사항이며, `npm run setup`에 `--network`를 전달하세요:
+기본값은 local devnet입니다. 공개 testnet은 선택 사항입니다. 프로젝트의 `npm run setup` 스크립트에 `--network`(`undeployed`, `preview`, `preprod`)를 전달하세요. `--network`는 setup 스크립트의 인자이며, `create-mn-app`의 옵션이 아닙니다:
 
 ```bash
 npm run setup -- --network preview
@@ -233,7 +233,6 @@ npx create-mn-app@latest my-app --from midnightntwrk/example-counter
 | `-t`, `--template <name>` | 템플릿 선택: `hello-world`, `battleship`, `bboard`, `leaderboard` |
 | `--list` | 사용 가능한 템플릿 목록 표시 |
 | `--from <owner/repo>` | GitHub 저장소로부터 스캐폴딩 |
-| `--network <name>` | `hello-world` 템플릿의 네트워크 설정 (`undeployed`, `preview`, `preprod`) |
 | `-y` | 프롬프트 없이 기본값 적용 |
 | `--dry-run` | 파일을 생성하지 않고 CLI가 만들 내용 미리 보기 |
 | `--use-npm/yarn/pnpm/bun` | 특정 패키지 매니저 강제 사용 |

@@ -64,7 +64,7 @@ Compact의 언어 모델은 그러한 분리를 개발 표면의 일부로 만�
 
 문제는 무언가가 공개되어야 하는지 여부가 아니라, 누가 무엇을 언제 보는가입니다.
 
-Compact은 [`disclose()` 키워드](/compact/reference/explicit-disclosure)를 통해 명시적 disclosure를 강제합니다. `disclose()` 호출 자체가 데이터를 공개하지는 않습니다. 이는 witness에서 파생된 값을 공개 영역으로 들여보내려는 의도를 컴파일러에 알립니다. 값은 가시성 경계를 넘을 때만 공개됩니다. ledger 쓰기, exported circuit에서의 반환, 컨트랙트 간 호출이 그러한 경계입니다. 컴파일러는 witness에서 파생된 값이 `disclose()` 래퍼 없이 그러한 경계를 넘는 프로그램을 모두 거부합니다. 프라이버시가 기본값이며, disclosure에는 의도적인 표기가 필요합니다.
+Compact은 [`disclose()` 키워드](/compact/reference/explicit-disclosure)를 통해 명시적 disclosure를 강제합니다. `disclose()` 호출 자체가 데이터를 공개하지는 않습니다. 이는 witness에서 파생된 값을 circuit 밖으로 내보내려는 의도를 컴파일러에 알립니다. 값은 경계를 넘을 때 circuit을 벗어납니다. ledger 쓰기, exported circuit에서의 반환, 컨트랙트 간 호출이 그러한 경계입니다. ledger 쓰기는 값을 공개합니다. 반환값은 여러분의 DApp이나 호출한 컨트랙트로 전달됩니다. 반환값은 ledger에 기록되지도, 트랜잭션에서 읽히지도 않습니다. 트랜잭션에는 호출의 입력과 출력에 대한 무작위화된 commitment만 담깁니다. 컴파일러는 witness에서 파생된 값이 `disclose()` 래퍼 없이 그러한 경계를 넘는 프로그램을 모두 거부합니다. 프라이버시가 기본값이며, disclosure에는 의도적인 표기가 필요합니다.
 
 이 설계는 Midnight의 더 넓은 selective disclosure 방향과 직접 맞아떨어집니다. selective disclosure는 완전한 비밀로서의 프라이버시가 아닙니다. 통제된 가시성으로서의 프라이버시입니다. 시스템은 무관한 데이터는 비공개로 유지하면서 특정 상호작용에 필요한 정보만 밝힐 수 있습니다. 해시, commitment, Merkle tree 같은 실용적인 shielding 패턴은 [Keeping data private](/concepts/how-midnight-works/keeping-data-private)를 참고하세요.
 
@@ -90,6 +90,8 @@ Compact은 경계를 긋습니다. EVM 스타일 스마트 컨트랙트가 "이�
 2. **[Understand explicit disclosure](/compact/reference/explicit-disclosure)**: `disclose()` 키워드가 컴파일러 수준에서 의도적인 데이터 가시성을 어떻게 강제하는지 익힙니다.
 3. **[Keep data private](/concepts/how-midnight-works/keeping-data-private)**: 해시, commitment, Merkle tree, commitment/nullifier 패턴을 포함한 실용적인 shielding 패턴을 살펴봅니다.
 4. **[Build a bulletin board DApp](/tutorials/bboard/smart-contract)**: Compact 컨트랙트와 동작하는 DApp을 결합한 튜토리얼에서 배운 내용을 적용해 봅니다.
+
+실제 적용 사례를 보려면 [How to build a private smart contract on Midnight](/guides/build-a-private-smart-contract)을 따라 해 보세요. `ledger`, `witness`, `disclose()`를 하나의 작은 컨트랙트에서 적용해 컴파일하고 테스트합니다.
 
 환경을 먼저 구성하고 싶다면 [Install the Toolchain](/getting-started/installation)과 [Create your first contract](/getting-started/hello-world)부터 시작하세요.
 

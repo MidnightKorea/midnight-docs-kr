@@ -180,7 +180,7 @@ proof server는 비공개 데이터를 보호하기 위해 트랜잭션의 ZK pr
 proof server를 실행하세요.
 
 ```bash
-docker run -p 6300:6300 midnightntwrk/proof-server:8.0.3 -- midnight-proof-server -v
+docker run -p 6300:6300 -e MIDNIGHT_PROOF_SERVER_VERBOSE=true midnightntwrk/proof-server:8.0.3
 ```
 
 :::tip[proof server를 계속 실행해 두세요]

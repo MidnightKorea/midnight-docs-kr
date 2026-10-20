@@ -1,6 +1,8 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Building blocks
+description: Midnight 트랜잭션이 intent, Zswap offer, 컨트랙트 호출, 배포를 어떻게 결합하는지, 그리고 트랜잭션 병합과 바인딩 commitment가 어떻게 동작하는지 설명합니다.
 ---
 
 # Building blocks
@@ -9,30 +11,46 @@ Midnight의 트랜잭션 구조는 독특하며, 처음에는 직관적으로 �
 
 ## Transactions
 
-Midnight에서 트랜잭션은 다음으로 구성됩니다:
-- 'guaranteed' [zswap offer](./zswap.mdx#offers)
-- 선택적 'fallible' zswap offer
-- 선택적 컨트랙트 호출 섹션 (다음을 포함):
-  - [컨트랙트 호출](#contract-calls) 또는 [컨트랙트 배포](#contract-deployments)의 시퀀스
-  - 암호학적 바인딩 commitment (참조: [트랜잭션 무결성](#transaction-integrity))
-- 바인딩 무작위성 (참조: 트랜잭션 무결성).
+표준 Midnight 트랜잭션은 다음으로 구성됩니다:
+- 네트워크 ID
+- [intent](#intents) 집합. 각 intent는 segment ID로 식별됩니다
+- 선택적 guaranteed [Zswap offer](./zswap.mdx#offers)
+- 선택적 fallible Zswap offer. 각각 segment ID로 식별됩니다
+- 바인딩 무작위성 (참조: [트랜잭션 무결성](#transaction-integrity))
+
+segment ID `0`은 guaranteed 섹션 전용이므로, intent와 fallible offer는 항상 0이 아닌 segment ID를 사용합니다. 같은 segment ID를 공유하는 트랜잭션 부분은 함께 원자적으로 적용됩니다. 모든 intent의 guaranteed 부분, 예컨대 guaranteed transcript와 guaranteed unshielded offer는 자신의 segment가 아니라 guaranteed 섹션과 함께 실행됩니다.
+
+guaranteed 섹션이 항상 먼저 실행됩니다. 이 섹션이 실패하거나 fallible Zswap offer 중 하나라도 적용할 수 없으면 트랜잭션 전체가 실패합니다. 나머지 segment는 segment ID 순서로 실행됩니다. 실패한 segment가 있어도 guaranteed 섹션이나 이미 성공한 다른 segment를 되돌리지 않으므로, ledger는 트랜잭션을 부분 성공으로 기록합니다.
+
+## Intents
+
+intent는 한 segment에 속하는 컨트랙트 활동과 unshielded 토큰 전송을 묶습니다. 각 intent는 다음을 포함합니다:
+- 선택적 guaranteed unshielded offer와 선택적 fallible unshielded offer
+- 컨트랙트 동작의 시퀀스: [컨트랙트 배포](#contract-deployments), [컨트랙트 호출](#contract-calls), 컨트랙트 유지보수 업데이트
+- 선택적 DUST 동작. DUST를 지출해 수수료를 내거나, NIGHT 주소가 생성하는 DUST를 어느 DUST 주소가 받을지 지정합니다
+- time-to-live(TTL) 타임스탬프. 과거이거나 너무 먼 미래여서는 안 됩니다
+- 바인딩 commitment (참조: [트랜잭션 무결성](#transaction-integrity))
+
+ledger는 적용하는 모든 intent의 해시를 기록하고 이미 본 intent는 거부하므로, 트랜잭션이 재생 공격으로부터 보호됩니다.
 
 ## Contract deployments {#contract-deployments}
 
-컨트랙트 배포는 해당 컨트랙트가 아직 존재하지 않으면 새로 생성하고, 이미 존재하면 실패합니다. 'fallible' 실행 단계의 일부로 전체적으로 실행됩니다.
+컨트랙트 배포는 해당 컨트랙트가 아직 존재하지 않으면 새로 생성하고, 이미 존재하면 실패합니다. ledger가 fallible 실행 단계에서 전체를 적용합니다.
 
 컨트랙트 배포 트랜잭션 부분은 [컨트랙트 상태](./semantics#contract-state)와 nonce로 구성되며, 배포 부분의 해시를 주소로 하여 새 컨트랙트를 생성합니다.
 
 ## Contract calls {#contract-calls}
 
-컨트랙트 호출은 특정 컨트랙트 주소와 해당 주소의 entry point를 호출합니다. Entry point는 컨트랙트의 [operation 맵](./semantics#contract-state)에 대한 키입니다. 이 두 가지를 조합하여 컨트랙트 호출의 검증에 사용할 verifier key가 결정됩니다.
+컨트랙트 호출은 특정 컨트랙트 주소와 해당 주소의 entry point를 호출합니다. Entry point는 컨트랙트의 [operation 맵](./semantics#contract-state)에 대한 키입니다. 이 두 가지를 조합하여 ledger가 호출을 검증할 때 사용하는 verifier key가 결정됩니다.
 
 컨트랙트 호출은 guaranteed와 fallible
-[*transcript*](./impact#transcripts)를 선언하여 이 호출의 가시적 효과를 명시합니다. 또한 교차 컨트랙트 상호작용에 사용할 수 있는 *통신 commitment*를 포함합니다.
+[*transcript*](./impact#transcripts)를 선언하여 이 호출의 가시적 효과를 명시합니다. 또한 호출 대상 circuit의 input과 output에 커밋하는 *통신 commitment*를 포함합니다.
 
-:::info
+통신 commitment는 한 컨트랙트가 다른 컨트랙트를 호출하는 방식입니다. 호출하는 컨트랙트의 transcript는 기대하는 각 호출을 컨트랙트 주소, entry point, 통신 commitment로 선언합니다. 선언된 각 호출이 같은 segment 안의 호출과 정확히 하나씩 대응할 때에만 트랜잭션이 well-formed 상태가 됩니다.
 
-교차 컨트랙트 상호작용은 아직 개발 중이며 현재 사용할 수 없습니다. 필요한 상호작용 유형이 있으시면 팀에 알려주세요.
+:::info[Cross-contract calls and ledger versions]
+
+교차 컨트랙트 호출에는 ledger version 9와 이를 대상으로 하는 Compact 툴체인이 필요합니다. 0.31.x처럼 ledger version 8을 대상으로 하는 툴체인은 컴파일 시점에 교차 컨트랙트 호출을 거부합니다. Preview, Preprod, Mainnet은 현재 ledger version 8을 실행하므로, 아직 이 네트워크에는 교차 컨트랙트 호출을 하는 컨트랙트를 배포할 수 없습니다. 각 네트워크가 지원하는 툴체인 버전은 [compatibility matrix](../../relnotes/support-matrix.mdx)에서, ledger version 9를 대상으로 하는 툴체인 릴리스는 [Compact release notes](../../relnotes/compact.mdx)에서 확인하세요. 문법은 Compact 언어 레퍼런스의 [Cross-contract calls](../../compact/reference/compact-reference.mdx#cross-contract-calls)를 참조하세요.
 
 :::
 
@@ -40,12 +58,17 @@ Midnight에서 트랜잭션은 다음으로 구성됩니다:
 
 ## Merging
 
-Zswap은 트랜잭션 병합을 가능하게 하여 원자적 교환을 지원합니다.
-현재 컨트랙트 호출 섹션은 병합할 수 없지만, 두 트랜잭션 중 하나 이상이 빈 컨트랙트 호출 섹션을 가지면 병합이 가능합니다. 병합 결과는 두 입력 트랜잭션의 효과를 결합한 새로운 복합 트랜잭션입니다.
+트랜잭션 병합은 Zswap이 원자적 교환을 지원하는 방식입니다. 두 트랜잭션을 병합하면 두 입력 트랜잭션의 효과를 결합한 새로운 복합 트랜잭션이 생성됩니다. 다음 조건을 만족하면 두 트랜잭션을 병합할 수 있습니다:
+- 둘 다 reward-claim 트랜잭션이 아닌 표준 트랜잭션이어야 합니다
+- 둘 다 같은 네트워크 ID를 사용해야 합니다
+- 두 트랜잭션의 intent가 서로 다른 segment ID를 사용해야 합니다
+- 같은 segment에 대한 Zswap offer가 input, output, transient 코인을 하나도 공유하지 않아야 합니다
+
+컨트랙트 호출은 intent 안에 들어 있으므로, intent가 segment ID를 공유하지 않는 한 컨트랙트 호출을 포함한 트랜잭션도 병합할 수 있습니다. 병합된 트랜잭션은 여전히 일반적인 well-formedness 검사를 통과해야 합니다. 예를 들어 두 segment의 intent가 같은 컨트랙트를 호출한다면, 앞 segment의 호출에 fallible transcript가 없거나 뒤 segment의 호출에 guaranteed transcript가 없어야 합니다.
 
 ## Transaction integrity {#transaction-integrity}
 
 Midnight은 Zswap에서 기본 트랜잭션 무결성 메커니즘을 상속받으며,
 병합 기능 때문에 트랜잭션 무결성에 Pedersen commitment를 사용합니다. 이 commitment는 트랜잭션의 각 input과 output 값에 커밋하며, 전체 트랜잭션이 복합 commitment를 열어 무결성을 확인하기 전에 동형적으로 합산됩니다. 트랜잭션의 개별 구성 요소를 생성한 당사자만이 합산에 사용되는 개방 무작위성을 알고 있어, 트랜잭션을 분해할 수 있습니다. 이로써 사용자의 자금이 원래 의도대로만 소비되도록 보장하는 바인딩이 성립합니다.
 
-이 바인딩은 컨트랙트 호출 섹션이 전체 Pedersen commitment에 기여함으로써 컨트랙트 호출까지 확장됩니다. 이 기여는 Fiat-Shamir 변환된 Schnorr 증명 형태로 생성자의 지수에 대한 지식을 요구하여, 가치 벡터가 없도록 추가 제한됩니다.
+이 바인딩은 각 intent의 바인딩 commitment가 전체 Pedersen commitment에 기여함으로써 컨트랙트 활동까지 확장됩니다. 이 기여는 Fiat-Shamir 변환된 Schnorr 증명 형태로 생성자의 지수에 대한 지식을 요구하여, 가치 벡터가 없도록 추가 제한됩니다.

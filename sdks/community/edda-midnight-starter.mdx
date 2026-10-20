@@ -32,7 +32,7 @@ Edda Labs 유지보수자들은 [MeshJS/midnight-starter-template](https://githu
 - [pnpm v10+](https://pnpm.io/installation) 설치.
 - [Docker](https://docs.docker.com/desktop/) 실행(proof server와 standalone 네트워크용).
 - [Git Large File Storage (LFS)](https://git-lfs.com/) 설치 - 영지식 증명 아티팩트(`.prover`, `.verifier`, `.bzkir`, `.zkir` 파일)에 필요합니다.
-- [Compact developer tools](/getting-started/installation) 설치 후 `0.30.0`으로 업데이트.
+- [Compact developer tools](/getting-started/installation) 설치. 템플릿에는 Compact 컴파일러 `0.31.0`도 필요하며, [Installation](#installation) 단계에서 설치합니다.
 - Preview 네트워크에 맞게 설정한 [Lace wallet](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) 브라우저 확장.
 
 ## Compatibility
@@ -41,7 +41,7 @@ Edda Labs 유지보수자들은 [MeshJS/midnight-starter-template](https://githu
 
 | Component | Version | Notes |
 |---|---|---|
-| Compact compiler | `0.31.0` | `compact update +0.31.0`로 설정 |
+| Compact compiler | `0.31.0` | `counter-contract/package.json`의 `compact compile +0.31.0`로 고정 |
 | Compact language | `>= 0.23` | 컨트랙트 소스의 `pragma` 기준 |
 | Node.js | 22+ | `.node-version`과 `engines.node`에 고정 |
 | pnpm | `10.14.0` | `package.json`의 `packageManager`로 고정 |
@@ -75,10 +75,10 @@ git lfs install
 git lfs pull
 ```
 
-Compact Toolchain을 템플릿이 대상으로 하는 버전으로 업데이트합니다.
+템플릿이 대상으로 하는 Compact toolchain 버전을 설치합니다. 템플릿의 빌드는 `compact compile +0.31.0`을 실행하므로, `--no-set-default` 플래그를 쓰면 현재 기본 컴파일러를 그대로 둘 수 있습니다.
 
 ```bash
-compact update +0.31.0
+compact update --no-set-default 0.31.0
 ```
 
 의존성을 설치하고 모든 워크스페이스 패키지를 빌드합니다.

@@ -23,8 +23,8 @@ flowchart LR
     B -->|Writes State| C[(Postgres: cexplorer)]
     D[midnight-node] -->|Reads Chain State| C
 
-    style D fill:#f9f,stroke:#333,stroke-width:2px
-    style C fill:#bbf,stroke:#333,stroke-width:1px
+    style D fill:#f9f,stroke:#333,stroke-width:2px,color:#000
+    style C fill:#bbf,stroke:#333,stroke-width:1px,color:#000
 ```
 
 업그레이드 과정을 이해하려면 먼저 아키텍처를 알아야 합니다. Midnight node는 Midnight 소프트웨어만 실행하는 것이 아니라, `cardano-node`, `cardano-db-sync`, Postgres 데이터베이스(`cexplorer`)로 구성된 로컬 Cardano 인프라 스택에 의존합니다.
@@ -53,15 +53,15 @@ flowchart TD
     M["midnight-node"] -->|1. Active Connection| Old["Old Cardano Stack (Live)"]
     M -.->|2. Swift Cutover| New["New Cardano Stack (Synced in Background)"]
 
-    style Old fill:#eee,stroke:#999
-    style New fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
-    style M fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+    style Old fill:#eee,stroke:#999,color:#000
+    style New fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000
+    style M fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:#000
 ```
 
 블록을 생산 중인 라이브 시스템을 건드리는 대신, 기존 스택 옆에 완전히 별도의 Cardano 스택을 새로 구축하는 방식입니다.
 
 * **동작 방식:** 새 스택(`cardano-node` 11+, `cardano-db-sync` 13.7.0.5+, Postgres 17)을 백그라운드에서 프로비저닝하고 부트스트랩합니다. 테스트넷 replay는 몇 시간이면 되지만, mainnet ledger replay와 스키마 마이그레이션에는 며칠이 걸립니다. 그동안에도 라이브 Midnight node는 아무 영향 없이 기존 스택 위에서 블록을 계속 생산합니다.
-* **전환(cutover):** 새 스택이 라이브 tip까지 완전히 sync되고 안정성이 검증되면, operator는 빠르게 전환을 수행합니다. `midnight-node`가 새 Postgres 인스턴스를 가리키도록 바꾸면 됩니다.
+* **전환:** 새 스택이 라이브 tip까지 완전히 sync되고 안정성이 검증되면, operator는 빠르게 전환을 수행합니다. `midnight-node`가 새 Postgres 인스턴스를 가리키도록 바꾸면 됩니다.
 
 ### Typical in-place upgrade
 

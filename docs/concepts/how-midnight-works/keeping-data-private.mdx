@@ -1,6 +1,7 @@
 ---
 SPDX-License-Identifier: Apache-2.0
 copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+description: Midnight 스마트 컨트랙트에서 데이터를 비공개로 유지하는 전략으로, 해시와 commitment, Merkle tree, commitment/nullifier 패턴을 다룹니다.
 ---
 
 # Private data
@@ -61,7 +62,7 @@ witness secretKey(): Bytes<32>;
 export ledger organizer: Bytes<32>;
 export ledger restrictedCounter: Counter;
 constructor() {
-  organizer = publicKey(secretKey());
+  organizer = disclose(publicKey(secretKey()));
 }
 
 export circuit increment(): [] {
@@ -70,7 +71,7 @@ export circuit increment(): [] {
 }
 
 circuit publicKey(sk: Bytes<32>): Bytes<32> {
-  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "some-domain-seperator"), sk]);
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "some-domain-separator"), sk]);
 }
 ```
 
@@ -94,12 +95,13 @@ export ledger items: MerkleTree<10, Field>;
 witness findItem(item: Field): MerkleTreePath<10, Field>;
 
 export circuit insert(item: Field): [] {
-  items.insert(item);
+  items.insert(disclose(item));
 }
 
 export circuit check(item: Field): [] {
   const path = findItem(item);
-  assert(items.checkRoot(merkleTreePathRoot<10, Field>(path.value)), "path must be valid");
+  assert(path.leaf == item, "path is not for this item");
+  assert(items.checkRoot(disclose(merkleTreePathRoot<10, Field>(path))), "path must be valid");
 }
 ```
 
@@ -110,6 +112,8 @@ function findItem(context: WitnessContext, item: bigint): MerkleTreePath<bigint>
     return context.ledger.items.findPathForLeaf(item)!;
 }
 ```
+
+`path.leaf == item` assert는 증명을 `item`에 묶습니다. `findItem`은 witness이므로, 이 줄이 없으면 트리 안의 유효한 경로라면 어떤 항목에 속하든 `checkRoot`를 통과합니다. 보안 가이드의 [Restricting a circuit to a group](../../guides/security-best-practices#restricting-a-circuit-to-a-group)를 참고하세요.
 
 `pathForLeaf`는 가능하면 우선적으로 사용하는 것이 좋습니다. 트리의 *O(n)* 스캔이 필요 없지만, 항목이 원래 어디에 배치되었는지 알고 있어야 합니다.
 
@@ -134,16 +138,17 @@ export ledger authorizedNullifiers: Set<Bytes<32>>;
 export ledger restrictedCounter: Counter;
 
 export circuit addAuthority(pk: Bytes<32>): [] {
-  authorizedCommitments.insert(pk);
+  authorizedCommitments.insert(disclose(pk));
 }
 
 export circuit increment(): [] {
   const sk = secretKey();
   const authPath = findAuthPath(publicKey(sk));
-  assert(authorizedCommitments.checkRoot(merkleTreePathRoot<10, Bytes<32>>(authPath)),
-    "not authorized");
+  assert(authPath.leaf == publicKey(sk), "path is not for this key");
+  assert(authorizedCommitments.checkRoot(
+    disclose(merkleTreePathRoot<10, Bytes<32>>(authPath))), "not authorized");
   const nul = nullifier(sk);
-  assert !authorizedNullifiers.member(nul) "already incremented";
+  assert(!authorizedNullifiers.member(disclose(nul)), "already incremented");
   authorizedNullifiers.insert(disclose(nul));
   restrictedCounter.increment(1);
 }
@@ -156,3 +161,5 @@ circuit nullifier(sk: Bytes<32>): Bytes<32> {
   return persistentHash<Vector<2, Bytes<32>>>([pad(32, "nullifier-domain"), sk]);
 }
 ```
+
+`authPath.leaf == publicKey(sk)` assert는 경로를 호출자의 키에 묶습니다. `findAuthPath`는 prover가 제어하는 witness이며, 인가된 공개 키를 아는 사람이라면 누구나 ledger state로부터 그 키에 맞는 유효한 경로를 계산할 수 있습니다. 이 줄이 없으면 인가된 적 없는 비밀 키가 다른 사람의 경로로 통과할 수 있고, 그 비밀 키의 새 nullifier도 이를 막지 못합니다. 보안 가이드의 [Restricting a circuit to a group](../../guides/security-best-practices#restricting-a-circuit-to-a-group)를 참고하세요.

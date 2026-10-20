@@ -14,6 +14,10 @@ Lace 지갑으로 dApp을 Midnight 네트워크에 연결하세요. 감지, 인�
 
 {/* truncate */}
 
+:::caution[Outdated connector API]
+이 글은 DApp Connector API 4.0.0 이전 버전을 기준으로 작성됐으며, 당시 Lace는 `window.midnight.mnLace`에 connector를 노출했습니다. 이 글의 코드는 현재 Lace 릴리스에서는 동작하지 않습니다. 버전 4는 `isEnabled()`와 `enable()`을 `connect(networkId)`로, `state()`를 `getUnshieldedAddress()` 같은 주소 메서드로, `serviceUriConfig()`를 `getConfiguration()`으로 대체했습니다. 이제 지갑은 고정된 이름 대신 새로 생성된 UUID 키 아래에 설치되므로, 주입된 지갑은 `Object.values(window.midnight)`로 읽으세요. 현재 DApp은 [React wallet connector 가이드](/guides/react-wallet-connect)와 [DApp Connector API 레퍼런스](/api-reference/dapp-connector)를 참고하세요.
+:::
+
 > 이 블로그 포스트는 MidnightJS 버전 1.0.0 기준입니다. 향후 버전에서 단계가 변경될 수 있습니다.
 
 데이터 보호에 중점을 둔 블록체인인 Midnight이 주목을 받으면서, dApp 개발자에게는 사용자를 네트워크에 안전하고 편리하게 연결할 방법이 필요합니다.
@@ -25,7 +29,7 @@ Midnight 팀이 개발한 Cardano용 Lace 지갑의 특별 에디션인 [Midnigh
 이 글에서는 Lace 지갑을 감지하고, 연결하고, 상호작용하는 구체적인 단계를 설명합니다.
 
 ## 🧭 Step 1: Detect the Lace Wallet
-Lace 지갑은 [DappConnectorApi](https://docs.midnight.network/develop/reference/midnight-api/dapp-connector/) 인스턴스를 전역 `window` 객체의 `window.midnight.mnLace`에 주입합니다. Dapp Connector API를 통해 dApp과 지갑 간 상호작용을 구축하고, 사용자 주소 등의 정보를 읽을 수 있는 다양한 속성과 메서드에 접근할 수 있습니다.
+Lace 지갑은 [DApp Connector API](/api-reference/dapp-connector) 인스턴스를 전역 `window` 객체의 `window.midnight.mnLace`에 주입합니다. DApp Connector API를 통해 dApp과 지갑 간 상호작용을 구축하고, 사용자 주소 등의 정보를 읽을 수 있는 다양한 속성과 메서드에 접근할 수 있습니다.
 
 먼저 해당 객체의 존재 여부를 확인하세요:
 ```ts
@@ -34,7 +38,7 @@ if (window.midnight && window.midnight.mnLace) {
   // Proceed with next steps
 }
 ```
-이 객체가 없으면, 공식 다운로드 페이지 링크로 사용자에게 지갑 설치를 안내하세요: https://docs.midnight.network/relnotes/lace
+이 객체가 없으면 [Chrome 웹 스토어](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk)에서 지갑을 설치하도록 사용자에게 안내하세요.
 
 ## 🔒 Step 2: Check if the Wallet is Authorized
 지갑과 상호작용하기 전에, 사용자가 이미 dApp에 지갑 접근 권한을 부여했는지 확인해야 합니다:
@@ -75,7 +79,7 @@ dApp이 환경에 따라 달라지는 Midnight 서비스나 API와 통합되는 
 async function connectToMidnight() {
     if (window.midnight && window.midnight.mnLace) {
         const mnLace = window.midnight.mnLace;
-        const walletApi = await mnLace.isEnabled();
+        const walletApi = await mnLace.enable();
 
         const state = await walletApi.state();
         console.log("User address:", state.address);
@@ -88,7 +92,7 @@ async function connectToMidnight() {
 }
 ```
 
-위 코드가 수행하는 작업을 정리하면 다음과 같습니다:
+이 글에서 다루는 단계를 따라 Lace 지갑으로 Midnight에 연결하는 과정을 정리하면 다음과 같습니다:
 1. `window.midnight.mnLace` 객체를 감지합니다.
 2. `isEnabled()`로 인증 여부를 확인합니다.
 3. 아직 인증되지 않았으면 `enable()`로 접근을 요청합니다.

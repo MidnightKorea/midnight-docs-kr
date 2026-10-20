@@ -100,7 +100,7 @@ Midnight 블록체인을 유지하고 보호하기 위해 협력하는 독립 �
 영지식 암호학에 특화된 진입점으로, 더 많은 개발자가 ZK Snark circuit 개발에 접근할 수 있도록 설계되었습니다. Midnight의 암호학 백엔드 라이브러리는 서명, 암호화, 해싱 등 여러 가젯을 제공합니다.
 
 ### Halo 2
-Electric Coin 회사에서 만든 고성능 ZK Snark 구현체입니다.
+Electric Coin Company에서 만든 고성능 ZK Snark 구현체입니다. Midnight의 proof 시스템은 Privacy Scaling Explorations(PSE) 팀의 `halo2` v0.3.0을 포크한 데서 출발했으며, 이 `halo2` 자체도 Halo 2를 포크한 것입니다. 이후 독립적인 구현체로 분기했습니다. KZG polynomial commitment를 BLS12-381 곡선 위에서 사용하는 PLONK 계열 ZK Snark입니다. 자세한 내용은 [zk-SNARK vs zk-STARK](/concepts/zk-snark-vs-zk-stark)를 참고하세요.
 
 ### Hard-fork
 이전 버전과 호환되지 않는 방식으로 트랜잭션 처리 방법을 변경하는 이벤트입니다(예: 새 기능 도입). 네트워크의 모든 노드가 참여를 계속하려면 소프트웨어를 업그레이드해야 합니다.
@@ -114,8 +114,8 @@ Hierarchical Deterministic wallet의 줄임말입니다. 단일 마스터 시드
 ### HRP
 
 Human-readable part(HRP)는 Bech32 또는 Bech32m으로 인코딩된 주소의 텍스트 접두사로, 주소 유형과 해당 주소가 속한 네트워크를 식별합니다.
-Midnight에서는 HRP 접두사로 주소 유형을 구분합니다: unshielded 주소는 `mn_addr`, shielded 암호화 키 주소는 `mn_shield-esk`, DUST 주소는 `mn_dust`를 사용합니다.
-Testnet 환경에서는 접두사에 네트워크 ID가 포함됩니다. 예: `mn_addr_{network_id}`.
+Midnight에서는 HRP 접두사로 주소 유형을 구분합니다: unshielded 주소는 `mn_addr`, shielded 주소는 `mn_shield-addr`, DUST 주소는 `mn_dust`를 사용합니다. `mn_shield-esk` 접두사는 주소가 아니라 키를 가리키는데, shielded 암호화 비밀 키이며 [viewing key](/guides/security-best-practices#viewing-keys)로 쓰입니다.
+Mainnet을 제외한 모든 네트워크에서는 접두사에 네트워크 ID가 포함됩니다. 예: `mn_addr_{network_id}`.
 
 ### Kachina
 사용자 로컬 머신의 private state와 블록체인의 public state 사이의 격차를 해소하는, 데이터 보호 스마트 컨트랙트를 위한 통합 보안 모델입니다.
@@ -190,7 +190,7 @@ ZK Snark 스킴의 설정 단계에서 생성되는 대용량 암호학적 데�
 블록체인에 저장되어 네트워크의 모든 참여자가 볼 수 있는 스마트 컨트랙트 상태의 일부입니다. Compact에서 `ledger` 키워드로 선언되며, 글로벌 ledger에 대한 컨트랙트의 기여를 형성합니다. 유효한 트랜잭션을 제출하여 업데이트할 수 있으며, 프라이빗 데이터를 공개하지 않고 사용자 간 상호작용을 조율하는 데 사용됩니다.
 
 ### Prover
-검증자(verifier)에게 민감하거나 기밀 정보를 공개하지 않으면서 진술의 유효성이나 진실성을 납득시키려는 주체입니다. 특정 데이터에 대한 지식이나 특정 계산 수행 능력을 기밀성을 유지하면서 증명하는 증명을 구성하는 역할을 합니다.
+verifier에게 민감하거나 기밀 정보를 공개하지 않으면서 진술의 유효성이나 진실성을 납득시키려는 주체입니다. 특정 데이터에 대한 지식이나 특정 계산 수행 능력을 기밀성을 유지하면서 증명하는 증명을 구성하는 역할을 합니다.
 
 ### Midnight Indexer
 Midnight 체인을 추적하여 이벤트와 데이터를 쿼리 가능한 데이터베이스에 색인하는 컴포넌트입니다. 라이트 클라이언트가 이 서비스에 구독하여 특정 지갑 주소와 관련된 토큰 트랜잭션이나 특정 스마트 컨트랙트와 관련된 트랜잭션 등 필요한 데이터를 수신할 수 있습니다.

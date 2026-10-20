@@ -1,5 +1,6 @@
-position: 50
+position: 39
 label: 'ZK Loan'
+description: "고급: Schnorr 서명 attestation을 상대로 ZK 증명 안에서 검증하는 비공개 신용 평가."
 collapsible: true # make the category collapsible
 collapsed: true # keep the category closed by default
 link:

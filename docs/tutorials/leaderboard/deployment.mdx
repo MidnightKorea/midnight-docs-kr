@@ -48,10 +48,12 @@ touch leaderboard-ui/.env.preprod
 
 ```bash
 VITE_NETWORK_ID=preprod
-VITE_INDEXER_URL=https://indexer.preprod.midnight.network/api/v4/graphql
-VITE_INDEXER_WS_URL=wss://indexer.preprod.midnight.network/api/v4/graphql/ws
+VITE_INDEXER_URL=https://midnight-preprod.blockfrost.io/api/v0
+VITE_INDEXER_WS_URL=wss://midnight-preprod.blockfrost.io/api/v0/ws
 VITE_DEFAULT_CONTRACT=<your deployed contract address>
 ```
+
+이 파일은 커밋되므로 Blockfrost 토큰은 여기에 넣지 마세요. 다음 단계에서 Vercel에 환경 변수로 추가합니다.
 
 ### Deploy to Vercel
 
@@ -60,7 +62,8 @@ Vercel 대시보드에서 저장소를 가져와 배포합니다.
 1. [vercel.com](https://vercel.com)에 접속해 GitHub로 로그인하세요.
 2. **Add New Project**를 클릭하고 저장소를 가져오세요.
 3. **Root Directory** 설정이 비어 있는지(하위 디렉터리로 지정되지 않았는지) 확인하세요.
-4. **Deploy**를 클릭하세요.
+4. **Environment Variables**에서 `VITE_BLOCKFROST_PROJECT_ID`에 Blockfrost **Midnight Preprod** 프로젝트 ID를 추가하세요. Vite가 빌드 시점에 이를 읽어 번들에 넣으므로, 사이트가 공개되면 이 값도 공개됩니다.
+5. **Deploy**를 클릭하세요.
 
 ## Test the production deployment
 

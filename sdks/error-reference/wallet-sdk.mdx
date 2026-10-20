@@ -15,7 +15,7 @@ Midnight wallet SDK의 모든 오류는 별도로 명시되지 않는 한 Effect
 
 이 레퍼런스에서는 각 오류 클래스를 처리하고 해결하는 방법을 자세히 안내합니다.
 
-## Node client (`@midnight-ntwrk/wallet-sdk-node-client`)
+## Node client (`@midnightntwrk/wallet-sdk-node-client`)
 
 다음 7개의 오류가 `NodeClientError` 유니온 타입을 구성합니다.
 
@@ -124,7 +124,7 @@ Effect.catchTag('TransactionDroppedError', (e) => ...)
 Effect.catchTag('TransactionInvalidError', (e) => ...)
 ```
 
-## Shielded wallet (`@midnight-ntwrk/wallet-sdk-shielded`)
+## Shielded wallet (`@midnightntwrk/wallet-sdk-shielded`)
 
 Shielded 지갑은 8가지 오류 타입을 제공합니다.
 
@@ -245,9 +245,9 @@ Effect.catchTag('Wallet.Transacting', (e) => ...)
 Effect.catchTag('Wallet.TransactionHistory', (e) => ...)
 ```
 
-## Unshielded wallet (`@midnight-ntwrk/wallet-sdk-unshielded-wallet`)
+## Unshielded wallet (`@midnightntwrk/wallet-sdk-unshielded-wallet`)
 
-Unshielded 지갑은 11가지 오류 타입을 제공합니다. Shielded 지갑의 8가지 오류(동일한 `_tag` 값)를 포함하며, 아래 5가지 추가 타입이 더 있습니다.
+Unshielded 지갑은 11가지 오류 타입을 제공합니다. Shielded 지갑과 공유하는 6가지 오류(`OtherWalletError`, `SyncWalletError`, `InsufficientFundsError`, `AddressError`, `TransactingError`, `TransactionHistoryError` — 동일한 `_tag` 값)와 아래 5가지 추가 타입으로 구성됩니다.
 
 ### `SignError`
 
@@ -279,7 +279,7 @@ Effect.catchTag('Wallet.ApplyTransaction', (e) => ...)
 
 ### `RollbackUtxoError`
 
-체인 재편성(chain reorganisation) 중 UTXO 롤백에 실패한 경우 발생합니다.
+체인 재편성 중 UTXO 롤백에 실패한 경우 발생합니다.
 
 | Field | Value |
 |-------|-------|
@@ -319,9 +319,9 @@ Effect.catchTag('Wallet.SpendUtxo', (e) => ...)
 Effect.catchTag('UtxoNotFoundError', (e) => ...)
 ```
 
-## DUST wallet (`@midnight-ntwrk/wallet-sdk-dust-wallet`)
+## DUST wallet (`@midnightntwrk/wallet-sdk-dust-wallet`)
 
-DUST 지갑은 Shielded 지갑과 공유되는 4가지 오류 타입을 제공합니다.
+DUST 지갑은 Shielded 지갑과 공유되는 5가지 오류 타입을 제공합니다.
 
 | Error | `_tag` |
 |-------|--------|
@@ -329,10 +329,11 @@ DUST 지갑은 Shielded 지갑과 공유되는 4가지 오류 타입을 제공�
 | `SyncWalletError` | `'Wallet.Sync'` |
 | `TransactingError` | `'Wallet.Transacting'` |
 | `InsufficientFundsError` | `'Wallet.InsufficientFunds'` |
+| `TransactionHistoryError` | `'Wallet.TransactionHistory'` |
 
-필드 세부 정보 및 해결 방법은 [Shielded wallet](#shielded-wallet-midnight-ntwrkwallet-sdk-shielded) 섹션을 참조하세요.
+필드 세부 정보 및 해결 방법은 [Shielded wallet](#shielded-wallet-midnightntwrkwallet-sdk-shielded) 섹션을 참조하세요.
 
-## Capabilities (`@midnight-ntwrk/wallet-sdk-capabilities`)
+## Capabilities (`@midnightntwrk/wallet-sdk-capabilities`)
 
 capabilities 패키지는 3가지 오류 타입을 제공합니다.
 
@@ -374,7 +375,7 @@ Effect.catchTag('SubmissionError', (e) => ...)
 
 **해결 방법**: 표준 `try/catch` 또는 `Effect.tryPromise`로 처리하세요. 코인 선택을 호출하기 전에 지갑에 지정된 토큰 타입이 충분한지 확인하세요.
 
-## Utilities (`@midnight-ntwrk/wallet-sdk-utilities`)
+## Utilities (`@midnightntwrk/wallet-sdk-utilities`)
 
 utilities 패키지는 5가지 오류 타입을 제공합니다.
 
@@ -462,7 +463,7 @@ HTTP 500 이상 상태 코드에 해당하는 서버 측 오류입니다.
 Effect.catchTag('ServerError', (e) => ...)
 ```
 
-## Runtime (`@midnight-ntwrk/wallet-sdk-runtime`)
+## Runtime (`@midnightntwrk/wallet-sdk-runtime`)
 
 runtime 패키지는 1가지 오류 타입을 제공합니다.
 
@@ -484,7 +485,7 @@ runtime 패키지는 1가지 오류 타입을 제공합니다.
 Effect.catchTag('WalletRuntimeError', (e) => ...)
 ```
 
-## Address format (`@midnight-ntwrk/wallet-sdk-address-format`)
+## Address format (`@midnightntwrk/wallet-sdk-address-format`)
 
 address format 패키지는 5가지 오류 타입을 제공합니다.
 
@@ -509,33 +510,33 @@ address format 패키지는 5가지 오류 타입을 제공합니다.
 
 | `_tag` | Package | Error type |
 |--------|---------|-----------|
-| `'ClientError'` | `@midnight-ntwrk/wallet-sdk-utilities` | `ClientError` |
-| `'ConnectionError'` | `@midnight-ntwrk/wallet-sdk-node-client` | `ConnectionError` |
-| `'FailedToDeriveWebSocketUrlError'` | `@midnight-ntwrk/wallet-sdk-utilities` | `FailedToDeriveWebSocketUrlError` |
-| `'InvalidProtocolSchemeError'` | `@midnight-ntwrk/wallet-sdk-utilities` | `InvalidProtocolSchemeError` |
-| `'LeftError'` | `@midnight-ntwrk/wallet-sdk-utilities` | `LeftError<L>` |
-| `'LedgerError'` | `@midnight-ntwrk/wallet-sdk-utilities` | `LedgerError` |
-| `'ParseError'` | `@midnight-ntwrk/wallet-sdk-node-client` | `ParseError` |
-| `'ServerError'` | `@midnight-ntwrk/wallet-sdk-utilities` | `ServerError` |
-| `'SubmissionError'` | `@midnight-ntwrk/wallet-sdk-node-client`, `@midnight-ntwrk/wallet-sdk-capabilities` | `SubmissionError` |
-| `'TransactionDroppedError'` | `@midnight-ntwrk/wallet-sdk-node-client` | `TransactionDroppedError` |
-| `'TransactionInvalidError'` | `@midnight-ntwrk/wallet-sdk-node-client` | `TransactionInvalidError` |
-| `'TransactionProgressError'` | `@midnight-ntwrk/wallet-sdk-node-client` | `TransactionProgressError` |
-| `'TransactionUsurpedError'` | `@midnight-ntwrk/wallet-sdk-node-client` | `TransactionUsurpedError` |
-| `'UtxoNotFoundError'` | `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `UtxoNotFoundError` |
-| `'Wallet.Address'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `AddressError` |
-| `'Wallet.ApplyTransaction'` | `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `ApplyTransactionError` |
-| `'Wallet.InsufficientFunds'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet`, `@midnight-ntwrk/wallet-sdk-dust-wallet` | `InsufficientFundsError` |
-| `'Wallet.InvalidCoinHashes'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `InvalidCoinHashesError` |
-| `'Wallet.Other'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet`, `@midnight-ntwrk/wallet-sdk-dust-wallet` | `OtherWalletError` |
-| `'Wallet.Proving'` | `@midnight-ntwrk/wallet-sdk-capabilities` | `ProvingError` |
-| `'Wallet.RollbackUtxo'` | `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `RollbackUtxoError` |
-| `'Wallet.Sign'` | `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `SignError` |
-| `'Wallet.SpendUtxo'` | `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `SpendUtxoError` |
-| `'Wallet.SubmissionWalletError'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `SubmissionError` (지갑) |
-| `'Wallet.Sync'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet`, `@midnight-ntwrk/wallet-sdk-dust-wallet` | `SyncWalletError` |
-| `'Wallet.Transacting'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet`, `@midnight-ntwrk/wallet-sdk-dust-wallet` | `TransactingError` |
-| `'Wallet.TransactionHistory'` | `@midnight-ntwrk/wallet-sdk-shielded`, `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | `TransactionHistoryError` |
-| `'WalletRuntimeError'` | `@midnight-ntwrk/wallet-sdk-runtime` | `WalletRuntimeError` |
+| `'ClientError'` | `@midnightntwrk/wallet-sdk-utilities` | `ClientError` |
+| `'ConnectionError'` | `@midnightntwrk/wallet-sdk-node-client` | `ConnectionError` |
+| `'FailedToDeriveWebSocketUrlError'` | `@midnightntwrk/wallet-sdk-utilities` | `FailedToDeriveWebSocketUrlError` |
+| `'InvalidProtocolSchemeError'` | `@midnightntwrk/wallet-sdk-utilities` | `InvalidProtocolSchemeError` |
+| `'LeftError'` | `@midnightntwrk/wallet-sdk-utilities` | `LeftError<L>` |
+| `'LedgerError'` | `@midnightntwrk/wallet-sdk-utilities` | `LedgerError` |
+| `'ParseError'` | `@midnightntwrk/wallet-sdk-node-client` | `ParseError` |
+| `'ServerError'` | `@midnightntwrk/wallet-sdk-utilities` | `ServerError` |
+| `'SubmissionError'` | `@midnightntwrk/wallet-sdk-node-client`, `@midnightntwrk/wallet-sdk-capabilities` | `SubmissionError` |
+| `'TransactionDroppedError'` | `@midnightntwrk/wallet-sdk-node-client` | `TransactionDroppedError` |
+| `'TransactionInvalidError'` | `@midnightntwrk/wallet-sdk-node-client` | `TransactionInvalidError` |
+| `'TransactionProgressError'` | `@midnightntwrk/wallet-sdk-node-client` | `TransactionProgressError` |
+| `'TransactionUsurpedError'` | `@midnightntwrk/wallet-sdk-node-client` | `TransactionUsurpedError` |
+| `'UtxoNotFoundError'` | `@midnightntwrk/wallet-sdk-unshielded-wallet` | `UtxoNotFoundError` |
+| `'Wallet.Address'` | `@midnightntwrk/wallet-sdk-shielded`, `@midnightntwrk/wallet-sdk-unshielded-wallet` | `AddressError` |
+| `'Wallet.ApplyTransaction'` | `@midnightntwrk/wallet-sdk-unshielded-wallet` | `ApplyTransactionError` |
+| `'Wallet.InsufficientFunds'` | `@midnightntwrk/wallet-sdk-shielded`, `@midnightntwrk/wallet-sdk-unshielded-wallet`, `@midnightntwrk/wallet-sdk-dust-wallet` | `InsufficientFundsError` |
+| `'Wallet.InvalidCoinHashes'` | `@midnightntwrk/wallet-sdk-shielded` | `InvalidCoinHashesError` |
+| `'Wallet.Other'` | `@midnightntwrk/wallet-sdk-shielded`, `@midnightntwrk/wallet-sdk-unshielded-wallet`, `@midnightntwrk/wallet-sdk-dust-wallet` | `OtherWalletError` |
+| `'Wallet.Proving'` | `@midnightntwrk/wallet-sdk-capabilities` | `ProvingError` |
+| `'Wallet.RollbackUtxo'` | `@midnightntwrk/wallet-sdk-unshielded-wallet` | `RollbackUtxoError` |
+| `'Wallet.Sign'` | `@midnightntwrk/wallet-sdk-unshielded-wallet` | `SignError` |
+| `'Wallet.SpendUtxo'` | `@midnightntwrk/wallet-sdk-unshielded-wallet` | `SpendUtxoError` |
+| `'Wallet.SubmissionWalletError'` | `@midnightntwrk/wallet-sdk-shielded` | `SubmissionError` (지갑) |
+| `'Wallet.Sync'` | `@midnightntwrk/wallet-sdk-shielded`, `@midnightntwrk/wallet-sdk-unshielded-wallet`, `@midnightntwrk/wallet-sdk-dust-wallet` | `SyncWalletError` |
+| `'Wallet.Transacting'` | `@midnightntwrk/wallet-sdk-shielded`, `@midnightntwrk/wallet-sdk-unshielded-wallet`, `@midnightntwrk/wallet-sdk-dust-wallet` | `TransactingError` |
+| `'Wallet.TransactionHistory'` | `@midnightntwrk/wallet-sdk-shielded`, `@midnightntwrk/wallet-sdk-unshielded-wallet`, `@midnightntwrk/wallet-sdk-dust-wallet` | `TransactionHistoryError` |
+| `'WalletRuntimeError'` | `@midnightntwrk/wallet-sdk-runtime` | `WalletRuntimeError` |
 
 </details>

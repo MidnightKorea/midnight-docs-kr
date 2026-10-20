@@ -40,6 +40,7 @@ core 패키지는 SDK의 기반 기능을 제공합니다.
 | `@midnight-ntwrk/midnight-js-contracts` | 컨트랙트 배포, circuit 호출, 트랜잭션 제출 |
 | `@midnight-ntwrk/midnight-js-network-id` | 런타임 및 ledger WASM API용 네트워크 식별자 설정 |
 | `@midnight-ntwrk/midnight-js-utils` | 공통 유틸리티(hex 인코딩, bech32m, assertion) |
+| `@midnight-ntwrk/midnight-js-protocol` | Midnight.js가 컴파일 대상으로 삼는 ledger, Compact 런타임, Compact.js, 온체인 런타임, Platform JS 패키지의 버전 독립적 서브패스 재익스포트 |
 
 ### Providers
 
@@ -50,6 +51,7 @@ provider 패키지는 증명 생성, private state 관리, 공개 데이터 조�
 | `@midnight-ntwrk/midnight-js-indexer-public-data-provider` | GraphQL 기반 블록체인 데이터 provider(쿼리 및 구독) |
 | `@midnight-ntwrk/midnight-js-level-private-state-provider` | [LevelDB](https://github.com/Level/level)를 사용한 AES-256-GCM 암호화 영속 상태 저장소 |
 | `@midnight-ntwrk/midnight-js-http-client-proof-provider` | Midnight proof server용 HTTP 클라이언트 |
+| `@midnight-ntwrk/midnight-js-dapp-connector-proof-provider` | 브라우저에서 DApp Connector 지갑에 증명 생성을 위임 |
 | `@midnight-ntwrk/midnight-js-fetch-zk-config-provider` | [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)를 사용하는 브라우저 호환 영지식 아티팩트 provider |
 | `@midnight-ntwrk/midnight-js-node-zk-config-provider` | Node.js 파일 시스템 기반 ZK 아티팩트 provider |
 | `@midnight-ntwrk/midnight-js-logger-provider` | 애플리케이션별 [Pino](https://github.com/pinojs/pino) 로거 설정 |
@@ -95,7 +97,7 @@ npm install @midnight-ntwrk/midnight-js-http-client-proof-provider
 npm install @midnight-ntwrk/midnight-js-fetch-zk-config-provider
 npm install @midnight-ntwrk/midnight-js-node-zk-config-provider
 npm install @midnight-ntwrk/midnight-js-logger-provider
-npm install @midnight-ntwrk/ledger-v8
+npm install @midnight-ntwrk/midnight-js-protocol
 ```
 
 </TabItem>
@@ -111,7 +113,7 @@ yarn add @midnight-ntwrk/midnight-js-http-client-proof-provider
 yarn add @midnight-ntwrk/midnight-js-fetch-zk-config-provider
 yarn add @midnight-ntwrk/midnight-js-node-zk-config-provider
 yarn add @midnight-ntwrk/midnight-js-logger-provider
-yarn add @midnight-ntwrk/ledger-v8
+yarn add @midnight-ntwrk/midnight-js-protocol
 ```
 </TabItem>
 </Tabs>
@@ -134,13 +136,20 @@ import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 
 setNetworkId('preprod');
 
+// The Preprod indexer and node RPC are served by Blockfrost and need a project token.
+const projectId = process.env.BLOCKFROST_PROJECT_ID?.trim();
+if (!projectId) throw new Error('BLOCKFROST_PROJECT_ID is not set.');
+const withBlockfrostKey = (url: string) => `${url}?project_id=${encodeURIComponent(projectId)}`;
+
 export const CONFIG = {
-  indexer: 'https://indexer.preprod.midnight.network/api/v4/graphql',
-  indexerWS: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
-  node: 'https://rpc.preprod.midnight.network',
+  indexer: withBlockfrostKey('https://midnight-preprod.blockfrost.io/api/v0'),
+  indexerWS: withBlockfrostKey('wss://midnight-preprod.blockfrost.io/api/v0/ws'),
+  node: withBlockfrostKey('https://rpc.midnight-preprod.blockfrost.io'),
   proofServer: 'http://127.0.0.1:6300',
 };
 ```
+
+Blockfrost가 Preprod indexer와 node RPC를 제공하며, 여기에는 **Midnight Preprod** 프로젝트 토큰을 `BLOCKFROST_PROJECT_ID`에 넣어야 합니다. [Getting a Blockfrost project token](/guides/networks-and-environments#getting-a-blockfrost-project-token)을 참고하세요.
 </TabItem>
 <TabItem value="undeployed">
 ```typescript
@@ -192,7 +201,7 @@ import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-pri
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
 import { FetchZkConfigProvider } from '@midnight-ntwrk/midnight-js-fetch-zk-config-provider';
-import * as ledger from '@midnight-ntwrk/ledger-v8';
+import * as ledger from '@midnight-ntwrk/midnight-js-protocol/ledger';
 
 const zkConfigProvider = new FetchZkConfigProvider(zkArtifactsUrl);
 
@@ -204,8 +213,8 @@ const providers: MidnightProviders = {
   publicDataProvider: indexerPublicDataProvider(queryUrl, subscriptionUrl),
   zkConfigProvider,
   proofProvider: httpClientProofProvider(proofServerUrl, zkConfigProvider),
-  walletProvider,    // from @midnight-ntwrk/wallet-sdk-facade
-  midnightProvider,  // from @midnight-ntwrk/wallet-sdk-facade
+  walletProvider,    // built on the wallet SDK, see the Wallet SDK guide
+  midnightProvider,  // built on the wallet SDK, see the Wallet SDK guide
 };
 ```
 
@@ -252,10 +261,10 @@ const zkir = await zkConfigProvider.getZKIR('myCircuit');
 영지식 증명 생성을 DApp Connector 지갑에 위임하는 proof provider 구현입니다.
 DApp이 브라우저에서 동작하고 증명 생성을 사용자 지갑이 맡는 경우에 사용하세요.
 
-`@midnight-ntwrk/dapp-connector-proof-provider` 패키지를 설치하세요.
+`@midnight-ntwrk/midnight-js-dapp-connector-proof-provider` 패키지를 설치하세요.
 
 ```bash
-npm install @midnight-ntwrk/dapp-connector-proof-provider
+npm install @midnight-ntwrk/midnight-js-dapp-connector-proof-provider
 ```
 
 `dappConnectorProofProvider` 함수로 proof provider를 만듭니다.

@@ -1,8 +1,8 @@
 ---
 title: Node endpoints
 sidebar_label: Node endpoints
-description: Midnight 네트워크 endpoint와 RPC 접근에 대한 레퍼런스입니다.
-keywords: [RPC, endpoints]
+description: Midnight 네트워크 RPC endpoint 레퍼런스입니다. project token이 필요한 Blockfrost Mainnet RPC와 자주 쓰는 RPC 쿼리를 포함합니다.
+keywords: [RPC, endpoints, blockfrost, mainnet, preview, preprod, project_id]
 sidebar_position: 50
 tags: [node]
 ---
@@ -102,7 +102,7 @@ async fn main() {
 
 ## Public network endpoints
 
-Midnight은 두 개의 테스트 네트워크(Preview·Preprod)와 프로덕션 네트워크인 Mainnet에 대한 public endpoint를 제공합니다. indexer·faucet·proof server endpoint를 포함한 네트워크별 전체 레퍼런스는 [Networks and environments](../guides/networks-and-environments)를 참고하세요.
+Midnight은 Preview 테스트 네트워크에 대한 public endpoint를 제공합니다. Preprod와 Mainnet의 public RPC는 Blockfrost가 제공하며, 해당 네트워크의 Blockfrost project token이 필요합니다. Midnight이 운영하던 `rpc.mainnet.midnight.network`와 `rpc.preprod.midnight.network` endpoint는 폐기되었습니다. indexer·faucet·proof server endpoint를 포함한 네트워크별 전체 레퍼런스는 [Networks and environments](../guides/networks-and-environments)를 참고하세요.
 
 <Tabs>
 <TabItem value="preview" label="Preview">
@@ -118,30 +118,30 @@ Midnight은 두 개의 테스트 네트워크(Preview·Preprod)와 프로덕션 
 
 <TabItem value="preprod" label="Preprod">
 
-Mainnet 배포 전 최종 테스트를 위한 pre-production 환경입니다.
+Mainnet 배포 전 최종 테스트를 위한 pre-production 환경입니다. Preprod RPC는 Blockfrost가 제공합니다. [blockfrost.io](https://blockfrost.io)의 **Midnight Preprod** 프로젝트에서 발급한 `?project_id=<token>`을 각 URL 뒤에 붙이세요. Midnight이 운영하던 `rpc.preprod.midnight.network` endpoint는 2026년 10월 9일 22:00 UTC에 폐기되었습니다. 아직 요청에 응답할 수는 있지만 언제든 중단될 수 있으니 사용하지 마세요. [Blockfrost: the Preprod and Mainnet indexer and RPC provider](../guides/networks-and-environments#blockfrost-the-mainnet-indexer-and-rpc-provider)를 참고하세요.
 
 | Service | URL |
 | ------- | --- |
-| RPC endpoint | `https://rpc.preprod.midnight.network/` |
-| WebSocket | `wss://rpc.preprod.midnight.network/` |
-| Explorer | [https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.preprod.midnight.network#/explorer](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.preprod.midnight.network#/explorer) |
+| RPC endpoint | `https://rpc.midnight-preprod.blockfrost.io?project_id=<token>` |
+| WebSocket | `wss://rpc.midnight-preprod.blockfrost.io?project_id=<token>` |
+| Explorer | [Polkadot.js Apps](https://polkadot.js.org/apps/#/explorer)에서 위의 WebSocket URL을 토큰까지 포함해 custom endpoint로 추가하세요. Polkadot.js Apps는 서드파티 웹 앱이라 그 URL을 토큰까지 포함해 페이지 주소와 브라우저 저장소에 보관하므로, 공개되어도 괜찮은 토큰을 사용하세요. |
 </TabItem>
 
 <TabItem value="mainnet" label="Mainnet">
 
-프로덕션 네트워크입니다.
+프로덕션 네트워크입니다. Mainnet RPC는 Blockfrost가 제공합니다. [blockfrost.io](https://blockfrost.io)의 **Midnight Mainnet** 프로젝트에서 발급한 `?project_id=<token>`을 각 URL 뒤에 붙이세요. Midnight이 운영하던 `rpc.mainnet.midnight.network` endpoint는 2026년 9월 30일 22:00 UTC에 폐기되었습니다. 아직 요청에 응답할 수는 있지만 언제든 중단될 수 있으니 사용하지 마세요. [Blockfrost: the Preprod and Mainnet indexer and RPC provider](../guides/networks-and-environments#blockfrost-the-mainnet-indexer-and-rpc-provider)를 참고하세요.
 
 | Service | URL |
 | ------- | --- |
-| RPC endpoint | `https://rpc.mainnet.midnight.network/` |
-| WebSocket | `wss://rpc.mainnet.midnight.network/` |
-| Explorer | [https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.mainnet.midnight.network#/explorer](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.mainnet.midnight.network#/explorer) |
+| RPC endpoint | `https://rpc.midnight-mainnet.blockfrost.io?project_id=<token>` |
+| WebSocket | `wss://rpc.midnight-mainnet.blockfrost.io?project_id=<token>` |
+| Explorer | [Polkadot.js Apps](https://polkadot.js.org/apps/#/explorer)에서 위의 WebSocket URL을 토큰까지 포함해 custom endpoint로 추가하세요. Polkadot.js Apps는 서드파티 웹 앱이라 그 URL을 토큰까지 포함해 페이지 주소와 브라우저 저장소에 보관하므로, 공개되어도 괜찮은 토큰을 사용하세요. |
 </TabItem>
 </Tabs>
 
 :::important Network support
 
-Midnight은 개발 및 테스트 용도로 public endpoint를 제공합니다. 프로덕션 DApp의 경우, 안정성과 성능을 위해 자체 RPC 노드를 운영하거나 전용 인프라 제공업체를 사용하는 방안을 고려하세요.
+Midnight은 개발 및 테스트 용도로 Preview public endpoint를 제공합니다. Preprod와 Mainnet의 public RPC는 Blockfrost가 제공하며, 사용량 한도는 Blockfrost 요금제에 따라 달라집니다. 프로덕션 DApp이라면 트래픽에 맞게 Blockfrost 요금제 규모를 정하거나 자체 RPC 노드를 운영하세요.
 
 :::
 
@@ -233,7 +233,7 @@ Insomnia가 아직 없다면 [공식 웹사이트](https://insomnia.rest/downloa
 
 워크스페이스에서 Midnight Node 컬렉션을 찾습니다.
 
-필요하면 RPC endpoint를 변경합니다. 예를 들어 Preprod 네트워크를 사용한다면 endpoint를 `https://rpc.preprod.midnight.network/`로 변경합니다.
+네트워크에 맞는 environment를 선택합니다. **Midnight Preview**는 변경할 것이 없습니다. **Midnight Preprod**는 `YOUR_PREPROD_PROJECT_ID` 자리표시자가 있는 Blockfrost RPC URL을 가리킵니다. 요청을 보내기 전에 environment를 열어 자리표시자를 Blockfrost의 **Midnight Preprod** 프로젝트 project ID로 바꾸세요.
 
 요청을 실행해 사용 가능한 메서드를 살펴봅니다.
 
@@ -262,3 +262,4 @@ JSON 형식과 `Content-Type` 헤더를 확인하세요. 요청 본문은 유효
 ## Next steps
 
 - 전체 메서드 문서는 [Node OpenRPC specification](https://github.com/midnightntwrk/midnight-node/blob/main/docs/openrpc.json)에서 확인하세요.
+- 이 endpoint에서 블록을 조사하고 ledger 파라미터를 읽으려면 [node toolkit](./node-toolkit)을 사용하세요.

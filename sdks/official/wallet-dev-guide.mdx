@@ -29,48 +29,46 @@ Midnight wallet SDK은 기능별 패키지로 나뉜 모듈식 구조입니다. 
 
 | Package | Purpose |
 |---------|---------|
-| `@midnight-ntwrk/wallet-sdk-facade` | 모든 지갑 운영을 위한 통합 API |
-| `@midnight-ntwrk/wallet-sdk-unshielded-wallet` | NIGHT 및 unshielded 토큰 관리 |
-| `@midnight-ntwrk/wallet-sdk-shielded` | ZK 증명이 적용된 shielded 토큰 관리 |
-| `@midnight-ntwrk/wallet-sdk-dust-wallet` | 트랜잭션 수수료를 위한 DUST 관리 |
-| `@midnight-ntwrk/wallet-sdk-hd` | 계층적 결정성(HD) 키 파생 |
-| `@midnight-ntwrk/wallet-sdk-address-format` | Bech32m 주소 인코딩 및 디코딩 |
-| `@midnight-ntwrk/wallet-sdk-node-client` | Midnight 노드와의 통신 |
-| `@midnight-ntwrk/wallet-sdk-indexer-client` | Midnight indexer 조회 |
-| `@midnight-ntwrk/wallet-sdk-prover-client` | proof server와의 인터페이스 |
+| `@midnightntwrk/wallet-sdk-facade` | 모든 지갑 운영을 위한 통합 API |
+| `@midnightntwrk/wallet-sdk-unshielded-wallet` | NIGHT 및 unshielded 토큰 관리 |
+| `@midnightntwrk/wallet-sdk-shielded` | ZK 증명이 적용된 shielded 토큰 관리 |
+| `@midnightntwrk/wallet-sdk-dust-wallet` | 트랜잭션 수수료를 위한 DUST 관리 |
+| `@midnightntwrk/wallet-sdk-hd` | 계층적 결정성(HD) 키 파생 |
+| `@midnightntwrk/wallet-sdk-address-format` | Bech32m 주소 인코딩 및 디코딩 |
+| `@midnightntwrk/wallet-sdk-node-client` | Midnight 노드와의 통신 |
+| `@midnightntwrk/wallet-sdk-indexer-client` | Midnight indexer 조회 |
+| `@midnightntwrk/wallet-sdk-prover-client` | proof server와의 인터페이스 |
 
 각 패키지의 상세 내용은 [wallet SDK 릴리스 노트](../../relnotes/wallet/)를 참고하세요.
 
 ## Installation
 
-사용 중인 패키지 매니저에 맞게 wallet SDK을 설치하세요:
+wallet SDK은 위에 나열된 모든 하위 패키지를 다시 export하는 하나의 barrel 패키지 `@midnightntwrk/wallet-sdk`로 제공됩니다. ledger 패키지와 함께 설치하세요:
 
 <Tabs>
   <TabItem value="npm">
     ```bash
-    npm install @midnight-ntwrk/wallet-sdk-facade@VERSION \
-                @midnight-ntwrk/wallet-sdk-hd@VERSION \
-                @midnight-ntwrk/wallet-sdk-address-format@VERSION \
-                @midnight-ntwrk/wallet-sdk-unshielded-wallet@VERSION \
-                @midnight-ntwrk/wallet-sdk-shielded@VERSION \
-                @midnight-ntwrk/wallet-sdk-dust-wallet@VERSION \
-                @midnight-ntwrk/ledger-v8
+    npm install @midnightntwrk/wallet-sdk@VERSION @midnight-ntwrk/ledger-v8
     ```
   </TabItem>
   <TabItem value="yarn">
     ```bash
-    yarn add @midnight-ntwrk/wallet-sdk-facade@VERSION \
-                @midnight-ntwrk/wallet-sdk-hd@VERSION \
-                @midnight-ntwrk/wallet-sdk-address-format@VERSION \
-                @midnight-ntwrk/wallet-sdk-unshielded-wallet@VERSION \
-                @midnight-ntwrk/wallet-sdk-shielded@VERSION \
-                @midnight-ntwrk/wallet-sdk-dust-wallet@VERSION \
-                @midnight-ntwrk/ledger-v8
+    yarn add @midnightntwrk/wallet-sdk@VERSION @midnight-ntwrk/ledger-v8
     ```
   </TabItem>
 </Tabs>
 
-`VERSION` 부분은 [릴리스 호환성 매트릭스](../../relnotes/support-matrix)에서 확인한 호환 버전으로 바꾸세요.
+`VERSION` 부분은 [릴리스 호환성 매트릭스](../../relnotes/support-matrix)의 wallet SDK 버전으로 바꾸세요.
+
+:::note
+매트릭스는 barrel 패키지의 버전을 나열합니다. 하위 패키지는 각자 별도의 버전 라인을 가지므로, 하위 패키지를 barrel 버전으로 설치하지 마세요. 하위 패키지를 개별적으로 설치하는 것은 버전을 고정해야 할 때뿐이며, 그 버전은 [wallet SDK 릴리스 노트](../../relnotes/wallet/)에서 가져오세요.
+:::
+
+:::note npm scopes
+wallet SDK 패키지는 두 npm scope로 해석됩니다. `@midnightntwrk`(하이픈 없음)가 현재 scope이고, `@midnight-ntwrk`는 이 패키지들에 대해 폐기 예정입니다. `@midnight-ntwrk/ledger-v8`과 Midnight.js 패키지는 하이픈이 있는 scope에 그대로 두세요. 매트릭스의 wallet SDK 버전은 그 이름의 ledger에 의존하며, Midnight.js는 `@midnight-ntwrk`로만 배포됩니다.
+
+wallet SDK에 `@midnight-ntwrk`를 쓰는 것은 그 scope에 의존하는 testkit-js 4.x를 사용하는 프로젝트에서만입니다. 거기에 `@midnightntwrk/wallet-sdk`를 함께 추가하면 wallet SDK이 두 번 설치됩니다. 그 scope의 `latest`는 여전히 더 오래된 릴리스를 가리키므로, 거기서는 정확한 버전을 고정하세요.
+:::
 
 ## Wallet architecture
 
@@ -113,8 +111,8 @@ m / 44' / 2400' / account' / role / index
 - `account`: 계정 인덱스로, 일반적으로 첫 번째 계정은 0
 - `role`: 키의 용도를 결정하는 지갑 유형 식별자:
   - `0` (Roles.NightExternal): unshielded 운영
+  - `2` (Roles.Dust): DUST 토큰 운영
   - `3` (Roles.Zswap): shielded 운영
-  - `4` (Roles.Dust): DUST 토큰 운영
 - `index`: 주소 인덱스로, 일반적으로 기본 주소는 0
 
 ### Derive keys from a seed
@@ -123,8 +121,8 @@ m / 44' / 2400' / account' / role / index
 
 ```typescript
 import * as ledger from '@midnight-ntwrk/ledger-v8';
-import type { Role } from '@midnight-ntwrk/wallet-sdk-hd';
-import { AccountKey, HDWallet, Roles } from '@midnight-ntwrk/wallet-sdk-hd';
+import type { Role } from '@midnightntwrk/wallet-sdk-hd';
+import { AccountKey, HDWallet, Roles } from '@midnightntwrk/wallet-sdk-hd';
 import { Buffer } from 'buffer';
 
 function deriveRoleKey(accountKey: AccountKey, role: Role, addressIndex: number = 0): Buffer {
@@ -189,33 +187,38 @@ console.log('DUST seed:', derivedKeys.dust.seed.toString('hex'));
 
 ### Configuration
 
-먼저 네트워크 엔드포인트, 비용 파라미터, 트랜잭션 기록 저장소를 지정하는 설정 객체를 만드세요. Preprod 테스트넷과 로컬 개발 네트워크의 설정이 다릅니다.
+먼저 네트워크 엔드포인트, 비용 파라미터, 트랜잭션 기록 저장소를 지정하는 설정 객체를 만드세요. Preprod 테스트넷에 연결하는지 로컬 undeployed 개발 네트워크에 연결하는지에 따라 설정이 다릅니다. Blockfrost가 Preprod indexer와 node RPC를 제공하므로, Preprod 설정은 `BLOCKFROST_PROJECT_ID`에서 **Midnight Preprod** project token을 읽습니다. [Getting a Blockfrost project token](/guides/networks-and-environments#getting-a-blockfrost-project-token)을 참고하세요.
 
 <Tabs>
   <TabItem value="preprod" label="Preprod">
 ```typescript
-import { type DefaultConfiguration } from '@midnight-ntwrk/wallet-sdk-facade';
-import { InMemoryTransactionHistoryStorage } from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
+import { type DefaultConfiguration, WalletEntrySchema, mergeWalletEntries } from '@midnightntwrk/wallet-sdk-facade';
+import { InMemoryTransactionHistoryStorage } from '@midnightntwrk/wallet-sdk-abstractions';
+
+// The Preprod indexer and node RPC are served by Blockfrost and need a project token.
+const projectId = process.env.BLOCKFROST_PROJECT_ID?.trim();
+if (!projectId) throw new Error('BLOCKFROST_PROJECT_ID is not set.');
+const withBlockfrostKey = (url: string) => `${url}?project_id=${encodeURIComponent(projectId)}`;
 
 const configuration: DefaultConfiguration = {
   networkId: 'preprod',
   costParameters: {
     feeBlocksMargin: 5,
   },
-  relayURL: new URL('wss://rpc.preprod.midnight.network'),
+  relayURL: new URL(withBlockfrostKey('wss://rpc.midnight-preprod.blockfrost.io')),
   provingServerUrl: new URL('http://localhost:6300'),
   indexerClientConnection: {
-    indexerHttpUrl: 'https://indexer.preprod.midnight.network/api/v4/graphql',
-    indexerWsUrl: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
+    indexerHttpUrl: withBlockfrostKey('https://midnight-preprod.blockfrost.io/api/v0'),
+    indexerWsUrl: withBlockfrostKey('wss://midnight-preprod.blockfrost.io/api/v0/ws'),
   },
-  txHistoryStorage: new InMemoryTransactionHistoryStorage(),
+  txHistoryStorage: new InMemoryTransactionHistoryStorage(WalletEntrySchema, mergeWalletEntries),
 };
 ```
   </TabItem>
   <TabItem value="undeployed" label="Undeployed">
 ```typescript
-import { type DefaultConfiguration } from '@midnight-ntwrk/wallet-sdk-facade';
-import { InMemoryTransactionHistoryStorage } from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
+import { type DefaultConfiguration, WalletEntrySchema, mergeWalletEntries } from '@midnightntwrk/wallet-sdk-facade';
+import { InMemoryTransactionHistoryStorage } from '@midnightntwrk/wallet-sdk-abstractions';
 
 const INDEXER_PORT = Number.parseInt(process.env['INDEXER_PORT'] ?? '8088', 10);
 const NODE_PORT = Number.parseInt(process.env['NODE_PORT'] ?? '9944', 10);
@@ -234,7 +237,7 @@ const configuration: DefaultConfiguration = {
     indexerHttpUrl: INDEXER_HTTP_URL,
     indexerWsUrl: INDEXER_WS_URL,
   },
-  txHistoryStorage: new InMemoryTransactionHistoryStorage(),
+  txHistoryStorage: new InMemoryTransactionHistoryStorage(WalletEntrySchema, mergeWalletEntries),
 };
 
 ```
@@ -247,14 +250,14 @@ const configuration: DefaultConfiguration = {
 
 ```typescript
 import * as ledger from '@midnight-ntwrk/ledger-v8';
-import { DustWallet } from '@midnight-ntwrk/wallet-sdk-dust-wallet';
-import { WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
-import { ShieldedWallet } from '@midnight-ntwrk/wallet-sdk-shielded';
+import { DustWallet } from '@midnightntwrk/wallet-sdk-dust-wallet';
+import { WalletFacade } from '@midnightntwrk/wallet-sdk-facade';
+import { ShieldedWallet } from '@midnightntwrk/wallet-sdk-shielded';
 import {
   createKeystore,
   PublicKey,
   UnshieldedWallet,
-} from '@midnight-ntwrk/wallet-sdk-unshielded-wallet';
+} from '@midnightntwrk/wallet-sdk-unshielded-wallet';
 
 async function initWallet(seed: Buffer) {
   // Derive keys
@@ -305,7 +308,7 @@ const syncedState = await wallet.waitForSyncedState();
 
 console.log('Shielded balance:', syncedState.shielded.balances);
 console.log('Unshielded balance:', syncedState.unshielded.balances);
-console.log('DUST balance:', syncedState.dust.totalCoins);
+console.log('DUST balance:', syncedState.dust.balance(new Date()));
 
 // Subscribe to state changes
 wallet.state().subscribe((state) => {
@@ -359,7 +362,7 @@ import {
   DustAddress,
   ShieldedCoinPublicKey,
   ShieldedEncryptionPublicKey,
-} from '@midnight-ntwrk/wallet-sdk-address-format';
+} from '@midnightntwrk/wallet-sdk-address-format';
 import * as ledger from '@midnight-ntwrk/ledger-v8';
 
 const networkId = 'preprod';
@@ -689,7 +692,7 @@ await sponsorWallet
 
 ## Atomic swaps
 
-아토믹 스왑으로 신뢰 없이(trustless) 당사자 간 토큰을 교환할 수 있습니다. SDK은 하나의 트랜잭션으로 병합 가능한 스왑 제안 생성을 지원합니다. 아래 예제는 양쪽 모두 지갑 초기화가 완료된 상태입니다.
+아토믹 스왑으로 신뢰 없이 당사자 간 토큰을 교환할 수 있습니다. SDK은 하나의 트랜잭션으로 병합 가능한 스왑 제안 생성을 지원합니다. 아래 예제는 양쪽 모두 지갑 초기화가 완료된 상태입니다.
 
 ### Create and execute a swap
 
@@ -745,7 +748,7 @@ await bobWallet
 브라우저 환경이나 proof server에 HTTP 접근이 불가능한 경우 WebAssembly 기반 증명을 사용하세요. 클라이언트에서 증명을 직접 생성하지만 전용 proof server보다 훨씬 느립니다.
 
 ```typescript
-import { makeWasmProvingService } from '@midnight-ntwrk/wallet-sdk-capabilities';
+import { makeWasmProvingService } from '@midnightntwrk/wallet-sdk-capabilities';
 
 const wallet = await WalletFacade.init({
   configuration,
@@ -788,16 +791,19 @@ await wallet.stop();
 
 DApp에서 지갑과 연동하려면 DApp Connector API를 사용하세요. Lace 등 브라우저 지갑과 일관된 인터페이스로 상호작용할 수 있습니다.
 
-아래 예제는 DApp에서 Lace Midnight 지갑에 연결하는 방법입니다.
+아래 예제는 DApp이 설치된 지갑을 찾고, 연결하고, NIGHT 전송을 보내는 방법을 보여줍니다. 전체 React 과정은 [Connect a React DApp to a wallet](/guides/react-wallet-connect)를 참고하세요.
 
 ```typescript
 import { nativeToken } from '@midnight-ntwrk/ledger-v8';
 
-// Check if wallet is available
-const wallet = window.midnight?.mnLace;
+// Wallets inject their Initial API under window.midnight, each keyed by a
+// generated UUID rather than a fixed name, so enumerate the entries and let the
+// user choose when more than one wallet is installed.
+const wallets = Object.values(window.midnight ?? {});
+const wallet = wallets[0];
 
 if (!wallet) {
-  console.error('Please install Lace Midnight wallet');
+  console.error('Please install a Midnight wallet such as Lace');
   throw new Error('Wallet not found');
 }
 
@@ -834,18 +840,19 @@ try {
   console.log('Unshielded address:', unshieldedAddress);
   console.log('Dust address:', dustAddress);
 
-  // Initiate a payment
-  const transaction = await connectedApi.makeTransfer([
+  // Initiate a payment. makeTransfer balances and proves the transaction
+  // (the wallet shows an approval prompt) and returns the serialized result.
+  const { tx } = await connectedApi.makeTransfer([
     {
       kind: 'unshielded',
-      tokenType: nativeToken().raw,
+      type: nativeToken().raw,
       value: 10n ** 6n, // 1 NIGHT
       recipient: 'mn_addr_preprod1abcdef...', // Replace with actual address
     },
   ]);
 
-  // Submit transaction
-  await connectedApi.submitTransaction(transaction);
+  // Submit the proven transaction
+  await connectedApi.submitTransaction(tx);
   console.log('Transaction submitted successfully');
 
 } catch (error) {

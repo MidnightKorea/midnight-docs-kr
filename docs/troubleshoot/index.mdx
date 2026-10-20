@@ -1,0 +1,59 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Troubleshoot
+description: Midnight 설치 문제, Compact 컴파일러 에러, 버전 불일치, 거부된 트랜잭션을 해결하는 방법과 도움을 받을 수 있는 곳을 찾아보세요.
+sidebar_position: 12
+tags:
+  - troubleshooting
+  - errors
+  - installation
+  - compact
+  - midnight-network
+---
+
+import PersonaTiles from '@site/src/components/PersonaTiles';
+
+# Troubleshoot
+
+설치 문제, 빌드 에러, 거부된 트랜잭션의 해결책을 찾아보세요. 에러가 나타난 영역에서 시작하거나, 표에서 문제를 찾아보세요.
+
+<PersonaTiles tiles={[
+  {
+    title: "Installation problems",
+    body: "셸이 찾지 못하는 compact 명령, 실행되지 않은 Docker 엔진, 이미 사용 중인 proof server 포트를 해결합니다.",
+    to: "/troubleshoot/installation-problems",
+    cta: "Fix your setup",
+  },
+  {
+    title: "Build and compile errors",
+    body: "lexer·parser 에러부터 witness disclosure·런타임 에러까지 Compact 컴파일러 메시지를 찾아보고 해결 방법을 확인합니다.",
+    to: "/troubleshoot/compiler-errors",
+    cta: "Fix compiler errors",
+  },
+  {
+    title: "Transaction errors",
+    body: "1010 Invalid Transaction 거부를 해독해 그 뒤에 있는 Midnight ledger 에러를 찾습니다.",
+    to: "/how-to/decode-1010-transaction-rejection-errors",
+    cta: "Decode the error",
+  },
+  {
+    title: "FAQ and getting help",
+    body: "자주 묻는 질문의 답을 읽거나, Midnight 팀과 다른 개발자에게 도움을 요청합니다.",
+    to: "/troubleshoot/faq",
+    cta: "Read the FAQ",
+  },
+]} />
+
+## Find your problem
+
+| Problem | Page |
+|---------|------|
+| 셸이 `compact` 명령을 찾지 못하거나, Docker가 실행되지 않거나, 포트 6300이 이미 사용 중입니다. | [Troubleshoot installation problems](/troubleshoot/installation-problems) |
+| `@midnight-ntwrk` 패키지 설치가 `403 Forbidden`으로 실패합니다. | [Fix package repository access failures](/how-to/fix-package-repository-access-failures) |
+| NixOS에 Compact 컴파일러 0.26 이하를 설치합니다. | [Troubleshoot Compact toolchain installation issue on NixOS](/troubleshoot/troubleshoot-compact-nixos) |
+| Compact 컴파일러가 에러를 보고하거나, 컴파일된 컨트랙트가 런타임에 실패합니다. | [Troubleshoot compiler errors](/troubleshoot/compiler-errors) |
+| 컴파일러, 런타임, proof server 버전이 서로 맞지 않습니다. | [Fix version mismatch errors](/how-to/fix-version-mismatches) |
+| 노드가 코드 `1010`으로 트랜잭션을 거부합니다. | [Decode 1010 transaction rejection errors](/how-to/decode-1010-transaction-rejection-errors) |
+| Midnight에 대한 일반적인 질문이 있습니다. | [Frequently asked questions](/troubleshoot/faq) |
+| 도움을 요청하거나 보안 취약점을 신고하려고 합니다. | [Support](/troubleshoot/getting-help) |

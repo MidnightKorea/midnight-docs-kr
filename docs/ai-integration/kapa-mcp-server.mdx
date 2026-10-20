@@ -1,0 +1,145 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Kapa MCP server
+description: Kapa MCP server는 Midnight에 대한 문서 기반 답변을 에디터 안에서 바로 AI 코딩 어시스턴트에게 제공합니다.
+tags: [mcp, ai, developer-tools, kapa]
+sidebar_position: 2
+---
+
+# Kapa MCP server
+
+Kapa MCP server는 이 문서 사이트의 "Ask AI" 버튼을 구동하는 것과 동일한 Midnight 지식 베이스를 노출합니다. AI 코딩 어시스턴트에게 Midnight에 대한 문서 기반 답변을 에디터 안에서 바로 제공하므로, 브라우저 탭으로 전환하지 않고도 질문할 수 있습니다.
+
+프로젝트가 Kapa로 옮겨간 배경과 Midnight Expert와 어떻게 함께 쓰이는지는 [마이그레이션 블로그 글](/blog/migrating-to-kapa-and-midnight-expert)을 참고하세요.
+
+## Install
+
+서버 URL은 `https://midnight.mcp.kapa.ai`입니다. 클라이언트에 추가한 뒤에는 어시스턴트가 서버를 사용할 수 있도록 [sign in](#authentication)을 진행하세요.
+
+### Claude Code
+
+Claude Code 세션 안이 아니라 터미널에서 다음 명령을 실행하세요:
+
+```bash
+claude mcp add --transport http midnight https://midnight.mcp.kapa.ai
+```
+
+Claude Code는 명령을 실행한 프로젝트에 서버를 등록합니다. 같은 폴더에서 Claude Code를 시작하고 `/mcp`를 실행한 뒤 `midnight`을 선택하고 **Authenticate**를 골라 로그인하세요.
+
+모든 프로젝트에서 서버를 쓰려면 대신 `--scope user` 옵션을 붙여 추가하세요:
+
+```bash
+claude mcp add --scope user --transport http midnight https://midnight.mcp.kapa.ai
+```
+
+### Claude on the web and desktop
+
+브라우저의 claude.ai나 Claude 데스크톱 앱에서 서버를 쓰려면 커스텀 커넥터로 추가하세요:
+
+1. Claude에서 **Customize > Connectors**를 열고 **Add custom connector**를 선택합니다.
+2. 이름과 서버 URL `https://midnight.mcp.kapa.ai`를 입력한 뒤 **Add**를 선택합니다.
+3. Claude가 요청하면 로그인합니다. 커넥터에 **Connect**가 보이면 선택해 로그인을 시작합니다.
+4. 채팅에서 **+**를 선택한 다음 **Connectors**를 열어 커넥터가 켜져 있는지 확인합니다.
+
+Team 및 Enterprise 플랜에서는 멤버가 연결하기 전에 Owner가 조직용 커넥터를 먼저 추가해야 합니다. 플랜별 단계는 Claude 문서의 [Add a connector by URL](https://claude.com/docs/connectors/custom/add-unlisted#add-a-connector-by-url)을 참고하세요.
+
+### Codex
+
+터미널에서 다음 명령을 실행하세요:
+
+```bash
+codex mcp add midnight --url https://midnight.mcp.kapa.ai
+```
+
+Codex는 서버를 `~/.codex/config.toml`에 저장하고 브라우저에서 로그인을 시작합니다. 저장된 항목은 다음과 같습니다:
+
+```toml
+[mcp_servers.midnight]
+url = "https://midnight.mcp.kapa.ai"
+```
+
+나중에 로그인하려면 `codex mcp login midnight`을 실행하세요.
+
+### OpenCode
+
+`opencode.json` 파일의 `mcp` 섹션에 서버를 추가하세요. 프로젝트 루트의 파일을 쓰거나, 모든 프로젝트에서 서버를 쓰려면 `~/.config/opencode/opencode.json`을 사용하세요:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "midnight": {
+      "type": "remote",
+      "url": "https://midnight.mcp.kapa.ai"
+    }
+  }
+}
+```
+
+그런 다음 터미널에서 로그인하세요. 프로젝트 파일에 서버를 추가했다면 해당 프로젝트 폴더에서 명령을 실행하세요:
+
+```bash
+opencode mcp auth midnight
+```
+
+### Cursor and VS Code
+
+이 사이트의 "Ask AI" 버튼을 열고 "Use MCP"를 클릭한 뒤 "Add to Cursor" 또는 "Add to VS Code"를 고르세요. 둘 다 원클릭 설치입니다.
+
+### Any other MCP client
+
+JSON 설정으로 원격 MCP 서버를 지원하는 클라이언트라면 서버를 직접 추가하세요:
+
+```json
+{
+  "mcpServers": {
+    "midnight": {
+      "type": "http",
+      "url": "https://midnight.mcp.kapa.ai"
+    }
+  }
+}
+```
+
+일부 클라이언트는 이를 remote 또는 HTTP 서버라고 부르며 transport 필드를 요구하지만, URL은 어느 경우에나 동일합니다. "Use MCP" 메뉴에서 "Copy MCP URL"을 클릭해 클라이언트가 요구하는 위치에 붙여 넣어도 됩니다.
+
+필드 이름은 클라이언트마다 다릅니다. 예를 들어 Antigravity는 `url` 대신 `serverUrl`을 읽습니다. 설정 파일은 `~/.gemini/config/mcp_config.json`이거나 프로젝트 폴더의 `.agents/mcp_config.json`입니다:
+
+```json
+{
+  "mcpServers": {
+    "midnight": {
+      "serverUrl": "https://midnight.mcp.kapa.ai"
+    }
+  }
+}
+```
+
+## Authentication
+
+서버는 답변하기 전에 로그인을 요구합니다. 로그인하기 전까지는 HTTP `401` 응답으로 요청을 거부하고, 클라이언트는 서버에 인증이 필요하다고 보고합니다. 이 메시지는 설치가 제대로 되었고 서버가 로그인을 기다리고 있다는 뜻입니다.
+
+로그인하면 클라이언트가 브라우저에서 `mcp.kapa.ai`의 Kapa 페이지를 열고, 거기서 Google 또는 GitHub 계정으로 본인을 확인합니다. 서버는 API 키를 쓰지 않습니다. [Kapa 문서](https://docs.kapa.ai/retrieval/hosted-mcp-server#public-oauth)에 따르면, 로그인은 오직 사용자별 요청 제한을 적용하고 악용을 차단하기 위해서만 존재합니다. Kapa는 Google이나 GitHub가 주는 불투명한 사용자 ID만 사용합니다. Google의 경우 `openid` 스코프만 요청하므로 이름이나 이메일 주소는 보지 않습니다. 클라이언트는 발급된 토큰을 저장해 이후 세션에서 다시 사용합니다.
+
+클라이언트마다 로그인이 필요하다는 사실을 각자의 방식으로 알립니다:
+
+| Client | What it reports | How to sign in |
+| --- | --- | --- |
+| Claude Code | `claude mcp list`에 `! Needs authentication` | 세션에서 `/mcp`를 실행하고 `midnight`을 선택한 뒤 **Authenticate**를 고릅니다. 터미널에서는 서버를 추가한 폴더에서 `claude mcp login midnight`을 실행합니다. |
+| Codex | `codex mcp list`에 `Not logged in` | `codex mcp login midnight`을 실행합니다. |
+| OpenCode | `MCP Authentication Required`에 이어 `Server "midnight" requires authentication. Run: opencode mcp auth midnight` | `opencode mcp auth midnight`을 실행합니다. |
+
+서버에 다른 이름을 붙였다면 `midnight` 자리에 그 이름을 쓰세요. 이 사이트의 **Use MCP** 메뉴는 서버 이름을 `midnight-docs`로 지정합니다.
+
+Cursor, VS Code, Antigravity도 이 로그인을 지원합니다. 클라이언트가 보여주는 프롬프트나 MCP 설정에서 로그인을 시작하세요.
+
+## What it covers
+
+Kapa는 엄선된 Midnight 소스를 인덱싱합니다. 공식 문서, 직접 선별한 핵심 리포지터리(ledger, midnight.js, node), 그리고 백서 같은 독립 자료가 여기에 포함됩니다. DUST 생성이 어떻게 이루어지는지, witness를 어떻게 구성하는지, 특정 ledger 타입이 무엇을 하는지 물어보면 오래된 학습 데이터가 아니라 최신 문서에 근거한 답을 얻습니다.
+
+## Midnight Expert
+
+Compact 컨트랙트를 작성하고 검증하거나, 로컬 devnet을 실행하거나, 에러 코드를 해독하는 등 직접 개발하는 작업에는 Kapa와 함께 [Midnight Expert](/ai-integration/midnight-expert)를 사용하세요. 해당 페이지에 설정 방법이 있으며, [마이그레이션 블로그 글](/blog/migrating-to-kapa-and-midnight-expert)이 두 도구가 어떻게 맞물리는지 설명합니다.
+
+Midnight Expert는 Claude Code 플러그인 모음입니다. 그 문서에는 Codex, OpenCode, 그 밖의 어시스턴트용 설정이 없으므로, 그런 도구에서는 대신 Kapa MCP server를 연결하세요.

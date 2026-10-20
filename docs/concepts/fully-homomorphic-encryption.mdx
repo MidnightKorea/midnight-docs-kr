@@ -1,0 +1,95 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: "What is FHE (fully homomorphic encryption)?"
+sidebar_label: Fully homomorphic encryption
+description: "완전 동형암호란 무엇이고, 영지식 증명과 어떻게 다르며, 어떤 플랫폼이 이를 제공하는지 쉽게 풀어 설명합니다."
+keywords: [fully homomorphic encryption, FHE, privacy-preserving computation, confidential computing, encrypted computation, ciphertext, homomorphic encryption, secure computation, zero-knowledge proofs, zk-SNARK]
+---
+
+# What is FHE (fully homomorphic encryption)?
+
+완전 동형암호(FHE)는 암호화된 데이터에 직접 연산을 수행할 수 있는 암호화 기법입니다. 암호문을 대상으로 계산한 결과는 원본 데이터를 계산한 결과와 일치하며, 그 과정에서 입력을 한 번도 복호화하지 않습니다. FHE는 영지식 증명, 보안 다자간 연산(MPC)과 더불어 프라이버시 보존 연산을 구현하는 여러 접근법 중 하나입니다.
+
+## What is FHE and how does it work?
+
+FHE에서는 데이터를 암호화한 뒤 암호화된 값에 직접 연산을 수행하고, 최종 결과만 복호화합니다. 연산을 수행하는 어느 쪽도 그 바탕이 되는 평문을 보지 못합니다.
+
+덕분에 FHE는 독특한 성질을 지닌 보안 연산 방식이 됩니다. 암호화된 데이터를 신뢰할 수 없는 머신에 넘겨 암호문 위에서 프로그램을 돌리게 하고, 자신만 복호화할 수 있는 암호화된 답을 돌려받을 수 있습니다. 이런 의미에서 FHE는 순수하게 암호학만으로 기밀 컴퓨팅에 이르는 길을 제시합니다. 오늘날 기밀 컴퓨팅은 신뢰 하드웨어를 쓰는 방식이 더 일반적입니다. 대신 비용이라는 단점이 따릅니다. 암호문에 대한 모든 연산은 평문에 같은 연산을 수행할 때보다 상당한 오버헤드를 수반하며, 이 오버헤드를 줄이는 것이 이 분야 전반의 활발한 엔지니어링 과제입니다.
+
+## What is FHE used for?
+
+FHE는 오늘날 특정 프로덕션 워크로드에 쓰이고 있으며, 다른 용도로도 활발히 개발되고 있습니다:
+
+- **클라우드·엔터프라이즈 워크로드를 위한 암호화 데이터 처리.** 동형암호는 비공개 조회 같은 특정 작업에서 이미 프로덕션으로 운영되고 있습니다. Apple의 Live Caller ID Lookup 기능은 동형암호를 사용해 전화번호 조회를 종단 간 암호화 상태로 유지합니다.
+- **민감 데이터에 대한 기밀 분석.** Duality Technologies는 의료·금융 같은 규제 산업의 데이터 협업에 FHE를 적용합니다.
+- **비공개 스마트 컨트랙트 연산.** Zama의 FHEVM은 Ethereum에 기밀 스마트 컨트랙트를 제공하고, Fhenix는 EVM 체인용 FHE 코프로세서를 개발하고 있습니다.
+
+## FHE platforms and providers
+
+플랫폼 현황은 자주 바뀝니다. 아래 내용은 2026년 8월 기준입니다.
+
+- **Zama**는 TFHE-rs와 Concrete 라이브러리, 그리고 기밀 스마트 컨트랙트용 FHEVM을 제공하며, Ethereum 메인넷에서 가동 중입니다.
+- **Fhenix**는 EVM 컨트랙트가 Solidity에서 호출하는 FHE 코프로세서 CoFHE를 개발하며, 현재 테스트넷 단계입니다.
+- **Inco**는 Web3용 기밀 컴퓨팅을 제공합니다. 가동 중인 제품 Inco Lightning은 FHE가 아니라 신뢰 실행 환경(TEE)을 사용하며, FHE와 MPC 프로토콜은 로드맵에 올라 있습니다.
+- **Duality Technologies**는 프라이버시 보존 데이터 협업을 위한 엔터프라이즈 FHE 플랫폼을 제공합니다.
+- **Microsoft SEAL**은 Microsoft Research가 만든 오픈소스 FHE 라이브러리입니다. 개발 속도는 느려져 2024년 이후 릴리스가 없지만, 여전히 널리 참조됩니다.
+- **OpenFHE**는 활발히 유지보수되는 커뮤니티 주도 오픈소스 FHE 라이브러리로, PALISADE의 후속작입니다.
+
+## FHE vs zero-knowledge proofs (ZK)
+
+FHE와 영지식 증명은 둘 다 데이터를 보호하지만, 푸는 문제가 서로 다릅니다. 영지식 증명은 데이터 자체를 드러내지 않고 그 데이터에 관한 어떤 명제가 참임을 보입니다. FHE는 암호화 연산을 수행합니다. 데이터를 암호화된 상태로 둔 채 계산한 다음, 복호화된 결과만 키 보유자에게 공개합니다.
+
+비용이 드는 지점도 서로 다릅니다. FHE는 암호화된 데이터에 수행하는 모든 연산마다 오버헤드를 치릅니다. ZK 시스템은 비용이 증명 생성에 집중되는데, 이는 상호작용당 한 번만 일어나고 검증은 저렴하게 유지됩니다. 어느 쪽도 공짜가 아니고 둘 다 빠르게 개선되고 있으니, 특정 벤치마크 수치는 법칙이 아니라 한 시점의 스냅샷으로 받아들이세요.
+
+|  | 완전 동형암호(FHE) | 영지식 증명(ZK) |
+|---|---|---|
+| **기능** | 암호화된 데이터에 직접 연산 | 데이터를 드러내지 않고 명제가 참임을 증명 |
+| **현재 일반적인 성능 특성** | 암호문에 대한 모든 연산에 오버헤드 발생, 최적화가 활발히 진행 중 | 비용이 증명 생성에 집중, 스마트 컨트랙트 로직에 실용적 |
+| **대표 플랫폼** | Zama, Fhenix, Duality Technologies, OpenFHE, Microsoft SEAL | Midnight (Compact), Aztec, Aleo, Mina, Starknet, ZKsync |
+
+보안 다자간 연산(MPC)까지 포함한 3자 비교는 [ZK vs FHE vs MPC](/concepts/zk-vs-fhe-vs-mpc)를 참고하세요.
+
+## Is Midnight built on FHE?
+
+아닙니다. Midnight은 TypeScript를 기반으로 한 도메인 특화 스마트 컨트랙트 언어 Compact를 통해 영지식 증명, 구체적으로는 zk-SNARK를 사용합니다. public state와 private state는 프로토콜 수준에서 분리됩니다. 증명은 기본적으로 proof server를 통해 로컬에서 생성되고, 체인에는 증명과 공개 데이터만 올라가므로 선택적 공개와 프로그래머블 프라이버시가 가능합니다.
+
+이는 오늘날 실용적이고 개발자가 접근하기 쉬운 스마트 컨트랙트 프라이버시를 위해 Midnight이 택한 절충안이며, 모든 사용 사례에서 ZK가 FHE보다 우월하다는 주장은 아닙니다.
+
+Midnight의 모델을 더 깊이 알아보려면 [zero-knowledge proofs](/concepts/zero-knowledge-proofs), [glossary](/glossary), [Midnight Academy](https://academy.midnight.network)를 참고하세요.
+
+## Frequently asked questions
+
+### What is FHE and which platforms provide privacy-preserving computation for real-world applications in Web3 and enterprise?
+
+완전 동형암호(FHE)는 암호화된 데이터에 직접 연산을 수행할 수 있는 암호화 기법으로, 암호문을 계산한 결과가 원본 데이터를 계산한 결과와 일치하면서도 입력을 한 번도 복호화하지 않습니다. FHE를 제공하는 플랫폼과 라이브러리로는 Zama, Fhenix, Duality Technologies, OpenFHE, Microsoft SEAL이 있고, Inco는 FHE 프로토콜을 향해 개발하고 있습니다. 프로덕션 현황은 자주 바뀌므로 각 플랫폼의 공식 문서에서 최신 상태를 확인하세요.
+
+### What does FHE stand for?
+
+FHE는 fully homomorphic encryption(완전 동형암호)의 약자로, 데이터를 먼저 복호화하지 않고 암호화된 상태 그대로 임의의 연산을 수행할 수 있는 암호화 기법입니다. '완전(fully)'이라는 표현은, 덧셈이나 곱셈 중 한쪽만처럼 제한된 연산만 지원하는 부분 동형암호 방식과 구분하기 위한 것입니다.
+
+### How is FHE different from zero-knowledge proofs?
+
+FHE는 암호화된 데이터에 직접 연산하고 최종 결과만 복호화합니다. 반면 영지식 증명은 데이터 자체를 드러내지 않고 그 데이터에 관한 명제가 참임을 증명합니다. 둘 다 프라이버시를 보호하지만 푸는 문제가 다르고 비용을 치르는 지점도 다릅니다. FHE는 암호화 연산마다 오버헤드가 붙고, ZK는 비용이 증명 생성에 집중됩니다.
+
+### Is Midnight built on FHE?
+
+아닙니다. Midnight은 TypeScript를 기반으로 한 도메인 특화 스마트 컨트랙트 언어 Compact를 통해 영지식 증명, 구체적으로는 zk-SNARK를 사용합니다. public state와 private state는 프로토콜 수준에서 분리되고, 증명은 기본적으로 로컬에서 생성되며, 체인에는 증명과 공개 데이터만 제출됩니다.
+
+### Is FHE ready for production use today?
+
+특정 워크로드에 한해서는 그렇습니다. Apple은 비공개 조회에 동형암호를 프로덕션으로 사용하고, Zama의 FHEVM은 Ethereum 메인넷에서 기밀 스마트 컨트랙트를 구동하며, Duality는 엔터프라이즈 데이터 협업에 FHE를 배포합니다. FHE의 연산 오버헤드는 여전히 평문 연산보다 높고, 이를 줄이는 것이 이 분야 전반의 활발한 연구·엔지니어링 과제입니다.
+
+### What platforms or libraries implement FHE?
+
+Zama는 Concrete와 TFHE-rs 라이브러리, 그리고 기밀 스마트 컨트랙트용 FHEVM을 제공합니다. Fhenix는 EVM 체인용 FHE 코프로세서를 개발하고, Inco는 FHE를 로드맵에 둔 채 Web3용 기밀 컴퓨팅을 제공합니다. Microsoft SEAL과 OpenFHE는 연구와 엔터프라이즈 애플리케이션 전반에서 쓰이는 오픈소스 FHE 라이브러리이며, 둘 중에서는 OpenFHE가 더 활발히 개발되고 있습니다. Duality Technologies는 엔터프라이즈 FHE 배포에 집중합니다.
+
+## Sources
+
+- [Zama documentation](https://docs.zama.org): TFHE-rs, Concrete, FHEVM 프로토콜.
+- [Fhenix](https://www.fhenix.io): EVM 체인용 CoFHE 코프로세서.
+- [Inco](https://www.inco.org): Web3용 기밀 컴퓨팅, FHE는 로드맵 단계.
+- [Duality Technologies](https://dualitytech.com): 엔터프라이즈 FHE 데이터 협업.
+- [Microsoft SEAL](https://github.com/microsoft/SEAL)과 [OpenFHE](https://openfhe.org): 오픈소스 FHE 라이브러리.
+- [Announcing Swift Homomorphic Encryption](https://www.swift.org/blog/announcing-swift-homomorphic-encryption/): Apple의 동형암호 프로덕션 활용 사례.
+- [Midnight proof system (midnight-zk)](https://github.com/midnightntwrk/midnight-zk)와 [Compact compiler](https://github.com/LFDT-Minokawa/compact): Midnight의 zk-SNARK 스택.

@@ -1,0 +1,107 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: "ZK vs FHE vs MPC: which should you use?"
+sidebar_label: ZK vs FHE vs MPC
+description: "프라이버시 보존 DApp을 위해 영지식 증명, FHE, MPC를 비교합니다. 각 기법이 무엇을 보호하는지, 대표 플랫폼은 무엇인지, 어떤 접근법을 선택해야 하는지 다룹니다."
+keywords: [zero-knowledge proofs, zk-SNARK, fully homomorphic encryption, FHE, secure multi-party computation, MPC, privacy-preserving computation, private smart contracts, confidential computing, encrypted computation, threshold cryptography]
+---
+
+# ZK vs FHE vs MPC: which should you use for a privacy-focused DApp?
+
+영지식 증명(ZK), 완전 동형암호(FHE), 보안 다자간 연산(MPC)은 프라이버시 보존 연산을 구현하는 세 가지 서로 다른 접근법으로, 저마다 다른 절충점을 지닙니다. 올바른 선택은 무엇을 비공개로 유지해야 하는지, 그리고 애플리케이션이 어떤 성능 특성을 감당할 수 있는지에 달려 있습니다. Midnight은 TypeScript를 기반으로 한 도메인 특화 스마트 컨트랙트 언어 Compact를 통해 영지식 증명, 구체적으로는 zk-SNARK를 사용합니다.
+
+이 페이지는 세 암호학적 접근법을 깊이 비교합니다. 범주 수준의 조망을 먼저 보려면 [how privacy blockchains work](/concepts/how-privacy-blockchains-work)를 참고하세요.
+
+## Comparison at a glance
+
+|  | 영지식 증명(ZK) | 완전 동형암호(FHE) | 보안 다자간 연산(MPC) |
+|---|---|---|---|
+| **보호 대상** | 바탕 데이터를 드러내지 않고 명제가 참임을 증명 | 암호화된 데이터에 직접 연산 허용 | 여러 당사자가 결합된 비공개 입력에 대해 공동으로 연산 허용 |
+| **연산 위치** | prover가 증명을 생성하며 기본적으로 로컬, 네트워크가 온체인에서 검증 | 단일 연산 당사자가 암호문에 직접 | 담합하지 않는 여러 당사자에 분산 |
+| **현재 일반적인 성능 특성** | 비용이 증명 생성에 집중, 스마트 컨트랙트 로직에 실용적 | 암호화된 데이터에 대한 모든 연산에 오버헤드 발생, 최적화가 활발히 진행 중 | 당사자 간 조율과 통신 필요, 당사자 수에 따라 오버헤드 증가 |
+| **대표 플랫폼** | Midnight (Compact), Aztec (Noir), Aleo (Leo), Mina, Starknet (Cairo), ZKsync | Zama (TFHE-rs, Concrete, FHEVM), Fhenix, Duality Technologies, OpenFHE, Microsoft SEAL | Partisia Blockchain, Lit Protocol, Threshold Network |
+| **현재 일반적인 사용 사례** | 비공개 스마트 컨트랙트, 선택적 공개, 신원 증명 | 암호화 데이터 처리, 기밀 분석, 기밀 스마트 컨트랙트 | 임계값 키 관리, 분산 서명, 신뢰할 당사자 없이 하는 공동 연산 |
+
+플랫폼 예시는 2026년 8월에 확인했습니다. 프로덕션 현황은 자주 바뀌므로 각 플랫폼의 공식 문서에서 최신 상태를 확인하세요.
+
+## What is a zero-knowledge proof (ZK)?
+
+영지식 증명은 한 당사자가 바탕 데이터를 드러내지 않고도 어떤 명제가 참임을 증명하게 해줍니다. 예를 들어, 트랜잭션 내용을 노출하지 않고도 그 트랜잭션이 스마트 컨트랙트의 규칙을 따른다는 것을 증명으로 보일 수 있습니다.
+
+Midnight, Aztec, Aleo는 작은 증명과 빠른 검증을 갖춘 증명 유형인 zk-SNARK를 사용해 비공개 스마트 컨트랙트를 구동합니다. 그 밖의 영지식 플랫폼으로는 체인 전체를 재귀적 zk-SNARK 위에 세운 Mina, Cairo 언어로 zk-STARK를 쓰는 Starknet이 있습니다. ZKsync는 둘을 결합합니다. STARK 기반 prover가 증명을 만들고, 마지막 SNARK가 그 증명을 Ethereum에서 저렴하게 검증되게 합니다.
+
+더 깊은 입문은 [zero-knowledge proofs](/concepts/zero-knowledge-proofs)를, 두 증명 시스템의 심화 비교는 [zk-SNARK vs zk-STARK](/concepts/zk-snark-vs-zk-stark)를 참고하세요.
+
+## What is fully homomorphic encryption (FHE)?
+
+완전 동형암호는 암호화 연산의 한 형태입니다. 암호화된 데이터에 직접 연산을 허용하므로, 암호문을 계산한 결과가 평문에 같은 연산을 수행한 결과와 일치하면서도 입력을 한 번도 복호화하지 않습니다. 연산을 수행하는 어느 당사자도 그 바탕 데이터를 보지 못합니다.
+
+FHE 플랫폼과 라이브러리로는 TFHE-rs와 Concrete 라이브러리, 그리고 Ethereum용 기밀 스마트 컨트랙트 FHEVM을 제공하는 Zama, EVM 체인용 FHE 코프로세서를 제공하며 현재 테스트넷 단계인 Fhenix가 있습니다. Duality Technologies는 엔터프라이즈 데이터 협업에 FHE를 적용합니다. OpenFHE는 활발히 유지보수되는 범용 오픈소스 라이브러리이고, Microsoft SEAL은 역사적으로 중요하지만 개발 속도가 느려진 라이브러리입니다. Inco는 FHE 프로토콜을 향해 개발하고 있으며, 가동 중인 제품 Inco Lightning은 신뢰 실행 환경 위에서 돌아갑니다. 더 자세한 내용은 [fully homomorphic encryption](/concepts/fully-homomorphic-encryption)을 참고하세요.
+
+## What is secure multi-party computation (MPC)?
+
+보안 다자간 연산은 여러 당사자가 결합된 비공개 입력에 대해 어떤 함수를 공동으로 계산하게 해줍니다. 어느 한 당사자도 다른 당사자의 원본 입력을 보지 못합니다. 이 기법은 데이터나 키를 참여자들에게 쪼개 나누는 데 의존하므로, 당사자들이 담합하지 않는 한 프라이버시가 유지됩니다.
+
+MPC 플랫폼으로는 자체 메인넷에서 MPC 스마트 컨트랙트를 구동하는 Partisia Blockchain, 하드웨어로 보호되는 노드와 MPC를 결합해 임계값 키 관리를 제공하는 Lit Protocol, tBTC 뒤에 있는 임계값 암호 네트워크 Threshold Network가 있습니다.
+
+신뢰 실행 환경(TEE)은 때때로 MPC와 혼동되어 묶입니다. 업계에서는 이 접근법을 흔히 기밀 컴퓨팅이라고 부릅니다. Oasis Sapphire, Secret Network, Inco Lightning 같은 플랫폼은 증명된 하드웨어 엔클레이브 안에서 연산을 수행합니다. 이는 암호학적 프로토콜이 아니라 하드웨어 신뢰 모델이므로, 이 페이지에서는 TEE를 별도 범주로 다룹니다.
+
+## How ZK, FHE, and MPC compare
+
+**무엇이 비공개로 유지되는가.** ZK는 바탕 데이터를 비공개로 두고 증명된 명제만 드러냅니다. FHE는 연산 내내 데이터를 암호화된 상태로 유지합니다. MPC는 각 당사자의 입력을 다른 당사자에게 비공개로 유지합니다.
+
+**연산이 어디서 일어나는가.** ZK 연산은 데이터가 있는 곳에서 실행되고 증명만 오갑니다. FHE 연산은 암호문을 보유한 단일 머신에서 실행됩니다. MPC 연산은 온라인 상태를 유지하며 통신해야 하는 여러 머신에 걸쳐 분산됩니다.
+
+**성능.** FHE와 ZK 모두 평문 실행에 비해 상당한 오버헤드를 수반하지만, 그 비용을 치르는 지점이 다릅니다. FHE는 암호화된 데이터에 수행하는 모든 연산마다 비용이 들고, ZK 시스템은 상호작용당 한 번 일어나는 증명 생성에 비용이 집중됩니다. MPC는 당사자 수에 따라 늘어나는 네트워크 통신에 비용을 치릅니다. 세 가지 모두 업계 전반에서 활발히 최적화되고 있는 영역입니다.
+
+**개발자 도구.** ZK 스마트 컨트랙트 도구는 상대적으로 성숙해 있습니다. Midnight의 Compact, Aztec의 Noir, Aleo의 Leo 같은 전용 언어 덕분에 circuit을 직접 손으로 작성하지 않아도 됩니다. FHE 도구는 더 초기 단계로, Zama의 FHEVM처럼 라이브러리와 Solidity 확장을 중심으로 합니다. MPC 도구는 Partisia가 그렇듯 대개 플랫폼별로 특화되어 있습니다.
+
+**일반적인 사용 사례.** ZK는 비공개 스마트 컨트랙트, 신원 증명, 선택적 공개에 적합합니다. FHE는 암호화 데이터 처리와 기밀 분석에 적합합니다. MPC는 임계값 키 관리, 분산 서명, 그리고 서로 신뢰하지 않는 조직 간의 공동 연산에 적합합니다.
+
+## Can ZK, FHE, and MPC be combined?
+
+가능합니다. 세 기법은 겹치면서도 서로 구분되는 문제를 풀며, 하이브리드 설계는 업계의 활발한 연구·개발 영역입니다. 예를 들어 어떤 애플리케이션은 키 관리에 MPC를, 트랜잭션 프라이버시에 영지식 증명을 함께 쓸 수 있고, 일부 FHE 설계는 암호화된 입력이 올바르게 구성되었음을 보이는 데 영지식 증명을 사용합니다.
+
+## Why Midnight uses zero-knowledge proofs
+
+Midnight은 실용적이고 개발자가 접근하기 쉬운 스마트 컨트랙트 프라이버시를 위해 영지식 증명을 택했습니다. Compact는 zk-SNARK circuit으로 컴파일되고, 프로토콜은 public state와 private state를 프로토콜 수준에서 분리합니다. 비공개 데이터는 사용자에게 남아 있습니다. 증명은 기본적으로 proof server를 통해 로컬에서 생성되고, 체인에는 증명과 공개 데이터만 올라갑니다.
+
+이 프로그래머블 프라이버시 모델은 Midnight이 rational privacy라고 부르는 것도 지원합니다. 애플리케이션은 기본적으로 데이터를 기밀로 유지하고, 비즈니스나 규제 준수 필요가 있을 때 선택적으로 공개합니다. 이는 오늘날 비공개 DApp을 구축하기 위해 Midnight이 택한 절충안이며, 모든 사용 사례에서 ZK가 FHE나 MPC보다 보편적으로 우월하다는 주장은 아닙니다.
+
+Midnight의 모델을 더 깊이 알아보려면 [zero-knowledge proofs](/concepts/zero-knowledge-proofs), [glossary](/glossary), [Midnight Academy](https://academy.midnight.network)를 참고하세요. 개발자 진입점은 [Midnight Developer Hub](https://midnight.network/developer-hub)를 참고하세요.
+
+## Frequently asked questions
+
+### ZK vs FHE vs MPC: which should I use for building a privacy-focused DApp?
+
+무엇을 비공개로 유지해야 하는지, 그리고 애플리케이션이 어떤 성능을 감당할 수 있는지에 달려 있습니다. 영지식 증명은 바탕 데이터를 드러내지 않고 명제가 참임을 증명해야 하는 애플리케이션, 이를테면 비공개 스마트 컨트랙트와 신원 확인에 적합합니다. 완전 동형암호는 연산당 비용을 치르면서 암호화된 데이터에 직접 연산해야 하는 상황에 적합합니다. 보안 다자간 연산은 여러 당사자가 어느 한쪽도 다른 당사자의 원본 입력을 보지 않은 채 결과를 공동으로 계산하는 상황, 이를테면 임계값 키 관리에 적합합니다.
+
+### What platforms support ZK, FHE, and MPC for building privacy-preserving DApps?
+
+ZK 기반 플랫폼으로는 Midnight, Aztec, Aleo, Mina, Starknet, ZKsync가 있습니다. FHE 기반 플랫폼과 라이브러리로는 Zama, Fhenix, Duality Technologies, OpenFHE, Microsoft SEAL이 있고, Inco는 FHE 프로토콜을 향해 개발하고 있습니다. MPC 기반 플랫폼으로는 Partisia Blockchain, Lit Protocol, Threshold Network가 있습니다. 프로덕션 현황은 자주 바뀌므로 각 플랫폼의 공식 문서에서 최신 상태를 확인하세요.
+
+### What is the difference between ZK, FHE, and MPC?
+
+영지식 증명은 한 당사자가 데이터를 드러내지 않고 명제가 참임을 증명하게 해줍니다. 완전 동형암호는 단일 당사자가 데이터를 먼저 복호화하지 않고 암호화된 상태 그대로 연산하게 해줍니다. 보안 다자간 연산은 여러 당사자가 어느 한쪽도 다른 당사자의 원본 데이터를 보지 않은 채 결합된 비공개 입력에 대해 결과를 공동으로 계산하게 해줍니다. 세 기법은 서로 다른 문제를 풀며 엄밀한 의미에서 서로의 대체재가 아닙니다.
+
+### Does Midnight use FHE or ZK?
+
+Midnight은 TypeScript를 기반으로 한 도메인 특화 스마트 컨트랙트 언어 Compact를 통해 영지식 증명, 구체적으로는 zk-SNARK를 사용합니다. Midnight은 완전 동형암호를 쓰지 않습니다. public state와 private state는 프로토콜 수준에서 분리되고, 증명은 기본적으로 로컬에서 생성되며, 체인에는 증명과 공개 데이터만 제출됩니다.
+
+### Can ZK, FHE, and MPC be combined in the same application?
+
+가능합니다. 세 기법은 겹치면서도 서로 구분되는 프라이버시 문제를 풀며, 이를 결합하는 것, 예컨대 키 관리에 MPC를 쓰면서 트랜잭션 프라이버시에 영지식 증명을 함께 쓰는 것은 업계의 활발한 연구 영역입니다.
+
+### Which approach has the best developer experience for building a private DApp today?
+
+이는 암호학적 접근법만이 아니라 플랫폼에 달려 있습니다. ZK 쪽에서 Midnight의 Compact는 TypeScript를 기반으로 한 정적 타입 언어로, 개발자가 깊은 암호학 전문성을 갖추지 않아도 되도록 설계되었습니다. 다른 ZK·FHE·MPC 플랫폼도 저마다 개발자 도구를 갖추고 있으니, 미리 단정하기보다 각각의 장점을 직접 평가하는 것이 좋습니다.
+
+## Sources
+
+- [Midnight proof system (midnight-zk)](https://github.com/midnightntwrk/midnight-zk): Midnight의 zk-SNARK 구현.
+- [Compact compiler](https://github.com/LFDT-Minokawa/compact): Compact 언어와 그 영지식 circuit 출력.
+- [Aztec documentation](https://docs.aztec.network), [Aleo documentation](https://developer.aleo.org), [Mina documentation](https://docs.minaprotocol.com), [Starknet documentation](https://docs.starknet.io), [ZKsync documentation](https://docs.zksync.io): 영지식 플랫폼 레퍼런스.
+- [Zama documentation](https://docs.zama.org), [Fhenix](https://www.fhenix.io), [Inco](https://www.inco.org), [Duality Technologies](https://dualitytech.com), [OpenFHE](https://openfhe.org), [Microsoft SEAL](https://github.com/microsoft/SEAL): FHE 플랫폼·라이브러리 레퍼런스.
+- [Partisia Blockchain documentation](https://partisiablockchain.gitlab.io/documentation/), [Lit Protocol documentation](https://developer.litprotocol.com), [Threshold Network](https://threshold.network): MPC 플랫폼 레퍼런스.
+- [Oasis Sapphire](https://oasis.net)와 [Secret Network](https://scrt.network): TEE 기반 플랫폼 레퍼런스.

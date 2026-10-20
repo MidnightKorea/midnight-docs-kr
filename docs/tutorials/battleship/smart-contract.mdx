@@ -1,0 +1,493 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-examples. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+sidebar_label: "Battleship contract"
+title: "Battleship contract"
+description: "방어적으로 작성한 Compact 컨트랙트를 읽어 봅니다. state machine, 역할 검사, 그리고 각 플레이어의 private 답변을 on-chain에서 검증하는 hash commitment를 다룹니다."
+sidebar_position: 10
+toc_max_heading_level: 3
+---
+
+# Battleship contract
+
+이 파트에서는 `contract/battleship.compact`와 그 TypeScript witness를 하나씩 살펴봅니다.
+줄 순서가 아니라, 각 코드 조각이 구현하는 방어 기법별로 정리했습니다.
+
+## Prerequisites
+
+- 이 튜토리얼의 [set-up 단계](/tutorials/battleship). midnight-examples가 설치·컴파일되어
+  있어야 합니다.
+- [Compact toolchain](/getting-started/installation)과 Node.js 22.
+
+편집기에서 `examples/battleship/contract/battleship.compact`를 열어 이 페이지 옆에 두세요.
+
+## The game
+
+Battleship은 두 명이 하는 추리 게임입니다. 각 플레이어는 private 격자에 자기 배를 표시합니다.
+플레이어는 번갈아 가며 상대 격자에 "shot"을 외치고, 상대 배를 먼저 다 맞히는 쪽이
+이깁니다.
+
+코드를 짧게 유지하려고 이 버전은 보드를 단순화했습니다:
+
+- 보드는 격자가 아니라 1부터 20까지의 수직선입니다.
+- 각 플레이어는 배 두 척을 두고, 배 한 척은 수직선 위의 숫자 하나입니다.
+- 먼저 두 번 명중시키는 플레이어가 이깁니다.
+
+게임 순서는 다음과 같습니다:
+
+1. Alice(플레이어 1)가 컨트랙트를 배포하고 자기 보드를 설정합니다.
+2. Bob(플레이어 2)이 게임에 참가하고 자기 보드를 설정합니다.
+3. Alice가 Bob의 보드에 shot을 쏩니다.
+4. Bob이 자기 보드를 확인하고 HIT 또는 MISS를 보고합니다.
+5. Bob이 Alice의 보드에 shot을 쏩니다.
+6. Alice가 자기 보드를 확인하고 HIT 또는 MISS를 보고합니다.
+7. 한쪽 보드가 두 번 명중될 때까지 3~6단계를 반복하고, 그 보드의 주인이 집니다.
+
+## What can go wrong
+
+보드게임 버전은 신뢰 위에서 돌아갑니다. 공개 블록체인에서는 아무것도 신뢰할 수 없습니다.
+어떤 circuit이든 export되면 누구나, 언제든, 어떤 인자로든 호출할 수 있는 공개 진입점이
+됩니다. witness 함수는 호출자 자신의 머신에서 실행되므로, 플레이어는 거기서 무엇이든 마음대로
+반환할 수도 있습니다.
+
+부정직한 플레이어는 이런 시도를 할 수 있습니다:
+
+- 차례를 어기고 행동하거나 다른 플레이어 행세를 한다;
+- 사실은 HIT였는데 MISS라고 우긴다;
+- 자기 private state를 다시 써서 게임 도중에 배를 옮긴다;
+- 이미 HIT였던 칸을 다시 쏘아 hit 수를 부풀린다.
+
+컨트랙트는 이들을 각각 `assert`로 막습니다. 문서 전체에서 눈여겨볼 패턴은
+**가정하는 모든 것을 assert하라**입니다. 누가 호출하는지, 게임이 어떤 상태인지, 입력이
+범위 안에 있는지, 그리고 witness가 진실을 말했는지까지 전부 말입니다.
+
+## Public and private data
+
+모든 ledger 데이터는 공개됩니다. 배 위치는 private으로 남아야 하지만, 그럼에도 컨트랙트는
+그에 대한 주장을 검증해야 합니다. 이를 commitment으로 해냅니다. 각 플레이어는 배 위치를
+비밀 키와 결합한 해시를 공개하고, 이후 답변은 그 해시와 대조해 확인합니다.
+
+| 공개 (ledger에 저장) | 비공개 (각 플레이어의 private state) |
+| --- | --- |
+| 각 플레이어의 DApp 전용 공개 키 | 그 뒤에 있는 비밀 키 |
+| 배 위치에 대한 hash commitment | 배 위치 |
+| shot과 확정된 hit | 로컬 HIT/MISS 검사 결과 (컨트랙트가 검증하기 전까지) |
+| turn, board, win 상태 | |
+
+## Technique 1: a state machine
+
+Compact 컨트랙트는 state machine로 생각하는 것이 가장 좋습니다. 컨트랙트는 상태 종류마다
+custom `enum`을 선언합니다:
+
+```compact title="contract/battleship.compact"
+pragma language_version 0.23;
+import CompactStandardLibrary;
+
+export enum BoardState { UNSET, SET }
+export enum ShotState { MISS, HIT }
+export enum TurnState {
+    PLAYER_1_SHOOT,
+    PLAYER_1_CHECK,
+    PLAYER_2_SHOOT,
+    PLAYER_2_CHECK,
+}
+export enum WinState {
+    CONTINUE_PLAY,
+    PLAYER_1_WINS,
+    PLAYER_2_WINS
+}
+```
+
+public ledger는 각 상태의 현재 값을 플레이어, 보드 commitment, shot과 함께 보관합니다:
+
+```compact title="contract/battleship.compact"
+export ledger player1: Bytes<32>;
+export ledger player2: Bytes<32>;
+export ledger turn: TurnState;
+export ledger board1: Set<Bytes<32>>;// linear board shape
+export ledger board2: Set<Bytes<32>>;// hashed storage of ship locations
+export ledger board1State: BoardState;
+export ledger board2State: BoardState;
+export ledger player1Shot: List<Uint<8>>;// current shot
+export ledger player2Shot: List<Uint<8>>;
+export ledger board1Hits: Set<Uint<8>>;// previous hits stored for later assertions
+export ledger board2Hits: Set<Uint<8>>;
+export ledger winState: WinState;
+export ledger board1HitCount: Counter;
+export ledger board2HitCount: Counter;
+```
+
+각 circuit은 기대하는 상태를 assert하면서 시작하고, 상태를 다음으로 넘기면서 끝납니다.
+이 assert들이 함께 작동해 한 번에 circuit 하나만 엽니다. 차례 순서는 다음과 같습니다:
+
+`PLAYER_1_SHOOT` → `PLAYER_2_CHECK` → `PLAYER_2_SHOOT` → `PLAYER_1_CHECK` → 반복
+
+예를 들어 `player1Shoot`은 Bob이 보드를 설정했고, 플레이어 1이 쏠 차례이며, 아직 아무도
+이기지 않았을 때만 실행됩니다:
+
+```compact title="contract/battleship.compact"
+    // state verification checks
+    assert(board2State == BoardState.SET, "Player 2 has not yet set their board");
+    assert(turn == TurnState.PLAYER_1_SHOOT, "It is not player1 turn to shoot");
+    assert(winState == WinState.CONTINUE_PLAY, "A winner has already been declared");
+```
+
+성공하면 차례를 플레이어 2의 check로 넘깁니다:
+
+```compact title="contract/battleship.compact"
+    // on-chain state updates
+    player1Shot.pushFront(currentShot);
+    turn = TurnState.PLAYER_2_CHECK;
+```
+
+상태는 circuit을 영영 닫아 버릴 수도 있습니다. constructor는 `board2State`를 `UNSET`으로
+설정하고, `acceptGame`은 그것이 아직 `UNSET`인 동안에만 실행됩니다:
+
+```compact title="contract/battleship.compact"
+    // state verification check
+    assert(board2State == BoardState.UNSET, "There is already a player2");
+```
+
+`acceptGame`은 반환하기 전에 `board2State`를 `SET`으로 바꾸므로, 일단 Bob이 참가하면 다른
+누구도 참가할 수 없습니다.
+
+## Technique 2: role checks
+
+컨트랙트는 wallet address를 저장하지 않습니다. 대신 각 플레이어는 private state에 비밀 키를
+두고, 컨트랙트는 그 해시로 플레이어를 식별합니다. 비밀값은 witness에서 옵니다:
+
+```compact title="contract/battleship.compact"
+witness localSetBoard(_x1: Uint<8>, _x2: Uint<8>): BoardState;
+witness localCheckBoard(x: Uint<8>): ShotState;
+witness localSk(): Bytes<32>;
+```
+
+`getDappPubKey`는 도메인 구분자 `"battleship:pk:"`와 함께 비밀값을 해싱합니다:
+
+```compact title="contract/battleship.compact"
+// hashing a Dapp specific public key to track user interaction (only within this dapp)
+export circuit getDappPubKey(_sk: Bytes<32>): Bytes<32> {
+    return persistentHash<Vector<2, Bytes<32>>>([pad(32, "battleship:pk:"), _sk]);
+}
+```
+
+도메인 구분자 덕분에 결과 키는 이 DApp에 고유해집니다. 한 플레이어의 행동은 이 게임
+안에서는 서로 연결될 수 있지만, 같은 비밀값을 해싱하는 다른 DApp의 키와는 연결되지
+않습니다.
+
+constructor는 배포자를 `player1`로 기록합니다:
+
+```compact title="contract/battleship.compact"
+    // user id and assignment
+    const _sk = localSk();
+    const pubKey = getDappPubKey(_sk);
+    player1 = disclose(pubKey);
+```
+
+그 뒤로는 플레이어별 circuit이 모두 같은 세 줄로 시작합니다. 호출자의 비밀값으로 키를 다시
+계산하고, 그것이 저장된 역할과 일치하는지 assert합니다:
+
+```compact title="contract/battleship.compact"
+export circuit player1Shoot (x: Uint<8>): [] {
+    // caller verification check
+    const _sk = localSk();
+    const pubKey = getDappPubKey(_sk);
+    assert(player1 == disclose(pubKey), "You are not player1");
+```
+
+Bob은 Alice의 비밀값을 모르므로 `player1Shoot`을 호출할 수 없습니다. `acceptGame`은 같은
+검사를 반대로 써서, Alice가 양쪽 자리를 모두 차지하지 못하게 합니다:
+
+```compact title="contract/battleship.compact"
+    assert(player1 != disclose(pubKey), "You cannot play against yourself");
+```
+
+`_sk`, `_x1`, `_x2`의 밑줄에 주목하세요. 컴파일러에게는 아무 의미가 없습니다. private으로
+남아야 하는 값을 표시하는 관례로, circuit이 무엇을 disclose하는지 검토할 때 쉽게 눈에
+띄도록 해 줍니다.
+
+## Technique 3: commit to private data
+
+witness 함수는 Compact에서 선언되지만 구현은 호출자 머신의 TypeScript에서 이루어집니다.
+**witness는 절대 신뢰하지 마세요.** 플레이어는 구현이나 그 뒤의 private state를 바꿀 수
+있으므로, 컨트랙트는 witness가 반환하는 것은 무엇이든 검사해야 합니다.
+
+무엇이든 신뢰하기 전에, constructor는 Alice의 배 위치를 검증합니다:
+
+```compact title="contract/battleship.compact"
+constructor(_x1: Uint<8>, _x2: Uint<8>) {
+    // input verification checks
+    assert(_x1 != _x2, "Cannot use the same number twice");
+    assert(_x1 > 0 && _x2 > 0, "No zero index, board starts at 1");
+    assert(_x1 <= 20 && _x2 <= 20, "Out of bounds, please keep ships on the board");
+```
+
+그런 다음 배 위치를 commit합니다. 각 위치는 Alice의 비밀 키와 함께 해싱되어 public `board1`
+set에 들어갑니다:
+
+```compact title="contract/battleship.compact"
+    // hash the inputs to verify them later, user needs to provide the same value and _sk
+    const hash1 = commitBoardSpace(_x1 as Bytes<32>, _sk);
+    board1.insert(hash1);
+    const hash2 = commitBoardSpace(_x2 as Bytes<32>, _sk);
+    board1.insert(hash2);
+```
+
+```compact title="contract/battleship.compact"
+// hashing a commitment to a board space
+circuit commitBoardSpace(_x: Bytes<32>, _sk: Bytes<32>): Bytes<32> {
+    const hash = persistentHash<Vector<2, Bytes<32>>>([_x, _sk]);
+    return disclose(hash);
+}
+```
+
+왜 비밀 키를 포함할까요? 칸은 20개뿐입니다. 비밀 키가 없으면 누구나 20개 숫자를 모두
+해싱해 `board1`과 비교하여 Alice의 배를 찾아낼 수 있습니다. 32바이트 비밀값을 해시에 넣으면
+그런 무차별 대입 탐색은 불가능해집니다. 또 해시는 결정적이어서, 바로 그 점이 나중에
+유용합니다. 같은 칸과 같은 비밀값이 주어지면 컨트랙트는 똑같은 해시를 다시 얻습니다.
+
+마지막으로 constructor는 Alice의 머신에 배를 private state에 기록하도록 요청하고, 그 답을
+그냥 믿는 대신 검사합니다:
+
+```compact title="contract/battleship.compact"
+    // best practice example -- don't disclose(localSetBoard1(_x1, _x2)),
+    // disclose only what you need (localBoardState);
+    const localBoardState = localSetBoard(_x1, _x2);
+    assert(localBoardState == BoardState.SET, "Please update the state of board1 to SET");
+    board1State = disclose(localBoardState);
+
+    // setting initial states
+    board2State = BoardState.UNSET;
+    winState = WinState.CONTINUE_PLAY;
+}
+```
+
+disclose되는 것은 board 상태뿐이고, 배 위치는 절대 아닙니다. `disclose()`는 그 자체로는
+아무것도 공개하지 않습니다. private 데이터에서 유도한 값을 공개할 의도임을 컴파일러에게
+알릴 뿐이며, 여기서는 ledger에 기록함으로써 공개합니다.
+
+`acceptGame`은 Bob에 대해 같은 일을 합니다. 같은 역할 검사, 앞서 본 `board2State` 검사, 같은
+입력 검증, 그리고 `board2`로의 commitment입니다. 그런 다음 첫 번째 차례를 엽니다:
+
+```compact title="contract/battleship.compact"
+    // setting on-chain state
+    board2State = disclose(localBoardState);
+
+    // updating on-chain state
+    turn = TurnState.PLAYER_1_SHOOT;
+}
+```
+
+## Technique 4: verify off-chain answers on chain
+
+### Shooting
+
+shot은 공개되므로, shoot circuit은 대부분 검증입니다:
+
+```compact title="contract/battleship.compact"
+    // input validation
+    assert(x > 0 && x <= 20, "Shot out of bounds, please shoot on the board");
+
+    // shots are public knowledge
+    const currentShot = disclose(x);
+    assert(!board2Hits.member(currentShot), "Cheat Detected: Player1: Attempt to repeat a previous HIT");
+```
+
+마지막 `assert`는 플레이어가 이미 HIT로 기록된 칸을 쏘는 것을 막습니다. 그렇지 않으면 같은
+배가 두 번 세어질 수 있습니다. `player1Shot`은 `List`이고, shot은 상대 플레이어가 확인하도록
+그 앞쪽에 push됩니다.
+
+`player1Shoot`과 `player2Shoot`의 줄 수를 세어 보세요. 연산 수만큼이나 많은 `assert` 문이
+있습니다. 방어적으로 작성한 circuit은 그런 모습입니다.
+
+### Checking a board
+
+여기가 블록체인이 없으면 게임이 무너지는 지점입니다. shot이 명중했는지는 대상 플레이어만
+압니다. 자기 배가 어디 있는지는 그 사람만 알기 때문입니다. 그래서 컨트랙트는 그 사람에게
+묻고, 그 답을 그의 commitment과 대조해 검사합니다.
+
+`checkBoard1`은 Alice가 Bob의 shot을 보고할 때 실행됩니다. 역할 검사와 상태 검사로 시작한
+다음, `player2Shot` 앞쪽에서 shot을 꺼냅니다:
+
+```compact title="contract/battleship.compact"
+export circuit checkBoard1(): [] {
+
+    // caller verification check
+    const _sk = localSk();
+    const pubKey = getDappPubKey(_sk);
+    assert(player1 == disclose(pubKey), "You are not player1");
+
+    // state verification checks
+    assert(winState == WinState.CONTINUE_PLAY, "A winner has already been declared");
+    assert(turn == TurnState.PLAYER_1_CHECK, "It is not Player 1 turn to CHECK");
+    assert(!player2Shot.isEmpty(), "No shot to check");
+
+    // shot processing
+    const currentShot = player2Shot.head().value;
+    assert(!board1Hits.member(currentShot), "Cheat Detected: Player2: Attempt to repeat a previous HIT");
+    player2Shot.popFront();
+```
+
+다음으로 그 shot이 쏜 칸의 commitment을 Alice의 비밀값으로 다시 만들고, 그의 witness에 HIT나
+MISS를 묻습니다:
+
+```compact title="contract/battleship.compact"
+    // hash for comparision with on-chain hash
+    const honestyCheckHash = commitBoardSpace(currentShot as Bytes<32>, _sk);
+
+    // currentShot has already been exposed, but we need to satisfy the compiler here too
+    const shotState = disclose(localCheckBoard(currentShot));
+    assert(shotState == ShotState.HIT || shotState == ShotState.MISS, "Please provide a valid state");
+```
+
+그다음은 정직성 검사입니다. Alice가 MISS를 보고하면 `honestyCheckHash`는 그가 commit한 칸
+중 하나가 **아니어야** 합니다. HIT를 보고하면 그중 하나여야 합니다:
+
+```compact title="contract/battleship.compact"
+    // conditional handling
+    if(shotState == ShotState.MISS){
+        // don't trust, verify
+        assert(!board1.member(honestyCheckHash), "Cheat Detected: Player 1: claimed a MISS, when it was in fact a HIT");
+        turn = TurnState.PLAYER_1_SHOOT;
+
+    } else {
+
+        // don't trust, verify
+        assert(board1.member(honestyCheckHash), "Cheat Detected: Player 1: claimed a HIT, when is was in fact a MISS. Why would they do that?");
+        board1HitCount.increment(1);
+        board1Hits.insert(currentShot);
+        turn = TurnState.PLAYER_1_SHOOT;
+
+        // did someone win?
+        winState = board1HitCount == 2 ? WinState.PLAYER_2_WINS : WinState.CONTINUE_PLAY;
+    }
+}
+```
+
+이 두 assert가 부정행위의 두 경로를 모두 막습니다:
+
+- **shot에 대해 거짓말하기.** Alice의 witness가 그가 commit한 칸에 대해 MISS라고 말하면 첫
+  번째 assert가 실패합니다.
+- **배 옮기기.** Alice가 private state를 다시 써서 shot이 쏜 자리에서 배를 치워도, 그의
+  witness는 MISS라고 답합니다. 하지만 `board1`에는 여전히 원래 칸의 commitment이 남아 있으므로,
+  검사는 똑같이 실패합니다. commitment이 처음 설정한 대로 보드를 고정해 둡니다.
+
+`assert`가 실패하면 Alice는 그 트랜잭션에 대한 유효한 proof를 만들 수 없으므로, 부정직한
+보고는 체인에 결코 도달하지 못합니다.
+
+`checkBoard2`는 Bob을 위한 같은 circuit으로, `player1Shot`을 `board2`와 대조해 검사합니다.
+
+:::tip 직접 해보기
+컨트랙트는 기록된 HIT를 다시 쏘는 것은 막지만, 이미 빗나간 칸을 두 번 쏘는 것은 막지
+않습니다. 빗나간 shot의 반복까지 막으려면 어떤 ledger 필드와 `assert`를 추가하면 될까요?
+:::
+
+## The witnesses
+
+witness는 `contract/witnesses.ts`에 구현되어 있습니다. 한 플레이어의 private state는 배 위치,
+마지막 board·shot 상태, 그리고 비밀 키를 담습니다:
+
+```typescript title="contract/witnesses.ts"
+export type BattlePrivateState = {
+    x1: bigint,
+    x2: bigint,
+    boardState: number,
+    shotState: number,
+    sk: Uint8Array,
+};
+```
+
+`createBattlePrivateState`는 그 state를 하나 만듭니다. 테스트는 이걸로 각 플레이어의 시작
+state를 만들고, 나중에 부정행위용 state를 위조하기도 합니다.
+
+```typescript title="contract/witnesses.ts"
+export const createBattlePrivateState = (
+    x1: bigint,
+    x2: bigint,
+    boardState: number,
+    shotState: number,
+    sk: Uint8Array,
+) => ({
+    x1,
+    x2,
+    boardState,
+    shotState,
+    sk
+});
+```
+
+각 witness는 `WitnessContext`를 받아 거기서 `privateState`를 읽고, 그다음 Compact 선언에서 온
+인자를 받습니다. 그리고 갱신된 private state와 circuit이 요청한 값을 튜플로 반환합니다:
+
+```typescript title="contract/witnesses.ts"
+export const witnesses = {
+    localSetBoard: ({
+        privateState
+    }: WitnessContext<Ledger, BattlePrivateState>, x1: bigint, x2: bigint): [
+        BattlePrivateState,
+        BoardState
+    ] => {
+        privateState.x1 = x1;
+        privateState.x2 = x2;
+        privateState.boardState = BoardState.SET;
+        return [privateState, privateState.boardState];
+    },// end of localSetBoard
+    localCheckBoard: ({
+        privateState
+    }: WitnessContext<Ledger, BattlePrivateState>, x: bigint): [
+        BattlePrivateState,
+        ShotState
+    ] => {
+        let currentShot = ShotState.MISS;// reset to default -- MISS
+        if(x == privateState.x1 || x == privateState.x2){
+            currentShot = ShotState.HIT;// only HIT if it is in fact a HIT
+        }
+        privateState.shotState = currentShot;
+        return [privateState, privateState.shotState];
+    },// end of localCheckBoard
+    localSk: ({
+        privateState
+    }: WitnessContext<Ledger, BattlePrivateState>): [
+        BattlePrivateState,
+        Uint8Array
+    ] => {
+        return [privateState, privateState.sk];
+    },
+};
+```
+
+이는 정직한 구현입니다. 플레이어가 이대로 실행하도록 강제하는 것은 없으며, 컨트랙트도
+그렇게 하리라 가정하지 않습니다. 이 함수들이 반환하는 모든 값은 그것을 호출한 circuit 안의
+`assert`가 검사합니다.
+
+`contract/index.ts`는 witness를 컴파일된 컨트랙트에 연결하고, 테스트용으로
+`CompiledBattleshipContract`와 `zkConfigPath`를 export합니다.
+
+## Compile
+
+`examples/battleship`에서:
+
+```bash
+yarn compile
+```
+
+이 명령은 `compact compile contract/battleship.compact contract/managed/battleship`을 실행하고
+proving key를 생성합니다:
+
+```
+Compiling 5 circuits:
+  circuit "acceptGame" (k=14, rows=12767)  
+  circuit "checkBoard1" (k=14, rows=8649)  
+  circuit "checkBoard2" (k=14, rows=8650)  
+  circuit "player1Shoot" (k=13, rows=4226)  
+  circuit "player2Shoot" (k=13, rows=4222)  
+Overall progress [====================] 5/5 
+```
+
+impure circuit마다 하나씩, 즉 circuit 다섯 개입니다. `getDappPubKey`는 pure circuit이고
+`commitBoardSpace`는 export되지 않으므로, 둘 다 proving key를 받지 않습니다.
+
+## Next
+
+[Battleship tests](/tutorials/battleship/test-suite)에서는 로컬 devnet에서 게임을 한 판 하고
+[What can go wrong](#what-can-go-wrong)의 각 부정행위를 시도해 봅니다.

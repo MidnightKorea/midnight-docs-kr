@@ -1,0 +1,84 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Guides
+description: 네트워크 선택과 지갑 자금 지급부터 스마트 컨트랙트 배포와 보안까지, Midnight에서 개발하기 위한 작업 중심 가이드.
+sidebar_position: 6
+tags:
+  - dapp
+  - smart-contracts
+  - wallet
+  - deployment
+  - dust
+  - midnight-network
+---
+
+import PersonaTiles from '@site/src/components/PersonaTiles';
+
+# Guides
+
+네트워크 선택부터 스마트 컨트랙트 배포까지, 지금 마주한 작업에 맞는 가이드를 찾아보세요. 아래의 공통 작업 중 하나로 시작하거나, 전체 목록에서 가이드를 골라도 됩니다.
+
+## Common tasks
+
+<PersonaTiles tiles={[
+  {
+    title: "Connect to a network",
+    body: "local, Preview, Preprod, Mainnet 네트워크 중에서 선택한 다음, DApp을 올바른 network ID와 엔드포인트로 맞춥니다.",
+    to: "/guides/networks-and-environments",
+    cta: "Choose a network",
+  },
+  {
+    title: "Fund a wallet",
+    body: "faucet에서 tNIGHT을 받아 DUST 생성을 위해 등록하면, 지갑이 트랜잭션 수수료를 낼 수 있습니다.",
+    to: "/guides/acquire-tokens",
+    cta: "Get test tokens",
+  },
+  {
+    title: "Deploy a smart contract",
+    body: "Midnight.js provider를 구성하고, Compact 컨트랙트를 네트워크에 배포하고, 상태를 관찰하고, 업데이트 가능한 상태로 유지합니다.",
+    to: "/guides/deploy-and-operate",
+    cta: "Deploy your contract",
+  },
+  {
+    title: "Secure a smart contract",
+    body: "호출자를 인증하고, 입력을 검증하고, 마감 시한을 강제하고, 재전송 공격을 방지하며, 각 통제를 입증하는 테스트를 함께 둡니다.",
+    to: "/guides/security-best-practices",
+    cta: "Secure your contract",
+  },
+]} />
+
+## All guides
+
+### Set up your environment
+
+- [Networks and environments](./networks-and-environments.mdx): 네트워크를 선택하고, 엔드포인트를 찾아보고, 로컬 네트워크를 실행하고, Mainnet을 준비합니다.
+- [Run the proof server](./run-proof-server.mdx): DApp 개발자보다는 지갑 사용자를 위해, Docker Desktop에서 proof server를 시작합니다.
+- [Prove transactions locally](./local-proving.mdx): 증명이 왜 사용자 기기에서 실행되는지 알아본 다음, proof server를 실행하고 DApp을 연결합니다.
+- [Windows Compact setup](./windows-compact-setup.mdx): Windows에서 WSL, Docker Desktop, proof server, Compact 컴파일러를 설정합니다.
+- [Set up Bun for Midnight development](./install-bun-runtime-midnight.mdx): Bun과 Compact 컴파일러를 설치한 다음, 컨트랙트를 컴파일하고 Bun 애플리케이션에서 사용합니다.
+
+### Fund a wallet and pay fees
+
+- [Fund a wallet](./acquire-tokens.mdx): faucet에서 tNIGHT을 받아 DUST 생성을 위해 등록합니다. Lace나 wallet SDK로 할 수 있습니다.
+- [Manage DUST](./manage-dust.mdx): DUST 잔액을 읽고, 수수료를 추정하고, 한 지갑에서 여러 트랜잭션을 보내고, DUST 오류를 해결합니다.
+- [Run a wallet in Node.js](./node-server-wallet.mdx): Node.js 프로세스에서 seed로 지갑을 만들고, 재시작해도 상태를 유지하고, 스크립트에서 배포합니다.
+- [DUST sponsorship](./dust-sponsorship.mdx): 사용자를 대신해 DUST 수수료를 지불합니다.
+
+### Test, deploy, and secure a smart contract
+
+- [Build a private smart contract](./build-a-private-smart-contract.mdx): 데이터를 기기에 두고, 필요한 것만 disclose한 다음, 컨트랙트를 로컬에서 컴파일하고 테스트합니다.
+- [Use Compact contracts from JavaScript](./compact-javascript-runtime.mdx): witness를 구현하고, circuit을 호출하고, 컴파일된 컨트랙트에 대한 단위 테스트를 작성합니다.
+- [Manage private state with witnesses](./private-state-witnesses.mdx): Compact에서 witness를 선언하고, TypeScript로 구현하고, private state를 연결하고, 흔한 함정을 피합니다.
+- [Deploy and operate a contract](./deploy-and-operate.mdx): Midnight.js provider를 구성하고, 컨트랙트를 배포하고, 상태를 관찰하고, 업데이트 가능한 상태로 유지합니다.
+- [Security and best practices](./security-best-practices.mdx): 호출자를 인증하고, 입력을 검증하고, 마감 시한을 강제하고, 재전송 공격을 방지합니다.
+
+### Connect a wallet to a frontend
+
+- [Create a React wallet connector](./react-wallet-connect.mdx): DApp Connector API를 통해 React 애플리케이션을 Midnight 지갑에 연결합니다.
+- [Create a Next.js wallet connector](./nextjs-wallet-connect.mdx): DApp Connector API를 통해 Next.js 애플리케이션을 Midnight 지갑에 연결합니다.
+
+### Index contract state and build across chains
+
+- [Index contract state with EffectStream](./index-state-with-effectstream.mdx): Midnight 컨트랙트를 지켜보고 그 public state를 HTTP로 제공합니다.
+- [Build a cross-chain DApp with EffectStream](./build-cross-chain-dapp-with-effectstream.mdx): 상태가 Midnight과 EVM 체인에 걸쳐 있는 템플릿을 실행합니다.

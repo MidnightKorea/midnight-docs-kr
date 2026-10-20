@@ -1,0 +1,1270 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Managing DUST for transaction fees
+description: "DUST 파라미터와 잔액을 읽고, 어떤 NIGHT이 DUST을 생성하는지 확인하고, 수수료를 추정하고, 한 지갑에서 여러 트랜잭션을 보내고, DUST 오류를 해결합니다."
+sidebar_label: "Manage DUST"
+sidebar_position: 17
+toc_max_heading_level: 2
+keywords: [midnight, dust, tdust, speck, transaction fees, fee estimation, dust generation, registration, wallet sdk, night]
+tags: [midnight, dust, fees, wallet, night]
+---
+
+# Managing DUST for transaction fees
+
+지갑이나 DApp이 Midnight에서 제출하는 모든 트랜잭션은 수수료를 DUST로 냅니다. 트랜잭션을 제출하는 애플리케이션은 지갑에 DUST이 얼마나 있는지, 그 DUST이 어디서 오는지, 트랜잭션마다 무엇을 가져가는지 알아야 합니다. 이 가이드는 그 과정을 wallet SDK로 처리하는 방법을 설명합니다. DUST 파라미터와 잔액 읽기, 어떤 NIGHT UTXO가 DUST을 생성하는지 확인하기, 수수료 추정, 한 지갑에서 여러 트랜잭션 보내기, 생성 방향 전환·중단을 다룹니다. 마지막에는 DUST 오류와 해결 방법을 정리한 표가 있습니다. 이 가이드는 [Funding a wallet](./acquire-tokens)이 끝나는 지점, 즉 NIGHT이 DUST 생성용으로 등록된 실행 중인 지갑에서 이어집니다.
+
+다른 페이지와 도구는 DUST을 토큰이라고 부르고 테스트 네트워크에서는 tDUST로 표시하는데, 표시 이름만 다를 뿐 같은 리소스입니다. 이 가이드는 DUST을 리소스라고 부르는데, 지갑이 이를 누구에게도 보낼 수 없기 때문입니다.
+
+## Prerequisites
+
+다음은 이 가이드의 모든 절차에 적용됩니다:
+
+- [Building a wallet from a seed](./acquire-tokens#building-a-wallet-from-a-seed)에서처럼 구성한 실행 중인 지갑. 스니펫은 해당 페이지의 import와 이름(`wallet`, `unshieldedKeystore`, `shieldedSecretKeys`, `dustSecretKey`, `CONFIG`)을 다시 사용합니다. 각 절차는 독립적으로 동작하며 `state`, `ttl`, `recipe` 같은 이름을 재사용하므로, 각각을 별도의 함수나 파일에 두세요.
+- [Registering NIGHT for DUST generation with the wallet SDK](./acquire-tokens#registering-night-for-dust-generation-with-the-wallet-sdk)에서 DUST 생성용으로 등록한 NIGHT. 스니펫은 해당 절차의 `formatNight`·`formatDust` 헬퍼도 사용합니다. DUST이 Cardano의 NIGHT에서 나온다면 먼저 [DUST from NIGHT held on Cardano](#dust-from-night-held-on-cardano)을 읽으세요.
+- 포트 6300의 [proof server](./run-proof-server). DUST spend로 내는 수수료에는 증명이 필요하기 때문입니다.
+- 검증 테스트를 실행하려면 [local network](./networks-and-environments#running-a-local-network)와 [Vitest](https://vitest.dev/). 각 Verification은 테스트 파일의 `describe` 블록을 인용하고, 파일이 그 주위에 무엇을 준비하는지 설명합니다. 테스트는 `WALLET_SEED`에서 wallet seed를 읽고, 기본값으로 local network의 엔드포인트를 쓰며, 증명과 블록 확인을 기다립니다. 따라서 긴 타임아웃을 두고, 한 번에 한 파일씩, 테스트마다 한 줄씩 출력하는 `verbose` 리포터로 실행하세요:
+
+  ```typescript title="vitest.config.ts"
+  import { defineConfig } from 'vitest/config';
+
+  export default defineConfig({
+    test: { testTimeout: 600_000, hookTimeout: 600_000, fileParallelism: false, reporters: ['verbose'] },
+  });
+  ```
+
+- 네트워크에 맞는 패키지 버전. [support matrix](../relnotes/support-matrix)를 확인하세요.
+
+{/* _mod-docs-content-type: CONCEPT */}
+## How DUST behaves
+
+DUST은 Midnight에서 트랜잭션 수수료를 내는 리소스입니다. shielded이고, 전송할 수 없으며, 다른 용도가 없습니다. 토큰 잔액과 달리 그 양은 어디에도 저장되지 않습니다. 시간으로부터 계산되므로 읽을 때마다 매번 계산이 이뤄지고, 이를 읽는 코드는 어느 시점 기준인지 명시해야 합니다.
+
+**DUST은 DUST UTXO에 담깁니다.** DUST을 생성하는 NIGHT UTXO마다 DUST UTXO가 하나씩 있습니다. 지갑의 DUST 잔액은 요청한 시점으로 평가한 DUST UTXO들의 합계입니다. wallet SDK는 `availableCoins` 같은 필드 이름에서 UTXO를 coin이라고 부릅니다.
+
+**값은 backing NIGHT UTXO를 따릅니다.** NIGHT UTXO가 아직 쓰이지 않은 동안 그 DUST UTXO는 NIGHT 양에 비례하는 cap까지 직선으로 증가한 뒤 그대로 머뭅니다. NIGHT UTXO가 쓰이고 나면 값은 같은 속도로 0에 이를 때까지 감소합니다. DUST은 감소하는 동안에도 수수료를 낼 수 있습니다.
+
+**NIGHT을 쓰면 그 감소가 시작됩니다.** 등록된 NIGHT UTXO를 쓰는 트랜잭션이라면 자기 주소로 보내는 전송이든 잔돈을 돌려주는 전송이든 모두 이 효과를 냅니다. 등록된 주소에 도착한 NIGHT 출력은 0에서 시작하는 새 DUST UTXO를 받습니다. 그래서 NIGHT 총량이 그대로여도 지갑의 DUST 잔액은 그대로이거나 줄어들 수 있습니다.
+
+**수수료 납부는 DUST UTXO를 교체합니다.** 수수료를 내면 DUST UTXO를 하나 쓰고, 남은 값과 동일한 소유자, 동일한 backing NIGHT UTXO를 가진 후속 UTXO를 만듭니다.
+
+**트랜잭션은 두 가지 방식 중 하나로 수수료를 냅니다.** 대부분의 트랜잭션은 DUST spend로 내며, 이는 DUST UTXO에서 수수료를 가져옵니다. 최초 등록은 등록 대상 NIGHT이 생성된 이후 생성했을 DUST에서 자체 수수료를 내므로, DUST이 없는 지갑도 제출할 수 있습니다.
+
+**금액 단위는 SPECK과 STAR입니다.** DUST 1은 10<sup>15</sup> SPECK이고, NIGHT 1은 10<sup>6</sup> STAR입니다. ledger, wallet SDK, indexer가 내놓는 모든 DUST·NIGHT 금액은 이 단위를 씁니다. ledger와 wallet SDK에서는 `bigint`, indexer 응답에서는 문자열입니다.
+
+**tDUST과 tNIGHT은 표시 이름입니다.** 테스트 네트워크의 지갑과 faucet이 이렇게 표시합니다. 타입과 단위, API는 모든 네트워크에서 동일합니다.
+
+이 동작의 바탕이 되는 프로토콜 설계는 [DUST architecture](../concepts/dust-architecture)를 참고하세요.
+
+{/* _mod-docs-content-type: REFERENCE */}
+## DUST generation parameters
+
+ledger의 [`DustParameters`](/api-reference/ledger/classes/DustParameters) 클래스의 `bigint` 필드로부터 cap, 생성 속도, cap 도달 시간을 계산할 때 이 표를 참고하세요.
+
+| 필드 | 제어 대상 | 단위 |
+|---|---|---|
+| `nightDustRatio` | backing NIGHT UTXO의 STAR당 DUST UTXO의 cap. | STAR당 SPECK |
+| `generationDecayRate` | backing NIGHT UTXO의 STAR당, DUST UTXO 값이 매초 변하는 양. NIGHT UTXO가 쓰이지 않은 동안에는 이 속도로 오르고, 쓰이고 나면 이 속도로 내립니다. | 초당 STAR당 SPECK |
+| `dustGracePeriodSeconds` | 트랜잭션의 DUST spend와 등록이 선언하는 시각을 블록 시각 기준으로 측정한 최대 경과 시간. 선언된 시각이 이보다 오래되었거나 블록 시각보다 나중이면 ledger가 트랜잭션을 거부합니다. | 초 |
+| `timeToCapSeconds` | DUST UTXO가 0에서 cap까지 자라는 데 걸리는 시간. 읽기 전용이며, ledger가 `nightDustRatio / generationDecayRate`를 1초 단위로 올림해 도출합니다. | 초 |
+
+`night` STAR인 backing NIGHT UTXO에 대해, 필요한 값을 이 필드로부터 도출하세요:
+
+| 값 | 공식 | 단위 |
+|---|---|---|
+| DUST UTXO의 cap | `night * nightDustRatio` | SPECK |
+| 초당 생성량 | `night * generationDecayRate` | 초당 SPECK |
+| 0에서 cap까지 걸리는 시간 | `timeToCapSeconds` | 초 |
+| `v` SPECK 값에서 cap까지 걸리는 시간 | `(night * nightDustRatio - v) / (night * generationDecayRate)`, 올림 | 초 |
+
+- **cap 도달 시간은 NIGHT 양과 무관하게 같습니다.** cap과 초당 생성량이 모두 `night`에 비례하므로 그 양이 상쇄됩니다.
+- **생성과 감소는 선형입니다.** DUST UTXO에는 cap 도달 시간만 있고 지수 시간 상수는 없습니다. 감소는 생성과 같은 속도로 진행됩니다.
+- **이들은 상수가 아니라 ledger 파라미터입니다.** 네트워크마다 자체 집합을 ledger state에 보관하며, 거버넌스가 이를 교체할 수 있습니다. [Reading DUST parameters from a network](#reading-dust-parameters-from-a-network)에서 런타임에 값을 가져오는 방법을 보여주고, 실행 당일 Mainnet이 반환한 값을 출력합니다.
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Reading DUST parameters from a network
+
+애플리케이션이 실행되는 네트워크에서 DUST 파라미터를 읽어 그 값으로 DUST 지갑을 시작하세요. 그러면 코드와 지갑이 그 네트워크가 쓰는 수치로 DUST 금액을 계산합니다. indexer가 제공하는 모든 블록에는 해당 블록에서 유효한 ledger 파라미터가 담겨 있어, 한 번의 쿼리로 가져올 수 있습니다. `ledger.LedgerParameters.initialParameters()`는 ledger 패키지에 내장된 기본값을 반환합니다. 네트워크에서 읽은 값이 아니므로 네트워크의 수수료 가격이나 한도로 쓰지 마세요.
+
+### Procedure
+
+1. indexer에 최신 블록의 `ledgerParameters`를 쿼리하세요. [`block` query](/api-reference/midnight-indexer/operations/queries/block)는 `offset`을 넘기지 않으면 최신 블록을 반환합니다. 4단계가 그 결과로 지갑을 시작하므로, 1·2단계는 [Building a wallet from a seed](./acquire-tokens#building-a-wallet-from-a-seed)의 `WalletFacade.init` 호출 위에 추가하세요. 3단계는 `formatNight`·`formatDust` 정의 아래에 둡니다:
+
+   ```typescript
+   const response = await fetch(CONFIG.indexerHttpUrl, {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({ query: '{ block { height ledgerParameters } }' }),
+   });
+   const { data } = await response.json();
+   ```
+
+2. ledger API로 파라미터를 역직렬화하세요. indexer는 `ledgerParameters`를 `0x` 접두사 없는 hex 문자열로 반환하고 `deserialize`는 바이트를 받으므로, 먼저 문자열을 변환하세요:
+
+   ```typescript
+   const ledgerParameters = ledger.LedgerParameters.deserialize(
+     Buffer.from(data.block.ledgerParameters, 'hex'),
+   );
+   const dustParameters = ledgerParameters.dust;
+   ```
+
+3. DUST 필드를 읽고, 특정 NIGHT 양에 대한 cap, 초당 생성량, cap 도달 시간을 계산하세요. 양은 STAR 단위이고 결과는 SPECK과 초 단위입니다. 두 `bigint` 필드를 직접 나누면 내림되므로, cap 도달 시간은 `timeToCapSeconds`에서 가져오세요. 보유한 NIGHT UTXO 중 하나에 대해 계산하려면 `nightAmount`를 그 `utxo.value`로 바꾸세요:
+
+   ```typescript
+   const nightAmount = 1_000n * 1_000_000n; // 1,000 NIGHT, in STAR
+
+   const cap = nightAmount * dustParameters.nightDustRatio;
+   const generationPerSecond = nightAmount * dustParameters.generationDecayRate;
+   const timeToCapSeconds = dustParameters.timeToCapSeconds;
+
+   console.log(`Network: ${getNetworkId()}, block ${data.block.height}`);
+   console.log(`nightDustRatio: ${dustParameters.nightDustRatio}`);
+   console.log(`generationDecayRate: ${dustParameters.generationDecayRate}`);
+   console.log(`dustGracePeriodSeconds: ${dustParameters.dustGracePeriodSeconds}`);
+   console.log(`Cap for ${formatNight(nightAmount)} NIGHT: ${formatDust(cap)} DUST`);
+   console.log(`Generation per second: ${formatDust(generationPerSecond)} DUST`);
+   console.log(`Time from empty to cap: ${timeToCapSeconds} seconds`);
+   ```
+
+   2026-09-30 Mainnet indexer를 대상으로 하면 다음이 출력되었습니다. Preprod과 Preview도 같은 값을 출력했습니다:
+
+   ```text
+   Network: mainnet, block 2809291
+   nightDustRatio: 5000000000
+   generationDecayRate: 8267
+   dustGracePeriodSeconds: 10800
+   Cap for 1000.000000 NIGHT: 5000.000000000000000 DUST
+   Generation per second: 0.008267000000000 DUST
+   Time from empty to cap: 604815 seconds
+   ```
+
+   이 값으로는 1,000 NIGHT이 5,000 DUST의 cap을 뒷받침하고, 초당 0.008267 DUST을 생성하며, 0에서 cap까지 가는 데 604,815초, 약 일주일이 걸립니다.
+
+4. `ledger.LedgerParameters.initialParameters().dust` 대신 `dustParameters`를 DUST 지갑에 넘기세요. `WalletFacade.init` 호출의 `dust` 줄을 바꾸세요:
+
+   ```typescript
+   dust: (cfg) => DustWallet(cfg).startWithSecretKey(dustSecretKey, dustParameters),
+   ```
+
+   DUST 지갑은 자신의 local state에 있는 파라미터로 잔액, cap, 생성 추정치를 계산합니다. 그 state는 넘긴 값으로 시작하며, 지갑은 네트워크의 DUST 이벤트에서 파라미터 변경을 재생할 때만 이를 바꿉니다. 아무것도 재생하지 않는 지갑은 넘긴 값을 유지합니다. 실행 중인 지갑을 확인하려면 동기화된 state에서 `state.dust.state.state.params`를 읽으세요. 이 가이드를 작성할 당시 ledger 패키지의 기본값은 local 및 public 네트워크의 DUST 파라미터와 같았으므로, 오늘 그 네트워크에서는 이 단계로 관찰되는 변화가 없습니다. 이 단계는 DUST 이벤트에 파라미터 변경이 없고 파라미터가 ledger 패키지의 기본값과 다른 네트워크에서 의미가 있는데, 그런 경우 지갑이 넘긴 값을 유지하기 때문입니다.
+
+### Verification
+
+도출한 값은 ledger 자체의 [`updatedValue`](/api-reference/ledger/functions/updatedValue) 함수와 일치하며, DUST UTXO의 값은 직선으로 증가·감소합니다. 4단계처럼 시작한 지갑은 네트워크에서 읽은 파라미터를 보고합니다. 테스트 파일은 [Funding a wallet](./acquire-tokens)의 import와 지갑 구성을 공유하고 local network를 대상으로 합니다. `beforeAll` 훅이 1·2·4단계를 실행하고 동기화된 지갑 state를 `state`에 보관합니다.
+
+```typescript title="dust-parameters.test.ts"
+describe('reading DUST parameters from a network', () => {
+  const nightAmount = 1_000n * 1_000_000n; // 1,000 NIGHT, in STAR
+
+  // Value in SPECK of a DUST UTXO that starts empty, `age` seconds after it is created.
+  // `spentAt` is the second at which its backing NIGHT UTXO is spent, if it is.
+  const dustValue = (night: bigint, age: bigint, spentAt?: bigint) => {
+    const at = (seconds: bigint) => new Date(Number(seconds) * 1000);
+    const generationInfo = {
+      value: night,
+      owner: 0n,
+      nonce: '00'.repeat(32),
+      dtime: spentAt === undefined ? undefined : at(spentAt),
+    };
+    return ledger.updatedValue(at(0n), 0n, generationInfo, at(age), dustParameters);
+  };
+
+  it('reads the DUST parameters from the latest block', () => {
+    // The indexer returns plain hex with no 0x prefix.
+    expect(data.block.ledgerParameters).toMatch(/^[0-9a-f]+$/);
+    expect(dustParameters.nightDustRatio).toBeGreaterThan(0n);
+    expect(dustParameters.generationDecayRate).toBeGreaterThan(0n);
+    expect(dustParameters.dustGracePeriodSeconds).toBeGreaterThan(0n);
+  });
+
+  it('derives the cap, the generation per second, and the time to cap for a NIGHT amount', () => {
+    const cap = nightAmount * dustParameters.nightDustRatio;
+    const generationPerSecond = nightAmount * dustParameters.generationDecayRate;
+    const timeToCapSeconds = dustParameters.timeToCapSeconds;
+
+    expect(dustValue(nightAmount, 1n)).toBe(generationPerSecond);
+    expect(dustValue(nightAmount, 2n)).toBe(2n * generationPerSecond);
+    expect(dustValue(nightAmount, timeToCapSeconds - 1n)).toBeLessThan(cap);
+    expect(dustValue(nightAmount, timeToCapSeconds)).toBe(cap);
+    expect(dustValue(nightAmount, 2n * timeToCapSeconds)).toBe(cap);
+  });
+
+  it('reaches the cap after the same time for any NIGHT amount', () => {
+    const { nightDustRatio, generationDecayRate, timeToCapSeconds } = dustParameters;
+
+    // The ledger rounds nightDustRatio / generationDecayRate up to a whole second.
+    expect(timeToCapSeconds).toBe((nightDustRatio + generationDecayRate - 1n) / generationDecayRate);
+    for (const night of [1n, nightAmount, 1_000n * nightAmount]) {
+      expect(dustValue(night, timeToCapSeconds - 1n)).toBeLessThan(night * nightDustRatio);
+      expect(dustValue(night, timeToCapSeconds)).toBe(night * nightDustRatio);
+    }
+  });
+
+  it('decays in a straight line to zero once the backing NIGHT UTXO is spent', () => {
+    const cap = nightAmount * dustParameters.nightDustRatio;
+    const generationPerSecond = nightAmount * dustParameters.generationDecayRate;
+    const spentAt = dustParameters.timeToCapSeconds;
+
+    expect(dustValue(nightAmount, spentAt, spentAt)).toBe(cap);
+    expect(dustValue(nightAmount, spentAt + 1n, spentAt)).toBe(cap - generationPerSecond);
+    expect(dustValue(nightAmount, spentAt + 2n, spentAt)).toBe(cap - 2n * generationPerSecond);
+    expect(dustValue(nightAmount, 2n * spentAt, spentAt)).toBe(0n);
+    expect(dustValue(nightAmount, 3n * spentAt, spentAt)).toBe(0n);
+  });
+
+  it('starts the wallet with the parameters read from the network', () => {
+    // FacadeState.dust.state is the DUST wallet, and its state is the ledger's local DUST state.
+    const walletParameters = state.dust.state.state.params;
+
+    expect(state.isSynced).toBe(true);
+    expect(walletParameters.nightDustRatio).toBe(dustParameters.nightDustRatio);
+    expect(walletParameters.generationDecayRate).toBe(dustParameters.generationDecayRate);
+    expect(walletParameters.dustGracePeriodSeconds).toBe(dustParameters.dustGracePeriodSeconds);
+    expect(walletParameters.timeToCapSeconds).toBe(dustParameters.timeToCapSeconds);
+  });
+});
+```
+
+```text
+ ✓ dust-parameters.test.ts > reading DUST parameters from a network > reads the DUST parameters from the latest block
+ ✓ dust-parameters.test.ts > reading DUST parameters from a network > derives the cap, the generation per second, and the time to cap for a NIGHT amount
+ ✓ dust-parameters.test.ts > reading DUST parameters from a network > reaches the cap after the same time for any NIGHT amount
+ ✓ dust-parameters.test.ts > reading DUST parameters from a network > decays in a straight line to zero once the backing NIGHT UTXO is spent
+ ✓ dust-parameters.test.ts > reading DUST parameters from a network > starts the wallet with the parameters read from the network
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+```
+
+
+{/* _mod-docs-content-type: CONCEPT */}
+## Registration rules
+
+등록은 NIGHT UTXO가 특정 DUST 주소를 위해 DUST을 생성하게 만드는 트랜잭션입니다. [Registering NIGHT for DUST generation with the wallet SDK](./acquire-tokens#registering-night-for-dust-generation-with-the-wallet-sdk)에서 그 첫 등록을 보여줍니다. 이 규칙들은 등록이 무엇을 포함하는지, 최소 금액이 있는지, 무엇이 필요한지, 그 뒤 지갑이 어떤 모습인지를 정합니다.
+
+**등록은 넘긴 NIGHT UTXO를 대상으로 합니다.** 호출에서 빠뜨린 NIGHT UTXO는 등록되지 않은 채로 남습니다. 등록된 주소에 나중에 도착한 NIGHT은 추가 호출 없이 DUST을 생성합니다.
+
+**등록은 NIGHT을 소모하지 않습니다.** 호출은 넘긴 UTXO를 쓰고 같은 총액으로 최대 두 개의 UTXO로 다시 만들며, 새 UTXO는 계속 쓸 수 있습니다. 식별자와 생성 시각이 바뀌므로, 트랜잭션이 확인된 뒤 `state.unshielded.availableCoins`를 다시 읽으세요.
+
+**고정된 최소 금액은 없지만, NIGHT UTXO가 등록하기에 너무 작을 수는 있습니다.** 호출에 넣는 NIGHT UTXO 중 하나는, 생성 이후 그것이 생성했을 DUST이 등록 자체의 수수료를 낼 만큼 충분히 오래되어야 하며, 그 양은 UTXO의 cap에서 멈춥니다. `estimateRegistration`은 도달해야 할 금액을 반환하며 여기에는 `additionalFeeOverhead`가 포함되고, `waitForGeneratedDust`는 UTXO가 그 금액에 도달하면 resolve됩니다. 타임아웃이 먼저 만료되면 이 대기가 reject되므로, 작거나 새 UTXO라면 세 번째 인자에 더 긴 `timeoutMs`를 넘기세요. cap이 그 금액보다 낮은 UTXO는 결코 도달하지 못합니다. UTXO가 금액에 도달하기 전에 호출한 `registerNightUtxosForDustGeneration`은 지갑이 무언가에 서명하기 전에 throw합니다. 최초 등록은 `unregistered`가 비어 있지 않은 `else` 분기에서 이 세 호출을 다음 순서로 수행한 뒤, recipe를 finalize하고 제출합니다:
+
+```typescript
+const { fee } = await wallet.estimateRegistration(unregistered);
+await wallet.waitForGeneratedDust(unregistered, fee);
+
+const recipe = await wallet.registerNightUtxosForDustGeneration(
+  unregistered,
+  unshieldedKeystore.getPublicKey(),
+  (payload) => unshieldedKeystore.signData(payload),
+);
+```
+
+**최초 등록에는 DUST 잔액도 증명도 필요 없습니다.** 서명만 담고 DUST spend는 없으므로 `finalizeRecipe`가 proof server 없이 resolve됩니다. 나중에 등록을 변경하거나 제거할 때는 DUST spend로 수수료를 내며, 여기에는 DUST 잔액과 proof server가 필요합니다. [Redirecting or stopping DUST generation](#redirecting-or-stopping-dust-generation)을 참고하세요.
+
+**`registeredForDustGeneration` 플래그는 UTXO 하나를 설명합니다.** 이 플래그는 UTXO 생성 시점에 값을 받아 그대로 유지합니다. `true`는 그 UTXO가 DUST을 생성한다는 뜻입니다. 어느 DUST 주소가 그 DUST을 받는지는 알려주지 않습니다. 확인하는 방법은 [Checking which NIGHT UTXOs generate DUST](#checking-which-night-utxos-generate-dust)에서 보여줍니다.
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Checking which NIGHT UTXOs generate DUST
+
+보유한 NIGHT UTXO 중 어느 것이 DUST을 생성하는지, 그리고 각각이 DUST을 얼마나 생성했는지 알아보세요. wallet SDK는 두 측면을 따로 보고합니다. NIGHT UTXO마다 붙는 플래그 하나와, 각자 자신을 뒷받침하는 NIGHT UTXO를 가리키는 DUST UTXO 목록입니다. 플래그만으로는 어느 지갑이 DUST을 받는지 알 수 없으므로 충분하지 않습니다.
+
+### Procedure
+
+1. 지갑이 동기화되기를 기다린 뒤, NIGHT UTXO를 `registeredForDustGeneration` 플래그와 함께 나열하세요. `availableCoins`에는 지갑의 모든 unshielded 토큰이 들어 있으므로 NIGHT 토큰 타입으로 필터링하세요:
+
+   ```typescript
+   const state = await wallet.waitForSyncedState();
+
+   const nightCoins = state.unshielded.availableCoins.filter(
+     (coin) => coin.utxo.type === unshieldedToken().raw,
+   );
+   for (const coin of nightCoins) {
+     console.log(`${formatNight(coin.utxo.value)} NIGHT, registered: ${coin.meta.registeredForDustGeneration}`);
+   }
+   ```
+
+2. DUST UTXO를 나열하세요. 각 UTXO에는 그것을 뒷받침하는 NIGHT UTXO에 대한 ledger의 식별자인 `token.backingNight`이 담겨 있습니다. `getAvailableCoins`는 넘긴 시점으로 모든 DUST UTXO를 평가합니다. `getGenerationInfo`는 backing NIGHT 양(STAR 단위)을 포함한 생성 세부 정보를 반환합니다. `dtime`은 backing NIGHT UTXO가 쓰이면 설정됩니다:
+
+   ```typescript
+   const now = new Date();
+   const { coinsAndBalances } = state.dust.capabilities;
+   const dustCoins = coinsAndBalances.getAvailableCoins(state.dust.state, now);
+
+   for (const dust of dustCoins) {
+     const info = coinsAndBalances.getGenerationInfo(state.dust.state, dust.token);
+     console.log(
+       `${formatDust(dust.generatedNow)} DUST,`,
+       `backed by ${formatNight(info?.value ?? 0n)} NIGHT (${dust.token.backingNight}),`,
+       dust.dtime ? `decaying since ${dust.dtime.toISOString()}` : 'generating',
+     );
+   }
+   ```
+
+3. 각 NIGHT UTXO를 그 DUST UTXO와 매칭하세요. `ledger.dustInitialNonce`는 NIGHT UTXO의 output 번호와 intent hash로부터 같은 식별자를 계산합니다:
+
+   ```typescript
+   for (const coin of nightCoins) {
+     const backingNight = ledger.dustInitialNonce(BigInt(coin.utxo.outputNo), coin.utxo.intentHash);
+     const dust = dustCoins.find((d) => d.token.backingNight === backingNight);
+     console.log(
+       `${formatNight(coin.utxo.value)} NIGHT:`,
+       dust ? `${formatDust(dust.generatedNow)} of ${formatDust(dust.maxCap)} DUST` : 'no DUST UTXO in this wallet',
+     );
+   }
+   ```
+
+   local network에서, 세 개의 NIGHT UTXO 중 둘을 등록하고 그중 하나를 전송으로 쓴 지갑은 각 단계마다 세 줄을 출력합니다. 여기서는 식별자를 축약했습니다:
+
+   ```text
+   5000.000000 NIGHT, registered: false
+   10000.000000 NIGHT, registered: true
+   175.000000 NIGHT, registered: true
+   2.309478549999999 DUST, backed by 2675.000000 NIGHT (52d9d037...6135), decaying since 2026-09-30T13:40:54.000Z
+   273.472359999999999 DUST, backed by 10000.000000 NIGHT (cfaf225c...4f3e), generating
+   0.037614850000000 DUST, backed by 175.000000 NIGHT (3b381c6c...a25f), generating
+   5000.000000 NIGHT: no DUST UTXO in this wallet
+   10000.000000 NIGHT: 273.472359999999999 of 50000.000000000000000 DUST
+   175.000000 NIGHT: 0.037614850000000 of 875.000000000000000 DUST
+   ```
+
+두 목록은 다음 세 경우에 서로 맞아떨어지지 않습니다:
+
+- **등록되었지만 지갑에 DUST UTXO가 없는 NIGHT UTXO.** 그 NIGHT UTXO는 다른 지갑의 DUST 주소를 위해 생성하며, 그 DUST UTXO는 해당 지갑에 있습니다. 받는 지갑은 그 반대를 봅니다. `dtime`이 없고 backing NIGHT UTXO가 자기 목록에 없는 DUST UTXO입니다.
+- **DUST UTXO가 잠긴, 등록된 NIGHT UTXO.** 이 지갑 인스턴스가 만든 트랜잭션이 그 DUST UTXO에서 수수료를 냅니다. `getAvailableCoins`는 잠긴 DUST UTXO를 제외하므로, 지갑이 확인을 적용할 때까지 3단계는 `no DUST UTXO in this wallet`을 출력합니다.
+- **`dtime`이 설정된 DUST UTXO.** 출력의 첫 DUST 줄처럼, 전송이 2,675 NIGHT UTXO를 쓰고 175 NIGHT을 잔돈으로 돌려준 경우처럼, 지갑이 backing NIGHT UTXO를 쓴 것입니다. 그 잔돈은 등록된 주소에 도착했으므로 DUST을 생성합니다. 해당 DUST UTXO는 감소합니다. 0에 도달한 뒤에는 지갑이 다음 DUST 이벤트를 적용할 때 목록에서 빠집니다.
+
+두 목록 모두 자기 지갑의 state에서 나옵니다. 키 없이 특정 DUST 주소의 생성을 조회하려면 indexer의 `dustGenerations` 구독을 사용하세요. indexer 스키마는 이를 beta로 표시하므로, 의존하기 전에 대상 indexer의 스키마를 introspection하세요. 이 쿼리 결과의 `dustGenerations` 항목이 indexer가 받는 인자를 나열합니다:
+
+```graphql
+{
+  __type(name: "Subscription") {
+    fields {
+      name
+      args {
+        name
+      }
+    }
+  }
+}
+```
+
+### Verification
+
+NIGHT을 자신의 DUST 주소로 등록한 지갑에서는 등록된 NIGHT UTXO마다 생성 중인 DUST UTXO가 정확히 하나씩 대응하고, 등록되지 않은 것에는 아무것도 대응하지 않습니다. 테스트 파일은 [Funding a wallet](./acquire-tokens)의 import와 지갑 구성을 공유하고, local network를 대상으로 하며, 그런 지갑의 seed를 `WALLET_SEED`에서 읽고, import에 `FacadeState` 타입을 추가합니다.
+
+```typescript title="registration-state.test.ts"
+describe('checking which NIGHT UTXOs generate DUST', () => {
+  type NightCoin = FacadeState['unshielded']['availableCoins'][number];
+
+  let state: FacadeState;
+  let nightCoins: NightCoin[];
+
+  // The ledger's identifier for a NIGHT UTXO inside the DUST subsystem.
+  const backingNightOf = (coin: NightCoin) =>
+    ledger.dustInitialNonce(BigInt(coin.utxo.outputNo), coin.utxo.intentHash);
+
+  beforeAll(async () => {
+    state = await wallet.waitForSyncedState();
+    nightCoins = state.unshielded.availableCoins.filter((coin) => coin.utxo.type === unshieldedToken().raw);
+  });
+
+  it('flags every NIGHT UTXO as generating or not generating', () => {
+    expect(nightCoins.length).toBeGreaterThan(0);
+    for (const coin of nightCoins) {
+      expect(typeof coin.meta.registeredForDustGeneration).toBe('boolean');
+    }
+    expect(nightCoins.some((coin) => coin.meta.registeredForDustGeneration)).toBe(true);
+  });
+
+  it('finds exactly one DUST UTXO for each generating NIGHT UTXO', () => {
+    const generating = nightCoins.filter((coin) => coin.meta.registeredForDustGeneration);
+    for (const coin of generating) {
+      const backed = state.dust.availableCoins.filter((dust) => dust.token.backingNight === backingNightOf(coin));
+      expect(backed).toHaveLength(1);
+      expect(backed[0].dtime).toBeUndefined();
+    }
+  });
+
+  it('finds no DUST UTXO for a NIGHT UTXO that is not registered', () => {
+    const notGenerating = nightCoins.filter((coin) => !coin.meta.registeredForDustGeneration);
+    for (const coin of notGenerating) {
+      const backed = state.dust.availableCoins.filter((dust) => dust.token.backingNight === backingNightOf(coin));
+      expect(backed).toHaveLength(0);
+    }
+  });
+
+  it('reads the backing NIGHT amount and the DUST owner from the generation info', () => {
+    const { coinsAndBalances } = state.dust.capabilities;
+    const generating = nightCoins.filter((coin) => coin.meta.registeredForDustGeneration);
+    for (const coin of generating) {
+      const dust = state.dust.availableCoins.find((d) => d.token.backingNight === backingNightOf(coin))!;
+      const info = coinsAndBalances.getGenerationInfo(state.dust.state, dust.token)!;
+      expect(info.value).toBe(coin.utxo.value);
+      expect(info.nonce).toBe(backingNightOf(coin));
+      expect(info.owner).toBe(state.dust.publicKey);
+      expect(info.dtime).toBeUndefined();
+    }
+  });
+});
+```
+
+```text
+ ✓ registration-state.test.ts > checking which NIGHT UTXOs generate DUST > flags every NIGHT UTXO as generating or not generating
+ ✓ registration-state.test.ts > checking which NIGHT UTXOs generate DUST > finds exactly one DUST UTXO for each generating NIGHT UTXO
+ ✓ registration-state.test.ts > checking which NIGHT UTXOs generate DUST > finds no DUST UTXO for a NIGHT UTXO that is not registered
+ ✓ registration-state.test.ts > checking which NIGHT UTXOs generate DUST > reads the backing NIGHT amount and the DUST owner from the generation info
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+```
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Reading the DUST balance
+
+지갑이 지금 DUST을 얼마나 가지고 있는지, 그리고 이후 특정 시점에 얼마나 가지는지 읽으세요. `state.dust.balance(date)`는 어떤 빌드된 트랜잭션도 잠그지 않은 DUST UTXO로부터 넘긴 날짜 기준의 잔액을 계산합니다. 잔액이 양수라는 것만으로 다음 트랜잭션을 낼 수 있다는 뜻은 아닙니다. 지갑은 자신이 선언하는 수수료 전체를 충당해야 하며, 여기에는 `costParameters`의 `additionalFeeOverhead`가 포함됩니다. 지갑은 DUST UTXO를 당신의 시계가 아니라 최신 블록의 타임스탬프로 평가합니다. 잔액은 표시용으로 쓰고, 제출하기 전에 [Estimating a fee before submitting](#estimating-a-fee-before-submitting)처럼 수수료를 확인하세요.
+
+### Procedure
+
+1. 현재 시각 기준 잔액을 읽으세요. 결과는 SPECK 단위의 `bigint`이므로 표시 전에 포맷하세요:
+
+   ```typescript
+   const state = await wallet.waitForSyncedState();
+
+   const now = new Date();
+   const balance = state.dust.balance(now);
+   console.log(`DUST balance: ${formatDust(balance)}`);
+   ```
+
+   빌드된 트랜잭션이 잠근 DUST UTXO는 수수료만이 아니라 그 값 전체가 잔액에서 빠집니다. 잠금이 언제 풀리는지는 [Sending several transactions from one wallet](#sending-several-transactions-from-one-wallet)에서 다룹니다.
+
+2. 잔액을 이후 시점으로 투영하세요. 같은 `state` 객체가 어떤 날짜든 답하며, 이 호출은 아무것도 가져오지 않습니다. 아직 생성 중인 DUST UTXO의 `maxCap` 합계가, 지갑의 현재 NIGHT UTXO로 잔액이 안착하는 수준입니다. 감소 중인 DUST UTXO는 0에 이를 때까지 잔액을 그 위로 떠받칠 수 있습니다:
+
+   ```typescript
+   const inOneHour = new Date(now.getTime() + 60 * 60 * 1000);
+   console.log(`DUST balance in one hour: ${formatDust(state.dust.balance(inOneHour))}`);
+
+   const cap = state.dust.availableCoins
+     .filter((coin) => coin.dtime === undefined)
+     .reduce((total, coin) => total + coin.maxCap, 0n);
+   console.log(`DUST cap: ${formatDust(cap)}`);
+   ```
+
+   이 투영은 그 날짜 전까지 지갑이 수수료를 내지 않고 NIGHT UTXO를 쓰지 않는다고 가정합니다.
+
+3. 잔액을 이루는 요소를 봐야 할 때 DUST UTXO를 나열하세요. 목록은 `state.dust.availableCoins`입니다:
+
+   ```typescript
+   for (const coin of state.dust.availableCoins) {
+     console.log({
+       seq: coin.token.seq, // 0 for a new DUST UTXO, one more after each fee payment
+       initialValue: coin.token.initialValue, // SPECK at the time this DUST UTXO was created
+       backingNight: coin.token.backingNight, // identifies the NIGHT UTXO that backs it
+       dtime: coin.dtime, // undefined while that NIGHT UTXO is unspent
+       maxCap: coin.maxCap, // the most SPECK this DUST UTXO can reach
+     });
+   }
+   ```
+
+   각 항목에는 `generatedNow` 필드도 있습니다. 지갑은 이를 현재 시각이 아니라 마지막 DUST 동기화 시점 기준으로 평가하므로, 현재 수치가 필요하면 `state.dust.balance(date)`를 쓰세요. `backingNight`을 NIGHT UTXO와 매칭하려면 [Checking which NIGHT UTXOs generate DUST](#checking-which-night-utxos-generate-dust)을 참고하세요.
+
+**DApp에서.** 연결된 지갑을 통해 동작하는 DApp은 `getDustBalance()`로 잔액을 읽습니다. 이는 지갑이 계산한 두 `bigint` 값인 `{ cap, balance }`를 반환합니다. 여기서 `connectedApi`는 [Integrate the DApp Connector API](./react-wallet-connect#integrate-the-dapp-connector-api)처럼 지갑의 `connect()` 호출이 반환하는 객체입니다:
+
+```typescript
+const { cap, balance } = await connectedApi.getDustBalance();
+```
+
+둘 다 표시 값으로 다루세요. 단위는 wallet SDK가 DUST 금액에 쓰는 SPECK이라고 보면 되고, `cap`으로 나누기 전에 그 값이 `0n`인지 확인하세요. `balance`는 수수료 확인 수단이 아닙니다. 지갑이 수수료를 낼 수 있는지 알려면, 예를 들어 `balanceUnsealedTransaction`으로 트랜잭션을 balance하도록 요청하고 reject를 처리하세요. 두 호출은 [`WalletConnectedAPI` reference](/api-reference/dapp-connector/type-aliases/WalletConnectedAPI#getdustbalance)에 설명되어 있습니다.
+
+### Verification
+
+잔액은 넘긴 날짜를 따르며 cap에서 안착합니다. 빌드된 트랜잭션이 지갑의 DUST UTXO를 잠그고 나면 그 값 전체가 잔액에서 빠지고 수수료 확인이 reject됩니다. 테스트 파일은 [Funding a wallet](./acquire-tokens)의 import, 지갑 구성, `formatDust`를 공유하고, local network를 대상으로 하며, 동기화된 지갑 state를 `state`에 보관하고, 아무것도 제출하지 않습니다.
+
+```typescript title="dust-balance.test.ts"
+describe('reading the DUST balance', () => {
+  const secretKeys = () => ({ shieldedSecretKeys, dustSecretKey });
+  const ttl = () => new Date(Date.now() + 30 * 60 * 1000);
+  const current = () => Rx.firstValueFrom(wallet.state());
+  const sum = (values: readonly bigint[]) => values.reduce((total, value) => total + value, 0n);
+
+  // A transfer of 1 NIGHT to the wallet's own address, built without its fee payment.
+  const transferWithoutFee = () =>
+    wallet.transferTransaction(
+      [
+        {
+          type: 'unshielded',
+          outputs: [{ type: unshieldedToken().raw, receiverAddress: state.unshielded.address, amount: 1_000_000n }],
+        },
+      ],
+      secretKeys(),
+      { ttl: ttl(), payFees: false },
+    );
+
+  it('values the balance at the date passed in, up to the cap', () => {
+    const now = new Date();
+    const inOneHour = new Date(now.getTime() + 60 * 60 * 1000);
+    const inOneYear = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+    const balance = state.dust.balance(now);
+    const cap = sum(state.dust.availableCoins.filter((coin) => coin.dtime === undefined).map((coin) => coin.maxCap));
+
+    expect(typeof balance).toBe('bigint');
+    expect(balance).toBeGreaterThan(0n);
+    expect(state.dust.balance(inOneHour)).toBeLessThanOrEqual(cap);
+    expect(state.dust.balance(inOneYear)).toBe(cap);
+    console.log(`balance now:         ${balance} SPECK = ${formatDust(balance)} DUST`);
+    console.log(`balance in one hour: ${formatDust(state.dust.balance(inOneHour))} DUST`);
+    console.log(`cap:                 ${formatDust(cap)} DUST`);
+  });
+
+  it('lists each DUST UTXO with its fields', () => {
+    expect(state.dust.availableCoins.length).toBeGreaterThan(0);
+    for (const coin of state.dust.availableCoins) {
+      expect(typeof coin.token.seq).toBe('number');
+      expect(typeof coin.token.initialValue).toBe('bigint');
+      expect(coin.token.backingNight).toMatch(/^[0-9a-f]{64}$/);
+      expect(coin.dtime === undefined || coin.dtime instanceof Date).toBe(true);
+      expect(coin.maxCap).toBeGreaterThan(0n);
+    }
+
+    // generatedNow on a listed UTXO is its value at the wallet's last DUST sync, not at the current time.
+    const lastDustSync = state.dust.state.state.syncTime;
+    expect(sum(state.dust.availableCoins.map((coin) => coin.generatedNow))).toBe(state.dust.balance(lastDustSync));
+    console.log(`DUST UTXOs: ${state.dust.availableCoins.length}`);
+  });
+
+  it('leaves DUST UTXOs locked by a built transaction out of the balance, and fails the fee check', async () => {
+    const at = new Date();
+    const before = (await current()).dust.balance(at);
+
+    // Pay the fee of an empty transaction until the unlocked DUST UTXOs run out. Nothing is submitted.
+    const held = [];
+    let rejection: Error | undefined;
+    while (!rejection) {
+      try {
+        const empty = ledger.Transaction.fromParts(getNetworkId());
+        const options = { ttl: ttl(), tokenKindsToBalance: ['dust' as const] };
+        held.push(await wallet.balanceUnprovenTransaction(empty, secretKeys(), options));
+      } catch (error) {
+        rejection = error as Error;
+      }
+    }
+    expect(held.length).toBeGreaterThan(0);
+    expect(rejection.message).toBe('Insufficient Funds: could not balance dust');
+
+    const locked = await current();
+    const lockedUtxos = state.dust.availableCoins.length - locked.dust.availableCoins.length;
+    expect(lockedUtxos).toBeGreaterThanOrEqual(held.length);
+    expect(locked.dust.balance(at)).toBeLessThan(before);
+    console.log(`DUST UTXOs locked by built transactions: ${lockedUtxos}`);
+    console.log(`balance before building: ${formatDust(before)} DUST`);
+    console.log(`balance after building:  ${formatDust(locked.dust.balance(at))} DUST`);
+
+    const unbalanced = await transferWithoutFee();
+    try {
+      await expect(wallet.estimateTransactionFee(unbalanced.transaction, dustSecretKey)).rejects.toThrow(
+        'Insufficient Funds: could not balance dust',
+      );
+    } finally {
+      await wallet.revert(unbalanced);
+      for (const recipe of held) await wallet.revert(recipe);
+    }
+  });
+});
+```
+
+```text
+ ✓ dust-balance.test.ts > reading the DUST balance > values the balance at the date passed in, up to the cap
+ ✓ dust-balance.test.ts > reading the DUST balance > lists each DUST UTXO with its fields
+ ✓ dust-balance.test.ts > reading the DUST balance > leaves DUST UTXOs locked by a built transaction out of the balance, and fails the fee check
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+```
+
+이 실행은 DUST 생성용으로 등록된 1,000 NIGHT짜리 NIGHT UTXO 하나를 가진 지갑에 대해 다음 값을 출력했습니다:
+
+```text
+balance now:         53222945999999999 SPECK = 53.222945999999999 DUST
+balance in one hour: 82.984145999999999 DUST
+cap:                 5000.000000000000000 DUST
+DUST UTXOs: 1
+DUST UTXOs locked by built transactions: 1
+balance before building: 53.222945999999999 DUST
+balance after building:  0.000000000000000 DUST
+```
+
+{/* _mod-docs-content-type: CONCEPT */}
+## How a transaction pays its fee
+
+모든 Midnight 트랜잭션은 수수료를 DUST로 내며, 지갑이 트랜잭션을 balance할 때 그 납부를 덧붙입니다. 당신의 코드는 수수료를 계산하지 않습니다. 지갑이 선언하는 내용을 좌우하는 `costParameters`를 설정하고, 쓸 수 있는 DUST과 도달 가능한 proof server를 제공할 뿐입니다. 이 절은 실패한 트랜잭션의 비용과, 배포된 컨트랙트가 시간이 지나며 비용을 발생시키는지도 다룹니다.
+
+**수수료는 지갑이 덧붙입니다.** Midnight.js는 배포나 circuit 호출을 증명해 `walletProvider.balanceTx`에 넘기고 그 결과를 제출합니다. `balanceTx`가 수수료 납부를 추가하므로 DApp 코드는 수수료 API를 호출하지 않습니다. 각 단계는 [The transaction pipeline and its providers](./deploy-and-operate#the-transaction-pipeline-and-its-providers)에서 설명합니다.
+
+**수수료는 DUST spend가 냅니다.** 각 spend는 DUST UTXO 하나를 소모하고 남은 값으로 다시 만듭니다. 수수료 하나에 여러 spend가 들 수 있습니다. 모든 spend는 영지식 증명을 담으므로, 컨트랙트를 호출하지 않는 트랜잭션이라도 이 방식으로 내려면 prover가 필요합니다. Funding a wallet의 지갑은 [proof server](./run-proof-server)를 사용합니다. 최초 등록은 [Registration rules](#registration-rules)에서 설명하듯 DUST spend 없이 수수료를 냅니다.
+
+**선언된 수수료에는 당신이 설정한 margin과 overhead가 포함됩니다.** 지갑은 트랜잭션의 가격을 매기고, `feeBlocksMargin` 블록 동안 가격이 오르는 데 대한 margin을 더하고, `additionalFeeOverhead`를 더하는데, 둘 다 당신의 `costParameters`에서 가져옵니다. DUST spend에는 환불이 없으므로, DUST spend가 내는 모든 수수료마다 지갑의 DUST은 `additionalFeeOverhead`를 포함한 선언 금액 전체만큼 줄어듭니다. 최초 등록은 예외입니다. ledger는 NIGHT UTXO가 생성했을 DUST에서 필요한 수수료만 가져가고, 나머지는 새 DUST UTXO의 시작 값이 됩니다. indexer의 `fee` 필드는 선언된 수수료가 아니라 필요한 수수료를 보고합니다.
+
+**필요한 수수료는 고정된 수가 아닙니다.** 트랜잭션(그 크기, 필요한 연산, 기록하는 state)과 ledger가 블록마다 조정하는 가격에 따라 달라집니다. 수수료는 [Estimating a fee before submitting](#estimating-a-fee-before-submitting)처럼 런타임에 읽으세요.
+
+**수수료는 먼저 가져가며 돌려주지 않습니다.** ledger는 트랜잭션 전체에 대한 수수료를 [guaranteed phase](../concepts/how-midnight-works/semantics#transaction-fallibility)에서 가져갑니다. 이후 부분이 실패하면 indexer는 `PARTIAL_SUCCESS`를 보고하지만 선언된 수수료는 그대로 빠집니다. 블록에 들어가기 전에 거부된 트랜잭션은 아무것도 내지 않습니다.
+
+**배포된 컨트랙트에는 반복 비용이 없습니다.** 배포가 수수료를 한 번 내고, 호출도 각각 한 번씩 냅니다. 그 사이에 ledger는 아무것도 청구하지 않습니다.
+
+**수수료 금액은 공개됩니다.** 각 DUST spend는 자신이 내는 금액을 명시합니다. 어느 DUST UTXO가 냈는지, 그 UTXO에 얼마가 남았는지는 공개되지 않습니다. 특정 DUST 주소를 위해 생성되는 NIGHT 양은 공개되므로, 누구나 그 주소가 보유한 DUST의 상한을 계산할 수 있습니다.
+
+**다른 지갑이 대신 낼 수 있습니다.** [Sponsor transaction fees with DUST](./dust-sponsorship)에서 sponsor 지갑이 다른 지갑이 만든 트랜잭션의 수수료를 내는 모습을 보여줍니다.
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Estimating a fee before submitting
+
+트랜잭션을 보내기로 확정하기 전에, 그 트랜잭션이 어떤 수수료를 선언하는지 지갑에 물어보세요. 그러면 애플리케이션이 비용을 표시하거나 한도를 적용하거나 지갑이 낼 수 있는지 확인할 수 있습니다. wallet SDK에는 두 호출이 있으며, 둘 다 당신의 `costParameters`에서 가져온 margin과 `additionalFeeOverhead`를 포함한 SPECK을 반환합니다. `calculateTransactionFee(tx)`는 넘긴 트랜잭션의 가격을 매기되 지갑이 추가하는 수수료 납부는 제외합니다. `estimateTransactionFee(tx, dustSecretKey, options)`는 그 수수료 납부까지 포함해 트랜잭션의 가격을 매기며, 그 결과가 지갑이 선언하는 금액입니다.
+
+### Procedure
+
+1. 수수료 납부 없이 트랜잭션을 빌드하세요. `payFees: false`를 주면 `transferTransaction`은 전송만 반환하고 입력으로 선택한 NIGHT UTXO를 잠그며, 지갑은 이를 `state.unshielded.pendingCoins`에 나열합니다. 이 예시는 지갑 자기 주소로 1 NIGHT을 보내므로 지갑 하나로 실행됩니다. `@midnightntwrk/wallet-sdk`의 import에 `UnshieldedAddress`를 추가하세요:
+
+   ```typescript
+   const ttl = new Date(Date.now() + 30 * 60 * 1000);
+   const recipient = String(unshieldedKeystore.getBech32Address());
+   const receiverAddress = MidnightBech32m.parse(recipient).decode(UnshieldedAddress, getNetworkId());
+
+   const recipe = await wallet.transferTransaction(
+     [{ type: 'unshielded', outputs: [{ type: unshieldedToken().raw, receiverAddress, amount: 1_000_000n }] }],
+     { shieldedSecretKeys, dustSecretKey },
+     { ttl, payFees: false },
+   );
+   ```
+
+2. 트랜잭션 가격을 매기세요. 두 호출 모두 SPECK 단위의 `bigint`를 반환하며, `formatDust`가 이를 표시용으로 변환합니다:
+
+   ```typescript
+   const transactionOnly = await wallet.calculateTransactionFee(recipe.transaction);
+   const estimate = await wallet.estimateTransactionFee(recipe.transaction, dustSecretKey, { ttl });
+   console.log(`Fee the wallet declares: ${formatDust(estimate)} DUST`);
+   ```
+
+   `estimateTransactionFee`는 4단계의 `balanceUnprovenTransaction`과 같은 방식으로 DUST UTXO를 선택하지만 어느 것도 잠그지 않습니다. 결과가 나오면 지갑이 지금 수수료를 낼 수 있다는 뜻입니다. `Insufficient Funds: could not balance dust`로 reject되면 잠기지 않은 DUST UTXO가 수수료를 충당하지 못한다는 뜻입니다. `calculateTransactionFee`는 DUST이 필요 없습니다. 그 결과는 수수료 납부를 제외하므로 지갑이 선언하는 금액이 아닙니다.
+
+   `estimateTransactionFee`에는 아직 수수료 납부가 없는 트랜잭션을 넘기세요. `payFees: false`로 호출한 `transferTransaction`의 recipe에 담긴 트랜잭션이나, Midnight.js가 `balanceTx`에 넘기는 트랜잭션입니다. 기본 `payFees`로 호출한 `transferTransaction`처럼 이미 수수료를 내는 recipe라면, 5단계의 `sumDeclaredFees`로 선언된 수수료를 읽으세요.
+
+   컨트랙트 배포나 호출의 경우, [Configuring providers for a contract](./deploy-and-operate#configuring-providers-for-a-contract)의 `balanceTx` 메서드 안에서, Midnight.js가 넘겨주는 트랜잭션에 대해 `balanceUnboundTransaction` 전에 같은 `estimateTransactionFee` 호출을 하세요.
+
+3. 트랜잭션을 보낼지 결정하세요. 보내지 않으려면 recipe를 revert하고 여기서 멈추세요. NIGHT 입력은 `state.unshielded.availableCoins`로 돌아옵니다:
+
+   ```typescript
+   await wallet.revert(recipe);
+   ```
+
+4. 보내려면 수수료 납부를 추가하고 서명한 뒤 finalize하세요. 전송은 이미 NIGHT 입력을 담고 있으므로 `tokenKindsToBalance: ['dust']`는 DUST spend만 추가합니다. `finalizeRecipe`가 증명을 생성하므로 proof server에 도달할 수 있어야 합니다:
+
+   ```typescript
+   const balanced = await wallet.balanceUnprovenTransaction(
+     recipe.transaction,
+     { shieldedSecretKeys, dustSecretKey },
+     { ttl, tokenKindsToBalance: ['dust'] },
+   );
+   const signed = await wallet.signRecipe(balanced, (payload) => unshieldedKeystore.signData(payload));
+   const finalized = await wallet.finalizeRecipe(signed);
+   ```
+
+5. finalize된 트랜잭션에서 선언된 수수료를 읽은 뒤 제출하세요. 선언된 수수료는 모든 DUST spend에 걸친 `vFee`의 합계입니다:
+
+   ```typescript
+   // The fee a transaction declares: the sum of `vFee` over every DUST spend in every intent.
+   const sumDeclaredFees = (tx: ledger.Transaction<any, any, any>) => {
+     let total = 0n;
+     for (const [, intent] of tx.intents ?? []) {
+       for (const spend of intent.dustActions?.spends ?? []) total += spend.vFee;
+     }
+     return total;
+   };
+
+   const declared = sumDeclaredFees(finalized);
+   const identifier = await wallet.submitTransaction(finalized);
+   ```
+
+   지갑의 DUST UTXO는 `declared` 금액만큼 줄어듭니다. 해당 트랜잭션에 대한 indexer의 `fee` 필드는 필요한 수수료를 보고하며, 이는 선언된 수수료보다 많은 경우가 없습니다.
+
+### Verification
+
+balance되지 않은 전송은 수수료를 선언하지 않고, 추정은 DUST을 잠그지 않으며, `revert`는 NIGHT 입력을 풉니다. finalize된 트랜잭션은 추정치를 정확히 선언합니다. indexer가 보고하는 수수료는 선언된 수수료보다 적어도 `additionalFeeOverhead`만큼 적습니다. 테스트 파일은 [Funding a wallet](./acquire-tokens)의 import와 지갑 구성을 공유하고 local network를 대상으로 합니다. 5단계처럼 `sumDeclaredFees`를 정의하고, 지갑의 `costParameters`를 같은 이름의 상수에 보관하며, 1단계를 `buildTransferWithoutFee` 헬퍼로 감쌉니다. `indexedTransaction`은 제출된 트랜잭션의 `fee`와 `transactionResult`를 얻으려고 indexer의 `transactions` 쿼리를 폴링합니다.
+
+```typescript title="fee-estimate.test.ts"
+describe('estimating a fee before submitting', () => {
+  it('prices a transfer with and without its fee payment, and locks no DUST', async () => {
+    const before = await wallet.waitForSyncedState();
+    const ttl = new Date(Date.now() + 30 * 60 * 1000);
+
+    const recipe = await buildTransferWithoutFee(ttl);
+    expect(sumDeclaredFees(recipe.transaction)).toBe(0n);
+
+    const transactionOnly = await wallet.calculateTransactionFee(recipe.transaction);
+    const estimate = await wallet.estimateTransactionFee(recipe.transaction, dustSecretKey, { ttl });
+    expect(transactionOnly).toBeGreaterThan(costParameters.additionalFeeOverhead);
+    expect(estimate).toBeGreaterThanOrEqual(transactionOnly);
+
+    const estimated = await wallet.waitForSyncedState();
+    expect(estimated.dust.pendingCoins).toHaveLength(0);
+    expect(estimated.dust.availableCoins).toHaveLength(before.dust.availableCoins.length);
+    expect(estimated.unshielded.pendingCoins.length).toBeGreaterThan(0);
+
+    await wallet.revert(recipe);
+    const reverted = await wallet.waitForSyncedState();
+    expect(reverted.unshielded.pendingCoins).toHaveLength(0);
+    expect(reverted.unshielded.availableCoins).toHaveLength(before.unshielded.availableCoins.length);
+  });
+
+  it('declares the estimate, and the ledger requires less than it declared', async () => {
+    const ttl = new Date(Date.now() + 30 * 60 * 1000);
+    const recipe = await buildTransferWithoutFee(ttl);
+    const estimate = await wallet.estimateTransactionFee(recipe.transaction, dustSecretKey, { ttl });
+
+    const balanced = await wallet.balanceUnprovenTransaction(
+      recipe.transaction,
+      { shieldedSecretKeys, dustSecretKey },
+      { ttl, tokenKindsToBalance: ['dust'] },
+    );
+    const signed = await wallet.signRecipe(balanced, (payload) => unshieldedKeystore.signData(payload));
+    const finalized = await wallet.finalizeRecipe(signed);
+    const declared = sumDeclaredFees(finalized);
+    expect(declared).toBe(estimate);
+
+    const identifier = await wallet.submitTransaction(finalized);
+    const indexed = await indexedTransaction(identifier);
+    const required = BigInt(indexed.fee);
+    expect(indexed.transactionResult.status).toBe('SUCCESS');
+    expect(required).toBeGreaterThan(0n);
+    expect(declared).toBeGreaterThanOrEqual(required + costParameters.additionalFeeOverhead);
+  });
+});
+```
+
+```text
+ ✓ fee-estimate.test.ts > estimating a fee before submitting > prices a transfer with and without its fee payment, and locks no DUST
+ ✓ fee-estimate.test.ts > estimating a fee before submitting > declares the estimate, and the ledger requires less than it declared
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+```
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Sending several transactions from one wallet
+
+한 지갑에서 트랜잭션을 하나씩 연달아, 또는 여러 개를 한꺼번에 보내세요. 트랜잭션을 빌드하면 그 수수료를 내는 DUST UTXO와 그것이 쓰는 NIGHT UTXO가 잠기고, 지갑이 트랜잭션의 확인을 적용할 때까지 잠긴 채로 있습니다. 따라서 지갑이 동시에 진행할 수 있는 트랜잭션 수는 잔액이 아니라 UTXO 수로 제한됩니다. 다음 트랜잭션을 빌드하기 전에 지갑이 확인을 적용할 때까지 기다리세요. `submitTransaction` 호출이 resolve되고 `isSynced`가 `true`라고 해서 적용이 끝난 것은 아닙니다.
+
+### Procedure
+
+1. 트랜잭션을 빌드하고 증명하는 헬퍼를 정의하세요. 예시 트랜잭션은 지갑 자기 주소로 NIGHT을 보내는 전송입니다. `payFees: false`로 빌드한 뒤 두 번째 호출에서 수수료를 추가합니다. 지갑이 수수료를 낼 수 없으면 두 번째 호출이 reject되고, revert할 recipe가 남아 NIGHT UTXO를 풀 수 있습니다. `@midnightntwrk/wallet-sdk`의 import에 `FacadeState`와 `UnprovenTransactionRecipe` 타입을 추가하세요:
+
+   ```typescript
+   const ttl = () => new Date(Date.now() + 30 * 60 * 1000);
+
+   // Builds a NIGHT transfer to the wallet's own address, one output per amount, then adds the fee.
+   const buildTransfer = async (amounts: readonly bigint[]) => {
+     const secretKeys = { shieldedSecretKeys, dustSecretKey };
+     const { unshielded } = await Rx.firstValueFrom(wallet.state());
+     const outputs = amounts.map((amount) => ({
+       type: unshieldedToken().raw,
+       receiverAddress: unshielded.address,
+       amount,
+     }));
+
+     // Build the NIGHT part without the fee, so that there is a recipe to revert.
+     const unbalanced = await wallet.transferTransaction([{ type: 'unshielded', outputs }], secretKeys, {
+       ttl: ttl(),
+       payFees: false,
+     });
+     try {
+       // Add the fee. This rejects when the unlocked DUST UTXOs cannot cover it.
+       return await wallet.balanceUnprovenTransaction(unbalanced.transaction, secretKeys, {
+         ttl: ttl(),
+         tokenKindsToBalance: ['dust'],
+       });
+     } catch (error) {
+       await wallet.revert(unbalanced); // release the NIGHT UTXOs
+       throw error;
+     }
+   };
+
+   // Signs and proves a built transaction. The result is ready to submit.
+   const prove = async (recipe: UnprovenTransactionRecipe) => {
+     const signed = await wallet.signRecipe(recipe, (payload) => unshieldedKeystore.signData(payload));
+     return wallet.finalizeRecipe(signed);
+   };
+   ```
+
+   토큰을 전혀 옮기지 않는 컨트랙트 호출처럼 지갑의 토큰을 하나도 쓰지 않는 트랜잭션은 DUST UTXO만 잠급니다.
+
+2. 트랜잭션을 하나씩 연달아 보내세요. 각 빌드 전에 지갑이 안정될 때까지 기다리세요. 안정이란 제출된 모든 트랜잭션에 결과가 있고, 대기 중인 NIGHT UTXO가 없으며, DUST UTXO 하나가 잠겨 있지 않은 상태를 뜻합니다:
+
+   ```typescript
+   // True once the wallet has applied the result of everything it submitted.
+   const settled = (state: FacadeState) =>
+     state.isSynced &&
+     state.pending.all.length === 0 && // every submitted transaction has a result
+     state.unshielded.pendingCoins.length === 0 && // spent NIGHT UTXOs are gone and the change is back
+     state.dust.availableCoins.length > 0; // a DUST UTXO is unlocked
+   const waitUntilSettled = () => Rx.firstValueFrom(wallet.state().pipe(Rx.filter(settled)));
+
+   for (const amount of [1_000_000n, 2_000_000n, 3_000_000n]) {
+     await waitUntilSettled();
+     const transaction = await prove(await buildTransfer([amount]));
+     const identifier = await wallet.submitTransaction(transaction);
+     console.log(`Submitted ${identifier.slice(0, 10)}...`);
+   }
+   await waitUntilSettled();
+   ```
+
+   `isSynced`와 `waitForSyncedState()`는 지갑이 indexer를 따라잡았음을 알립니다. 지갑이 자신이 제출한 트랜잭션의 결과를 적용했는지는 알리지 않으므로, 쓴 NIGHT UTXO가 아직 대기 중이고 후속 DUST UTXO가 도착하지 않은 상태에서도 둘 다 true일 수 있습니다. `settled`는 그 조건들을 직접 확인합니다. 빌드가 여전히 `Insufficient Funds: could not balance dust`로 reject된다면, 잠기지 않은 DUST UTXO가 아직 수수료를 충당하지 못하는 것입니다. reject된 빌드는 아무것도 잠그지 않으므로, 3단계처럼 빌드를 `try` 블록으로 감싸고 기다렸다가 다시 빌드하세요.
+
+3. 여러 트랜잭션을 한꺼번에 보내세요. 아무것도 제출하기 전에 모든 트랜잭션을 빌드하고, 증명한 뒤, 함께 제출하고, 지갑 state를 기다리세요. NIGHT UTXO가 하나인 지갑은 여기서 전송 하나를 빌드하며, 4단계에서 그 수를 늘립니다:
+
+   ```typescript
+   await waitUntilSettled();
+
+   const recipes: UnprovenTransactionRecipe[] = [];
+   for (const amount of [1_000_000n, 1_000_000n, 1_000_000n]) {
+     try {
+       recipes.push(await buildTransfer([amount]));
+     } catch (error) {
+       console.log(`Built ${recipes.length}, then: ${(error as Error).message}`);
+       break;
+     }
+   }
+
+   const transactions = await Promise.all(recipes.map(prove));
+   for (const transaction of transactions) {
+     wallet.submitTransaction(transaction).catch((error) => console.log(`Submission failed: ${error.message}`));
+   }
+   await waitUntilSettled();
+   console.log(`Submitted ${transactions.length} transactions together`);
+   ```
+
+   각 빌드는 앞선 빌드가 잠그지 않고 남긴 UTXO 중에서 선택합니다. DUST UTXO 수는 동시에 진행하는 트랜잭션의 상한일 뿐 보장은 아닙니다. 지갑은 수수료를 충당할 때까지 DUST UTXO를 추가하므로, 수수료 하나가 여러 개를 잠글 수 있습니다. 전송에는 다른 어떤 빌드된 트랜잭션도 쓰지 않는 NIGHT UTXO도 필요합니다. UTXO가 바닥나면, 남은 NIGHT UTXO가 없을 때는 `Insufficient funds`로, 잠기지 않은 DUST UTXO가 수수료를 충당하지 못할 때는 `Insufficient Funds: could not balance dust`로 빌드가 reject됩니다. 이미 빌드된 트랜잭션은 계속 유효합니다. 그것들을 제출하고, 지갑이 안정될 때까지 기다린 뒤, 나머지를 빌드하세요.
+
+   함께 제출하는 트랜잭션은 `waitUntilSettled()`로 배치 전체를 기다리세요. 이는 지갑이 제출한 모든 트랜잭션에 대해 결과를 적용하면 resolve됩니다. 한 트랜잭션의 결과를 읽으려면 그 식별자 `transaction.identifiers().at(-1)`로 indexer에서 조회하세요.
+
+4. 등록된 주소에 NIGHT UTXO를 더 만들어 상한을 올리세요. 등록된 주소에 도착한 NIGHT 출력마다 자기 DUST UTXO를 받으므로, 자기 주소로 출력이 여러 개인 전송 하나면 됩니다:
+
+   ```typescript
+   const count = (state: FacadeState) =>
+     `${state.unshielded.availableCoins.length} NIGHT UTXOs, ${state.dust.availableCoins.length} DUST UTXOs`;
+
+   console.log(`Before: ${count(await waitUntilSettled())}`);
+   const split = await prove(await buildTransfer([300_000_000n, 300_000_000n, 300_000_000n]));
+   await wallet.submitTransaction(split);
+   console.log(`After:  ${count(await waitUntilSettled())}`);
+   ```
+
+   지갑이 전송이 쓸 NIGHT UTXO를 선택합니다. 그 뒤 지갑에는 세 출력, 잔돈, 그리고 전송이 쓰지 않은 NIGHT UTXO가 있습니다. 전후의 개수를 비교하세요. DUST 개수에는 쓴 NIGHT UTXO의 DUST UTXO가 감소하는 동안에도 여전히 포함됩니다.
+
+   :::warning NIGHT UTXO를 쓰면 그 DUST의 감소가 시작됩니다
+
+   분할은 NIGHT UTXO를 쓰므로, 그것들이 뒷받침하는 DUST UTXO가 감소하기 시작합니다. 새 DUST UTXO는 모두 0에서 시작하며, 수수료 하나를 충당할 만큼 생성한 뒤에야 수수료를 낼 수 있습니다. 그때까지는 지갑의 다른 DUST UTXO가 수수료를 충당하지 않는 한, 3단계처럼 빌드가 reject되고 아무것도 잠그지 않습니다.
+
+   :::
+
+5. seed마다 지갑 인스턴스를 하나만 실행하세요. 잠금은 트랜잭션을 빌드한 지갑 인스턴스에만 존재합니다. 같은 seed로 만든 두 인스턴스는 같은 DUST UTXO를 선택할 수 있고, 그러면 노드가 첫 번째 트랜잭션은 받아들이고 두 번째는 `DustDoubleSpend`로 거부합니다. [DUST troubleshooting](#dust-troubleshooting)을 참고하세요.
+
+### Verification
+
+순차로 보낸 세 전송이 성공하고, 잠기지 않은 UTXO가 바닥나면 지갑이 빌드를 멈춥니다. 이어서 분할이 DUST UTXO가 0에서 시작하는 NIGHT UTXO 세 개를 추가하고, 지갑이 적어도 세 전송을 함께 제출합니다. 테스트 파일은 [Funding a wallet](./acquire-tokens)의 import와 지갑 구성을 공유하고, 위 단계처럼 `ttl`, `buildTransfer`, `prove`, `settled`, `waitUntilSettled`를 정의하며, local network를 대상으로 합니다. `NIGHT`은 1 NIGHT에 들어 있는 STAR의 수이고, `SPLIT`은 `3`입니다. `current`는 최신 지갑 state를 반환하고, `sleep`은 지정한 밀리초만큼 기다리며, `utxoId`와 `backingNightOf`는 NIGHT UTXO를 식별하고, `dustSpends`는 recipe의 DUST spend 수를 셉니다. `buildUntilRejected`는 지갑이 하나를 reject할 때까지 전송을 빌드합니다. `submitTogether`는 배치를 제출하고 `resultOf`가 indexer에서 읽은 각 결과를 반환합니다. `ableToPay`는 수수료를 낼 수 있는 DUST UTXO 수를 셉니다.
+
+```typescript title="concurrent-transactions.test.ts"
+describe('sending several transactions from one wallet', () => {
+  it('sends transactions one after another, waiting each time until the wallet has settled', async () => {
+    for (let i = 0; i < 3; i++) {
+      await waitUntilSettled();
+      const transaction = await prove(await buildTransfer([1n * NIGHT]));
+      const identifier = await wallet.submitTransaction(transaction);
+      expect(identifier).toBe(transaction.identifiers().at(-1));
+
+      // submitTransaction has resolved and the wallet reports synced, but it has not applied the confirmation yet.
+      const synced = await wallet.waitForSyncedState();
+      console.log(`after submitTransaction: isSynced ${synced.isSynced}, settled ${settled(synced)}`);
+      expect(await resultOf(identifier)).toBe('SUCCESS');
+    }
+  });
+
+  it('locks the UTXOs of each built transaction, and rejects the next build when they run out', async () => {
+    const before = await waitUntilSettled();
+    const { recipes, rejection } = await buildUntilRejected();
+    const built = await current();
+
+    const nightUtxos = before.unshielded.availableCoins.length;
+    const dustUtxos = before.dust.availableCoins.length;
+    const locked = recipes.reduce((n, recipe) => n + dustSpends(recipe), 0);
+    expect(recipes.length).toBeGreaterThan(0);
+    expect(recipes.length).toBeLessThanOrEqual(Math.min(nightUtxos, dustUtxos));
+    expect(built.dust.availableCoins.length).toBeLessThanOrEqual(dustUtxos - locked);
+    expect(built.unshielded.availableCoins.length).toBeLessThanOrEqual(nightUtxos - recipes.length);
+    expect(['Insufficient funds', 'Insufficient Funds: could not balance dust']).toContain(rejection.message);
+    console.log(
+      `NIGHT UTXOs ${nightUtxos}, DUST UTXOs ${dustUtxos}: built ${recipes.length}, DUST UTXOs locked ${locked}`,
+    );
+    console.log(`next build rejected: ${rejection.message}`);
+
+    // The transactions that were built are unaffected by the rejection.
+    expect(await submitTogether(recipes)).toEqual(recipes.map(() => 'SUCCESS'));
+  });
+
+  it(`creates ${SPLIT} more NIGHT UTXOs, each with a new DUST UTXO that starts from zero`, async () => {
+    const before = await waitUntilSettled();
+    const known = new Set(before.unshielded.availableCoins.map(utxoId));
+
+    const split = await prove(await buildTransfer(Array.from({ length: SPLIT }, () => 300n * NIGHT)));
+    expect(await resultOf(await wallet.submitTransaction(split))).toBe('SUCCESS');
+    const after = await waitUntilSettled();
+
+    const created = after.unshielded.availableCoins.filter((coin) => !known.has(utxoId(coin)));
+    expect(created.filter((coin) => coin.utxo.value === 300n * NIGHT)).toHaveLength(SPLIT);
+    for (const night of created) {
+      expect(night.meta.registeredForDustGeneration).toBe(true);
+      const backed = after.dust.availableCoins.filter((coin) => coin.token.backingNight === backingNightOf(night));
+      expect(backed).toHaveLength(1);
+      expect(backed[0].token.seq).toBe(0);
+      expect(backed[0].token.initialValue).toBe(0n);
+      expect(backed[0].dtime).toBeUndefined();
+    }
+
+    // The DUST UTXOs backed by the NIGHT UTXOs that the transfer spent are decaying now.
+    const remaining = new Set(after.unshielded.availableCoins.map(utxoId));
+    const spent = before.unshielded.availableCoins.filter((coin) => !remaining.has(utxoId(coin)));
+    const spentBacking = new Set(spent.map(backingNightOf));
+    const decaying = after.dust.availableCoins.filter((coin) => spentBacking.has(coin.token.backingNight));
+    expect(spent.length).toBeGreaterThan(0);
+    for (const coin of decaying) expect(coin.dtime).toBeInstanceOf(Date);
+    console.log(
+      `NIGHT UTXOs ${before.unshielded.availableCoins.length} -> ${after.unshielded.availableCoins.length}, ` +
+        `DUST UTXOs ${before.dust.availableCoins.length} -> ${after.dust.availableCoins.length}, ` +
+        `of which decaying ${decaying.length}`,
+    );
+  });
+
+  it(`submits at least ${SPLIT} transactions together once ${SPLIT} DUST UTXOs can each pay a fee`, async () => {
+    while ((await ableToPay()) < SPLIT) await sleep(5000);
+
+    const before = await waitUntilSettled();
+    const { recipes, rejection } = await buildUntilRejected();
+    expect(recipes.length).toBeGreaterThanOrEqual(SPLIT);
+    console.log(
+      `NIGHT UTXOs ${before.unshielded.availableCoins.length}, DUST UTXOs ${before.dust.availableCoins.length}: ` +
+        `built ${recipes.length}`,
+    );
+    console.log(`next build rejected: ${rejection.message}`);
+
+    const results = await submitTogether(recipes);
+    expect(results).toEqual(recipes.map(() => 'SUCCESS'));
+    console.log(`results: ${results.join(', ')}`);
+  });
+});
+```
+
+```text
+ ✓ concurrent-transactions.test.ts > sending several transactions from one wallet > sends transactions one after another, waiting each time until the wallet has settled
+ ✓ concurrent-transactions.test.ts > sending several transactions from one wallet > locks the UTXOs of each built transaction, and rejects the next build when they run out
+ ✓ concurrent-transactions.test.ts > sending several transactions from one wallet > creates 3 more NIGHT UTXOs, each with a new DUST UTXO that starts from zero
+ ✓ concurrent-transactions.test.ts > sending several transactions from one wallet > submits at least 3 transactions together once 3 DUST UTXOs can each pay a fee
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+```
+
+이 테스트는 트랜잭션을 제출하므로 실행할 때마다 지갑의 UTXO가 바뀝니다. 이 실행은 DUST 생성용으로 등록된 1,000 NIGHT짜리 NIGHT UTXO 하나를 가진 지갑에서 시작했고, 아래 값을 출력했습니다. 마지막 세 줄의 개수는 같은 state에서 시작한 실행들 사이에서도 다를 수 있습니다:
+
+```text
+after submitTransaction: isSynced true, settled false
+after submitTransaction: isSynced true, settled false
+after submitTransaction: isSynced true, settled false
+NIGHT UTXOs 2, DUST UTXOs 4: built 1, DUST UTXOs locked 4
+next build rejected: Insufficient Funds: could not balance dust
+NIGHT UTXOs 2 -> 4, DUST UTXOs 4 -> 7, of which decaying 2
+NIGHT UTXOs 4, DUST UTXOs 7: built 4
+next build rejected: Insufficient funds
+results: SUCCESS, SUCCESS, SUCCESS, SUCCESS
+```
+
+{/* _mod-docs-content-type: PROCEDURE */}
+## Redirecting or stopping DUST generation
+
+등록된 NIGHT이 다른 지갑의 DUST 주소를 위해 DUST을 생성하게 하거나, DUST 생성을 멈추세요. 두 작업 모두 넘긴 NIGHT UTXO에 대해서만 기존 생성을 바꾸므로, 전부 방향을 바꾸거나 멈추려면 등록된 UTXO를 모두 넘기세요. 등록 자체는 당신의 NIGHT 주소에 기록되므로, 나중에 도착하는 NIGHT이 무엇을 할지도 정합니다. 두 작업 모두 넘긴 UTXO를 쓰고 다시 만들므로, 그것들이 뒷받침하던 DUST UTXO는 증가를 멈추고 감소하기 시작합니다. 그 DUST은 자리에 그대로 남아 감소하는 동안에도 계속 쓸 수 있습니다. wallet developer guide는 첫 번째 작업을 redesignation이라고 부릅니다.
+
+### Prerequisites
+
+- 이미 DUST 생성용으로 등록된 NIGHT. 아직 등록되지 않은 NIGHT이라면 대신 [first registration](./acquire-tokens#registering-night-for-dust-generation-with-the-wallet-sdk)에서 receiver를 넘기세요. 그 등록은 자체 수수료를 내므로, 거기에 4단계의 수수료 납부를 추가하지 마세요.
+- 수수료를 충당하는 DUST 잔액. 두 작업 모두 DUST spend로 수수료를 냅니다. [Reading the DUST balance](#reading-the-dust-balance)을 참고하세요.
+- 방향을 바꾸려면, 받는 지갑의 DUST 주소. `mn_dust`로 시작하는 Bech32m 문자열입니다. 받는 지갑은 `String(DustAddress.encodePublicKey(getNetworkId(), state.dust.publicKey))`로 자신의 주소를 출력합니다.
+
+### Procedure
+
+1. 지갑이 동기화되기를 기다린 뒤, 등록된 NIGHT UTXO를 모두 선택하세요. 빠뜨린 등록 UTXO는 현재의 DUST 주소를 위해 계속 생성합니다:
+
+   ```typescript
+   const state = await wallet.waitForSyncedState();
+
+   const registered = state.unshielded.availableCoins.filter(
+     (coin) => coin.meta.registeredForDustGeneration,
+   );
+   ```
+
+2. `target`의 Bech32m 문자열에서 받는 지갑의 DUST 주소를 디코딩하세요. 현재 네트워크의 DUST 주소가 아닌 값이면 이 호출은 throw합니다:
+
+   ```typescript
+   const target = 'mn_dust_...'; // the receiving wallet's DUST address
+   const dustReceiver = MidnightBech32m.parse(target).decode(DustAddress, getNetworkId());
+   ```
+
+3. receiver를 네 번째 인자로 넣어 등록을 빌드하세요. 여기서는 `waitForGeneratedDust`를 건너뛰세요. 이는 아직 등록되지 않은 NIGHT을 기다리므로, 이 UTXO들에 대해서는 타임아웃이 만료될 때 reject됩니다:
+
+   ```typescript
+   const recipe = await wallet.registerNightUtxosForDustGeneration(
+     registered,
+     unshieldedKeystore.getPublicKey(),
+     (payload) => unshieldedKeystore.signData(payload),
+     dustReceiver,
+   );
+   ```
+
+4. 수수료 납부를 추가하세요. 이미 등록된 NIGHT의 등록은 자체 수수료 납부를 담지 않으므로, 그대로 제출하면 노드가 거부합니다. DUST으로 balance하고, `ttl`을 수수료 납부가 만료되는 시각으로 설정하세요:
+
+   ```typescript
+   const balanced = await wallet.balanceUnprovenTransaction(
+     recipe.transaction,
+     { shieldedSecretKeys, dustSecretKey },
+     { ttl: new Date(Date.now() + 30 * 60 * 1000), tokenKindsToBalance: ['dust'] },
+   );
+   ```
+
+5. 트랜잭션을 finalize하고 제출하세요:
+
+   ```typescript
+   const finalized = await wallet.finalizeRecipe(balanced);
+   await wallet.submitTransaction(finalized);
+   ```
+
+   트랜잭션이 확인되면, 받는 지갑은 다시 만들어진 NIGHT UTXO마다 새 DUST UTXO를 하나씩 가지며, 각각은 0에서 시작합니다. 그 뒤 당신의 주소에 도착하는 NIGHT도 receiver를 위해 생성합니다.
+
+6. 방향을 바꾸는 대신 생성을 멈추려면 2·3단계를 건너뛰세요. `deregisterFromDustGeneration`으로 recipe를 빌드한 뒤, 그 recipe에 4·5단계를 실행하세요:
+
+   ```typescript
+   const recipe = await wallet.deregisterFromDustGeneration(
+     registered,
+     unshieldedKeystore.getPublicKey(),
+     (payload) => unshieldedKeystore.signData(payload),
+   );
+   ```
+
+   트랜잭션이 확인되면, 다시 만들어진 NIGHT UTXO는 `registeredForDustGeneration: false`가 되고, 그것들이 뒷받침하던 DUST UTXO는 당신의 지갑이든 receiver의 지갑이든 감소합니다. 그 뒤 당신의 주소에 도착하는 NIGHT은 등록되지 않은 상태입니다.
+
+### Verification
+
+한 지갑이 등록된 NIGHT을 두 번째 지갑의 DUST 주소로 방향을 바꾼 뒤 등록을 해제합니다. 테스트 파일은 [Funding a wallet](./acquire-tokens)의 import와 지갑 구성을 공유하고, import에 `FacadeState` 타입을 추가하며, local network를 대상으로 합니다. `WALLET_SEED`로 `sender`를, `RECEIVER_SEED`로 빈 `receiver`를 같은 방식으로 빌드하며, 각각 `wallet`, `unshieldedKeystore`, `shieldedSecretKeys`, `dustSecretKey`를 가진 객체입니다.
+
+```typescript title="redirect-generation.test.ts"
+describe('redirecting or stopping DUST generation', () => {
+  type NightCoin = FacadeState['unshielded']['availableCoins'][number];
+
+  const backingNightOf = (coin: NightCoin) =>
+    ledger.dustInitialNonce(BigInt(coin.utxo.outputNo), coin.utxo.intentHash);
+
+  const registeredCoins = (state: FacadeState) =>
+    state.unshielded.availableCoins.filter((coin) => coin.meta.registeredForDustGeneration);
+
+  // The first synced state that satisfies the predicate.
+  const waitFor = (wallet: WalletFacade, predicate: (state: FacadeState) => boolean) =>
+    Rx.firstValueFrom(
+      wallet.state().pipe(
+        Rx.filter((state) => state.isSynced),
+        Rx.filter(predicate),
+      ),
+    );
+
+  it('redirects registered NIGHT to another DUST address', { timeout: 300_000 }, async () => {
+    const { wallet, unshieldedKeystore, shieldedSecretKeys, dustSecretKey } = sender;
+    const before = await wallet.waitForSyncedState();
+    const registered = registeredCoins(before);
+    expect(registered.length).toBeGreaterThan(0);
+    const nightBefore = before.unshielded.balances[unshieldedToken().raw];
+
+    const receiverState = await receiver.wallet.waitForSyncedState();
+    const target = String(DustAddress.encodePublicKey(getNetworkId(), receiverState.dust.publicKey));
+    const dustReceiver = MidnightBech32m.parse(target).decode(DustAddress, getNetworkId());
+
+    const recipe = await wallet.registerNightUtxosForDustGeneration(
+      registered,
+      unshieldedKeystore.getPublicKey(),
+      (payload) => unshieldedKeystore.signData(payload),
+      dustReceiver,
+    );
+    // The NIGHT is already registered, so the registration carries no fee payment of its own.
+    const registration = recipe.transaction.intents?.get(1)?.dustActions?.registrations[0];
+    expect(registration?.allowFeePayment).toBe(0n);
+
+    const balanced = await wallet.balanceUnprovenTransaction(
+      recipe.transaction,
+      { shieldedSecretKeys, dustSecretKey },
+      { ttl: new Date(Date.now() + 30 * 60 * 1000), tokenKindsToBalance: ['dust'] },
+    );
+    const finalized = await wallet.finalizeRecipe(balanced);
+    await wallet.submitTransaction(finalized);
+
+    // Wait until the UTXOs that were passed are gone and every DUST UTXO of the sender is decaying.
+    const isOld = (coin: NightCoin) =>
+      registered.some((old) => old.utxo.intentHash === coin.utxo.intentHash && old.utxo.outputNo === coin.utxo.outputNo);
+    const after = await waitFor(
+      wallet,
+      (state) =>
+        state.unshielded.pendingCoins.length === 0 &&
+        registeredCoins(state).length > 0 &&
+        !state.unshielded.availableCoins.some(isOld) &&
+        state.dust.availableCoins.every((dust) => dust.dtime !== undefined),
+    );
+    const recreated = registeredCoins(after);
+    const receiverAfter = await waitFor(receiver.wallet, (state) =>
+      recreated.every((coin) => state.dust.availableCoins.some((dust) => dust.token.backingNight === backingNightOf(coin))),
+    );
+
+    // The NIGHT stays with the sender, in at most two new UTXOs that are still flagged.
+    expect(after.unshielded.balances[unshieldedToken().raw]).toBe(nightBefore);
+    expect(recreated.length).toBeLessThanOrEqual(2);
+    for (const coin of recreated) {
+      // The DUST UTXO for it is in the receiver's wallet and starts at zero.
+      const dust = receiverAfter.dust.availableCoins.find((d) => d.token.backingNight === backingNightOf(coin))!;
+      expect(dust.token.seq).toBe(0);
+      expect(dust.token.initialValue).toBe(0n);
+      expect(dust.dtime).toBeUndefined();
+      expect(after.dust.availableCoins.some((d) => d.token.backingNight === backingNightOf(coin))).toBe(false);
+    }
+    // The sender keeps the DUST it already had. It is still spendable, and it decays from here.
+    expect(after.dust.availableCoins.length).toBeGreaterThan(0);
+    expect(after.dust.availableCoins.every((dust) => dust.dtime !== undefined)).toBe(true);
+    expect(after.dust.balance(new Date())).toBeGreaterThan(0n);
+  });
+
+  it('stops generation when the NIGHT is deregistered', { timeout: 300_000 }, async () => {
+    const { wallet, unshieldedKeystore, shieldedSecretKeys, dustSecretKey } = sender;
+    const before = await wallet.waitForSyncedState();
+    const registered = registeredCoins(before);
+    expect(registered.length).toBeGreaterThan(0);
+    const nightBefore = before.unshielded.balances[unshieldedToken().raw];
+
+    const recipe = await wallet.deregisterFromDustGeneration(
+      registered,
+      unshieldedKeystore.getPublicKey(),
+      (payload) => unshieldedKeystore.signData(payload),
+    );
+    const balanced = await wallet.balanceUnprovenTransaction(
+      recipe.transaction,
+      { shieldedSecretKeys, dustSecretKey },
+      { ttl: new Date(Date.now() + 30 * 60 * 1000), tokenKindsToBalance: ['dust'] },
+    );
+    const finalized = await wallet.finalizeRecipe(balanced);
+    await wallet.submitTransaction(finalized);
+
+    const after = await waitFor(
+      wallet,
+      (state) => state.unshielded.pendingCoins.length === 0 && registeredCoins(state).length === 0,
+    );
+    expect(after.unshielded.balances[unshieldedToken().raw]).toBe(nightBefore);
+
+    // The receiver's DUST UTXOs lost their backing NIGHT. They decay from the block that spent it.
+    const receiverAfter = await waitFor(
+      receiver.wallet,
+      (state) => state.dust.availableCoins.length > 0 && state.dust.availableCoins.every((dust) => dust.dtime !== undefined),
+    );
+    const stopped = receiverAfter.dust.availableCoins[0].dtime!;
+    const tenSecondsLater = new Date(stopped.getTime() + 10_000);
+    expect(receiverAfter.dust.balance(tenSecondsLater)).toBeLessThan(receiverAfter.dust.balance(stopped));
+  });
+});
+```
+
+```text
+ ✓ redirect-generation.test.ts > redirecting or stopping DUST generation > redirects registered NIGHT to another DUST address
+ ✓ redirect-generation.test.ts > redirecting or stopping DUST generation > stops generation when the NIGHT is deregistered
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+```
+
+이 실행은 sender의 NIGHT을 등록되지 않은 상태로 남깁니다. 테스트를 두 번째로 실행하기 전에 다시 등록하세요.
+
+{/* _mod-docs-content-type: CONCEPT */}
+## DUST from NIGHT held on Cardano
+
+Cardano의 NIGHT(cNIGHT)도 Midnight에서 DUST을 생성합니다. 그렇게 생긴 DUST UTXO는 같은 ledger 함수에서 나오며, wallet SDK는 같은 호출로 이를 읽고 씁니다. 등록과 타이밍은 다르고, NIGHT UTXO를 등록·분할·방향 전환·해제하는 wallet SDK 호출은 Midnight의 NIGHT에만 적용됩니다. 이 DUST UTXO는 지갑의 unshielded 목록에 NIGHT UTXO가 없으므로, [Checking which NIGHT UTXOs generate DUST](#checking-which-night-utxos-generate-dust)에서는 backing NIGHT이 지갑에 없는 DUST UTXO로 나타납니다.
+
+**등록은 Cardano에서 이뤄집니다.** 등록은 Cardano stake credential 하나와 Midnight DUST 주소 하나를 지정하며, wallet SDK 호출 `registerNightUtxosForDustGeneration`은 관여하지 않습니다. stake 주소는 등록이 정확히 하나일 때만 등록된 것으로 간주됩니다.
+
+**등록이 유효한 동안 생성된 cNIGHT UTXO만 DUST을 생성합니다.** 그 전에 받은 cNIGHT은 새 UTXO로 옮겨지기 전까지 아무것도 생성하지 않습니다.
+
+**cNIGHT을 옮기면 감소가 시작됩니다.** 생성 중인 cNIGHT UTXO를 쓰면 [How DUST behaves](#how-dust-behaves)에서 설명한 감소가 시작됩니다. 등록을 제거해도 감소는 시작되지 않습니다.
+
+**Midnight은 안정화 지연 후에 Cardano 이벤트를 처리합니다.** 등록, 새 cNIGHT UTXO, spend는 해당 Cardano 블록이 안정된 뒤에야 Midnight에 반영됩니다. 지연과 등록을 제출하는 도구는 [Funding and transaction cost](./networks-and-environments#funding-and-transaction-cost)에서 다룹니다.
+
+**indexer는 stake 주소별로 생성을 보고합니다.** `dustGenerationStatus` 쿼리는 stake 주소를 최대 열 개까지 받으며, 스키마는 이를 `CardanoRewardAddress`로 타입 지정합니다:
+
+```graphql
+query DustGenerationStatus($addresses: [CardanoRewardAddress!]!) {
+  dustGenerationStatus(cardanoRewardAddresses: $addresses) {
+    cardanoRewardAddress
+    dustAddress
+    registered
+    nightBalance
+    generationRate
+    maxCapacity
+    currentCapacity
+  }
+}
+```
+
+Preprod indexer는 2026-09-30에 한 주소에 대해 다음을 반환했으며, 여기서는 주소를 축약했습니다:
+
+```json
+{
+  "data": {
+    "dustGenerationStatus": [
+      {
+        "cardanoRewardAddress": "stake_test1uq...",
+        "dustAddress": "mn_dust_preprod1...",
+        "registered": true,
+        "nightBalance": "674500000",
+        "generationRate": "5576091500000",
+        "maxCapacity": "3372500000000000000",
+        "currentCapacity": "3372500000000000000"
+      }
+    ]
+  }
+}
+```
+
+`nightBalance`은 STAR 단위, `generationRate`은 초당 SPECK, 두 capacity는 모두 SPECK 단위입니다. 이 값들은 주소의 총합이 아니라 backing UTXO 하나만 반영할 수 있고, `currentCapacity`는 수수료 납부를 빼지 않고 경과 시간으로부터 계산됩니다. 이 결과는 쓸 수 있는 잔액이 아니라 참고 지표로 다루세요. 쓸 수 있는 수치는 [Reading the DUST balance](#reading-the-dust-balance)을 참고하세요.
+
+{/* _mod-docs-content-type: REFERENCE */}
+## DUST troubleshooting
+
+수수료를 내는 호출이 실패하면 이 표를 참고하세요. wallet SDK는 일부 호출을 아무것도 제출하기 전에 reject하고, 노드는 `wallet.submitTransaction`이 트랜잭션을 보낸 뒤 다른 것들을 거부합니다. 노드 거부는 `Transaction submission error` 메시지와 함께 `(FiberFailure) SubmissionError`로 도착합니다. `String(error)`를 읽으세요. 대부분의 경우 여기에 노드의 텍스트 `1010: Invalid Transaction: Custom error: N`이 들어 있습니다. 각 행은 local network가 반환한 `N`을 보여주고 괄호 안에 variant 이름을 적습니다. `N`은 노드 릴리스마다 바뀔 수 있으므로, [Node error codes](../nodes/error-codes#error-tables-by-code-range)에서 당신 노드의 `N`에 해당하는 variant를 찾은 뒤, variant로 행을 맞추세요. 이 표는 이 가이드를 위해 재현한 실패를 나열합니다.
+
+| 증상 | 의미 | 해결 |
+|---|---|---|
+| `1010: Invalid Transaction: Custom error: 170` (`InvalidDustSpendProof`) | 노드가 DUST spend 증명을 자신의 DUST state에 대해 검증하지 못했습니다. 이 가이드에서 재현한 원인은, 예를 들어 저장된 state에서 복원한 직후처럼, 모든 DUST 이벤트를 적용하기 전에 수수료 납부를 빌드한 지갑입니다. DUST 잔액이 낮다고 이 거부가 발생하지는 않습니다. | `wallet.waitForSyncedState()`를 기다린 뒤, 새 트랜잭션을 빌드·증명·제출하세요. |
+| `wallet.waitForSyncedState()`가 pending인 채로 `stderr`에 `Wallet.Sync: [object Object]`이 반복 출력됨 | 지갑과 indexer의 동기화가 실패하고 있어, 새 DUST 이벤트를 적용하지 못하고 `wallet.waitForSyncedState()`가 resolve되지 않습니다. 이 가이드에서 재현한 원인은 지갑이 도달할 수 없는 indexer WebSocket URL입니다. 이 상태에서 빌드된 트랜잭션을 노드는 `InvalidDustSpendProof`로 거부합니다. | `CONFIG.indexerWsUrl`을 확인하고 그 주소에서 indexer에 도달할 수 있는지 확인하세요. |
+| `Insufficient Funds: could not balance dust` 메시지와 함께 나오는 `(FiberFailure) Wallet.InsufficientFunds`. Midnight.js 컨트랙트 호출에서는 `Unexpected error submitting scoped transaction`으로 시작하는 오류의 `cause`로 실립니다. | 지갑의 잠기지 않은 DUST UTXO가 수수료를 충당하지 못합니다. NIGHT이 DUST 생성용으로 등록되지 않았거나, 이 지갑 인스턴스가 빌드한 트랜잭션이 모든 DUST UTXO를 잠갔거나, DUST UTXO가 `additionalFeeOverhead`를 포함한 선언 수수료보다 적게 가지고 있는 경우입니다. | NIGHT을 등록하거나([Registration rules](#registration-rules)), 빌드된 트랜잭션이 확인되기를 기다리거나([Sending several transactions from one wallet](#sending-several-transactions-from-one-wallet)), DUST UTXO가 수수료를 생성할 때까지 기다리세요([Estimating a fee before submitting](#estimating-a-fee-before-submitting)). |
+| 두 NIGHT 전송 중 두 번째에서, 또는 앞 행의 실패 후 재시도에서 나오는, `Insufficient funds` 메시지와 함께 나오는 `(FiberFailure) Wallet.InsufficientFunds` | 이 실패는 DUST이 아니라 NIGHT에 관한 것입니다. 이 지갑 인스턴스의 다른 빌드가 전송에 필요한 NIGHT UTXO를 잠갔습니다. 여기에는 수수료를 추가하다 reject되어 revert할 recipe를 반환하지 않은 `wallet.transferTransaction` 호출도 포함됩니다. | 전송을 `payFees: false`로 빌드하고, `wallet.balanceUnprovenTransaction`과 `tokenKindsToBalance: ['dust']`로 수수료를 추가하며, 그 단계가 reject되면 `wallet.revert(recipe)`를 호출하세요. [Sending several transactions from one wallet](#sending-several-transactions-from-one-wallet)을 참고하세요. |
+| 등록에서 나오는 `1010: Invalid Transaction: Custom error: 171` (`OutOfDustValidityWindow`) | 트랜잭션이 자신의 DUST 동작에 대해 선언한 시각이 블록 시각보다 나중이거나, `dustGracePeriodSeconds`가 허용하는 것보다 오래되었습니다([DUST generation parameters](#dust-generation-parameters)). wallet SDK가 빌드한 등록은 로컬 시스템 시계의 시각을 선언하므로, 시계가 체인보다 앞서면 이 거부가 발생합니다. | 시스템 시계를 동기화하고 등록을 다시 빌드하세요. |
+| `1010: Invalid Transaction: Custom error: 196` (`DustDoubleSpend`), 또는 `Custom error` 텍스트가 없는 `TransactionInvalidError: Transaction is invalid and was rejected by the node` | 다른 트랜잭션이 수수료를 내는 DUST UTXO를 이미 썼습니다. 한 seed로 두 지갑 인스턴스를 실행할 때 생깁니다. 다른 트랜잭션이 이미 블록에 들어가 있으면 노드는 첫 번째 텍스트를 반환합니다. 두 트랜잭션이 노드에 함께 도착하면 `Custom error` 텍스트 없이 거부가 올 수 있습니다. | seed마다 지갑 인스턴스를 하나만 실행하세요. 거부 후에는 `wallet.waitForSyncedState()`를 기다렸다가 새 트랜잭션을 빌드하세요. |
+| `wallet.transferTransaction`, `wallet.calculateTransactionFee`, 또는 `wallet.estimateTransactionFee`에서 나오는, `exceeded block limit in transaction fee computation` 메시지와 함께 나오는 `(FiberFailure) Error` | 트랜잭션의 한 비용 차원이 블록 한도를 넘어서, 지갑이 수수료를 계산할 수 없습니다. 이 호출은 증명과 제출 전에 로컬에서 reject됩니다. | 작업을 더 작은 트랜잭션으로 나누세요. 예를 들어 출력이 더 적은 전송으로 나누세요. |
+| `Insufficient generated dust to cover registration fee (have X, need Y). Use WalletFacade.waitForGeneratedDust(utxos, Y) before retrying.` | 자기 등록 비용을 내는 NIGHT UTXO가 등록 수수료에 `additionalFeeOverhead`를 더한 만큼을 아직 생성하지 못했습니다. `X`와 `Y`는 SPECK 금액이고, 이 오류는 지갑이 무언가에 서명하거나 제출하기 전에 throw되는 평범한 `Error`입니다. | `wallet.estimateRegistration(utxos)`를 호출하고 `wallet.waitForGeneratedDust(utxos, fee)`로 기다린 뒤 등록하세요. [Registration rules](#registration-rules)을 참고하세요. |
+| `wallet.waitForGeneratedDust`에서 나오는 `TimeoutError: Timeout has occurred` | 호출에 들어 있는 등록되지 않은 NIGHT UTXO 중 어느 것도 타임아웃 전에 금액에 도달하지 못했습니다. UTXO가 이미 등록되어 있어 호출이 기다리지 않거나, 가장 큰 UTXO의 cap이 금액보다 낮거나, UTXO가 그 금액을 생성하는 데 타임아웃보다 오래 걸리는 경우입니다. | 등록된 NIGHT이라면 [Redirecting or stopping DUST generation](#redirecting-or-stopping-dust-generation)처럼 대기를 건너뛰세요. 그렇지 않으면 UTXO의 cap을, `additionalFeeOverhead`를 포함하는 `wallet.estimateRegistration`의 금액과 비교하세요. cap이 금액보다 크면 `wallet.waitForGeneratedDust`를 다시 호출하거나, 세 번째 인자에 더 긴 `timeoutMs`를 넘기세요. |
+| 이미 등록된 NIGHT의 등록 변경에서 나오는 `1010: Invalid Transaction: Custom error: 138` (`BalanceCheckOverspend`) | 트랜잭션이 수수료보다 적은 DUST을 가지고 노드에 도달했습니다. 이미 등록된 NIGHT에 대한 변경은 자체 수수료를 낼 수 없는데, recipe를 DUST spend 없이 finalize한 것입니다. | `wallet.finalizeRecipe` 전에 `wallet.balanceUnprovenTransaction(recipe.transaction, { shieldedSecretKeys, dustSecretKey }, { ttl, tokenKindsToBalance: ['dust'] })`를 호출하세요. [Redirecting or stopping DUST generation](#redirecting-or-stopping-dust-generation)을 참고하세요. |
+| `wallet.finalizeRecipe`에서 나오는, `Failed to prove transaction` 메시지와 함께 나오는 `(FiberFailure) Wallet.Proving`. `String(error)`에 `Failed to connect to Proof Server: Transport error`가 들어 있습니다. | 트랜잭션이 영지식 증명이 필요한 DUST spend를 담고 있는데, proof server가 응답하지 않았습니다. 등록되지 않은 NIGHT의 최초 등록은 DUST spend가 없어 proof server 없이 finalize됩니다. | [proof server](./run-proof-server#start-the-proof-server)를 시작하고, `CONFIG.proofServer`가 그것을 가리키는지 확인한 뒤, 트랜잭션을 다시 빌드하세요. |
+
+## Additional resources
+
+- [Funding a wallet](./acquire-tokens): 지갑 구성과 최초 등록.
+- [Sponsor transaction fees with DUST](./dust-sponsorship): 한 지갑이 다른 지갑의 트랜잭션 수수료를 내기.
+- [Deploying and operating a contract](./deploy-and-operate): Midnight.js 트랜잭션 파이프라인에서 지갑이 수수료 납부를 추가하는 지점.
+- [Environment reference](./networks-and-environments#environment-reference): 네트워크별 indexer, node, proof server 엔드포인트.
+- [DUST architecture](../concepts/dust-architecture): DUST UTXO, spend, 등록의 바탕이 되는 프로토콜 설계.
+- [Wallet developer guide](/sdks/official/wallet-developer-guide#manage-dust): DUST을 위한 wallet SDK 인터페이스.
+- [Node error codes](../nodes/error-codes): 이름으로 보는 노드의 거부 코드.
+- [Support matrix](../relnotes/support-matrix): 어떤 SDK 버전이 어떤 네트워크 구성 요소와 짝을 이루는지.

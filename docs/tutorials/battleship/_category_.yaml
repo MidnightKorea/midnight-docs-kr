@@ -1,0 +1,8 @@
+position: 30
+label: 'Battleship'
+description: "중급: state machine, 역할 검사, off-chain 데이터의 on-chain 검증으로 짜는 방어적 프로그래밍."
+collapsible: true # make the category collapsible
+collapsed: true # keep the category closed by default
+link:
+  type: doc
+  id: tutorials/battleship/index

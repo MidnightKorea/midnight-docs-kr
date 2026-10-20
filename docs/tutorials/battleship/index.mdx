@@ -1,0 +1,79 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-examples. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Battleship
+description: "Compact로 하는 방어적 프로그래밍: state machine, 역할 검사, on-chain 검증으로 부정행위를 잡아내는 2인용 게임 컨트랙트."
+sidebar_position: 30
+tags:
+  - tutorials
+  - battleship
+  - compact
+  - intermediate
+  - midnight-network
+---
+
+import PersonaTiles from '@site/src/components/PersonaTiles';
+
+# Battleship tutorial
+
+**준비 사항:** 먼저 [Private Party](/tutorials/private-party) 튜토리얼을 끝내세요.
+이 튜토리얼은 여러분이 이미 컨트랙트를 컴파일하고, 로컬 devnet을 실행하고,
+MidnightJS 테스트를 읽을 수 있다고 가정합니다.
+
+이 튜토리얼의 주제는 **방어적 프로그래밍**입니다. Compact 컨트랙트의 모든 circuit은
+공개 진입점입니다. 누구나 원하는 순서로, 원하는 인자로, 원하는 witness 구현으로 호출할 수
+있습니다. 컨트랙트는 스스로를 방어해야 합니다.
+
+Battleship은 이를 구체적으로 보여줍니다. 각 플레이어의 배는 private이고 shot은 공개됩니다.
+부정직한 플레이어는 실제로는 HIT인데 MISS라고 우기거나, 게임 도중에 배를 옮길 동기가
+충분합니다. 컨트랙트는 어느 쪽 플레이어도 신뢰하지 않으면서 둘 다 막습니다. 아래 네 가지
+기법을 보게 되는데, 각각 컨트랙트 안의 `assert` 하나와 그것을 증명하는 테스트로
+이루어집니다:
+
+- **State machine.** 명시적인 `TurnState`, `BoardState`, `WinState` 값이 한 번에 circuit
+  하나만 열어 주므로, 누구도 차례를 어기고 행동할 수 없습니다.
+- **역할 검사.** 각 플레이어는 비밀값에서 유도한 DApp 전용 공개 키로 식별되고, 모든
+  circuit은 호출자가 올바른 역할을 가졌는지 검사합니다.
+- **off-chain 데이터의 on-chain 검증.** 플레이어는 ledger에 해시로 자기 배를 commit합니다.
+  이후 private state에서 HIT나 MISS를 보고하면, 컨트랙트가 그 shot을 다시 해싱해 그
+  commitment과 대조해 주장을 검증합니다.
+- **부정행위 검사 테스트.** 테스트 스위트는 devnet에서 게임을 진행하면서 일부러 부정행위를
+  합니다. 차례를 어기고 쏘거나 플레이어의 private state를 다시 쓰고, 그때마다 시도가
+  거부되기를 기대합니다.
+
+이 튜토리얼의 소스는 midnight-examples의
+[`examples/battleship`](https://github.com/midnightntwrk/midnight-examples/tree/main/examples/battleship)
+입니다.
+
+## Set up
+
+midnight-examples를 clone하고, 워크스페이스를 설치하고, 모든 컨트랙트를 컴파일하세요:
+
+```bash
+git clone https://github.com/midnightntwrk/midnight-examples.git
+cd midnight-examples
+yarn install && yarn compile
+```
+
+그런 다음 예제 디렉터리로 이동하세요:
+
+```bash
+cd examples/battleship
+```
+
+로컬 네트워크는 두 번째 파트에서 테스트를 실행할 때 띄웁니다.
+
+<PersonaTiles tiles={[
+  {
+    title: "Battleship contract",
+    body: "방어적으로 작성된 컨트랙트를 읽어봅니다. state machine, role check, 그리고 각 플레이어의 비공개 답을 컨트랙트가 검증하도록 하는 hash commitment를 다룹니다.",
+    to: "/tutorials/battleship/smart-contract",
+    cta: "Read the contract",
+  },
+  {
+    title: "Battleship tests",
+    body: "MidnightJS로 로컬 devnet에서 게임을 플레이한 다음, 부정행위를 시도해 컨트랙트가 모든 시도를 거부하는 모습을 지켜봅니다.",
+    to: "/tutorials/battleship/test-suite",
+    cta: "Run the tests",
+  },
+]} />

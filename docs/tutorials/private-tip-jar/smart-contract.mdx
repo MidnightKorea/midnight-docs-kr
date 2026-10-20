@@ -1,0 +1,445 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-examples. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+sidebar_label: "Private tip jar contracts"
+title: "Private tip jar contracts"
+description: "팁 항아리의 Compact 컨트랙트 두 개를 읽어봅니다: 새로 만든 컨트랙트 소유 코인으로 저장되는 익명 팁, 소유자 전용 인출, 그리고 팁으로 쓸 데모 토큰."
+sidebar_position: 10
+toc_max_heading_level: 3
+tags:
+  - tutorials
+  - private-tip-jar
+  - compact
+  - shielded-tokens
+  - privacy
+  - intermediate
+  - midnight-network
+---
+
+# Private tip jar contracts
+
+이 파트는 예제의 두 컨트랙트를 하나씩 살펴봅니다. 대부분은 항아리인
+`contract/private-tip-jar.compact`에 관한 내용입니다. 이어서 테스트가 팁으로 사용하는 데모 토큰
+`contract/tip-token.compact`를 다루고, `contract/index.ts`가 둘 다 어떻게 export하는지 설명합니다.
+
+## Prerequisites
+
+- 이 튜토리얼의 [set-up 단계](/tutorials/private-tip-jar). 이를 끝내야 midnight-examples가 설치되고
+  컴파일된 상태가 됩니다.
+- [Compact 툴체인](/getting-started/installation)과 Node.js 22.
+
+에디터에서 `examples/private-tip-jar/contract/private-tip-jar.compact`를 열고 이 페이지 옆에 두세요.
+
+## The design
+
+이 예제는 컨트랙트보다 먼저 작성된 설계 카드
+[`SPEC.md`](https://github.com/midnightntwrk/midnight-examples/blob/main/examples/private-tip-jar/SPEC.md)
+에서 출발했습니다. 설계 카드는 두 가지 역할을 명시합니다.
+
+| 역할 | 인식 기준 | 할 수 있는 일 |
+|---|---|---|
+| Owner | 소유자 비밀 키의 해시가 `owner` 필드와 일치 | 어떤 팁이든 인출 |
+| Tipper | 없음: `tip`에는 호출자 확인이 없고 witness를 호출하지 않음 | 허용된 토큰의 코인으로 팁 내기 |
+
+항아리는 세 단계로 동작합니다.
+
+1. 소유자가 항아리를 받아들일 토큰과 함께 배포합니다. 컨트랙트는 소유자 비밀 키의 해시를 저장할 뿐,
+   키 자체나 소유자의 지갑은 절대 저장하지 않습니다.
+2. 팁을 내는 사람이 자기 지갑이 값을 치르는 새 shielded 코인으로 `tip`을 호출합니다. 컨트랙트는 그
+   코인을 넘겨받아 공개 pot에 저장합니다.
+3. 소유자가 pot에 든 코인마다 한 번씩 `withdraw`를 호출하고, 각 호출은 그 코인을 소유자의 shielded
+   지갑으로 지불합니다.
+
+### Shielded coins in one paragraph
+
+shielded 코인은 `ShieldedCoinInfo`로 서술됩니다. 어떤 토큰인지 나타내는 `color`, `value`, 그리고
+코인을 고유하게 만드는 32바이트 `nonce`로 이루어집니다. 코인은 Midnight의 shielded 전송 프로토콜인
+Zswap을 통해 움직입니다. 코인을 소비하는 트랜잭션은 그 코인에 대한 nullifier를 공개하고, 코인을
+만드는 트랜잭션은 그 코인에 대한 commitment를 공개합니다. 둘 중 어느 것도 코인의 nonce, color,
+value, 또는 그 코인을 소유한 지갑을 드러내지 않습니다. (단, 코인을 보내거나 받는 컨트랙트는
+이름이 드러납니다.) 컨트랙트도 shielded 코인을 보유할 수 있지만, 컨트랙트에는 비밀 키가 없으므로
+나중에 그 코인을 소비하려면 코인 전체를 알고 있어야 합니다. 항아리는 자신의 코인을 public ledger에
+보관합니다. 바로 이 한 가지 사실이 전체 설계를 좌우합니다.
+
+## The ledger
+
+항아리의 public state는 세 개의 필드가 전부이며, 그 외에는 아무것도 없습니다.
+
+```compact title="contract/private-tip-jar.compact"
+// Hash of the owner's secret key, written once at deployment. `sealed` means
+// no circuit can ever change it, so ownership cannot be transferred or hijacked.
+export sealed ledger owner: Bytes<32>;
+
+// The only token color the jar accepts, fixed at deployment. Tips of any
+// other color are refused, so every pot entry is the same currency.
+export sealed ledger tipColor: Bytes<32>;
+
+// The coins the jar currently holds, keyed by each coin's own nonce.
+// Every coin here is contract-owned and was created by its `tip` transaction
+// under a fresh nonce, so publishing it links nothing back to a tipper's
+// wallet. The coin value IS public: that is the price of letting the contract
+// spend these coins without anyone having to hand it a secret later.
+export ledger pot: Map<Bytes<32>, QualifiedShieldedCoinInfo>;
+```
+
+- **`owner`**와 **`tipColor`**는 `sealed`입니다. 생성자와 그것이 호출하는 circuit만 이들을 쓸 수
+  있습니다. 컴파일러는 이들을 쓰려는 export된 circuit을 모두 거부합니다. 배포 이후에는 누구도
+  항아리를 가로채거나 받아들이는 토큰을 바꿀 수 없습니다.
+- **`pot`**은 코인의 nonce를 코인에 매핑합니다. 값 타입은 `QualifiedShieldedCoinInfo`로,
+  `ShieldedCoinInfo`에 코인의 `mt_index`, 즉 Zswap commitment 트리에서의 위치가 더해진 것입니다.
+  컨트랙트는 나중에 그 코인을 소비하려면 이 위치를 알아야 합니다.
+
+무엇이 빠져 있는지 눈여겨보세요. 팁을 낸 사람의 목록도 없고, 팁을 낸 사람별 카운터도 없습니다.
+ledger의 어떤 것도 누가 팁을 냈는지를 키로 삼거나 그로부터 파생되지 않습니다. 이 컨트랙트는
+unshielded 전송을 하지 않으므로, ledger 선언만 봐도 컨트랙트가 공개하는 것의 대부분을 알 수
+있습니다. 나머지, 예컨대 각 트랜잭션이 어떤 circuit을 언제 호출하는지는
+[What is public, and what isn't](#what-is-public-and-what-isnt)에 있습니다.
+
+## The owner
+
+### A secret behind a hash
+
+소유자의 비밀 키는 소유자의 private state에 들어 있고, 하나의 witness가 그 키를 필요로 하는
+circuit에 넘겨줍니다.
+
+```compact title="contract/private-tip-jar.compact"
+witness ownerSecretKey(): Bytes<32>;
+```
+
+TypeScript 쪽은 `contract/witnesses.ts`의 함수 하나입니다. private state에서 키를 반환하고 상태는
+그대로 둡니다.
+
+```typescript title="contract/witnesses.ts"
+export type PrivateTipJarPrivateState = {
+  ownerSecretKey: Uint8Array;
+};
+
+export const createPrivateTipJarPrivateState = (
+  ownerSecretKey: Uint8Array,
+): PrivateTipJarPrivateState => ({ ownerSecretKey });
+```
+
+```typescript title="contract/witnesses.ts"
+export const witnesses = {
+  // Called by the constructor (to store `owner`) and by `withdraw` (to prove
+  // the caller is the owner). The private state is returned unchanged: reading
+  // the key does not consume or rotate it.
+  ownerSecretKey: ({
+    privateState,
+  }: WitnessContext<Ledger, PrivateTipJarPrivateState>): [
+    PrivateTipJarPrivateState,
+    Uint8Array,
+  ] => [privateState, privateState.ownerSecretKey],
+};
+```
+
+팁을 내는 사람은 이 witness를 절대 호출하지 않습니다. `tip`이 그것을 쓰지 않기 때문입니다. 팁을
+내는 사람의 private state에는 어떤 값이든 담을 수 있고, 테스트는 팁을 내는 사람에게 무작위 키를
+줍니다.
+
+### The constructor
+
+```compact title="contract/private-tip-jar.compact"
+constructor(acceptedColor: Bytes<32>) {
+    owner = disclose(ownerKey(ownerSecretKey()));
+    tipColor = disclose(acceptedColor);
+}
+```
+
+배포자가 소유자가 됩니다. 생성자는 배포자 비밀의 `ownerKey`를 저장하므로, 원본 비밀은 배포
+트랜잭션에 절대 나타나지 않습니다. 받아들이는 color는 witness가 아니라 평범한 생성자 인자인데,
+공개되도록 의도됐기 때문입니다. 그래도 두 쓰기 모두 `disclose()`가 필요합니다. Compact은 생성자와
+circuit 인자를 witness 데이터처럼 취급하므로, 둘 중 어느 것에서 파생된 값이 ledger에 도달할 때마다
+컴파일러가 `disclose()`를 요구합니다.
+
+### `ownerKey`
+
+```compact title="contract/private-tip-jar.compact"
+export pure circuit ownerKey(sk: Bytes<32>): Bytes<32> {
+    return persistentHash<Vector<2, Bytes<32>>>([pad(32, "private-tip-jar:owner:"), sk]);
+}
+```
+
+이는 Private Party와 Battleship의
+[role check](/tutorials/battleship/smart-contract#technique-2-role-checks)에서 쓰인 DApp 고유의
+키입니다. 도메인 구분자 뒤에 숨긴 비밀의 해시이며, 여기서는 `"private-tip-jar:owner:"`가 그
+구분자입니다. 새로운 점은 `pure` 키워드입니다. `ownerKey`는 ledger state를 읽지 않고 witness를
+호출하지도 않으며, `pure`는 컴파일러가 그것을 확인하게 합니다. TypeScript는 트랜잭션 없이 이것을
+직접 호출할 수 있습니다. 테스트는 비밀로부터 기대하는 `owner` 값을 계산하는 데 이것을 사용합니다.
+
+`ownerKey`는 컨트랙트의 주소를 포함하지 않으므로, 두 항아리에서 같은 비밀을 쓰면 같은 `owner` 값이
+나오고, 누구나 두 항아리를 한 소유자로 연결할 수 있습니다. 항아리마다 새 비밀을 쓰세요.
+
+## Tipping
+
+`tip`은 이 예제의 핵심입니다.
+
+```compact title="contract/private-tip-jar.compact"
+export circuit tip(coin: ShieldedCoinInfo): [] {
+    // The guards run before any coin moves. A failing assert is rejected
+    // while the transaction is being built, so a bad tip costs nothing.
+    assert(coin.color == tipColor, "Tips must be paid in the jar's token");
+    assert(coin.value > 0, "A tip must be worth something");
+    // Pot keys are public and the tipper picks the nonce, so without this a
+    // tip that reused a pot key with a different value (a different coin, so
+    // Zswap would accept it) would overwrite that entry and strand its coin
+    // in the contract for good.
+    assert(!pot.member(disclose(coin.nonce)), "A tip with that nonce is already in the jar");
+
+    // `disclose` here acknowledges that the coin flows into a public effect
+    // (the Zswap output to this contract, which carries only its commitment)
+    // and, below, into the ledger. Both are fine: the nonce is fresh.
+    receiveShielded(disclose(coin));
+
+    // insertCoin records the coin as a QualifiedShieldedCoinInfo, filling in
+    // the commitment-tree index the ledger assigns when this transaction
+    // lands, so `withdraw` can spend it later with sendShielded.
+    pot.insertCoin(
+        disclose(coin.nonce),
+        disclose(coin),
+        right<ZswapCoinPublicKey, ContractAddress>(kernel.self())
+    );
+}
+```
+
+네 단계로 읽어보세요.
+
+**1. 신원 없음.** `tip`에는 호출자 확인이 없고 witness를 호출하지 않습니다. 누가 팁을 내는지 묻지
+않으므로, 팁을 내는 사람에 관해 새어 나갈 것이 아무것도 없습니다. 누구나 팁을 낼 수 있습니다.
+
+**2. 가드가 먼저.** 처음 두 `assert`는 코인의 color를 `tipColor`와 대조하고 값이 0인 경우를
+거부합니다. 이들은 코인이 조금이라도 움직이기 전에 실행됩니다. `assert`가 실패하면 트랜잭션을
+만드는 동안 팁을 내는 사람 자신의 기기에서 circuit이 멈추므로, 증명이 생성되지 않고 아무것도
+제출되지 않으며, 잘못된 팁은 아무 비용도 들지 않습니다. 세 번째 가드는 4단계에서 다룹니다.
+
+**3. `receiveShielded`, 그리고 `coin`이 실제로 무엇인가.** `coin`은 팁을 내는 사람의 지갑 코인
+중 하나가 아닙니다. 그것은 *새* 코인을 서술하며, `receiveShielded`는 그 코인을 컨트랙트의 것으로
+청구합니다. ledger는 그 코인을 컨트랙트를 위해 만드는 Zswap 출력이 트랜잭션에 함께 들어 있을 때만
+트랜잭션을 받아들입니다. MidnightJS가 그 출력을 트랜잭션에 넣고, 팁을 내는 사람의 지갑이 트랜잭션의
+균형을 맞추면서 그 값을 치르는데, 코인 선택이 고른 해당 color의 코인이면 무엇이든 소비합니다.
+거스름돈은 새 nonce 아래로 돌아옵니다. 그래서 팁을 내는 사람은 정확히 그 값의 코인을 먼저 만들지
+않고도 원하는 금액을 팁으로 낼 수 있습니다. 테스트에서 Bob은 자신이 민팅받은 100짜리 코인 하나에서
+40을 냈다가 이어서 60을 냅니다.
+
+팁을 내는 사람의 클라이언트가 새 무작위 nonce로 코인을 만들어 냅니다(테스트는 리포의
+`@midnight-ntwrk/example-coins` 패키지에 있는 `freshCoin`을 쓰는데, 이는 ledger의
+`createShieldedCoinInfo`를 호출합니다). 여기의 `disclose()`는 비밀을 ledger에 쓰지 않습니다.
+코인이 공개 효과, 즉 그 코인을 컨트랙트로 옮기면서 코인의 commitment만을 싣는 Zswap 출력으로
+흘러 들어간다는 사실을 인정할 뿐입니다.
+
+**4. 코인을 그대로 저장.** `pot.insertCoin`은 코인을 자신의 nonce 아래 저장합니다. `insertCoin`은
+값 타입이 `QualifiedShieldedCoinInfo`일 때 쓸 수 있는, 코인을 위한 `Map` 연산입니다. 키와
+`ShieldedCoinInfo` 외에 코인의 수령자도 받는데, 여기서는 컨트랙트 자신입니다. `kernel.self()`는
+컨트랙트 자신의 주소이고, 수령자는 `left`가 사용자의 코인 공개 키이고 `right`가 컨트랙트 주소인
+`Either`입니다. (Private Party의 `sendUnshielded`는 이들을 반대로, 컨트랙트 주소를 `left`에
+두고 받습니다.) 트랜잭션이 실행되는 동안 `insertCoin`은 commitment 트리에서 코인의 실제
+`mt_index`를 찾아 qualified 코인을 저장합니다. 이는 팁처럼 같은 트랜잭션에서 만들어진 코인에
+대해서만 동작합니다. 바로 이 방식으로 `withdraw`가 나중에 그 코인을 소비할 수 있습니다.
+
+코인을 공개해도 안전한 이유는 그 nonce가 새것이기 때문입니다. 코인의 commitment는 그 nonce, color,
+value, 소유자의 해시이므로, 공개된 nonce는 누구든 추측한 지갑 키를 체인에 대조해 볼 수 있게
+합니다. 여기서 그 대조는 오직 컨트랙트 자신의 코인에만 들어맞을 수 있는데, 어떤 지갑 코인도 그
+nonce를 공유하지 않기 때문입니다.
+
+하지만 pot 키는 공개되어 있고, 팁을 내는 사람이 그것을 고릅니다. 기존 키의 nonce에 다른 값을 가진
+코인은 다른 코인이므로 Zswap은 그것을 받아들이고, `insertCoin`은 그 pot 항목을 덮어써서 그 코인을
+컨트랙트 안에 영영 묶어 버립니다. 세 번째 `assert`가 거부하는 것이 바로 그것입니다.
+
+이 컨트랙트의 이전 버전은 각 팁을 저장하기 전에 `kernel.self()`로 다시 보냈습니다(표준 라이브러리의
+`sendImmediateShielded`가 정확히 그 전송, 즉 `mt_index` 0에서의 `sendShielded`입니다). 그것은
+테스트가 팁을 내는 사람의 지갑 코인 중 하나를 `coin`으로 넘겼기 때문에 존재했습니다. 새 코인을 쓰면
+그것이 불필요해지고, circuit에서 코인 소비 한 번을 아낄 수 있습니다.
+
+### What the tipper's client has to do
+
+컨트랙트는 새 nonce와 재사용된 nonce를 구분할 수 없으므로, 팁을 연결 불가능하게 유지하는 일은
+클라이언트의 몫입니다. 클라이언트가 그 대신 자기 지갑의 코인 중 하나로 `coin`을 만들면, 그 nonce는
+두 commitment에, 즉 지갑 코인의 commitment와 컨트랙트의 commitment에 모두 들어갑니다. 그러면 그것을
+pot에 공개하는 순간, 지갑의 키를 추측할 수 있는 누구든 그 팁이 그 사람 것이었음을 확인할 수 있게
+됩니다. 여기에는 그 코인을 팁을 내는 사람에게 민팅했거나 보낸 사람, 즉 코인의 nonce를 대놓고 아는
+사람도 포함됩니다. 테스트에서 토큰을 민팅하는 사람은 항아리의 소유자이기도 한데, 이것이야말로
+문제가 되는 바로 그 경우입니다.
+[test suite](/tutorials/private-tip-jar/test-suite)는 Bob의 지갑 코인 nonce 중 어느 것도 pot에
+도달하지 않음을 확인합니다.
+
+## Withdrawing
+
+```compact title="contract/private-tip-jar.compact"
+export circuit withdraw(tipKey: Bytes<32>): [] {
+    // Ownership is proven by knowing the secret behind `owner`. The secret is
+    // only used inside the proof; the comparison result is all that matters.
+    assert(ownerKey(ownerSecretKey()) == owner, "Only the owner can withdraw");
+
+    // The key is public anyway (it is a pot key), so disclosing it is free.
+    const key = disclose(tipKey);
+    assert(pot.member(key), "No such tip in the jar");
+
+    // `pot` holds the coin with the mt_index the ledger assigned when the tip
+    // landed (insertCoin records it), so it can be spent with sendShielded.
+    const coin = pot.lookup(key);
+
+    // Pay the full coin to the caller's shielded wallet. `ownPublicKey()` is
+    // the key of whoever submits the transaction, which the owner check above
+    // has already restricted to the owner.
+    sendShielded(
+        coin,
+        left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()),
+        coin.value
+    );
+    pot.remove(key);
+}
+```
+
+- **소유자 확인.** circuit은 witness에서 받은 비밀을 해시하고 그 결과를 `owner`와 비교합니다.
+  비밀은 증명 안에서만 쓰입니다. 다른 비밀을 가진 호출자는 `assert`에 실패하고 증명을 결코 얻지
+  못합니다.
+- **pot 키.** `tipKey`는 pot에 든 코인 하나를 가리킵니다. 키는 어차피 공개되어 있으므로 그것을
+  disclose해도 아무 비용이 들지 않습니다. pot에 없는 키는, 이미 인출된 키를 포함해, 두 번째
+  `assert`에 실패하므로 어떤 코인도 두 번 지불될 수 없습니다.
+- **지불.** `sendShielded`가 코인 전체를 `ownPublicKey()`에 지불하고, 이어서 `pot.remove`가 그
+  항목을 삭제합니다. `ownPublicKey()`는 witness입니다. 호출자의 런타임이 트랜잭션을 제출하는 지갑의
+  코인 공개 키를 제공하며, 그것을 증명하는 것은 아무것도 없습니다. 그래서 그것은 누가 인출해도
+  되는지를 결정하는 데 결코 쓰이지 않습니다. 그 판단은 소유자 확인이 합니다. `ownPublicKey()`는
+  소유자가 코인을 어디로 보내고 싶은지만 말해 줍니다.
+
+이는 Battleship과 똑같은 role check입니다. 호출자는 트랜잭션을 제출한 사람이 누구인지로 신뢰받는
+것이 아니라, 컨트랙트가 저장해 둔 해시의 원본 비밀을 안다는 사실을 증명합니다.
+
+`withdraw`는 호출당 코인 하나를 옮기며, 이는 circuit을 작게 유지합니다. 항아리를 비우려면 소유자는
+pot 항목마다 한 번씩 그것을 호출합니다.
+
+## The second contract: a demo token
+
+갓 띄운 로컬 devnet에는 shielded 토큰이 없으므로 팁으로 쓸 것이 없습니다.
+`contract/tip-token.compact`가 그것을 해결합니다. 누구나 민팅할 수 있는 민짜 faucet이며, 팁 항아리
+설계의 일부가 아니라 테스트용 발판입니다. 이런 것을 실제 통화로 배포해서는 결코 안 됩니다.
+
+```compact title="contract/tip-token.compact"
+export ledger mintCount: Counter;
+```
+
+```compact title="contract/tip-token.compact"
+export circuit mint(recipient: ZswapCoinPublicKey, amount: Uint<64>, nonce: Bytes<32>): [] {
+    mintShieldedToken(
+        pad(32, "private-tip-jar:demo-token:"),
+        disclose(amount),
+        disclose(nonce),
+        left<ZswapCoinPublicKey, ContractAddress>(disclose(recipient))
+    );
+    mintCount.increment(1);
+}
+```
+
+- **`mintShieldedToken`**은 `amount`만큼의 새 shielded 코인을 만들어 곧바로 `recipient`의 지갑으로
+  보냅니다. 첫 번째 인자는 32바이트 도메인 구분자입니다.
+- **토큰의 color**는 그 도메인 구분자와 토큰 컨트랙트의 주소로부터 파생됩니다. 항아리는 토큰
+  컨트랙트에 관해 아무것도 알 필요가 없습니다. color만 있으면 되고, 테스트는 토큰이 배포되고 나면
+  `rawTokenType(domain, address)`로 그것을 오프체인에서 계산합니다. 그 color가 항아리의 생성자
+  인자이며, 두 컨트랙트 사이의 유일한 연결 고리입니다.
+- **`mintCount`**는 민팅 횟수를 세고, 첫 devnet 테스트는 민팅이 반영됐음을 확인하려고 이것을 다시
+  읽습니다. 이것이 없어도 `mint`는 proving key를 얻는데, `mintShieldedToken`이 이미 ledger를 건드리기
+  때문입니다.
+- **민팅하는 사람은 코인을 압니다.** `mint`를 호출하는 사람이 `nonce`를 고르므로, 그 사람은 민팅된
+  코인을 압니다. 바로 이 때문에 팁을 내는 사람은 민팅된 코인을 `tip`에 절대 넘기지 않습니다.
+  테스트는 새 코인으로 팁을 내고, Bob의 지갑은 그 값을 치르기 위해 민팅된 코인을 소비합니다.
+
+발행자와 소각 경로를 갖춘 실제 shielded 토큰은 학습 경로 뒤쪽의 `shielded-chips` 예제를 보세요.
+
+### Exporting two contracts
+
+각 `.compact` 파일은 `contract/managed/` 아래 자신만의 디렉터리로, 자신만의 proving key와 함께
+컴파일됩니다. `contract/index.ts`는 각각에 대해 `CompiledContract`를 export합니다. 항아리는 자신의
+witness에 바인딩됩니다.
+
+```typescript title="contract/index.ts"
+export const CompiledPrivateTipJarContract = CompiledContract.make(
+  'PrivateTipJarContract',
+  Contract,
+).pipe(
+  CompiledContract.withWitnesses(witnesses),
+  CompiledContract.withCompiledFileAssets(zkConfigPath),
+);
+```
+
+토큰은 witness를 선언하지 않으므로 `withVacantWitnesses`를 쓰고, 자신의 키를 가리킵니다.
+
+```typescript title="contract/index.ts"
+export const tipTokenZkConfigPath = path.resolve(currentDir, 'managed', 'tip-token');
+
+// The demo token declares no witnesses.
+export const CompiledTipTokenContract = CompiledContract.make(
+  'TipTokenContract',
+  TipTokenContractClass,
+).pipe(
+  CompiledContract.withVacantWitnesses,
+  CompiledContract.withCompiledFileAssets(tipTokenZkConfigPath),
+);
+```
+
+테스트는 각각을 `deployContract`로 배포하고 `submitCallTx`로 호출하는데, 상대하는 컨트랙트에 맞는
+`CompiledContract`를 고릅니다.
+
+## What is public, and what isn't
+
+무엇이 공개되는지 보려면 `disclose()` 호출이 아니라 ledger를 읽으세요. 항아리의 ledger는 정확히
+`owner`, `tipColor`, `pot`입니다.
+
+**숨겨지는 것**, 그리고 테스트의 privacy 테스트가 확인하는 것:
+
+- **누가 팁을 냈는가.** 어떤 필드도 팁을 내는 사람의 지갑 키, 팁을 내는 사람의 비밀, 또는 팁을 내는
+  사람의 지갑 코인 어느 것으로부터도 파생되지 않습니다. 팁 값을 치르는 지갑 코인은 Zswap을 통해
+  소비되며, Zswap은 코인이나 그 소유자가 아니라 nullifier와 commitment를 공개합니다.
+- **팁을 내는 사람이 소비한 코인.** pot은 각 팁이 컨트랙트를 위해 만든 코인만, 어떤 지갑 코인도
+  공유하지 않는 nonce 아래 보관합니다.
+- **소유자의 비밀 키.** 그 도메인 구분 해시인 `owner`만 저장됩니다.
+
+**설계상 공개되는 것**, `SPEC.md`에 적힌 허용된 누출:
+
+- **모든 팁 금액.** 각 pot 항목은 값을 포함한 코인 전체입니다. 컨트랙트가 나중에 코인을 소비하려면
+  코인 전체가 필요하기 때문입니다. 금액을 숨기려면 팁을 내는 사람이 소유자에게 오프체인으로 비밀을
+  건네야 하는데, 이 예제는 그렇게 하지 않습니다.
+- **팁과 인출의 횟수와 시점.** 각 트랜잭션이 어떤 circuit을 호출하는지는 언제 실행됐는지와 함께
+  공개됩니다.
+- **받아들이는 color와 소유자 해시.** 두 항아리에서 쓰인 하나의 소유자 비밀은 둘을 연결합니다.
+- **nonce를 포함한, 팁으로 낸 코인.** 그것이 안전한 것은 오직 nonce가 새것일 때뿐이며, 컨트랙트는
+  그것을 확인할 수 없으므로, 위에서 설명했듯이 그것은 클라이언트의 몫입니다.
+- **소유자의 돈이 어디로 가는가**, 소유자의 지갑을 추측하는 사람에게는 드러납니다. 인출 지불의
+  nonce는 공개 pot nonce로부터 파생됩니다. 이 설계에서 소유자는 공개된 역할입니다.
+- **수수료 지불.** 팁을 내는 사람은 각자 자신의 트랜잭션 수수료를 DUST로 냅니다. 이 예제는 수수료
+  지불이 팁을 팁 낸 사람의 지갑과 연결짓는지 분석하지 않으며, 그렇지 않다는 주장도 하지 않습니다.
+
+## Compile
+
+set-up 중에 모든 컨트랙트를 컴파일했습니다. 이 예제의 두 컨트랙트만 다시 컴파일하려면,
+`examples/private-tip-jar`에서 다음을 실행하세요.
+
+```bash
+yarn compile
+```
+
+이는 컨트랙트마다 `compact compile`을 한 번씩, 각각을 자신의 `contract/managed/<name>/`
+디렉터리로 실행하고 그 proving key를 생성합니다. 항아리에는 proving key를 가진 circuit이 두 개
+있고, 토큰에는 하나 있습니다.
+
+```
+Compiling 2 circuits:
+  circuit "tip" (k=14, rows=12437)
+  circuit "withdraw" (k=15, rows=16756)
+Overall progress [====================] 2/2
+Compiling 1 circuits:
+  circuit "mint" (k=14, rows=10391)
+Overall progress [====================] 1/1
+```
+
+`ownerKey`는 pure이므로 자신의 proving key를 얻지 않습니다. `tip`은 항아리의 두 circuit 중 더 작은
+쪽인데, 코인을 받기만 하는 반면 `withdraw`는 보내기도 하기 때문입니다. (`tip`이 각 코인을
+컨트랙트로 다시 보내기도 했을 때는 셋 중 가장 컸습니다. k=15, 30,328 rows.)
+
+테스트와 타입 체크만 하려면 `yarn compile:fast`가 proving key 생성을 건너뛰고 몇 초 만에 끝납니다.
+devnet 실행에는 전체 `yarn compile`이 필요합니다.
+
+## Next
+
+[Private tip jar tests](/tutorials/private-tip-jar/test-suite)에서는 항아리를 메모리에서, 그다음
+로컬 devnet에서 실행합니다. 토큰을 민팅하고, 그것으로 팁을 내고, 팁을 내는 사람에 관한 어떤 것도
+공개되지 않음을 증명하고, 인출합니다.

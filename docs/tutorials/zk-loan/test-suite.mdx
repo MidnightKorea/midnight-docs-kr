@@ -1,0 +1,509 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-examples. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+sidebar_label: "ZK Loan tests"
+title: "ZK Loan tests"
+description: "MidnightJS로 로컬 devnet에서 ZK loan DApp을 실행하고, 변조된 신용 데이터·blacklist에 오른 borrower·물러난 admin이 거부되는지 확인합니다."
+sidebar_position: 30
+toc_max_heading_level: 3
+---
+
+# ZK Loan tests
+
+[contract](/tutorials/zk-loan/smart-contract)와
+[attestation API](/tutorials/zk-loan/attestation-api)는 실제 체인에서 실제 증명과 함께 동작할 때라야
+비로소 그 가치를 증명합니다. 이 파트에서는 `src/test/zk-loan.test.ts`를 따라갑니다. 이 테스트는
+컨트랙트를 로컬 devnet에 배포하고, attestation API의 키를 등록하고, 두 borrower를 위해 대출을 받고,
+컨트랙트가 방어하는 공격들을 시도합니다. 변조된 신용 데이터, admin 행세를 하는 비-admin, blacklist에
+오른 borrower, 그리고 역할을 넘겨 버린 admin입니다.
+
+## Prerequisites
+
+- 이 튜토리얼의 [ZK Loan contract](/tutorials/zk-loan/smart-contract)와
+  [Attestation API](/tutorials/zk-loan/attestation-api) 파트.
+- 로컬 devnet을 위한, 실행 중인 Docker.
+
+## Run the suite
+
+`examples/zk-loan`에서 로컬 네트워크를 시작하고, 테스트 wallet이 수수료를 낼 DUST를 받을 때까지 기다린
+뒤, 테스트를 실행합니다:
+
+```bash
+yarn env:up
+yarn wait:dust
+yarn test:local
+```
+
+`yarn env:up`은 `compose.yml`에서 Midnight node, indexer, proof server를 시작합니다. 이 페이지를
+진행하는 동안 계속 켜 두세요. attestation API는 직접 시작하지 않습니다. 스위트가 프로세스 안에서 자체
+복사본을 시작합니다. 성공하는 호출마다 실제 증명이 생성되므로, 스위트가 끝나는 데 몇 분 걸립니다.
+
+끝나면 20개 테스트가 모두 통과합니다. 거부를 예상하는 테스트까지 포함한 10개의 온체인 테스트와,
+attestation API의 단위 테스트 10개입니다:
+
+```
+ ✓ src/test/attestation-api/server.test.ts (4 tests) 57ms
+ ✓ src/test/attestation-api/signing.test.ts (6 tests) 71ms
+ ✓ src/test/zk-loan.test.ts (10 tests) 221489ms
+     ✓ deploys the contract with the deployer as admin  16742ms
+     ✓ lets the admin register the attestation API's public key  17248ms
+     ✓ approves a Tier 1 loan within the limit  18459ms
+     ✓ proposes a capped amount when the request exceeds the tier, and the borrower accepts  35989ms
+     ✓ records a Tier 2 loan for a second borrower under a separate identity  35820ms
+     ✓ blocks a blacklisted borrower until the admin removes them  35997ms
+     ✓ migrates all loans to the identity derived from a new PIN  24001ms
+     ✓ rotates the admin role to a new admin public key  35993ms
+
+ Test Files  3 passed (3)
+      Tests  20 passed (20)
+```
+
+Vitest는 300ms보다 오래 걸리는 테스트만 표시하므로, 거부만을 예상하는 두 테스트, 즉 비-admin이
+provider를 등록하는 테스트와 변조된 신용 데이터 테스트는 별도 줄 없이 통과합니다. 이 소요 시간이 말해
+주는 바가 있습니다. 성공하는 호출은 각각 약 17초가 걸리며 대부분 증명 생성에 쓰이므로, 성공 호출이 두
+번인 테스트는 약 36초가 걸립니다. 정확한 시간은 머신마다 다릅니다. 거부되는 호출은 1초도 훨씬 안 되어
+실패합니다. `assert`가 실패하면 호출자 자신의 머신에서 circuit이 멈추므로, 증명이 생성되지 않고
+아무것도 제출되지 않습니다.
+
+작업을 마치면 네트워크를 내립니다:
+
+```bash
+yarn env:down
+```
+
+## The test harness
+
+테스트 파일에서 `// Everything above is generated boilerplate. Your tests begin here.` 줄 위쪽은 모두
+테스트 harness입니다. 대부분은 midnight-examples의 모든 예제에서 동일합니다:
+
+- **`src/config.ts`**는 각 네트워크의 endpoint를 담고 있습니다. `MIDNIGHT_NETWORK`가 그중 하나를
+  고릅니다. `yarn test:local`은 이를 `local`로 설정하고, `yarn test:preview`와 `yarn test:preprod`는
+  같은 스위트를 공개 테스트 네트워크에 대해 실행합니다.
+- 공용 `@midnight-ntwrk/example-fast-sync` 패키지의 **`resolveWallet(network)`**는 wallet secret을
+  반환합니다. `local`에서는 devnet에 미리 자금이 채워진 wallet이므로 따로 설정할 것이 없습니다. 원격
+  네트워크에서는 리포 루트의 `.env.<network>` 파일에서 가져옵니다.
+- **`src/wallet.ts`**는 wallet을 생성하고 시작하고 동기화합니다. **`src/providers.ts`**는 한 참여자에게
+  필요한 MidnightJS provider를 묶습니다. indexer에서 오는 public 데이터, private state, ZK artifact 및
+  증명, 그리고 wallet 자체입니다.
+
+### One wallet, two identities
+
+Battleship과 달리 이 스위트에는 wallet이 하나뿐입니다. 이 wallet은 수수료만 냅니다. 두 참여자 Alice와
+Bob은 두 개의 private state이며, 각각 자신만의 32바이트 secret을 갖습니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+// Both parties share ONE wallet (it only pays fees). Their contract identities
+// live in separate private states, each holding its own 32-byte userSecretKey —
+// which is the point: in this contract identity comes from the witness secret,
+// not from the wallet that submits the transaction.
+const ALICE_STATE_ID = 'AliceZkLoanState'; // deployer => admin, and a borrower
+const BOB_STATE_ID = 'BobZkLoanState'; // a second borrower, not admin
+
+const PROVIDER_ID = 1n; // the id the attestation API is started with
+const ALICE_PIN = 1234n;
+const ALICE_NEW_PIN = 5678n;
+const BOB_PIN = 4321n;
+```
+
+여기서 컨트랙트의 신원 모델이 작동합니다. 어떤 참여자인지는 witness가 제시하는 secret이 누구의
+것인가로 정해지며, 트랜잭션을 제출하는 wallet이 무엇인지와는 무관합니다.
+
+### The attestation provider
+
+`beforeAll`은 wallet과 provider를 생성·동기화한 뒤, `attestation-api/server.ts`의 실제 attestation
+API를 비어 있는 포트에서 새 키와 함께 시작합니다. `PROVIDER_SECRET_KEY` 없이 `yarn attestation:start`를
+실행할 때와 동일합니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+    // Fresh ephemeral provider key per run, like `yarn attestation:start`
+    // without PROVIDER_SECRET_KEY.
+    attestationServer = createServer(generateKeyPair().sk, Number(PROVIDER_ID));
+    await new Promise<void>((resolve) => attestationServer.listen(0, '127.0.0.1', resolve));
+    const addr = attestationServer.address();
+    attestationUrl = `http://127.0.0.1:${typeof addr === 'string' ? addr : addr.port}`;
+    logger.info(`Attestation API at ${attestationUrl}`);
+```
+
+두 secret은 실행할 때마다 무작위로 정해집니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  const aliceSecret = new Uint8Array(randomBytes(32));
+  const bobSecret = new Uint8Array(randomBytes(32));
+
+  // Off-chain mirror of `deriveUserPublicKey` — the same pure circuit, so the
+  // bytes match what the contract computes in-circuit.
+  const userPk = (secret: Uint8Array, pin: bigint): Uint8Array =>
+    pureCircuits.deriveUserPublicKey(secret, pin);
+```
+
+`userPk`는 컨트랙트 자체의 pure circuit을 호출하므로, 테스트는 컨트랙트가 circuit 안에서 유도하는 바로
+그 키를 유도하고, 그 키로 대출을 조회할 수 있습니다.
+
+### Helpers
+
+`attestedState`는 [attestation flow](/tutorials/zk-loan/attestation-api#the-attestation-flow)에서
+borrower 쪽 절반을 담당합니다. borrower의 유도된 키를 해싱하고, 그 해시에 대해 프로필에 서명해 달라고
+API에 요청하고, witness가 제시하는 private state를 만듭니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  async function attestedState(
+    secret: Uint8Array,
+    pin: bigint,
+    creditScore: number,
+    monthlyIncome: number,
+    monthsAsCustomer: number,
+  ): Promise<ZkLoanPrivateState> {
+    const userPubKeyHash = transientHash(bytes32, userPk(secret, pin));
+    const res = await fetch(`${attestationUrl}/attest`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        creditScore,
+        monthlyIncome,
+        monthsAsCustomer,
+        userPubKeyHash: userPubKeyHash.toString(),
+      }),
+    });
+    expect(res.status).toBe(200);
+    const { signature } = (await res.json()) as AttestationResponse;
+    return {
+      creditScore: BigInt(creditScore),
+      monthlyIncome: BigInt(monthlyIncome),
+      monthsAsCustomer: BigInt(monthsAsCustomer),
+      // JSON carries bigints as decimal strings.
+      attestationSignature: {
+        announcement: { x: BigInt(signature.announcement.x), y: BigInt(signature.announcement.y) },
+        response: BigInt(signature.response),
+      },
+      attestationProviderId: PROVIDER_ID,
+      userSecretKey: secret,
+    };
+  }
+```
+
+테스트 밖으로 나가는 것은 해시뿐입니다. API는 secret이나 PIN을 결코 보지 못합니다.
+
+헬퍼 두 개가 더 있어서 각 단계를 짧게 유지합니다. `setPrivateState`는 배포된 컨트랙트에 대해 한
+참여자의 private state를 저장하고, `call`은 배포된 컨트랙트의 circuit을 호출하는 MidnightJS 함수인
+`submitCallTx`를 감쌉니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  async function setPrivateState(id: string, state: ZkLoanPrivateState): Promise<void> {
+    providers.privateStateProvider.setContractAddress(contractAddress);
+    await providers.privateStateProvider.set(id, state);
+  }
+
+  // Thin wrapper over submitCallTx so each step reads as the circuit call it is.
+  async function call<K extends ZkLoanCircuitId>(
+    privateStateId: string,
+    circuitId: K,
+    ...args: CircuitArgs<K>
+  ) {
+    return (submitCallTx<Contract, K>)(providers, {
+      compiledContract: CompiledZkLoanContract,
+      contractAddress,
+      privateStateId,
+      circuitId,
+      args,
+    } as any);
+  }
+```
+
+또 다른 헬퍼는 컨트랙트의 public ledger를 읽는데, 테스트는 매 호출 뒤에 이를 사용합니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  async function queryLedger() {
+    const state = await providers.publicDataProvider.queryContractState(contractAddress);
+    expect(state).not.toBeNull();
+    return ledger(state!.data);
+  }
+```
+
+## Setting up the contract
+
+### Alice deploys
+
+Alice는 자신의 secret만 담은 private state로 배포합니다. 생성자에 필요한 것은 그게 전부입니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  it('deploys the contract with the deployer as admin', async () => {
+    const deployed: DeployedContract<Contract> = await (deployContract<Contract>)(providers, {
+      compiledContract: CompiledZkLoanContract,
+      privateStateId: ALICE_STATE_ID,
+      initialPrivateState: createZkLoanPrivateState(aliceSecret),
+    });
+
+    contractAddress = deployed.deployTxData.public.contractAddress;
+    logger.info(`Contract deployed at: ${contractAddress}`);
+    expect(contractAddress).toBeDefined();
+    expect(contractAddress.length).toBeGreaterThan(0);
+
+    const state = await queryLedger();
+    // Only the derived admin PUBLIC key is on-chain — never the secret.
+    expect(state.contractAdmin).toEqual(pureCircuits.deriveAdminPublicKey(aliceSecret));
+    expect(state.loans.isEmpty()).toBe(true);
+    expect(state.providers.isEmpty()).toBe(true);
+  });
+```
+
+`deployContract`는 provider, `contract/index.ts`에서 가져온 컴파일된 컨트랙트, 그리고 private state
+ID와 초기 private state를 받습니다. private state를 `ALICE_STATE_ID`로 저장합니다.
+
+이 확인 과정은 생성자의 효과를 보여 줍니다. `contractAdmin`은 Alice secret의 해시를 담고 있는데,
+여기서는 동일한 pure circuit으로 오프체인에서 계산한 값이며, secret 자체는 ledger 어디에도 없습니다.
+
+### Registering the provider
+
+Alice는 `/provider-info`에서 API의 키를 읽어 등록합니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  it("lets the admin register the attestation API's public key", async () => {
+    const res = await fetch(`${attestationUrl}/provider-info`);
+    expect(res.status).toBe(200);
+    const info = (await res.json()) as ProviderInfoResponse;
+    expect(BigInt(info.providerId)).toEqual(PROVIDER_ID);
+    const providerPk = { x: BigInt(info.publicKey.x), y: BigInt(info.publicKey.y) };
+
+    await call(ALICE_STATE_ID, 'registerProvider', PROVIDER_ID, providerPk);
+
+    const state = await queryLedger();
+    expect(state.providers.member(PROVIDER_ID)).toBe(true);
+    const pk = state.providers.lookup(PROVIDER_ID);
+    expect(pk.x).toEqual(providerPk.x);
+    expect(pk.y).toEqual(providerPk.y);
+  });
+```
+
+### A non-admin tries to register a provider
+
+Bob은 자신의 secret으로 private state를 얻고, 자기 소유의 provider를 등록하려 합니다. 이 호출은
+`expect(...).rejects.toThrow()`로 감싸여 있는데, 이는 호출이 실패할 때만 통과합니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  it('rejects provider registration by a non-admin', async () => {
+    await setPrivateState(BOB_STATE_ID, createZkLoanPrivateState(bobSecret));
+    // Fails while building the proof: Bob's secret does not hash to contractAdmin.
+    await expect(
+      call(BOB_STATE_ID, 'registerProvider', 2n, generateKeyPair().pk),
+    ).rejects.toThrow();
+    expect((await queryLedger()).providers.member(2n)).toBe(false);
+  });
+```
+
+Bob의 secret은 `contractAdmin`으로 해싱되지 않으므로, Bob 자신의 머신에서 증명을 만드는 동안 가드가
+실패합니다. 아무것도 제출되지 않고, ledger에는 provider 2가 없습니다.
+
+거부된 호출 뒤에 ledger를 단언하는 것은 중요합니다. 공격이 단지 예외를 던졌다는 것이 아니라, 아무
+효과도 없었음을 보여 주기 때문입니다.
+
+## Borrowing
+
+### A Tier 1 loan
+
+Alice는 자신의 프로필(점수 720, 소득 2,500, 고객 유지 기간 24개월)에 서명을 받고 5,000을 요청합니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  it('approves a Tier 1 loan within the limit', async () => {
+    // Tier 1: score >= 700, income >= 2000, tenure >= 24 => up to 10,000.
+    await setPrivateState(ALICE_STATE_ID, await attestedState(aliceSecret, ALICE_PIN, 720, 2500, 24));
+    await call(ALICE_STATE_ID, 'requestLoan', 5000n, ALICE_PIN);
+
+    const state = await queryLedger();
+    const aliceKey = userPk(aliceSecret, ALICE_PIN);
+    expect(state.loans.member(aliceKey)).toBe(true);
+    const loan = state.loans.lookup(aliceKey).lookup(1n);
+    expect(loan.status).toEqual(LoanStatus.Approved);
+    expect(loan.authorizedAmount).toEqual(5000n);
+  });
+```
+
+이 프로필은 최대 10,000까지 허용하는 Tier 1을 충족하므로, 대출은 5,000 전액이 `Approved`됩니다. 이는
+Alice의 유도된 키 아래 loan 1입니다. ledger는 상태와 금액을 보유할 뿐, 프로필에 관한 것은 아무것도
+담지 않습니다.
+
+### A capped proposal
+
+Alice가 Tier 1이 허용하는 것보다 많은 15,000을 요청합니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  it('proposes a capped amount when the request exceeds the tier, and the borrower accepts', async () => {
+    await call(ALICE_STATE_ID, 'requestLoan', 15000n, ALICE_PIN);
+
+    const aliceKey = userPk(aliceSecret, ALICE_PIN);
+    let loan = (await queryLedger()).loans.lookup(aliceKey).lookup(2n);
+    expect(loan.status).toEqual(LoanStatus.Proposed);
+    expect(loan.authorizedAmount).toEqual(10000n);
+
+    await call(ALICE_STATE_ID, 'respondToLoan', 2n, ALICE_PIN, true);
+
+    loan = (await queryLedger()).loans.lookup(aliceKey).lookup(2n);
+    expect(loan.status).toEqual(LoanStatus.Approved);
+    expect(loan.authorizedAmount).toEqual(10000n);
+  });
+```
+
+컨트랙트는 loan 2를 해당 tier의 최대치인 10,000으로 `Proposed` 상태로 기록합니다. Alice는
+`respondToLoan`으로 수락하고, 대출은 `Approved`가 됩니다. 그녀의 private state에는 여전히 같은 서명된
+프로필이 들어 있으므로, 이 호출에는 새 attestation이 필요 없습니다.
+
+### Tampered credit data
+
+Bob은 점수 650으로 프로필에 정직하게 서명을 받은 뒤, 신청하기 전에 자신의 private state에서 점수를
+800으로 부풀립니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  it('rejects a request whose credit data was tampered with after signing', async () => {
+    const signed = await attestedState(bobSecret, BOB_PIN, 650, 1600, 10);
+    // Bob inflates his score; the provider's signature no longer matches.
+    await setPrivateState(BOB_STATE_ID, { ...signed, creditScore: 800n });
+    await expect(call(BOB_STATE_ID, 'requestLoan', 5000n, BOB_PIN)).rejects.toThrow();
+    expect((await queryLedger()).loans.member(userPk(bobSecret, BOB_PIN))).toBe(false);
+  });
+```
+
+점수가 800이면 Bob은 더 많은 금액의 자격을 얻게 됩니다. 하지만 서명은 provider가 서명한 점수인 650을
+포괄합니다. `requestLoan` 내부에서 `evaluateApplicant`가 witness의 프로필로 메시지를 다시 구성하고,
+거기서 `schnorrVerify`가 실패합니다. 증명도, 트랜잭션도 없고, Bob의 키 아래 대출도 없습니다.
+
+### A Tier 2 loan, declined
+
+Bob은 정직하게 서명된 프로필로 다시 9,000을 신청합니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  it('records a Tier 2 loan for a second borrower under a separate identity', async () => {
+    // Tier 2: score >= 600, income >= 1500 => up to 7,000.
+    await setPrivateState(BOB_STATE_ID, await attestedState(bobSecret, BOB_PIN, 650, 1600, 10));
+    await call(BOB_STATE_ID, 'requestLoan', 9000n, BOB_PIN);
+
+    const state = await queryLedger();
+    const loan = state.loans.lookup(userPk(bobSecret, BOB_PIN)).lookup(1n);
+    expect(loan.status).toEqual(LoanStatus.Proposed);
+    expect(loan.authorizedAmount).toEqual(7000n);
+    // Bob declines the lower offer.
+    await call(BOB_STATE_ID, 'respondToLoan', 1n, BOB_PIN, false);
+    const declined = (await queryLedger()).loans.lookup(userPk(bobSecret, BOB_PIN)).lookup(1n);
+    expect(declined.status).toEqual(LoanStatus.NotAccepted);
+    expect(declined.authorizedAmount).toEqual(0n);
+  });
+```
+
+점수 650과 소득 1,600은 최대 7,000까지 허용하는 Tier 2를 충족합니다. 그래서 대출은 7,000으로
+`Proposed`됩니다. Bob은 거절하고, 대출은 금액 0으로 `NotAccepted`가 됩니다.
+
+Bob의 대출은 Alice의 대출 두 건과 같은 컨트랙트 안에서 *그의* 키 아래 loan 1입니다. 각 borrower의
+대출은 저마다의 유도된 키 아래에 존재합니다.
+
+## Admin actions
+
+### The blacklist
+
+Alice는 Bob의 유도된 키로 그를 blacklist에 올리고, Bob의 다음 요청은 거부됩니다. 그런 다음 그녀가
+차단을 해제합니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  it('blocks a blacklisted borrower until the admin removes them', async () => {
+    const bobKey = userPk(bobSecret, BOB_PIN);
+    await call(ALICE_STATE_ID, 'blacklistUser', bobKey);
+    expect((await queryLedger()).blacklist.member(bobKey)).toBe(true);
+
+    await expect(call(BOB_STATE_ID, 'requestLoan', 1000n, BOB_PIN)).rejects.toThrow();
+
+    await call(ALICE_STATE_ID, 'removeBlacklistUser', bobKey);
+    expect((await queryLedger()).blacklist.member(bobKey)).toBe(false);
+  });
+```
+
+admin이 Bob을 blacklist에 올릴 수 있는 것은 그의 키가 ledger에 있기 때문입니다. 그 키는 곧 그의 대출의
+키입니다.
+
+### Changing a PIN
+
+Alice가 새 PIN으로 옮깁니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  it('migrates all loans to the identity derived from a new PIN', async () => {
+    const oldKey = userPk(aliceSecret, ALICE_PIN);
+    const newKey = userPk(aliceSecret, ALICE_NEW_PIN);
+
+    // Alice has 2 loans, below the batch size of 5, so one call finishes.
+    await call(ALICE_STATE_ID, 'changePin', ALICE_PIN, ALICE_NEW_PIN);
+
+    const state = await queryLedger();
+    expect(state.loans.member(oldKey)).toBe(false);
+    expect(state.onGoingPinMigration.member(oldKey)).toBe(false);
+    const migrated = state.loans.lookup(newKey);
+    expect(migrated.size()).toEqual(2n);
+    expect(migrated.lookup(1n).authorizedAmount).toEqual(5000n);
+    expect(migrated.lookup(2n).authorizedAmount).toEqual(10000n);
+  });
+```
+
+Alice는 대출이 두 건으로 배치 크기 5보다 적으므로, `changePin` 호출 한 번이 둘 다 옮기고 마이그레이션
+커서를 지웁니다. 그녀의 예전 키는 `loans`에서 사라지고, 그녀의 대출은 이제 새 키 아래에 있습니다. 다만
+`changePin` 트랜잭션은 두 키를 모두 명시하므로, 체인을 지켜보는 누구나 둘을 연결할 수 있습니다.
+
+### Handing over the admin role
+
+Alice가 admin 역할을 Bob에게 넘깁니다. Bob은 pure circuit으로 자신의 admin 키를 오프체인에서 유도하고,
+그 공개 키만 컨트랙트에 전달됩니다:
+
+```typescript title="src/test/zk-loan.test.ts"
+  it('rotates the admin role to a new admin public key', async () => {
+    const bobAdminPk = pureCircuits.deriveAdminPublicKey(bobSecret);
+    await call(ALICE_STATE_ID, 'rotateAdmin', bobAdminPk);
+    expect((await queryLedger()).contractAdmin).toEqual(bobAdminPk);
+
+    // The old admin is now locked out; the new one can act.
+    await expect(call(ALICE_STATE_ID, 'removeProvider', PROVIDER_ID)).rejects.toThrow();
+    await call(BOB_STATE_ID, 'removeProvider', PROVIDER_ID);
+    expect((await queryLedger()).providers.member(PROVIDER_ID)).toBe(false);
+  });
+```
+
+Alice는 즉시 접근이 막힙니다. 그녀의 secret은 더 이상 `contractAdmin`으로 해싱되지 않으므로, 그녀의
+`removeProvider` 호출은 거부됩니다. Bob의 호출은 성공합니다.
+
+## Test yourself
+
+이 스위트는 컨트랙트의 방어 수단을 전부가 아니라 일부만 확인합니다. 위 패턴을 활용해 다음 각각에 대한
+테스트를 추가해 보세요:
+
+- Bob이 Alice의 서명된 프로필을 재사용합니다. 그녀의 `attestationSignature`를 자신의 private state로
+  복사한 뒤 대출을 요청합니다. 어떤 검사가 그를 막습니까?
+- Alice가 `Proposed` 상태가 아닌 대출, 예를 들어 자신의 loan 1에 응답합니다.
+- 점수가 550인 borrower가 신청합니다. ledger에는 무엇이 기록됩니까?
+- Alice가 금액 0으로 `requestLoan`을 호출합니다.
+- Bob이 blacklist에 오른 뒤, 새 신원으로 빠져나가려고 `changePin`을 시도합니다.
+
+각 거부마다, 호출이 아무것도 바꾸지 않았음을 보이기 위해 이후에 ledger도 단언하세요.
+
+전체 테스트 파일은
+[`src/test/zk-loan.test.ts`](https://github.com/midnightntwrk/midnight-examples/blob/main/examples/zk-loan/src/test/zk-loan.test.ts)
+입니다. 컨트랙트의 simulator 테스트 62개는
+[`src/test/zk-loan.sim.test.ts`](https://github.com/midnightntwrk/midnight-examples/blob/main/examples/zk-loan/src/test/zk-loan.sim.test.ts)
+에 있으며, 훨씬 더 많은 경우를 다루고, `yarn test:sim`으로 몇 초 만에 실행됩니다.
+
+## Conclusion
+
+이 튜토리얼은 그 자체로는 신뢰할 수 없는 데이터에 대한 비공개 연산을 다뤘습니다:
+
+- **circuit 안에서 검증되는 attestation.** 신뢰받는 provider가 private 데이터에 서명하고, Compact
+  모듈이 증명 안에서 Schnorr 서명을 검증하므로, 변조된 데이터는 통과할 수 없습니다.
+- **양쪽에서 동일한 해시.** 오프체인 서명자가 챌린지를 위해 컨트랙트 자체의 pure circuit을 호출하므로,
+  서명자와 circuit이 서로 어긋날 수 없습니다.
+- **제약된 witness.** witness를 활용한 축약은 정수 범위에서 검사되므로, prover가 입맛에 맞는 답을 고를
+  수 없습니다.
+- **witness에서 유도되는 신원.** admin과 borrower의 신원은 `ownPublicKey()`가 아니라, private secret을
+  도메인 분리한 해시입니다.
+- **고정 크기 배치 처리**로, ledger에 커서를 두고 가변 개수의 레코드를 처리합니다.
+- **체인에는 결과만:** 각 대출의 상태와 금액이, wallet address가 아니라 유도된 키 아래에 올라갑니다.
+  attestation에 서명한 provider는 여전히 그 키를 borrower와 대응시킬 수 있습니다.
+
+전체 예제는 midnight-examples의
+[`examples/zk-loan`](https://github.com/midnightntwrk/midnight-examples/tree/main/examples/zk-loan)
+입니다. `ui/`에 브라우저 UI도 있는데, 기본값은 Preprod와 Lace wallet입니다. 해당 README를 참고하세요.
+
+## Next
+
+학습 경로의 마지막 단계는 [Leaderboard](/tutorials/leaderboard) 튜토리얼입니다. 브라우저 UI, Lace
+wallet 통합, 그리고 Vercel 배포를 갖춘 풀스택 DApp을 다룹니다.

@@ -1,0 +1,406 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-examples. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+sidebar_label: "Private party tests"
+title: "Private party tests"
+description: "MidnightJS로 로컬 devnet에서 private party를 실행합니다: 비공개로 RSVP하고, NIGHT으로 체크인하고, 참가비를 청구하고, 컨트랙트를 단계별로 배포합니다."
+sidebar_position: 20
+toc_max_heading_level: 3
+tags:
+  - tutorials
+  - private-party
+  - midnight-js
+  - testing
+  - beginner
+  - midnight-network
+---
+
+# Private party tests
+
+컴파일은 컨트랙트가 유효한 Compact임을 증명할 뿐입니다. 의도대로 동작하는지 확인하려면 직접 실행해
+봐야 합니다. 이 파트에서는 `src/test/party.test.ts`를 따라갑니다. 이 스위트는 세 사람, 즉 주최자
+Alice와 게스트 Bob, Charlie가 등장하는 파티 전체를 로컬 devnet에서 진행합니다. 그 과정에서 통과해서는
+안 되는 호출자를 컨트랙트가 되돌려 보내는지도 확인합니다.
+
+## Prerequisites
+
+- 이 튜토리얼의 [Private party contract](/tutorials/private-party/smart-contract) 파트.
+- 로컬 devnet을 위한, 실행 중인 Docker.
+
+## Run the suite
+
+`examples/private-party`에서 로컬 네트워크를 시작하고, 테스트 wallet이 수수료를 낼 DUST를 받을 때까지
+기다린 뒤, 파티 스위트를 실행합니다:
+
+```bash
+yarn env:up
+yarn wait:dust
+yarn test:local src/test/party.test.ts
+```
+
+`yarn env:up`은 `compose.yml`에서 Midnight node, indexer, proof server를 시작합니다. proof server는
+각 트랜잭션의 영지식 증명을 생성합니다. 이 페이지를 진행하는 동안 네트워크는 계속 켜 두세요. 성공하는
+호출마다 실제 증명이 생성되므로, 스위트가 끝나는 데 몇 분 정도 걸립니다.
+
+끝나면 거부를 예상하는 테스트까지 포함해 11개 테스트가 모두 통과합니다:
+
+```
+ ✓ src/test/party.test.ts (11 tests) 168210ms
+     ✓ Deploys a contract (the easy way)  17109ms
+     ✓ Allows Bob to rsvp (privately)  18570ms
+     ✓ Allows Charlie to rsvp(privately)  17170ms
+     ✓ starts the party  18504ms
+     ✓ Allows Bob to check in  17351ms
+     ✓ Closes the doors to the party  18522ms
+     ✓ Allows Alice to claimFees  40580ms
+     ✓ Deploys the contract(the hard way)  18086ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+```
+
+Vitest는 300ms보다 오래 걸리는 테스트만 표시하므로, 세 개의 거부 테스트("Blocks organizers from
+rsvp"와 두 개의 "Blocks non-organizers" 테스트)는 별도 줄 없이 통과합니다. 이 소요 시간이 말해 주는
+바가 있습니다. 성공하는 호출은 각각 15~20초가 걸리며, 대부분 증명을 생성하는 데 쓰입니다. (`claimFees`는
+테스트가 Alice의 잔액을 읽으려고 호출 전후로 Alice wallet의 동기화를 기다리기 때문에 더 오래 걸립니다.)
+거부되는 호출은 몇 밀리초면 끝납니다. `assert`가 실패하면 호출자 자신의 머신에서 circuit이 멈추므로,
+증명이 생성되지 않고 아무것도 제출되지 않습니다.
+
+`yarn test:local`을 단독으로 실행하면 `src/test/sponsorship.test.ts`도 함께 실행되는데, 여기서는
+주최자가 DUST가 없는 게스트를 대신해 트랜잭션 수수료를 냅니다. 이 흐름은
+[DUST sponsorship guide](/guides/dust-sponsorship)에서 다룹니다.
+
+작업을 마치면 네트워크를 내립니다:
+
+```bash
+yarn env:down
+```
+
+## The test harness
+
+테스트 파일에서 `// Everything above is harness setup. Your tests begin here.` 줄 위쪽은 모두 공용
+harness입니다. midnight-examples의 모든 예제에서 동일합니다:
+
+- **`src/config.ts`**는 각 네트워크의 endpoint를 담고 있습니다. `MIDNIGHT_NETWORK`가 그중 하나를
+  고릅니다. `yarn test:local`은 이를 `local`로 설정하고, `yarn test:preview`와 `yarn test:preprod`는
+  같은 스위트를 공개 테스트 네트워크에 대해 실행합니다.
+- 공용 `@midnight-ntwrk/example-fast-sync` 패키지의 **`resolveWallet(network, role)`**는 역할에
+  해당하는 wallet secret을 반환합니다. `local`에서는 이들이 devnet에 미리 자금이 채워진 wallet이므로
+  따로 설정할 것이 없습니다. 원격 네트워크에서는 리포 루트의 `.env.<network>` 파일에서 가져옵니다.
+- **`src/wallet.ts`**는 각 wallet을 생성하고 시작하고 동기화합니다. **`src/providers.ts`**는 사용자에게
+  필요한 MidnightJS provider를 묶습니다. indexer에서 오는 public 데이터, private state, ZK artifact 및
+  증명, 그리고 wallet 자체입니다.
+
+스위트는 각 사람마다 wallet 하나와 provider 세트를 선언합니다:
+
+```typescript title="src/test/party.test.ts"
+describe(`Private Party smart contract via midnight-js (${network})`, () => {
+    let aliceWallet: MidnightWalletProvider;
+    let bobWallet: MidnightWalletProvider;
+    let charlieWallet: MidnightWalletProvider;
+    let aliceProviders: PartyProviders;
+    let bobProviders: PartyProviders;
+    let charlieProviders: PartyProviders;
+    let contractAddress: ContractAddress;
+```
+
+각 사람은 자신의 private state provider에 들어갈 항목의 ID도 갖습니다:
+
+```typescript title="src/test/party.test.ts"
+    const ALICE_PRIVATE_ID = 'PartyPrivateState';
+    const BOB_PRIVATE_ID = 'BobPartyPrivateState';
+    const CHARLIE_PRIVATE_ID = 'CharliePartyPrivateState';
+```
+
+`beforeAll`은 세 wallet을 생성·동기화한 뒤 각 사람의 provider를 생성합니다. 원격 네트워크에서는 모든
+wallet이 NIGHT과 DUST를 가질 때까지 기다리기도 합니다. 나머지는 작은 헬퍼 두 개가 처리합니다. 하나는
+컨트랙트의 public ledger를 읽고, 다른 하나는 wallet의 NIGHT 잔액을 읽습니다:
+
+```typescript title="src/test/party.test.ts"
+    async function queryLedger(providers: PartyProviders) {
+        const state =
+            await providers.publicDataProvider.queryContractState(contractAddress);
+        expect(state).not.toBeNull();
+        return ledger(state!.data);
+    }
+
+    // NIGHT token type is the all-zero raw token type
+    const NIGHT_TOKEN_TYPE = '0000000000000000000000000000000000000000000000000000000000000000';
+
+    async function getNightBalance(walletProvider: MidnightWalletProvider): Promise<bigint> {
+        const facadeState = await walletProvider.wallet.waitForSyncedState();
+        return facadeState.unshielded.balances[NIGHT_TOKEN_TYPE] ?? 0n;
+    }
+```
+
+## The party
+
+### Alice deploys
+
+Alice는 새로운 무작위 secret으로 자신의 private state를 만들고, 참가비 5 STAR로 게스트 열 명 규모의
+파티를 배포합니다:
+
+```typescript title="src/test/party.test.ts"
+    it('Deploys a contract (the easy way)', async () => {
+        const PARTY_SIZE = BigInt(10);
+        const FEE = BigInt(5);
+        const alicePrivateState = createPartyPrivateState(randomBytes(32));
+
+        logger.info(`Deploying a contract the easy way...`);
+        const deployed: DeployedContract<Contract> = 
+            await (deployContract<Contract>)(aliceProviders, {
+                compiledContract: CompiledPartyContract,
+                privateStateId: ALICE_PRIVATE_ID,
+                initialPrivateState: alicePrivateState,
+                args: [PARTY_SIZE, FEE, alicePrivateState.secret]
+            });
+```
+
+`deployContract`는 배포자의 provider, `contract/index.ts`에서 가져온 컴파일된 컨트랙트, private state
+ID와 초기 private state, 그리고 생성자 `args`(파티 규모, 참가비, Alice의 secret)를 받습니다. 배포가
+성공하면 private state를 Alice의 private state provider에 `ALICE_PRIVATE_ID`로 저장하므로, 이후 테스트는
+거기서 그녀의 secret을 다시 읽어 옵니다.
+
+그런 다음 테스트는 생성자가 했어야 할 일과 ledger를 대조해 확인합니다:
+
+```typescript title="src/test/party.test.ts"
+        const state = await queryLedger(aliceProviders);
+        expect(state.maxListSize).toEqual(PARTY_SIZE);
+        expect(state.partyState).toEqual(PartyState.NOT_STARTED);
+        expect(state.entryFee).toEqual(FEE);
+        expect(state.hashedPartyGoers.size()).toEqual(0n);
+```
+
+### Bob RSVPs, privately
+
+Bob은 자신의 secret을 만들어 자신의 private state provider에 저장합니다. 그는 배포자가 아니었으므로
+먼저 provider를 컨트랙트로 향하게 합니다:
+
+```typescript title="src/test/party.test.ts"
+        const bobInitialPrivateState = createPartyPrivateState(randomBytes(32));
+        bobProviders.privateStateProvider.setContractAddress(contractAddress);
+        await bobProviders.privateStateProvider.set(BOB_PRIVATE_ID, bobInitialPrivateState);
+        const bobPrivateState = await bobProviders.privateStateProvider.get(BOB_PRIVATE_ID);
+
+        const bobUnshielded = await bobWallet.wallet.unshielded.getAddress();
+        const bobAddress = { bytes: new Uint8Array(bobUnshielded.data) };
+```
+
+circuit의 `UserAddress` 인자는 `bytes`라는 필드 하나를 가진 struct입니다. 테스트는 이를 Bob의
+unshielded wallet address의 원시 바이트로 채웁니다. Charlie와 Alice의 경우에는 `encodeUserAddress`로
+주소의 16진수 문자열에서 같은 것을 만듭니다. 둘 다 동일한 32바이트를 내놓습니다.
+
+그런 다음 Bob이 `rsvp`를 호출합니다:
+
+```typescript title="src/test/party.test.ts"
+        const txData: FinalizedCallTxData<Contract, 'rsvp'> = 
+            await (submitCallTx<Contract, 'rsvp'>)(bobProviders, {
+                compiledContract: CompiledPartyContract,
+                contractAddress,
+                privateStateId: BOB_PRIVATE_ID,
+                circuitId: 'rsvp',
+                args: [bobAddress, bobPrivateState.secret]
+            });
+```
+
+`submitCallTx`는 circuit을 로컬에서 실행하고, proof server가 이를 증명하게 하고, Bob의 wallet으로
+트랜잭션의 잔액을 맞추고, 제출한 뒤, indexer가 이를 온체인에 보고할 때까지 기다립니다. Bob의 주소와
+secret은 circuit 인자이므로 둘 다 온체인에 나타나지 않습니다. 나타나는 것은 commitment뿐입니다:
+
+```typescript title="src/test/party.test.ts"
+        const state = await queryLedger(aliceProviders);
+        expect(state.hashedPartyGoers.size()).toEqual(1n);
+        expect(state.partyState).toEqual(PartyState.NOT_STARTED);
+```
+
+Charlie도 같은 방식으로 RSVP하고, 목록은 둘로 늘어납니다.
+
+### Turning away the wrong callers
+
+세 개의 테스트는 통과해서는 안 되는 사람으로서 circuit을 호출하고, 그 호출이 거부되기를 기대합니다.
+Alice가 자기 파티에 RSVP를 시도합니다:
+
+```typescript title="src/test/party.test.ts"
+        await expect(async () => {
+            await (submitCallTx<Contract, 'rsvp'>)(aliceProviders, {
+                compiledContract: CompiledPartyContract,
+                contractAddress,
+                privateStateId: ALICE_PRIVATE_ID,
+                circuitId: 'rsvp',
+                args: [{ bytes: aliceAddress }, alicePrivateState.secret]
+            });
+        }).rejects.toThrow();
+```
+
+그녀의 secret은 `organizer` 키로 해싱되므로 `assert(pubKey != organizer, …)`가 실패합니다. Bob은
+자신의 secret으로 파티를 시작하려 하고, 이어서 입장을 마감하려 합니다. 두 호출 모두 주최자 검사에
+걸리고, 테스트는 파티 상태가 바뀌지 않았음을 확인합니다:
+
+```typescript title="src/test/party.test.ts"
+        await expect(async () => {
+            await (submitCallTx<Contract, 'startParty'>)(bobProviders, {
+                compiledContract: CompiledPartyContract,
+                contractAddress,
+                privateStateId: BOB_PRIVATE_ID,
+                circuitId: 'startParty',
+                args: [bobPrivateState.secret]
+            });
+        }).rejects.toThrow();
+        logger.info(`Bob was rejected!`);
+
+        const state = await queryLedger(bobProviders);
+        expect(state.partyState).toEqual(PartyState.NOT_STARTED);
+```
+
+그 두 호출 사이에서 Alice가 자신의 secret으로 파티를 시작하고, 상태는 `STARTED`로 넘어갑니다.
+
+### Bob checks in, and becomes public
+
+Bob은 RSVP할 때 쓴 것과 같은 주소와 secret으로 체크인합니다:
+
+```typescript title="src/test/party.test.ts"
+        const txData: FinalizedCallTxData<Contract, 'checkIn'> = 
+            await (submitCallTx<Contract, 'checkIn'>)(bobProviders, {
+                compiledContract: CompiledPartyContract,
+                contractAddress,
+                privateStateId: BOB_PRIVATE_ID,
+                circuitId: 'checkIn',
+                args: [bobAddress, bobPrivateState.secret]
+            });
+        logger.info(`Bob has successfully checked in and is now public!`);
+
+        const state = await queryLedger(bobProviders);
+        expect(state.partyState).toEqual(PartyState.STARTED);
+        expect(state.checkedInParty.size()).toEqual(1n);
+        expect(state.checkedInParty.member(bobAddress)).toBeTruthy();
+```
+
+호출 어디에도 NIGHT이 언급되지 않습니다. circuit의 `receiveUnshielded`가 참가비를 트랜잭션에 추가하고,
+Bob의 wallet이 트랜잭션 잔액을 맞출 때 이를 지급합니다. 마지막 단언문은 프라이버시 경계를 한 줄로 보여
+줍니다. 이제 누구나 ledger에서 Bob의 주소를 읽을 수 있습니다.
+
+### Alice claims the fees
+
+Alice가 입장을 마감한 뒤, 자신의 unshielded 주소로 참가비를 청구합니다. 테스트는 청구 전후로 그녀의
+NIGHT 잔액을 읽습니다:
+
+```typescript title="src/test/party.test.ts"
+        const balanceBefore = await getNightBalance(aliceWallet);
+        logger.info(`Alice NIGHT balance before claimFees: ${balanceBefore}`);
+
+        logger.info(`Alice is claiming fees...`);
+        const txData: FinalizedCallTxData<Contract, 'claimFees'> =
+            await (submitCallTx<Contract, 'claimFees'>)(aliceProviders, {
+                compiledContract: CompiledPartyContract,
+                contractAddress,
+                privateStateId: ALICE_PRIVATE_ID,
+                circuitId: 'claimFees',
+                args: [{ bytes: aliceAddress }, alicePrivateState.secret]
+            });
+        logger.info(`Alice has successfully claimed fees!`);
+
+        const balanceAfter = await getNightBalance(aliceWallet);
+        logger.info(`Alice NIGHT balance after claimFees:  ${balanceAfter}`);
+        logger.info(`Alice NIGHT balance delta:            ${balanceAfter - balanceBefore}`);
+```
+
+체크인한 사람은 Bob뿐이므로 컨트랙트는 참가비 하나를 보유하고, 로그에는 5 STAR의 증감이 표시됩니다.
+테스트는 최종 `FEES_CLAIMED` 상태를 단언합니다. 증감값은 단언하지 않고 로그로만 남깁니다.
+
+## Deploying the hard way
+
+`deployContract`와 `submitCallTx`는 각각 여러 단계로 된 파이프라인을 감싸고 있습니다. 마지막 테스트는
+그 단계들을 하나하나 펼쳐서 두 번째 파티를 배포하므로, 그 사이에 무슨 일이 일어나는지 볼 수 있습니다:
+
+```typescript title="src/test/party.test.ts"
+        // Step 1: Local circuit execution
+        const unprovenData: UnsubmittedDeployTxData<Contract> = 
+            await (createUnprovenDeployTx as any)(aliceProviders, {
+                compiledContract: CompiledPartyContract,
+                privateStateId: ALICE_PRIVATE_ID,
+                initialPrivateState: alicePrivateState,
+                args: [PARTY_SIZE, FEE, alicePrivateState.secret]
+            });
+        
+        const pendingAddress = unprovenData.public?.contractAddress;
+        logger.info(`Unproven tx created. Pending contract address: ${pendingAddress}`);
+
+        // Step 2: Prove (send to proof server, get ZK proof back)
+        const provenTx = await aliceProviders.proofProvider.proveTx(unprovenData.private.unprovenTx);
+        logger.info('proven tx received from proof server');
+
+        // Step 3: Balance wallet
+        const balancedTx = await aliceProviders.walletProvider.balanceTx(provenTx);
+        logger.info('Balanced tx ready for submission');
+
+        // Step 4: Submit (send to network node)
+        const txId = await aliceProviders.midnightProvider.submitTx(balancedTx);
+        logger.info(`Submitted tx id: ${txId}`);
+
+        // Step 5: Watch for finalized txn
+        const finalizedTxData = await aliceProviders.publicDataProvider.watchForTxData(txId);
+        logger.info(`Finalized! Status: ${finalizedTxData.status}, block: ${finalizedTxData.blockHeight}`);
+```
+
+1. **로컬 실행.** `createUnprovenDeployTx`는 Alice의 머신에서 생성자를 실행하고 증명되지 않은
+   트랜잭션을 만듭니다. 이 시점에 이미 컨트랙트 주소를 알 수 있습니다.
+2. **증명.** proof provider는 proof server가 트랜잭션 내 각 circuit 호출에 대한 영지식 증명을
+   생성하게 하고, 증명된 트랜잭션을 반환합니다.
+3. **잔액 맞추기.** wallet은 트랜잭션 비용을 치를 입력을 추가합니다. 수수료용 DUST와, 트랜잭션에
+   필요한 토큰입니다.
+4. **제출.** wallet이 트랜잭션을 node로 보냅니다.
+5. **관찰.** public data provider는 indexer가 트랜잭션을 블록 안에서 상태 및 블록 높이와 함께
+   보고할 때까지 기다립니다.
+
+provider 하나가 한 단계를 담당합니다. 그래서 테스트는 각 사람마다 provider 세트 전체를 구성하고,
+DApp은 provider 하나를 교체할 수 있습니다. 예를 들어 로컬 proof server 대신 브라우저 wallet에서
+증명하도록 바꿀 수 있습니다.
+
+`deployContract`는 배포자의 private state도 저장합니다. 여기서는 테스트가 이를 직접 수행합니다:
+
+```typescript title="src/test/party.test.ts"
+        // Store private state (normally done inside deployContract)
+        aliceProviders.privateStateProvider.setContractAddress(pendingAddress);
+        await aliceProviders.privateStateProvider.set(ALICE_PRIVATE_ID, alicePrivateState);
+```
+
+## Test yourself
+
+이 스위트는 주요 경로와 주최자 검사를 다룹니다. 위 패턴을 활용해 다음 각각에 대한 테스트를 추가해
+보세요:
+
+- Bob이 같은 주소와 secret으로 두 번째 RSVP를 시도합니다. 어떤 `assert`가 그를 막습니까?
+- RSVP했던 Charlie가 Bob의 주소와 자신의 secret으로 체크인을 시도합니다.
+- 한 게스트가 파티가 시작되기 전에 체크인을 시도합니다.
+- 게스트인 Bob이 `claimFees`를 호출하려 합니다.
+
+각 경우마다, 거부된 호출이 아무것도 바꾸지 않았음을 보이기 위해 이후에 ledger도 단언하세요.
+
+전체 테스트 파일은
+[`src/test/party.test.ts`](https://github.com/midnightntwrk/midnight-examples/blob/main/examples/private-party/src/test/party.test.ts)
+입니다.
+
+## Conclusion
+
+이 튜토리얼은 프라이버시 경계를 한 곳에 두었습니다:
+
+- **commitment**이 RSVP 목록을 비공개로 유지합니다. salt를 적용한 `persistentCommit`이 각 게스트의
+  주소를 숨기고, 게스트의 secret만이 이를 다시 열 수 있습니다.
+- **DApp 전용 공개 키**가 wallet address 없이 주최자를 식별하고, 주최자 전용 circuit의 접근을
+  통제합니다.
+- **unshielded NIGHT**은 공개되므로, 참가비를 내는 지점에서 각 게스트가 공개되고, 참가비를 청구하는
+  지점에서 주최자가 공개됩니다.
+- **상태 머신**이 각 단계에서 어떤 circuit을 실행할 수 있는지 결정합니다.
+
+게스트를 노출시키는 것은 바로 unshielded NIGHT으로 내는 지불입니다. 연습 삼아, 참가비를 대신 shielded
+토큰으로 낸다면 컨트랙트가 어떻게 달라질지 생각해 보세요. 학습 경로 뒤쪽의 private tip jar 튜토리얼에서
+shielded 토큰을 소개합니다.
+
+파티용 브라우저 UI를 포함한 전체 예제는 midnight-examples의
+[`examples/private-party`](https://github.com/midnightntwrk/midnight-examples/tree/main/examples/private-party)
+입니다.
+
+## Next
+
+학습 경로의 다음 단계는 [Battleship](/tutorials/battleship) 튜토리얼입니다. 상태 머신을 활용한 방어적
+프로그래밍, 역할 검사, 그리고 부정행위를 잡아내는 오프체인 데이터의 온체인 검증을 다룹니다.

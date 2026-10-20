@@ -233,7 +233,7 @@ const config = {
           },
           {
             from: '/category/battleship',
-            to: '/tutorials/bship',
+            to: '/tutorials/battleship',
           },
           {
             from: '/category/leaderboard',

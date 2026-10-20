@@ -1,0 +1,102 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Identity on Midnight
+sidebar_label: Identity
+description: "Midnight Passport, did:midnight, verifiable credentials 라이브러리가 무엇인지, Compact 컨트랙트와 어떻게 연관되는지, 그리고 지금 어느 것을 쓸 수 있는지 알아봅니다."
+sidebar_position: 11
+toc_max_heading_level: 2
+keywords: [midnight, identity, midnight passport, "did:midnight", decentralized identifiers, verifiable credentials, selective disclosure, MIP-0012, MIP-0013, MIP-0022]
+tags: [concepts, identity, passport, did, verifiable-credentials, selective-disclosure]
+---
+
+{/* _mod-docs-content-type: CONCEPT */}
+# Identity on Midnight
+
+이 페이지는 `midnightntwrk` GitHub 조직의 세 가지 신원 프로젝트를 다룹니다. Midnight Passport, `did:midnight` 분산 식별자(DID) 방식, 그리고 Midnight verifiable credentials 라이브러리입니다. 세 프로젝트는 진행 단계가 크게 다릅니다. `did:midnight`과 credentials 라이브러리는 지금 npm의 0.x 패키지로 바로 사용할 수 있습니다. Midnight Passport는 개발 중이며, 데모는 있지만 공개된 SDK는 없습니다. 아래 절들은 각 프로젝트가 무엇인지, Compact 스마트 컨트랙트 및 DApp과 어떻게 연관되는지, 그리고 2026년 10월 초 기준으로 어느 단계에 있었는지 설명합니다.
+
+:::info[2026년 10월 확인한 상태]
+이 프로젝트들은 자주 릴리스됩니다. 각 프로젝트 절은 명시된 날짜에 해당 프로젝트의 리포지터리·문서·npm 패키지가 무엇을 담고 있었는지 기록한 상태 줄로 끝납니다. 그보다 최신 정보는 각 절에 링크된 프로젝트 문서에서 확인하세요.
+:::
+
+## Identity projects at a glance
+
+표 다음의 절들은 각 프로젝트를 설명합니다. 이 프로젝트들이 전혀 필요 없는 신원 확인은 [Identity in your own contracts](#identity-in-your-own-contracts)를 참고하세요.
+
+| 프로젝트 | 개요 | 지금 사용할 수 있나요? | 프로젝트 문서 |
+|---|---|---|---|
+| Midnight Passport | passkey 기반 신원·계정 레이어, 개발 중 | 아니요. Passport는 npm에 공개된 SDK나 패키지가 없고, 데모는 ledger 9 릴리스 후보를 구동하는 별도 테스트 네트워크 Stagenet에서만 돌아갑니다. | [Passport plan and status](https://midnightntwrk.github.io/passport/site/) |
+| `did:midnight` | 각 온체인 DID Document를 저마다의 Compact 스마트 컨트랙트에 담는 DID 방식 | 네, npm의 0.x 패키지로 가능합니다. 방식 명세는 초안 단계입니다. | [Midnight DID documentation](https://midnightntwrk.github.io/midnight-did/) |
+| Verifiable credentials 라이브러리 | circuit이 검증할 수 있는 credential과 presentation을 위한 Compact·TypeScript 빌딩 블록 | 네, npm의 0.x(1.0 이전) 패키지로 가능합니다. credential family와 trust policy는 직접 정의합니다. | [Midnight Verifiable Credentials documentation](https://midnightntwrk.github.io/midnight-verifiable-credentials/) |
+
+## Midnight Passport
+
+Midnight Passport는 Input Output이 Midnight을 위해 공개적으로 개발하고 있는 사용자 대면 신원·계정 레이어입니다. 설계상 사용자는 시드 구문 대신 passkey로 가입하고 사람이 읽을 수 있는 `.night` 이름을 받습니다. 자신의 어떤 기기에서도 계정을 쓸 수 있고, 기기를 전부 잃어버린 뒤에도 복구할 수 있습니다. [Passport repository](https://github.com/midnightntwrk/passport)에는 계획, 그 배경 연구, 레퍼런스 계정 컨트랙트, 데모가 담겨 있습니다. 통합해서 쓸 수 있는 제품은 아닙니다.
+
+**Smart contracts.** 설계상 각 계정은 소유자의 자산을 보유하는 Compact 스마트 컨트랙트입니다. 기기마다 자체 키를 가지며, 컨트랙트는 자금을 옮기기 전에 등록된 기기의 서명을 확인합니다. 세 건의 Midnight Improvement Proposal(MIP)이 이 모델의 핵심을 설명합니다. Midnight 네이티브 자산의 컨트랙트 커스터디를 다루는 [MIP-0012](https://github.com/midnightntwrk/midnight-improvement-proposals/blob/main/mips/mip-0012-native-asset-custody.md), 다중 키 계정 권한 부여를 다루는 [MIP-0013](https://github.com/midnightntwrk/midnight-improvement-proposals/blob/main/mips/mip-0013-account-authorisation.md), 계정 복구를 다루는 [MIP-0022](https://github.com/midnightntwrk/midnight-improvement-proposals/blob/main/mips/mip-0022-account-recovery.md)입니다. 셋 다 상태는 Proposed입니다. [MIP process](https://github.com/midnightntwrk/midnight-improvement-proposals/blob/main/mips/mip-0001-mip-process.md#mip-statuses)에서 이는 MIP 편집자들이 아직 이를 수락하지 않았고, 어떤 네트워크 업그레이드도 이를 배포하지 않았다는 뜻입니다. Passport의 레퍼런스 계정 컨트랙트는 ledger 9를 대상으로 하는 Compact toolchain 0.35.0(`--feature-zkir-v3` 사용)과 Compact runtime 0.20.0으로 빌드됩니다. [compatibility matrix](../relnotes/support-matrix)에 있는 버전으로는 빌드되지 않습니다.
+
+**DApps.** 설계상 DApp은 토큰 하나에 대한 지출 한도처럼 범위가 한정되고 철회 가능한 권한을 받습니다. 계정 컨트랙트가 그 범위를 자신의 circuit에서 강제합니다. Passport는 npm에 패키지가 없습니다. [Passport SDK repository](https://github.com/midnightntwrk/midnight-passport-sdk)에는 요구사항과 설계 초안이 담겨 있고, 어떤 패키지도 릴리스된 적이 없습니다. npm의 `@midnight-ntwrk/midnight-vc-passport` 패키지는 Midnight Passport의 일부가 아닙니다. 이는 passport 문서를 verifiable credential로 모델링한 사전 릴리스 [credential family](#verifiable-credentials)입니다. DApp 사용자를 위한 지갑 선택은 [community wallets overview](/sdks/community/wallets/community-wallets-overview)를 참고하세요.
+
+**Demo.** [Passport demo repository](https://github.com/midnightntwrk/passport-demo)의 최신 릴리스는 v5.2(2026년 9월 29일)입니다. 데모는 ledger 9 릴리스 후보를 구동하는 별도의 Midnight 테스트 네트워크 Stagenet에서만 돌아갑니다. 데모가 ledger 9 빌드이기 때문에, ledger 8을 구동하는 Preview나 Preprod에서는 계정을 열 수 없습니다. 서명 키가 브라우저 passkey에서 나오기 때문에 설계상 Mainnet은 거부합니다. 데모 리포지터리는 이를 최종 제품이 아니라 작동하는 프로토타입이며 감사를 받지 않았다고 설명합니다.
+
+**Relation to the other projects.** 사용자 속성의 선택적 공개는 Passport v1.0 계획이 내건 약속 중 하나입니다. 2026년 10월 1일자 프로젝트 상태 파일은 Midnight DID 및 verifiable credentials와의 Passport 통합이 아직 완료되지 않았다고 밝힙니다.
+
+**Status on 9 October 2026:** 개발 중. 2026년 10월 1일자 프로젝트 [status file](https://github.com/midnightntwrk/passport/blob/main/docs/plans/STATUS.md)은 SDK 통합, 상호운용성, 암호학적 검토, 정형 보증을 진행 중인 작업으로 나열합니다. MIP-0012, MIP-0013, MIP-0022의 상태는 Proposed이고, SDK는 계획·명세 단계이며, 데모는 Stagenet에서만 돌아갑니다.
+
+## Decentralized identifiers (`did:midnight`)
+
+분산 식별자(DID)는 그 controller가 중앙 레지스트리 없이 생성하고 갱신하는 식별자입니다. 공개 키와 서비스 엔드포인트를 나열한 DID Document로 해석됩니다. `did:midnight` 방식은 Midnight을 위한 DID 방식으로, 레퍼런스 구현이 [`midnightntwrk/midnight-did`](https://github.com/midnightntwrk/midnight-did) 리포지터리에 있습니다. [method specification](https://midnightntwrk.github.io/midnight-did/spec/midnight-method)은 W3C DID Core 1.0의 방식별 프로파일을 대상으로 하는 초안입니다. 프로젝트는 적합성 증거의 범위가 제한적이며 W3C 인증이나 보증이 아니라고 밝힙니다.
+
+**Smart contracts.** ledger 기반 `did:midnight` DID를 생성하면 DID 컨트랙트, 즉 Compact 스마트 컨트랙트의 새 인스턴스가 배포됩니다. 그 컨트랙트의 주소가 식별자가 됩니다. 컨트랙트의 public ledger state에는 키, 검증 관계, 서비스를 비롯해 DID Document를 다시 구성하는 데 필요한 모든 것이 담깁니다. 각 갱신은 controller가 바로 그 연산에 대한 Jubjub Schnorr 서명으로 승인하는 circuit 호출입니다. controller 키 복구만이 유일한 예외로, 별도의 복구 키가 이를 승인합니다. DID API는 controller의 서명을 로컬에서 만들며, private state로 저장하는 controller secret을 사용합니다. controller의 비밀 키는 온체인이나 proof server로 절대 가지 않으며, 컨트랙트의 proving key를 가지고 있어도 다른 누구도 DID를 갱신할 수 없습니다.
+
+`did:midnight` 식별자는 다음 형식 중 하나를 취합니다:
+
+```text
+did:midnight:<network>:<contract-address>
+did:midnight:offchain:<state-hash>
+did:midnight:offchain:<state-hash>:<encoded-state>
+```
+
+첫 번째 형식에서 `<network>`는 `undeployed`, `devnet`, `testnet`, `mainnet`, `preview`, `preprod` 중 하나입니다. `<contract-address>`는 소문자 16진수 64자리로 표기한 컨트랙트 주소입니다. `offchain` 형식은 상태가 ledger로 전혀 가지 않는 DID Document를 식별합니다. 짧은 형식은 그 상태의 해시만 담습니다. 긴 형식은 인코딩된 상태까지 담으므로 스스로 해석됩니다. 인코딩은 [section 2.1 of the specification](https://midnightntwrk.github.io/midnight-did/spec/midnight-method#_2-1-offchain-midnight-did-long-form)을 참고하세요.
+
+**DApps.** DID의 생성·갱신·해석은 `@midnight-ntwrk/midnight-did-api`의 TypeScript API를 통해 합니다. 프로젝트 README는, API가 컨트랙트로는 확인할 수 없는 입력을 검증하므로 통합하는 쪽이 컨트랙트의 exported mutation circuit을 직접 호출해서는 안 된다고 밝힙니다. 별도 리포지터리 [`midnightntwrk/midnight-did-resolver`](https://github.com/midnightntwrk/midnight-did-resolver)에는 resolver 서비스와 DID 매니저가 담겨 있습니다. 둘 다 공개 Docker 이미지를 갖춘 릴리스 후보이며, 리포지터리의 Docker 데모는 프로덕션 배포가 아니라 평가용입니다.
+
+**Privacy.** ledger 위의 DID Document는 설계상 공개되고 연결 추적이 가능합니다. 누구나 이를 해석할 수 있고, 컨트랙트 주소가 모든 갱신을 같은 식별자에 묶습니다. 명세는 DID Document가 서비스 엔드포인트와 별칭을 포함해 어디에도 개인 데이터를 담아서는 안 된다고 밝힙니다. 대신 [verifiable credentials](#verifiable-credentials)로 DID를 실제 신원에 결합할 것을 권장합니다. 연결 추적이 문제가 되는 곳에서는 서로 무관한 맥락마다 별도의 DID를 사용하세요. offchain 긴 형식 DID도 비공개가 아닙니다. 이를 보는 사람은 누구나 그것이 담은 상태를 디코딩할 수 있습니다.
+
+**Getting started.** 패키지는 npm에서 설치하며 Node.js 24 이상이 필요합니다. 프로젝트는 공개된 DID 컨트랙트를 Compact toolchain 0.31.1로 빌드했고, 컨트랙트는 Compact runtime 0.16.0을 확인합니다. 이는 Preview, Preprod, Mainnet용 [compatibility matrix](../relnotes/support-matrix)에 있는 버전입니다. 프로젝트 [quickstart](https://midnightntwrk.github.io/midnight-did/guide/quickstart)는 로컬 standalone 네트워크에서 DID를 생성하고, 키를 추가하고, DID Document를 해석합니다. 소스 체크아웃 대신 npm에서 설치하면 quickstart는 0.6.0 패키지로 안내합니다. 버전 0.7.0은 Jubjub 키 좌표의 인코딩을 바꾸므로, 프로젝트의 [Migrating to 0.7](https://midnightntwrk.github.io/midnight-did/guide/migrating-to-0.7) 가이드도 함께 읽으세요.
+
+DID API에 내장된 엔드포인트 프로파일이 모든 네트워크를 포괄하지는 않습니다. Preview 프로파일은 없습니다. Preprod와 Mainnet 프로파일은 여전히 Midnight이 호스팅하던 엔드포인트를 가리키는데, Midnight은 이를 폐기했습니다. 2026년 10월 13일, 두 네트워크의 호스팅 indexer는 모든 요청에 HTTP 410 `ENDPOINT_DECOMMISSIONED` 오류로 응답했습니다. 대신 사용할 엔드포인트는 [Migrating from the Midnight-hosted endpoints](../guides/networks-and-environments#migrating-from-the-midnight-hosted-mainnet-endpoints)를 참고하세요. 프로파일의 엔드포인트를 바꾸려면 코드에서 `ProfileConfig`에, Mainnet의 경우 `MainnetConfig`에 엔드포인트를 전달하세요. 프로젝트 [network endpoints](https://midnightntwrk.github.io/midnight-did/guide/network-endpoints) 페이지는 프로파일과 기본 엔드포인트를 나열합니다. 그 페이지의 환경 변수는 프로젝트 예제가 쓰는 이름일 뿐, API는 이를 읽지 않습니다. 프로젝트 [compatibility](https://midnightntwrk.github.io/midnight-did/guide/compatibility) 페이지는 전체 테스트 기준선을 제공합니다.
+
+**Status on 3 October 2026:** `@midnight-ntwrk/midnight-did`, `@midnight-ntwrk/midnight-did-api`, `@midnight-ntwrk/midnight-did-contract`, `@midnight-ntwrk/midnight-did-domain`, `@midnight-ntwrk/midnight-did-jubjub-schnorr`의 버전 0.7.0(2026년 9월 21일). 방식 명세는 초안 단계입니다. 프로젝트 보안 정책은 자체 CI, 스캔, 검토가 독립적인 프로덕션 보안 감사를 대신하지 못한다고 밝힙니다. resolver와 DID 매니저는 릴리스 후보 0.1.0-rc.3 단계입니다.
+
+## Verifiable credentials
+
+verifiable credential은 issuer가 subject에 관해 서명한 claim의 집합입니다. holder는 credential을 보관하다가 나중에 그것, 또는 그에 관한 증명을 verifier에게 제시합니다. Midnight Verifiable Credentials 프로젝트는 [core specification](https://midnightntwrk.github.io/midnight-verifiable-credentials/spec/)과, Compact circuit이 검증할 수 있는 credential·presentation용 세 가지 패키지를 공개합니다:
+
+- `@midnight-ntwrk/credential-model`: credential family와 그 claim 스키마를 위한 TypeScript 메타데이터·검증.
+- `@midnight-ntwrk/credential-compact`: 여러분의 컨트랙트가 포함하는 Compact 구조와 증명 검사. 배포 가능한 컨트랙트가 아니라 라이브러리입니다.
+- `@midnight-ntwrk/credential-did-midnight`: 애플리케이션이 해석해서 전달하는 `did:midnight` 검증 방식에 credential의 서명 키를 대조해 확인하는 선택적 바인딩. ledger 8에서는 그 circuit이 DID 컨트랙트를 호출할 수 없어, 해당 방식이 여전히 유효한지는 보여주지 못합니다.
+
+**Smart contracts.** 여러분의 컨트랙트는 `credential-compact` 소스를 포함하고, Jubjub Schnorr 서명이 정확한 credential 또는 presentation 본문을 덮는지 circuit에서 확인합니다. 각 서명은 issuance나 presentation 같은 하나의 context에 속하며, 한 context를 위해 만든 서명은 다른 어떤 context에서도 실패합니다. 패키지는 holder·status 바인딩도 제공합니다. 여러분의 credential family는 claim을 정의하고, 각 claim을 direct, selectively disclosed, committed, predicate-only 중 하나로 분류하며, 그 predicate를 구현합니다. `credential-model` 메타데이터에서 각 claim의 `disclosure`는 `public`, `selective`, `committed`, `predicate-only` 중 하나입니다. predicate는 claim을 공개하지 않고, 이를테면 나이가 어떤 기준값을 넘는다는 것처럼 claim에 관한 명제를 증명합니다.
+
+**What it leaves to you.** 유효한 증명은 주어진 Jubjub 키가 정확한 본문에 서명했다는 것만 보여줍니다. issuer가 신뢰할 만한지, 또는 issuer의 DID가 그 키를 승인하는지는 보여주지 않습니다. credential이 여전히 유효한지, presentation이 최신인지도 보여주지 않습니다. 어떤 issuer와 verifier를 신뢰할지는 여러분의 애플리케이션이 정하며, credential status, 재전송 방지, 신뢰할 수 있는 시각, 전송, 지갑도 애플리케이션이 처리합니다. 명세는 issuance·presentation 프로토콜, 지갑, DApp Connector API를 전혀 정의하지 않습니다. 프로젝트 [composition guide](https://midnightntwrk.github.io/midnight-verifiable-credentials/guide/composition)는, ledger 8에서는 동기식 컨트랙트 간 호출을 쓸 수 없다고 덧붙입니다. credential을 소비하는 컨트랙트는 대신 신뢰할 서명자 결정을 자신의 상태에 보관합니다.
+
+**Getting started.** 패키지는 ESM 전용의 1.0 이전 API이며 Node.js 24 이상이 필요합니다. 0.2.0과 0.3.0의 Compact 소스는 compatibility matrix에 있는 버전인 Compact toolchain 0.31.1로 컴파일됩니다. ledger 9를 대상으로 하는 toolchain 0.34.0과 0.35.0은 `proofs.compact`에서 `incompatible types Field and Uint<0..1> for equality operator` 타입 오류를 내며 이를 거부합니다. 버전을 지정하지 않고 `compact update`를 실행하면 가장 최신 toolchain이 설치되는데, 2026년 10월 3일 기준으로는 0.35.0이었습니다. 0.31.1을 설치해 기본값으로 삼으려면 `compact update 0.31.1`을 실행하세요. 프로젝트 [quickstart](https://midnightntwrk.github.io/midnight-verifiable-credentials/guide/quickstart)는 `pnpm add -E`로 정확한 안정 버전 하나를 설치하고, npm `rc` 태그를 평가하기 위한 별도의 보호된 경로를 설명합니다. 2026년 10월 9일 기준으로 quickstart 명령은 여전히 0.2.0을 고정하고 있었고, npm `latest` 태그는 0.3.0이었습니다. quickstart가 권하는 대로 정확한 버전을 고정하세요.
+
+**Status on 5 October 2026:** `@midnight-ntwrk/credential-model`, `@midnight-ntwrk/credential-compact`, `@midnight-ntwrk/credential-did-midnight`의 버전 0.3.0(2026년 10월 5일)이며, 0.3.0-rc1(2026년 9월 29일)이 여전히 npm `rc` 태그에 올라 있습니다. 버전 0.2.0과 0.3.0은 둘 다 Compact runtime 0.16.0을 대상으로 합니다. core specification은 규범적 작업 초안 버전 0.2입니다.
+
+## Identity in your own contracts
+
+많은 신원 확인은 이 프로젝트들이 전혀 필요 없습니다. 다음 패턴을 사용해 여러분 자신의 Compact 컨트랙트에 직접 구현할 수 있습니다:
+
+- [Authenticating a caller with a derived identity](../guides/security-best-practices#authenticating-a-caller-with-a-derived-identity): 호출자만 아는 비밀에서 호출자의 신원을 유도해, 오직 한 호출자만 circuit을 실행하게 합니다.
+- [Restricting a circuit to a group](../guides/security-best-practices#restricting-a-circuit-to-a-group): 그룹의 어떤 구성원이든, 누구인지 드러내지 않고 circuit을 실행하게 합니다.
+- [ZK Loan attestation API](../tutorials/zk-loan/attestation-api): 신뢰할 수 있는 당사자가 보증하는 데이터를, 그 당사자의 Jubjub Schnorr 서명을 circuit에서 검증해 받아들입니다. 이 튜토리얼은 이 패턴을 직접 손으로 작성하며 credentials 패키지나 그 포맷을 사용하지 않습니다.
+
+## Additional resources
+
+- glossary의 [Selective disclosure](../glossary#selective-disclosure)와 [self-sovereign identity](../glossary#self-sovereign-identity-ssi)
+- [Zero-knowledge proofs](./zero-knowledge-proofs)
+- [Community wallets](/sdks/community/wallets/community-wallets-overview)
+- [Compatibility matrix](../relnotes/support-matrix)
+- [Midnight Improvement Proposals](https://midnightntwrk.github.io/midnight-improvement-proposals/)

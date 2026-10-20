@@ -1,0 +1,367 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-examples. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+sidebar_label: "Battleship tests"
+title: "Battleship tests"
+description: "MidnightJS로 로컬 devnet에서 Battleship을 플레이하고, 부정행위를 시도해 컨트랙트가 모든 시도를 거부함을 증명합니다."
+sidebar_position: 20
+toc_max_heading_level: 3
+---
+
+# Battleship tests
+
+배포된 컨트랙트의 export된 모든 circuit은 사실상 public API입니다. 누구나 호출할 수 있으므로,
+테스트 스위트는 성공해야 하는 호출만큼이나 실패해야 하는 호출도 꼼꼼히 다뤄야 합니다.
+실패하는 호출이야말로 컨트랙트의 방어가 작동함을 증명하는 호출입니다.
+
+이 파트에서는 `src/test/battleship.test.ts`를 살펴봅니다. 로컬 devnet에서 Alice와 Bob이
+게임을 한 판 끝까지 하고, [컨트랙트 설명](/tutorials/battleship/smart-contract#what-can-go-wrong)에
+나온 부정행위를 시도합니다. 차례를 어기고 쏘기, 그리고 private state를 다시 써서 shot에 대해
+거짓말하기입니다.
+
+## Prerequisites
+
+- 이 튜토리얼의 [Battleship contract](/tutorials/battleship/smart-contract) 파트.
+- 로컬 devnet용으로 실행 중인 Docker.
+
+## Run the suite
+
+`examples/battleship`에서 로컬 네트워크를 띄우고, 테스트 지갑에 수수료로 낼 DUST이 생길
+때까지 기다린 다음, 테스트를 실행하세요:
+
+```bash
+yarn env:up
+yarn wait:dust
+yarn test:local
+```
+
+`yarn env:up`은 `compose.yml`에서 Midnight node, indexer, proof server를 띄웁니다. 이 페이지를
+진행하는 동안 그대로 실행해 두세요. 전체 스위트는 트랜잭션 열 개에 대해 실제 proof를
+생성하므로, 몇 분 걸릴 것으로 예상하세요.
+
+끝나면 거부를 기대하는 테스트까지 포함해 12개 테스트가 모두 통과합니다:
+
+```
+ ✓ src/test/battleship.test.ts (12 tests) 179167ms
+     ✓ deploys the contract  18225ms
+     ✓ Allows Bob to acceptGame  17155ms
+     ✓ Allows Alice to take the first shot(MISS)  17340ms
+     ✓ Allows Bob to check the board (MISS)  18665ms
+     ✓ Allows Bob to shoot(HIT)  17348ms
+     ✓ Allows Alice to check the board and report a hit  18670ms
+     ✓ Allows Alice to shoot again (HIT)  17319ms
+     ✓ Allows Bob to check the board for a HIT  17062ms
+     ✓ Allows Bob to shoot the winning shot  18644ms
+     ✓ Stops Alice from cheating  357ms
+     ✓ Allows Alice to check the board and lose  16979ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+```
+
+Vitest는 300ms보다 오래 걸리는 테스트만 나열하므로, "Stops Bob from being a cheater"는 자기
+줄 없이 통과합니다. 타이밍이 뭔가를 알려 줍니다. 정직한 수 하나는 약 17초가 걸리고 대부분은
+proof 생성에 쓰이는 반면, 부정행위는 1초도 안 되어 실패합니다. `assert`가 실패하면 circuit이
+부정행위자 자신의 머신에서 멈추므로, proof가 애초에 생성되지 않고 아무것도 제출되지 않습니다.
+
+끝났으면 네트워크를 내리세요:
+
+```bash
+yarn env:down
+```
+
+## The test harness
+
+테스트 파일에서 `// Everything above is harness setup. Your tests begin here.` 줄 위쪽은 전부
+공용 harness입니다. midnight-examples의 모든 예제에서 동일합니다:
+
+- **`src/config.ts`**는 각 네트워크의 엔드포인트를 담습니다. `MIDNIGHT_NETWORK`가 그중 하나를
+  고릅니다. `yarn test:local`은 이를 `local`로 설정하고, `yarn test:preview`와
+  `yarn test:preprod`는 같은 스위트를 공개 테스트 네트워크에 대해 실행합니다.
+- 공용 `@midnight-ntwrk/example-fast-sync` 패키지의 **`resolveWallet(network, role)`**는 역할에
+  해당하는 지갑 비밀값을 반환합니다. `local`에서는 devnet에 미리 자금이 들어 있는 지갑이라
+  설정할 것이 없습니다. 원격 네트워크에서는 리포 루트의 `.env.<network>` 파일에서 가져옵니다.
+- **`src/wallet.ts`**는 각 지갑을 만들고, 시작하고, 동기화합니다. **`src/providers.ts`**는
+  플레이어에게 필요한 MidnightJS provider를 묶습니다. indexer에서 오는 public 데이터,
+  private state, ZK 아티팩트와 proving, 그리고 지갑 자체입니다.
+
+스위트는 각 플레이어마다 지갑과 provider 세트를 선언하고, 배 위치를 고정합니다:
+
+```typescript title="src/test/battleship.test.ts"
+describe(`Battleship Smart Contract via midnight-js (${network})`, () => {
+    let aliceWallet: MidnightWalletProvider;
+    let bobWallet: MidnightWalletProvider;
+    let aliceProviders: BattleshipProviders;
+    let bobProviders: BattleshipProviders;
+    let contractAddress: ContractAddress;
+
+    const config = getConfig();
+    const aliceSetup = resolveWallet(network, 'ALICE');
+    const bobSetup = resolveWallet(network, 'BOB');
+```
+
+```typescript title="src/test/battleship.test.ts"
+    const board1x1 = BigInt(1);
+    const board1x2 = BigInt(2);
+    const board2x1 = BigInt(10);
+    const board2x2 = BigInt(11);
+```
+
+Alice의 배는 1번과 2번 칸에, Bob의 배는 10번과 11번 칸에 있습니다. 실제 DApp이라면 플레이어가
+UI에서 이를 고를 것입니다. 각 플레이어는 private state provider에서 자기 private state를
+가리키는 ID도 하나씩 가집니다:
+
+```typescript title="src/test/battleship.test.ts"
+const ALICE_PRIVATE_ID = 'alicePrivateState';
+const BOB_PRIVATE_ID = 'bobPrivateState';
+```
+
+`beforeAll`은 두 지갑을 만들고 동기화한 다음, 각 플레이어의 provider를 만듭니다. 원격
+네트워크에서는 두 지갑에 자금이 들어올 때까지 기다리기도 합니다. 작은 헬퍼가 플레이어의
+provider를 통해 컨트랙트의 public ledger를 읽고, 테스트는 매 호출 뒤에 이를 사용합니다:
+
+```typescript title="src/test/battleship.test.ts"
+    async function queryLedger(providers: BattleshipProviders) {
+        const state = await providers.publicDataProvider.queryContractState(contractAddress);
+        expect(state).not.toBeNull();
+        return ledger(state!.data);
+    }
+```
+
+## Playing the game
+
+### Alice deploys
+
+Alice는 새로 만든 무작위 비밀 키로 자기 private state를 생성하고 컨트랙트를 배포합니다. 그의
+배 위치가 constructor의 인자입니다:
+
+```typescript title="src/test/battleship.test.ts"
+    it('deploys the contract', async () => {
+
+        const aliceSk = randomBytes(32);
+        const alicePrivateState = createBattlePrivateState(
+            board1x1,// x1 ship location
+            board1x2,// x2
+            BoardState.UNSET,
+            ShotState.MISS,
+            aliceSk,
+        );
+
+        const deployed: any = await (deployContract<Contract>)(aliceProviders, {
+            compiledContract: CompiledBattleshipContract,
+            privateStateId: ALICE_PRIVATE_ID,
+            initialPrivateState: alicePrivateState,
+            args: [alicePrivateState.x1, alicePrivateState.x2]
+        });
+
+        // deployContract has already pointed Alice's private state provider at
+        // this address and stored initialPrivateState under ALICE_PRIVATE_ID.
+        contractAddress = deployed.deployTxData.public.contractAddress;
+```
+
+`deployContract`는 배포하는 플레이어의 provider, `contract/index.ts`의 컴파일된 컨트랙트,
+private state ID와 초기 private state, 그리고 constructor `args`를 받습니다.
+
+`deployContract`는 Alice의 private state provider를 새 contract address로 맞춰 두고
+`initialPrivateState`를 `ALICE_PRIVATE_ID` 아래에 저장하기도 하므로, 테스트는 address만
+기록합니다. 이후 호출은 그 ID로 provider에서 그의 private state를 읽습니다.
+
+그런 다음 테스트는 constructor가 했어야 할 일과 ledger를 대조합니다:
+
+```typescript title="src/test/battleship.test.ts"
+        const state = await queryLedger(aliceProviders);
+        expect(state.board1State).toEqual(BoardState.SET);
+        expect(state.board2State).toEqual(BoardState.UNSET);
+        expect(state.winState).toEqual(WinState.CONTINUE_PLAY);
+```
+
+### Bob joins
+
+Bob은 배포하지 않았으므로 그의 private state는 아직 아무 데도 저장돼 있지 않습니다. 테스트가
+새 비밀 키로 이를 생성하고, 그의 private state provider를 contract address로 맞춘 뒤, 직접
+`BOB_PRIVATE_ID` 아래에 저장합니다. 그런 다음 Bob은 배포된 컨트랙트의 circuit을 호출하는
+MidnightJS 함수인 `submitCallTx`로 `acceptGame`을 호출합니다:
+
+```typescript title="src/test/battleship.test.ts"
+        const txData: FinalizedCallTxData<Contract, 'acceptGame'> =
+            await (submitCallTx<Contract, 'acceptGame'>)(bobProviders, {
+                compiledContract: CompiledBattleshipContract,
+                contractAddress,
+                privateStateId: BOB_PRIVATE_ID,
+                circuitId: 'acceptGame',
+                args: [bobPrivateState.x1, bobPrivateState.x2]
+        });
+        logger.info(`Bob successfully joined the game!`);
+
+        const state = await queryLedger(bobProviders);
+        expect(state.board2State).toEqual(BoardState.SET);
+        expect(state.board2.size()).toEqual(2n);
+        expect(state.turn).toEqual(TurnState.PLAYER_1_SHOOT);
+```
+
+이제 ledger는 Bob의 commitment 두 개를 담고, state machine는 Alice의 첫 차례를 열었습니다.
+
+:::note
+테스트는 타입을 보여 주려고 `submitCallTx`의 결과를 `txData`에 담아 둡니다. `txData.public`은
+확정된 트랜잭션을 담습니다. 상태, ID와 해시, 블록, 수수료입니다. `txData.private.result`는
+circuit의 반환값입니다. `private` 쪽은 호출의 private 입력과 다음 private state도 담고
+있으므로, 객체 전체를 로그에 남기거나 전송하지 마세요.
+:::
+
+## Cheat checks
+
+### Shooting out of turn
+
+Alice의 차례이므로, Alice가 쏘기 전에 테스트는 Bob이 먼저 쏘려고 시도하게 합니다. 이 호출은
+`expect(...).rejects.toThrow()`로 감싸져 있어, 호출이 실패할 때만 통과합니다:
+
+```typescript title="src/test/battleship.test.ts"
+    it('Allows Alice to take the first shot(MISS)', async () => {
+        const shot = BigInt(5);// miss
+
+        logger.info(`Bob tries to shoot out of turn...`);
+        await expect(async () => {
+            await (submitCallTx<Contract, 'player2Shoot'>)(bobProviders, {
+                compiledContract: CompiledBattleshipContract,
+                contractAddress,
+                privateStateId: BOB_PRIVATE_ID,
+                circuitId: 'player2Shoot',
+                args: [BigInt(1)]// arbitrary
+            });
+        }).rejects.toThrow();
+        logger.info(`Bobs shot (out of turn) was rejected!`);
+```
+
+Bob은 `player2`이므로 역할 검사는 통과합니다. 그를 막는 것은 state machine입니다. `turn`이
+`PLAYER_1_SHOOT`이라서 `turn == TurnState.PLAYER_2_SHOOT` assert가 실패합니다. 이어서 Alice가
+5번 칸을 쏘는데 MISS이고, 테스트는 shot이 ledger에 올라갔고 차례가 `PLAYER_2_CHECK`로
+넘어갔는지 확인합니다.
+
+다음 테스트들은 정직하게 이어집니다. Bob이 MISS를 보고하고, Bob이 Alice의 1번 칸을
+명중시키고, Alice가 그 HIT를 보고하고, Alice가 Bob의 10번 칸을 쏩니다.
+
+### Lying about a HIT
+
+Alice가 쏜 10번 칸은 HIT이고, 이제 Bob이 확인할 차례입니다. Bob은 자기 private state를 다시
+써서 배를 15번과 16번에 두는 식으로 이를 빠져나가려 합니다:
+
+```typescript title="src/test/battleship.test.ts"
+    it('Stops Bob from being a cheater', async () => {
+
+        logger.info(`Bob realizes it is going to be a HIT and tries to cheat...`);
+        const bobPrivateState = await bobProviders.privateStateProvider.get(BOB_PRIVATE_ID);
+        const cheatBobPrivateState = createBattlePrivateState(
+            BigInt(15),
+            BigInt(16),
+            BoardState.SET,
+            ShotState.MISS,
+            bobPrivateState.sk,
+        );
+        await bobProviders.privateStateProvider.set(BOB_PRIVATE_ID, cheatBobPrivateState);
+        await expect(async () => {
+            await (submitCallTx<Contract, 'checkBoard2'>)(bobProviders, {
+                compiledContract: CompiledBattleshipContract,
+                contractAddress,
+                privateStateId: BOB_PRIVATE_ID,
+                circuitId: 'checkBoard2',
+            });
+        }).rejects.toThrow();
+        logger.info(`Bobs cheating attempt was rejected!`);
+```
+
+위조된 state에서는 Bob의 `localCheckBoard` witness가 10번 칸에 대해 정직하게 MISS를
+보고합니다. 하지만 `checkBoard2`는 Bob의 비밀 키로 10번 칸을 다시 해싱하고, 그 해시를 Bob이
+참가할 때 만든 commitment인 `board2`에서 찾아냅니다. `!board2.member(honestyCheckHash)`
+assert가 실패하고, 호출은 거부됩니다.
+
+그다음 테스트는 Bob의 진짜 private state를 복원하고, ledger가 바뀌지 않았는지 확인합니다.
+여전히 기록된 hit가 없고, 여전히 Bob이 확인할 차례입니다.
+
+```typescript title="src/test/battleship.test.ts"
+        logger.info(`Bob is resetting his board to the original private state...`);
+        await bobProviders.privateStateProvider.set(BOB_PRIVATE_ID, bobPrivateState);
+        logger.info(`Bob successfully reverted his private state to the original!`);
+
+        const state = await queryLedger(aliceProviders);
+        expect(state.board2HitCount).toEqual(0n);
+        expect(state.player1Shot.head().is_some).toBeTruthy();
+        expect(state.player1Shot.head().value).toEqual(board2x1);
+        expect(state.turn).toEqual(TurnState.PLAYER_2_CHECK);
+```
+
+거부된 호출 뒤에 ledger를 assert하는 것은 중요합니다. 실패한 부정행위가 단지 예외를 던졌다는
+사실만이 아니라 아무 효과도 없었음을 보여 주기 때문입니다.
+
+### Moving a ship
+
+Bob은 그 HIT를 정직하게 확인한 다음, Alice의 2번 칸을 쏩니다. 이는 Alice의 두 번째 피격이어서 Alice가 게임에서 집니다. Alice는 확인하기 전에 그 배를 10번 칸으로 옮기려 합니다:
+
+```typescript title="src/test/battleship.test.ts"
+        newAlicePrivateState = createBattlePrivateState(
+            BigInt(1),
+            BigInt(10),// changed the location locally, but can't change contract
+            BoardState.SET,
+            ShotState.MISS,
+            newAlicePrivateState.sk,
+        );
+        await aliceProviders.privateStateProvider.set(ALICE_PRIVATE_ID, newAlicePrivateState);
+
+        await expect(async () => {
+            await (submitCallTx<Contract, 'checkBoard1'>)(aliceProviders, {
+                compiledContract: CompiledBattleshipContract,
+                contractAddress,
+                privateStateId: ALICE_PRIVATE_ID,
+                circuitId: 'checkBoard1',
+            });
+        }).rejects.toThrow();
+```
+
+이제 그의 private state는 2번 칸이 비어 있다고 말합니다. 하지만 컨트랙트는 그의 private
+state를 읽지 않습니다. 컨트랙트는 그가 배포 때 만든 commitment을 검사하는데, 거기에는 여전히
+2번 칸이 들어 있으므로 `checkBoard1`은 MISS를 거부합니다. Alice가 진짜 state를 복원하고 HIT를
+보고하면, 마지막 테스트가 Bob의 승리를 확인합니다:
+
+```typescript title="src/test/battleship.test.ts"
+        const state = await queryLedger(aliceProviders);
+        expect(state.player2Shot.head().is_some).toBeFalsy();
+        expect(state.board1HitCount).toEqual(2n);
+        expect(state.board1Hits.member(board1x2)).toBeTruthy();
+        expect(state.winState).toEqual(WinState.PLAYER_2_WINS);
+```
+
+## Test yourself
+
+이 스위트는 컨트랙트 방어의 전부가 아니라 일부만 검사합니다. 위 패턴을 사용해 아래 각각에
+대한 테스트를 추가해 보세요. circuit 인자가 없는 호출은 `args`를 생략합니다.
+
+- Alice가 자기 게임에서 `acceptGame`을 호출하려고 합니다. 어떤 assert가 그를 막을까요?
+- Bob이 `player1Shoot`을 호출하려고 합니다. 어떤 assert가 그를 막을까요?
+- HIT가 기록된 뒤, 쏜 사람이 같은 칸을 다시 시도합니다.
+- 게임이 끝난 뒤, 어느 한쪽 플레이어가 쏘려고 합니다.
+
+각 경우마다, 거부된 호출이 아무것도 바꾸지 않았음을 보이려면 그 뒤에 ledger도 assert하세요.
+
+전체 테스트 파일은
+[`src/test/battleship.test.ts`](https://github.com/midnightntwrk/midnight-examples/blob/main/examples/battleship/src/test/battleship.test.ts)
+입니다.
+
+## Conclusion
+
+이 튜토리얼은 Compact에서 방어적 프로그래밍의 핵심을 다뤘습니다:
+
+- **State machine.** 명시적 상태들로 이루어지고, 각 circuit 맨 위의 `assert`가 검사해, 한
+  번에 한 가지 행동만 가능합니다.
+- **역할 검사.** 비밀값에서 유도한 DApp 전용 공개 키로 합니다.
+- **Commitment.** 시작할 때 private 데이터를 고정해, 이후 off-chain 답변을 on-chain에서 검사할
+  수 있게 합니다.
+- **witness를 절대 신뢰하지 않기.** witness가 반환하는 모든 값은 circuit이 검사합니다.
+- **부정행위를 하는 테스트.** 거부와 바뀌지 않은 ledger를 모두 assert합니다.
+
+게임용 브라우저 UI를 포함한 전체 예제는 midnight-examples의
+[`examples/battleship`](https://github.com/midnightntwrk/midnight-examples/tree/main/examples/battleship)
+입니다.
+
+## Next
+
+학습 경로의 다음 단계는 [Private Tip Jar](/tutorials/private-tip-jar) 튜토리얼입니다. 컨트랙트
+두 개, 첫 shielded token, 그리고 컨트랙트가 보관하는 pot에 익명으로 넣는 팁입니다.

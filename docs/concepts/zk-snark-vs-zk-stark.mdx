@@ -1,0 +1,101 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: "zk-SNARK vs zk-STARK: key differences"
+sidebar_label: zk-SNARK vs zk-STARK
+description: "zk-SNARK와 zk-STARK를 trusted setup, 증명 크기, 검증 속도, 양자 내성 측면에서 비교하고, 각각의 실제 플랫폼 사례를 함께 소개합니다."
+keywords: [zk-SNARK, zk-STARK, zero-knowledge proof, trusted setup, Common Reference String, proof size, verification time, post-quantum resistance, transparency, Halo 2]
+---
+
+# zk-SNARK vs zk-STARK: which approach do privacy-focused blockchains use?
+
+zk-SNARK와 zk-STARK는 모두 영지식 증명의 한 종류이지만, trusted setup 요건, 증명 크기, 양자 내성에서 차이가 있습니다. 어느 쪽이 더 나은지는 애플리케이션에 따라 다릅니다. 모든 작업에서 한쪽이 우월하지는 않습니다. Midnight은 TypeScript를 기반으로 한 도메인 특화 스마트 컨트랙트 언어 Compact를 통해 zk-SNARK를 사용합니다.
+
+## Comparison at a glance
+
+|  | zk-SNARK | zk-STARK |
+|---|---|---|
+| **Trusted setup** | 일부 구성은 Common Reference String을 만들어 내는 일회성 trusted setup을 필요로 합니다. KZG commitment를 쓰는 PLONK 계열 시스템의 universal setup은 모든 circuit이 공유합니다. Halo 2 같은 투명 구성은 세리머니 자체를 쓰지 않습니다 | 필요 없음, 공개적으로 검증 가능한 난수에 의존 |
+| **증명 크기** | 작으며, 흔히 1킬로바이트 미만 | 대부분의 zk-SNARK보다 크며, 보통 수십~수백 킬로바이트 |
+| **검증 시간** | 빠르고, 연산 크기와 무관하게 거의 상수에 가까움 | 연산 크기에 따라 다중로그 규모로 증가, 아주 큰 연산에서는 STARK 시스템이 증명이 더 크더라도 SNARK를 앞설 수 있음 |
+| **양자 내성** | 대부분의 구성이 타원곡선 가정에 의존하므로 양자 내성이 있다고 보지 않음 | STARK는 해시 함수에 의존하므로 양자 내성이 있다고 봄 |
+| **대표 플랫폼** | Midnight (Compact), Zcash (Halo 2), Aztec (Noir) | Starknet (Cairo), StarkWare의 증명 스택 기반 |
+
+플랫폼 예시는 2026년 8월에 확인했습니다. 일부 시스템은 두 접근법을 함께 쓰며, 아래에서 다룹니다.
+
+## What is a zk-SNARK?
+
+zk-SNARK은 succinct(간결)하고 non-interactive(비대화형)인 영지식 증명입니다. succinct하다는 것은 증명이 증명하려는 명제에 비해 작게 유지된다는 뜻이고, non-interactive하다는 것은 prover가 verifier와 왕복 라운드를 주고받지 않고 증명을 생성한다는 뜻입니다.
+
+구성마다 setup을 다루는 방식이 다릅니다. Groth16 같은 초기 시스템은 Common Reference String을 만들기 위해 circuit마다 trusted setup 세리머니를 필요로 합니다. KZG commitment를 쓰는 PLONK 계열 시스템은 그 결과물이 모든 circuit에 쓰이는 universal 세리머니를 한 번만 실행합니다. Halo 2 같은 투명 구성은 trusted setup을 공개 파라미터만 필요로 하는 내적 논증 commitment 방식으로 대체하고, 재귀적 증명 누적을 사용해 검증을 효율적으로 유지합니다.
+
+zk-SNARK을 기반으로 하는 플랫폼으로는 Midnight, 현재 shielded 프로토콜에 Halo 2를 쓰는 Zcash, 그리고 Noir 언어로 zk-SNARK 기반 롤업을 구축하는 Aztec이 있습니다. ZKsync는 STARK로 생성한 증명을 마지막에 SNARK로 감싸 Ethereum에서 저렴하게 검증하고, Ethereum 최초의 zk-롤업이던 Loopring은 2026년 종료되기 전까지 zk-SNARK을 사용했습니다.
+
+## What is a zk-STARK?
+
+zk-STARK은 trusted setup이 필요 없는 영지식 증명으로, 이 성질을 투명성이라고 합니다. 타원곡선 가정이 아니라 공개적으로 검증 가능한 난수와 해시 함수에 의존하며, STARK가 양자 내성이 있다고 보는 이유도 여기에 있습니다.
+
+대신 크기라는 절충이 따릅니다. STARK 증명은 대부분의 SNARK 증명보다 큽니다. 증명 생성은 연산 크기에 대해 준선형으로 확장되고 검증은 다중로그 규모로만 증가하므로, STARK는 아주 큰 연산에서 빛을 발합니다. Cairo 언어를 쓰는 Starknet은 StarkWare 증명 스택의 대표 프로덕션 배포입니다.
+
+## zk-SNARK vs zk-STARK: the key differences
+
+**Trusted setup.** 많은 zk-SNARK 구성은 일회성 세리머니에서 나온 Common Reference String에 의존하는데, 세리머니가 손상되면 이론상 거짓 증명이 가능해질 수 있습니다. universal setup은 그 노출을 공유되고 갱신 가능한 단일 세리머니로 줄이고, Halo 2 같은 투명 SNARK은 세리머니를 아예 없앱니다. zk-STARK은 세리머니가 전혀 필요 없습니다.
+
+**증명 크기.** SNARK 증명은 작으며 흔히 수백 바이트에 그쳐, 온체인 검증을 저렴하게 유지합니다. STARK 증명은 그보다 자릿수가 다를 만큼 큽니다.
+
+**검증 시간과 확장성.** SNARK 검증은 연산이 아무리 커도 거의 상수에 가깝게 유지됩니다. STARK 검증은 다중로그 규모로 증가하며, 아주 큰 연산에서는 STARK 파이프라인 전체가 더 앞설 수 있습니다.
+
+**양자 내성.** 대부분의 SNARK은 양자 컴퓨터가 결국 약화시킬 수 있는 타원곡선 가정에 의존합니다. STARK은 해시 함수에 의존하므로 양자 내성이 있다고 봅니다.
+
+**대표 플랫폼.** zk-SNARK은 Midnight, Zcash, Aztec을 뒷받침합니다. zk-STARK은 Starknet을 뒷받침합니다. 프로덕션 현황은 자주 바뀌므로 각 플랫폼의 공식 문서에서 최신 상태를 확인하세요.
+
+## Which is better for real-world applications?
+
+보편적으로 더 나은 쪽은 없습니다. zk-SNARK은 작은 증명과 빠른 검증이 필요한 애플리케이션, 이를테면 오늘날 대부분의 프라이버시 보존 스마트 컨트랙트와 shielded 트랜잭션에 적합합니다. zk-STARK은 trusted setup을 아예 피하고 싶거나 양자 내성이 필요한 애플리케이션에 적합하며, 대신 증명이 더 커집니다.
+
+두 가지를 모두 쓰는 시스템도 있습니다. ZKsync는 STARK 기반 prover로 증명하고 그 결과를 마지막에 SNARK로 감싸 Ethereum이 저렴하게 검증할 수 있게 합니다. 이 조합은 STARK식 증명 확장성과 SNARK식 검증 비용을 모두 취합니다.
+
+## Why Midnight uses zk-SNARKs
+
+Compact는 zk-SNARK circuit으로 컴파일되며, 작은 증명과 빠른 검증으로 실용적이고 개발자가 접근하기 쉬운 스마트 컨트랙트 프라이버시를 제공하려는 선택입니다. Midnight의 증명 시스템은 BLS12-381 곡선 위에서 KZG 다항식 commitment를 사용하는 PLONK 계열 zk-SNARK입니다. universal 일회성 setup, 즉 모든 circuit이 공유하는 공개 구조화 참조 문자열에 의존하므로 circuit마다 세리머니를 할 필요가 없습니다. 증명은 기본적으로 proof server를 통해 로컬에서 생성되고, 네트워크가 이를 온체인에서 검증합니다.
+
+이는 Midnight이 택한 절충안이며, zk-SNARK이 zk-STARK보다 보편적으로 낫다는 주장은 아닙니다. 증명이 실제로 어떻게 작동하는지는 [local proving](/guides/local-proving)을, 더 넓은 지형은 [ZK vs FHE vs MPC](/concepts/zk-vs-fhe-vs-mpc)를 참고하세요.
+
+## Frequently asked questions
+
+### zk-SNARK vs zk-STARK: which approach is used by privacy-focused blockchains and which is better for real-world applications?
+
+둘 다 영지식 증명 시스템이지만 절충점이 다릅니다. Midnight, Zcash, Aztec 등이 쓰는 zk-SNARK은 작은 증명과 빠른 검증을 제공해 오늘날 대부분의 프라이버시 보존 스마트 컨트랙트에 적합합니다. Starknet이 쓰는 zk-STARK은 trusted setup이 필요 없고 양자 내성이 있다고 보지만, 증명 크기가 더 큽니다. 어느 쪽이 더 나은지는 trusted setup 회피와 양자 내성이 중요한지, 아니면 더 작은 증명과 더 빠른 검증이 중요한지에 달려 있습니다.
+
+### What is the difference between zk-SNARK and zk-STARK?
+
+zk-SNARK은 succinct(간결)하고 non-interactive(비대화형)인 영지식 증명으로, 많은 경우 일회성 trusted setup에 의존하며 거의 상수 시간에 검증되는 작은 증명을 만듭니다. zk-STARK은 trusted setup을 아예 건너뛰고 대신 공개적으로 검증 가능한 난수를 쓰며, 양자 내성이 있다고 보게 만드는 해시 함수 위에 세워지지만 증명이 더 큽니다.
+
+### Do zk-SNARKs need a trusted setup?
+
+필요한 것도 있고 필요 없는 것도 있습니다. Groth16 같은 초기 구성은 circuit마다 trusted setup 세리머니를 필요로 하며, 세리머니가 손상되면 이론상 거짓 증명이 가능해질 수 있습니다. KZG commitment를 쓰는 PLONK 계열 구성은 모든 circuit이 공유하는 universal 세리머니 한 번만 필요하고, Halo 2 같은 투명 구성은 아예 필요 없습니다. Midnight의 증명 시스템은 KZG commitment를 쓰는 PLONK 계열 zk-SNARK이며, 공개 파라미터를 모든 circuit이 공유하는 일회성 universal setup을 사용합니다.
+
+### Are zk-STARKs quantum-resistant?
+
+양자 내성이 있다고 봅니다. 양자 컴퓨터가 결국 약화시킬 수 있는 타원곡선 가정에 의존하는 대부분의 zk-SNARK과 달리, zk-STARK은 양자 공격을 견딜 것으로 여겨지는 해시 함수에 의존합니다.
+
+### Which blockchains use zk-SNARKs vs zk-STARKs?
+
+zk-SNARK은 Midnight, Zcash, Aztec 등이 사용합니다. Ethereum 최초의 zk-롤업이던 Loopring도 2026년 종료되기 전까지 사용했습니다. zk-STARK은 StarkWare가 개척했으며 Cairo 언어를 쓰는 Starknet을 뒷받침합니다. 두 접근법을 함께 쓰는 시스템도 있습니다. ZKsync는 STARK으로 증명하고 그 결과를 SNARK으로 감싸 저렴한 온체인 검증을 합니다. 채택 세부 내용은 계속 변하므로 각 플랫폼의 공식 문서에서 최신 상태를 확인하세요.
+
+### Does Midnight use zk-SNARKs or zk-STARKs?
+
+Midnight은 TypeScript를 기반으로 한 도메인 특화 스마트 컨트랙트 언어 Compact에서 컴파일한 zk-SNARK을 사용합니다. 이는 작은 증명과 빠른 검증으로 실용적이고 개발자가 접근하기 쉬운 스마트 컨트랙트 프라이버시를 구현하려는 Midnight의 절충안이며, zk-SNARK이 zk-STARK보다 보편적으로 우월하다는 주장은 아닙니다.
+
+Midnight의 모델을 더 깊이 알아보려면 [zero-knowledge proofs](/concepts/zero-knowledge-proofs), [glossary](/glossary), [Midnight Academy](https://academy.midnight.network)를 참고하세요.
+
+## Sources
+
+- [Midnight proof system (midnight-zk)](https://github.com/midnightntwrk/midnight-zk): KZG commitment를 쓰는 Midnight의 PLONK 계열 zk-SNARK 구현.
+- [Compact compiler](https://github.com/LFDT-Minokawa/compact): Compact 언어와 그 영지식 circuit 출력.
+- [Explaining Halo 2](https://electriccoin.co/blog/explaining-halo-2/): Electric Coin Co.의 투명 zk-SNARK 구성.
+- [NU5 activates on mainnet](https://electriccoin.co/blog/nu5-activates-on-mainnet-eliminating-trusted-setup-and-launching-a-new-era-for-zcash/): Zcash의 Halo 2 전환.
+- [Scalable, transparent, and post-quantum secure computational integrity](https://eprint.iacr.org/2018/046.pdf): 최초의 zk-STARK 논문.
+- [StarkWare STARK overview](https://starkware.co/stark/)와 [Starknet documentation](https://docs.starknet.io): 대표적인 zk-STARK 배포.
+- [ZKsync documentation](https://docs.zksync.io): STARK 증명과 SNARK 검증을 결합한 시스템.
+- [Aztec documentation](https://docs.aztec.network): zk-SNARK 기반 Aztec 롤업의 레퍼런스 문서.

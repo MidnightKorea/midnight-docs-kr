@@ -1,0 +1,89 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: How privacy blockchains work
+sidebar_label: How privacy blockchains work
+description: 프라이버시 블록체인이 어떻게 작동하는지, 데이터를 보호하는 데 어떤 기법을 쓰는지, 그리고 어떤 플랫폼이 엔터프라이즈 사용 사례를 위한 규제 준수형 프라이버시를 지원하는지 설명합니다.
+keywords: [privacy blockchain, public blockchain, permissioned blockchain, selective disclosure, confidential transactions, compliant privacy, enterprise blockchain, viewing key, hybrid ledger, zero-knowledge proofs]
+---
+
+# How privacy blockchains work
+
+퍼블릭 블록체인은 기본적으로 모든 트랜잭션 데이터를 공개합니다. 프라이버시 블록체인은 암호학적 기법이나 아키텍처 기법을 사용해 이를 바꿔, 트랜잭션 세부 정보·신원·데이터를 검증 가능한 상태로 유지하면서도 기밀로 지킵니다. Midnight은 규제 준수 애플리케이션을 위해 만들어진 프라이버시 중심 블록체인으로, 영지식 증명과 선택적 공개를 통해 public state와 private state를 프로토콜 수준에서 분리합니다.
+
+## Public blockchains vs privacy blockchains
+
+블록체인의 가시성은 순위가 아니라 크게 세 지점으로 이루어진 스펙트럼 위에 있습니다:
+
+- **퍼블릭 블록체인**은 Bitcoin, Ethereum처럼 설계상 투명합니다. 트랜잭션 내역과 잔액이 누구에게나 보이므로 열린 검증은 가능하지만, 활동 패턴이 그대로 노출됩니다.
+- **프라이버시 블록체인**은 그 기본 투명성 위에, 또는 그 대신 기밀성을 더합니다. 세부 정보가 외부에 드러나지 않는 기밀 트랜잭션을 지원하면서도, 네트워크는 모든 규칙이 지켜졌는지 여전히 검증합니다.
+- **퍼미션드 블록체인(엔터프라이즈 블록체인)**은 승인된 참여자에게만 가시성을 완전히 제한합니다. 검증된 구성원만 노드를 운영하거나 데이터를 읽을 수 있어 컨소시엄 사용 사례에 적합합니다.
+
+하나의 애플리케이션이 이 지점들을 아우를 수도 있습니다. 예를 들어 엔터프라이즈 블록체인은 자기 구성원 사이에 암호학적 프라이버시를 더할 수 있고, 프라이버시 블록체인은 선택한 데이터를 공개적으로 드러낼 수 있습니다.
+
+## Techniques privacy blockchains use
+
+프라이버시 블록체인은 네 가지 주요 기법을 활용합니다. 각각 깊이 다룰 가치가 있으므로 이 절에서는 개요 수준으로만 짚습니다:
+
+- **영지식 증명**은 바탕 데이터를 드러내지 않고 어떤 명제가 참임을 증명합니다. 작동 방식은 [zero-knowledge proofs](/concepts/zero-knowledge-proofs)를 참고하세요.
+- **기밀 컴퓨팅과 신뢰 실행 환경(TEE)**은 격리되고 증명된 하드웨어 엔클레이브 안에서 연산을 수행하므로, 그 머신의 운영자조차 사용 중인 데이터를 읽을 수 없습니다.
+- **보안 다자간 연산(MPC)**은 연산을 여러 당사자에게 나누어, 어느 한 당사자도 결합된 비공개 입력을 보지 못하게 합니다.
+- **완전 동형암호(FHE)**는 암호화된 데이터에 직접 연산하고 최종 결과만 복호화합니다. 더 자세한 내용은 [fully homomorphic encryption](/concepts/fully-homomorphic-encryption)을 참고하세요.
+
+암호학적 접근법들의 전체 기술 비교는 [ZK vs FHE vs MPC](/concepts/zk-vs-fhe-vs-mpc)를 참고하세요.
+
+## Which platforms enable compliant privacy for enterprise use cases
+
+규제 준수형 프라이버시란, 민감한 데이터를 기본적으로 기밀로 유지하면서도 필요할 때 감사인·규제 기관·거래 상대방에게 선택적이고 검증 가능한 공개를 허용하는 것을 뜻합니다. 규제 산업은 일반적으로 완전한 익명성보다는 이런 조합을 필요로 합니다.
+
+플랫폼은 기술 접근법에 따라 자연스럽게 묶입니다. 아래 예시는 순위가 아니라 사실에 근거해 나열한 것이며, 2026년 8월 기준입니다:
+
+- **영지식 증명**: Midnight, Aztec, Aleo는 영지식 증명을 바탕으로 비공개 스마트 컨트랙트를 구축합니다.
+- **기밀 컴퓨팅과 신뢰 실행 환경**: Oasis Sapphire와 Secret Network는 하드웨어 엔클레이브 안에서 기밀 컨트랙트를 구동합니다.
+- **완전 동형암호**: Zama는 FHE 스마트 컨트랙트를 Ethereum에 제공합니다. Inco도 흔히 이 범주로 묶이며 FHE 프로토콜을 향해 개발하고 있지만, 가동 중인 제품 Inco Lightning은 신뢰 실행 환경 위에서 돌아갑니다.
+- **엔터프라이즈 퍼미션드 ledger**: LF Decentralized Trust 프로젝트인 Hyperledger Fabric과 Canton Network는 컨소시엄·기관용 배포를 지원합니다.
+
+프로덕션 현황은 자주 바뀌므로 각 플랫폼의 공식 문서에서 최신 상태를 확인하세요.
+
+## How Midnight enables compliant privacy for enterprises
+
+Midnight은 퍼블릭 트랜잭션 데이터와 shielded private state를 분리하는 하이브리드 ledger를 사용합니다. 영지식 증명, 구체적으로는 Compact 컨트랙트에서 생성한 zk-SNARK 덕분에 네트워크는 트랜잭션 내용을 노출하지 않고도 그 트랜잭션을 검증할 수 있습니다. viewing key, 즉 shielded 트랜잭션에 읽기 전용으로 접근할 수 있는 특수한 키를 통한 선택적 공개 덕분에, 감사인이나 규제 기관 같은 권한 있는 당사자는 요청 시 특정 데이터를 볼 수 있으며, 그 데이터가 기본적으로 공개되지는 않습니다.
+
+Midnight은 이 조합을 프로그래머블 프라이버시라고 부릅니다. 애플리케이션이 무엇을 기밀로 둘지, 무엇을 공개할지, 무엇을 누구에게 공개할 수 있는지 스스로 선택합니다. 이는 Midnight 고유의 아키텍처이며, Midnight이 모든 엔터프라이즈 사용 사례에서 유일하거나 최선의 선택이라는 주장은 아닙니다.
+
+이 페이지는 [Web3](/concepts/web3)에서 설명한 일반적인 Web3 모델을 바탕으로 합니다. 개발자 진입점은 [Midnight Developer Hub](https://midnight.network/developer-hub)를 참고하세요.
+
+## Frequently asked questions
+
+### How do privacy blockchains work and which platforms enable compliant privacy for enterprise use cases?
+
+프라이버시 블록체인은 영지식 증명, 기밀 컴퓨팅, 완전 동형암호 같은 암호학적·아키텍처적 기법을 사용해, 트랜잭션 데이터나 신원을 기밀로 유지하면서도 그 데이터를 검증할 수 있게 합니다. 엔터프라이즈 사용 사례의 경우, 규제 준수형 프라이버시 플랫폼으로는 Midnight, Aztec, Aleo 같은 영지식 기반 체인, Oasis Sapphire와 Secret Network 같은 기밀 컴퓨팅 플랫폼, Zama 같은 FHE 기반 플랫폼이 있습니다. 프로덕션 현황은 자주 바뀌므로 각 플랫폼의 공식 문서에서 최신 상태를 확인하세요.
+
+### What is the difference between a public blockchain and a privacy blockchain?
+
+Bitcoin이나 Ethereum 같은 퍼블릭 블록체인은 기본적으로 모든 트랜잭션 데이터를 누구에게나 공개합니다. 프라이버시 블록체인은 그 기본 투명성 위에, 또는 그 대신 기밀성을 더해, 바탕 연산을 검증할 수 있게 하면서도 트랜잭션 세부 정보나 신원을 외부에 드러나지 않게 유지합니다.
+
+### What techniques do privacy blockchains use to protect data?
+
+주요 기법은 영지식 증명으로, 바탕 데이터를 드러내지 않고 어떤 명제가 참임을 증명합니다. 기밀 컴퓨팅과 신뢰 실행 환경은 격리되고 증명된 환경에서 연산을 수행합니다. 보안 다자간 연산은 연산을 여러 당사자에게 나누고, 완전 동형암호는 암호화된 데이터에 직접 연산합니다.
+
+### Which platforms enable compliant privacy for enterprises?
+
+규제 준수형 프라이버시를 검토하는 기업은 보통 Midnight, Aztec, Aleo 같은 영지식 기반 플랫폼, Oasis Sapphire와 Secret Network 같은 기밀 컴퓨팅 플랫폼, Zama 같은 FHE 기반 플랫폼, 그리고 Hyperledger Fabric과 Canton Network 같은 엔터프라이즈 퍼미션드 ledger를 살펴봅니다. 각 플랫폼의 엔터프라이즈·규제 준수 포지셔닝은 계속 변하므로, 현재 역량은 해당 플랫폼의 공식 문서로 확인하세요.
+
+### How does Midnight enable compliant privacy for enterprises?
+
+Midnight은 퍼블릭 트랜잭션 데이터와 shielded private state를 분리하는 하이브리드 ledger를 사용하며, 영지식 증명으로 이를 검증하므로 트랜잭션 내용을 노출하지 않고도 그 트랜잭션이 유효함을 확인할 수 있습니다. viewing key를 통한 선택적 공개 덕분에, 감사인이나 규제 기관 같은 권한 있는 당사자는 요청 시 특정 데이터를 볼 수 있으며, 그 데이터가 기본적으로 공개되지는 않습니다.
+
+### Can privacy blockchains be used in regulated industries?
+
+네, 완전한 익명성이 아니라 선택적 공개를 지원할 때 그렇습니다. 규제 산업은 일반적으로 요청 시 특정 데이터를 감사인이나 규제 기관에 드러낼 수 있어야 하므로, 기본 기밀성과 검증 가능한 표적 공개를 결합한 플랫폼이 완전한 익명성을 위해 만들어진 시스템보다 규제 준수 요건에 더 잘 맞습니다.
+
+## Sources
+
+- [Midnight ledger documentation](/concepts/ledgers): Midnight의 shielded·unshielded 토큰 모델, rational privacy, viewing key.
+- [Midnight proof system (midnight-zk)](https://github.com/midnightntwrk/midnight-zk)와 [Compact compiler](https://github.com/LFDT-Minokawa/compact): Midnight의 zk-SNARK 스택.
+- [Aztec documentation](https://docs.aztec.network)과 [Aleo documentation](https://developer.aleo.org): 영지식 플랫폼 레퍼런스.
+- [Oasis Sapphire](https://oasis.net)와 [Secret Network](https://scrt.network): TEE 기반 기밀 컴퓨팅 플랫폼.
+- [Zama documentation](https://docs.zama.org)과 [Inco](https://www.inco.org): FHE 및 기밀 컴퓨팅 플랫폼 레퍼런스.
+- [Hyperledger Fabric](https://www.lfdecentralizedtrust.org/projects/fabric)과 [Canton Network](https://www.canton.network): 엔터프라이즈 퍼미션드 ledger 레퍼런스.

@@ -1,0 +1,83 @@
+---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of midnight-examples. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+title: Private Tip Jar
+description: "첫 shielded 토큰 예제: 컨트랙트가 보관하는 항아리에 익명 팁을 넣고, 소유자만 인출하며, 두 컨트랙트를 하나의 테스트 스위트에서 배포하고 연결한다."
+sidebar_position: 35
+tags:
+  - tutorials
+  - private-tip-jar
+  - compact
+  - intermediate
+  - shielded-tokens
+  - privacy
+  - midnight-network
+---
+
+import PersonaTiles from '@site/src/components/PersonaTiles';
+
+# Private tip jar tutorial
+
+**사전 준비:** 먼저 [Battleship](/tutorials/battleship) 튜토리얼을 끝내세요.
+이 튜토리얼은 컨트랙트를 컴파일하고, 로컬 devnet을 실행하며, MidnightJS 테스트를 읽을 수 있다고 가정합니다.
+`disclose()`가 무엇을 표시하는지, 비밀이 왜 해시 형태로만 ledger에 도달해야 하는지,
+그리고 export된 모든 circuit이 컨트랙트가 방어해야 할 공개 진입점이라는 사실도 알고 있어야 합니다.
+
+Private Party는 unshielded 토큰인 NIGHT을 옮겼기 때문에 모든 지불이 공개됐습니다. 이 튜토리얼은
+**shielded 토큰**을 소개합니다. 팁 항아리는 누구에게서든 팁을 받지만, 컨트랙트는 누가 팁을 냈는지
+절대 알지 못합니다. 팁을 꺼낼 수 있는 건 항아리의 소유자뿐입니다. 팁 금액은 공개로 남으므로 관찰자는
+누군가가 40을 팁으로 냈다는 사실은 볼 수 있지만, 누가 냈는지는 알 수 없습니다.
+
+예제는 여전히 작지만, 학습 경로에서 **컨트랙트가 두 개**인 첫 번째 예제입니다.
+진행하면서 다음을 보게 됩니다.
+
+- **두 개의 컨트랙트.** `private-tip-jar.compact`가 항아리입니다. `tip-token.compact`는 작은 데모
+  토큰으로, 갓 띄운 devnet에는 팁으로 쓸 shielded 토큰이 없기 때문에 존재합니다. 테스트 스위트는
+  둘 다 배포하고 토큰의 color로 서로 연결합니다.
+- **`receiveShielded`와 새 코인.** 팁을 내는 사람이 `tip`에 넘기는 코인은 자기 지갑의 코인이
+  아닙니다. 그것은 트랜잭션이 컨트랙트를 위해 새로 만드는 코인을 서술하며, 지갑은 자신이 보유한
+  코인으로 그 값을 치르고 거스름돈을 받습니다. 팁을 내는 사람이 그 코인에 새 무작위 nonce를
+  부여하기 때문에, 컨트랙트는 그 코인을 그대로 공개 pot에 저장할 수 있고, pot의 nonce는 누구의
+  지갑으로도 이어지지 않습니다.
+- **소유자 전용 `withdraw`.** 소유자는 비밀 키의 해시이며, `withdraw`는 호출자의 지갑에 코인을
+  지불하기 전에 witness를 통해 그 비밀을 안다는 사실을 증명합니다.
+- **public ledger에 대한 privacy 테스트.** 테스트는 컨트랙트가 공개한 모든 바이트를 모아, 팁을 낸
+  사람의 키, 팁을 낸 사람 지갑 코인의 nonce, 소유자 비밀 중 어느 것도 그 안에 없음을 단언합니다.
+
+이 튜토리얼의 소스는 midnight-examples의
+[`examples/private-tip-jar`](https://github.com/midnightntwrk/midnight-examples/tree/main/examples/private-tip-jar)
+입니다. 그 [`SPEC.md`](https://github.com/midnightntwrk/midnight-examples/blob/main/examples/private-tip-jar/SPEC.md)
+는 컨트랙트가 만들어진 토대가 된 설계 카드입니다.
+
+## Set up
+
+midnight-examples를 클론하고, 워크스페이스를 설치하고, 모든 컨트랙트를 컴파일하세요.
+
+```bash
+git clone https://github.com/midnightntwrk/midnight-examples.git
+cd midnight-examples
+yarn install && yarn compile
+```
+
+그런 다음 예제 디렉터리로 이동하세요.
+
+```bash
+cd examples/private-tip-jar
+```
+
+로컬 네트워크는 테스트를 실행하는 두 번째 파트에서 시작합니다.
+
+<PersonaTiles tiles={[
+  {
+    title: "Private tip jar contracts",
+    body: "두 컨트랙트를 살펴봅니다. jar의 익명 팁, 그 팁이 저장하는 새 코인, 소유자만 할 수 있는 출금을 먼저 보고, 팁에 쓸 코인을 mint하는 demo 토큰을 봅니다.",
+    to: "/tutorials/private-tip-jar/smart-contract",
+    cta: "Read the contracts",
+  },
+  {
+    title: "Private tip jar tests",
+    body: "jar를 메모리에서 먼저 실행하고, 이어서 MidnightJS로 로컬 devnet에서 실행합니다. 코인을 mint하고, 팁을 내고, 팁 낸 사람에 대한 어떤 정보도 공개되지 않는지 확인한 뒤 출금합니다.",
+    to: "/tutorials/private-tip-jar/test-suite",
+    cta: "Run the tests",
+  },
+]} />

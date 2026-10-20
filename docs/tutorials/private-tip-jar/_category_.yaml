@@ -1,0 +1,8 @@
+position: 35
+label: 'Private Tip Jar'
+description: "입문: 첫 shielded 토큰 예제. 익명 팁을 컨트랙트가 보관하는 항아리에 넣고, 소유자만 인출할 수 있다."
+collapsible: true # make the category collapsible
+collapsed: true # keep the category closed by default
+link:
+  type: doc
+  id: tutorials/private-tip-jar/index

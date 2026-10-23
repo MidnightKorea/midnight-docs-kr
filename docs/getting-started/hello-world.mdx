@@ -1,72 +1,44 @@
 ---
+SPDX-License-Identifier: Apache-2.0
+copyright: This file is part of Midnight Docs. Copyright (C) Midnight Foundation. Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 title: Create your first Midnight contract
-description: Midnight의 로컬 테스트 네트워크에서 Hello World smart contract를 만들고 컴파일하는 방법을 학습하세요.
+description: "환경이 Midnight 작업에 준비됐는지 점검합니다. Hello World Compact 컨트랙트를 작성하고 컴파일한 뒤 로컬 네트워크에서 테스트합니다."
 sidebar_position: 20
 sidebar_label: Hello world
-tags: [compact, smart contract]
 toc_max_heading_level: 2
+keywords: [midnight, hello world, quick start, compact, local network]
+tags: [compact, smart contract, quick start, hello world, getting-started, local network]
 ---
-
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
-import Step, { StepsProvider } from "@site/src/components/Step/Step";
 
 # Create your first Midnight contract
 
-이 튜토리얼에서는 첫 번째 Compact smart contract를 작성하고, 로컬 테스트 네트워크에 배포한 뒤, 프라이버시를 보장하는 방식으로 blockchain에 Hello World 메시지를 기록합니다.
-
-완료하면 다음을 수행할 수 있습니다:
-
-- 상태를 저장하는 Compact smart contract 작성
-- 컨트랙트를 zero-knowledge circuit으로 컴파일
-- 로컬 테스트 네트워크에 컨트랙트 배포
-- Blockchain에 Hello World 메시지 기록
+이 quick start는 환경이 Compact 컨트랙트를 컴파일하고 테스트할 수 있는지 점검하고, Compact이 어떤 모습인지 보여줍니다. 메시지를 저장하는 컨트랙트를 작성해 컴파일하고, [example-hello-world](https://github.com/midnightntwrk/example-hello-world) 리포지토리의 테스트를 로컬 네트워크에서 실행합니다. 테스트 토큰이나 공개 네트워크는 필요하지 않습니다.
 
 ## Prerequisites
 
-시작하기 전에 다음을 확인하세요:
-- [Toolchain 설치](./installation) 가이드 완료
-- Node.js v22 이상
+- Compact toolchain 0.31.1 버전. [Install the toolchain](./installation)을 따라 설치한 뒤 `compact compile --version`으로 확인하세요. 각 네트워크가 지원하는 버전은 [support matrix](../relnotes/support-matrix)에 정리돼 있습니다.
+- [Node.js](https://nodejs.org/) 22 또는 24. 프로젝트 의존성은 Node.js 23에서는 설치되지 않습니다.
+- Yarn. `corepack enable`을 한 번 실행하면 프로젝트가 고정해 둔 Yarn 버전을 사용합니다.
+- 실행 중인 [Docker Desktop](https://www.docker.com/products/docker-desktop/), 또는 Compose v2를 지원하는 다른 Docker 엔진.
+- Git.
 
-<StepsProvider>
-<Step>
+## Set up the project
 
-## Set up project
-
-스타터 레포를 클론하세요:
+리포지토리를 클론하고 의존성을 설치하세요:
 
 ```bash
 git clone https://github.com/midnightntwrk/example-hello-world.git
-```
-
-의존성을 설치하세요:
-
-```bash
+cd example-hello-world
 yarn install
 ```
 
-</Step>
-<Step>
+이후의 모든 명령은 `example-hello-world` 디렉터리에서 실행하세요.
 
-## Create the contract file
+## Write the contract
 
-`contracts` 디렉토리에 `hello-world.compact`라는 새 파일을 생성하세요:
+다음 내용으로 `contracts/hello-world.compact`를 생성하세요:
 
-```bash
-touch contracts/hello-world.compact
-```
-
-VS Code에서 이 파일을 여세요:
-```bash
-code .
-```
-
-</Step>
-<Step>
-
-## Create the Compact Smart Contract
-
-```compact
+```compact title="contracts/hello-world.compact"
 pragma language_version 0.23;
 
 export ledger message: Opaque<"string">;
@@ -75,99 +47,106 @@ export circuit storeMessage(newMessage: Opaque<"string">): [] {
   message = disclose(newMessage);
 }
 ```
-- `pragma language_version`은 컨트랙트가 사용하는 Compact 버전을 지정합니다.
-- `ledger message`는 온체인 상태에 문자열 값을 저장하는 `message`라는 state variable을 생성합니다. 온체인 상태는 blockchain에서 공개적이고 영구적입니다.
-- `circuit storeMessage`는 온체인 상태를 수정하는 로직을 정의하는 Compact circuit입니다.
-- `newMessage: Opaque<"string">`는 입력 파라미터입니다. *Circuit 파라미터는 기본적으로 비공개입니다.* `disclose()` 함수는 비공개 값을 public state로 저장하겠다고 명시적으로 선언하는 역할을 합니다. 이 함수 없이 `newMessage`를 ledger에 직접 할당하면 컴파일러 오류가 발생합니다.
 
-</Step>
-
-<Step>
+- `pragma language_version 0.23;`은 Compact 언어 버전을 선언합니다. 컴파일러가 해당 버전을 지원하지 않으면 파일을 거부합니다.
+- `export ledger message`는 공개 온체인 상태를 선언합니다. 문자열을 담는 `message`라는 필드입니다.
+- `export circuit storeMessage`는 circuit을 선언합니다. circuit은 트랜잭션이 호출하는 함수에 해당하는 Compact의 구성 요소입니다.
+- `newMessage`는 비공개입니다. circuit 인자는 기본적으로 비공개이기 때문입니다. `disclose()`는 그 값을 ledger에 저장해 공개하겠다는 의도를 컴파일러에 알립니다. 이 함수가 없으면 `potential witness-value disclosure must be declared but is not` 오류와 함께 컴파일이 실패합니다.
 
 ## Compile the contract
 
-컴파일은 Compact 코드를 zero-knowledge circuit으로 변환하고, 암호화 키를 생성하며,
-DApp에서 사용할 TypeScript API와 JavaScript 구현을 만들어 줍니다.
-
-컨트랙트 폴더에서 컴파일러를 실행하세요:
+컴파일 스크립트를 실행하세요:
 
 ```bash
-compact compile hello-world.compact managed/hello-world.compact
+yarn compile
 ```
 
-다음과 같은 출력이 표시됩니다:
+스크립트는 `compact compile contracts/hello-world.compact contracts/managed/hello-world`를 실행합니다. 컴파일러는 컨트랙트를 영지식 circuit으로 변환하고, proving key와 verifier key를 생성하며, DApp 코드가 가져다 쓰는 JavaScript와 TypeScript를 만듭니다. 출력에는 circuit 하나가 표시됩니다:
 
-```
+```text
 Compiling 1 circuits:
   circuit "storeMessage" (k=6, rows=26)
+Overall progress [====================] 1/1
 ```
 
-컴파일 과정에서 수행되는 작업:
-1. Compact 코드를 파싱하고 유효성을 검사합니다.
-2. 로직에서 zero-knowledge circuit을 생성합니다.
-3. Circuit용 proving key와 verifying key를 생성합니다.
-4. 컨트랙트용 TypeScript API와 JavaScript 구현을 생성합니다.
+스크립트나 코딩 에이전트에서 명령을 실행하면 첫 줄만 보입니다. 정작 확인해야 할 것은 아래의 파일들입니다.
 
-컴파일이 완료되면 새로운 디렉토리 구조가 나타납니다:
+출력은 `contracts/managed/hello-world`에 생성됩니다:
 
-```
-contracts/
-├── managed/
-|   └── hello-world/
-|        ├── compiler/
-|        ├── contract/
-|        ├── keys/
-|        └── zkir/
-└── hello-world.compact
-└── index.ts
+```text
+contracts/managed/hello-world/
+├── compiler/   contract-info.json, a description of the contract for other tools
+├── contract/   index.js and index.d.ts, the contract implementation
+├── keys/       storeMessage.prover and storeMessage.verifier
+└── zkir/       storeMessage.zkir and storeMessage.bzkir, the circuit in ZKIR
 ```
 
-각 디렉토리의 역할:
+## Test the contract on a local network
 
-- **컨트랙트/**: JavaScript 구현과 타입 정의가 포함된 컴파일된 contract artifact.
-- **keys/**: 영지식 증명 생성에 필요한 암호화 proving key와 verifying key.
-- **zkir/**: Zero-Knowledge Intermediate Representation. Compact와 ZK 백엔드 사이의 중간 표현.
-- **compiler/**: 다른 도구에서 컨트랙트 구조를 파악하는 데 활용할 수 있는 컴파일러 생성 JSON 출력.
+리포지토리의 테스트는 컴파일한 컨트랙트를 배포하고, `Hello World!`로 `storeMessage`를 호출한 뒤, ledger에서 메시지를 다시 읽어 옵니다. 테스트는 Docker에서 돌아가는 로컬 네트워크를 상대로 실행되며, 네트워크가 시작될 때 자금이 충전되는 지갑을 사용합니다.
 
-</Step>
+1. 로컬 네트워크를 시작하세요:
 
-<Step>
+   ```bash
+   yarn env:up
+   ```
 
-## Deploy Contract to Local Devnet
-Contract 컴파일이 완료되었으므로 blockchain에 배포합니다.
+   Midnight node, indexer, proof server가 시작되고 셋 모두 정상 상태가 되면 반환됩니다.
 
-Docker 엔진이 실행 중인지 확인하고, *별도의 터미널*에서 프로젝트 루트에서 proof server를 시작하세요:
-```bash
-yarn env:up
-```
+2. 지갑의 DUST를 사용할 수 있을 때까지 기다리세요:
 
-다음 단계를 위해 proof server를 실행 상태로 유지하세요.
+   ```bash
+   yarn wait:dust
+   ```
 
-컨트랙트 배포에는 지갑이 필요합니다. 로컬 devnet 패키지에는 미리 자금이 충전된 3개의 지갑이 포함되어 있습니다.
+   갓 띄운 네트워크는 지갑이 수수료를 낼 수 있기까지 몇 초가 필요합니다. 스크립트는 `DUST ready`를 출력하고 종료됩니다.
 
-Hello World 테스트 스크립트를 실행하세요:
-```bash
-yarn test:local
-```
+3. 테스트를 실행하세요:
 
-테스트 스크립트가 로컬 devnet의 출력을 표시하면서 컨트랙트 배포와 상호작용을 자동으로 진행합니다:
+   ```bash
+   yarn test:local
+   ```
 
-```
-[12:46:12.694] INFO (22064): Wallet sync complete after 23 emissions
-[12:46:12.703] INFO (22064): Providers initialized. Ready to test
-[12:46:12.707] INFO (22064): Creating private state...
-[12:46:32.347] INFO (22064): Setting the contract address...
-[12:46:32.347] INFO (22064): Contract deployed at: bba6579743ae23b44301d4a9f8df30dbd5244d63a59d8fbc2c9fc7ea521a04f8
- ✓ src/test/hw.test.ts (2 tests) 39112ms
-   ✓ Hello World Contract > Deploys the contract  19649ms
-   ✓ Hello World Contract > Stores Hello World!  18184ms
-```
+   실행이 끝나면 테스트 두 개가 모두 통과합니다:
 
-</Step>
-</StepsProvider>
+   ```text
+   [11:53:49.163] INFO (63955): Wallet sync complete after 23 emissions
+   [11:53:49.174] INFO (63955): Providers initialized on 'local'. Ready to test!
+   [11:53:49.177] INFO (63955): Creating private state...
+   [11:54:09.014] INFO (63955): Setting the contract address...
+   [11:54:09.014] INFO (63955): Contract deployed at: 2e5b69411fcabd3e803fd2971fdae2ffe4482e7f3d0174d50b8a4f0f3abb29fb
+    ✓ src/test/hw.test.ts (2 tests) 37897ms
+        ✓ Deploys the contract  19846ms
+        ✓ Stores Hello World!  17347ms
+
+    Test Files  1 passed (1)
+         Tests  2 passed (2)
+   ```
+
+   컨트랙트 주소와 소요 시간은 환경마다 다릅니다. 두 테스트가 모두 통과하면 환경이 준비된 것입니다.
+
+4. 로컬 네트워크를 중지하세요:
+
+   ```bash
+   yarn env:down
+   ```
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `language version X.Y.Z mismatch` (X.Y.Z는 컴파일러의 언어 버전, 예: `0.22.0`) | 컴파일러가 컨트랙트의 언어 버전을 지원하지 않습니다. `compact update 0.31.1`로 toolchain 0.31.1을 설치하세요. |
+| `Cannot find module './managed/hello-world/contract/index.js'` | 컨트랙트가 컴파일되지 않았습니다. 테스트 전에 `yarn compile`을 실행하세요. |
+| `Cannot connect to the Docker daemon` | Docker가 실행되고 있지 않습니다. Docker Desktop을 시작하고 엔진이 올라올 때까지 기다린 뒤 `yarn env:up`을 다시 실행하세요. |
+| 첫 시작에서 `yarn env:up`이 `container ...-indexer-1 exited (1)`로 실패 | node가 첫 블록을 생성하기 전에 indexer가 먼저 시작됐습니다. `yarn env:up`을 다시 실행하세요. |
+| 테스트 도중 `Wallet.InsufficientFunds` | 지갑의 DUST가 사용 가능해지기 전에 테스트가 실행됐습니다. `yarn wait:dust`를 실행한 뒤 `yarn test:local`을 다시 실행하세요. |
+| `RPC-CORE: subscribeRuntimeVersion(): RuntimeVersion:: disconnected ... 1000:: Normal Closure` | 오류가 아닙니다. 지갑 설정 중 연결이 정상적으로 닫히는 것이며, 실행은 계속됩니다. |
 
 ## Next steps
 
-[컨트랙트를 비공개로 만들기](../guides/build-a-private-smart-contract): 이 컨트랙트는 메시지를 공개된 채로 저장합니다. 다음 가이드에서는 witness와 commitment로 컨트랙트의 입력을 ledger 밖에 둡니다.
-
-Midnight DApp 빌드에 대해 더 알아보려면 [튜토리얼](/tutorials)을 살펴보세요. 다양한 DApp의 간략한 워크스루는 [예제](/examples)에서 확인할 수 있습니다.
+- [Make your contract private](../guides/build-a-private-smart-contract): 이 컨트랙트는 메시지를 공개된 채로 저장합니다. witness와 commitment로 컨트랙트의 입력을 ledger 밖에 두세요.
+- [Bulletin board tutorial](../tutorials/bboard): private state를 쓰는 컨트랙트부터 CLI까지, 완전한 DApp을 만들어 봅니다.
+- [Deploying and operating a contract](../guides/deploy-and-operate): 컨트랙트를 배포하고 호출하는 TypeScript를 작성합니다.
+- [Networks and environments](../guides/networks-and-environments): 로컬 네트워크에서 Preprod로 넘어갑니다.
+- [Compact language reference](../compact/reference/compact-reference): 언어 전체 레퍼런스.
+- [Examples](../examples): 읽고 실행할 수 있는 완전한 DApp 모음.

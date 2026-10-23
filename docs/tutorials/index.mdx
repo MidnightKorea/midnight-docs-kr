@@ -20,12 +20,6 @@ Midnight Network에서 DApp을 만드는 단계별 튜토리얼입니다. 입문
 
 <PersonaTiles tiles={[
   {
-    title: "Bulletin board",
-    body: "영지식 증명으로 접근을 제어하는 게시판 DApp을 만듭니다. 사용자는 온체인에 신원을 드러내지 않고 메시지를 올리고 지울 수 있습니다.",
-    to: "/tutorials/bboard",
-    cta: "Build bulletin board",
-  },
-  {
     title: "Private party",
     body: "손님 명단을 salt를 더한 commitment 뒤에 비공개로 숨겨 두었다가, unshielded NIGHT 입장료를 내야 공개되는 컨트랙트를 읽어 봅니다. 그런 다음 로컬 devnet에서 MidnightJS 테스트로 파티를 실행합니다.",
     to: "/tutorials/private-party",
@@ -42,6 +36,12 @@ Midnight Network에서 DApp을 만드는 단계별 튜토리얼입니다. 입문
     body: "익명 shielded 팁을 컨트랙트가 보관하는 항아리에 모으고, 소유자만 인출할 수 있게 합니다. 하나의 MidnightJS 테스트 스위트에서 두 컨트랙트를 연결합니다.",
     to: "/tutorials/private-tip-jar",
     cta: "Tour the tip jar",
+  },
+  {
+    title: "ZK Loan",
+    body: "신용을 비공개로 평가합니다. ZK proof 안에서 Schnorr 서명된 attestation을 검증하고 대출 결과만 기록하는 컨트랙트, 그 서명을 수행하는 attestation API, 그리고 로컬 devnet에서 도는 MidnightJS 테스트를 다룹니다.",
+    to: "/tutorials/zk-loan",
+    cta: "Tour the contract",
   },
   {
     title: "Leaderboard",

@@ -467,7 +467,7 @@ describe('deadline', () => {
    }
    ```
 
-nullifier의 도메인 구분자는 어떤 commitment의 것과도 달라야 합니다. 그렇지 않으면 같은 비밀에 대해 두 해시가 같아져 관찰자가 둘을 연결할 수 있습니다. **front-running**에 대한 순서 방어로는, 먼저 `persistentCommit(move, rand)`를 공개한 뒤 두 번째 트랜잭션에서 실제 값을 공개하고 그 공개를 nullifier로 보호하세요. 시퀀스 카운터 변형은 [the commitment/nullifier pattern](../concepts/how-midnight-works/keeping-data-private#the-commitmentnullifier-pattern)과 [the bulletin board tutorial](../tutorials/bboard/smart-contract)를 참고하세요.
+nullifier의 도메인 구분자는 어떤 commitment의 것과도 달라야 합니다. 그렇지 않으면 같은 비밀에 대해 두 해시가 같아져 관찰자가 둘을 연결할 수 있습니다. **front-running**에 대한 순서 방어로는, 먼저 `persistentCommit(move, rand)`를 공개한 뒤 두 번째 트랜잭션에서 실제 값을 공개하고 그 공개를 nullifier로 보호하세요. 시퀀스 카운터 변형은 [the commitment/nullifier pattern](../concepts/how-midnight-works/keeping-data-private#the-commitmentnullifier-pattern)을 참고하세요.
 
 ### Verification
 
